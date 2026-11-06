@@ -4,6 +4,9 @@ const path = require("node:path");
 const { Client } = require("pg");
 const { postgresClientConfig } = require("./lib/secure-postgres");
 const {
+  derivePostApplyMigrationBinding,
+} = require("./lib/environment-migrations");
+const {
   CONTRACTS,
   ledgerIdentifier,
   ledgerRowsFingerprint,
@@ -14,6 +17,8 @@ const {
 
 const ROOT = path.resolve(__dirname, "..");
 const SOURCE_DIR = path.join(ROOT, "supabase", "migrations");
+const DEFAULT_CLOSEOUT_DIR = path.join(ROOT, "tmp", "selected-migrations");
+const CLOSEOUT_KIND = "selected-migration-repository-closeout-v1";
 const ALLOWED_MODES = new Set(["rehearse", "apply"]);
 const CATALOGUE_TABLES = Object.freeze([
   "products",
@@ -103,6 +108,150 @@ function appliedPendingIdentifiers(remoteLedger, pendingIdentifiers) {
   const applied = pendingIdentifiers.filter(identifier => remote.has(identifier));
   invariant(applied.length === pendingIdentifiers.length, "post-commit migration ledger sequence mismatch");
   return applied;
+}
+
+function assertDerivationMatchesContract(derivation, contract) {
+  invariant(derivation?.environment === contract?.environment, "closeout derivation environment mismatch");
+  invariant(
+    derivation.pre_ledger_count === contract.ledgerCount,
+    "closeout pre-apply ledger count differs from the frozen contract",
+  );
+  invariant(
+    derivation.pre_ledger_fingerprint === contract.ledgerFingerprint,
+    "closeout pre-apply ledger fingerprint differs from the frozen contract",
+  );
+  const contractPending = contract.pending.map(({ filename, sha256 }) => ({ filename, sha256 }));
+  const derivedPending = derivation.consumed_pending.map(({ filename, sha256 }) => ({ filename, sha256 }));
+  invariant(
+    JSON.stringify(derivedPending) === JSON.stringify(contractPending),
+    "closeout pending migrations differ from the frozen contract",
+  );
+}
+
+function validatePostApplyReadback(derivation, remoteLedger, actualFingerprint = null) {
+  invariant(derivation && Array.isArray(remoteLedger), "post-apply readback is required");
+  const identifiers = remoteLedger.map(ledgerIdentifier);
+  invariant(
+    identifiers.length === derivation.post_ledger_count,
+    "post-commit migration ledger count mismatch",
+  );
+  const expectedApplied = derivation.consumed_pending.map(({ identifier }) => identifier);
+  const expectedAppliedSet = new Set(expectedApplied);
+  const actualApplied = identifiers.filter((identifier) => expectedAppliedSet.has(identifier));
+  invariant(
+    JSON.stringify(actualApplied) === JSON.stringify(expectedApplied),
+    "post-commit applied migration identity sequence mismatch",
+  );
+  invariant(
+    JSON.stringify(identifiers) === JSON.stringify(derivation.post_identifiers),
+    "post-commit migration ledger identity sequence mismatch",
+  );
+  const fingerprint = actualFingerprint || ledgerRowsFingerprint(remoteLedger, {
+    targetEnvironment: derivation.environment,
+  });
+  invariant(
+    fingerprint === derivation.post_ledger_fingerprint,
+    "post-commit migration ledger fingerprint mismatch",
+  );
+  return {
+    ledger_count: identifiers.length,
+    ledger_fingerprint: fingerprint,
+    identifiers,
+    applied: actualApplied,
+  };
+}
+
+function repositoryCloseoutEvidence({ derivation, contract, projectRef }) {
+  assertDerivationMatchesContract(derivation, contract);
+  invariant(derivation.status === "CLOSEOUT_REQUIRED", "repository closeout evidence is not required");
+  return {
+    schema_version: 1,
+    kind: CLOSEOUT_KIND,
+    environment: derivation.environment,
+    project_ref: projectRef,
+    pre_state: {
+      ledger_count: derivation.pre_ledger_count,
+      ledger_fingerprint: derivation.pre_ledger_fingerprint,
+    },
+    consumed_pending: {
+      count: derivation.pending_count,
+      ordered_filenames: derivation.consumed_pending.map(({ filename }) => filename),
+      ordered_identifiers: derivation.consumed_pending.map(({ identifier }) => identifier),
+      ordered_sha256: derivation.consumed_pending.map(({ sha256 }) => sha256),
+    },
+    post_state: {
+      ledger_count: derivation.post_ledger_count,
+      ledger_fingerprint: derivation.post_ledger_fingerprint,
+    },
+    repository_updates: [
+      {
+        file: "scripts/lib/environment-migrations.js",
+        field: `PENDING_MIGRATIONS.${derivation.environment}`,
+        from: JSON.parse(JSON.stringify(contract.pending)),
+        to: [],
+      },
+      {
+        file: "scripts/supabase-migration-selector.js",
+        field: `CONTRACTS.${derivation.environment}.ledgerCount`,
+        from: derivation.pre_ledger_count,
+        to: derivation.post_ledger_count,
+      },
+      {
+        file: "scripts/supabase-migration-selector.js",
+        field: `CONTRACTS.${derivation.environment}.ledgerFingerprint`,
+        from: derivation.pre_ledger_fingerprint,
+        to: derivation.post_ledger_fingerprint,
+      },
+    ],
+    status: "CLOSEOUT_REQUIRED",
+    database_writes: {
+      migration_apply_count: derivation.pending_count,
+    },
+  };
+}
+
+function repositoryCloseoutForAttempt({
+  mode,
+  committed,
+  derivation,
+  contract,
+  projectRef,
+  remoteLedger = null,
+  remoteLedgerFingerprint = null,
+}) {
+  assertDerivationMatchesContract(derivation, contract);
+  if (mode === "rehearse") {
+    return { closeout_status: "NOT_REQUIRED_REHEARSAL", evidence: null, readback: null };
+  }
+  if (!committed) {
+    return { closeout_status: "NOT_GENERATED", evidence: null, readback: null };
+  }
+  const readback = validatePostApplyReadback(derivation, remoteLedger, remoteLedgerFingerprint);
+  if (derivation.status === "ALREADY_CLOSED") {
+    return { closeout_status: "ALREADY_CLOSED", evidence: null, readback };
+  }
+  return {
+    closeout_status: "CLOSEOUT_REQUIRED",
+    evidence: repositoryCloseoutEvidence({ derivation, contract, projectRef }),
+    readback,
+  };
+}
+
+function writeRepositoryCloseoutEvidence(evidence, outputDirectory = DEFAULT_CLOSEOUT_DIR) {
+  invariant(evidence?.kind === CLOSEOUT_KIND && evidence.status === "CLOSEOUT_REQUIRED",
+    "invalid repository closeout evidence");
+  fs.mkdirSync(outputDirectory, { recursive: true });
+  const filename = `${evidence.environment.toLowerCase()}-${evidence.post_state.ledger_fingerprint}-repository-closeout.json`;
+  const output = path.join(outputDirectory, filename);
+  fs.writeFileSync(output, `${JSON.stringify(evidence, null, 2)}\n`);
+  return output;
+}
+
+function writeRepositoryCloseoutEvidenceIfRequired(closeout, outputDirectory = DEFAULT_CLOSEOUT_DIR) {
+  if (closeout?.closeout_status === "ALREADY_CLOSED" && closeout.evidence === null) return null;
+  invariant(closeout?.closeout_status === "CLOSEOUT_REQUIRED",
+    "repository closeout evidence has an unsupported status");
+  return writeRepositoryCloseoutEvidence(closeout.evidence, outputDirectory);
 }
 
 function unwrapTransaction(sql, filename) {
@@ -214,6 +363,10 @@ async function main(argv = process.argv.slice(2)) {
         JSON.stringify(contract.pending.map(({ filename }) => filename)),
       "validated pending migrations differ from the contract",
     );
+    const closeoutDerivation = derivePostApplyMigrationBinding(options.environment, {
+      sourceDir: SOURCE_DIR,
+    });
+    assertDerivationMatchesContract(closeoutDerivation, contract);
 
     const beforeCounts = await catalogueCounts(client);
     const expectedAfterCounts = expectedCatalogueCounts(beforeCounts, contract.pending);
@@ -238,6 +391,14 @@ async function main(argv = process.argv.slice(2)) {
       "catalogue row counts differ from exact reviewed migration deltas");
 
     let committedState = null;
+    let closeout = repositoryCloseoutForAttempt({
+      mode: options.mode,
+      committed: false,
+      derivation: closeoutDerivation,
+      contract,
+      projectRef: options.projectRef,
+    });
+    let closeoutEvidencePath = null;
     if (options.mode === "rehearse") {
       await client.query("rollback");
       transactionOpen = false;
@@ -245,29 +406,29 @@ async function main(argv = process.argv.slice(2)) {
       await client.query("commit");
       transactionOpen = false;
       const afterCommitState = await databaseState(client);
-      const expectedLedgerCount =
-        beforeState.remoteLedger.length + contract.pending.length;
-      invariant(
-        afterCommitState.remoteLedger.length === expectedLedgerCount,
-        "post-commit migration ledger count mismatch",
-      );
-      const applied = appliedPendingIdentifiers(afterCommitState.remoteLedger, selection.pending);
-      invariant(
-        JSON.stringify(applied) === JSON.stringify(selection.pending),
-        "post-commit migration ledger sequence mismatch",
-      );
+      const afterCommitFingerprint = ledgerRowsFingerprint(afterCommitState.remoteLedger, {
+        targetEnvironment: options.environment,
+      });
+      closeout = repositoryCloseoutForAttempt({
+        mode: options.mode,
+        committed: true,
+        derivation: closeoutDerivation,
+        contract,
+        projectRef: options.projectRef,
+        remoteLedger: afterCommitState.remoteLedger,
+        remoteLedgerFingerprint: afterCommitFingerprint,
+      });
       const committedCounts = await catalogueCounts(client);
       invariant(JSON.stringify(committedCounts) === JSON.stringify(expectedAfterCounts),
         "catalogue row counts differ from exact reviewed deltas after commit");
       await validateResult(client);
       committedState = {
-        ledger_count: afterCommitState.remoteLedger.length,
-        ledger_fingerprint: ledgerRowsFingerprint(afterCommitState.remoteLedger, {
-          targetEnvironment: options.environment,
-        }),
-        applied,
+        ledger_count: closeout.readback.ledger_count,
+        ledger_fingerprint: closeout.readback.ledger_fingerprint,
+        applied: closeout.readback.applied,
         catalogue_counts: committedCounts,
       };
+      closeoutEvidencePath = writeRepositoryCloseoutEvidenceIfRequired(closeout);
     }
 
     console.log(JSON.stringify({
@@ -283,6 +444,13 @@ async function main(argv = process.argv.slice(2)) {
       schema_checks: checks,
       committed: options.mode === "apply",
       committed_state: committedState,
+      closeout_status: closeout.closeout_status,
+      closeout_evidence_path: closeoutEvidencePath
+        ? path.relative(ROOT, closeoutEvidencePath).replaceAll(path.sep, "/")
+        : null,
+      post_ledger_count: closeout.readback?.ledger_count || null,
+      post_ledger_fingerprint: closeout.readback?.ledger_fingerprint || null,
+      consumed_pending_count: options.mode === "apply" ? closeoutDerivation.pending_count : 0,
     }, null, 2));
   } catch (error) {
     if (transactionOpen) await client.query("rollback").catch(() => {});
@@ -300,13 +468,21 @@ if (require.main === module) {
 }
 
 module.exports = {
+  CLOSEOUT_KIND,
+  DEFAULT_CLOSEOUT_DIR,
   catalogueCounts,
   databaseState,
   expectedCatalogueCounts,
   appliedPendingIdentifiers,
+  assertDerivationMatchesContract,
   loadEnvFile,
   parseArgs,
   pendingConfirmation,
+  repositoryCloseoutEvidence,
+  repositoryCloseoutForAttempt,
+  validatePostApplyReadback,
   validateResult,
+  writeRepositoryCloseoutEvidence,
+  writeRepositoryCloseoutEvidenceIfRequired,
   unwrapTransaction,
 };

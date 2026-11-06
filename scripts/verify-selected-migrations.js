@@ -2,10 +2,14 @@ const path = require("node:path");
 const { Client } = require("pg");
 const { postgresClientConfig } = require("./lib/secure-postgres");
 const {
-  appliedPendingIdentifiers,
+  derivePostApplyMigrationBinding,
+} = require("./lib/environment-migrations");
+const {
+  assertDerivationMatchesContract,
   catalogueCounts,
   databaseState,
   loadEnvFile,
+  repositoryCloseoutForAttempt,
   validateResult,
 } = require("./apply-selected-migrations");
 const {
@@ -71,16 +75,20 @@ async function main(argv = process.argv.slice(2)) {
         state.databaseTarget.database_identity === contract.databaseIdentity,
       "database target identity mismatch",
     );
-    invariant(
-      state.remoteLedger.length === contract.ledgerCount + contract.pending.length,
-      "post-migration ledger count mismatch",
-    );
-    const expected = contract.pending.map(({ filename }) => filename.slice(0, -4));
-    const applied = appliedPendingIdentifiers(state.remoteLedger, expected);
-    invariant(
-      JSON.stringify(applied) === JSON.stringify(expected),
-      "applied migration sequence mismatch",
-    );
+    const closeoutDerivation = derivePostApplyMigrationBinding(options.environment);
+    assertDerivationMatchesContract(closeoutDerivation, contract);
+    const ledgerFingerprint = ledgerRowsFingerprint(state.remoteLedger, {
+      targetEnvironment: options.environment,
+    });
+    const closeout = repositoryCloseoutForAttempt({
+      mode: "apply",
+      committed: true,
+      derivation: closeoutDerivation,
+      contract,
+      projectRef: options.projectRef,
+      remoteLedger: state.remoteLedger,
+      remoteLedgerFingerprint: ledgerFingerprint,
+    });
     const schemaChecks = await validateResult(client);
     const counts = await catalogueCounts(client);
     await client.query("rollback");
@@ -88,11 +96,15 @@ async function main(argv = process.argv.slice(2)) {
       result: "PASS",
       environment: options.environment,
       project_ref: options.projectRef,
-      ledger_count: state.remoteLedger.length,
-      ledger_fingerprint: ledgerRowsFingerprint(state.remoteLedger, {
-        targetEnvironment: options.environment,
-      }),
-      applied,
+      database_state: closeout.closeout_status === "ALREADY_CLOSED"
+        ? "CURRENT"
+        : "POST_APPLY_VERIFIED",
+      repository_closeout: closeout.closeout_status,
+      ledger_count: closeout.readback.ledger_count,
+      ledger_fingerprint: closeout.readback.ledger_fingerprint,
+      applied: closeout.readback.applied,
+      expected_post_ledger_count: closeoutDerivation.post_ledger_count,
+      expected_post_ledger_fingerprint: closeoutDerivation.post_ledger_fingerprint,
       catalogue_counts: counts,
       schema_checks: schemaChecks,
       database_writes: 0,

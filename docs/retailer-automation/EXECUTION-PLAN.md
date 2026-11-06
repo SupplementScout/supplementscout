@@ -20,6 +20,51 @@ workflows, artifacts, control ledger, Review Queue, postflight and watchdog.
 Work proceeds read-only until a specific recovery or business write has fresh
 bounded evidence and separate owner approval.
 
+**6 November RA-LEDGER-03 deterministic migration repository closeout —
+`CODE_COMPLETE`:** the existing selected-migration lifecycle now derives one
+exact post-apply binding from the same shared migration inventory, exclusions,
+applied exclusions, ordered pending list and canonical fingerprint algorithm as
+the existing pre-apply binding. Pending entries must be uniquely and
+deterministically ordered, present, filename-valid and byte-for-byte SHA-bound.
+The historical production state deterministically reproduces ledger `259` /
+`d21a4044...` plus the exact pending refresh migration as ledger `260` /
+`17a00891...`; current STAGING independently derives `120` /
+`31dc3e6e...` plus two pending migrations as `122` /
+`df0638a3...`. Current PRODUCTION remains closed at `260` / `17a00891...`
+with zero pending migrations.
+
+The existing apply path freezes this derivation after preflight and before any
+mutation. Rehearsal still rolls back and produces no closeout. A successful
+apply still executes every migration body and its `schema_migrations` row in
+one existing transaction, then requires exact post-commit count, ordered
+identities and fingerprint equality. Only after that equality and the existing
+schema/catalogue postflight pass does it write ephemeral
+`selected-migration-repository-closeout-v1` evidence under
+`tmp/selected-migrations/`. The evidence reports `CLOSEOUT_REQUIRED` and names
+only the existing repository transitions: consume the environment pending
+list, advance `CONTRACTS.<ENV>.ledgerCount`, and advance
+`CONTRACTS.<ENV>.ledgerFingerprint`. It contains no SQL body or credential and
+does not edit tracked files, call Git, create a branch/PR, or become runtime
+configuration. The existing read-only verifier uses the same derivation and
+admits exactly `POST_APPLY_VERIFIED / CLOSEOUT_REQUIRED` or
+`CURRENT / ALREADY_CLOSED`.
+
+The lifecycle is therefore:
+
+`PRE-APPLY frozen baseline + pending -> atomic apply -> exact post-commit
+readback -> CLOSEOUT_REQUIRED evidence -> repository-only closeout PR -> merge
+-> CURRENT / ALREADY_CLOSED`.
+
+Ordinary retailer packages and `validateSelection()` retain one repository
+binding and remain fail-closed during the short closeout window; no second
+runtime state is accepted. No ledger, registry, selector, table, source of
+truth, retailer exception, worker path, Review Queue behavior, workflow or
+production/staging data changed. Focused lifecycle, selector, canonical
+fingerprint and shared-binding tests pass `122/122`; pre-documentation Project
+Guardian passes. This code/test/docs task applied no migration and made zero
+database or workflow writes. Final local gates, PR CI and merge evidence are
+the remaining acceptance gates.
+
 **5 November RA-SCHED-01 Review Queue worker scheduler liveness —
 `READY_FOR_NATURAL_VERIFICATION`:** the existing shared Automation Reliability
 Watchdog now has one declarative global platform check for

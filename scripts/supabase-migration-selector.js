@@ -14,6 +14,7 @@ const {
   MIGRATION_FILE,
   migrationIdentifier,
   PENDING_MIGRATIONS,
+  sha256File,
 } = require("./lib/environment-migrations");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -543,10 +544,6 @@ const CONTRACTS = Object.freeze({
 
 function invariant(value, message) {
   if (!value) throw new Error(message);
-}
-
-function sha256File(file) {
-  return crypto.createHash("sha256").update(fs.readFileSync(file, "utf8").replaceAll("\r\n", "\n")).digest("hex");
 }
 
 function ledgerRowsFingerprint(rows, options = {}) {

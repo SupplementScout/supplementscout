@@ -1,3 +1,4 @@
+const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
 const {
@@ -5,7 +6,13 @@ const {
 } = require("./retailer-snapshot/staging-execution-contract");
 
 const ROOT = path.resolve(__dirname, "../..");
+const DEFAULT_MIGRATION_SOURCE_DIR = path.join(ROOT, "supabase", "migrations");
 const MIGRATION_FILE = /^\d{14}_[a-z0-9_]+\.sql$/;
+const SHA256 = /^[0-9a-f]{64}$/;
+const PENDING_POLICY = Object.freeze({
+  EXCLUDE: "EXCLUDE_PENDING",
+  INCLUDE: "INCLUDE_PENDING",
+});
 const EXCLUSIONS = Object.freeze({
   STAGING: Object.freeze([
     "20261031120000_add_verified_automation_review_stock_transition_reader",
@@ -260,16 +267,32 @@ function excludedMigrationIds(environment) {
   return new Set(excluded);
 }
 
-function migrationBinding(
+function sha256File(file) {
+  return crypto
+    .createHash("sha256")
+    .update(fs.readFileSync(file, "utf8").replaceAll("\r\n", "\n"))
+    .digest("hex");
+}
+
+function compareUtf8(left, right) {
+  return Buffer.compare(Buffer.from(left, "utf8"), Buffer.from(right, "utf8"));
+}
+
+function migrationBindingForPendingPolicy(
   environment,
-  migrationFiles = fs.readdirSync(path.join(ROOT, "supabase", "migrations")),
+  migrationFiles,
+  pendingMigrations,
+  pendingPolicy,
 ) {
+  if (!Object.values(PENDING_POLICY).includes(pendingPolicy)) {
+    throw new Error(`unsupported pending migration policy ${pendingPolicy}`);
+  }
   const excluded = excludedMigrationIds(environment);
   const appliedExcluded = new Set(APPLIED_EXCLUSIONS[environment] || []);
-  const pending = new Set((PENDING_MIGRATIONS[environment] || []).map(({ filename }) => filename));
+  const pending = new Set(pendingMigrations.map(({ filename }) => filename));
   const versions = migrationFiles
     .filter((name) => MIGRATION_FILE.test(name))
-    .filter((name) => !pending.has(name))
+    .filter((name) => pendingPolicy === PENDING_POLICY.INCLUDE || !pending.has(name))
     .sort()
     .map(migrationIdentifier)
     .filter((identifier) =>
@@ -281,12 +304,116 @@ function migrationBinding(
   };
 }
 
+function migrationBinding(
+  environment,
+  migrationFiles = fs.readdirSync(DEFAULT_MIGRATION_SOURCE_DIR),
+) {
+  return migrationBindingForPendingPolicy(
+    environment,
+    migrationFiles,
+    PENDING_MIGRATIONS[environment] || [],
+    PENDING_POLICY.EXCLUDE,
+  );
+}
+
+function freezeCloseoutDerivation(value) {
+  for (const entry of value.consumed_pending) Object.freeze(entry);
+  Object.freeze(value.consumed_pending);
+  Object.freeze(value.pre_identifiers);
+  Object.freeze(value.post_identifiers);
+  return Object.freeze(value);
+}
+
+function derivePostApplyMigrationBinding(environment, options = {}) {
+  const sourceDir = options.sourceDir || DEFAULT_MIGRATION_SOURCE_DIR;
+  const migrationFiles = options.migrationFiles || fs.readdirSync(sourceDir);
+  const pendingMigrations = options.pendingMigrations || PENDING_MIGRATIONS[environment];
+  if (!Array.isArray(pendingMigrations)) {
+    throw new Error(`unsupported migration environment ${environment}`);
+  }
+
+  const seen = new Set();
+  const consumedPending = pendingMigrations.map((entry, index) => {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+      throw new Error(`invalid pending migration entry ${index}`);
+    }
+    const { filename, sha256 } = entry;
+    if (typeof filename !== "string" || !MIGRATION_FILE.test(filename)) {
+      throw new Error(`invalid pending migration filename ${filename}`);
+    }
+    if (seen.has(filename)) {
+      throw new Error(`duplicate pending migration filename ${filename}`);
+    }
+    seen.add(filename);
+    if (index > 0 && compareUtf8(pendingMigrations[index - 1].filename, filename) >= 0) {
+      throw new Error("pending migrations are not in deterministic order");
+    }
+    if (typeof sha256 !== "string" || !SHA256.test(sha256)) {
+      throw new Error(`invalid pending migration SHA-256: ${filename}`);
+    }
+    if (!migrationFiles.includes(filename)) {
+      throw new Error(`expected pending migration is missing from inventory: ${filename}`);
+    }
+    const file = path.join(sourceDir, filename);
+    if (!fs.existsSync(file) || !fs.statSync(file).isFile()) {
+      throw new Error(`expected pending migration is missing: ${filename}`);
+    }
+    const actualSha256 = sha256File(file);
+    if (actualSha256 !== sha256) {
+      throw new Error(`pending migration SHA-256 mismatch: ${filename}`);
+    }
+    return {
+      filename,
+      identifier: migrationIdentifier(filename),
+      sha256,
+    };
+  });
+
+  const pre = migrationBindingForPendingPolicy(
+    environment,
+    migrationFiles,
+    consumedPending,
+    PENDING_POLICY.EXCLUDE,
+  );
+  const post = migrationBindingForPendingPolicy(
+    environment,
+    migrationFiles,
+    consumedPending,
+    PENDING_POLICY.INCLUDE,
+  );
+  const consumedIdentifiers = consumedPending.map(({ identifier }) => identifier);
+  if (post.versions.length !== pre.versions.length + consumedPending.length) {
+    throw new Error("post-apply migration count does not consume every pending migration");
+  }
+  if (consumedIdentifiers.some((identifier) =>
+    pre.versions.includes(identifier) || !post.versions.includes(identifier))) {
+    throw new Error("pending migration is incompatible with the pre/post binding");
+  }
+
+  return freezeCloseoutDerivation({
+    environment,
+    status: consumedPending.length === 0 ? "ALREADY_CLOSED" : "CLOSEOUT_REQUIRED",
+    pre_ledger_count: pre.versions.length,
+    pre_ledger_fingerprint: pre.fingerprint,
+    pre_identifiers: [...pre.versions],
+    consumed_pending: consumedPending,
+    post_ledger_count: post.versions.length,
+    post_ledger_fingerprint: post.fingerprint,
+    post_identifiers: [...post.versions],
+    pending_count: consumedPending.length,
+  });
+}
+
 module.exports = {
   APPLIED_EXCLUSIONS,
+  DEFAULT_MIGRATION_SOURCE_DIR,
   EXCLUSIONS,
   MIGRATION_FILE,
+  PENDING_POLICY,
   PENDING_MIGRATIONS,
+  derivePostApplyMigrationBinding,
   excludedMigrationIds,
   migrationBinding,
   migrationIdentifier,
+  sha256File,
 };

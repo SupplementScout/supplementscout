@@ -5,6 +5,7 @@ const path = require("node:path");
 const test = require("node:test");
 const {
   APPLIED_EXCLUSIONS,
+  derivePostApplyMigrationBinding,
   migrationBinding,
 } = require("./lib/environment-migrations");
 const {
@@ -1900,6 +1901,25 @@ test("activated environment bindings cannot remain pending or diverge from selec
     assert.ok(!contract.pending.some(({ filename }) =>
       filename === REVIEWED_V3_COMPOSITE_CREATE_SIZE_MIGRATION));
   }
+});
+
+test("post-apply closeout derivation reuses the pre-apply binding without widening selector acceptance", () => {
+  const pre = migrationBinding("STAGING");
+  const lifecycle = derivePostApplyMigrationBinding("STAGING");
+  assert.deepEqual(lifecycle.pre_identifiers, pre.versions);
+  assert.equal(lifecycle.pre_ledger_count, CONTRACTS.STAGING.ledgerCount);
+  assert.equal(lifecycle.pre_ledger_fingerprint, CONTRACTS.STAGING.ledgerFingerprint);
+  assert.equal(lifecycle.post_ledger_count, lifecycle.pre_ledger_count + lifecycle.pending_count);
+  assert.ok(lifecycle.consumed_pending.every(({ identifier }) =>
+    !pre.versions.includes(identifier) && lifecycle.post_identifiers.includes(identifier)));
+
+  const ordinarySelection = validateSelection(validInput());
+  assert.deepEqual(
+    ordinarySelection.pending,
+    lifecycle.consumed_pending.map(({ identifier }) => identifier),
+  );
+  assert.equal(ordinarySelection.ledger_count, lifecycle.pre_ledger_count);
+  assert.equal(ordinarySelection.ledger_fingerprint, lifecycle.pre_ledger_fingerprint);
 });
 
 test("Group A identity migrations are production-bound and cannot change commercial fields", () => {
