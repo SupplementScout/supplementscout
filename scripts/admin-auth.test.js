@@ -1626,6 +1626,34 @@ test("shared retailer Review Queue worker uses one registry for Fit House, 10 Re
   assert.throws(() => assertContext(ADAPTERS["10-reps"], { ...context, TEN_REPS_REFRESH_EXECUTOR_DATABASE_URL: "" }), /WORKER_ROLE_CREDENTIAL_MISSING/);
 });
 
+test("all shared production-write workflows preserve pending runs in one serialized queue", () => {
+  const workflowDirectory = path.join(process.cwd(), ".github", "workflows");
+  const expectedWorkflows = [
+    "automation-review-publication-retry.yml",
+    "automation-review-queue-worker.yml",
+    "ebay-offer-refresh.yml",
+    "fit-house-offer-refresh.yml",
+    "jons-offer-refresh.yml",
+    "simply-supplements-offer-refresh.yml",
+    "whey-okay-offer-refresh.yml",
+  ];
+  const productionWriteWorkflows = fs
+    .readdirSync(workflowDirectory)
+    .filter((name) => name.endsWith(".yml"))
+    .filter((name) => fs.readFileSync(path.join(workflowDirectory, name), "utf8").includes("group: retailer-offer-production-write"))
+    .sort();
+
+  assert.deepEqual(productionWriteWorkflows, expectedWorkflows);
+  for (const name of expectedWorkflows) {
+    const workflow = fs.readFileSync(path.join(workflowDirectory, name), "utf8");
+    assert.match(
+      workflow,
+      /concurrency:\s*\n\s*group: retailer-offer-production-write\s*\n\s*cancel-in-progress: false\s*\n\s*queue: max/,
+      `${name} must preserve pending runs while keeping production writes serialized`,
+    );
+  }
+});
+
 test("shared retailer Review Queue engines expose the common guarded execution contract", () => {
   for (const modulePath of ["./fit-house-offer-refresh", "./whey-okay-offer-refresh"]) {
     const engine = require(modulePath);

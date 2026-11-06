@@ -65,6 +65,7 @@ permissions:
 concurrency:
   group: retailer-offer-production-write
   cancel-in-progress: false
+  queue: max
 
 jobs:
   fit-house-offer-refresh:

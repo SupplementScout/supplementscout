@@ -1,9 +1,25 @@
 # SupplementScout Operating Plan
 
-**Status date:** 3 November 2026<br>
+**Status date:** 6 November 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
+
+**6 November 2026 shared automation concurrency correction:** the existing
+single production-write lane remains the only path. After eleven exact 10 Reps
+Review Queue dispatches, GitHub preserved the running workflow but its default
+one-pending-run policy replaced nine waiting runs; two completed and nine
+execution requests remain safely `QUEUED`. The bounded repository correction
+adds GitHub's native `queue: max` setting to the exact seven workflows already
+using `retailer-offer-production-write`. This preserves up to 100 pending runs
+while still allowing only one production writer at a time. It adds no worker,
+scheduler, queue, execution path, adapter, retailer exception, migration or
+database change. Focused tests pass `104/104`; Project Guardian and the local
+quick and full Quality Gates pass. PR CI, merge and fresh production evidence
+remain required. The nine queued decisions are not replayed by this
+implementation and require separate owner-authorized recovery after merge.
+Jon's scheduled run `42218194836` is a separate PostgreSQL client timeout
+during its apply step, not a concurrency cancellation, and was not retried.
 
 **3 November 2026 SEO-19 production closeout:** SEO-19 is `LIVE VERIFIED`.
 PR `#439` merged approved head
