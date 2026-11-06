@@ -7,9 +7,9 @@
       "type": "workflow_liveness",
       "workflow": "automation-review-queue-worker.yml",
       "expected_event": "schedule",
-      "cadence_minutes": 5,
-      "healthy_max_age_minutes": 20,
-      "delayed_max_age_minutes": 60,
+      "cadence_minutes": 30,
+      "healthy_max_age_minutes": 60,
+      "delayed_max_age_minutes": 120,
       "warning_code": "REVIEW_QUEUE_WORKER_SCHEDULE_DELAYED",
       "failure_code": "REVIEW_QUEUE_WORKER_SCHEDULE_BROKEN"
     }
