@@ -324,8 +324,10 @@ async function readWooCommerceProductPage({
   sleepImpl = (delay) => new Promise((resolve) => setTimeout(resolve, delay)),
   capturedAt = new Date().toISOString(),
   userAgent = "SupplementScout-6-Pack-Refresh/1.0",
+  parseProductPage = parseWooCommerceProductPage,
 }) {
   if (typeof fetchImpl !== "function") fail("SOURCE_CONFIGURATION", "A fetch implementation is required");
+  if (typeof parseProductPage !== "function") fail("SOURCE_CONFIGURATION", "A product page parser is required");
   if (!Number.isInteger(maximumAttempts) || maximumAttempts < 1 || maximumAttempts > 5) {
     fail("SOURCE_CONFIGURATION", "maximumAttempts must be 1..5");
   }
@@ -364,7 +366,7 @@ async function readWooCommerceProductPage({
         fail("SOURCE_REDIRECT_ERROR", `WooCommerce product ${id} redirected outside the approved product origin`, { final_url: finalUrl.href });
       }
       const html = await boundedText(response, maximumBytes);
-      return parseWooCommerceProductPage(html, {
+      return parseProductPage(html, {
         productId: id,
         canonicalUrl: finalUrl.href,
         capturedAt,

@@ -9,6 +9,9 @@ const { buildExistingOfferUpdatePlan } = require("./lib/retailer-offer-sync/exis
 const {
   readWooCommerceProductPage,
   sourceFailureDisposition,
+  decodeHtmlEntities,
+  parseWooCommerceProductPage,
+  productIdFromHtml,
 } = require("./lib/woocommerce-product-page-reader");
 const { buildVerifiedNoChangePlan } = require("./verified-no-change-offer-refresh");
 const { writeDryRunArtifact } = require("./import-products");
@@ -35,6 +38,85 @@ function sha256(value) {
 
 function canonicalHash(value) {
   return sha256(canonicalJson(value));
+}
+
+function parseSixPackProductPage(html, options) {
+  const scripts = [...String(html).matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
+    .filter((match) => /(?:^|\s)id\s*=\s*["']product-variations["']/i.test(match[1]));
+  if (!scripts.length) return parseWooCommerceProductPage(html, options);
+  const schema = (condition, message) => {
+    if (!condition) fail(message, "SOURCE_SCHEMA_MISMATCH");
+  };
+  const json = (value) => {
+    try { return JSON.parse(value); } catch { fail("Invalid 6 Pack variation JSON", "SOURCE_SCHEMA_MISMATCH"); }
+  };
+  schema(scripts.length === 1 && /(?:^|\s)type\s*=\s*["']application\/json["']/i.test(scripts[0][1]),
+    "Expected one 6 Pack variation data block");
+  const payload = json(scripts[0][2]);
+  const boxes = [...String(html).matchAll(/\bx-data\s*=\s*(["'])([\s\S]*?)\1/gi)]
+    .map((match) => decodeHtmlEntities(match[2]).match(/^buyBox\((\{[\s\S]*\})\)$/))
+    .filter(Boolean).map((match) => json(match[1]))
+    .filter((box) => box && box.dataId === "product-variations");
+  const productId = String(options.productId || "");
+  if (!/^[1-9]\d*$/.test(productId) || productIdFromHtml(html) !== productId
+      || boxes.length !== 1 || String(boxes[0].productId) !== productId) {
+    fail("6 Pack variation data is not bound to the expected product", "SOURCE_IDENTITY_DRIFT");
+  }
+  const headings = [...String(html).matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)];
+  const productName = headings.length === 1
+    ? decodeHtmlEntities(headings[0][1].replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim()
+    : null;
+  schema(productName && productName === boxes[0].name, "6 Pack product heading and buy box disagree");
+  schema(payload && Array.isArray(payload.attributes) && payload.attributes.length > 0
+    && Array.isArray(payload.variations) && payload.variations.length > 0, "Incomplete 6 Pack variation data");
+  const attributes = new Map();
+  for (const attribute of payload.attributes) {
+    schema(attribute && /^attribute_[a-z0-9_-]+$/.test(attribute.name)
+      && !attributes.has(attribute.name) && Array.isArray(attribute.options) && attribute.options.length > 0,
+    "Invalid or duplicate 6 Pack variation attribute");
+    const values = attribute.options.map((option) => option?.value);
+    schema(values.every((value) => typeof value === "string" && value.trim())
+      && new Set(values).size === values.length, "Invalid 6 Pack attribute options");
+    attributes.set(attribute.name, new Set(values));
+  }
+  const ids = new Set();
+  const combinations = new Set();
+  const variations = payload.variations.map((row) => {
+    schema(row && Number.isSafeInteger(row.id) && row.id > 0, "Invalid 6 Pack variation ID");
+    const id = String(row.id);
+    if (ids.has(id)) fail(`Duplicate live variation ID ${id}`, "DUPLICATE_SOURCE_IDENTITY");
+    ids.add(id);
+    schema(typeof row.price === "number" && Number.isFinite(row.price) && Number(row.price.toFixed(2)) > 0
+      && typeof row.in_stock === "boolean" && Number.isSafeInteger(row.max_qty) && row.max_qty >= 0
+      && (!row.in_stock || row.max_qty > 0), "Invalid 6 Pack variation price, stock or quantity");
+    schema(row.attributes && typeof row.attributes === "object" && !Array.isArray(row.attributes)
+      && Object.keys(row.attributes).length === attributes.size
+      && [...attributes].every(([name, values]) => values.has(row.attributes[name])),
+    "6 Pack variation attributes do not match their declared options");
+    const combination = canonicalJson(row.attributes);
+    if (combinations.has(combination)) fail("Duplicate 6 Pack variation options", "DUPLICATE_SOURCE_IDENTITY");
+    combinations.add(combination);
+    return {
+      external_variant_id: id,
+      attributes: row.attributes,
+      price: row.price.toFixed(2),
+      in_stock: row.in_stock,
+      // The storefront lists these variants in its buy box, with an explicit cart quantity limit.
+      active: true,
+      purchasable: row.max_qty > 0,
+    };
+  });
+  return {
+    schema_version: 1,
+    external_product_id: productId,
+    canonical_url: String(options.canonicalUrl || ""),
+    captured_at: options.capturedAt || new Date().toISOString(),
+    product_name: productName,
+    product_offer: null,
+    variations,
+    html_sha256: sha256(html),
+    html_bytes: Buffer.byteLength(html),
+  };
 }
 
 function money(value) {
@@ -646,6 +728,7 @@ async function run(options, dependencies = {}) {
     capturedAt,
     maximumAttempts: 5,
     retryBaseDelayMs: 1_000,
+    parseProductPage: parseSixPackProductPage,
   }));
   const liveByProduct = new Map();
   const isolatedSourceFailures = new Map();
@@ -879,6 +962,7 @@ module.exports = {
   loadReviewedMassOosManifest,
   money,
   parseArgs,
+  parseSixPackProductPage,
   reviewedSourceSemanticRows,
   run,
   shippingForPrice,
