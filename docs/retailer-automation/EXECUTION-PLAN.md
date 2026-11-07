@@ -180,9 +180,12 @@ only the reduced public fixture and this existing ledger are committed.
 
 After review and separate owner merge/recovery authorization: merge the exact
 verified fix, then authorize one existing `six-pack-offer-refresh.yml`
-`workflow_dispatch` with `operation=dry-run` on merged `main`. That operation
-does not apply offers, but it can publish Review Queue control rows through its
-existing downstream job; approval must explicitly cover those control writes.
+`workflow_dispatch` with `operation=dry-run` on merged `main`. Its existing
+conditions skip baseline/source binding, offer apply, postflight, idempotency
+and downstream queue publication: it makes zero business/control writes.
+The source binder at workflow line116 and queue job at line188 admit only
+`schedule` or `operation=apply`. No workflow dispatch is authorized in this
+session, even for this read-only mode; prepare it for the owner's next step.
 It fetches the full approved source scope, so one local product replay does not
 replace it. Stop for any source/identity/price/stock/fingerprint/guard failure.
 Inspect the sealed classification and exact selected variant/offer identities
