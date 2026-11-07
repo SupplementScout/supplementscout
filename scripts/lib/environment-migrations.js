@@ -15,6 +15,7 @@ const PENDING_POLICY = Object.freeze({
 });
 const EXCLUSIONS = Object.freeze({
   STAGING: Object.freeze([
+    "20261107190000_extend_never_approved_planned_control_close",
     "20261031120000_add_verified_automation_review_stock_transition_reader",
     "20261030120000_create_sealed_artifacts_registry",
     "20261029061000_reissue_reviewed_product_pack_correction_production_safe",
@@ -252,7 +253,6 @@ const PENDING_MIGRATIONS = Object.freeze({
       filename: "20261105100000_refresh_pending_review_execution_binding.sql",
       sha256: "015f0de7448c10fcca10174e74dfbf7ca9e3150951f49090d01cd6eee869024c",
     }),
-    PLANNED_CONTROL_CLOSE_PENDING,
   ]),
   PRODUCTION: Object.freeze([PLANNED_CONTROL_CLOSE_PENDING]),
 });

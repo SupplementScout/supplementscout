@@ -161,7 +161,7 @@ test("planned close draft is pending while the current production runtime ledger
   assert.equal(derivation.post_ledger_fingerprint, "755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a");
 });
 
-test("current staging pending migrations derive one exact ordered 120 to 123 transition", () => {
+test("current staging pending migrations derive one exact ordered 120 to 122 transition", () => {
   const derivation = derivePostApplyMigrationBinding("STAGING");
   assert.equal(derivation.pre_ledger_count, 120);
   assert.equal(derivation.pre_ledger_fingerprint,
@@ -170,10 +170,10 @@ test("current staging pending migrations derive one exact ordered 120 to 123 tra
     derivation.consumed_pending.map(({ filename }) => filename),
     PENDING_MIGRATIONS.STAGING.map(({ filename }) => filename),
   );
-  assert.equal(derivation.pending_count, 3);
-  assert.equal(derivation.post_ledger_count, 123);
+  assert.equal(derivation.pending_count, 2);
+  assert.equal(derivation.post_ledger_count, 122);
   assert.equal(derivation.post_ledger_fingerprint,
-    "2b2737c78059cf090e217b3e6a214e2a610f82a0cad2cba986b2d13f020b854c");
+    "df0638a3a565af873e123809c4b1498d630e22fe49030078c704b9b57a13e27b");
   assertDerivationMatchesContract(derivation, CONTRACTS.STAGING);
 });
 
@@ -232,7 +232,7 @@ test("post-apply readback rejects count, fingerprint, identity, partial and extr
   const derivation = derivePostApplyMigrationBinding("STAGING");
   const exact = ledgerRows(derivation.post_identifiers);
   const readback = validatePostApplyReadback(derivation, exact);
-  assert.equal(readback.ledger_count, 123);
+  assert.equal(readback.ledger_count, 122);
   assert.equal(readback.ledger_fingerprint, derivation.post_ledger_fingerprint);
   assert.deepEqual(readback.applied,
     derivation.consumed_pending.map(({ identifier }) => identifier));
@@ -309,16 +309,16 @@ test("exact committed readback emits deterministic operator-only CLOSEOUT_REQUIR
   assert.equal(closeout.closeout_status, "CLOSEOUT_REQUIRED");
   assert.equal(closeout.evidence.kind, CLOSEOUT_KIND);
   assert.equal(closeout.evidence.schema_version, 1);
-  assert.equal(closeout.evidence.database_writes.migration_apply_count, 3);
+  assert.equal(closeout.evidence.database_writes.migration_apply_count, 2);
   assert.deepEqual(closeout.evidence.repository_updates.map(({ field }) => field), [
     "PENDING_MIGRATIONS.STAGING",
     "CONTRACTS.STAGING.ledgerCount",
     "CONTRACTS.STAGING.ledgerFingerprint",
   ]);
   assert.deepEqual(closeout.evidence.repository_updates[0].to, []);
-  assert.equal(closeout.evidence.post_state.ledger_count, 123);
+  assert.equal(closeout.evidence.post_state.ledger_count, 122);
   assert.equal(closeout.evidence.post_state.ledger_fingerprint,
-    "2b2737c78059cf090e217b3e6a214e2a610f82a0cad2cba986b2d13f020b854c");
+    "df0638a3a565af873e123809c4b1498d630e22fe49030078c704b9b57a13e27b");
   assert.doesNotMatch(JSON.stringify(closeout.evidence), /password|credential|connection|string|begin;|commit;/i);
 
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "selected-migration-evidence-"));

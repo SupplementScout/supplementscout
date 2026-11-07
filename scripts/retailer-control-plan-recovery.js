@@ -321,7 +321,7 @@ async function readSnapshot(options, dependencies, allowTerminal = false) {
     `, [options.parentPlanId])).rows[0];
     await client.query("rollback");
     const activeApprovals = approvals.filter((approval) => !approval.consumed_at && !approval.closed_at);
-    invariant(rows[0].parent_status === "PLANNED" || allowTerminal ? approvals.length === 0 : activeApprovals.length === 1,
+    invariant((rows[0].parent_status === "PLANNED" || allowTerminal) ? approvals.length === 0 : activeApprovals.length === 1,
       "expected exactly one active batch approval or no approvals for PLANNED");
     const ledger = {
       count: db.remoteLedger.length,

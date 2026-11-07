@@ -1,6 +1,6 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RESTORATION BLOCKED ON TWO ADDITIONAL CONTRACT CHANGES — NO GLOBAL PASS**
+**Status: TWO OWNER-APPROVED REVIEW SCOPES; PRODUCTION RESTORATION STILL BLOCKED**
 
 **Current active task:** owner-authorized restoration of 6 Pack, Jon's and Whey
 Okay, 7 November 2026 (`BLOCKED`). PR #499 is merged; the one authorized full
@@ -62,8 +62,8 @@ The forward-only proposal
 `20261107190000_extend_never_approved_planned_control_close.sql` verifies the
 existing function source SHA-256, owner, security and ACL before adding the new
 branch. It changes no grants, adds no RPC/table and closes no plan on deployment.
-It is SHA-pinned pending in both environment selectors; runtime ledger bindings
-stay production260 / staging120. Derived post-deployment261/123 fingerprints
+It is SHA-pinned pending only for production and SHA-pinned excluded from staging, which does not have the prerequisite production RPC. Runtime ledger bindings
+stay production260 / staging120. Derived post-deployment261 (production) /122 (existing staging pending set) fingerprints
 are proposals, not evidence of deployment. Existing migration-apply confirmation
 changes with the pending set; deployment requires its own exact owner approval.
 
