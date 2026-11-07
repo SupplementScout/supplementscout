@@ -264,42 +264,44 @@ test("refresh creates one exact verified-no-change plan per approved mapping", a
 });
 
 test("systemic source failure blocks the whole run even when row isolation is enabled", async () => {
-  const source = fixture();
-  const output = paths();
-  const failure = new WooCommerceSourceError(
-    "SOURCE_UNAVAILABLE",
-    "safe source failure",
-    {
-      error_type: "TypeError",
-      network_code: "ENOTFOUND",
-      timeout: false,
-      last_attempt: 5,
-      request_url: "https://6pack-supplements.co.uk/?p=4110",
-      product_id: "4110",
-      http_status: null,
-    }
-  );
-  await assert.rejects(
-    run(
-      { target: "production", artifact: output.artifact, report: output.report, requireNoChange: false, isolateUnsafe: true },
-      { state: source.state, readLive: async () => { throw failure; } }
-    ),
-    (error) => error === failure
-  );
-  const report = JSON.parse(fs.readFileSync(output.report, "utf8"));
-  assert.equal(report.result, "BLOCK");
-  assert.equal(report.classification_state, "SOURCE_READ_FAILED");
-  assert.equal(report.block_reason, "SOURCE_UNAVAILABLE");
-  assert.equal(report.approved_mapping_count, manifest.rows.length);
-  assert.equal(report.executable_plan_count, 0);
-  assert.equal(report.executed_plan_count, 0);
-  assert.equal(report.review_row_count, 0);
-  assert.equal(report.blocked_row_count, manifest.rows.length);
-  assert.equal(report.fetched_product_page_count, 0);
-  assert.equal(report.database_writes, 0);
-  assert.deepEqual(report.action_counts, {});
-  assert.deepEqual(report.source_error, { error_code: "SOURCE_UNAVAILABLE", ...failure.detail });
-  assert.equal(fs.existsSync(output.artifact), false);
+  for (const errorCode of ["SOURCE_UNAVAILABLE", "SOURCE_SCHEMA_MISMATCH", "SOURCE_IDENTITY_DRIFT", "DUPLICATE_SOURCE_IDENTITY"]) {
+    const source = fixture();
+    const output = paths();
+    const failure = new WooCommerceSourceError(
+      errorCode,
+      "safe source failure",
+      {
+        error_type: "TypeError",
+        network_code: "ENOTFOUND",
+        timeout: false,
+        last_attempt: 5,
+        request_url: "https://6pack-supplements.co.uk/?p=4110",
+        product_id: "4110",
+        http_status: null,
+      }
+    );
+    await assert.rejects(
+      run(
+        { target: "production", artifact: output.artifact, report: output.report, requireNoChange: false, isolateUnsafe: true },
+        { state: source.state, readLive: async () => { throw failure; } }
+      ),
+      (error) => error === failure
+    );
+    const report = JSON.parse(fs.readFileSync(output.report, "utf8"));
+    assert.equal(report.result, "BLOCK");
+    assert.equal(report.classification_state, "SOURCE_READ_FAILED");
+    assert.equal(report.block_reason, errorCode);
+    assert.equal(report.approved_mapping_count, manifest.rows.length);
+    assert.equal(report.executable_plan_count, 0);
+    assert.equal(report.executed_plan_count, 0);
+    assert.equal(report.review_row_count, 0);
+    assert.equal(report.blocked_row_count, manifest.rows.length);
+    assert.equal(report.fetched_product_page_count, 0);
+    assert.equal(report.database_writes, 0);
+    assert.deepEqual(report.action_counts, {});
+    assert.deepEqual(report.source_error, { error_code: errorCode, ...failure.detail });
+    assert.equal(fs.existsSync(output.artifact), false);
+  }
 });
 
 test("exact product 4150 terminal 404 isolates only offer 2379 without inferring stock", async () => {

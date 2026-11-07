@@ -1,15 +1,14 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: INCIDENT FIX READY FOR VERIFICATION — PRODUCTION RECOVERY PENDING APPROVAL**
+**Status: TWO OWNER-APPROVED REVIEW SCOPES; PRODUCTION RESTORATION STILL BLOCKED**
 
-**Current active task:** owner-authorized existing-path incident repair and
-read-only recovery preparation, 7 November 2026 (`READY_FOR_VERIFICATION`).
-The current preparation includes the separately owner-approved selected-default
-6 Pack correction and never-approved PLANNED recovery extension. These are
-review-only scopes; neither authorizes merge, migration apply or production runs.
-Gladiator adoption preparation does not advance during this incident. This
-task authorizes no merge, production worker dispatch, approval, control close,
-retry, schedule/configuration activation, migration or business-data write.
+**Current active task:** owner-authorized restoration of 6 Pack, Jon's and Whey
+Okay, 7 November 2026 (`BLOCKED`). PR #499 is merged; the one authorized full
+6 Pack dry-run exposed a further source-format case. Jon's current unapproved
+PLANNED parent also falls outside the existing recovery contract and blocks
+Whey globally. The owner has now separately approved both code/test/review scopes and a forward-only migration proposal. Merge, migration deployment, exact control close and new production runs remain outside this preparation approval. Existing natural schedules remain
+unchanged; the owner explicitly accepted 6 Pack's established scheduled writes
+after merge. Gladiator adoption and homepage work do not advance here.
 RA-STAB-02 and RA-STAB-01 are `VERIFIED_COMPLETE`. On 29 September 2026 the
 owner stopped further RA-004 live canary retries after the five-day sequence of
 staging-interface, credential, ledger, ACL, provider-identity and final SQL
@@ -54,6 +53,9 @@ map from escaping as an untyped canonicalization exception during selection.
 The invalid row still fails closed with the existing source-schema error.
 No test path was added/removed/renamed: the reviewed quality-gate inventory seal
 remains 355 files, `7c2d270f8b1bc713d3921bf108f34611a4d4c941bd53e461d18824fe2c6037c4`.
+The final review extends the existing whole-run failure regression over all four
+source-error codes; each must stop before classification with zero plans and
+no apply artifact. JSON-LD corroborates consistency of this page only.
 Production remains `LIVE_DRY_RUN_BLOCKED / SCHEDULED_APPLY_NOT_YET_VERIFIED`;
 this follow-up is `CODE_FIX_VERIFIED_LOCAL / REVIEW_PENDING`.
 

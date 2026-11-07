@@ -144,7 +144,7 @@ function parseSixPackProductPage(html, options) {
       && typeof row.in_stock === "boolean" && Number.isSafeInteger(row.max_qty) && row.max_qty >= 0
       && (!row.in_stock || row.max_qty > 0), "Invalid 6 Pack variation price, stock or quantity");
     schema(completeAttributes(row.attributes), "6 Pack variation attribute keys are incomplete");
-    // The new theme omits the selected default from its dropdown. Require independent exact evidence for that row.
+    // The new theme omits the selected default from its dropdown. Require exact same-page JSON-LD corroboration.
     if (![...attributes].every(([name, values]) => values.has(row.attributes[name]))) corroborateSelected(row);
     const combination = canonicalJson(row.attributes);
     if (combinations.has(combination)) sourceFail("Duplicate 6 Pack variation options", "DUPLICATE_SOURCE_IDENTITY");
