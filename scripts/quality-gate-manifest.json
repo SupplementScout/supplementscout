@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 354,
-    "sha256": "011cbd2e37b0b1a1f6445a6c506894c1c5f3e3c38a78f2057bf6ea2c45934d0a"
+    "count": 355,
+    "sha256": "7c2d270f8b1bc713d3921bf108f34611a4d4c941bd53e461d18824fe2c6037c4"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -132,6 +132,7 @@
     "scripts/secure-postgres.test.js",
     "scripts/seo15-accrual-audit.test.js",
     "scripts/sitemap-freshness.test.js",
-    "scripts/whey-protein-page.test.js"
+    "scripts/whey-protein-page.test.js",
+    "scripts/homepage-comparisons.test.js"
   ]
 }

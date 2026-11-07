@@ -320,7 +320,7 @@ test("launch gate remains monitoring evidence and does not control stable base-p
       "../components/CategoryViewAnalytics": { __esModule: true, default: () => null },
       "../components/ComparisonTransparencyLinks": { __esModule: true, default: () => null },
       "../lib/pricing": pricing,
-      "../lib/dealsPriceIntelligence": { ...deals, getDeals: async () => result },
+      "../lib/dealsPriceIntelligence": { ...deals, getCachedDeals: async () => result },
     });
     assert.deepEqual((await page.generateMetadata()).robots, { index: true, follow: true });
     assert.deepEqual((await page.generateMetadata({ searchParams: Promise.resolve({ sort: "price" }) })).robots, { index: false, follow: true });
@@ -375,7 +375,7 @@ test("page metadata, SSR, schema, sitemap and links use one guarded /deals URL",
     "../components/CategoryViewAnalytics": { __esModule: true, default: () => null },
     "../components/ComparisonTransparencyLinks": { __esModule: true, default: () => React.createElement("a", { href: "/how-we-compare" }, "Method") },
     "../lib/pricing": pricing,
-    "../lib/dealsPriceIntelligence": { ...deals, getDeals: async () => result },
+    "../lib/dealsPriceIntelligence": { ...deals, getCachedDeals: async () => result },
   });
   const metadata = await page.generateMetadata();
   assert.equal(page.dynamic, "force-dynamic");
@@ -410,7 +410,7 @@ test("query errors abort page rendering instead of returning a false 200/noindex
     "../components/CategoryViewAnalytics": { __esModule: true, default: () => null },
     "../components/ComparisonTransparencyLinks": { __esModule: true, default: () => null },
     "../lib/pricing": pricing,
-    "../lib/dealsPriceIntelligence": { ...deals, getDeals: async () => result },
+    "../lib/dealsPriceIntelligence": { ...deals, getCachedDeals: async () => result },
   });
   assert.deepEqual((await page.generateMetadata()).robots, { index: true, follow: true });
   await assert.rejects(page.default(), /Current comparison data is temporarily unavailable for \/deals/);
@@ -430,7 +430,7 @@ test("verified price-drop section stays hidden until enabled and then renders on
     "../components/CategoryViewAnalytics": { __esModule: true, default: () => null },
     "../components/ComparisonTransparencyLinks": { __esModule: true, default: () => null },
     "../lib/pricing": pricing,
-    "../lib/dealsPriceIntelligence": { ...deals, getDeals: async () => deals.emptyDealsResult(false) },
+    "../lib/dealsPriceIntelligence": { ...deals, getCachedDeals: async () => deals.emptyDealsResult(false) },
   });
   const base = { ...deals.emptyDealsResult(false), verifiedDrops: [drop] };
   const hidden = renderToStaticMarkup(React.createElement(page.DealsPageContent, { result: base }));

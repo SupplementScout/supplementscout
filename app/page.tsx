@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { HomeFeaturedComparison, HomeCurrentComparisons } from "./home-comparisons";
+import "./home.css";
 import ComparisonTransparencyLinks from "./components/ComparisonTransparencyLinks";
 import HomeCategories from "./components/HomeCategories";
+import HomeCategoryLinks from "./components/HomeCategoryLinks";
 import HomeHeader from "./components/HomeHeader";
 import SearchInput from "./components/SearchInput";
-import StatusBadge from "./components/StatusBadge";
 import SupplementScoutIcon from "./components/SupplementScoutIcon";
 import {
   categoryBrowseHref,
@@ -14,6 +15,9 @@ import { CATEGORY_COVERAGE_DEFINITIONS } from "./lib/categoryCoverage";
 import { getHomepageData } from "./lib/homepageData";
 
 export const revalidate = 3600;
+// Recheck offer freshness on every request; ISR may serve expired price claims
+// while regenerating stale HTML. The underlying catalogue/deals reads stay cached.
+export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -41,10 +45,10 @@ const popularSearches = [
 ];
 
 const comparisonHighlights = [
-  { icon: "store", label: "Compare UK retailers" },
-  { icon: "truck", label: "Delivered prices" },
-  { icon: "chart", label: "Price history" },
-  { icon: "calculator", label: "Cost per serving" },
+  { icon: "receipt", label: "Real cost, not just price", description: "Product + known delivery, together." },
+  { icon: "package", label: "Like-for-like comparisons", description: "The same variant. The same pack." },
+  { icon: "calculator", label: "Find better value", description: "Verified unit costs where available." },
+  { icon: "store", label: "Compare UK stores", description: "Check tracked retailers in one place." },
 ] as const;
 
 const goalLinks = [
@@ -98,10 +102,7 @@ function homepageBrowseCategories(catalogueCategories: string[]) {
 }
 
 function searchHref(query: string) {
-  return {
-    pathname: "/search",
-    query: { q: query },
-  };
+  return `/search?q=${encodeURIComponent(query)}`;
 }
 
 function itemHref(item: { href?: string; query?: string }) {
@@ -120,7 +121,7 @@ function checkedDate(value: string | null) {
 }
 
 export default async function Home() {
-  const { categories, latestOfferCheckAt, productCount, retailerCount } =
+  const { categories, latestOfferCheckAt, productCount, retailerCount, comparisons } =
     await getHomepageData();
   const browseCategories = homepageBrowseCategories(categories);
   const categoryLinks = browseCategories.map((category) => ({
@@ -132,89 +133,60 @@ export default async function Home() {
     productCount !== null || retailerCount !== null || latestCheckDate !== null;
 
   return (
-    <main className="min-h-screen bg-[var(--ss-page)] pb-[env(safe-area-inset-bottom)] text-[var(--ss-ink)]">
+    <main className="ss-home min-h-screen bg-[var(--ss-page)] pb-[env(safe-area-inset-bottom)] text-[var(--ss-ink)]">
       <HomeHeader />
 
-      <section className="border-b border-[#d8e4dc] bg-[#eaf2ed] px-4 pb-11 pt-10 text-center sm:px-6 sm:pb-16 sm:pt-16">
-        <StatusBadge tone="evidence" icon="shield" className="mx-auto uppercase tracking-[0.14em] text-[var(--ss-accent)]">
-          The UK&apos;s Smart Supplement Search Engine
-        </StatusBadge>
-
-        <h1 className="mx-auto mt-4 max-w-4xl break-words text-[2.35rem] font-extrabold leading-[1.05] tracking-[-0.035em] sm:mt-6 sm:text-6xl lg:text-7xl">
-          Find the right supplement at the right price
-        </h1>
-
-        <p className="mx-auto mt-5 max-w-2xl text-base leading-7 text-zinc-700 sm:mt-6 sm:text-lg sm:leading-8">
-          Search products and brands, then compare current UK retailer offers,
-          delivered totals and verified unit costs in one clear view.
-        </p>
-
-        <SearchInput />
-
-        <div className="mt-4 flex justify-center">
-          <Link
-            href="/help-me-choose"
-            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[var(--ss-border-strong)] bg-white px-5 py-2.5 text-sm font-semibold text-[var(--ss-ink)] shadow-sm transition-colors hover:border-[var(--ss-accent)] hover:text-[var(--ss-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
-          >
-            <SupplementScoutIcon name="calculator" size={18} />
-            Help me choose
-          </Link>
-        </div>
-
-        <div className="mx-auto mt-5 grid max-w-3xl grid-cols-2 gap-2 text-left sm:grid-cols-4 sm:gap-3">
-          {comparisonHighlights.map((item) => (
-            <div
-              key={item.label}
-              className="flex min-w-0 items-center gap-2 rounded-2xl border border-white/80 bg-white/80 px-3 py-3 text-xs font-semibold leading-4 text-zinc-700 shadow-[0_6px_20px_rgba(16,32,27,0.04)] sm:text-sm"
-            >
-              <SupplementScoutIcon name={item.icon} size={18} className="shrink-0 text-[var(--ss-accent)]" />
-              <span>{item.label}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section
-        aria-labelledby="popular-searches-heading"
-        className="mx-auto max-w-7xl px-4 pb-8 pt-8 sm:px-6 sm:pb-12 sm:pt-10"
-      >
-        <div className="ss-card p-4 sm:p-6">
-          <div className="flex items-center gap-3">
-            <span className="ss-icon-tile h-9 w-9"><SupplementScoutIcon name="search" size={18} /></span>
-            <h2 id="popular-searches-heading" className="text-base font-bold">
-              Popular searches
-            </h2>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {popularSearches.map((item) => (
-              <Link
-                key={item.label}
-                href={itemHref(item)}
-                className="inline-flex min-h-11 items-center rounded-full border border-[var(--ss-border)] bg-[var(--ss-surface-muted)] px-4 text-sm font-semibold text-zinc-800 transition-colors hover:border-[var(--ss-accent)] hover:bg-white hover:text-[var(--ss-accent)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
-              >
-                {item.label}
-              </Link>
-            ))}
+      <section className="home-hero" aria-labelledby="home-heading">
+        <div className="home-hero-copy">
+          <p className="home-eyebrow"><SupplementScoutIcon name="search" size={16} /> UK supplement price comparison</p>
+          <h1 id="home-heading">Find the right<br />supplement at<br />the <span>right price.</span></h1>
+          <p className="home-intro">Compare products, prices and value across UK stores. See the real cost, including known delivery, and find the right deal for you.</p>
+          <ul className="home-trust" aria-label="Comparison features">
+            <li><SupplementScoutIcon name="check" size={16} /> Real prices</li>
+            <li><SupplementScoutIcon name="check" size={16} /> Known delivery included</li>
+            <li><SupplementScoutIcon name="check" size={16} /> Same product, same size</li>
+          </ul>
+          <SearchInput />
+          <div className="home-popular" aria-label="Try these searches">
+            <span>Try these searches:</span>
+            <a href="/creatine">Creatine</a>
+            <a href="/whey-protein">Whey protein</a>
+            <a href="/pre-workout">Pre-workout</a>
           </div>
         </div>
+        <HomeFeaturedComparison comparisons={comparisons} />
       </section>
+
+      <section className="home-benefits" aria-labelledby="benefits-heading">
+        <h2 id="benefits-heading" className="sr-only">A clearer supplement comparison</h2>
+        {comparisonHighlights.map((item) => (
+          <div key={item.label} className="home-benefit">
+            <SupplementScoutIcon name={item.icon} size={24} />
+            <div><h3>{item.label}</h3><p>{item.description}</p></div>
+          </div>
+        ))}
+      </section>
+
+      <HomeCategories items={categoryLinks} />
+      <HomeCurrentComparisons rows={comparisons.rows.slice(1)} />
+      <HomeCategoryLinks items={categoryLinks} />
 
       <section
         id="stats"
         aria-labelledby="stats-heading"
-        className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 sm:pb-16"
+        className="home-section home-coverage"
       >
         <h2 id="stats-heading" className="sr-only">
           SupplementScout coverage and data freshness
         </h2>
 
         {hasStatistics ? (
-          <div className="grid gap-3 sm:grid-cols-3 sm:gap-4">
+          <div className="home-coverage-grid">
             {productCount !== null && (
-              <div className="ss-card p-5 sm:p-6">
-                <div className="text-2xl font-bold sm:text-3xl">
+              <div>
+                <strong>
                   {productCount.toLocaleString("en-GB")}
-                </div>
+                </strong>
                 <p className="mt-1 text-sm text-zinc-600 sm:mt-2">
                   active catalogue products
                 </p>
@@ -222,10 +194,10 @@ export default async function Home() {
             )}
 
             {retailerCount !== null && (
-              <div className="ss-card p-5 sm:p-6">
-                <div className="text-2xl font-bold sm:text-3xl">
+              <div>
+                <strong>
                   {retailerCount.toLocaleString("en-GB")}
-                </div>
+                </strong>
                 <p className="mt-1 text-sm text-zinc-600 sm:mt-2">
                   UK retailers represented
                 </p>
@@ -233,12 +205,12 @@ export default async function Home() {
             )}
 
             {latestCheckDate && latestOfferCheckAt && (
-              <div className="ss-card p-5 sm:p-6">
-                <div className="text-xl font-bold sm:text-2xl">
+              <div>
+                <strong>
                   <time dateTime={latestOfferCheckAt}>
                     {latestCheckDate}
                   </time>
-                </div>
+                </strong>
                 <p className="mt-1 text-sm text-zinc-600 sm:mt-2">
                   latest recorded price check
                 </p>
@@ -255,7 +227,7 @@ export default async function Home() {
       <section
         id="goals"
         aria-labelledby="goals-heading"
-        className="border-y border-zinc-100 bg-zinc-50 px-4 py-10 sm:px-6 sm:py-16"
+        className="home-discovery px-5 py-10 sm:px-6 sm:py-14"
       >
         <div className="mx-auto max-w-7xl">
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 sm:text-sm">
@@ -267,7 +239,7 @@ export default async function Home() {
 
           <div className="mt-5 grid gap-3 sm:mt-8 sm:grid-cols-2 lg:grid-cols-3">
             {goalLinks.map((goal) => (
-              <Link
+              <a
                 key={goal.label}
                 href={itemHref(goal)}
                 className="ss-card ss-card-interactive p-5 focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
@@ -276,18 +248,16 @@ export default async function Home() {
                 <p className="mt-2 text-sm leading-6 text-zinc-600">
                   {goal.description}
                 </p>
-              </Link>
+              </a>
             ))}
           </div>
         </div>
       </section>
 
-      <HomeCategories items={categoryLinks} />
-
       <section
         id="how-it-works"
         aria-labelledby="how-it-works-heading"
-        className="border-t border-zinc-100 bg-zinc-50 px-4 py-10 sm:px-6 sm:py-16"
+        className="home-discovery border-t-0 px-5 py-10 sm:px-6 sm:py-14"
       >
         <div className="mx-auto max-w-7xl">
           <p className="text-xs font-semibold uppercase tracking-[0.25em] text-zinc-500 sm:text-sm">
@@ -330,31 +300,37 @@ export default async function Home() {
         </div>
       </section>
 
+      <section className="home-section home-footer-links" aria-labelledby="popular-searches-heading">
+        <h2 id="popular-searches-heading">Explore more comparisons</h2>
+        <div>{popularSearches.map((item) => <a key={item.label} href={itemHref(item)}>{item.label}</a>)}</div>
+        <p className="mt-3 text-sm text-slate-600">Need a starting point? <a href="/help-me-choose" className="home-text-link">Help me choose</a></p>
+      </section>
+
       <footer className="px-4 pb-[calc(2.5rem+env(safe-area-inset-bottom))] pt-8 sm:px-6 sm:py-10 xl:pb-[calc(5rem+env(safe-area-inset-bottom))]">
         <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 border-t border-zinc-200 pt-8 text-sm text-zinc-500 sm:flex-row">
           <p>&copy; 2026 SupplementScout</p>
-          <nav className="flex flex-wrap gap-4">
-            <Link href="/about" className="hover:text-zinc-950">
+          <nav aria-label="Footer" className="flex flex-wrap gap-x-4 gap-y-2 [&_a]:inline-flex [&_a]:min-h-11 [&_a]:items-center">
+            <a href="/about" className="hover:text-zinc-950">
               About
-            </Link>
-            <Link href="/how-we-compare" className="hover:text-zinc-950">
+            </a>
+            <a href="/how-we-compare" className="hover:text-zinc-950">
               How we compare
-            </Link>
-            <Link href="/data-freshness" className="hover:text-zinc-950">
+            </a>
+            <a href="/data-freshness" className="hover:text-zinc-950">
               Data freshness
-            </Link>
-            <Link href="/affiliate-disclosure" className="hover:text-zinc-950">
+            </a>
+            <a href="/affiliate-disclosure" className="hover:text-zinc-950">
               Affiliate Disclosure
-            </Link>
-            <Link href="/privacy" className="hover:text-zinc-950">
+            </a>
+            <a href="/privacy" className="hover:text-zinc-950">
               Privacy
-            </Link>
-            <Link href="/cookies" className="hover:text-zinc-950">
+            </a>
+            <a href="/cookies" className="hover:text-zinc-950">
               Cookies
-            </Link>
-            <Link href="/contact" className="hover:text-zinc-950">
+            </a>
+            <a href="/contact" className="hover:text-zinc-950">
               Contact
-            </Link>
+            </a>
           </nav>
         </div>
       </footer>

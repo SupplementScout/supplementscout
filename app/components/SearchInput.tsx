@@ -251,7 +251,7 @@ export default function SearchInput({
             aria-haspopup="listbox"
             aria-controls="search-suggestions"
             className={inputClassName}
-            placeholder="Search supplements, brands or categories"
+            placeholder={variant === "hero" ? "Search supplements or brands..." : "Search supplements, brands or categories"}
           />
         </div>
         <button

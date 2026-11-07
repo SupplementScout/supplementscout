@@ -1,6 +1,7 @@
 import "server-only";
 
 import { cache } from "react";
+import { createLifecycleDataLoader } from "./lifecycleDataCache";
 import { isOfferFresh } from "./offerFreshness";
 import { getDeliveredPrice, type DeliveredPrice } from "./pricing";
 import { supabaseAdmin } from "./supabaseAdmin";
@@ -685,3 +686,10 @@ async function loadDeals(): Promise<DealsResult> {
 }
 
 export const getDeals = cache(loadDeals);
+
+// Shared by the deals hub and homepage: one query, cache key and freshness policy.
+export const getCachedDeals = createLifecycleDataLoader(
+  "/deals",
+  "deals-price-intelligence-v2",
+  getDeals
+);

@@ -19,9 +19,11 @@ function trendLabel(data: PriceHistoryPoint[]) {
 export default function PriceHistoryChart({
   data,
   currentPrice,
+  compact = false,
 }: {
   data: PriceHistoryPoint[];
   currentPrice: number | null;
+  compact?: boolean;
 }) {
   const validData = data.filter(
     (point) => Number.isFinite(point.price) && point.price > 0
@@ -50,6 +52,23 @@ export default function PriceHistoryChart({
   const path = chartPoints
     .map((point, index) => `${index === 0 ? "M" : "L"}${point.x.toFixed(1)} ${point.y.toFixed(1)}`)
     .join(" ");
+
+  const firstTime = Date.parse(firstDate || "");
+  const timeSpan = Math.max(Date.parse(lastDate || "") - firstTime, 1);
+  const compactPath = chartPoints.map((point, index) => {
+    const x = horizontalPadding + (Date.parse(point.date) - firstTime) / timeSpan * (chartWidth - 2 * horizontalPadding);
+    return `${index === 0 ? "M" : "L"}${x.toFixed(1)} ${point.y.toFixed(1)}`;
+  }).join(" ");
+
+  if (compact) return (
+    <div className="home-history" aria-label="Recorded delivered-price history">
+      <div><strong>Price history</strong><p>{firstDate} – {lastDate}</p></div>
+      <div><strong>{trendLabel(validData)}</strong><p>Same retailer · delivery included</p></div>
+      <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} role="img" aria-label={validData.map((point) => `${point.date}: ${formatCurrency(point.price)}`).join("; ")}>
+        <path d={compactPath} fill="none" stroke="currentColor" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </div>
+  );
 
   return (
     <div>

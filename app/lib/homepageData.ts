@@ -1,5 +1,9 @@
 import { unstable_cache } from "next/cache";
 import { supabase } from "./supabase";
+import { getCachedDeals, type DealsResult, type DealsRow } from "./dealsPriceIntelligence";
+import { isOfferFresh } from "./offerFreshness";
+import { orderHomepageComparisons, type HomepageComparisonDetails } from "./homepageComparisonDetails";
+import { getHomepageComparisonDetails, getHomepagePriceHistory } from "./homepageComparisonDetails.server";
 
 const HOMEPAGE_CATEGORY_FETCH_PAGE_SIZE = 1000;
 const HOMEPAGE_REVALIDATE_SECONDS = 3600;
@@ -17,7 +21,52 @@ export type HomepageData = {
   latestOfferCheckAt: string | null;
   productCount: number | null;
   retailerCount: number | null;
+  comparisons: HomepageComparisons;
 };
+
+export type HomepageComparisons = {
+  state: "ready" | "empty" | "unavailable";
+  rows: DealsRow[];
+  details?: Record<string, HomepageComparisonDetails>;
+};
+
+export function selectHomepageComparisons(
+  result: Pick<DealsResult, "rows" | "error">,
+  now = new Date(),
+  limit = 4
+): HomepageComparisons {
+  if (result.error) return { state: "unavailable", rows: [] };
+
+  // Preserve the existing deals order and a one-hour freshness margin. Evaluate
+  // on every render, even when the shared loader returns an hourly snapshot.
+  const nextRevalidation = new Date(now.getTime() + HOMEPAGE_REVALIDATE_SECONDS * 1000);
+  const rows = result.rows.filter((row) =>
+    row.offers.length >= 2 &&
+    row.offers.every((offer) => isOfferFresh(offer.lastCheckedAt, nextRevalidation))
+  ).slice(0, limit);
+  return { state: rows.length ? "ready" : "empty", rows };
+}
+
+async function getHomepageComparisons(): Promise<HomepageComparisons> {
+  try {
+    const selected = selectHomepageComparisons(await getCachedDeals(), new Date(), 16);
+    let details: Record<string, HomepageComparisonDetails> = {};
+    try { details = await getHomepageComparisonDetails(selected.rows); } catch { /* Prices remain useful when optional detail reads fail. */ }
+    const ordered = orderHomepageComparisons(selected.rows, details);
+    const featured = ordered[0];
+    if (featured && details[featured.variantId]) {
+      try { details[featured.variantId].history = await getHomepagePriceHistory(featured); } catch { /* Keep the honest history fallback. */ }
+    }
+    // Recheck after optional reads too: enrichment must never extend freshness.
+    const current = selectHomepageComparisons({ rows: ordered, error: false }, new Date());
+    return { ...current, details };
+  } catch (error) {
+    // The shared loader rejects complete/partial failures before caching. The
+    // homepage can still serve search; the deals hub keeps its own 5xx contract.
+    console.error("Homepage comparison data unavailable; showing search fallback.", error);
+    return { state: "unavailable", rows: [] };
+  }
+}
 
 async function fetchHomepageCategories() {
   const categories = new Set<string>();
@@ -136,12 +185,13 @@ function settledValue<T>(result: PromiseSettledResult<T>, fallback: T) {
 }
 
 export async function getHomepageData(): Promise<HomepageData> {
-  const [categories, productCount, retailerCount, latestOfferCheckAt] =
+  const [categories, productCount, retailerCount, latestOfferCheckAt, comparisons] =
     await Promise.allSettled([
       getCachedHomepageCategories(),
       getCachedHomepageProductCount(),
       getCachedHomepageRetailerCount(),
       getCachedLatestOfferCheck(),
+      getHomepageComparisons(),
     ]);
 
   return {
@@ -149,5 +199,6 @@ export async function getHomepageData(): Promise<HomepageData> {
     productCount: settledValue(productCount, null),
     retailerCount: settledValue(retailerCount, null),
     latestOfferCheckAt: settledValue(latestOfferCheckAt, null),
+    comparisons: settledValue(comparisons, { state: "unavailable", rows: [] }),
   };
 }

@@ -1,5 +1,5 @@
-import Image from "next/image";
 import Link from "next/link";
+import { getImageProps } from "next/image";
 import type { CategoryComparisonRow } from "../lib/categoryComparison";
 import { OFFER_PRESENTATION_LABELS } from "../lib/offerFreshness";
 
@@ -28,32 +28,63 @@ export function ComparisonProductHeroImage({
   image,
   name,
   productUrl,
+  nativeNavigation = false,
+  eager = false,
+  optimize = false,
 }: {
   image: string | null;
   name: string;
   productUrl: string;
+  nativeNavigation?: boolean;
+  eager?: boolean;
+  optimize?: boolean;
 }) {
+  const ProductLink = nativeNavigation ? "a" : Link;
+  let optimizedProps: ReturnType<typeof getImageProps>["props"] | null = null;
+  if (image && optimize) {
+    try {
+      const url = new URL(image);
+      const supported = url.protocol === "https:" && (
+        (url.hostname === "cdn.shopify.com" && url.pathname.startsWith("/s/files/")) ||
+        url.hostname === "files.ekmcdn.com"
+      );
+      if (supported) optimizedProps = getImageProps({
+        src: image, alt: name, width: 480, height: 480,
+        sizes: "(max-width: 374px) 88px, (max-width: 639px) 105px, (max-width: 1023px) 190px, (max-width: 1199px) 135px, 172px",
+        loading: eager ? "eager" : "lazy", fetchPriority: eager ? "high" : undefined,
+        decoding: "async", className: "object-contain p-3 sm:p-6",
+        style: { position: "absolute", height: "100%", width: "100%", inset: 0, color: "inherit" },
+      }).props;
+    } catch { /* Preserve original-image handling for an unsupported source. */ }
+  }
   return (
-    <Link
+    <ProductLink
       href={productUrl}
       aria-label={`View offers for ${name}`}
       className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-2xl border border-[var(--ss-border)] bg-[var(--ss-surface-muted)] p-2 focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
     >
-      {image ? (
-        <Image
+      {optimizedProps ? (
+        <picture>
+          <source media="(min-width: 640px)" srcSet={optimizedProps.srcSet} sizes={optimizedProps.sizes} />
+          <img {...optimizedProps} alt={name} />
+        </picture>
+      ) : image ? (
+        // eslint-disable-next-line @next/next/no-img-element -- Original sources are unoptimized; the fixed aspect-square parent reserves their layout space.
+        <img
           src={image}
           alt={name}
-          fill
-          unoptimized
-          sizes="(max-width: 639px) 44vw, (max-width: 1023px) 320px, 520px"
+          loading={eager ? "eager" : "lazy"}
+          fetchPriority={eager ? "high" : undefined}
+          decoding="async"
           className="object-contain p-3 sm:p-6"
+          style={{ position: "absolute", height: "100%", width: "100%", inset: 0, color: "inherit" }}
         />
       ) : (
         <span className="px-2 text-center text-xs font-semibold text-zinc-500">
           Image unavailable
         </span>
       )}
-    </Link>
+    </ProductLink>
   );
 }
 
@@ -61,15 +92,18 @@ export function ComparisonProductThumbnail({
   image,
   name,
   productUrl,
+  nativeNavigation = false,
 }: {
   image: string | null;
   name: string;
   productUrl: string;
+  nativeNavigation?: boolean;
 }) {
   const backgroundImage = safeBackgroundImage(image);
+  const ProductLink = nativeNavigation ? "a" : Link;
 
   return (
-    <Link
+    <ProductLink
       href={productUrl}
       aria-label={`View ${name}`}
       className="flex h-24 w-24 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 p-2 sm:h-28 sm:w-28 lg:h-32 lg:w-32"
@@ -86,7 +120,7 @@ export function ComparisonProductThumbnail({
           No image
         </span>
       )}
-    </Link>
+    </ProductLink>
   );
 }
 
