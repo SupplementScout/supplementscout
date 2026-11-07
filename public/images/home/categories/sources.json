@@ -1,0 +1,12 @@
+{
+  "created": "2026-11-07",
+  "method": "Built-in image_gen, four independent generations; illustrative ingredients, no commercial packaging.",
+  "format": "480x320 transparent WebP, quality83, alphaQuality90; generated originals retained outside repository.",
+  "promptTemplate": "Use case: product-mockup. Asset type: isolated decorative category illustration for a UK supplement comparison website. Primary request: [subject]. Photorealistic clean studio cutout with genuine transparent background. Entire subject visible, centred in a landscape composition with generous transparent margins, photographed at a gentle elevated three-quarter angle. Scoop handle extends diagonally toward the upper right. Soft light from upper left, realistic fine texture and minimal natural contact shadow. White/pastel editorial aesthetic, matching a cohesive set of supplement category cards. No packaging, jars, logos, words, letters, numerals, badges, tile, background or UI. This is a generic ingredient illustration, not an image of a branded commercial product.",
+  "subjects": {
+    "protein": "a beige measuring scoop heaped with fine vanilla-coloured protein powder, with a small loose mound and powder grains beside its base",
+    "creatine": "a white measuring scoop heaped with pure white fine creatine powder, with a small loose mound and powder grains beside its base",
+    "pre-workout": "a translucent pale pink measuring scoop heaped with fine raspberry-pink pre-workout powder, with a small loose mound and powder grains beside its base",
+    "vitamins": "three translucent golden oval softgel vitamin capsules, one standing at a gentle diagonal against two lying capsules"
+  }
+}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import SupplementScoutIcon from "./SupplementScoutIcon";
+import Image from "next/image";
 
 const MOBILE_CATEGORY_LIMIT = 7;
 
@@ -15,14 +15,12 @@ export default function HomeCategories({
 }: {
   items: HomeCategoryLink[];
 }) {
-  const [showAllCategories, setShowAllCategories] = useState(false);
   const featuredCategories = [
-    { href: "/whey-protein", description: "Whey protein across UK retailers." },
-    { href: "/creatine", description: "Compare packs and verified unit costs." },
-    { href: "/pre-workout", description: "Compare pre-workout packs and prices." },
-    { href: "/vitamins", description: "Vitamins and everyday health essentials." },
+    { href: "/whey-protein", label: "Protein", description: "Find your whey. Compare the value.", image: "protein" },
+    { href: "/creatine", label: "Creatine", description: "Compare packs and verified unit costs.", image: "creatine" },
+    { href: "/pre-workout", label: "Pre-workout", description: "Explore your next pre-workout.", image: "pre-workout" },
+    { href: "/vitamins", label: "Vitamins & Health", description: "Everyday essentials, clearly compared.", image: "vitamins" },
   ];
-  const featuredHrefs = new Set(featuredCategories.map((item) => item.href));
 
   return (
     <section id="categories" className="home-categories px-5 sm:px-6" aria-labelledby="categories-heading">
@@ -31,7 +29,7 @@ export default function HomeCategories({
           Browse
         </p>
         <h2 id="categories-heading" className="mt-2 text-2xl font-bold sm:text-3xl">
-          Popular categories
+          Explore supplements
         </h2>
 
         <div className="home-category-featured">
@@ -39,15 +37,24 @@ export default function HomeCategories({
             const item = items.find((item) => item.href === category.href);
             return item ? (
               <a key={item.href} href={item.href} className="home-category-card">
-                <SupplementScoutIcon name={item.href === "/vitamins" ? "shield" : "package"} size={24} />
-                <h3>{item.label}</h3>
+                <Image src={`/images/home/categories/${category.image}.webp`} width={480} height={320} sizes="(max-width: 639px) 160px, (max-width: 1023px) 240px, 210px" alt="" className="home-category-image" />
+                <h3>{category.label}</h3>
                 <p>{category.description}</p>
-                <span>Compare prices <span aria-hidden="true">→</span></span>
+                <span className="home-category-arrow" aria-hidden="true">→</span>
               </a>
             ) : null;
           })}
         </div>
+      </div>
+    </section>
+  );
+}
 
+export function HomeCategoryLinks({ items }: { items: HomeCategoryLink[] }) {
+  const [showAllCategories, setShowAllCategories] = useState(false);
+  const featuredHrefs = new Set(["/whey-protein", "/creatine", "/pre-workout", "/vitamins"]);
+  return (
+    <section className="home-category-directory" aria-label="More supplement categories">
         <div className="home-category-links">
           {items.filter((item) => !featuredHrefs.has(item.href)).map((item, index) => (
             <a
@@ -74,7 +81,6 @@ export default function HomeCategories({
             {showAllCategories ? "Show fewer categories" : "View all categories"}
           </button>
         )}
-      </div>
     </section>
   );
 }

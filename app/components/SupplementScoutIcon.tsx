@@ -11,7 +11,8 @@ export type SupplementScoutIconName =
   | "search"
   | "shield"
   | "store"
-  | "truck";
+  | "truck"
+  | "trophy";
 
 type SupplementScoutIconProps = Omit<SVGProps<SVGSVGElement>, "children"> & {
   name: SupplementScoutIconName;
@@ -19,6 +20,7 @@ type SupplementScoutIconProps = Omit<SVGProps<SVGSVGElement>, "children"> & {
 };
 
 const paths: Record<SupplementScoutIconName, ReactNode> = {
+  trophy: <path d="M8 3h8v7a4 4 0 0 1-8 0V3ZM8 5H4v3a4 4 0 0 0 4 4m8-7h4v3a4 4 0 0 1-4 4m-4 2v6m-4 1h8" />,
   calculator: (
     <>
       <rect x="4" y="2.75" width="16" height="18.5" rx="2.5" />

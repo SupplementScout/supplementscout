@@ -157,12 +157,13 @@ test("mobile menu supports Escape, focus management and complete cleanup", () =>
   );
 });
 
-test("mobile menu contains only the four requested destinations", () => {
+test("mobile menu exposes the five working discovery and comparison destinations", () => {
   for (const label of [
-    "Search supplements",
-    "Popular categories",
-    "Shop by goal",
-    "How it works",
+    "Supplements",
+    "Compare",
+    "Best Deals",
+    "Guides",
+    "Help Me Choose",
   ]) {
     assert.match(headerSource, new RegExp(`label: "${label}"`));
   }
@@ -171,7 +172,7 @@ test("mobile menu contains only the four requested destinations", () => {
     /const navigationItems = \[([\s\S]*?)\];/
   )?.[1];
   assert.ok(navigationItemsBlock);
-  assert.equal((navigationItemsBlock.match(/\{ label:/g) || []).length, 4);
+  assert.equal((navigationItemsBlock.match(/\{ label:/g) || []).length, 5);
   assert.equal(
     collectAstNodes(
       headerAst,

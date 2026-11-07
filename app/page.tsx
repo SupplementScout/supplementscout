@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { HomeFeaturedComparison, HomeCurrentComparisons } from "./home-comparisons";
 import "./home.css";
 import ComparisonTransparencyLinks from "./components/ComparisonTransparencyLinks";
-import HomeCategories from "./components/HomeCategories";
+import HomeCategories, { HomeCategoryLinks } from "./components/HomeCategories";
 import HomeHeader from "./components/HomeHeader";
 import SearchInput from "./components/SearchInput";
 import SupplementScoutIcon from "./components/SupplementScoutIcon";
@@ -138,16 +138,16 @@ export default async function Home() {
       <section className="home-hero" aria-labelledby="home-heading">
         <div className="home-hero-copy">
           <p className="home-eyebrow"><SupplementScoutIcon name="search" size={16} /> UK supplement price comparison</p>
-          <h1 id="home-heading">Find the right supplement <span>at the right price.</span></h1>
-          <p className="home-intro">Compare supplement prices from UK stores, including known delivery costs. Find the right product, then see what you&apos;ll really pay.</p>
+          <h1 id="home-heading">Find the right<br />supplement at<br />the <span>right price.</span></h1>
+          <p className="home-intro">Compare products, prices and value across UK stores. See the real cost, including known delivery, and find the right deal for you.</p>
           <ul className="home-trust" aria-label="Comparison features">
             <li><SupplementScoutIcon name="check" size={16} /> Real prices</li>
             <li><SupplementScoutIcon name="check" size={16} /> Known delivery included</li>
             <li><SupplementScoutIcon name="check" size={16} /> Same product, same size</li>
           </ul>
           <SearchInput />
-          <div className="home-popular" aria-label="Popular searches">
-            <span>Try:</span>
+          <div className="home-popular" aria-label="Try these searches">
+            <span>Try these searches:</span>
             <a href="/creatine">Creatine</a>
             <a href="/whey-protein">Whey protein</a>
             <a href="/pre-workout">Pre-workout</a>
@@ -168,6 +168,7 @@ export default async function Home() {
 
       <HomeCategories items={categoryLinks} />
       <HomeCurrentComparisons rows={comparisons.rows.slice(1)} />
+      <HomeCategoryLinks items={categoryLinks} />
 
       <section
         id="stats"

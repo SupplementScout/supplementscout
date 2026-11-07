@@ -1,5 +1,6 @@
 import { ComparisonProductHeroImage, ComparisonProductThumbnail } from "./components/ComparisonProductVisuals";
 import SupplementScoutIcon from "./components/SupplementScoutIcon";
+import PriceHistoryChart from "./components/PriceHistoryChart";
 import type { DealsRow } from "./lib/dealsPriceIntelligence";
 import type { HomepageComparisons } from "./lib/homepageData";
 import { formatCurrency } from "./lib/pricing";
@@ -36,47 +37,61 @@ export function HomeFeaturedComparison({ comparisons }: { comparisons: HomepageC
   const best = row.bestOffer;
   const savings = calculateDeliveredSavings(best.deliveredPrice.totalPrice, row.offers[1]?.deliveredPrice.totalPrice ?? null);
   const checkedAt = formatOfferCheckedDate(best.lastCheckedAt);
+  const details = comparisons.details?.[row.variantId];
+  const history = details?.history || [];
+  const metrics = details?.metrics.length ? details.metrics : [
+    { value: formatCurrency(best.deliveredPrice.totalPrice), label: "lowest listed total" },
+    { value: String(row.retailerCount), label: "stores compared" },
+    { value: row.packLabel, label: "same exact pack" },
+  ];
+  const savingPercent = savings === null ? null : (savings / row.offers[1].deliveredPrice.totalPrice * 100).toLocaleString("en-GB", { maximumFractionDigits: 1 });
   return (
     <aside className="home-comparison" aria-labelledby="comparison-heading" data-home-comparison>
       <div className="home-comparison-top">
-        <h2 id="comparison-heading" className="home-kicker">Featured comparison</h2>
-        <span className="home-live-label"><SupplementScoutIcon name="check" size={16} /> In stock</span>
+        <h2 id="comparison-heading" className="home-featured-pill"><SupplementScoutIcon name="trophy" size={24} /> Featured comparison</h2>
+        {checkedAt && <p className="home-check-time"><SupplementScoutIcon name="clock" size={16} /><span>Lowest offer checked<br /><time dateTime={best.lastCheckedAt}>{checkedAt}</time></span></p>}
       </div>
+      {savings !== null && <div className="home-saving-seal" aria-label={`Save ${formatCurrency(savings)} (${savingPercent}%) versus the next listed retailer, including delivery`}>
+        <span>Save</span><strong>{formatCurrency(savings)}</strong><span>({savingPercent}%)</span>
+      </div>}
       <div className="home-comparison-product">
         <div className="home-product-image">
-          <ComparisonProductHeroImage image={row.image} name={row.name} productUrl={productHref(row)} nativeNavigation />
+          <ComparisonProductHeroImage image={row.image} name={row.name} productUrl={productHref(row)} nativeNavigation eager />
+          {row.image && details?.flavour && <p className="home-image-note">Product image. Flavour packaging may vary.</p>}
         </div>
         <div className="min-w-0">
           {row.brand && <p className="home-product-brand">{row.brand}</p>}
           <h3><a href={productHref(row)}>{row.name}</a></h3>
-          <p className="home-product-pack">{row.packLabel} <span aria-hidden="true">·</span> Same exact variant</p>
+          <p className="home-product-pack">{row.packLabel}{details?.flavour && <> · {details.flavour}</>}</p>
+          <dl className="home-metrics" aria-label="Product comparison metrics">
+            {metrics.map((metric) => <div key={metric.label}><dd>{metric.value}</dd><dt>{metric.label}</dt></div>)}
+          </dl>
+          <p className="home-metric-note">{details?.metrics.length ? "Unit costs include known delivery." : "Verified serving details unavailable for this variant."}</p>
+          <span className="home-live-label"><SupplementScoutIcon name="check" size={16} /> In stock · same exact variant</span>
         </div>
       </div>
-      <div className="home-best-price">
-        <p>Lowest listed delivered price</p>
-        <div className="home-price-line">
-          <strong>{formatCurrency(best.deliveredPrice.totalPrice)}</strong>
-          <span>at {best.retailer.name}</span>
-        </div>
-        <p className="home-price-breakdown">
+      <p className="sr-only">
+          Lowest listed delivered price: <strong>{formatCurrency(best.deliveredPrice.totalPrice)}</strong> at {best.retailer.name}.{' '}
           {formatCurrency(best.productPrice)} product + {best.shippingCost === 0 ? "free delivery" : `${formatCurrency(best.shippingCost)} delivery`}
-        </p>
-        {savings !== null && <p className="home-saving">Save {formatCurrency(savings)} vs the next listed retailer</p>}
-      </div>
-      <div className="home-offers-heading"><span>Compare stores</span><span>Total incl. delivery</span></div>
+      </p>
+      <div className="home-offers-heading"><span>Compare the same variant</span><span>Total incl. delivery</span></div>
       <ul className="home-offer-list" aria-label="Retailer delivered prices">
         {row.offers.slice(0, 3).map((offer, index) => (
           <li key={offer.id}>
             <a href={`/go/${offer.id}?source=product_best_offer`} rel="sponsored nofollow noopener noreferrer" className="home-offer-row">
-              <span className="home-offer-name"><span className="home-store-icon"><SupplementScoutIcon name="store" size={18} /></span><span>{offer.retailer.name}{index === 0 && <small>Lowest listed total</small>}</span></span>
-              <span className="home-offer-total"><strong>{formatCurrency(offer.deliveredPrice.totalPrice)}</strong><small>{offer.shippingCost === 0 ? "Free delivery" : `Incl. ${formatCurrency(offer.shippingCost)} delivery`}</small></span>
+              <span className="home-offer-name">{offer.retailer.name}</span>
+              <span className="home-offer-delivery"><SupplementScoutIcon name="truck" size={16} />{offer.shippingCost === 0 ? "Free delivery" : `${formatCurrency(offer.shippingCost)} delivery`}</span>
+              <span className="home-offer-total"><strong>{formatCurrency(offer.deliveredPrice.totalPrice)}</strong></span>
+              {index === 0 ? <span className="home-best-badge">Best price</span> : <span className="home-offer-difference">+{formatCurrency(offer.deliveredPrice.totalPrice - best.deliveredPrice.totalPrice)}</span>}
               <SupplementScoutIcon name="external-link" size={16} />
             </a>
           </li>
         ))}
       </ul>
-      <a href={productHref(row)} className="home-compare-link">Compare {row.retailerCount} stores <span aria-hidden="true">→</span></a>
-      <p className="home-data-note">{checkedAt && <><SupplementScoutIcon name="clock" size={16} /> Lowest offer checked <time dateTime={best.lastCheckedAt}>{checkedAt}</time>. </>}Prices can change at the retailer.</p>
+      {history.length >= 2 && <a href={productHref(row)} className="home-text-link">Compare {row.retailerCount} stores <span aria-hidden="true">→</span></a>}
+      {history.length >= 2 ? <PriceHistoryChart data={history} currentPrice={best.deliveredPrice.totalPrice} compact /> :
+        <div className="home-history home-history-empty"><SupplementScoutIcon name="chart" size={24} /><div><strong>Price history</strong><p>Comparable history unavailable for this offer.</p></div><a href={productHref(row)}>Compare {row.retailerCount} stores &amp; history <span aria-hidden="true">→</span></a></div>}
+      <p className="home-data-note">{savings !== null && <>Save {formatCurrency(savings)} vs the next listed retailer, including delivery. </>}Prices can change at the retailer.</p>
     </aside>
   );
 }
@@ -86,22 +101,22 @@ export function HomeCurrentComparisons({ rows }: { rows: DealsRow[] }) {
   return (
     <section className="home-section home-current" aria-labelledby="current-prices-heading">
       <div className="home-section-heading">
-        <div><p className="home-kicker">Let the numbers do the talking</p><h2 id="current-prices-heading">More prices worth comparing</h2></div>
-        <a href="/deals" className="home-text-link">All current comparisons <span aria-hidden="true">→</span></a>
+        <div><p className="home-kicker">Let the numbers do the talking</p><h2 id="current-prices-heading"><span className="home-underline">Find a better deal</span></h2></div>
+        <p className="home-section-copy">Fresh prices. The same variant. Delivery included.</p>
+        <a href="/deals" className="home-deals-link">View all deals <span aria-hidden="true">→</span></a>
       </div>
-      <p className="home-section-copy">The same variant. The same pack. See how current delivered prices compare across stores.</p>
       <div className="home-current-grid">
-        {rows.map((row) => (
+        {rows.map((row) => {
+          const saving = calculateDeliveredSavings(row.bestOffer.deliveredPrice.totalPrice, row.offers[1]?.deliveredPrice.totalPrice ?? null);
+          return (
           <article key={row.id} className="home-current-card">
             <div className="home-current-product">
               <div className="home-product-image"><ComparisonProductThumbnail image={row.image} name={row.name} productUrl={productHref(row)} nativeNavigation /></div>
-              <div className="min-w-0"><p className="home-product-brand">{row.brand}</p><h3><a href={productHref(row)}>{row.name}</a></h3><p className="home-product-pack">{row.packLabel}</p></div>
+              <div className="min-w-0"><h3><a href={productHref(row)}>{row.name}</a></h3><p className="home-product-pack">{row.packLabel}</p><a href={productHref(row)} className="home-current-link">Compare {row.retailerCount} stores <span aria-hidden="true">→</span></a></div>
             </div>
-            <p className="home-current-price">{formatCurrency(row.bestOffer.deliveredPrice.totalPrice)} <span>incl. delivery</span></p>
-            <p className="home-current-retailer">Lowest listed total at {row.bestOffer.retailer.name}</p>
-            <a href={productHref(row)} className="home-current-link">Compare {row.retailerCount} stores <span aria-hidden="true">→</span></a>
+            <div className="home-current-value"><p className="home-current-price">{formatCurrency(row.bestOffer.deliveredPrice.totalPrice)}</p><p className="home-current-retailer">incl. delivery</p>{saving !== null && <span className="home-small-saving" title="Compared with the next listed retailer, including delivery">Save {formatCurrency(saving)}</span>}</div>
           </article>
-        ))}
+        );})}
       </div>
     </section>
   );

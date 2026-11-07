@@ -28,11 +28,13 @@ export function ComparisonProductHeroImage({
   name,
   productUrl,
   nativeNavigation = false,
+  eager = false,
 }: {
   image: string | null;
   name: string;
   productUrl: string;
   nativeNavigation?: boolean;
+  eager?: boolean;
 }) {
   const ProductLink = nativeNavigation ? "a" : Link;
   return (
@@ -46,7 +48,8 @@ export function ComparisonProductHeroImage({
         <img
           src={image}
           alt={name}
-          loading="lazy"
+          loading={eager ? "eager" : "lazy"}
+          fetchPriority={eager ? "high" : undefined}
           decoding="async"
           className="object-contain p-3 sm:p-6"
           style={{ position: "absolute", height: "100%", width: "100%", inset: 0, color: "inherit" }}

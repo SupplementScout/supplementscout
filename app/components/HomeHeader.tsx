@@ -7,10 +7,11 @@ import { createPortal } from "react-dom";
 const MOBILE_HEADER_QUERY = "(max-width: 767px)";
 
 const navigationItems = [
-  { label: "Search supplements", href: "#search" },
-  { label: "Popular categories", href: "#categories" },
-  { label: "Shop by goal", href: "#goals" },
-  { label: "How it works", href: "#how-it-works" },
+  { label: "Supplements", href: "#categories" },
+  { label: "Compare", href: "/compare" },
+  { label: "Best Deals", href: "/deals" },
+  { label: "Guides", href: "/how-we-compare" },
+  { label: "Help Me Choose", href: "/help-me-choose" },
 ];
 
 export default function HomeHeader() {
@@ -90,7 +91,7 @@ export default function HomeHeader() {
 
   return (
     <>
-      <header className="border-b border-zinc-200 bg-white/95 backdrop-blur">
+      <header className="home-header border-b border-zinc-200 bg-white/95 backdrop-blur">
         <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:min-h-20 sm:px-6">
           <Link
             href="/"
@@ -114,12 +115,13 @@ export default function HomeHeader() {
             ))}
           </nav>
 
-          <div className="hidden md:block">
+          <div className="home-header-utilities hidden md:flex">
+            <span className="home-market" aria-label="UK market">UK</span>
             <Link
-              href="/deals"
-              className="inline-flex min-h-11 items-center rounded-full bg-[var(--ss-accent)] px-5 text-sm font-semibold text-white hover:bg-[var(--ss-accent-strong)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2"
+              href="/my-supplements"
+              className="home-saved-link"
             >
-              Find Deals
+              My Supplements
             </Link>
           </div>
 

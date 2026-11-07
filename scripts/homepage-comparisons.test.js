@@ -49,6 +49,7 @@ const dataOverrides = { "./supabase": { supabase: inaccessible }, "./supabaseAdm
 const deals = load("app/lib/dealsPriceIntelligence.ts", dataOverrides);
 const homeData = load("app/lib/homepageData.ts", dataOverrides);
 const components = load("app/home-comparisons.tsx");
+const presentation = load("app/lib/homepageComparisonDetails.ts");
 
 function offer(retailerId, price, overrides = {}) {
   return {
@@ -65,6 +66,80 @@ function offer(retailerId, price, overrides = {}) {
 }
 function result(raw = [offer(1, 20), offer(2, 25)]) { return deals.buildDealsResult(raw, now); }
 function featured(comparisons) { return renderToStaticMarkup(React.createElement(components.HomeFeaturedComparison, { comparisons })); }
+
+function nutritionFixture() {
+  return {
+    product: { id: "1", category: "Whey Protein", is_active: true, merged_into_product_id: null, net_weight_g: 500, serving_count_verified: 20, serving_size_g: 25, protein_per_serving_g: 20, creatine_per_serving_g: null, product_format: "powder", unit_pricing_verified: true, nutrition_verified: true },
+    variant: { id: "10", product_id: "1", pack_count: 1, size_value: 500, size_unit: "g", flavour_label: "Chocolate", nutrition_override: {}, product_format: "powder", is_active: true },
+  };
+}
+
+test("hero metrics reuse verified exact-pack calculations with delivery included", () => {
+  const { product, variant } = nutritionFixture();
+  const row = { ...result().rows[0], image: "https://test-only.example/product.webp" };
+  const details = presentation.buildHomepageComparisonDetails(row, product, variant);
+  assert.deepEqual(details.metrics, [{ value: "£1.10", label: "per serving" }, { value: "£1.38", label: "per 25g protein" }, { value: "20", label: "servings" }]);
+  const html = featured({ state: "ready", rows: [row], details: { "10": details } });
+  assert.match(html, /Chocolate/);
+  assert.match(html, /Unit costs include known delivery/);
+  assert.match(html, /\(18\.5%\)/, "saving percentage uses the next retailer's delivered total of 27");
+  assert.match(html, /loading="eager"/);
+});
+
+test("missing, unverified, mismatched and multipack nutrition cannot invent nutrient prices", () => {
+  const { product, variant } = nutritionFixture();
+  const row = result().rows[0];
+  for (const [p, v] of [[undefined, variant], [product, undefined], [product, { ...variant, id: "99" }], [product, { ...variant, product_id: "99" }], [product, { ...variant, size_value: 1000 }], [product, { ...variant, pack_count: 2 }]]) {
+    assert.deepEqual(presentation.buildHomepageComparisonDetails(row, p, v).metrics, []);
+  }
+  const unverified = presentation.buildHomepageComparisonDetails(row, { ...product, nutrition_verified: false }, variant);
+  assert.ok(unverified.metrics.every((metric) => metric.label !== "per 25g protein"));
+  const preWorkout = presentation.buildHomepageComparisonDetails(row, { ...product, category: "Pre Workout" }, variant);
+  assert.ok(preWorkout.metrics.every((metric) => !metric.label.includes("protein")));
+});
+
+test("creatine metrics use verified nutrient mass rather than scoop weight", () => {
+  const { product, variant } = nutritionFixture();
+  const metrics = presentation.buildHomepageComparisonDetails(result().rows[0], { ...product, category: "Creatine", protein_per_serving_g: null, creatine_per_serving_g: 3 }, variant).metrics;
+  assert.deepEqual(metrics.find((metric) => metric.label === "per 5g creatine"), { value: "£1.83", label: "per 5g creatine" });
+});
+
+test("quality ordering prefers complete data, keeps deterministic ties and diversifies secondary categories", () => {
+  const base = result().rows[0];
+  const rows = ["1", "2", "3", "4", "5"].map((id) => ({ ...base, id, variantId: id, image: "https://test-only.example/image.webp" }));
+  const details = { "1": { category: "Pre Workout", metrics: [] }, "2": { category: "Pre Workout", metrics: [] }, "3": { category: "Whey Protein", metrics: [{ label: "per 25g protein", value: "£1" }] }, "4": { category: "Creatine", metrics: [] } };
+  assert.deepEqual(presentation.orderHomepageComparisons(rows, details).map((row) => row.id), ["3", "1", "4", "2"]);
+  assert.deepEqual(presentation.orderHomepageComparisons(rows, {}).map((row) => row.id), ["1", "2", "3", "4"]);
+});
+
+test("history requires a proven exact current-check anchor and never mixes identity series", () => {
+  const row = result().rows[0];
+  const record = { offer_id: row.bestOffer.id, product_id: row.id, identity_series_id: "9007199254740999", price: 20, shipping_cost: 2, total_price: 22, checked_at: row.bestOffer.lastCheckedAt, evidence_status: "proven", currency: "GBP", in_stock: true, anomaly_flags: [] };
+  const previousDate = new Date(Date.parse(record.checked_at) - 86400_000).toISOString();
+  const previous = { ...record, checked_at: previousDate, price: 23, total_price: 25 };
+  const otherSeries = { ...previous, identity_series_id: "2", price: 5, total_price: 7 };
+  assert.deepEqual(presentation.buildHomepageHistory(row, [otherSeries, record, previous]), [{ date: previousDate.slice(0, 10), price: 25 }, { date: record.checked_at.slice(0, 10), price: 22 }]);
+  assert.deepEqual(presentation.buildHomepageHistory(row, [previous, otherSeries]), []);
+  for (const invalid of [{ evidence_status: null }, { anomaly_flags: ["identity_changed"] }, { currency: "USD" }, { in_stock: false }, { offer_id: "2" }, { shipping_cost: null }, { identity_series_id: null }, { total_price: 1 }, { price: 19, total_price: 21 }]) {
+    assert.deepEqual(presentation.buildHomepageHistory(row, [{ ...record, ...invalid }]), []);
+  }
+});
+
+test("optional enrichment uses two bounded reads and a single bounded history read, failing safely", async () => {
+  const calls = [];
+  const { product, variant } = nutritionFixture();
+  const db = { from(table) { const call = { table, operations: [] }; calls.push(call); const builder = new Proxy({}, { get: (_, key) => key === "then" ? (resolve) => resolve({ error: null, data: table === "products" ? [product] : table === "product_variants" ? [variant] : [] }) : (...args) => { call.operations.push([key, ...args]); return builder; } }); return builder; } };
+  const readers = load("app/lib/homepageComparisonDetails.server.ts", { "./supabaseAdmin": { supabaseAdmin: db } });
+  const row = result().rows[0];
+  const details = await readers.getHomepageComparisonDetails(Array(30).fill(row));
+  assert.equal(details["10"].metrics.length, 3);
+  assert.equal(calls.length, 2);
+  assert.ok(calls.every((call) => call.operations.some(([name, limit]) => name === "limit" && limit === 16)));
+  assert.ok(calls.every((call) => call.operations.find(([name]) => name === "in")[2].length === 16));
+  assert.deepEqual(await readers.getHomepagePriceHistory(row), []);
+  assert.equal(calls[2].table, "price_history");
+  assert.ok(calls[2].operations.some(([name, limit]) => name === "limit" && limit === 120));
+});
 
 test("homepage preserves the canonical deal order, caps at four and never selects a named brand", () => {
   const base = result();
@@ -156,13 +231,15 @@ test("valid empty and failed comparison reads produce distinct fallback copy wit
   assert.deepEqual(homeData.selectHomepageComparisons({ ...result(), error: true }, now), { state: "unavailable", rows: [] });
 });
 
-test("secondary comparisons have real crawlable variant links and no invented historical savings", () => {
+test("secondary comparisons have real variant links and explicitly scoped current-retailer savings", () => {
   const rows = result().rows;
   const html = renderToStaticMarkup(React.createElement(components.HomeCurrentComparisons, { rows }));
   assert.match(html, /href="\/product\/test-only-supplement\?variant=10"/);
   assert.match(html, /£22\.00/);
   assert.match(html, /Compare 2 stores/);
-  assert.doesNotMatch(html, /<del|<s\b|Save|RRP/);
+  assert.match(html, /Save £5\.00/);
+  assert.match(html, /Compared with the next listed retailer, including delivery/);
+  assert.doesNotMatch(html, /<del|<s\b|RRP/);
   assert.equal(renderToStaticMarkup(React.createElement(components.HomeCurrentComparisons, { rows: [] })), "");
 });
 
@@ -179,6 +256,7 @@ test("a failed shared loader does not suppress independently successful statisti
   };
   const data = load("app/lib/homepageData.ts", {
     "./supabase": { supabase: db },
+    "./supabaseAdmin": { supabaseAdmin: inaccessible },
     "./dealsPriceIntelligence": { getCachedDeals: async () => { throw new Error("TEST ONLY loader failure"); } },
   });
   const previousError = console.error;
@@ -201,7 +279,7 @@ test("homepage retains server copy, one H1 and every canonical catalogue path wh
   });
   const html = renderToStaticMarkup(await page.default());
   assert.equal((html.match(/<h1\b/g) || []).length, 1);
-  assert.match(html, /Find the right supplement/);
+  assert.match(html.replace(/<[^>]*>/g, " "), /Find the right\s+supplement/);
   assert.match(html, /UK supplement price comparison/);
   assert.match(html, /action="\/search"/);
   assert.match(html, /name="q"/);
