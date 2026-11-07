@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import SupplementScoutIcon from "./SupplementScoutIcon";
 
 const MOBILE_HEADER_QUERY = "(max-width: 767px)";
 
@@ -95,9 +96,11 @@ export default function HomeHeader() {
         <div className="mx-auto flex min-h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:min-h-20 sm:px-6">
           <Link
             href="/"
-            className="text-lg font-extrabold tracking-[-0.03em] text-[var(--ss-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)] focus:ring-offset-2 sm:text-xl"
+            aria-label="SupplementScout home"
+            className="home-wordmark"
           >
-            SupplementScout
+            <SupplementScoutIcon name="search" size={24} strokeWidth={3} />
+            <span>Supplement<span className="home-wordmark-accent">Scout</span></span>
           </Link>
 
           <nav

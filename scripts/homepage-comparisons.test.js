@@ -67,6 +67,51 @@ function offer(retailerId, price, overrides = {}) {
 function result(raw = [offer(1, 20), offer(2, 25)]) { return deals.buildDealsResult(raw, now); }
 function featured(comparisons) { return renderToStaticMarkup(React.createElement(components.HomeFeaturedComparison, { comparisons })); }
 
+test("homepage wordmark keeps a single accessible home link with the full brand name", () => {
+  const Header = load("app/components/HomeHeader.tsx").default;
+  const html = renderToStaticMarkup(React.createElement(Header));
+  assert.equal([...html.matchAll(/<a\b[^>]*>/g)].filter(([tag]) => tag.includes('href="/"') && tag.includes('aria-label="SupplementScout home"')).length, 1);
+  assert.match(html.replace(/<[^>]+>/g, ""), /SupplementScout/);
+});
+
+test("static categories retain four crawlable links and responsive decorative images without client interaction", () => {
+  const Categories = load("app/components/HomeCategories.tsx").default;
+  const items = ["/whey-protein", "/creatine", "/pre-workout", "/vitamins"].map((href) => ({ href, label: href }));
+  const html = renderToStaticMarkup(React.createElement(Categories, { items }));
+  assert.equal((html.match(/<picture>/g) || []).length, 4);
+  assert.equal((html.match(/alt=""/g) || []).length, 4);
+  assert.equal((html.match(/loading="lazy"/g) || []).length, 4);
+  for (const { href } of items) assert.ok(html.includes(`href="${href}"`));
+  assert.match(html, /width="480" height="320"/);
+  assert.match(html, /srcSet=/);
+});
+
+test("homepage image optimization is opt-in and limited to configured public CDN sources", () => {
+  const calls = [];
+  const { ComparisonProductHeroImage } = load("app/components/ComparisonProductVisuals.tsx", {
+    "next/image": { getImageProps: (input) => { calls.push(input); return { props: { ...input, src: `/_next/image?url=${encodeURIComponent(input.src)}` } }; } },
+  });
+  const config = load("next.config.ts").default;
+  for (const image of ["https://cdn.shopify.com/s/files/1/test.webp", "https://files.ekmcdn.com/test.jpg"]) {
+    const count = calls.length;
+    const html = renderToStaticMarkup(React.createElement(ComparisonProductHeroImage, { image, name: "TEST ONLY Pack", productUrl: "/product/test", optimize: true, eager: true }));
+    assert.equal(calls.length, count + 1);
+    assert.ok(config.images.remotePatterns.some((pattern) => pattern.hostname === new URL(image).hostname));
+    assert.match(html, /src="\/_next\/image/);
+    assert.match(html, /alt="TEST ONLY Pack"/);
+    assert.match(html, /loading="eager"/);
+  }
+  for (const image of ["https://test-only.example/product.jpg", "https://cdn.shopify.com/private/file.jpg", "http://cdn.shopify.com/s/files/test.jpg", "http://127.0.0.1/private.jpg"]) {
+    const count = calls.length;
+    const html = renderToStaticMarkup(React.createElement(ComparisonProductHeroImage, { image, name: "TEST ONLY Pack", productUrl: "/product/test", optimize: true }));
+    assert.equal(calls.length, count);
+    assert.ok(html.includes(`src="${image}"`));
+  }
+  const count = calls.length;
+  renderToStaticMarkup(React.createElement(ComparisonProductHeroImage, { image: "https://cdn.shopify.com/s/files/test.jpg", name: "TEST ONLY Pack", productUrl: "/product/test" }));
+  assert.equal(calls.length, count, "other pages retain their original image handling unless they opt in");
+});
+
 function nutritionFixture() {
   return {
     product: { id: "1", category: "Whey Protein", is_active: true, merged_into_product_id: null, net_weight_g: 500, serving_count_verified: 20, serving_size_g: 25, protein_per_serving_g: 20, creatine_per_serving_g: null, product_format: "powder", unit_pricing_verified: true, nutrition_verified: true },

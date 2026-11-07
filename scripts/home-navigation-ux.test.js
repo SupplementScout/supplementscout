@@ -13,7 +13,7 @@ const headerSource = fs.readFileSync(
   "utf8"
 );
 const categoriesSource = fs.readFileSync(
-  path.join(process.cwd(), "app", "components", "HomeCategories.tsx"),
+  path.join(process.cwd(), "app", "components", "HomeCategoryLinks.tsx"),
   "utf8"
 );
 const categoryRoutesSource = fs.readFileSync(

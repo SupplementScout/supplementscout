@@ -29,6 +29,12 @@ const contentSecurityPolicy = [
 ].join("; ");
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      { protocol: "https", hostname: "cdn.shopify.com", pathname: "/s/files/**" },
+      { protocol: "https", hostname: "files.ekmcdn.com", pathname: "/**" },
+    ],
+  },
   async headers() {
     return [
       {

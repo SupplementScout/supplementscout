@@ -56,7 +56,7 @@ export function HomeFeaturedComparison({ comparisons }: { comparisons: HomepageC
       </div>}
       <div className="home-comparison-product">
         <div className="home-product-image">
-          <ComparisonProductHeroImage image={row.image} name={row.name} productUrl={productHref(row)} nativeNavigation eager />
+          <ComparisonProductHeroImage image={row.image} name={row.name} productUrl={productHref(row)} nativeNavigation eager optimize />
           {row.image && details?.flavour && <p className="home-image-note">Product image. Flavour packaging may vary.</p>}
         </div>
         <div className="min-w-0">

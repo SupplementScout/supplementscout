@@ -411,12 +411,14 @@ test("homepage deduplicates the production Carbohydrates label and sends its sin
     },
   });
   const HomeCategories = () => null;
+  const HomeCategoryLinks = () => null;
   const Noop = () => null;
   const home = compileModule(path.join(root, "app/page.tsx"), {
     mocks: {
       "next/link": { __esModule: true, default: Link },
       "./components/ComparisonTransparencyLinks": { __esModule: true, default: Noop },
       "./components/HomeCategories": { __esModule: true, default: HomeCategories },
+      "./components/HomeCategoryLinks": { __esModule: true, default: HomeCategoryLinks },
       "./home-comparisons": { HomeFeaturedComparison: () => null, HomeCurrentComparisons: () => null },
       "./home.css": {},
       "./components/HomeHeader": { __esModule: true, default: Noop },
@@ -439,15 +441,19 @@ test("homepage deduplicates the production Carbohydrates label and sends its sin
   const tree = await home.default();
   const stack = [tree];
   let categoryNode = null;
+  let directoryNode = null;
   while (stack.length > 0) {
     const node = stack.pop();
     if (!node || typeof node !== "object") continue;
     if (node.type === HomeCategories) categoryNode = node;
+    if (node.type === HomeCategoryLinks) directoryNode = node;
     const children = node.props?.children;
     if (Array.isArray(children)) stack.push(...children);
     else if (children) stack.push(children);
   }
   assert.ok(categoryNode);
+  assert.ok(directoryNode);
+  assert.deepEqual(directoryNode.props.items, categoryNode.props.items);
   const carbohydrateItems = categoryNode.props.items.filter(
     (item) => item.label === "Carbohydrates"
   );

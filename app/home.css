@@ -10,6 +10,9 @@
 .home-hero, .home-section, .home-benefits { width: min(100%,1440px); margin-inline: auto; padding-inline: 40px; }
 .home-header > div { max-width: 1440px; padding-inline: 40px; min-height: 64px; }
 .home-header nav { gap: 24px; color: #14233b; font-size: 14px; }
+.home-wordmark { display: inline-flex; flex-shrink: 0; align-items: center; gap: 8px; color: var(--ss-ink); font-size: 28px; font-weight: 800; letter-spacing: -.055em; line-height: 1.1; white-space: nowrap; }
+.home-wordmark > svg { flex: none; width: 32px; height: 32px; color: var(--ss-accent); }
+.home-wordmark-accent { color: var(--ss-accent); }
 .home-header-utilities { gap: 20px; align-items: center; }
 .home-market { padding-right: 16px; border-right: 1px solid #dfe7f1; font-size: 12px; font-weight: 700; }
 .home-saved-link { display: inline-flex; align-items: center; min-height: 44px; color: #34445e; font-size: 12px; }
@@ -38,7 +41,7 @@
 .home-comparison { position: relative; align-self: center; min-width: 0; padding: 18px 20px 12px; border: 1px solid #d8eedc; border-radius: 22px; background: #fff; box-shadow: 0 10px 35px rgb(31 100 83 / 9%); }
 .home-comparison-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding-right: 100px; min-height: 36px; }
 .home-featured-pill { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; background: #d2fac0; color: #152a18; font-size: 20px; font-weight: 750; letter-spacing: -.025em; white-space: nowrap; }
-.home-check-time { display: flex; align-items: center; gap: 5px; color: #49617a; font-size: 9px; line-height: 1.6; }
+.home-check-time { display: flex; align-items: center; gap: 5px; color: #49617a; font-size: 10px; line-height: 1.6; }
 .home-check-time svg { flex-shrink: 0; color: #168042; }
 .home-check-time time { color: #1e3b54; font-weight: 600; }
 .home-saving-seal { position: absolute; z-index: 1; top: -8px; right: -10px; display: flex; align-items: center; justify-content: center; flex-direction: column; width: 108px; height: 108px; background: #087e24; color: white; filter: drop-shadow(0 4px 5px rgb(9 120 40 / 15%)); clip-path: polygon(50% 0,60% 3%,70% 2%,78% 9%,87% 14%,91% 23%,98% 31%,97% 41%,100% 50%,97% 60%,98% 69%,91% 78%,87% 87%,77% 91%,69% 98%,59% 97%,50% 100%,40% 97%,30% 98%,22% 91%,13% 86%,9% 77%,2% 69%,3% 59%,0 50%,3% 40%,2% 30%,9% 22%,14% 13%,23% 9%,31% 2%,41% 3%); font-size: 13px; font-weight: 650; line-height: 1.3; }
@@ -47,7 +50,7 @@
 .home-product-image { min-width: 0; }
 .home-comparison-product .home-product-image > a { border: 0; border-radius: 10px; background: #fff; }
 .home-comparison-product .home-product-image img { padding: 0; }
-.home-image-note { margin-top: 4px; color: #607086; font-size: 8px; text-align: center; line-height: 1.4; }
+.home-image-note { margin-top: 4px; color: #526781; font-size: 9px; text-align: center; line-height: 1.4; }
 .home-product-brand { color: #526781; font-size: 9px; font-weight: 650; letter-spacing: .08em; text-transform: uppercase; }
 .home-comparison h3 { margin-top: 4px; font-size: 20px; font-weight: 750; letter-spacing: -.035em; line-height: 1.2; overflow-wrap: anywhere; }
 .home-product-pack { margin-top: 6px; color: #3f5775; font-size: 12px; line-height: 1.5; }
@@ -60,7 +63,7 @@
 .home-live-label { display: inline-flex; align-items: center; gap: 4px; color: #176635; font-size: 10px; font-weight: 600; }
 .home-price-breakdown { margin-top: 10px; color: #49617a; font-size: 10px; line-height: 1.7; }
 .home-price-breakdown strong { color: #175d20; }
-.home-offers-heading { display: flex; justify-content: space-between; gap: 8px; margin-top: 12px; padding-bottom: 5px; color: #52637a; font-size: 9px; }
+.home-offers-heading { display: flex; justify-content: space-between; gap: 8px; margin-top: 12px; padding-bottom: 5px; color: #52637a; font-size: 10px; }
 .home-offer-list { overflow: hidden; border: 1px solid #e3eaf3; border-radius: 12px; background: #f5f8fd; }
 .home-offer-list li + li { border-top: 1px solid #dfe8f5; }
 .home-offer-list li:first-child { background: #e8fbdf; }
@@ -84,7 +87,7 @@
 .home-history > svg:not(.home-history-empty > svg) { width: 110px; height: 36px; margin-left: auto; }
 .home-history-empty > svg { flex-shrink: 0; }
 .home-history a { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; min-height: 32px; color: #245b33; font-size: 10px; font-weight: 650; text-align: right; }
-.home-data-note { margin-top: 8px; color: #526781; text-align: center; font-size: 9px; line-height: 1.6; }
+.home-data-note { margin-top: 8px; color: #526781; text-align: center; font-size: 10px; line-height: 1.6; }
 .home-comparison-empty { padding: 26px; background: #f8faff; }
 .home-empty-icon { display: flex; align-items: center; justify-content: center; width: 56px; height: 56px; margin-top: 28px; border: 1px solid #dce5f5; border-radius: 16px; background: white; color: var(--ss-accent); }
 .home-comparison-empty h2 { margin-top: 20px; font-size: 29px; font-weight: 650; letter-spacing: -.04em; line-height: 1.25; }
@@ -124,15 +127,15 @@
 .home-current { padding-top: 22px; }
 .home-current .home-kicker { display: none; }
 .home-current-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 18px; margin-top: 16px; }
-.home-current-card { display: flex; justify-content: space-between; gap: 8px; min-width: 0; padding: 14px; border: 1px solid #dfe7f1; border-radius: 17px; background: white; box-shadow: var(--ss-shadow-card); }
+.home-current-card { display: flex; justify-content: space-between; gap: 8px; min-width: 0; padding: 14px; border: 1px solid #dfe7f1; border-radius: 18px; background: white; box-shadow: var(--ss-shadow-card); }
 .home-current-product { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .home-current-product .home-product-image { flex: 0 0 66px; width: 66px; }
 .home-current-product .home-product-image > a { width: 66px; height: 88px; padding: 0; border: 0; border-radius: 4px; background: white; }
-.home-current-product h3 { font-size: 12px; font-weight: 750; line-height: 1.35; overflow-wrap: anywhere; }
+.home-current-product h3 { font-size: 13px; font-weight: 750; line-height: 1.35; overflow-wrap: anywhere; }
 .home-current-product .home-product-pack { font-size: 10px; }
 .home-current-value { flex-shrink: 0; align-self: center; text-align: right; }
 .home-current-price { color: #177d29; font-size: 23px; font-weight: 750; letter-spacing: -.05em; }
-.home-current-retailer { margin-top: 2px; color: #52637a; font-size: 9px; }
+.home-current-retailer { margin-top: 2px; color: #52637a; font-size: 10px; }
 .home-small-saving { margin-top: 8px; font-size: 10px; }
 .home-current-link { display: inline-flex; align-items: center; gap: 5px; min-height: 35px; color: var(--ss-accent); font-size: 10px; font-weight: 600; }
 .home-discovery { background: #f7faff; border-block: 1px solid #e7ebf1; }
@@ -143,12 +146,14 @@
 .home-coverage-grid { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 20px; border-block: 1px solid #e7ebf1; padding-block: 20px; }
 .home-coverage-grid strong { font-size: 21px; font-weight: 650; letter-spacing: -.025em; }
 .home-coverage-grid p { margin-top: 4px; color: #52637a; font-size: 11px; }
+.ss-home > footer { padding-top: 24px; }
+.ss-home > footer > div { padding-top: 24px; }
 .home-footer-links { padding-block: 0 24px; }
 .home-footer-links h2 { font-size: 14px; letter-spacing: 0; }
 .home-footer-links > div { display: flex; flex-wrap: wrap; gap: 0 20px; margin-top: 8px; }
 .home-footer-links a { display: inline-flex; min-height: 44px; align-items: center; color: #52637a; font-size: 12px; }
 @media (max-width: 1199px) {
-  .home-header > div { padding-inline: 24px; }.home-header nav { gap: 14px; font-size: 12px; }.home-header-utilities { display: none; }
+  .home-header > div { padding-inline: 24px; }.home-wordmark { font-size: 25px; gap: 6px; }.home-wordmark > svg { width: 29px; height: 29px; }.home-header nav { gap: 14px; font-size: 12px; }.home-header-utilities { display: none; }
   .home-hero,.home-section,.home-benefits { padding-inline: 24px; }.home-categories, .home-category-directory { padding-inline: 24px; }
   .home-hero { gap: 24px; grid-template-columns: minmax(0,.85fr) minmax(0,1.15fr); }.home-hero h1 { font-size: 49px; }
   .home-comparison-product { grid-template-columns: 135px minmax(0,1fr); gap: 10px; }.home-featured-pill { font-size: 13px; }.home-check-time { font-size: 8px; }
@@ -163,7 +168,7 @@
   .home-category-featured { grid-template-columns: repeat(2,minmax(0,1fr)); }.home-category-image { width: 58%; height: 145px; }.home-category-card h3 { font-size: 23px; }.home-category-card p { font-size: 12px; }
   .home-current-grid { grid-template-columns: 1fr; }.home-current-product .home-product-image { flex-basis: 74px; width: 74px; }.home-current-product .home-product-image > a { width: 74px; height: 80px; }.home-current-product h3 { font-size: 15px; }.home-current-value { margin-left: auto; }.home-current-price { font-size: 27px; }
 }
-@media (max-width: 767px) { .home-header > div { min-height: 64px; padding-inline: 16px; } }
+@media (max-width: 767px) { .home-header > div { min-height: 64px; padding-inline: 16px; }.home-wordmark { font-size: 19px; gap: 5px; }.home-wordmark > svg { width: 22px; height: 22px; } }
 @media (max-width: 639px) {
   .home-section,.home-categories,.home-category-directory,.home-discovery,.ss-home > footer { content-visibility: auto; contain-intrinsic-block-size: auto 600px; }
   .home-hero,.home-section,.home-benefits { padding-inline: 20px; }.home-categories, .home-category-directory { padding-inline: 20px; }
@@ -171,13 +176,13 @@
   .home-intro { margin-top: 16px; font-size: 14px; line-height: 1.6; }.home-trust { gap: 6px 13px; margin-top: 15px; font-size: 10px; }
   .home-hero #search { margin-top: 19px; }.home-hero #search input { min-width: 0; font-size: 16px; padding-left: 7px; }.home-hero #search input::placeholder { font-size: 12px; }.home-hero #search button { padding-inline: 17px; }.home-hero #search > div > div > svg { display: none; }
   .home-popular { margin-top: 12px; gap: 6px; }.home-popular > span { width: 100%; }.home-popular a { min-height: 36px; padding-inline: 12px; font-size: 11px; }
-  .home-comparison { padding: 15px 13px 11px; border-radius: 19px; }.home-comparison-top { align-items: start; flex-direction: column; gap: 9px; padding-right: 75px; }.home-featured-pill { gap: 5px; padding: 7px 9px; font-size: 13px; }.home-featured-pill svg { width: 19px; height: 19px; }.home-check-time { font-size: 9px; line-height: 1.4; }.home-check-time br { display: none; }.home-check-time time { margin-left: 3px; }
+  .home-comparison { padding: 15px 13px 11px; border-radius: 19px; }.home-comparison-top { align-items: start; flex-direction: column; gap: 9px; padding-right: 75px; }.home-featured-pill { gap: 5px; padding: 7px 9px; font-size: 13px; }.home-featured-pill svg { width: 19px; height: 19px; }.home-check-time { font-size: 10px; line-height: 1.4; }.home-check-time br { display: none; }.home-check-time time { margin-left: 3px; }
   .home-saving-seal { width: 82px; height: 82px; right: -5px; top: -7px; font-size: 11px; }.home-saving-seal strong { font-size: 23px; }
-  .home-comparison-product { grid-template-columns: 105px minmax(0,1fr); gap: 10px; margin-block: 17px 8px; }.home-comparison h3 { font-size: 18px; line-height: 1.25; }.home-product-pack { font-size: 11px; }.home-product-brand { font-size: 8px; }
-  .home-metrics { flex-wrap: wrap; margin-top: 10px; padding: 10px 0; row-gap: 7px; }.home-metrics > div { padding-inline: 4px; }.home-metrics dd { font-size: 18px; }.home-metrics dt { font-size: 9px; }.home-metric-note { font-size: 9px; }.home-live-label { font-size: 9px; }
+  .home-comparison-product { grid-template-columns: 105px minmax(0,1fr); gap: 10px; margin-block: 17px 8px; }.home-comparison h3 { font-size: 18px; line-height: 1.25; }.home-product-pack { font-size: 11px; }.home-product-brand { font-size: 10px; }
+  .home-metrics { flex-wrap: wrap; margin-top: 10px; padding: 10px 0; row-gap: 7px; }.home-metrics > div { padding-inline: 4px; }.home-metrics dd { font-size: 18px; }.home-metrics dt { font-size: 10px; }.home-metric-note { font-size: 10px; }.home-live-label { font-size: 9px; }
   .home-offer-row { min-height: 62px; grid-template-columns: minmax(0,1fr) auto 65px 12px; gap: 3px 7px; padding: 8px; }.home-offer-name { grid-column: 1; grid-row: 1; font-size: 12px; }.home-offer-delivery { grid-column: 1; grid-row: 2; font-size: 10px; }.home-offer-total { grid-column: 2; grid-row: 1 / 3; }.home-best-badge,.home-offer-difference { grid-column: 3; grid-row: 1 / 3; }.home-offer-row > svg { grid-column: 4; grid-row: 1 / 3; }.home-offer-total strong { font-size: 18px; }
 
-  .home-history { flex-wrap: wrap; gap: 8px; padding: 10px; }.home-history strong { font-size: 11px; }.home-history a { font-size: 10px; min-height: 34px; }.home-history-empty > div { max-width: calc(100% - 44px); }.home-history-empty a { margin-left: 32px; }.home-data-note { font-size: 9px; }
+  .home-history { flex-wrap: wrap; gap: 8px; padding: 10px; }.home-history strong { font-size: 11px; }.home-history a { font-size: 10px; min-height: 34px; }.home-history-empty > div { max-width: calc(100% - 44px); }.home-history-empty a { margin-left: 32px; }.home-data-note { font-size: 10px; }
   .home-benefits { padding-block: 20px; gap: 20px 0; }.home-benefit { gap: 8px; align-items: start; padding-inline: 10px; }.home-benefit > svg { width: 23px; height: 23px; }.home-benefit h3 { font-size: 12px; line-height: 1.3; }.home-benefit p { font-size: 10px; }
   .home-section { padding-block: 24px; }.home-section h2 { font-size: 27px; }.home-category-featured { gap: 10px; }.home-category-card { padding: 14px 11px; min-height: 190px; border-radius: 15px; }.home-category-card h3 { max-width: 100%; font-size: 18px; }.home-category-card p { max-width: 94%; font-size: 11px; line-height: 1.4; }.home-category-image { width: 95%; height: 105px; bottom: -2px; right: -13px; }.home-category-arrow { position: absolute; bottom: 13px; left: 11px; z-index: 1; width: 29px; height: 29px; font-size: 20px; }.home-category-links { gap: 0 13px; }.home-category-links a { min-height: 38px; font-size: 11px; }
   .home-section-heading { gap: 8px; }.home-current .home-section-copy { order: 1; flex-basis: 100%; font-size: 12px; }.home-deals-link { min-height: 38px; padding-inline: 12px; font-size: 10px; }.home-current-grid { margin-top: 12px; gap: 12px; }.home-current-product h3 { font-size: 13px; }.home-current-product .home-product-image { flex-basis: 62px; width: 62px; }.home-current-product .home-product-image > a { width: 62px; }.home-current-price { font-size: 24px; }.home-current-card { padding: 12px; gap: 7px; }.home-small-saving { font-size: 9px; }
