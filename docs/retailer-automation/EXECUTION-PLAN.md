@@ -1,11 +1,13 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: POST-CLOSEOUT INCIDENT VERIFIED COMPLETE — RA-004 REMAINS BLOCKED**
+**Status: INCIDENT FIX READY FOR VERIFICATION — PRODUCTION RECOVERY PENDING APPROVAL**
 
-**Current active task:** Gladiator shared-pipeline adoption preparation
-(`IN_PROGRESS`). This is a config/registration adoption of the existing
-retailer-offer-sync spine, not a new automation path. Scheduled activation,
-database migration application and live execution remain unauthorized.
+**Current active task:** owner-authorized existing-path incident repair and
+read-only recovery preparation, 7 November 2026 (`READY_FOR_VERIFICATION`).
+The only implementation is the 6 Pack source-format correction below.
+Gladiator adoption preparation does not advance during this incident. This
+task authorizes no merge, production worker dispatch, approval, control close,
+retry, schedule/configuration activation, migration or business-data write.
 RA-STAB-02 and RA-STAB-01 are `VERIFIED_COMPLETE`. On 29 September 2026 the
 owner stopped further RA-004 live canary retries after the five-day sequence of
 staging-interface, credential, ledger, ACL, provider-identity and final SQL
@@ -19,6 +21,189 @@ new runtime, importer, approval path or executor. It reuses the current
 workflows, artifacts, control ledger, Review Queue, postflight and watchdog.
 Work proceeds read-only until a specific recovery or business write has fresh
 bounded evidence and separate owner approval.
+
+## 7 November 2026 existing-path incident — diagnosis and bounded parser fix
+
+**DIAGNOSIS_CONFIRMED / CODE_FIX_VERIFIED locally /
+PRODUCTION_RECOVERY_PENDING_APPROVAL.** Owner instruction: repair the existing
+automation without a second queue, scheduler, worker, importer, adapter registry
+or approval path. Starting main and branch baseline:
+`7d9defdac4c8bb80b55beba429f6205bf212b053`; isolated branch
+`fix/retailer-automation-incident-20261107`. No related open repair PR existed at
+preflight. Homepage and issue #497 are outside this scope. Earlier dated entries
+below are historical checkpoints, not claims that their acceptance gates are
+still outstanding.
+
+### Existing flow retained
+
+- Schedule/manual inputs remain in the current `.github/workflows/*offer-refresh.yml`.
+  Discount, Dolphin, KIOR, Fit House, Simply and Gladiator use the existing
+  shared `fit-house-offer-refresh.js` engine and configured source profiles;
+  10 Reps uses its CSV profile. `executeRefresh()`, `validate()`, `register()`
+  and `approveAndExecute()` retain the shared classifier/plans, canonical
+  `environment-migrations.js#migrationBinding`, sealed artifacts and split-role
+  offer-sync RPCs. Whey and Jon's retain their supported wrappers and the same
+  guarded RPC/control mechanisms; no cutover is implied.
+- 6 Pack keeps `six-pack-offer-refresh.js#run` -> bounded Woo page reader ->
+  exact approved manifest -> `classifyExistingOffers()` / existing atomic plans
+  -> `six-pack-offer-refresh-executor.js#validatePlansReadOnly` /
+  `executeApprovedPlansWithCheckpoint` / `executeEntry`. eBay and GYM HIGH keep
+  their existing artifact-bound import executors. No new execution path exists.
+- Review publication uses `automation-review-source-binding.js`, reconciliation
+  and `automation-review-publisher.js#validateRow` / `publishReviewManifestViaRpc`.
+  Reasons come from `config/automation-review-reason-codes.json`. The one
+  `automation-review-execution-adapters.json` registry is consumed by both
+  `app/lib/automationReviewAdapters.ts` and the script adapter registry.
+  Owner-approved requests use `automation-review-queue-worker.js#run`, existing
+  coordinator/workers and the durable execution-request/event ledger.
+- Existing freshness, source-collapse, anomaly, fingerprint, owner approval,
+  idempotency and postflight contracts are unchanged. The seven workflows using
+  `retailer-offer-production-write` still serialize writes with `queue: max`.
+  Existing dedicated concurrency groups are retained. Database evidence remains
+  `retailer-offer-refresh-postflight.js#capture` / `verifyPostflight`; reporting
+  remains the current watchdog and workflow summaries.
+
+### Bounded current evidence
+
+Read-only Actions inventory covers 4–7 November, 309 runs at capture. All latest
+retailer refreshes below are genuine `schedule` events on
+`9eeddc65c5c5c1385f441b8877287a305505e749`, before the homepage merge. Thus these
+failures do not originate in the homepage release. A successful workflow is
+counted only for the relevant job and retained execution/postflight evidence.
+
+| Path | Latest relevant run | Actual stage/outcome and remaining boundary |
+|---|---:|---|
+| 6 Pack | `42361990356` | First failure: source parsing product6303, `SOURCE_SCHEMA_MISMATCH`, expected one Product JSON-LD block, found5. Apply never reached. Last complete run `42205190703`:464 executed/42 review, postflight PASS. Adapter fix below; production proof pending. |
+| Whey Okay | `42357164216` | Preflight blocked by active approval/workflow/conflicting session; no apply. Last good `42195176800`:579/589 executed,10 review,12 children/postflight PASS. `EXPECTED_SAFETY_BLOCK`; exact current control inventory unavailable. |
+| Jon's | `42367839015` | Read-only validator PASS, then registration `P0001 / RSBI_REPLAY_BLOCKED`: equivalent control plan active. Approver/executor not run. Last complete `41830579130`:491 rows/10 children. Prior `42218194836` timed out at first-child **APPROVER**, not a proven executor failure:0 completed children,1 recorded control write. Its transactional outcome is not established by timeout; no replay or unlock. |
+| Fit House | `42358908309` | Source preflight rejects an unallowlisted absent mapped variant; apply skipped. Last complete correlated job `41810359630`. `EXPECTED_SAFETY_BLOCK`; no source-absence policy widening. |
+| 10 Reps | `42358908309` | Relevant job applied812,138 review, postflight PASS despite the other retailer failing in the same workflow. Review backlog alarm is separate. |
+| Discount | `42377535941` |109 executed, postflight PASS; today's watchdog had an earlier evidence-fetch error, not proof of a failed refresh. |
+| KIOR | `42380959600` |11 executed, postflight PASS. |
+| Dolphin | `42369718466` |1 executed, postflight PASS;2 legacy stale offers remain outside automatic scope. |
+| Simply | `42369160583` |118 executed/2 review, postflight PASS; backlog growth is separate from execution health. |
+| eBay | `42370239655` |161 executed/76 review, postflight PASS; do not replay historical failures. |
+| GYM HIGH | `42366250125` | Dedicated catalogue job succeeded with retained execution/variant-postflight artifacts; no route, identity or adapter activation in this task. |
+| Gladiator | `42383749419` | Later natural job:603 executed/31 children, postflight/idempotency PASS. Older watchdog history could not resolve a complete relevant profile attempt. Historical preparation-only header must not be used to infer today's activation authority; no activation/configuration write performed here. |
+| Predators | no active scheduled refresh | Existing manual/source-gated path,47 stale offers in watchdog. No claim of a broken enabled scheduler; no activation authorized. |
+
+Read-only watchdog `42374361371`, artifact `13575610731`, generated
+`2026-11-07T12:55:38Z`:13 retailers,8 failures, global
+`MONITORING_INFRASTRUCTURE_ERROR` (Discount evidence fetch failed), plus genuine
+failed attempts, backlog growth and Gladiator profile-history truncation.
+This is not one common write-engine outage. Its bounded database snapshot has
+48h-stale counts: GYM1, Whey291, Discount47, Dolphin2, Simply2, KIOR0, Fit286,
+Jon's506, 6 Pack42, eBay73, Predators47, 10 Reps136, Gladiator0. These are
+timestamped observations, not fresh current counts or automatic scope sizes.
+Later independent schedules advanced some rows; none are attributed to this
+repair. A further bounded read using the existing production validator account,
+verified TLS and `withPostgresRoleSession(readOnly:true)` stopped on PostgreSQL
+`42501`. No owner-role fallback, new credential or privilege change was used.
+Complete present parent/child/approval and ledger readback therefore remains an
+explicit permission/evidence gap.
+
+### Previous repairs reused
+
+- PR #492 is merged (`2279144e...`). Current canonical repository binding is
+  PRODUCTION260 / `17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e`,
+  pending0. Its deterministic closeout lifecycle already exists. Latest KIOR,
+  Discount and Gladiator validator/apply/postflight evidence passes. Do not
+  recreate lifecycle code or copy a live fingerprint into configuration.
+- PRs #491 and #493, plus the existing stagger correction, are present. Actual
+  cron is `8,38 * * * *`; liveness is healthy through60min, warning through120,
+  broken above120. Watchdog observed genuine scheduled worker `42374411325`
+  at12:52:48UTC as healthy; worker processed0 because no eligible queued request
+  was selected. This proves an ordinary event, not a30min delivery SLA.
+- PR #495 (`8d03526d...`) preserves native pending workflow runs; #496
+  (`9eeddc65...`) supplies the already-existing cancelled-dispatch closeout.
+  Owner audit artifact of `42374411325` at12:53:54UTC proves original reviews
+  3747–3753 EXECUTED,3745/3746 EXPIRED with FAILED requests, and active execution
+  count0. New decisions3963/3964 for those latter two offers already executed
+  in others' runs `42363813299` / `42363823538`, each one stock update plus19
+  freshness confirmations, postflight/idempotency PASS. No recovery of those
+  historical nine is outstanding on this evidence; none was dispatched here.
+- Jon's current registration blocker and prior first-child approval timeout
+  are separate from cancellation, scheduler delivery and the already-corrected
+  November migration mismatch. `jons-offer-refresh.js` is unchanged between the
+  last good and current run; the workflow only gained `queue:max`. Current
+  evidence does not prove a code defect warranting a timeout increase.
+- Canonical reason registry and existing publisher/adapter/SQL contracts are
+  retained. No new reason list or permissive exception was introduced.
+
+### Proven 6 Pack cause and minimal correction
+
+Last good run `42205190703` used `b3f9af89a7da408444da0c25a7b2c5f2fd1d235b`;
+first observed failing daily run `42361990356` used `9eeddc65...`. Their
+`woocommerce-product-page-reader.js`, `six-pack-offer-refresh.js` and 6 Pack
+workflow have **no diff**. At16:03:19UTC one bounded existing-reader GET of
+`https://6pack-supplements.co.uk/?p=6303` returned200,329744bytes and reproduced
+the exact five-Product failure. The site now supplies a buy-box-bound
+`application/json#product-variations` block and a heading without the old
+`product_title` class; no legacy `data-product_variations` exists. Five
+variant-specific JSON-LD Product nodes are not one simple product offer.
+No precise retailer deployment time or earlier failure between daily runs is
+known. The retained source proves format incompatibility, not a repo merge
+regression.
+
+`six-pack-offer-refresh.js#parseSixPackProductPage` reads this format only in
+the existing refresh adapter. It requires exact body and buy-box product IDs,
+one matching heading, unique variant IDs/options, declared attribute values,
+finite positive GBP-source prices, explicit stock booleans and cart quantity
+limits. It preserves actual variant IDs and the original HTML hash; missing or
+ambiguous values fail closed. Legacy source still uses
+`parseWooCommerceProductPage`. The shared reader gains only a parser callback
+after existing HTTP/content-type/host/path/size guards; its default parser and
+all other retailers remain unchanged. No executor or approval behavior changes.
+
+The reduced public-source fixture
+`scripts/test-fixtures/six-pack-theme-product-6303.html` reproduces the same
+`SOURCE_SCHEMA_MISMATCH` before the fix and passes after. The untouched retained
+capture also passes offline after: variants6305–6309 all£24.99, Pineapple OOS,
+the other four in stock. No second external source request was made. Source
+SHA256: `c6b6d1d106a7dd7c0bd8e56ee99b0f14d8fb1cd97f58ea67852e75d0f1f994f3`.
+Negative cases keep malformed/duplicate/unknown/mismatched data blocked; existing
+executor tests retain owner/fingerprint/stale-package/idempotency/timeout
+guards. GYM HIGH, Predators mapped capture, 6 Pack legacy and catalogue adapter
+tests provide representative unaffected-source coverage.
+
+Focused107 PASS/0SKIP/0FAIL; independent credential-free verification53 PASS.
+Quick1020 PASS/3 existing SKIP, full3542 PASS/3 existing SKIP/0FAIL including
+lint, TypeScript, baseline and isolated production build. Final SHA CI remains
+required before code closeout. Test inventory reviewed:355 file paths and
+existing quick/integration/artifact classifications unchanged; tests were added
+within existing files, so the path-based manifest seal remains unchanged.
+Pre-update Guardian PASS; post-update Guardian and final checks recorded in PR.
+Large logs and retained source stay ignored under `tmp/incident-evidence/`;
+only the reduced public fixture and this existing ledger are committed.
+
+### Exact subsequent production boundary — not executed
+
+After review and separate owner merge/recovery authorization: merge the exact
+verified fix, then authorize one existing `six-pack-offer-refresh.yml`
+`workflow_dispatch` with `operation=dry-run` on merged `main`. That operation
+does not apply offers, but it can publish Review Queue control rows through its
+existing downstream job; approval must explicitly cover those control writes.
+It fetches the full approved source scope, so one local product replay does not
+replace it. Stop for any source/identity/price/stock/fingerprint/guard failure.
+Inspect the sealed classification and exact selected variant/offer identities
+before any further bounded apply authorization; no old artifact or historical
+run is replayable. Existing executor, global/dedicated locks, immutable
+checkpoints, postflight and fresh no-op capture remain the recovery path. At an
+unknown transaction outcome, inspect existing ledger and actual rows before
+deciding; never auto-retry. Source rollback is a reviewed code revert; never
+reset business/control tables or seals. A real natural scheduled run and its
+postflight later establish scheduled operation, without adding a monitor.
+
+Jon's/Whey require a separately resolved current control-state read permission
+gap, then exact parent/child/approval/apply inventory through existing
+`retailer-control-plan-recovery.js` discover/preflight. Only a subsequent exact
+owner approval may authorize its bounded close; no generic lock release or
+batch replay. Fit House requires fresh source/mapping evidence and existing
+review policy, not an allowlist bypass. Monitoring fetch/history issues and
+review backlog remain distinct; no threshold widening is proposed. This session
+performed **zero production business/control writes, zero production workflow dispatches,
+zero approvals, zero migration/configuration changes and no merge**. CI-only
+dispatches, if performed, are isolated and recorded separately in the PR.
 
 **6 November shared production-write pending-run preservation incident —
 `CODE_COMPLETE`:** eleven owner-approved 10 Reps Review Queue decisions each

@@ -5,16 +5,101 @@ const path = require("node:path");
 const test = require("node:test");
 const manifest = require("../config/retailers/six-pack-approved-offer-manifest.json");
 const { loadDryRunArtifact } = require("./import-products");
-const { WooCommerceSourceError } = require("./lib/woocommerce-product-page-reader");
+const { WooCommerceSourceError, readWooCommerceProductPage } = require("./lib/woocommerce-product-page-reader");
 const {
   isolateDefaultVariantConflicts,
   loadReviewedMassOosManifest,
   parseArgs,
+  parseSixPackProductPage,
   run,
   shippingForPrice,
 } = require("./six-pack-offer-refresh");
 
 const ROOT = path.resolve(__dirname, "..");
+
+test("6 Pack theme product6303 retains all exact variations through the bounded page reader", async () => {
+  const html = fs.readFileSync(path.join(__dirname, "test-fixtures/six-pack-theme-product-6303.html"), "utf8");
+  let calls = 0;
+  const parsed = await readWooCommerceProductPage({
+    storeUrl: "https://6pack-supplements.co.uk",
+    productId: "6303",
+    capturedAt: "2026-11-07T16:03:19.681Z",
+    maximumAttempts: 1,
+    parseProductPage: parseSixPackProductPage,
+    fetchImpl: async () => {
+      calls += 1;
+      return {
+        status: 200,
+        url: "https://6pack-supplements.co.uk/product/bcaa-amino-hydrate-450g-applied-nutrition/",
+        headers: { get: (name) => name === "content-type" ? "text/html" : null },
+        text: async () => html,
+      };
+    },
+  });
+  assert.equal(calls, 1);
+  assert.equal(parsed.external_product_id, "6303");
+  assert.equal(parsed.product_name, "BCAA Amino Hydrate 450g Applied Nutrition");
+  assert.equal(parsed.product_offer, null);
+  assert.deepEqual(parsed.variations.map((row) => [row.external_variant_id, row.price, row.in_stock]), [
+    ["6305", "24.99", true], ["6306", "24.99", false], ["6307", "24.99", true],
+    ["6308", "24.99", true], ["6309", "24.99", true],
+  ]);
+  assert.equal(parsed.html_sha256, crypto.createHash("sha256").update(html).digest("hex"));
+  assert.equal(parsed.html_bytes, Buffer.byteLength(html));
+});
+
+test("6 Pack theme parsing rejects ambiguous, malformed and unbound source data", () => {
+  const html = fs.readFileSync(path.join(__dirname, "test-fixtures/six-pack-theme-product-6303.html"), "utf8");
+  const options = { productId: "6303", canonicalUrl: "https://6pack-supplements.co.uk/product/bcaa-amino-hydrate-450g-applied-nutrition/" };
+  const block = html.match(/<script type="application\/json" id="product-variations">([\s\S]*?)<\/script>/);
+  const mutate = (change) => {
+    const payload = JSON.parse(block[1]);
+    change(payload);
+    return html.replace(block[0], () => block[0].replace(block[1], () => JSON.stringify(payload)));
+  };
+  const invalid = [
+    html.replace(block[1], "{"),
+    html.replace(block[0], () => block[0] + block[0]),
+    html.replace('type="application/json" id="product-variations"', 'type="text/plain" id="product-variations"'),
+    html.replace('x-data="buyBox', 'data-unused="buyBox'),
+    html.replace("&quot;name&quot;:&quot;BCAA", "&quot;name&quot;:&quot;Different"),
+    mutate((p) => { p.variations = []; }),
+    mutate((p) => { p.variations[0].price = 0; }),
+    mutate((p) => { p.variations[0].price = 0.001; }),
+    mutate((p) => { p.variations[0].price = "24.99"; }),
+    mutate((p) => { delete p.variations[0].in_stock; }),
+    mutate((p) => { p.variations[0].in_stock = "false"; }),
+    mutate((p) => { p.variations[0].max_qty = 0; }),
+    mutate((p) => { p.variations[0].attributes.attribute_flavour = "Unknown"; }),
+    mutate((p) => { p.variations[0].attributes.attribute_size = "450g"; }),
+    mutate((p) => { p.attributes.push(p.attributes[0]); }),
+    mutate((p) => { p.variations.push(p.variations[0]); }),
+    mutate((p) => { p.variations[1].attributes = p.variations[0].attributes; }),
+  ];
+  for (const source of invalid) {
+    assert.throws(() => parseSixPackProductPage(source, options),
+      (error) => ["SOURCE_SCHEMA_MISMATCH", "SOURCE_IDENTITY_DRIFT", "DUPLICATE_SOURCE_IDENTITY"].includes(error.code));
+  }
+  for (const source of [html.replace("postid-6303", "postid-9999"),
+    html.replace("&quot;productId&quot;:6303", "&quot;productId&quot;:9999")]) {
+    assert.throws(() => parseSixPackProductPage(source, options), { code: "SOURCE_IDENTITY_DRIFT" });
+  }
+});
+
+test("6 Pack keeps legacy WooCommerce variations and other readers keep their default parser", () => {
+  const row = { variation_id: 21, attributes: { attribute_flavour: "Cherry" }, display_price: 18.5,
+    display_regular_price: 20, is_in_stock: true, is_purchasable: true, variation_is_active: true };
+  const html = `<body class="postid-20"><h1 class="product_title">Legacy Product</h1><form data-product_variations='${JSON.stringify([row])}'>`;
+  const legacy = parseSixPackProductPage(html, { productId: "20" });
+  assert.equal(legacy.product_name, "Legacy Product");
+  assert.equal(legacy.variations[0].external_variant_id, "21");
+  assert.equal(legacy.variations[0].price, "18.50");
+  const { parseWooCommerceProductPage } = require("./lib/woocommerce-product-page-reader");
+  const theme = fs.readFileSync(path.join(__dirname, "test-fixtures/six-pack-theme-product-6303.html"), "utf8");
+  assert.throws(() => parseWooCommerceProductPage(theme, { productId: "6303",
+    canonicalUrl: "https://6pack-supplements.co.uk/product/bcaa-amino-hydrate-450g-applied-nutrition/" }),
+  /Expected one matching Product JSON-LD block, found 5/);
+});
 
 test("owner-approved offer 2006 is bound to the existing exact 60 Servings variant", () => {
   const row = manifest.rows.find((entry) => String(entry.offer_id) === "2006");
