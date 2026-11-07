@@ -19,7 +19,7 @@ on:
         default: false
         type: boolean
       operation:
-        description: "Refresh mode, review-only publication, or exact expired control-plan inspection/recovery"
+        description: "Refresh mode, review-only publication, or exact control-plan inspection/recovery"
         required: true
         default: dry-run
         type: choice
@@ -31,7 +31,7 @@ on:
           - control-preflight
           - control-recovery
       control_parent_plan_id:
-        description: "Exact expired parent plan UUID; used only for control-recovery"
+        description: "Exact parent plan UUID for control preflight/recovery"
         required: false
         type: string
       control_retailer_id:
@@ -44,6 +44,10 @@ on:
         type: string
       control_confirmation:
         description: "Exact owner confirmation for one control-only close"
+        required: false
+        type: string
+      control_state_fingerprint:
+        description: "Owner-approved exact planned_control_fingerprint from read-only preflight; required for never-approved PLANNED close"
         required: false
         type: string
       validation_context:
@@ -490,6 +494,7 @@ jobs:
           EXPECTED_CHILD_COUNT: ${{ inputs.control_expected_child_count }}
           OWNER_CONFIRMATION: ${{ inputs.control_confirmation }}
           OPERATION: ${{ inputs.operation }}
+          APPROVED_STATE_FINGERPRINT: ${{ inputs.control_state_fingerprint }}
         run: |
           test "$GITHUB_REF" = "refs/heads/main"
           test "$GITHUB_REPOSITORY" = "$EXPECTED_REPOSITORY"
@@ -502,12 +507,17 @@ jobs:
           elif [ "$OPERATION" = "control-recovery" ]; then
             [[ "$PARENT_PLAN_ID" =~ ^[0-9a-fA-F-]{36}$ ]]
             [[ "$EXPECTED_CHILD_COUNT" =~ ^[0-9]+$ ]]
-            test "$OWNER_CONFIRMATION" = "OWNER_APPROVED_EXPIRED_CONTROL_CLOSE"
+            case "$OWNER_CONFIRMATION" in
+              OWNER_APPROVED_EXPIRED_CONTROL_CLOSE) test -z "$APPROVED_STATE_FINGERPRINT" ;;
+              OWNER_APPROVED_PLANNED_CONTROL_CLOSE) [[ "$APPROVED_STATE_FINGERPRINT" =~ ^[0-9a-f]{64}$ ]] ;;
+              *) exit 1 ;;
+            esac
           else
             [[ "$PARENT_PLAN_ID" =~ ^[0-9a-fA-F-]{36}$ ]]
             [[ "$EXPECTED_CHILD_COUNT" =~ ^[0-9]+$ ]]
             test -z "$OWNER_CONFIRMATION"
           fi
+          if [ "$OPERATION" != "control-recovery" ]; then test -z "$APPROVED_STATE_FINGERPRINT"; fi
 
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -549,7 +559,11 @@ jobs:
           RETAILER_ID: ${{ inputs.control_retailer_id }}
           EXPECTED_CHILD_COUNT: ${{ inputs.control_expected_child_count }}
           OWNER_CONFIRMATION: ${{ inputs.control_confirmation }}
-        run: node scripts/retailer-control-plan-recovery.js --mode=close --parent-plan-id="$PARENT_PLAN_ID" --retailer-id="$RETAILER_ID" --expected-child-count="$EXPECTED_CHILD_COUNT" --input=tmp/retailer-control-recovery/preflight.json --output=tmp/retailer-control-recovery/result.json --confirm="$OWNER_CONFIRMATION"
+          APPROVED_STATE_FINGERPRINT: ${{ inputs.control_state_fingerprint }}
+        run: |
+          state_args=()
+          if [ -n "$APPROVED_STATE_FINGERPRINT" ]; then state_args+=("--approved-state-fingerprint=$APPROVED_STATE_FINGERPRINT"); fi
+          node scripts/retailer-control-plan-recovery.js --mode=close --parent-plan-id="$PARENT_PLAN_ID" --retailer-id="$RETAILER_ID" --expected-child-count="$EXPECTED_CHILD_COUNT" --input=tmp/retailer-control-recovery/preflight.json --output=tmp/retailer-control-recovery/result.json --confirm="$OWNER_CONFIRMATION" "${state_args[@]}"
 
       - name: Upload control recovery evidence
         if: always()

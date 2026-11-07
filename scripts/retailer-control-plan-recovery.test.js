@@ -2,6 +2,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
+const os = require("node:os");
 const {
   CONFIRMATION,
   buildDiscoveryReport,
@@ -10,6 +11,7 @@ const {
   parseArgs,
   validatePreflight,
   validateRecoverable,
+  run,
 } = require("./retailer-control-plan-recovery");
 
 function recoverableSnapshot() {
@@ -126,6 +128,145 @@ const recoveryOptions = {
   expectedChildCount: 2,
 };
 const recoveryNow = new Date("2026-10-05T10:00:00.000Z");
+
+function plannedSnapshot() {
+  const snapshot = recoverableSnapshot();
+  snapshot.parent_status = "PLANNED";
+  snapshot.planned_control_fingerprint = "1".repeat(64);
+  snapshot.parent_approval_id = snapshot.parent_approval_expires_at = snapshot.parent_approval_consumed_at = null;
+  snapshot.parent_approved_at = snapshot.parent_approved_by = null;
+  snapshot.parent_plan_expires_at = "2026-10-05T08:00:00.000Z";
+  snapshot.approval = null;
+  snapshot.batch_approvals = 0;
+  for (const child of snapshot.children) {
+    child.status = "PLANNED";
+    child.approval_id = child.approved_at = child.approval_expires_at = child.approval_consumed_at = null;
+    child.rollback_requested_at = child.rollback_requested_by = null;
+    child.batch_approvals = 0;
+  }
+  return snapshot;
+}
+
+test("never-approved stale PLANNED tree has its own classification and no manufactured approval", () => {
+  const snapshot = plannedSnapshot();
+  const classification = validateRecoverable(snapshot, recoveryOptions, recoveryNow);
+  assert.equal(classification.kind, "NEVER_APPROVED_PLANNED_SEQUENTIAL_PLAN");
+  assert.equal(classification.approvedChild, null);
+  const preflight = buildPreflight(snapshot, recoveryOptions, recoveryNow);
+  assert.equal(preflight.scope.approval_id, null);
+  assert.equal(preflight.scope.approved_child_id, null);
+  assert.equal(preflight.authorization.required_confirmation, "OWNER_APPROVED_PLANNED_CONTROL_CLOSE");
+  assert.equal(validatePreflight(preflight, recoveryOptions, recoveryNow), preflight);
+  const request = closeRequest(snapshot, recoveryNow);
+  assert.equal(request.schema_version, 2);
+  assert.equal(request.kind, classification.kind);
+  assert.equal(request.expected_children.length, 2);
+  assert.equal(request.retailer_id, "14");
+  assert.equal(Object.hasOwn(request, "approval_id"), false);
+  assert.equal(Object.hasOwn(request, "child_plan_id"), false);
+});
+
+test("never-approved classification rejects every approval, execution, recovery and live registration ambiguity", () => {
+  const mutations = [
+    ...["parent_approval_id", "parent_approved_at", "parent_approved_by", "parent_approval_expires_at", "parent_approval_consumed_at"]
+      .map((key) => (s) => { s[key] = "unexpected"; }),
+    ...["approval_id", "approved_at", "approval_expires_at", "approval_consumed_at", "rollback_requested_at", "rollback_requested_by"]
+      .map((key) => (s) => { s.children[1][key] = "unexpected"; }),
+    ...["apply_runs", "row_approvals", "batch_approvals", "recovery_manifests", "recovery_approvals", "recovery_audit"]
+      .map((key) => (s) => { s[key] = 1; }),
+    ...["row_approvals", "batch_approvals", "successful_apply_runs", "other_apply_runs", "ready_recovery_manifests", "other_recovery_manifests"]
+      .map((key) => (s) => { s.children[1][key] = 1; }),
+    ...["APPROVED", "APPLYING", "APPLIED", "SUPERSEDED"].map((status) => (s) => { s.children[1].status = status; }),
+    (s) => { s.approval = {}; }, (s) => { s.parent_plan_expires_at = null; },
+    (s) => { s.parent_plan_expires_at = "2026-10-05T12:00:00.000Z"; },
+    (s) => { s.children[1].batch_index = 0; }, (s) => { s.children.pop(); },
+    (s) => { s.ledger.fingerprint = null; },
+  ];
+  for (const mutate of mutations) {
+    const snapshot = plannedSnapshot(); mutate(snapshot);
+    assert.throws(() => buildPreflight(snapshot, recoveryOptions, recoveryNow));
+  }
+});
+
+test("never-approved CLI preserves nulls, rereads sealed state, uses one RPC and proves N+1 postflight without approvals", async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "planned-control-recovery-"));
+  try {
+    for (const failure of [null, "state-drift", "count-mismatch", "postflight-approval", "wrong-confirmation", "wrong-owner-state"]) {
+      const snapshot = plannedSnapshot();
+      let rpcCalls = 0; let commits = 0; let rollbacks = 0; let ownerConnections = 0;
+      let event; let terminal = false;
+      const queries = [];
+      const overrides = {
+        now: () => recoveryNow,
+        connectionString: (kind) => kind,
+        createClient: (kind, name, readOnly) => {
+          if (kind === "owner") { ownerConnections += 1; assert.equal(readOnly, true); }
+          return {
+            connect: async () => {}, end: async () => {},
+            query: async (sql, values) => {
+              queries.push(sql);
+              const rows = (value) => ({ rows: value });
+              if (/^begin|^set local|^select set_config/i.test(sql)) return rows([]);
+              if (sql === "commit") { commits += 1; terminal = true; return rows([]); }
+              if (sql === "rollback") { rollbacks += 1; return rows([]); }
+              if (sql.includes("select current_user")) return rows([{ current_user: "postgres", read_only: "on" }]);
+              if (sql.includes("actual_database_target")) return rows([{ target: { target_environment: "PRODUCTION",
+                project_ref: "aftboxmrdgyhizicfsfu", database_identity: "supplementscout-production:aftboxmrdgyhizicfsfu" } }]);
+              if (sql.includes("from supabase_migrations")) return rows([{ version: "20261004120000", name: "add_central_control_plan_readback" }]);
+              if (sql.includes('"products"')) return rows([snapshot.business_counts]);
+              if (sql.includes("select p.id::text")) return rows(snapshot.children.map((child) => ({
+                retailer_id: snapshot.retailer_id, parent_plan_id: snapshot.parent_plan_id,
+                parent_plan_fingerprint: failure === "state-drift" && ownerConnections === 2 ? "f".repeat(64) : snapshot.parent_plan_fingerprint,
+                parent_status: terminal ? "SUPERSEDED" : "PLANNED", parent_audit_log: terminal ? [event] : [],
+                parent_approval_id: null, parent_approved_at: null, parent_approved_by: null,
+                parent_approval_expires_at: null, parent_approval_consumed_at: null,
+                parent_plan_expires_at: snapshot.parent_plan_expires_at,
+                planned_control_fingerprint: snapshot.planned_control_fingerprint,
+                ...child, child_status: terminal ? "SUPERSEDED" : "PLANNED", child_audit_log: terminal ? [event] : [],
+                child_approval_id: failure === "postflight-approval" && terminal ? recoveryOptions.parentPlanId : null,
+                child_approved_at: null, child_approval_expires_at: null, child_approval_consumed_at: null,
+              })));
+              if (sql.includes("order by a.approved_at")) return rows([]);
+              if (sql.includes("select count(*)::int from public.retailer_catalogue_apply_runs")) return rows([{
+                apply_runs: 0, row_approvals: 0, batch_approvals: 0, recovery_manifests: 0, recovery_approvals: 0, recovery_audit: 0,
+              }]);
+              if (sql.includes("select public.close_expired")) {
+                rpcCalls += 1;
+                const request = values[0];
+                assert.equal(request.schema_version, 2); assert.equal(Object.hasOwn(request, "approval_id"), false);
+                const result = { status: "SUPERSEDED", already_closed: false, preserved_applied_child_count: 0,
+                  closed_child_count: 2, control_writes: failure === "count-mismatch" ? 4 : 3, business_writes: 0, price_history_writes: 0 };
+                event = { event: "NEVER_APPROVED_PLANNED_TREE_SUPERSEDED", request_fingerprint: request.request_fingerprint,
+                  control_state_fingerprint: request.control_state_fingerprint, result };
+                return rows([{ result }]);
+              }
+              assert.fail(`unexpected mock SQL: ${sql}`);
+            },
+          };
+        },
+      };
+      const common = [`--retailer-id=${recoveryOptions.retailerId}`, `--parent-plan-id=${recoveryOptions.parentPlanId}`, "--expected-child-count=2"];
+      const file = path.join(root, `${failure}-preflight.json`);
+      const preflight = await run(["--mode=preflight", ...common, `--output=${file}`], overrides);
+      assert.equal(preflight.snapshot.parent_approval_expires_at, null);
+      const close = () => run(["--mode=close", ...common, `--input=${file}`, `--output=${path.join(root, `${failure}-result.json`)}`,
+        `--approved-state-fingerprint=${failure === "wrong-owner-state" ? "f".repeat(64) : preflight.snapshot.planned_control_fingerprint}`,
+        `--confirm=${failure === "wrong-confirmation" ? CONFIRMATION : "OWNER_APPROVED_PLANNED_CONTROL_CLOSE"}`], overrides);
+      if (failure) {
+        await assert.rejects(close, failure === "state-drift" ? /changed after preflight/ : failure === "count-mismatch" ? /close count mismatch/
+          : failure === "postflight-approval" ? /planned child contains/ : failure === "wrong-owner-state" ? /separate owner approval/ : /confirmation does not match/);
+      } else {
+        const result = await close();
+        assert.equal(result.postflight.approval_closed, false);
+        assert.deepEqual(result.accounting, { close_calls: 1, automatic_retries: 0, control_writes: 3, business_writes: 0, price_history_writes: 0 });
+      }
+      assert.equal(rpcCalls, ["state-drift", "wrong-confirmation", "wrong-owner-state"].includes(failure) ? 0 : 1);
+      assert.equal(commits, failure === null || failure === "postflight-approval" ? 1 : 0);
+      assert.ok(rollbacks >= 1);
+      assert.equal(queries.some((sql) => /\b(?:insert|update|delete)\s/i.test(sql)), false);
+    }
+  } finally { fs.rmSync(root, { recursive: true, force: true }); }
+});
 
 test("one retailer-neutral recovery path replaces the retired store-specific close", () => {
   const source = fs.readFileSync(path.join(__dirname, "retailer-control-plan-recovery.js"), "utf8");

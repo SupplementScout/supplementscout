@@ -10,8 +10,21 @@ const recovery = require("./ra-stab-01-production-recovery");
 const migration = fs.readFileSync(path.resolve(__dirname, "../supabase/migrations/20260719090000_add_expired_retailer_offer_sync_approval_close.sql"), "utf8");
 const sequentialMigration = fs.readFileSync(path.resolve(__dirname, "../supabase/migrations/20260929133000_extend_expired_sequential_plan_close.sql"), "utf8");
 const partialSequentialMigration = fs.readFileSync(path.resolve(__dirname, "../supabase/migrations/20261006120000_extend_partial_sequential_plan_close.sql"), "utf8");
+const plannedMigration = fs.readFileSync(path.resolve(__dirname, "../supabase/migrations/20261107190000_extend_never_approved_planned_control_close.sql"), "utf8");
 const scenario = fs.readFileSync(path.resolve(__dirname, "../supabase/test/retailer_offer_expired_approval_close_integration_test.sql"), "utf8");
 const partialScenario = fs.readFileSync(path.resolve(__dirname, "../supabase/test/retailer_offer_partial_plan_close_integration_test.sql"), "utf8");
+
+test("never-approved extension preserves the v1 source and privileges and writes only existing control rows", () => {
+  const body = partialSequentialMigration.replace(/\r\n/g, "\n").split("as $close_expired_internal$")[1].split("$close_expired_internal$;")[0];
+  assert.ok(plannedMigration.includes(crypto.createHash("sha256").update(body).digest("hex")));
+  assert.match(plannedMigration, /^--[\s\S]+begin;/);
+  assert.match(plannedMigration, /commit;\s*$/);
+  assert.match(plannedMigration, /pg_catalog\.aclexplode/);
+  assert.match(plannedMigration, /Locked planned control state differs from the sealed readback/);
+  assert.doesNotMatch(plannedMigration, /\b(?:grant|revoke)\b(?![^\n]*--)/i);
+  assert.doesNotMatch(plannedMigration, /\b(?:insert\s+into|delete\s+from)\s+public\./i);
+  assert.doesNotMatch(plannedMigration, /\bupdate\s+public\.(?!retailer_catalogue_(?:parent|child)_plans)/i);
+});
 const productionPreparation = JSON.parse(fs.readFileSync(path.resolve(
   __dirname,
   "../docs/retailer-automation/evidence/RA-STAB-01-PRODUCTION-RECOVERY-PREPARATION.json",

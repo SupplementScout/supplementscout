@@ -28,6 +28,12 @@ const HISTORICAL_PENDING = Object.freeze([Object.freeze({
   filename: "20261105100000_refresh_pending_review_execution_binding.sql",
   sha256: "015f0de7448c10fcca10174e74dfbf7ca9e3150951f49090d01cd6eee869024c",
 })]);
+const historicalSource = fs.mkdtempSync(path.join(os.tmpdir(), "migration-pre-planned-close-"));
+for (const name of fs.readdirSync(SOURCE)) {
+  if (name.endsWith(".sql") && name !== "20261107190000_extend_never_approved_planned_control_close.sql")
+    fs.copyFileSync(path.join(SOURCE, name), path.join(historicalSource, name));
+}
+test.after(() => fs.rmSync(historicalSource, { recursive: true, force: true }));
 
 function ledgerRows(identifiers) {
   return identifiers.map((identifier) => {
@@ -98,8 +104,9 @@ test("selected migration paths require the shared verified PostgreSQL TLS helper
   }
 });
 
-test("closed production derives an immutable ALREADY_CLOSED state without advancing the ledger", () => {
-  const derivation = derivePostApplyMigrationBinding("PRODUCTION");
+test("historical closed production derives immutable ALREADY_CLOSED without advancing the ledger", () => {
+  const contract = { ...CONTRACTS.PRODUCTION, pending: [] };
+  const derivation = derivePostApplyMigrationBinding("PRODUCTION", { sourceDir: historicalSource, pendingMigrations: [] });
   assert.equal(derivation.status, "ALREADY_CLOSED");
   assert.equal(derivation.pending_count, 0);
   assert.equal(derivation.pre_ledger_count, 260);
@@ -110,13 +117,13 @@ test("closed production derives an immutable ALREADY_CLOSED state without advanc
   assert.deepEqual(derivation.pre_identifiers, derivation.post_identifiers);
   assert.ok(Object.isFrozen(derivation));
   assert.ok(Object.isFrozen(derivation.post_identifiers));
-  assertDerivationMatchesContract(derivation, CONTRACTS.PRODUCTION);
+  assertDerivationMatchesContract(derivation, contract);
 
   const closeout = repositoryCloseoutForAttempt({
     mode: "apply",
     committed: true,
     derivation,
-    contract: CONTRACTS.PRODUCTION,
+    contract,
     projectRef: CONTRACTS.PRODUCTION.projectRef,
     remoteLedger: ledgerRows(derivation.post_identifiers),
   });
@@ -127,7 +134,7 @@ test("closed production derives an immutable ALREADY_CLOSED state without advanc
 
 test("historical production pending migration deterministically derives ledger 260", () => {
   const derivation = derivePostApplyMigrationBinding("PRODUCTION", {
-    sourceDir: SOURCE,
+    sourceDir: historicalSource,
     pendingMigrations: HISTORICAL_PENDING,
   });
   assert.equal(derivation.status, "CLOSEOUT_REQUIRED");
@@ -144,7 +151,17 @@ test("historical production pending migration deterministically derives ledger 2
     "17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e");
 });
 
-test("current staging pending migrations derive one exact ordered 120 to 122 transition", () => {
+test("planned close draft is pending while the current production runtime ledger remains 260", () => {
+  const derivation = derivePostApplyMigrationBinding("PRODUCTION");
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 260);
+  assert.equal(derivation.pre_ledger_count, 260);
+  assert.equal(derivation.pending_count, 1);
+  assert.equal(derivation.consumed_pending[0].filename, "20261107190000_extend_never_approved_planned_control_close.sql");
+  assert.equal(derivation.post_ledger_count, 261);
+  assert.equal(derivation.post_ledger_fingerprint, "755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a");
+});
+
+test("current staging pending migrations derive one exact ordered 120 to 123 transition", () => {
   const derivation = derivePostApplyMigrationBinding("STAGING");
   assert.equal(derivation.pre_ledger_count, 120);
   assert.equal(derivation.pre_ledger_fingerprint,
@@ -153,10 +170,10 @@ test("current staging pending migrations derive one exact ordered 120 to 122 tra
     derivation.consumed_pending.map(({ filename }) => filename),
     PENDING_MIGRATIONS.STAGING.map(({ filename }) => filename),
   );
-  assert.equal(derivation.pending_count, 2);
-  assert.equal(derivation.post_ledger_count, 122);
+  assert.equal(derivation.pending_count, 3);
+  assert.equal(derivation.post_ledger_count, 123);
   assert.equal(derivation.post_ledger_fingerprint,
-    "df0638a3a565af873e123809c4b1498d630e22fe49030078c704b9b57a13e27b");
+    "2b2737c78059cf090e217b3e6a214e2a610f82a0cad2cba986b2d13f020b854c");
   assertDerivationMatchesContract(derivation, CONTRACTS.STAGING);
 });
 
@@ -215,7 +232,7 @@ test("post-apply readback rejects count, fingerprint, identity, partial and extr
   const derivation = derivePostApplyMigrationBinding("STAGING");
   const exact = ledgerRows(derivation.post_identifiers);
   const readback = validatePostApplyReadback(derivation, exact);
-  assert.equal(readback.ledger_count, 122);
+  assert.equal(readback.ledger_count, 123);
   assert.equal(readback.ledger_fingerprint, derivation.post_ledger_fingerprint);
   assert.deepEqual(readback.applied,
     derivation.consumed_pending.map(({ identifier }) => identifier));
@@ -292,16 +309,16 @@ test("exact committed readback emits deterministic operator-only CLOSEOUT_REQUIR
   assert.equal(closeout.closeout_status, "CLOSEOUT_REQUIRED");
   assert.equal(closeout.evidence.kind, CLOSEOUT_KIND);
   assert.equal(closeout.evidence.schema_version, 1);
-  assert.equal(closeout.evidence.database_writes.migration_apply_count, 2);
+  assert.equal(closeout.evidence.database_writes.migration_apply_count, 3);
   assert.deepEqual(closeout.evidence.repository_updates.map(({ field }) => field), [
     "PENDING_MIGRATIONS.STAGING",
     "CONTRACTS.STAGING.ledgerCount",
     "CONTRACTS.STAGING.ledgerFingerprint",
   ]);
   assert.deepEqual(closeout.evidence.repository_updates[0].to, []);
-  assert.equal(closeout.evidence.post_state.ledger_count, 122);
+  assert.equal(closeout.evidence.post_state.ledger_count, 123);
   assert.equal(closeout.evidence.post_state.ledger_fingerprint,
-    "df0638a3a565af873e123809c4b1498d630e22fe49030078c704b9b57a13e27b");
+    "2b2737c78059cf090e217b3e6a214e2a610f82a0cad2cba986b2d13f020b854c");
   assert.doesNotMatch(JSON.stringify(closeout.evidence), /password|credential|connection|string|begin;|commit;/i);
 
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "selected-migration-evidence-"));
