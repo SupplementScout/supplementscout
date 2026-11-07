@@ -17,6 +17,67 @@ const {
 
 const ROOT = path.resolve(__dirname, "..");
 
+const selectedHtml = fs.readFileSync(path.join(__dirname, "test-fixtures/six-pack-theme-product-4705.html"), "utf8");
+const selectedUrl = "https://6pack-supplements.co.uk/product/7nutrition-bodybuilder-mass-gainer-7kg/";
+const selectedOptions = { productId: "4705", canonicalUrl: selectedUrl };
+function changeSelectedHtml(changePayload = () => {}, changeGraph = () => {}) {
+  return selectedHtml.replace(/(<script type="application\/(json|ld\+json)"[^>]*>)([\s\S]*?)(<\/script>)/g,
+    (_, start, type, content, end) => {
+      const data = JSON.parse(content);
+      (type === "json" ? changePayload : changeGraph)(data);
+      return start + JSON.stringify(data) + end;
+    });
+}
+
+test("6 Pack retains explicitly selected 4708 omitted from dropdown options with exact JSON-LD corroboration", () => {
+  const parsed = parseSixPackProductPage(selectedHtml, selectedOptions);
+  assert.equal(parsed.external_product_id, "4705");
+  assert.equal(parsed.variations.length, 6);
+  assert.deepEqual(parsed.variations.map((r) => [r.external_variant_id, r.price, r.in_stock]), [
+    ["4724", "59.99", false], ["4725", "59.99", false], ["4726", "59.99", false],
+    ["4707", "59.99", false], ["4706", "59.99", false], ["4708", "59.99", true],
+  ]);
+  assert.equal(parsed.html_sha256, crypto.createHash("sha256").update(selectedHtml).digest("hex"));
+});
+
+test("6 Pack selected default requires unique complete selection and matching identity, price, currency and stock", () => {
+  const invalid = [
+    changeSelectedHtml((p) => { delete p.selected; }),
+    changeSelectedHtml((p) => { p.selected = {}; }),
+    changeSelectedHtml((p) => { p.selected.attribute_size = "7kg"; }),
+    changeSelectedHtml((p) => { p.selected.attribute_flavours = "Unknown"; }),
+    changeSelectedHtml((p) => { p.variations[0].attributes.attribute_flavours = "Unknown"; }),
+    changeSelectedHtml((p) => { p.variations[0].attributes = p.variations[5].attributes; }),
+    changeSelectedHtml((p) => { p.variations[5].id = 9999; }),
+    changeSelectedHtml((p) => { p.variations.push({ id: 9999 }); }),
+    changeSelectedHtml(() => {}, (g) => { g['@graph'][0].hasVariant.pop(); }),
+    ...[
+      (g) => { g.url = "https://other.example/product/"; },
+      (g) => { g.hasVariant[5].isVariantOf['@id'] += "wrong"; },
+      (g) => { g.hasVariant[5].url += "&attribute_size=7kg"; },
+      (g) => { g.hasVariant[5].offers.url = selectedUrl; },
+      (g) => { g.hasVariant[5].offers.price = "59.98"; },
+      (g) => { g.hasVariant[5].offers.priceCurrency = "EUR"; },
+      (g) => { g.hasVariant[5].offers.availability = "https://schema.org/OutOfStock"; },
+      (g) => { g.hasVariant.push(structuredClone(g.hasVariant[5])); },
+    ].map((change) => changeSelectedHtml(() => {}, (g) => change(g['@graph'][0]))),
+  ];
+  for (const html of invalid) assert.throws(() => parseSixPackProductPage(html, selectedOptions),
+    (error) => error instanceof WooCommerceSourceError && ["SOURCE_SCHEMA_MISMATCH", "DUPLICATE_SOURCE_IDENTITY"].includes(error.code));
+});
+
+test("6 Pack bounded reader preserves parser schema, identity and duplicate error codes", async () => {
+  for (const [html, code] of [
+    [changeSelectedHtml((p) => { p.selected = {}; }), "SOURCE_SCHEMA_MISMATCH"],
+    [selectedHtml.replace("postid-4705", "postid-9999"), "SOURCE_IDENTITY_DRIFT"],
+    [changeSelectedHtml((p) => { p.variations.push(p.variations[0]); }), "DUPLICATE_SOURCE_IDENTITY"],
+  ]) {
+    await assert.rejects(readWooCommerceProductPage({ storeUrl: "https://6pack-supplements.co.uk", productId: "4705",
+      maximumAttempts: 1, parseProductPage: parseSixPackProductPage, fetchImpl: async () => ({ status: 200,
+        url: selectedUrl, headers: { get: () => "text/html" }, text: async () => html }) }), { code });
+  }
+});
+
 test("6 Pack theme product6303 retains all exact variations through the bounded page reader", async () => {
   const html = fs.readFileSync(path.join(__dirname, "test-fixtures/six-pack-theme-product-6303.html"), "utf8");
   let calls = 0;
@@ -203,42 +264,44 @@ test("refresh creates one exact verified-no-change plan per approved mapping", a
 });
 
 test("systemic source failure blocks the whole run even when row isolation is enabled", async () => {
-  const source = fixture();
-  const output = paths();
-  const failure = new WooCommerceSourceError(
-    "SOURCE_UNAVAILABLE",
-    "safe source failure",
-    {
-      error_type: "TypeError",
-      network_code: "ENOTFOUND",
-      timeout: false,
-      last_attempt: 5,
-      request_url: "https://6pack-supplements.co.uk/?p=4110",
-      product_id: "4110",
-      http_status: null,
-    }
-  );
-  await assert.rejects(
-    run(
-      { target: "production", artifact: output.artifact, report: output.report, requireNoChange: false, isolateUnsafe: true },
-      { state: source.state, readLive: async () => { throw failure; } }
-    ),
-    (error) => error === failure
-  );
-  const report = JSON.parse(fs.readFileSync(output.report, "utf8"));
-  assert.equal(report.result, "BLOCK");
-  assert.equal(report.classification_state, "SOURCE_READ_FAILED");
-  assert.equal(report.block_reason, "SOURCE_UNAVAILABLE");
-  assert.equal(report.approved_mapping_count, manifest.rows.length);
-  assert.equal(report.executable_plan_count, 0);
-  assert.equal(report.executed_plan_count, 0);
-  assert.equal(report.review_row_count, 0);
-  assert.equal(report.blocked_row_count, manifest.rows.length);
-  assert.equal(report.fetched_product_page_count, 0);
-  assert.equal(report.database_writes, 0);
-  assert.deepEqual(report.action_counts, {});
-  assert.deepEqual(report.source_error, { error_code: "SOURCE_UNAVAILABLE", ...failure.detail });
-  assert.equal(fs.existsSync(output.artifact), false);
+  for (const errorCode of ["SOURCE_UNAVAILABLE", "SOURCE_SCHEMA_MISMATCH", "SOURCE_IDENTITY_DRIFT", "DUPLICATE_SOURCE_IDENTITY"]) {
+    const source = fixture();
+    const output = paths();
+    const failure = new WooCommerceSourceError(
+      errorCode,
+      "safe source failure",
+      {
+        error_type: "TypeError",
+        network_code: "ENOTFOUND",
+        timeout: false,
+        last_attempt: 5,
+        request_url: "https://6pack-supplements.co.uk/?p=4110",
+        product_id: "4110",
+        http_status: null,
+      }
+    );
+    await assert.rejects(
+      run(
+        { target: "production", artifact: output.artifact, report: output.report, requireNoChange: false, isolateUnsafe: true },
+        { state: source.state, readLive: async () => { throw failure; } }
+      ),
+      (error) => error === failure
+    );
+    const report = JSON.parse(fs.readFileSync(output.report, "utf8"));
+    assert.equal(report.result, "BLOCK");
+    assert.equal(report.classification_state, "SOURCE_READ_FAILED");
+    assert.equal(report.block_reason, errorCode);
+    assert.equal(report.approved_mapping_count, manifest.rows.length);
+    assert.equal(report.executable_plan_count, 0);
+    assert.equal(report.executed_plan_count, 0);
+    assert.equal(report.review_row_count, 0);
+    assert.equal(report.blocked_row_count, manifest.rows.length);
+    assert.equal(report.fetched_product_page_count, 0);
+    assert.equal(report.database_writes, 0);
+    assert.deepEqual(report.action_counts, {});
+    assert.deepEqual(report.source_error, { error_code: errorCode, ...failure.detail });
+    assert.equal(fs.existsSync(output.artifact), false);
+  }
 });
 
 test("exact product 4150 terminal 404 isolates only offer 2379 without inferring stock", async () => {

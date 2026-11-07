@@ -1,13 +1,14 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: INCIDENT FIX READY FOR VERIFICATION — PRODUCTION RECOVERY PENDING APPROVAL**
+**Status: TWO OWNER-APPROVED REVIEW SCOPES; PRODUCTION RESTORATION STILL BLOCKED**
 
-**Current active task:** owner-authorized existing-path incident repair and
-read-only recovery preparation, 7 November 2026 (`READY_FOR_VERIFICATION`).
-The only implementation is the 6 Pack source-format correction below.
-Gladiator adoption preparation does not advance during this incident. This
-task authorizes no merge, production worker dispatch, approval, control close,
-retry, schedule/configuration activation, migration or business-data write.
+**Current active task:** owner-authorized restoration of 6 Pack, Jon's and Whey
+Okay, 7 November 2026 (`BLOCKED`). PR #499 is merged; the one authorized full
+6 Pack dry-run exposed a further source-format case. Jon's current unapproved
+PLANNED parent also falls outside the existing recovery contract and blocks
+Whey globally. The owner has now separately approved both code/test/review scopes and a forward-only migration proposal. Merge, migration deployment, exact control close and new production runs remain outside this preparation approval. Existing natural schedules remain
+unchanged; the owner explicitly accepted 6 Pack's established scheduled writes
+after merge. Gladiator adoption and homepage work do not advance here.
 RA-STAB-02 and RA-STAB-01 are `VERIFIED_COMPLETE`. On 29 September 2026 the
 owner stopped further RA-004 live canary retries after the five-day sequence of
 staging-interface, credential, ledger, ACL, provider-identity and final SQL
@@ -23,6 +24,40 @@ Work proceeds read-only until a specific recovery or business write has fresh
 bounded evidence and separate owner approval.
 
 ## 7 November 2026 existing-path incident — diagnosis and bounded parser fix
+
+### Selected-default follow-up — prepared for review, not deployed
+
+PR #499 merged as `b253a5c5b54b3bef84777d4862cbb9f2c5ed136f`.
+The authorized complete dry-run `42402480456` safely stopped on product4705
+after 25 source pages: no complete 279-product/506-mapping source snapshot or
+sealed apply artifact was produced. Its 506 blocked rows reflect incomplete
+classification, not proof of 506 bad offers. No business/control writes were
+performed by that dry-run.
+
+Retained public HTML (2026-11-07T18:49:57.608Z, SHA-256
+`24c923fc8b35d6721b535125a4644d10c18a6b73805af8c0d8f019050b2e5a1f`)
+reproduces an explicit selected variant4708 omitted from dropdown options.
+The adapter now requires a unique complete selected map and matching exact
+ProductGroup/variant URL, parent, SKU, GBP price and availability before accepting
+that row. Other unknown options still fail closed. Adapter exceptions use the
+existing typed source error so schema, identity and duplicate codes survive the
+bounded reader. Shared readers, executors and approval contracts are unchanged.
+
+The owner separately approved code, regression tests and a review PR, excluding
+merge and production runs. RED reproduced the parser failure and error-code
+loss; GREEN is 24/24 focused tests. Local `verify:quick`, `verify:full` (including
+lint, TypeScript and production build) and independent offline verification
+pass. The reduced fixture preserves all six variants from the retained capture.
+An additional RED/GREEN malformed-sibling regression keeps a missing attribute
+map from escaping as an untyped canonicalization exception during selection.
+The invalid row still fails closed with the existing source-schema error.
+No test path was added/removed/renamed: the reviewed quality-gate inventory seal
+remains 355 files, `7c2d270f8b1bc713d3921bf108f34611a4d4c941bd53e461d18824fe2c6037c4`.
+The final review extends the existing whole-run failure regression over all four
+source-error codes; each must stop before classification with zero plans and
+no apply artifact. JSON-LD corroborates consistency of this page only.
+Production remains `LIVE_DRY_RUN_BLOCKED / SCHEDULED_APPLY_NOT_YET_VERIFIED`;
+this follow-up is `CODE_FIX_VERIFIED_LOCAL / REVIEW_PENDING`.
 
 **DIAGNOSIS_CONFIRMED / CODE_FIX_VERIFIED locally /
 PRODUCTION_RECOVERY_PENDING_APPROVAL.** Owner instruction: repair the existing
