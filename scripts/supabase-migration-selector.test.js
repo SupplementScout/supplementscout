@@ -99,8 +99,16 @@ const HARD_PRICE_ANOMALY_PENDING = Object.freeze([
 const PENDING_REFRESH_BINDING_MIGRATION = "20261105100000_refresh_pending_review_execution_binding.sql";
 const PENDING_REFRESH_BINDING_MIGRATION_SHA256 = "015f0de7448c10fcca10174e74dfbf7ca9e3150951f49090d01cd6eee869024c";
 const PENDING_REFRESH_BINDING = Object.freeze({ filename: PENDING_REFRESH_BINDING_MIGRATION, sha256: PENDING_REFRESH_BINDING_MIGRATION_SHA256 });
+const PLANNED_CONTROL_CLOSE_PENDING = Object.freeze({ filename: "20261107190000_extend_never_approved_planned_control_close.sql", sha256: "f6d0bf7724ae6fe2e2f1e4e3df2bcdb89c50a4edf765dc4858f65741915eb69d" });
 const STAGING_PENDING = Object.freeze([...HARD_PRICE_ANOMALY_PENDING, PENDING_REFRESH_BINDING]);
-const PRODUCTION_PENDING = Object.freeze([]);
+const PRODUCTION_PENDING = Object.freeze([PLANNED_CONTROL_CLOSE_PENDING]);
+
+test("production-only planned-close proposal cannot enter the incompatible staging package", () => {
+  assert.equal(CONTRACTS.STAGING.excluded[PLANNED_CONTROL_CLOSE_PENDING.filename], PLANNED_CONTROL_CLOSE_PENDING.sha256);
+  assert.ok(!CONTRACTS.STAGING.pending.some(({ filename }) => filename === PLANNED_CONTROL_CLOSE_PENDING.filename));
+  assert.ok(!migrationBinding("STAGING").versions.includes(PLANNED_CONTROL_CLOSE_PENDING.filename.slice(0, -4)));
+  assert.ok(!migrationBinding("PRODUCTION").versions.includes(PLANNED_CONTROL_CLOSE_PENDING.filename.slice(0, -4)));
+});
 const RA004_CONTROL_STATE_MIGRATION = "20260924100000_add_transactional_retailer_control_state_interface.sql";
 const RA004_PREFLIGHT_MIGRATION = "20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
 const RA004_FORWARD_CONTROL_STATE_MIGRATION = "20260927100000_reissue_transactional_retailer_control_state_interface.sql";
@@ -905,11 +913,11 @@ test("production records ledger 260 with the refresh-binding migration applied",
   });
   assert.equal(result.ledger_count, 260);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 260);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.equal(result.selected_files.length, 261);
+  assert.deepEqual(result.pending_files, PRODUCTION_PENDING.map(({ filename }) => filename));
+  assert.deepEqual(result.pending_sha256s, Object.fromEntries(PRODUCTION_PENDING.map(({filename, sha256}) => [filename, sha256])));
+  assert.equal(result.pending_file, PLANNED_CONTROL_CLOSE_PENDING.filename);
+  assert.equal(result.pending_sha256, PLANNED_CONTROL_CLOSE_PENDING.sha256);
   assert.ok(result.selected_files.includes(PENDING_REFRESH_BINDING_MIGRATION));
   assert.ok(result.selected_files.includes(PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION));
   assert.ok(result.excluded_files.includes(PRODUCT_PACK_CORRECTION_MIGRATION));
@@ -1089,7 +1097,7 @@ test("applied excluded production migration participates in the canonical ledger
   assert.ok(result.selected_files.includes(VERIFIED_REVIEW_STOCK_TRANSITION_READER_MIGRATION));
   assert.deepEqual(result.remote_only, []);
   assert.deepEqual(result.unexpected_local, []);
-  assert.deepEqual(result.pending, []);
+  assert.deepEqual(result.pending, PRODUCTION_PENDING.map(({ filename }) => filename.slice(0, -4)));
 });
 
 test("runtime staging artifacts bind the same migration ledger as the staging selector", () => {
@@ -1801,10 +1809,10 @@ test("shared production binding includes hard-price and refresh-binding migratio
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
-  assert.deepEqual(result.pending_files, []);
-  assert.deepEqual(result.pending_sha256s, {});
+  assert.equal(result.pending_file, PLANNED_CONTROL_CLOSE_PENDING.filename);
+  assert.equal(result.pending_sha256, PLANNED_CONTROL_CLOSE_PENDING.sha256);
+  assert.deepEqual(result.pending_files, PRODUCTION_PENDING.map(({ filename }) => filename));
+  assert.deepEqual(result.pending_sha256s, Object.fromEntries(PRODUCTION_PENDING.map(({filename, sha256}) => [filename, sha256])));
   assert.ok(result.selected_files.includes(HARD_PRICE_ANOMALY_MIGRATION));
   assert.ok(result.selected_files.includes(PENDING_REFRESH_BINDING_MIGRATION));
   assert.ok(!migrationBinding("STAGING").versions.includes(HARD_PRICE_ANOMALY_MIGRATION.slice(0, -4)));

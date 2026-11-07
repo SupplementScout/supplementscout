@@ -15,6 +15,7 @@ const PENDING_POLICY = Object.freeze({
 });
 const EXCLUSIONS = Object.freeze({
   STAGING: Object.freeze([
+    "20261107190000_extend_never_approved_planned_control_close",
     "20261031120000_add_verified_automation_review_stock_transition_reader",
     "20261030120000_create_sealed_artifacts_registry",
     "20261029061000_reissue_reviewed_product_pack_correction_production_safe",
@@ -240,6 +241,8 @@ const APPLIED_EXCLUSIONS = Object.freeze({
   ]),
 });
 
+const PLANNED_CONTROL_CLOSE_PENDING = Object.freeze({ filename: "20261107190000_extend_never_approved_planned_control_close.sql", sha256: "f6d0bf7724ae6fe2e2f1e4e3df2bcdb89c50a4edf765dc4858f65741915eb69d" });
+
 const PENDING_MIGRATIONS = Object.freeze({
   STAGING: Object.freeze([
     Object.freeze({
@@ -251,7 +254,7 @@ const PENDING_MIGRATIONS = Object.freeze({
       sha256: "015f0de7448c10fcca10174e74dfbf7ca9e3150951f49090d01cd6eee869024c",
     }),
   ]),
-  PRODUCTION: Object.freeze([]),
+  PRODUCTION: Object.freeze([PLANNED_CONTROL_CLOSE_PENDING]),
 });
 
 function migrationIdentifier(filename) {

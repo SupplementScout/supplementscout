@@ -23,6 +23,391 @@ workflows, artifacts, control ledger, Review Queue, postflight and watchdog.
 Work proceeds read-only until a specific recovery or business write has fresh
 bounded evidence and separate owner approval.
 
+## 7 November 2026 final review and deployment decision package
+
+Authority: review, minimal in-scope corrections, safe CI, disposable PostgreSQL,
+existing branches/PR updates and deployment preparation only. No merge to main,
+shared database migration, control close, approval/apply, schedule/ACL/credential
+change or writing automation dispatch is authorized. This entry is one package
+for both existing PRs. Final readiness is gated by their final SHA-bound checks,
+the compiled-procedure artifact and the isolated combination readback recorded
+in the PRs; this documentation is not execution approval.
+
+Architecture review retains one execution path. PR500 changes only the 6 Pack
+adapter and its regressions: no product/variant ID exception, source guessing,
+shared reader change or second JSON-LD library. The existing generic Product
+extractor strips variant query/hash and flattens group relationships, so the
+small local traversal is needed for this storefront representation. The same-page
+JSON-LD is a consistency check, not an independent external source. Schema,
+identity and duplicate errors remain typed through the bounded reader; the
+existing systemic run regression now proves all of them BLOCK the whole source
+before classification, planning, artifact creation or writes. An exact HTTP404
+retains its separate existing product-isolation policy.
+
+PR501 keeps the same public RPC, internal implementation and coordinator. No
+runtime correction was found necessary in this final review. The existing
+PostgreSQL harness now retains actual complete pg_get_functiondef/prosrc before
+and after, their exact diff and owner/ACL/security settings. It proves one
+insertion point, unchanged full public wrapper, unchanged legacy internal body
+apart from the inserted branch, rejected incompatible source and rejected rerun.
+The pinned original normalized internal source SHA-256 is
+`84bb206a0e769067f3af4992bfd30875d5812c9a56179fa9a100b0814dc6f8f2`.
+The final migration file remains
+`20261107190000_extend_never_approved_planned_control_close.sql`, SHA-256
+`f6d0bf7724ae6fe2e2f1e4e3df2bcdb89c50a4edf765dc4858f65741915eb69d`.
+Hash-gated text edits follow existing migration practice, including
+`20261027150000_extend_sequential_parent_approval_to_gladiator.sql`;
+this proposal adds no maintained second copy of the procedure. Generated SQL
+is a test artifact only. The existing Quality Gate uploads that bounded artifact.
+
+The internal function remains postgres-owned, VOLATILE, SECURITY DEFINER with
+search_path pg_catalog,public,pg_temp. The public wrapper remains SECURITY
+INVOKER and checks the dedicated production approver. Owner and approver retain
+the existing EXECUTE ACL; PUBLIC, anon/authenticated/service_role and executor/
+validator receive no new privilege. Actual artifact metadata is authoritative.
+The PLANNED case requires null approval/rollback fields and zero dependent
+records, an elapsed original deadline, matching target/ledger and a full-state
+rehash under execution/retailer and row locks. Statement-level test triggers
+abort any INSERT, UPDATE or DELETE on all six business/history tables, including
+in-place value changes that unchanged counts alone would miss. Existing expired
+and partial-prefix cases are executed in the same disposable harness.
+
+### Fresh bounded control evidence (not close authorization)
+
+At2026-11-07T20:35:03.664Z the existing official read-only preflight, using its
+previously authorized owner connection, found Jon's retailer10 parent
+`e6cdaae2-108e-47a2-9f0f-88ce51a85ed5`, fingerprint
+`313c1fdda3f61264388ac7cddaea86be8c634156089ee48eaf9d798dddc267af`,
+10 PLANNED children/491 rows, all approval fields null and all six dependent
+counters zero. Original deadline2026-11-06T12:46:49.416Z elapsed. The current
+SQL control-state fingerprint is
+`5bdae9a53cfcacafb37b4a6e2810735f54571aefd2c8fb440ecb105805ac8fd3`.
+The production ledger is still260 /
+`17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e`.
+The generated READY_TO_CLOSE classification is preparation only; the new RPC
+branch is not deployed and this state is not an owner-approved execution seal.
+
+Official Whey control-diagnostic run
+[42411850637](https://github.com/SupplementScout/supplementscout/actions/runs/42411850637)
+at20:37:21-26UTC used the existing validator read RPCs. Whey is retailer3.
+It returned BLOCKED_CONTROL, exactly that Jon's parent, 10 PLANNED children,
+zero active apply runs, import/offer approvals and conflicting sessions. It
+started no source capture and reported zero attempted/completed business or
+control writes; every writing job was skipped. A subsequent official READ ONLY
+discovery for retailer3 returned zero own active parents. The initial incidental
+discovery of retailer14 is retained separately and is not Whey evidence. These
+are as-of reads; they do not reserve the database state for future execution.
+
+The registered parent proves registration committed. The prior child-approver
+client timeout has no matching committed approval/apply evidence; the current
+tree is wholly unapproved/unexecuted. Its underlying latency/root cause remains
+unknown. Recovery clears an abandoned control tree; it does not fix that timeout
+or justify changing timeouts/retries. Fresh Jon's and Whey runs plus postflight
+and absence of the same blocker in those observed runs are later acceptance
+conditions; one successful run cannot prove permanent stability.
+
+### One decision package; separate operation authorities
+
+| Operation requiring owner authority | Entry conditions and exact scope | Expected effect and stop condition | Confirmation |
+| --- | --- | --- | --- |
+| Merge500 then501 | Final SHA-bound checks green; reviewed combined tree preserves both ledger entries and separate code scopes | Publish reviewed code only; stop on changed HEAD/base or failed required review/check | Read merge SHA and tree against reviewed candidate; no production dry-run in this preparation phase |
+| Deploy the one pending production migration | Fresh target/ledger260 match, exact file SHA above, reviewed compiled procedure/security and explicit migration approval | Existing apply-selected-migrations only, canonical pending confirmation c2ca9299b4ca719a; schema plus one ledger record260-to261, no control close/business DML; stop on any source/ACL/ledger drift | Existing post-commit readback and generated selected-migration-repository-closeout-v1 receipt |
+| Canonical repository closeout | Only after committed migration and exact readback | Consume the pending entry and update PRODUCTION ledgerCount/fingerprint from the existing generated closeout, not an ad hoc pasted hash; stop on missing/unknown commit result or drift | Expected derivation261 /755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a; verify runtime binding/selector and required checks |
+| Exact control close | After schema deployment AND canonical binding closeout: one fresh preflight of current exact parent/tree/ledger, terminal origin workflow/no writer, owner reviews its exact state fingerprint | Existing manual recovery only, explicit OWNER_APPROVED_PLANNED_CONTROL_CLOSE plus owner-supplied state hash; supersede only parent+10 children (11 control writes), no approval/business/history write; stop on state change, activity, guard mismatch or unknown result; no automatic retry | Existing independent read-only postflight checks terminal identities/audit, zero approvals/apply/recovery records, preserved history and zero business deltas |
+| Fresh authorized refresh | Close postflight valid, fresh source and fresh plan in existing immutable scopes; no replay of old manifest or review rows | Existing schedules/workflows and guarded approval/executor only; ordinary price/stock/freshness writes may resume; stop on source, identity, anomaly, approval or postflight failure | Complete source classification, actual execution/postflight and idempotency under existing contract; Jon's and Whey specifically rechecked for recurrent block |
+
+The one missing step for a concrete future close decision is a fresh preflight
+AFTER migration deployment and canonical binding closeout. The historical or
+current pre-deployment hash is not substituted for that later owner decision.
+No apparently executable close command is supplied now. Push/merge cannot apply
+the SQL automatically: no workflow calls the migration applicator or db push;
+the relevant automatic jobs only validate/build/preview. The proposal remains
+production-pending and staging-excluded. No dependencies are installed on shared
+staging for this test.
+
+Closing the common parent can allow the already enabled Jon's (04:47UTC) and
+Whey (02:17UTC) schedules to reach their existing write path again. Other enabled
+shared refreshes can also cease encountering that global guard, but retain their
+own source/scope guards. This is not a read-only operational consequence; normal
+scheduled business writes remain possible. No scheduler is paused or activated
+here, GYM HIGH is not reconfigured and Predators stays unactivated.
+
+The two PRs deliberately keep separate code changes. Their common ledger header
+and selected-default subsection are reconciled identically before final tests;
+501 retains the full prior restoration evidence plus this decision package.
+The isolated combination uses500 then501, without a merge to main or a new PR.
+Its exact parent SHAs/tree and validation belong in the existing PR evidence.
+
+## 7 November 2026 approved follow-up preparation ? code review only
+
+The owner explicitly approved (A) the selected-default4708/parser-error fix with
+regressions and a review PR, and (B) the never-approved PLANNED recovery extension,
+isolated tests and a forward-only migration proposal. Both scopes remain within
+this one incident task. No merge, schema deployment, close, approval or production
+refresh is authorized by these decisions. No live source or database operation
+was performed during this preparation. The readback below is retained historical
+evidence from the authorized restoration phase, not a fresh production preflight.
+
+### 6 Pack review candidate
+
+PR [#500](https://github.com/SupplementScout/supplementscout/pull/500), head
+`0eca6936481722f29a6155d4e0e01795f8c0d34e`, extends only the existing adapter.
+A unique complete explicit selected map must agree with exact JSON-LD parent,
+variant, SKU, attribute URLs, GBP price and stock. All other unknown options
+remain blocked. Typed source errors preserve schema/identity/duplicate codes.
+The reduced4705 fixture retains all six source variants. RED reproduced both
+failures; focused24/24, local quick/full, independent39/39 and PR full
+[42405617340](https://github.com/SupplementScout/supplementscout/actions/runs/42405617340)
+pass. Integration evidence belongs to the PR. No merge or live rerun followed.
+Status: `CODE_READY_FOR_REVIEW / LIVE_DRY_RUN_BLOCKED / SCHEDULED_APPLY_NOT_YET_VERIFIED`.
+
+### Existing recovery extension review candidate
+
+The same `retailer-control-plan-recovery.js` and
+`close_expired_retailer_offer_sync_approval` RPC handle a new explicit v2 kind,
+`NEVER_APPROVED_PLANNED_SEQUENTIAL_PLAN`. All parent/child approval fields must
+be null, all children PLANNED and six dependent approval/apply/recovery counters
+zero. The original registered plan deadline must have elapsed; no expiry or
+approval is invented. Current SQL hashes the full parent and ordered child rows
+in UTC during read-only preflight and recomputes that hash under the existing
+global/retailer locks and row locks immediately before closing. Existing v1
+expired/unexecuted and partial-prefix behavior stays byte-for-byte intact.
+
+The forward-only proposal
+`20261107190000_extend_never_approved_planned_control_close.sql` verifies the
+existing function source SHA-256, owner, security and ACL before adding the new
+branch. It changes no grants, adds no RPC/table and closes no plan on deployment.
+It is SHA-pinned pending only for production and SHA-pinned excluded from staging, which does not have the prerequisite production RPC. Runtime ledger bindings
+stay production260 / staging120. Derived post-deployment261 (production) /122 (existing staging pending set) fingerprints
+are proposals, not evidence of deployment. Existing migration-apply confirmation
+changes with the pending set; deployment requires its own exact owner approval.
+
+A future planned close requires `OWNER_APPROVED_PLANNED_CONTROL_CLOSE` and a
+separately supplied exact `planned_control_fingerprint` from the owner's
+reviewed preflight. A generated READY_TO_CLOSE artifact is not owner approval.
+The existing manual workflow forwards that exact input; neither schedule nor
+default refresh modes invoke close. Fresh readback must still match, the
+originating workflow must be terminal and no active writer may be present.
+The old Jon's readback/fingerprint alone cannot authorize execution.
+
+Terminal status is SUPERSEDED for the parent and every child; expected control
+writes are N+1 (11 for the retained Jon's10-child tree), zero business/history
+writes and no approval row. Existing audit logs bind the exact request/state and
+result. Exact replay returns zero-write already_closed; the coordinator never
+retries, including after failed postflight. Postflight checks all identities,
+terminal statuses, audit, zero approvals/dependent records and unchanged ledger
+and business counts. Partial APPLIED prefixes retain the prior contract.
+
+Regression coverage uses existing test files: strict never-approved validation,
+full mocked CLI/readback/RPC/postflight, wrong owner state, state drift, rollback
+and count mismatch. The existing disposable PostgreSQL harness applies the new
+migration, checks no state changes and replay rejection, reruns old expired and
+partial scenarios and executes a10-child/491-row planned scenario including
+valid-shaped wrong state hash, metadata/evidence guards and injected atomic
+rollback. Local quick/full and actual isolated CI are required; final results
+and exact candidate SHA are attached to the review PR. No Docker is required on
+the owner's laptop; CI uses a disposable PostgreSQL container without production
+credentials. The reviewed test inventory remains355 paths with unchanged seal
+`7c2d270f8b1bc713d3921bf108f34611a4d4c941bd53e461d18824fe2c6037c4`.
+
+Status: `REVIEW_CANDIDATE / MIGRATION_NOT_APPLIED / CONTROL_CLOSE_NOT_EXECUTED`.
+Jon's and Whey are not restored. Fit House, Review Queue and other retailer
+readbacks below are historical as-of evidence; no repeated full audit or natural
+schedule monitoring was performed in this code-preparation scope. Homepage and
+issue#497 remain outside scope.
+
+## 7 November 2026 authorized restoration — merged, read back, blocked safely
+
+This entry supersedes the earlier incident's no-merge/no-dispatch boundary only
+as expressly authorized by the owner's next instruction: standard merge #499,
+one full read-only 6 Pack dry-run on merged main, existing natural 6 Pack
+automation, and current Jon's/Whey readback/recovery preparation. It does not
+authorize additional application logic, migration, fabricated exact approval,
+arbitrary owner/service-role fallback or replay. No new runtime was created.
+
+### 6 Pack — PARSER_DEPLOYED / LIVE_DRY_RUN_BLOCKED
+
+PR [#499](https://github.com/SupplementScout/supplementscout/pull/499) merged
+normally at18:40:42UTC as **b253a5c5b54b3bef84777d4862cbb9f2c5ed136f**.
+Candidate **d15dc617a83aa122669da2ca87eeb5a77a15223d**, base7d9defd and required
+checks remained unchanged; branch protection/rules/review readback imposed no
+additional reviewer requirement. No admin bypass. Candidate and merge trees
+are equal. Existing full3542 PASS/3 existing SKIP and actual integration148
+PASS/0SKIP still apply; automatic main full42402468766 and Guardian42402468771
+also passed. No duplicate CI dispatch was made in this restoration phase.
+
+Before dispatch, the current workflow and called source code were rechecked:
+manual `operation=dry-run` skips approve/apply, plan registration, source binding,
+Review Queue publication, postflight and idempotency. No natural 6 Pack run was
+active. Exactly one workflow was dispatched:
+[42402480456](https://github.com/SupplementScout/supplementscout/actions/runs/42402480456).
+It **FAILED/BLOCKED**, with **0 database writes**. The existing workflow's own
+bounded retry policy ran unchanged; no second workflow or manual apply followed.
+
+Artifact **13586546086**, `six-pack-offer-refresh-42402480456-1`, ZIP digest
+**1aa2e604fc288e885571dd8a38decf6ba37b532d4058a2d5bc40d66e5c581a0c**:
+approved scope506 mappings /279 distinct product IDs; fetched25 pages before
+product4705 failed. The report's506 blocked rows denote incomplete source
+capture/classification, not506 proven invalid offers. Review/executable counts
+are not a completed partition. No complete source fingerprint or sealed apply
+artifact was produced. It is not `LIVE_DRY_RUN_PASS`.
+
+One bounded existing-reader GET of product4705 at18:49:57UTC returned200 and
+334693bytes, final product `7nutrition-bodybuilder-mass-gainer-7kg`. Offline
+replay of that unchanged capture reproduces `SOURCE_SCHEMA_MISMATCH / 6 Pack
+variation attributes do not match their declared options`. Variant4708,
+`Chocolate caramel hazelnut`, is present in the buy-box variations, explicit
+`selected` value, visible selected label and matching JSON-LD Product node, but
+absent from the five declared dropdown options. It is approved mapping2255 /
+offer2069 /canonical product129 /variant2004. Price£59.99 and in-stock state
+are source observations, not approved writes. The existing reader catches the
+adapter's plain Error and relabels it `SOURCE_UNAVAILABLE`, hiding the parser
+reason. This is not demonstrated network failure.
+
+Smallest proposed further scope, **not implemented**: recognize only a fully
+bound, unambiguous explicit selected-default variant with exact parent/variant
+and retained JSON-LD price/stock consistency; all other unknown options remain
+blocked. Use the existing `WooCommerceSourceError` contract at the adapter edge
+to preserve typed failures, without a permissive shared-code allowlist. Add the
+retained4705 regression and negative mutations. This is additional logic beyond
+#499 and requires owner authorization. **SCHEDULED_APPLY_NOT_YET_VERIFIED**;
+do not wait indefinitely for a future schedule or claim production recovery.
+
+### Jon's and Whey — actual blocker identified, no close executed
+
+The approved validator diagnostic
+[42402555453](https://github.com/SupplementScout/supplementscout/actions/runs/42402555453)
+passed its read-only operation and reported `BLOCKED_CONTROL`: one global
+parent,0 active runs/conflicting sessions. It used the existing approved-state
+and active-parent-inventory RPCs, with no source fetch or write. Its result
+identifies **Jon's retailer10**, not a Whey-owned parent.
+
+Official read-only discovery
+[42402605454](https://github.com/SupplementScout/supplementscout/actions/runs/42402605454)
+returned exactly one Jon's parent:
+
+- parent: **e6cdaae2-108e-47a2-9f0f-88ce51a85ed5**;
+- parent fingerprint: **313c1fdda3f61264388ac7cddaea86be8c634156089ee48eaf9d798dddc267af**;
+- created2026-11-06T12:32:50.300928Z, status **PLANNED**;
+- 10 children all **PLANNED**,0 APPROVED/APPLYING/APPLIED,0 apply runs;
+- production ledger260 /17a00891... matches the existing canonical repository
+  binding; no pending/ledger correction was needed.
+
+Official preflight
+[42402896836](https://github.com/SupplementScout/supplementscout/actions/runs/42402896836)
+correctly **FAILED** at `expected exactly one active batch approval`. It does
+not create an approved recovery package. To retain the detailed read results
+which this failed CLI does not export, the unchanged official preflight was
+run locally with a SELECT-results-only logging preload and its already
+configured recovery credential. No SQL/results/validation were changed.
+Production identity, **READ ONLY** and **ROLLBACK** were confirmed. Two local
+setup attempts before the proper CLI invocation made no database connection;
+their diagnostic failure is not production evidence.
+
+Current detailed readback confirms491 rows, null parent approval/expiry/consumed
+fields, no batch approvals and zero apply runs, row approvals, recovery
+manifests, recovery approvals or recovery audit. Thus the durable current
+state after the earlier approval timeout is established; its original latency
+cause remains unproved. The10 current children, in batch order, are:
+
+| Index | Child ID | Rows | Status |
+|---:|---|---:|---|
+|0|76598329-5321-434c-a85c-1638389313af|50|PLANNED|
+|1|194658c5-3ebe-4f58-a5c2-7617b88eccb5|50|PLANNED|
+|2|16bc89a9-c099-478a-bf63-7ea5882c29f8|49|PLANNED|
+|3|aeccde1e-dbeb-4e93-a5ab-4bb154c803f2|49|PLANNED|
+|4|034101c9-bf20-4a92-b4c6-cddc1ef41cab|49|PLANNED|
+|5|182b9631-790f-48b7-a7f6-a3f7e58c7a57|49|PLANNED|
+|6|a13732f3-87ef-4f92-ae38-49d813fc7a3e|49|PLANNED|
+|7|1050c797-fd7c-4ed0-b258-c0fa28ee16eb|49|PLANNED|
+|8|65db6137-1650-4215-8f2b-ac1ddbb72e88|49|PLANNED|
+|9|61e9610f-1b9c-47df-b281-f166a1c6fc8f|48|PLANNED|
+
+Every child approval ID/expiry/consumed field is null; every row/batch approval,
+successful/other apply-run and recovery-manifest count is0. Full child
+fingerprints are retained in `tmp/incident-evidence/recovery/jons-control-read-capture.json`
+and the PR closeout. They were read, not regenerated.
+
+Whey's separate official discovery
+[42402899322](https://github.com/SupplementScout/supplementscout/actions/runs/42402899322)
+is **CLEAR**, retailer3 with0 own blocking parents. Its current blocker is the
+same global Jon's tree. **No Whey close is justified.** Neither retailer had a
+fresh business refresh, postflight or idempotency run in this session because
+the unresolved parent correctly blocks execution.
+
+The existing recovery admits only an expired APPROVED boundary or an applied
+prefix plus expired APPROVED boundary. SQL has the same requirement. Resume,
+recalculation and old hardcoded supersede migrations are not valid substitutes
+for terminating this never-approved PLANNED tree. **Close calls0; control
+writes0; business/history writes0.** No artificial approval was created.
+
+Smallest proposed further scope, **not implemented**: extend this existing
+recovery contract/RPC with a separately authorized never-approved PLANNED
+case, exact parent/child fingerprints,10-child491-row scope, all approvals and
+execution/recovery evidence absent, no active writer, existing locks and atomic
+terminal transition, with zero business/history-write postflight. Preparing
+that change requires separate code and forward-only migration authority;
+applying it and closing the exact current tree require later fresh readback
+and explicit execution approval. No new recovery framework is proposed.
+
+### 42501 and the correct existing read interfaces
+
+Metadata-only validator read at18:52:39UTC confirms session
+`supplementscout_production_validator_login`, role
+`retailer_catalogue_production_validator`, READ ONLY. That role lacks EXECUTE
+on `public.retailer_catalogue_actual_database_target()` (the first operation
+of the previous failed probe) and lacks `supabase_migrations` schema usage.
+Both approved-state/inventory RPCs are executable and the approved diagnostic
+worked. The original probe saved only42501, not its server object message;
+current ACL proves its first call is unauthorized, not a blanket application
+SELECT outage. That denied operation was not repeated. No GRANT, credential,
+RLS/TLS change, arbitrary owner/service-role fallback or RA-004 activation.
+The owner credential used for richer recovery reads was confined to the
+already-configured, previously authorized official recovery preflight.
+
+### Fit House, schedule and unchanged retailers
+
+At18:47:16UTC the existing reader obtained a complete HTTP200 Shopify snapshot:
+231 products /326 variants,1 request, source-health PASS, fingerprint
+83d16c2713c34230f458686d9f4525806d93f41e83351c947e17f005add77fca.
+Existing validator `readState` confirmed the286 approved mappings. The same
+four mapped variants remain absent:49744981426416,49764030906608,
+49791610257648,49791610290416 (offers698,1856,1858,1859). Their mapping updates
+remain July dates, not a newly changed binding. The three exact product JSON
+URLs returned404 at18:51:51UTC, without retry. This supports current source
+absence, not network/collapse failure; it is not authority to infer permanent
+deletion, OOS or replacement identity. No allowlist or stock write.
+
+Latest natural Review Queue run
+[42399023517](https://github.com/SupplementScout/supplementscout/actions/runs/42399023517)
+was created17:59:53UTC on7d9defd and passed: processed0, database writes0,
+active execution count0. At19:00:29UTC it was still newest, aged60.60min:
+**DELAYED** under the unchanged30/60/120-minute policy, not the earlier BROKEN
+snapshot and not proof of stable half-hour delivery. No scheduler or watcher
+was added; no synthetic worker run. Earlier nine10 Reps decisions were not
+replayed. Existing same-day execution/postflight evidence for Discount, KIOR,
+Dolphin, Simply, eBay,10 Reps, Gladiator and GYM HIGH is retained; none was
+manually rerun for this report. Predators remains unactivated.
+
+### Prior restoration handoff (superseded by preparation approval below)
+
+The prior handoff requested two independent, reviewable preparation decisions: (A) the narrow6 Pack selected-default/error-class compatibility fix
+with tests; (B) an extension of the existing Jon's/Whey recovery for the exact
+never-approved parent above, including a forward-only migration proposal and
+isolated tests. Preparing either is outside the current no-new-logic boundary.
+Neither decision is a close/apply approval, and no `READY_TO_CLOSE` seal was
+manufactured. Fresh exact production execution approval remains a later gate.
+
+This restoration phase merged#499 and dispatched five workflows: one6 Pack
+dry-run, one Whey read-only diagnostic, Jon's/Whey discovery and one Jon's
+read-only preflight. All business/control/price-history writes and all close
+calls by this session are0. Other natural processes can still write; their
+changes are not attributed to this session. No application/config/workflow/SQL
+file changed after#499. Existing ledger is updated locally for review and PR
+description carries the remote closeout; no new implementation PR or result-only
+commit was created. Pre/post Project Guardian PASS. No global ALL_PASS or
+restored-retailer claim; local raw evidence remains ignored.
+
 ## 7 November 2026 existing-path incident — diagnosis and bounded parser fix
 
 ### Selected-default follow-up — prepared for review, not deployed
