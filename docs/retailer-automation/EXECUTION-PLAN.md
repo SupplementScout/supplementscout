@@ -49,6 +49,9 @@ merge and production runs. RED reproduced the parser failure and error-code
 loss; GREEN is 24/24 focused tests. Local `verify:quick`, `verify:full` (including
 lint, TypeScript and production build) and independent offline verification
 pass. The reduced fixture preserves all six variants from the retained capture.
+An additional RED/GREEN malformed-sibling regression keeps a missing attribute
+map from escaping as an untyped canonicalization exception during selection.
+The invalid row still fails closed with the existing source-schema error.
 No test path was added/removed/renamed: the reviewed quality-gate inventory seal
 remains 355 files, `7c2d270f8b1bc713d3921bf108f34611a4d4c941bd53e461d18824fe2c6037c4`.
 Production remains `LIVE_DRY_RUN_BLOCKED / SCHEDULED_APPLY_NOT_YET_VERIFIED`;

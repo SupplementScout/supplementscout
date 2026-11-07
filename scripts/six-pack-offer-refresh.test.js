@@ -49,6 +49,7 @@ test("6 Pack selected default requires unique complete selection and matching id
     changeSelectedHtml((p) => { p.variations[0].attributes.attribute_flavours = "Unknown"; }),
     changeSelectedHtml((p) => { p.variations[0].attributes = p.variations[5].attributes; }),
     changeSelectedHtml((p) => { p.variations[5].id = 9999; }),
+    changeSelectedHtml((p) => { p.variations.push({ id: 9999 }); }),
     changeSelectedHtml(() => {}, (g) => { g['@graph'][0].hasVariant.pop(); }),
     ...[
       (g) => { g.url = "https://other.example/product/"; },

@@ -90,7 +90,8 @@ function parseSixPackProductPage(html, options) {
     && [...attributes.keys()].every((name) => typeof value[name] === "string" && value[name].trim());
   const corroborateSelected = (row) => {
     schema(completeAttributes(payload.selected) && canonicalJson(row.attributes) === canonicalJson(payload.selected)
-      && payload.variations.filter((variant) => canonicalJson(variant?.attributes) === canonicalJson(payload.selected)).length === 1,
+      && payload.variations.filter((variant) => completeAttributes(variant?.attributes)
+        && canonicalJson(variant.attributes) === canonicalJson(payload.selected)).length === 1,
     "Undeclared 6 Pack option is not a unique explicit selection");
     let canonical;
     try { canonical = new URL(options.canonicalUrl); } catch { sourceFail("Invalid 6 Pack canonical URL"); }
