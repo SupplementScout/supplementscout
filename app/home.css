@@ -41,7 +41,7 @@
 .home-check-time { display: flex; align-items: center; gap: 5px; color: #49617a; font-size: 9px; line-height: 1.6; }
 .home-check-time svg { flex-shrink: 0; color: #168042; }
 .home-check-time time { color: #1e3b54; font-weight: 600; }
-.home-saving-seal { position: absolute; z-index: 1; top: -8px; right: -10px; display: flex; align-items: center; justify-content: center; flex-direction: column; width: 108px; height: 108px; background: #079f28; color: white; filter: drop-shadow(0 4px 5px rgb(9 120 40 / 15%)); clip-path: polygon(50% 0,60% 3%,70% 2%,78% 9%,87% 14%,91% 23%,98% 31%,97% 41%,100% 50%,97% 60%,98% 69%,91% 78%,87% 87%,77% 91%,69% 98%,59% 97%,50% 100%,40% 97%,30% 98%,22% 91%,13% 86%,9% 77%,2% 69%,3% 59%,0 50%,3% 40%,2% 30%,9% 22%,14% 13%,23% 9%,31% 2%,41% 3%); font-size: 13px; font-weight: 650; line-height: 1.3; }
+.home-saving-seal { position: absolute; z-index: 1; top: -8px; right: -10px; display: flex; align-items: center; justify-content: center; flex-direction: column; width: 108px; height: 108px; background: #087e24; color: white; filter: drop-shadow(0 4px 5px rgb(9 120 40 / 15%)); clip-path: polygon(50% 0,60% 3%,70% 2%,78% 9%,87% 14%,91% 23%,98% 31%,97% 41%,100% 50%,97% 60%,98% 69%,91% 78%,87% 87%,77% 91%,69% 98%,59% 97%,50% 100%,40% 97%,30% 98%,22% 91%,13% 86%,9% 77%,2% 69%,3% 59%,0 50%,3% 40%,2% 30%,9% 22%,14% 13%,23% 9%,31% 2%,41% 3%); font-size: 13px; font-weight: 650; line-height: 1.3; }
 .home-saving-seal strong { font-size: 27px; letter-spacing: -.05em; }
 .home-comparison-product { display: grid; grid-template-columns: 172px minmax(0,1fr); gap: 16px; align-items: center; margin-block: 28px 10px; }
 .home-product-image { min-width: 0; }
@@ -71,7 +71,7 @@
 .home-offer-delivery svg { flex-shrink: 0; }
 .home-offer-total { text-align: right; }
 .home-offer-total strong { font-size: 18px; font-weight: 750; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
-.home-best-badge, .home-small-saving { display: inline-block; border-radius: 999px; background: #079c2a; padding: 4px 8px; color: white; text-align: center; font-size: 10px; font-weight: 700; }
+.home-best-badge, .home-small-saving { display: inline-block; border-radius: 999px; background: #087e24; padding: 4px 8px; color: white; text-align: center; font-size: 10px; font-weight: 700; }
 .home-offer-difference { color: #435c7b; text-align: center; font-size: 12px; font-variant-numeric: tabular-nums; }
 .home-offer-row > svg { width: 14px; color: #39526e; }
 .home-saving { color: #26663b; font-size: 9px; }
@@ -165,7 +165,7 @@
 }
 @media (max-width: 767px) { .home-header > div { min-height: 64px; padding-inline: 16px; } }
 @media (max-width: 639px) {
-  .home-section,.home-categories,.home-discovery,.ss-home > footer { content-visibility: auto; contain-intrinsic-block-size: auto 600px; }
+  .home-section,.home-categories,.home-category-directory,.home-discovery,.ss-home > footer { content-visibility: auto; contain-intrinsic-block-size: auto 600px; }
   .home-hero,.home-section,.home-benefits { padding-inline: 20px; }.home-categories, .home-category-directory { padding-inline: 20px; }
   .home-hero { padding-top: 26px; gap: 28px; }.home-eyebrow { font-size: 9px; letter-spacing: .07em; }.home-hero h1 { margin-top: 12px; font-size: clamp(38px,10.6vw,52px); line-height: 1.07; }.home-hero h1 span { padding-bottom: 9px; }
   .home-intro { margin-top: 16px; font-size: 14px; line-height: 1.6; }.home-trust { gap: 6px 13px; margin-top: 15px; font-size: 10px; }
