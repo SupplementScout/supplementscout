@@ -144,6 +144,25 @@ test("live reader enforces same-host product redirects and bounded HTML", async 
   );
 });
 
+test("custom page parsers run only after the shared response and identity-origin guards", async () => {
+  let calls = 0;
+  const parseProductPage = () => { calls += 1; return {}; };
+  const attempt = (overrides) => readWooCommerceProductPage({
+    storeUrl: "https://shop.example.test", productId: "10", maximumAttempts: 1, parseProductPage,
+    fetchImpl: async () => ({ status: 200, url: "https://shop.example.test/product/example/",
+      headers: { get: (name) => name === "content-type" ? "text/html" : null }, text: async () => "<body></body>",
+      ...overrides }),
+  });
+  for (const response of [
+    { status: 403 }, { status: 429 }, { url: "https://evil.example/product/example/" },
+    { url: "https://shop.example.test/cart/" }, { text: async () => "x".repeat(2_000_001) },
+    { headers: { get: () => "application/json" } },
+  ]) await assert.rejects(attempt(response), { name: "WooCommerceSourceError" });
+  assert.equal(calls, 0);
+  await attempt({});
+  assert.equal(calls, 1);
+});
+
 function networkFailure(name, code, secret = "hidden-input-must-not-leak") {
   const underlying = new Error(secret);
   underlying.name = name;
