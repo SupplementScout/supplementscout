@@ -169,6 +169,50 @@ function objectState(container,database) {
   )::text`);
 }
 
+function closeProcedureState(container, database) {
+  return json(container, database, `select jsonb_agg(jsonb_build_object(
+    'signature',p.oid::regprocedure::text,'definition',pg_get_functiondef(p.oid),'body',p.prosrc,
+    'security',jsonb_build_object('owner',pg_get_userbyid(p.proowner),'security_definer',p.prosecdef,
+      'config',p.proconfig,'language',l.lanname,'volatility',p.provolatile,'strict',p.proisstrict,
+      'acl',(select jsonb_agg(jsonb_build_object('grantor',pg_get_userbyid(a.grantor),
+        'grantee',case when a.grantee=0 then 'PUBLIC' else pg_get_userbyid(a.grantee) end,
+        'privilege',a.privilege_type,'grantable',a.is_grantable) order by a.grantee,a.privilege_type)
+        from aclexplode(coalesce(p.proacl,acldefault('f',p.proowner))) a))
+    ) order by p.proname)::text from pg_proc p join pg_language l on l.oid=p.prolang
+    where p.oid in ('public.close_expired_retailer_offer_sync_approval(jsonb)'::regprocedure,
+      'public.retailer_offer_sync_close_expired_approval_internal(jsonb)'::regprocedure)`);
+}
+
+function retainCloseProcedureReview(before, after) {
+  const directory = path.join(ROOT, "tmp/retailer-control-procedure-review");
+  fs.mkdirSync(directory, { recursive: true });
+  for (const [name, value] of [["before", before], ["after", after]]) {
+    fs.writeFileSync(path.join(directory, `${name}.json`), `${JSON.stringify(value, null, 2)}\n`);
+    fs.writeFileSync(path.join(directory, `${name}.sql`), value.map((proc) => proc.definition).join("\n"));
+  }
+  const internal = (state) => state.find((proc) => proc.signature.includes("_internal("));
+  const wrapper = (state) => state.find((proc) => !proc.signature.includes("_internal("));
+  const oldBody = internal(before).body.replaceAll("\r\n", "\n");
+  const newBody = internal(after).body.replaceAll("\r\n", "\n");
+  const anchor = "begin\n  if not public.atomic_import_has_exact_keys(p_request,array[";
+  const migration = fs.readFileSync(PLANNED_CLOSE_MIGRATION, "utf8");
+  const extension = migration.match(/v_extension text:=\$planned_branch\$([\s\S]*?)\$planned_branch\$;/)[1];
+  assert.equal(oldBody.split(anchor).length - 1, 1, "the pinned original has exactly one insertion point");
+  assert.equal(newBody, oldBody.replace(anchor, () => extension), "actual compiled procedure differs only by the reviewed v2 branch");
+  assert.deepEqual(wrapper(after), wrapper(before), "public RPC wrapper is unchanged in full");
+  assert.deepEqual(after.map(({signature, security}) => ({signature, security})),
+    before.map(({signature, security}) => ({signature, security})), "owner, ACL, search_path and all security parameters are unchanged");
+  const diff = run("git", ["diff", "--no-index", "--", path.join(directory, "before.sql"), path.join(directory, "after.sql")]);
+  assert.equal(diff.status, 1, "one reviewed procedure definition delta must exist");
+  fs.writeFileSync(path.join(directory, "difference.patch"), diff.stdout);
+  fs.writeFileSync(path.join(directory, "verification.json"), `${JSON.stringify({
+    source_commit: process.env.GITHUB_SHA || null, insertion_count: 1, public_wrapper_unchanged: true,
+    security_unchanged: true, legacy_body_preserved: true,
+    before_body_sha256: crypto.createHash("sha256").update(oldBody).digest("hex"),
+    after_body_sha256: crypto.createHash("sha256").update(newBody).digest("hex"),
+  }, null, 2)}\n`);
+}
+
 test("production enablement is one transactional bundle and preserves staging migrations byte-for-byte", () => {
   const sql=fs.readFileSync(MIGRATION,"utf8");
   assert.match(sql,/^begin;/i); assert.match(sql,/commit;\s*$/i);
@@ -323,7 +367,15 @@ test("production sequence passes exact identity and fails staging, drift, order,
     requireSuccess(psqlText(container,pass,fs.readFileSync(PARTIAL_SEQUENTIAL_CLOSE_MIGRATION,"utf8")),"shared partial sequential plan close migration");
     requireSuccess(psql(container,pass,"insert into supabase_migrations.schema_migrations values('20261006120000','extend_partial_sequential_plan_close',array[]::text[])"),"record shared partial sequential plan close migration");
     const beforePlannedMigration=objectState(container,pass);
+    const beforeCloseProcedure=closeProcedureState(container,pass);
+    const previousInternal=beforeCloseProcedure.find((proc)=>proc.signature.includes("_internal("));
+    const incompatibleDefinition=previousInternal.definition.replace(previousInternal.body,()=>`${previousInternal.body}\n-- incompatible version probe\n`);
+    requireSuccess(psqlText(container,pass,incompatibleDefinition),"inject incompatible procedure version only in disposable database");
+    requireFailure(psqlText(container,pass,fs.readFileSync(PLANNED_CLOSE_MIGRATION,"utf8")),"incompatible planned-close input source",/exact existing partial close source/);
+    requireSuccess(psqlText(container,pass,previousInternal.definition),"restore exact prerequisite after rejected version probe");
+    assert.deepEqual(closeProcedureState(container,pass),beforeCloseProcedure);
     requireSuccess(psqlText(container,pass,fs.readFileSync(PLANNED_CLOSE_MIGRATION,"utf8")),"extend same recovery RPC for never-approved PLANNED trees");
+    retainCloseProcedureReview(beforeCloseProcedure,closeProcedureState(container,pass));
     assert.deepEqual(objectState(container,pass),beforePlannedMigration,"schema preparation must not close any control tree or write business data");
     requireFailure(psqlText(container,pass,fs.readFileSync(PLANNED_CLOSE_MIGRATION,"utf8")),"planned migration replay",/exact existing partial close source/);
     requireSuccess(psql(container,pass,"insert into supabase_migrations.schema_migrations values('20261107190000','extend_never_approved_planned_control_close',array[]::text[])"),"record isolated planned close migration");

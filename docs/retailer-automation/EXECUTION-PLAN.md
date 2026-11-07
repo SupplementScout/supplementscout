@@ -1,4 +1,38 @@
-# Retailer Automation Consolidation Execution Plan
+#### Selected-default follow-up — prepared for review, not deployed
+
+PR #499 merged as `b253a5c5b54b3bef84777d4862cbb9f2c5ed136f`.
+The authorized complete dry-run `42402480456` safely stopped on product4705
+after 25 source pages: no complete 279-product/506-mapping source snapshot or
+sealed apply artifact was produced. Its 506 blocked rows reflect incomplete
+classification, not proof of 506 bad offers. No business/control writes were
+performed by that dry-run.
+
+Retained public HTML (2026-11-07T18:49:57.608Z, SHA-256
+`24c923fc8b35d6721b535125a4644d10c18a6b73805af8c0d8f019050b2e5a1f`)
+reproduces an explicit selected variant4708 omitted from dropdown options.
+The adapter now requires a unique complete selected map and matching exact
+ProductGroup/variant URL, parent, SKU, GBP price and availability before accepting
+that row. Other unknown options still fail closed. Adapter exceptions use the
+existing typed source error so schema, identity and duplicate codes survive the
+bounded reader. Shared readers, executors and approval contracts are unchanged.
+
+The owner separately approved code, regression tests and a review PR, excluding
+merge and production runs. RED reproduced the parser failure and error-code
+loss; GREEN is 24/24 focused tests. Local `verify:quick`, `verify:full` (including
+lint, TypeScript and production build) and independent offline verification
+pass. The reduced fixture preserves all six variants from the retained capture.
+An additional RED/GREEN malformed-sibling regression keeps a missing attribute
+map from escaping as an untyped canonicalization exception during selection.
+The invalid row still fails closed with the existing source-schema error.
+No test path was added/removed/renamed: the reviewed quality-gate inventory seal
+remains 355 files, `7c2d270f8b1bc713d3921bf108f34611a4d4c941bd53e461d18824fe2c6037c4`.
+The final review extends the existing whole-run failure regression over all four
+source-error codes; each must stop before classification with zero plans and
+no apply artifact. JSON-LD corroborates consistency of this page only.
+Production remains `LIVE_DRY_RUN_BLOCKED / SCHEDULED_APPLY_NOT_YET_VERIFIED`;
+this follow-up is `CODE_FIX_VERIFIED_LOCAL / REVIEW_PENDING`.
+
+ Retailer Automation Consolidation Execution Plan
 
 **Status: TWO OWNER-APPROVED REVIEW SCOPES; PRODUCTION RESTORATION STILL BLOCKED**
 
@@ -22,6 +56,121 @@ new runtime, importer, approval path or executor. It reuses the current
 workflows, artifacts, control ledger, Review Queue, postflight and watchdog.
 Work proceeds read-only until a specific recovery or business write has fresh
 bounded evidence and separate owner approval.
+
+## 7 November 2026 final review and deployment decision package
+
+Authority: review, minimal in-scope corrections, safe CI, disposable PostgreSQL,
+existing branches/PR updates and deployment preparation only. No merge to main,
+shared database migration, control close, approval/apply, schedule/ACL/credential
+change or writing automation dispatch is authorized. This entry is one package
+for both existing PRs. Final readiness is gated by their final SHA-bound checks,
+the compiled-procedure artifact and the isolated combination readback recorded
+in the PRs; this documentation is not execution approval.
+
+Architecture review retains one execution path. PR500 changes only the 6 Pack
+adapter and its regressions: no product/variant ID exception, source guessing,
+shared reader change or second JSON-LD library. The existing generic Product
+extractor strips variant query/hash and flattens group relationships, so the
+small local traversal is needed for this storefront representation. The same-page
+JSON-LD is a consistency check, not an independent external source. Schema,
+identity and duplicate errors remain typed through the bounded reader; the
+existing systemic run regression now proves all of them BLOCK the whole source
+before classification, planning, artifact creation or writes. An exact HTTP404
+retains its separate existing product-isolation policy.
+
+PR501 keeps the same public RPC, internal implementation and coordinator. No
+runtime correction was found necessary in this final review. The existing
+PostgreSQL harness now retains actual complete pg_get_functiondef/prosrc before
+and after, their exact diff and owner/ACL/security settings. It proves one
+insertion point, unchanged full public wrapper, unchanged legacy internal body
+apart from the inserted branch, rejected incompatible source and rejected rerun.
+The pinned original normalized internal source SHA-256 is
+`84bb206a0e769067f3af4992bfd30875d5812c9a56179fa9a100b0814dc6f8f2`.
+The final migration file remains
+`20261107190000_extend_never_approved_planned_control_close.sql`, SHA-256
+`f6d0bf7724ae6fe2e2f1e4e3df2bcdb89c50a4edf765dc4858f65741915eb69d`.
+Hash-gated text edits follow existing migration practice, including
+`20261027150000_extend_sequential_parent_approval_to_gladiator.sql`;
+this proposal adds no maintained second copy of the procedure. Generated SQL
+is a test artifact only. The existing Quality Gate uploads that bounded artifact.
+
+The internal function remains postgres-owned, VOLATILE, SECURITY DEFINER with
+search_path pg_catalog,public,pg_temp. The public wrapper remains SECURITY
+INVOKER and checks the dedicated production approver. Owner and approver retain
+the existing EXECUTE ACL; PUBLIC, anon/authenticated/service_role and executor/
+validator receive no new privilege. Actual artifact metadata is authoritative.
+The PLANNED case requires null approval/rollback fields and zero dependent
+records, an elapsed original deadline, matching target/ledger and a full-state
+rehash under execution/retailer and row locks. Statement-level test triggers
+abort any INSERT, UPDATE or DELETE on all six business/history tables, including
+in-place value changes that unchanged counts alone would miss. Existing expired
+and partial-prefix cases are executed in the same disposable harness.
+
+### Fresh bounded control evidence (not close authorization)
+
+At2026-11-07T20:35:03.664Z the existing official read-only preflight, using its
+previously authorized owner connection, found Jon's retailer10 parent
+`e6cdaae2-108e-47a2-9f0f-88ce51a85ed5`, fingerprint
+`313c1fdda3f61264388ac7cddaea86be8c634156089ee48eaf9d798dddc267af`,
+10 PLANNED children/491 rows, all approval fields null and all six dependent
+counters zero. Original deadline2026-11-06T12:46:49.416Z elapsed. The current
+SQL control-state fingerprint is
+`5bdae9a53cfcacafb37b4a6e2810735f54571aefd2c8fb440ecb105805ac8fd3`.
+The production ledger is still260 /
+`17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e`.
+The generated READY_TO_CLOSE classification is preparation only; the new RPC
+branch is not deployed and this state is not an owner-approved execution seal.
+
+Official Whey control-diagnostic run
+[42411850637](https://github.com/SupplementScout/supplementscout/actions/runs/42411850637)
+at20:37:21-26UTC used the existing validator read RPCs. Whey is retailer3.
+It returned BLOCKED_CONTROL, exactly that Jon's parent, 10 PLANNED children,
+zero active apply runs, import/offer approvals and conflicting sessions. It
+started no source capture and reported zero attempted/completed business or
+control writes; every writing job was skipped. A subsequent official READ ONLY
+discovery for retailer3 returned zero own active parents. The initial incidental
+discovery of retailer14 is retained separately and is not Whey evidence. These
+are as-of reads; they do not reserve the database state for future execution.
+
+The registered parent proves registration committed. The prior child-approver
+client timeout has no matching committed approval/apply evidence; the current
+tree is wholly unapproved/unexecuted. Its underlying latency/root cause remains
+unknown. Recovery clears an abandoned control tree; it does not fix that timeout
+or justify changing timeouts/retries. Fresh Jon's and Whey runs plus postflight
+and absence of the same blocker in those observed runs are later acceptance
+conditions; one successful run cannot prove permanent stability.
+
+### One decision package; separate operation authorities
+
+| Operation requiring owner authority | Entry conditions and exact scope | Expected effect and stop condition | Confirmation |
+| --- | --- | --- | --- |
+| Merge500 then501 | Final SHA-bound checks green; reviewed combined tree preserves both ledger entries and separate code scopes | Publish reviewed code only; stop on changed HEAD/base or failed required review/check | Read merge SHA and tree against reviewed candidate; no production dry-run in this preparation phase |
+| Deploy the one pending production migration | Fresh target/ledger260 match, exact file SHA above, reviewed compiled procedure/security and explicit migration approval | Existing apply-selected-migrations only, canonical pending confirmation c2ca9299b4ca719a; schema plus one ledger record260-to261, no control close/business DML; stop on any source/ACL/ledger drift | Existing post-commit readback and generated selected-migration-repository-closeout-v1 receipt |
+| Canonical repository closeout | Only after committed migration and exact readback | Consume the pending entry and update PRODUCTION ledgerCount/fingerprint from the existing generated closeout, not an ad hoc pasted hash; stop on missing/unknown commit result or drift | Expected derivation261 /755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a; verify runtime binding/selector and required checks |
+| Exact control close | After schema deployment AND canonical binding closeout: one fresh preflight of current exact parent/tree/ledger, terminal origin workflow/no writer, owner reviews its exact state fingerprint | Existing manual recovery only, explicit OWNER_APPROVED_PLANNED_CONTROL_CLOSE plus owner-supplied state hash; supersede only parent+10 children (11 control writes), no approval/business/history write; stop on state change, activity, guard mismatch or unknown result; no automatic retry | Existing independent read-only postflight checks terminal identities/audit, zero approvals/apply/recovery records, preserved history and zero business deltas |
+| Fresh authorized refresh | Close postflight valid, fresh source and fresh plan in existing immutable scopes; no replay of old manifest or review rows | Existing schedules/workflows and guarded approval/executor only; ordinary price/stock/freshness writes may resume; stop on source, identity, anomaly, approval or postflight failure | Complete source classification, actual execution/postflight and idempotency under existing contract; Jon's and Whey specifically rechecked for recurrent block |
+
+The one missing step for a concrete future close decision is a fresh preflight
+AFTER migration deployment and canonical binding closeout. The historical or
+current pre-deployment hash is not substituted for that later owner decision.
+No apparently executable close command is supplied now. Push/merge cannot apply
+the SQL automatically: no workflow calls the migration applicator or db push;
+the relevant automatic jobs only validate/build/preview. The proposal remains
+production-pending and staging-excluded. No dependencies are installed on shared
+staging for this test.
+
+Closing the common parent can allow the already enabled Jon's (04:47UTC) and
+Whey (02:17UTC) schedules to reach their existing write path again. Other enabled
+shared refreshes can also cease encountering that global guard, but retain their
+own source/scope guards. This is not a read-only operational consequence; normal
+scheduled business writes remain possible. No scheduler is paused or activated
+here, GYM HIGH is not reconfigured and Predators stays unactivated.
+
+The two PRs deliberately keep separate code changes. Their common ledger header
+and selected-default subsection are reconciled identically before final tests;
+501 retains the full prior restoration evidence plus this decision package.
+The isolated combination uses500 then501, without a merge to main or a new PR.
+Its exact parent SHAs/tree and validation belong in the existing PR evidence.
 
 ## 7 November 2026 approved follow-up preparation ? code review only
 

@@ -6,6 +6,16 @@ select set_config('app.retailer_catalogue_production_marker','1',false);
 select set_config('app.retailer_catalogue_allow','1',false);
 select set_config('app.safe_update','false',false);
 
+-- Counts alone cannot prove zero writes to existing business values. Any DML
+-- statement on any business table must abort this disposable recovery scenario.
+create function public.planned_close_test_no_business_dml() returns trigger language plpgsql as $$
+begin raise exception 'UNEXPECTED_BUSINESS_DML: % %',tg_op,tg_table_name; end $$;
+do $$ declare business_table text; begin
+  foreach business_table in array array['retailers','products','product_variants','retailer_products','offers','price_history'] loop
+    execute format('create trigger planned_close_test_no_business_dml before insert or update or delete on public.%I for each statement execute function public.planned_close_test_no_business_dml()',business_table);
+  end loop;
+end $$;
+
 create function public.planned_close_test_assert(ok boolean,label text)
 returns void language plpgsql as $$ begin if ok is not true then raise exception 'planned close assertion: %',label; end if; end $$;
 
@@ -177,5 +187,6 @@ begin
 end $$;
 
 select jsonb_build_object('result','PASS','shape','10_PLANNED_491_ROWS','business_writes',0,'price_history_writes',0,
+  'business_dml_guard','STATEMENT_TRIGGER_RAISES_ON_ANY_BUSINESS_DML',
   'planned_control_writes',11,'replay_writes',0,'migration_applied_only_to_disposable_database',true) as never_approved_plan_close_test_report;
 rollback;

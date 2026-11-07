@@ -63,3 +63,11 @@ jobs:
         run: npm ci
       - name: Run isolated integration quality gate
         run: npm run verify:integration
+      - name: Retain compiled control recovery procedure review
+        if: ${{ always() && hashFiles('tmp/retailer-control-procedure-review/*') != '' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: control-recovery-procedure-review-${{ github.run_id }}
+          path: tmp/retailer-control-procedure-review/
+          retention-days: 30
+          if-no-files-found: error
