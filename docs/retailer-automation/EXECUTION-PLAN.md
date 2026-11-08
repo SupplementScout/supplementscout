@@ -1,17 +1,17 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: SIX PACK IDENTITY NORMALIZATION AND POST-CAPTURE RELIABILITY CODE COMPLETE FOR REVIEW; NO PRODUCTION REFRESH AUTHORITY**
+**Status: SIX PACK SOURCE-BOUNDARY REPAIR IMPLEMENTED FOR REVIEW; NO NEW LIVE RUN OR WRITE**
 
-**Current active task:** the owner's 8 November `SIX PACK IDENTITY NORMALIZATION
-AND POST-CAPTURE RELIABILITY` authorization: one general repair and one review PR
-from current main, using existing identity, typed source-error and report paths.
-No merge, production dry-run/apply, mapping change, migration, recovery or
-schedule change is authorized. PR #506 merge is complete; run `42503046561`
-is terminal BLOCKED, without manual replay. Current verified main is
-`6c99cd7fd1aa13ddcd6e557ff4fb27ddf6f4efc9`; production ledger 261 and exact CURRENT
-binding were freshly reverified. Earlier assessment/deployment text below is
-historical. RA-001 and existing guarded paths remain controlling; RA-004 is not
-resumed. No offer refresh or RESTORED status is claimed from read-only work.
+**Current active task:** the owner's 8 November `SIX PACK SOURCE RELIABILITY
+AND GENERIC UNBUYABLE SIMPLE PRODUCT SUPPORT` authorization: one coherent
+minimal PR from main `dd94e81d744c5ab2bbd78b94f85531b9b39ca2bb`, using preserved
+source evidence and the existing RA-001 runtime. Implementation and isolated
+quality/integration tests are authorized. Merge, live catalogue dry-run, apply,
+migrations, mapping changes and schedule changes are not authorized. The last
+actual source run `42510124005` remains BLOCKED; the verified zero-write
+production readback below is historical evidence, not a new refresh. RA-001 and
+the existing guarded paths remain controlling; RA-004 is not resumed. No
+RESTORED or live source verification is claimed.
 
 The immediate objective is to restore a trustworthy baseline for the existing
 production retailer paths before any consolidation work resumes. This is not a
@@ -19,6 +19,211 @@ new runtime, importer, approval path or executor. It reuses the current
 workflows, artifacts, control ledger, Review Queue, postflight and watchdog.
 Work proceeds read-only until a specific recovery or business write has fresh
 bounded evidence and separate owner approval.
+
+## 8 November 2026 source reliability and unavailable-simple review repair
+
+**Status:** implementation ready for review after the evidence gates below; one PR only, no merge authority.
+Branch: `fix/six-pack-source-reliability-simple`; approved base above.
+
+The preserved complete HTTP 200 capture of 2819 is 215716 bytes, SHA256
+`154f803db06443b37cf468e23996891c35b0728bfab4385051750c7434f3e44c`.
+It is a simple product with an explicit unavailable-online notice and no
+Product/Offer JSON-LD. The previous parser's qualified unavailable template
+required variable; ordinary parsing therefore correctly stopped at missing
+Product JSON-LD. No new shop request is needed or made for this repair. The
+reduced fixture retains the real simple price metatags as consistency evidence.
+
+Component ownership stays in the existing path:
+
+- `parseSixPackProductPage` / `unbuyableParentName` reuse one complete-document
+  identity check for a single known simple/variable type. Existing variable
+  qualification remains unchanged. Simple may corroborate exactly two GBP
+  display-price metatags; neither they nor parent stock become offer proposals.
+- `approvedSourceFailureDisposition` requires typed bounded-reader provenance,
+  HTTP 200, complete bounded HTML/hash/bytes, fresh timestamp, exact HTTPS
+  origin/request/final/canonical/product binding, reproduced parser evidence,
+  immutable manifest, exactly one parent=variant mapping, exact current
+  mapping/offer/product/variant/retailer/URL bindings and no shared canonical
+  dependency. Exact brand/name words and all commercial quantity tokens must
+  match. The result is only existing product isolation and
+  SOURCE_VARIANT_MISSING/manual identity review, with new typed reason
+  `UNBUYABLE_SIMPLE_OFFER_UNRESOLVED`; no price, stock or freshness proposal.
+- Existing `commercialIdentity` / `commercialIdentityTokens` normalize 90 Caps,
+  Vege Caps and Vegetarian Capsules to the same count while retaining capsule
+  qualifiers. Unspecified versus vegetarian still requires identity review.
+  Different counts, units, servings, doses and sizes remain conflicts; no
+  mapping/title is changed and no fuzzy identity authority is added.
+- The single existing source loop can continue after a first-attempt, typed,
+  complete HTTP 200 schema error only with intact document/product identity
+  and exact approved name/quantity anchors. Such errors remain FATAL. Any
+  fatal prevents normalization, classifier, executable plans and sealing.
+  Transient, unknown, 429/5xx, timeout and integrity failures stop further
+  products. Prior deterministic fatal evidence still yields exit 2, preserving
+  existing reader/Bash no-retry behavior. There is no new scanner or retry.
+- Existing `writeSourceFailureReport` and workflow upload retain stage,
+  manifest/capture binding, exact IDs/reasons/mappings, metadata and disjoint
+  PARSED/ISOLATED/FATAL/NOT_REACHED partitions for all 279 products / 506
+  mappings. Never-reached products remain explicit. Fatal raw HTML has one
+  2,000,000-byte report budget; overflow retains hash/bytes/provenance only.
+  Incomplete source has no complete fingerprint/sealed artifact or published
+  classifier review rows. Earlier qualified isolation evidence is retained.
+
+Offline full-scope regressions retain existing 499+7 and 496+10 cases and add
+495 executable + 11 unchanged review (Warrior 7, unavailable variable 3,
+simple 1). These are synthetic complete-source test outcomes, not actual source
+results or refreshes. Existing profile, classifier, validator, sealed artifacts,
+postflight and idempotency are exercised; review price/stock/freshness changes
+are rejected. Full 506-mapping approved scope is unchanged. One classifier,
+one isolatedSourceFailures, one approval system and one executor remain.
+
+Local verification: focused 173 PASS / zero FAIL / zero SKIP; quick PASS
+(469 tests); full PASS (3668 PASS / zero FAIL / three pre-existing SKIP),
+including TypeScript, lint, Guardian, baseline migration validation and build.
+Guardian passed before/after this checkpoint. The original complete 2819 HTML
+reproduces the new typed review reason offline; no shop GET was performed.
+Exact-head GitHub CI/Guardian and actual isolated PostgreSQL integration must
+pass before handoff; their run IDs and results are retained in the PR evidence,
+never inferred from a skipped job.
+The test inventory remains 355 files with its existing seal; no test is added,
+removed, renamed or silently excluded. Production credentials are not used by
+quality jobs. No source workflow, approval, publication or production write is
+invoked in this task.
+
+**Later merge effect:** the unchanged daily `03:17 UTC` workflow already has
+an apply path. Merging this repair can let that path progress past qualified
+unavailable simple products and execute other already permitted offers if all
+existing guards pass; isolated rows stay review-only. This task authorizes no
+merge or additional write. No scheduler, lock, approval, fingerprint, shared
+executor, source limit, mapping or migration is changed.
+
+## 8 November 2026 PR #507 merge and one complete read-only Six Pack attempt
+
+Exact approved head `8cf93cc2b185aca3b22cb0a45a7d285ca05630bd`, unchanged base/main
+`6c99cd7fd1aa13ddcd6e557ff4fb27ddf6f4efc9`, seven approved files and all normal
+checks were freshly verified. Full CI `42508019775` passed 3,644 / zero FAIL /
+three previous SKIP; Guardian `42508019777` passed; actual isolated PostgreSQL
+job `128814858306` in `42508046053`, attempt 1, passed 149 / zero SKIP.
+Repository rules are empty and main is not protected; no checks were bypassed.
+There were no active workflow runs before the merge.
+
+Standard exact-head squash merge completed `2026-11-08T18:22:22Z` as main
+`dd94e81d744c5ab2bbd78b94f85531b9b39ca2bb`, without bypass, auto-merge or force.
+Approved and merged tree are identical:
+`a21053b9acba0226fae0023f7733ac77e6ff6ca8`. Main Guardian `42509683613` passed;
+full CI `42509683620`, actual job `128819810940`, passed 3,644 / zero FAIL /
+three previous SKIP before dispatch. The automatic unrelated
+GYM HIGH source monitor triggered by push is read-only and was not manually run.
+
+Manual `operation=dry-run` on this unchanged workflow skips executor, approval,
+control registration, business/history writes, post-apply source replay and
+production Review Queue publication. Existing schedule is daily `03:17 UTC`
+and has an apply path; it remains unchanged and is not selected/simulated by
+this manual invocation. Existing concurrency is `six-pack-offer-refresh`,
+cancel-in-progress false. Fresh collision check at `18:27:07.602Z` found no
+active run and no newer successful source refresh before the permitted dispatch.
+
+Independent verified-TLS REPEATABLE READ READ ONLY baseline at
+`2026-11-08T18:24:10.418Z`: 506 full offer rows, 506 mapping rows, history
+539 / latest ID 10247, Review Queue 709, approved import plans 49,115, zero
+parent/child/apply/batch-approval rows and no active writer. Canonical CURRENT
+and all 261 live ledger identifiers agree at fingerprint
+`755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a`.
+The first GitHub metadata read exceeded a local output buffer; it performed no
+merge/source action and was repeated with bounded larger metadata capacity.
+Production baseline succeeded on its first read attempt without timeout or
+runtime changes. Local evidence: `tmp/507-main-dryrun-20261108/premerge.json`,
+`merge-receipt.json`, `before.json` and `current-binding.json`.
+
+One create-only receipt records dispatch at `18:27:44.984Z`, source run
+`42510124005`, attempt 1, `workflow_dispatch`, input only `operation=dry-run`,
+exact main SHA above. Actual job `128821170741` failed with exit 2; executor,
+approval/control binding, postflight/idempotency and Review Queue publication
+were skipped. No second dispatch, Actions rerun or catalogue replay was sent.
+
+Workflow `18:27:46Z` to `18:30:01Z`: **2m15s**. Source step `18:28:43Z` to
+`18:29:56Z`: **73s**, including state read, HTTP and inline parsing. CapturedAt
+`18:28:44.935Z` to fatal log `18:29:56.853Z`: 71.918s. This is **one incomplete
+traversal, zero full catalogue traversals**. The 2m15s versus earlier 20m14s is
+not an equivalent-coverage benchmark. Normalization and the new post-capture
+aggregation were not reached, so their live repair verification is not claimed.
+
+The only retained fatal conflict is `SOURCE_SCHEMA_MISMATCH` at parent/variation
+**2819**, mapping **2241**, offer **2055**, canonical product/variant **123/138**.
+Original cause: `Expected one matching Product JSON-LD block, found 0`.
+`last_attempt=1`, network code null, timeout false; one fatal log and exit 2
+prove no whole-source retry. Total earlier transport attempts are not retained.
+
+Exact approved manifest remains 506 mappings / 279 parents. The fatal parent is
+21st in immutable manifest order. Report retains **19 parsed pages**; the source
+loop therefore had **one earlier qualified product isolation** among the first
+20 parents, but this read-phase failure writer did not retain its ID/reason.
+Accounting is **19 parsed + 1 prior isolation + 1 fatal + 258 unreached = 279**.
+The first 20 parents cover **83 mappings**, the fatal parent one, and unreached
+parents 422: **83 + 1 + 422 = 506**. The split of those 83 into parsed/isolation
+rows and the parsed source-variant count are unknown. No IDs, OOS or full-source
+success are invented to fill the retention gap. The complete 506-row binding
+account is retained in `mapping-accounting.csv` with this uncertainty explicit.
+
+One bounded later GET of only 2819, existing reader / maximumAttempts 1, at
+`18:33:36.727Z` reproduced the same parser error and preserved complete HTTP 200
+HTML, 215716 bytes, SHA256
+`154f803db06443b37cf468e23996891c35b0728bfab4385051750c7434f3e44c`.
+This is later diagnosis, not original workflow HTML or another catalogue run.
+It has exact postid/canonical, `product-type-simple`, ItemPage/BreadcrumbList,
+`Not available to buy online`, no Product/Offer JSON-LD and no variant payload.
+Existing unavailable-parent qualification explicitly requires `variable`, so
+the unsupported simple template correctly remains retailer BLOCK. Displayed
+price/stock was not turned into an offer proposal. Expected name:
+`7Nutrition ZMB + GMC 90 Caps`; observed later title:
+`Zmb + Gmc 90 Vege Caps 7Nutrition`. Direct offline token comparison also finds
+that `90 Vege Caps` is unrecognized (expected `90capsule`, observed empty); this
+is a follow-on diagnostic finding, not another executed workflow conflict or
+proof of a changed quantity/formulation. The historical approval-builder's
+last-count/Number helper is not blindly imported as an identity contract.
+
+No classifier or validator was reached. **Executable plans 0, review rows 0,
+blocked rows 506, action counts empty**, no source fingerprint or sealed apply
+artifact. This is whole-retailer hold for incomplete source, not 506 proven bad
+offers. 3980 is within the prefix but none of its eight identity normalizations
+was reached; its precise parsed/isolation status is not retained. Warrior 2769
+and Angel 28570 are beyond the prefix, so live 7+3 isolation was not exercised.
+All ten DB offers/mappings remain unchanged and have no new commercial proposal.
+
+Artifact `13628363824` contains only `production-preflight-report.json`.
+Downloaded ZIP SHA256 matches the GitHub provider digest:
+`36a9e81ae43756cec3b610a68ef2f2864a08ffa0bcfcf077cb878b94616e581a`.
+That verifies the diagnostic report, not a sealed apply artifact. Retained:
+job log, run/jobs/artifact metadata, before/after snapshots and the explicitly
+later one-page diagnosis. Not retained from the run: original HTML, per-page
+hashes, variant counts or prior isolation ID/disposition. Full post-capture
+reporting cannot be evaluated from this interrupted source read.
+
+Independent verified-TLS READ ONLY after-capture at `18:32:29.478Z` matches all
+columns of **506 offers + 506 mappings** and every control hash. Shared business
+SHA256 `561cd5d9fe96e79ae71031e82e6e85b1e390d6d187a591d835191d6fb0c06d87`.
+History remains 539 / latest ID 10247; Review Queue 709; approved import plans
+49,115; parent/child/apply/batch approvals zero. Ledger 261 / CURRENT unchanged,
+no active writer, no new control plan and no independent change in this retailer
+scope. Together with skipped mutation steps this verifies **business writes 0,
+control writes 0, approvals 0, price_history writes 0**. Postflight/idempotency
+workflow skips are not called PASS; the independent no-mutation readback passed.
+
+No apply package is ready. One general next-change assessment belongs at the
+existing source boundary: strict review-only qualification of complete
+unbuyable simple templates when immutable identity/provenance guards permit,
+plus retaining partial-capture/isolation metadata through the existing failure
+report. Unknown identity, including quantity/modifier ambiguity, stays BLOCK;
+no display-price inference, broad name match or product-ID exception is proposed.
+The 90 Vege Caps count-recognition gap must be assessed in the same existing
+identity contract before any further catalogue attempt. No proposal is coded
+or a new PR created under this authorization. Full local analysis, every known
+conflict and evidence limits: `tmp/507-main-dryrun-20261108/analysis-report.md`,
+`analysis.json`, `postrun-verification.json`, `artifact-verification.json` and
+`mapping-accounting.csv`.
+
+This release checkpoint is local outside the merged tree. No code, workflow or
+new PR is created in this task. RA-001, existing guarded paths and all schedules
+remain unchanged. No offer refresh or RESTORED status is claimed.
 
 ## 8 November 2026 Six Pack identity normalization and post-capture reliability
 

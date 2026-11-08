@@ -2,6 +2,7 @@ const assert = require("node:assert/strict");
 const test = require("node:test");
 const {
   canonicalFeedRow,
+  commercialIdentity,
   commercialIdentityTokens,
   liveIdentityDrift,
   orderedCandidates,
@@ -31,6 +32,20 @@ test("live identity guard blocks changed dosage while tolerating capsule wording
     ).code,
     "CSV_LIVE_IDENTITY_DRIFT"
   );
+});
+
+test("capsule counts retain vegetarian kind for review without equating doses, tablets or servings", () => {
+  for (const name of ["Example 90 Caps", "Example 90 Vege Caps", "Example 90 Vegetarian Capsules"]) {
+    assert.deepEqual(commercialIdentityTokens(name), ["90capsule"]);
+  }
+  assert.deepEqual(commercialIdentity("Example 90 Vege Caps").capsule_qualifiers, ["vegetarian"]);
+  assert.deepEqual(commercialIdentity("Example 90 Caps").capsule_qualifiers, []);
+  assert.ok(liveIdentityDrift({ product_name: "Example 90 Caps" }, { product_name: "Example 90 Vege Caps" }));
+  assert.equal(liveIdentityDrift({ product_name: "Example 90 Vege Caps" }, { product_name: "Example 90 Vegetarian Capsules" }), null);
+  for (const [left, right] of [["90 Vege Caps", "120 Vege Caps"], ["90 Caps", "90 Tablets"],
+    ["60 Servings", "90 Servings"], ["1mg 90 Caps", "4mg 90 Vege Caps"], ["1kg", "1.5kg"]]) {
+    assert.ok(liveIdentityDrift({ product_name: `Example ${left}` }, { product_name: `Example ${right}` }));
+  }
 });
 
 test("commercial packaging uses exact existing kg/g normalization without changing product names", () => {

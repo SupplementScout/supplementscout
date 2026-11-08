@@ -310,7 +310,7 @@ function validateSixPack(profile, context) {
     invariant(String(review.external_product_id) === String(before.external_product_id) && String(review.external_variant_id) === String(before.external_variant_id), `${label} source identity drift for offer ${offerId}`);
     invariant(review.current_offer && Number.isFinite(Number(review.current_offer.price)) && Number.isFinite(Number(before.price)) && Number(review.current_offer.price).toFixed(2) === Number(before.price).toFixed(2) && Boolean(review.current_offer.in_stock) === Boolean(before.in_stock), `${label} current state drift for offer ${offerId}`);
     invariant(["SOURCE_VARIANT_MISSING", "HARD_PRICE_ANOMALY", "MASS_OOS"].includes(review.reason), `${label} review reason drifted for offer ${offerId}`);
-    const unresolvedCommercial = ["WILDCARD_COMMERCIAL_UNIT_UNRESOLVED", "UNBUYABLE_PARENT_VARIANTS_UNRESOLVED"]
+    const unresolvedCommercial = ["WILDCARD_COMMERCIAL_UNIT_UNRESOLVED", "UNBUYABLE_PARENT_VARIANTS_UNRESOLVED", "UNBUYABLE_SIMPLE_OFFER_UNRESOLVED"]
       .includes(review.source_failure?.disposition);
     if (unresolvedCommercial) {
       const failure = (report.source_failures || []).filter((row) => row.product_id === review.external_product_id);
