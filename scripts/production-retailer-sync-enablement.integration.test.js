@@ -4,12 +4,17 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
+const { unwrapTransaction } = require("./apply-selected-migrations");
 
 const ROOT = path.resolve(__dirname, "..");
 const MIGRATION = path.join(ROOT, "supabase/migrations/20260719100000_add_production_retailer_sync_enablement.sql");
 const SEQUENTIAL_CLOSE_MIGRATION = path.join(ROOT, "supabase/migrations/20260929133000_extend_expired_sequential_plan_close.sql");
 const PARTIAL_SEQUENTIAL_CLOSE_MIGRATION = path.join(ROOT, "supabase/migrations/20261006120000_extend_partial_sequential_plan_close.sql");
 const PLANNED_CLOSE_MIGRATION = path.join(ROOT, "supabase/migrations/20261107190000_extend_never_approved_planned_control_close.sql");
+// Exercise the production applicator's actual preparation before isolated execution.
+const preparedPlannedCloseMigration = () => "begin;\n"
+  + unwrapTransaction(fs.readFileSync(PLANNED_CLOSE_MIGRATION, "utf8"), path.basename(PLANNED_CLOSE_MIGRATION))
+  + "\ncommit;\n";
 const REVIEWED_DISPATCH_MIGRATION = path.join(ROOT, "supabase/migrations/20260722120000_add_reviewed_jons_stock_only_override.sql");
 const STATE_READ_MIGRATION = path.join(ROOT, "supabase/migrations/20261008200000_consolidate_shared_executor_state_reads.sql");
 const COMPACT_FINGERPRINT_MIGRATION = path.join(ROOT, "supabase/migrations/20261009120000_add_compact_other_retailer_fingerprint.sql");
@@ -371,13 +376,13 @@ test("production sequence passes exact identity and fails staging, drift, order,
     const previousInternal=beforeCloseProcedure.find((proc)=>proc.signature.includes("_internal("));
     const incompatibleDefinition=previousInternal.definition.replace(previousInternal.body,()=>`${previousInternal.body}\n-- incompatible version probe\n`);
     requireSuccess(psqlText(container,pass,incompatibleDefinition),"inject incompatible procedure version only in disposable database");
-    requireFailure(psqlText(container,pass,fs.readFileSync(PLANNED_CLOSE_MIGRATION,"utf8")),"incompatible planned-close input source",/exact existing partial close source/);
+    requireFailure(psqlText(container,pass,preparedPlannedCloseMigration()),"incompatible planned-close input source",/exact existing partial close source/);
     requireSuccess(psqlText(container,pass,previousInternal.definition),"restore exact prerequisite after rejected version probe");
     assert.deepEqual(closeProcedureState(container,pass),beforeCloseProcedure);
-    requireSuccess(psqlText(container,pass,fs.readFileSync(PLANNED_CLOSE_MIGRATION,"utf8")),"extend same recovery RPC for never-approved PLANNED trees");
+    requireSuccess(psqlText(container,pass,preparedPlannedCloseMigration()),"extend same recovery RPC for never-approved PLANNED trees");
     retainCloseProcedureReview(beforeCloseProcedure,closeProcedureState(container,pass));
     assert.deepEqual(objectState(container,pass),beforePlannedMigration,"schema preparation must not close any control tree or write business data");
-    requireFailure(psqlText(container,pass,fs.readFileSync(PLANNED_CLOSE_MIGRATION,"utf8")),"planned migration replay",/exact existing partial close source/);
+    requireFailure(psqlText(container,pass,preparedPlannedCloseMigration()),"planned migration replay",/exact existing partial close source/);
     requireSuccess(psql(container,pass,"insert into supabase_migrations.schema_migrations values('20261107190000','extend_never_approved_planned_control_close',array[]::text[])"),"record isolated planned close migration");
     requireSuccess(psqlText(container,pass,fs.readFileSync(REVIEWED_DISPATCH_MIGRATION,"utf8")),"shared reviewed dispatch migration");
     requireSuccess(psqlText(container,pass,fs.readFileSync(STATE_READ_MIGRATION,"utf8")),"shared executor state-read consolidation migration");

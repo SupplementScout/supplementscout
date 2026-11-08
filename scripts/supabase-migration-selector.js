@@ -136,7 +136,7 @@ const CONTRACTS = Object.freeze({
     appliedExcluded: APPLIED_EXCLUSIONS.STAGING,
     excluded: Object.freeze({
       "20261107190000_extend_never_approved_planned_control_close.sql":
-        "f6d0bf7724ae6fe2e2f1e4e3df2bcdb89c50a4edf765dc4858f65741915eb69d",
+        "0c6a7ef27021c0ba2dc5ef38eea3289b8238e4dc3220ede03de6210336263ddf",
       "20261031120000_add_verified_automation_review_stock_transition_reader.sql":
         "9d1f9c004d58926101c4adc60e7515d8040bc9b6102213180538113e1c925608",
       "20261030120000_create_sealed_artifacts_registry.sql":

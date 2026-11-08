@@ -1,5 +1,6 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
+const crypto = require("node:crypto");
 const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
@@ -83,6 +84,25 @@ test("transaction wrapper is required and removed", () => {
     () => unwrapTransaction("begin; begin; select 1; commit; commit;", "one.sql"),
     /nested transaction/,
   );
+});
+
+test("pending planned-close migration uses the real applicator without changing approved SQL", () => {
+  const filename = "20261107190000_extend_never_approved_planned_control_close.sql";
+  const sql = fs.readFileSync(path.join(SOURCE, filename), "utf8");
+  const comments = "-- Preparation only. Separate owner authorization is required for deployment and\n"
+    + "-- for a fresh, exact parent/state close. This migration closes no existing plan.\n";
+  assert.ok(sql.startsWith("begin;\n" + comments));
+  const original = comments + "begin;\n" + sql.slice(("begin;\n" + comments).length);
+  assert.equal(crypto.createHash("sha256").update(original).digest("hex"),
+    "f6d0bf7724ae6fe2e2f1e4e3df2bcdb89c50a4edf765dc4858f65741915eb69d");
+  assert.throws(() => unwrapTransaction(original, filename), /explicit begin\/commit/);
+  const body = unwrapTransaction(sql, filename);
+  assert.equal(body.slice(comments.length), unwrapTransaction(original.slice(comments.length), filename));
+  assert.equal((sql.match(/^begin;$/gmi) || []).length, 1);
+  assert.equal((sql.match(/^commit;$/gmi) || []).length, 1);
+  assert.doesNotMatch(body, /\b(?:begin|commit|rollback)\s*;/i);
+  assert.equal(crypto.createHash("sha256").update(sql).digest("hex"),
+    CONTRACTS.PRODUCTION.pending.find((entry) => entry.filename === filename).sha256);
 });
 
 test("catalogue deltas default to zero and allow only exact declared table changes", () => {
