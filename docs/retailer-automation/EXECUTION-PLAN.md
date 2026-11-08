@@ -1,18 +1,21 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: TWO-BLOCKER REPAIR IN REVIEW PREPARATION; PRODUCTION RESTORATION BLOCKED**
+**Status: RECOVERY MIGRATION APPLIED; CANONICAL CLOSEOUT PREPARED; RETAILER RESTORATION STILL BLOCKED**
 
-**Current active task:** the owner's 8 November 2026 bounded repair of the
-unapplied recovery migration format and investigation of the 6 Pack variant
-contract. PRs #499, #500 and #501 are merged; current fetched main is
-`bb8562dae6fb8dc194ce1bd428f853734b53e1bd`. This task permits one repair PR,
-local checks and isolated CI only. It authorizes no merge, shared-environment
-migration, control close, approval/apply, replay, status writes or new schedules.
-RA-STAB-02 and RA-STAB-01 remain `VERIFIED_COMPLETE`; RA-000 through RA-003
-remain complete within their recorded audit/decision/contract/fixture scopes.
-RA-002 did not switch production routing. RA-004 remains owner-stopped and
-blocked; its consumed activation, cleanup and revoked credentials remain closed.
-Existing guarded production paths remain authoritative until a separate cutover.
+**Current active task:** the owner's 8 November 2026 approved deployment of PR
+#502 and exactly one production migration, its receipt-based repository closeout,
+then fresh read-only Jon's/Whey Okay checks and separate Fit House diagnosis.
+PR #502 was squash-merged as `10996f9d51fd6d8a6908c2132a2d565cf06f965a`;
+its tree equals the approved `5abe9c5d2c756af25e7214e31f175c3285e64899`.
+The migration has committed successfully. This repository change consumes only
+its actual receipt and updates the current production binding to ledger 261.
+Technical closeout merge is authorized after its checks. Jon's preflight must
+wait until that merge and canonical verification; control close, manual
+approval/apply/replay, guardrail, credential and schedule changes remain
+unauthorized. The 6 Pack source block remains unchanged and no new full capture
+is authorized without new evidence. Existing production paths remain
+controlling; RA-004 remains stopped, and completed RA-000 through RA-003 and
+RA-STAB-01/02 are not reopened.
 
 The immediate objective is to restore a trustworthy baseline for the existing
 production retailer paths before any consolidation work resumes. This is not a
@@ -20,6 +23,71 @@ new runtime, importer, approval path or executor. It reuses the current
 workflows, artifacts, control ledger, Review Queue, postflight and watchdog.
 Work proceeds read-only until a specific recovery or business write has fresh
 bounded evidence and separate owner approval.
+
+## 8 November 2026 approved migration deployment and canonical closeout
+
+Authority: the owner's `SUPPLEMENTSCOUT. ZATWIERDZONE WDROZENIE #502 ORAZ
+DIAGNOZA FIT HOUSE` instruction explicitly approves squash merge #502, exactly
+one canonical production migration and its receipt-based technical PR/merge.
+It does not approve a control close or business execution.
+
+PR #502 merged at `2026-11-08T06:53:24Z` as
+`10996f9d51fd6d8a6908c2132a2d565cf06f965a`, tree
+`09a05018141872f8d6f2a12bdab56d8c97bae8de`, identical to the reviewed candidate.
+Approved full CI `42455171799`, actual PostgreSQL integration `42455170019`
+and Guardian `42455171743` were green for that unchanged tree; no bypass was
+used. Pre-deployment Guardian also passed.
+
+Read-only repeatable-read metadata at `2026-11-08T06:57:11.081Z` attested
+production project `aftboxmrdgyhizicfsfu`, the canonical database identity,
+owner `postgres`, `read_only=on`, ledger 260 / `17a00891...`, no row for
+migration `20261107190000`, no active colliding database session and the exact
+reviewed original procedure/security metadata. The actual file SHA was
+`0c6a7ef27021c0ba2dc5ef38eea3289b8238e4dc3220ede03de6210336263ddf`;
+real `unwrapTransaction` passed, and canonical pending contained only that file.
+
+Exactly one `apply-selected-migrations.js --environment=PRODUCTION
+--project-ref=aftboxmrdgyhizicfsfu --mode=apply --confirm=e681f06f0409b160`
+returned `PASS / committed:true`. No rehearsal, retry, alternate SQL writer,
+`db push` or other migration was used. Its committed readback recorded ledger
+**261**, fingerprint
+`755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a`,
+and exactly one applied identifier. Products 1399, variants 4070, mappings 4361,
+offers 4361 and price_history 48525 were unchanged before, within and after apply.
+
+The applicator generated the actual
+[`selected-migration-repository-closeout-v1` receipt](evidence/PLANNED-CONTROL-MIGRATION-CLOSEOUT-2026-11-08.json),
+normalized SHA-256 `6955cde7ae114d348d61ab66f60e60955958c2f84e3619b23e19394ed85d478d`.
+The existing verifier returned `POST_APPLY_VERIFIED / CLOSEOUT_REQUIRED`.
+Only the receipt's three repository transitions are implemented: production
+pending becomes empty and the production selector count/fingerprint becomes
+its `post_state`. Shared runtime bindings derive from that same inventory.
+Staging exclusions/pending/identity are unchanged; no applied-exclusion or
+secondary runtime state is added. The SQL and all application/recovery/runtime
+logic remain byte-identical to merged #502.
+
+Independent read-only metadata at `2026-11-08T07:00:36.652Z` found one migration
+row and the exact PostgreSQL procedure definitions and security metadata from
+the reviewed integration artifact. Compiled internal body SHA-256 is
+`35977d1adeb271929097dae9056ac15106a10fdf9512cf713959b11f51cb7914`;
+the entire public wrapper remains unchanged at
+`053dfa3f55a92cf6de8835fa880600d75656f40f536b240e32ee1d4452c84efb`.
+Both remain owned by `postgres`; internal is DEFINER, wrapper INVOKER;
+`search_path=pg_catalog, public, pg_temp`; EXECUTE belongs only to postgres
+and the dedicated production approver, without grant option. Counts and complete
+row-content digests for all five business/history relations and seven
+control/apply/approval/recovery relations were identical before and after.
+No plan was closed, approved, replayed or reset.
+
+Closeout regression tests retain historical 259/260 and prerequisite 256/257
+fingerprints while checking current 261 and empty pending; the real applicator
+compatibility regression remains. Focused tests: **173 PASS, 0 FAIL, 0 SKIP**.
+The unchanged 355-path test inventory needs no reseal. Project Guardian passed
+before this evidence update. Final local quick/full, PR checks, independent
+receipt/diff review and the canonical `CURRENT / ALREADY_CLOSED` verification
+after standard closeout merge are required before proceeding to Jon's
+read-only discovery/preflight. That preflight and the official Whey diagnostic
+are evidence only; any exact control close requires a new owner decision.
 
 ## 8 November 2026 two-blocker repair evidence
 

@@ -86,7 +86,7 @@ test("transaction wrapper is required and removed", () => {
   );
 });
 
-test("pending planned-close migration uses the real applicator without changing approved SQL", () => {
+test("planned-close migration uses the real applicator without changing approved SQL", () => {
   const filename = "20261107190000_extend_never_approved_planned_control_close.sql";
   const sql = fs.readFileSync(path.join(SOURCE, filename), "utf8");
   const comments = "-- Preparation only. Separate owner authorization is required for deployment and\n"
@@ -102,7 +102,7 @@ test("pending planned-close migration uses the real applicator without changing 
   assert.equal((sql.match(/^commit;$/gmi) || []).length, 1);
   assert.doesNotMatch(body, /\b(?:begin|commit|rollback)\s*;/i);
   assert.equal(crypto.createHash("sha256").update(sql).digest("hex"),
-    CONTRACTS.PRODUCTION.pending.find((entry) => entry.filename === filename).sha256);
+    CONTRACTS.STAGING.excluded[filename]);
 });
 
 test("catalogue deltas default to zero and allow only exact declared table changes", () => {
@@ -125,7 +125,8 @@ test("selected migration paths require the shared verified PostgreSQL TLS helper
 });
 
 test("historical closed production derives immutable ALREADY_CLOSED without advancing the ledger", () => {
-  const contract = { ...CONTRACTS.PRODUCTION, pending: [] };
+  const contract = { ...CONTRACTS.PRODUCTION, ledgerCount: 260,
+    ledgerFingerprint: "17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e", pending: [] };
   const derivation = derivePostApplyMigrationBinding("PRODUCTION", { sourceDir: historicalSource, pendingMigrations: [] });
   assert.equal(derivation.status, "ALREADY_CLOSED");
   assert.equal(derivation.pending_count, 0);
@@ -171,14 +172,20 @@ test("historical production pending migration deterministically derives ledger 2
     "17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e");
 });
 
-test("planned close draft is pending while the current production runtime ledger remains 260", () => {
+test("applied planned-close migration is canonically closed at production ledger 261", () => {
   const derivation = derivePostApplyMigrationBinding("PRODUCTION");
-  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 260);
-  assert.equal(derivation.pre_ledger_count, 260);
-  assert.equal(derivation.pending_count, 1);
-  assert.equal(derivation.consumed_pending[0].filename, "20261107190000_extend_never_approved_planned_control_close.sql");
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 261);
+  assert.equal(derivation.status, "ALREADY_CLOSED");
+  assert.equal(derivation.pending_count, 0);
+  assert.deepEqual(derivation.consumed_pending, []);
+  assert.deepEqual(CONTRACTS.PRODUCTION.pending, []);
+  assert.equal(derivation.pre_ledger_count, 261);
   assert.equal(derivation.post_ledger_count, 261);
-  assert.equal(derivation.post_ledger_fingerprint, "755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a");
+  assert.equal(derivation.pre_ledger_fingerprint, "755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a");
+  assert.equal(derivation.post_ledger_fingerprint, derivation.pre_ledger_fingerprint);
+  assert.deepEqual(derivation.pre_identifiers, derivation.post_identifiers);
+  assert.ok(Object.isFrozen(derivation.post_identifiers));
+  assertDerivationMatchesContract(derivation, CONTRACTS.PRODUCTION);
 });
 
 test("current staging pending migrations derive one exact ordered 120 to 122 transition", () => {

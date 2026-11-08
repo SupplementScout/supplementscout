@@ -241,8 +241,6 @@ const APPLIED_EXCLUSIONS = Object.freeze({
   ]),
 });
 
-const PLANNED_CONTROL_CLOSE_PENDING = Object.freeze({ filename: "20261107190000_extend_never_approved_planned_control_close.sql", sha256: "0c6a7ef27021c0ba2dc5ef38eea3289b8238e4dc3220ede03de6210336263ddf" });
-
 const PENDING_MIGRATIONS = Object.freeze({
   STAGING: Object.freeze([
     Object.freeze({
@@ -254,7 +252,7 @@ const PENDING_MIGRATIONS = Object.freeze({
       sha256: "015f0de7448c10fcca10174e74dfbf7ca9e3150951f49090d01cd6eee869024c",
     }),
   ]),
-  PRODUCTION: Object.freeze([PLANNED_CONTROL_CLOSE_PENDING]),
+  PRODUCTION: Object.freeze([]),
 });
 
 function migrationIdentifier(filename) {

@@ -101,13 +101,13 @@ const PENDING_REFRESH_BINDING_MIGRATION_SHA256 = "015f0de7448c10fcca10174e74dfbf
 const PENDING_REFRESH_BINDING = Object.freeze({ filename: PENDING_REFRESH_BINDING_MIGRATION, sha256: PENDING_REFRESH_BINDING_MIGRATION_SHA256 });
 const PLANNED_CONTROL_CLOSE_PENDING = Object.freeze({ filename: "20261107190000_extend_never_approved_planned_control_close.sql", sha256: "0c6a7ef27021c0ba2dc5ef38eea3289b8238e4dc3220ede03de6210336263ddf" });
 const STAGING_PENDING = Object.freeze([...HARD_PRICE_ANOMALY_PENDING, PENDING_REFRESH_BINDING]);
-const PRODUCTION_PENDING = Object.freeze([PLANNED_CONTROL_CLOSE_PENDING]);
+const PRODUCTION_PENDING = Object.freeze([]);
 
-test("production-only planned-close proposal cannot enter the incompatible staging package", () => {
+test("production-only planned-close migration is applied in production and excluded from staging", () => {
   assert.equal(CONTRACTS.STAGING.excluded[PLANNED_CONTROL_CLOSE_PENDING.filename], PLANNED_CONTROL_CLOSE_PENDING.sha256);
   assert.ok(!CONTRACTS.STAGING.pending.some(({ filename }) => filename === PLANNED_CONTROL_CLOSE_PENDING.filename));
   assert.ok(!migrationBinding("STAGING").versions.includes(PLANNED_CONTROL_CLOSE_PENDING.filename.slice(0, -4)));
-  assert.ok(!migrationBinding("PRODUCTION").versions.includes(PLANNED_CONTROL_CLOSE_PENDING.filename.slice(0, -4)));
+  assert.ok(migrationBinding("PRODUCTION").versions.includes(PLANNED_CONTROL_CLOSE_PENDING.filename.slice(0, -4)));
 });
 const RA004_CONTROL_STATE_MIGRATION = "20260924100000_add_transactional_retailer_control_state_interface.sql";
 const RA004_PREFLIGHT_MIGRATION = "20260925100000_add_ra004_staging_preflight_metadata_interface.sql";
@@ -587,10 +587,10 @@ test("production preserves deployed V3 and Ghost Lifestyle metadata correction b
     "20261009120000_add_compact_other_retailer_fingerprint.sql",
     SEALED_ARTIFACTS_REGISTRY_MIGRATION,
   ]);
-  assert.equal(contract.ledgerCount, 260);
+  assert.equal(contract.ledgerCount, 261);
   assert.equal(
     contract.ledgerFingerprint,
-    "17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e",
+    "755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a",
   );
   assert.equal(sha256File(path.join(SOURCE, GHOST_LIFESTYLE_METADATA_MIGRATION)), GHOST_LIFESTYLE_METADATA_SHA256);
   assert.equal(contract.excluded[REVIEWED_STATE_MIGRATION], REVIEWED_STATE_SHA256);
@@ -884,7 +884,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production records ledger 260 with the refresh-binding migration applied", () => {
+test("production records ledger 261 with the planned-close migration applied", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -911,13 +911,13 @@ test("production records ledger 260 with the refresh-binding migration applied",
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 260);
+  assert.equal(result.ledger_count, 261);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
   assert.equal(result.selected_files.length, 261);
   assert.deepEqual(result.pending_files, PRODUCTION_PENDING.map(({ filename }) => filename));
   assert.deepEqual(result.pending_sha256s, Object.fromEntries(PRODUCTION_PENDING.map(({filename, sha256}) => [filename, sha256])));
-  assert.equal(result.pending_file, PLANNED_CONTROL_CLOSE_PENDING.filename);
-  assert.equal(result.pending_sha256, PLANNED_CONTROL_CLOSE_PENDING.sha256);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
   assert.ok(result.selected_files.includes(PENDING_REFRESH_BINDING_MIGRATION));
   assert.ok(result.selected_files.includes(PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION));
   assert.ok(result.excluded_files.includes(PRODUCT_PACK_CORRECTION_MIGRATION));
@@ -1809,8 +1809,8 @@ test("shared production binding includes hard-price and refresh-binding migratio
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.pending_file, PLANNED_CONTROL_CLOSE_PENDING.filename);
-  assert.equal(result.pending_sha256, PLANNED_CONTROL_CLOSE_PENDING.sha256);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
   assert.deepEqual(result.pending_files, PRODUCTION_PENDING.map(({ filename }) => filename));
   assert.deepEqual(result.pending_sha256s, Object.fromEntries(PRODUCTION_PENDING.map(({filename, sha256}) => [filename, sha256])));
   assert.ok(result.selected_files.includes(HARD_PRICE_ANOMALY_MIGRATION));
@@ -1833,15 +1833,16 @@ test("shared production binding includes hard-price and refresh-binding migratio
   assert.ok(result.selected_files.includes(REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_1_CONSOLIDATION_MIGRATION));
   assert.deepEqual(CONTRACTS.PRODUCTION.pending, PRODUCTION_PENDING);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 260);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 261);
   assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint,
-    "17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e");
+    "755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a");
   const productionPrerequisiteIdentifiers = [
     ...migrationBinding("PRODUCTION").versions.filter(identifier =>
       identifier !== REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION.slice(0, -4)
       && identifier !== REVIEWED_V3_1_CONSOLIDATION_MIGRATION.slice(0, -4)
       && identifier !== GLADIATOR_REGISTRATION_MIGRATION.slice(0, -4)
-      && identifier !== GLADIATOR_PARENT_APPROVAL_MIGRATION.slice(0, -4)),
+      && identifier !== GLADIATOR_PARENT_APPROVAL_MIGRATION.slice(0, -4)
+      && identifier !== PLANNED_CONTROL_CLOSE_PENDING.filename.slice(0, -4)),
   ];
   const productionPrerequisiteRows = productionPrerequisiteIdentifiers.map(identifier => {
     const split = identifier.indexOf("_");
@@ -1855,7 +1856,8 @@ test("shared production binding includes hard-price and refresh-binding migratio
   const productionPostIdentifiers = migrationBinding("PRODUCTION").versions.filter(identifier =>
     identifier !== REVIEWED_V3_1_CONSOLIDATION_MIGRATION.slice(0, -4)
     && identifier !== GLADIATOR_REGISTRATION_MIGRATION.slice(0, -4)
-    && identifier !== GLADIATOR_PARENT_APPROVAL_MIGRATION.slice(0, -4));
+    && identifier !== GLADIATOR_PARENT_APPROVAL_MIGRATION.slice(0, -4)
+    && identifier !== PLANNED_CONTROL_CLOSE_PENDING.filename.slice(0, -4));
   const productionPostRows = productionPostIdentifiers.map(identifier => {
     const split = identifier.indexOf("_");
     return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
@@ -1875,10 +1877,10 @@ test("shared production binding includes hard-price and refresh-binding migratio
     const split = identifier.indexOf("_");
     return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
   });
-  assert.equal(productionCurrentRows.length, 260);
+  assert.equal(productionCurrentRows.length, 261);
   assert.equal(
     ledgerRowsFingerprint(productionCurrentRows, { targetEnvironment: "PRODUCTION" }),
-    "17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e",
+    "755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a",
   );
 });
 
@@ -1887,9 +1889,9 @@ test("Gladiator registration and parent approval migration are applied exactly o
   assert.deepEqual(CONTRACTS.STAGING.pending, STAGING_PENDING);
   assert.deepEqual(CONTRACTS.PRODUCTION.pending, PRODUCTION_PENDING);
   assert.equal(migrationBinding("STAGING").versions.length, 120);
-  assert.equal(migrationBinding("PRODUCTION").versions.length, 260);
+  assert.equal(migrationBinding("PRODUCTION").versions.length, 261);
   assert.equal(migrationBinding("STAGING").fingerprint, "31dc3e6e90dab56dd00843bef441cfba400e1d9480d2940f41b46cfff6e32277");
-  assert.equal(migrationBinding("PRODUCTION").fingerprint, "17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e");
+  assert.equal(migrationBinding("PRODUCTION").fingerprint, "755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a");
   assert.equal(sha256File(path.join(SOURCE, GLADIATOR_PARENT_APPROVAL_MIGRATION)), GLADIATOR_PARENT_APPROVAL_SHA256);
   assert.ok(migrationBinding("PRODUCTION").versions.includes(GLADIATOR_PARENT_APPROVAL_MIGRATION.slice(0, -4)));
 });
