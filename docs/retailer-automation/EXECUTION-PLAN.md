@@ -5340,3 +5340,45 @@ active plan/session/lock/approval inventory, exact future auto-safe classes,
 future GYM HIGH disposition and eBay/GYM event coverage remain explicit future
 dependencies. They do not block RA-001 closeout, but block the affected later
 migration or activation until resolved. RA-002 is not started by these decisions.
+
+## 8 November 2026 owner-authorized schedule pause, PR #508 merge and one read-only attempt
+
+**Current authority for this release (supersedes earlier checkpoint permissions):**
+the owner authorizes a minimal reversible schedule-protection PR and its normal
+merge, then the exact approved PR #508 head
+`d46f6c647a3e92140a522c24e14037a8f626cc9e`, then exactly one ordinary manual
+main dry-run and independent before/after read-only production evidence. No
+apply, mapping change, migration, recovery, replay or second source dispatch is
+authorized. PR #508's head must remain unchanged. The previous source run
+`42510124005` is historical BLOCKED evidence, not replay authority.
+
+**SIX_PACK_SCHEDULE_PAUSED_PENDING_OWNER_APPROVAL** records an explicit owner
+pause, with no automatic expiry. Cron `17 3 * * *` remains registered and
+workflow_dispatch remains available. The main `six-pack-offer-refresh` job
+and downstream `refresh-review-queue` now require workflow_dispatch at the
+job boundary; schedule admits neither. The separate reviewed apply job already
+requires workflow_dispatch plus apply-reviewed and remains unchanged. Thus
+schedule cannot reach source capture, approvals, executor, control/history or
+Review Queue publication, even with nonempty downstream outputs. No entire
+workflow is disabled. No permissions, executor, approvals, data or other
+retailer workflow is modified.
+
+The existing workflow-retirement regression evaluates every job for scheduled,
+manual, non-main and unrelated events; evaluates each write/idempotency step
+for manual dry-run; checks downstream needs and all artifact bindings; and
+confirms the sole active direct Six Pack executor workflow. No test file is
+added/removed/renamed, so the existing 355-file inventory seal remains valid.
+The shared Review Queue worker's registered execution adapters are audited
+separately; no other retailer or worker is paused.
+
+This checkpoint is appended to preserve a clean merge of the exact approved
+PR #508 tree; its earlier release-permission paragraphs are historical.
+Protection must be verified on main before #508 merge, and again on final main
+before the single dry-run. Exact CI/run/merge receipts and production readbacks
+are retained in the release evidence and final report. No RESTORED status is
+claimed without an authorized apply, postflight and idempotency.
+
+Restoration requires a separate explicit owner decision, a fresh writer/plan
+inventory and a normal reviewed change restoring schedule admission in both
+job conditions, with regression and CI evidence. Do not remove this protection
+after the dry-run, and do not add an expiry, flag system or scheduler.
