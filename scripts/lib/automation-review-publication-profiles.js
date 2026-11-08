@@ -310,8 +310,9 @@ function validateSixPack(profile, context) {
     invariant(String(review.external_product_id) === String(before.external_product_id) && String(review.external_variant_id) === String(before.external_variant_id), `${label} source identity drift for offer ${offerId}`);
     invariant(review.current_offer && Number.isFinite(Number(review.current_offer.price)) && Number.isFinite(Number(before.price)) && Number(review.current_offer.price).toFixed(2) === Number(before.price).toFixed(2) && Boolean(review.current_offer.in_stock) === Boolean(before.in_stock), `${label} current state drift for offer ${offerId}`);
     invariant(["SOURCE_VARIANT_MISSING", "HARD_PRICE_ANOMALY", "MASS_OOS"].includes(review.reason), `${label} review reason drifted for offer ${offerId}`);
-    const wildcard = review.source_failure?.disposition === "WILDCARD_COMMERCIAL_UNIT_UNRESOLVED";
-    if (wildcard) {
+    const unresolvedCommercial = ["WILDCARD_COMMERCIAL_UNIT_UNRESOLVED", "UNBUYABLE_PARENT_VARIANTS_UNRESOLVED"]
+      .includes(review.source_failure?.disposition);
+    if (unresolvedCommercial) {
       const failure = (report.source_failures || []).filter((row) => row.product_id === review.external_product_id);
       invariant(review.reason === "SOURCE_VARIANT_MISSING" && review.proposed_offer === null
         && failure.length === 1 && failure[0].disposition === review.source_failure.disposition
@@ -319,7 +320,7 @@ function validateSixPack(profile, context) {
         && failure[0].approved_variation_ids?.includes(String(review.external_variant_id))
         && /^[a-f0-9]{64}$/.test(failure[0].source_document?.html_sha256 || "")
         && failure[0].source_document.html_sha256 === review.source_failure.source_document?.html_sha256,
-      `${label} wildcard source evidence drifted for offer ${offerId}`);
+      `${label} unresolved commercial source evidence drifted for offer ${offerId}`);
     }
     const proposed = review.proposed_offer || review.current_offer;
     return {
@@ -332,7 +333,7 @@ function validateSixPack(profile, context) {
       old_stock: before.in_stock === true,
       new_stock: proposed.in_stock === true,
       action: review.reason === "SOURCE_VARIANT_MISSING" ? "SOURCE_MISSING" : "MANUAL_REVIEW",
-      evidence_reason: wildcard ? review.source_failure.disposition : review.reason,
+      evidence_reason: unresolvedCommercial ? review.source_failure.disposition : review.reason,
       proposed_url: proposed.url || before.url || null,
     };
   }).sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
