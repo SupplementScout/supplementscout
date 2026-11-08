@@ -8,6 +8,8 @@ const { loadDryRunArtifact } = require("./import-products");
 const { WooCommerceSourceError, readWooCommerceProductPage } = require("./lib/woocommerce-product-page-reader");
 const {
   isolateDefaultVariantConflicts,
+  approvedSourceFailureDisposition,
+  loadApprovedManifest,
   loadReviewedMassOosManifest,
   parseArgs,
   parseSixPackProductPage,
@@ -54,6 +56,8 @@ test("6 Pack selected default requires unique complete selection and matching id
     ...[
       (g) => { g.url = "https://other.example/product/"; },
       (g) => { g.hasVariant[5].isVariantOf['@id'] += "wrong"; },
+      (g) => { g.hasVariant[5].sku = "not-4708"; },
+      (g) => { g.hasVariant[5].url = "https://other.example/product/?attribute_flavours=Fruit"; },
       (g) => { g.hasVariant[5].url += "&attribute_size=7kg"; },
       (g) => { g.hasVariant[5].offers.url = selectedUrl; },
       (g) => { g.hasVariant[5].offers.price = "59.98"; },
@@ -149,6 +153,29 @@ test("6 Pack theme parsing rejects ambiguous, malformed and unbound source data"
 
 const incompleteHtml = fs.readFileSync(path.join(__dirname, "test-fixtures/six-pack-theme-incomplete-attributes.html"), "utf8");
 const incompleteOptions = { productId: "2769", canonicalUrl: "https://6pack-supplements.co.uk/product/high-protein-crunch-protein-bars/" };
+function changeWildcardHtml(changePayload = () => {}, changeGraph = () => {}) {
+  return incompleteHtml.replace(/(<script type="application\/(json|ld\+json)"[^>]*>)([\s\S]*?)(<\/script>)/g,
+    (_, start, type, content, end) => {
+      const data = JSON.parse(content);
+      (type === "json" ? changePayload : changeGraph)(data);
+      return start + JSON.stringify(data) + end;
+    });
+}
+
+const approvedWarriorBindings = [
+  ["3290", "2306", "2492", "2286", "Milk Chocolate Coconut"],
+  ["3291", "2307", "2493", "2287", "Dark Chocolate Peanut"],
+  ["3292", "2308", "2494", "2288", "Raspberry Lemon Cheesecake"],
+  ["3293", "2309", "2495", "2289", "Salted Caramel"],
+  ["3294", "2310", "2496", "2290", "White Chocolate"],
+  ["3295", "2311", "2497", "2291", "Banoffee Pie"],
+  ["3297", "2312", "2498", "2292", "Key Lime Pie"],
+];
+const wildcardIssue = {
+  reason_code: "WILDCARD_COMMERCIAL_UNIT_UNRESOLVED",
+  variation_ids: approvedWarriorBindings.map(([id]) => id),
+  wildcard_attributes: ["attribute_size"],
+};
 
 test("6 Pack blocks blank row attributes despite default selection and matching flavour-only JSON-LD", () => {
   const block = incompleteHtml.match(/<script type="application\/json" id="product-variations">([\s\S]*?)<\/script>/);
@@ -158,19 +185,113 @@ test("6 Pack blocks blank row attributes despite default selection and matching 
   assert.equal(payload.selected.attribute_size, "1pcs");
   assert.ok(payload.variations.every((row) => row.attributes.attribute_size === ""));
   // A page default, one dropdown option or an absent key cannot prove a row's size.
-  for (const change of [() => {},
+  for (const [index, change] of [() => {},
     (p) => { p.attributes[1].options = [p.attributes[1].options[0]]; },
     (p) => { delete p.variations[0].attributes.attribute_size; },
     (p) => { p.variations[0].attributes.attribute_size = null; },
     (p) => { p.variations[0].attributes.attribute_size = " "; },
-  ]) {
+  ].entries()) {
     const modified = structuredClone(payload);
     change(modified);
     const html = incompleteHtml.replace(block[1], () => JSON.stringify(modified));
     assert.throws(() => parseSixPackProductPage(html, incompleteOptions),
       (error) => error instanceof WooCommerceSourceError && error.code === "SOURCE_SCHEMA_MISMATCH"
-        && error.message === "6 Pack variation attribute keys are incomplete");
+        && (index < 2 ? error.detail.reason_code === wildcardIssue.reason_code
+          : error.message === "6 Pack variation attribute keys are incomplete"));
   }
+});
+
+test("all seven owner-reviewed Warrior identities remain exact while wildcard commercial units stay blocked", () => {
+  assert.deepEqual(manifest.rows.filter((row) => row.external_product_id === "2769")
+    .map((row) => [row.external_variant_id, row.offer_id, row.mapping_id, row.canonical_product_id, row.canonical_variant_id]),
+  approvedWarriorBindings.map(([id, offer, mapping, variant]) => [id, offer, mapping, "1074", variant]));
+  assert.throws(() => parseSixPackProductPage(incompleteHtml, incompleteOptions), (error) => {
+    assert.equal(error.code, "SOURCE_SCHEMA_MISMATCH");
+    assert.deepEqual(error.detail, { ...wildcardIssue, product_id: "2769" });
+    return true;
+  });
+  for (const [id, , , , flavour] of approvedWarriorBindings) {
+    const html = changeWildcardHtml((p) => {
+      p.variations = p.variations.filter((row) => String(row.id) === id);
+      assert.equal(p.variations[0].attributes.attribute_flavours, flavour);
+    });
+    assert.throws(() => parseSixPackProductPage(html, incompleteOptions), (error) => {
+      assert.deepEqual(error.detail.variation_ids, [id]);
+      assert.equal(error.detail.reason_code, wildcardIssue.reason_code);
+      return true;
+    });
+  }
+});
+
+test("wildcard detection is generic and does not replace absent or malformed attributes", () => {
+  const otherProduct = incompleteHtml.replaceAll("postid-2769", "postid-98765")
+    .replaceAll("&quot;productId&quot;:2769", "&quot;productId&quot;:98765");
+  assert.throws(() => parseSixPackProductPage(otherProduct, { ...incompleteOptions, productId: "98765" }),
+    (error) => error.detail.product_id === "98765" && error.detail.reason_code === wildcardIssue.reason_code);
+  const anyFlavour = changeWildcardHtml((p) => {
+    p.variations = [p.variations[0]];
+    p.variations[0].attributes = { attribute_flavours: "", attribute_size: "12pcs" };
+  });
+  assert.throws(() => parseSixPackProductPage(anyFlavour, incompleteOptions),
+    (error) => error.detail.wildcard_attributes[0] === "attribute_flavours");
+  for (const value of [undefined, null, 0, false, [], {}, " "]) {
+    const html = changeWildcardHtml((p) => { p.variations[0].attributes.attribute_size = value; });
+    assert.throws(() => parseSixPackProductPage(html, incompleteOptions),
+      (error) => error.code === "SOURCE_SCHEMA_MISMATCH" && !error.detail.reason_code);
+  }
+});
+
+test("complete explicit size rows remain parseable without inheriting a wildcard or page default", () => {
+  const html = changeWildcardHtml((p) => {
+    for (const row of p.variations) row.attributes.attribute_size = "12pcs";
+  });
+  const parsed = parseSixPackProductPage(html, incompleteOptions);
+  assert.equal(parsed.variations.length, 7);
+  assert.ok(parsed.variations.every((row) => row.attributes.attribute_size === "12pcs"));
+});
+
+test("wildcard does not authorize a unit from defaults, labels, prices or size-dependent stock", () => {
+  const cases = [
+    () => {}, // No owner confirmation or sales-unit contract.
+    (p) => { p.selected.attribute_size = "12pcs"; },
+    (p) => { for (const row of p.variations) row.price_html = "<p>1 x 64g bar</p>"; },
+    (p) => { p.variations[0].price = 1.99; },
+    (p) => { p.variations[0].in_stock = true; },
+    ...["price", "stock"].map((field) => (p) => {
+      const concrete = structuredClone(p.variations[0]);
+      concrete.id = 99999;
+      concrete.attributes.attribute_size = "1pcs";
+      if (field === "price") concrete.price = 1.99;
+      else concrete.in_stock = true;
+      p.variations.unshift(concrete);
+    }),
+    (p) => { p.variations[0].id = 99999; },
+  ];
+  for (const change of cases) {
+    assert.throws(() => parseSixPackProductPage(changeWildcardHtml(change), incompleteOptions),
+      (error) => error.code === "SOURCE_SCHEMA_MISMATCH" && error.detail.reason_code === wildcardIssue.reason_code);
+  }
+  for (const change of [
+    (p) => { p.variations[0].id = 0; },
+    (p) => { p.variations[0].id = "3290"; },
+    (p) => { p.variations.push(p.variations[0]); },
+    (p) => { p.variations[0].attributes.attribute_flavours = "Unknown"; },
+  ]) assert.throws(() => parseSixPackProductPage(changeWildcardHtml(change), incompleteOptions),
+    (error) => ["SOURCE_SCHEMA_MISMATCH", "DUPLICATE_SOURCE_IDENTITY"].includes(error.code));
+});
+
+test("wildcard cannot turn conflicting SKU, product identity or source URL into an accepted offer", async () => {
+  const invalidSku = changeWildcardHtml(() => {}, (graph) => {
+    const group = graph['@graph'].find((node) => node['@type'] === "ProductGroup");
+    group.hasVariant[0].sku = "wrong-sku";
+  });
+  assert.throws(() => parseSixPackProductPage(invalidSku, incompleteOptions), { code: "SOURCE_SCHEMA_MISMATCH" });
+  assert.throws(() => parseSixPackProductPage(incompleteHtml.replace("postid-2769", "postid-99999"), incompleteOptions),
+    { code: "SOURCE_IDENTITY_DRIFT" });
+  await assert.rejects(readWooCommerceProductPage({ storeUrl: "https://6pack-supplements.co.uk", productId: "2769",
+    maximumAttempts: 1, parseProductPage: parseSixPackProductPage, fetchImpl: async () => ({ status: 200,
+      url: "https://other.example/product/warrior/", headers: { get: () => "text/html" }, text: async () => incompleteHtml }) }),
+  { code: "SOURCE_REDIRECT_ERROR" });
 });
 
 test("6 Pack keeps legacy WooCommerce variations and other readers keep their default parser", () => {
@@ -332,6 +453,12 @@ test("systemic source failure blocks the whole run even when row isolation is en
 
 test("real incomplete-attribute source blocks downstream before plans or apply artifacts", async () => {
   const source = fixture();
+  for (const record of source.state.records.filter((row) => row.mapping.external_product_id === "2769")) {
+    const approved = approvedWarriorBindings.find(([id]) => id === record.mapping.external_variant_id);
+    record.mapping.external_options = { Pack: "12", Flavour: approved[4] };
+    Object.assign(record.variant, { size_value: "64", size_unit: "g", pack_count: 12 });
+  }
+  const before = structuredClone(source.state);
   const output = paths();
   let requests = 0;
   await assert.rejects(run(
@@ -355,7 +482,269 @@ test("real incomplete-attribute source blocks downstream before plans or apply a
   assert.equal(report.review_row_count, 0);
   assert.equal(report.database_writes, 0);
   assert.deepEqual(report.action_counts, {});
+  assert.deepEqual(report.source_error.sales_unit_binding, wildcardIssue);
+  assert.deepEqual(source.state, before);
   assert.equal(fs.existsSync(output.artifact), false);
+});
+
+const completeWildcardHtml = `<!doctype html><html>${incompleteHtml}</html>`;
+function wildcardRead(html = completeWildcardHtml, changeError = null) {
+  return async (id, context) => {
+    try {
+      return await readWooCommerceProductPage({ storeUrl: "https://6pack-supplements.co.uk", productId: id,
+        capturedAt: context?.capturedAt, maximumAttempts: 1, parseProductPage: parseSixPackProductPage,
+        fetchImpl: async () => ({ status: 200, url: incompleteOptions.canonicalUrl,
+          headers: { get: () => "text/html" }, text: async () => html }) });
+    } catch (error) { if (changeError) changeError(error); throw error; }
+  };
+}
+
+test("complete approved wildcard product uses existing isolation: 506 = 499 executable + 7 unchanged review", async () => {
+  const source = fixture();
+  for (const record of source.state.records.filter((row) => row.mapping.external_product_id === "2769")) {
+    const binding = approvedWarriorBindings.find(([id]) => id === record.mapping.external_variant_id);
+    record.mapping.external_options = { Pack: "12", Flavour: binding[4] };
+    Object.assign(record.variant, { size_value: "64", size_unit: "g", pack_count: 12 });
+  }
+  const before = structuredClone(source.state);
+  const output = paths();
+  const result = await run({ target: "production", ...output, isolateUnsafe: true }, {
+    state: source.state,
+    readLive: async (id, context) => String(id) === "2769"
+      ? wildcardRead()(id, context) : source.byProduct.get(String(id)),
+  });
+  assert.equal(result.report.result, "PASS_WITH_REVIEW");
+  assert.equal(result.report.approved_mapping_count, 506);
+  assert.equal(result.report.executable_plan_count, 499);
+  assert.equal(result.report.review_row_count, 7);
+  assert.equal(result.report.blocked_row_count, 0);
+  assert.equal(result.report.attempted_product_page_count, 279);
+  assert.equal(result.report.source_failure_count, 1);
+  assert.equal(result.report.database_writes, 0);
+  const failure = result.report.source_failures[0];
+  assert.equal(failure.disposition, wildcardIssue.reason_code);
+  assert.equal(failure.manifest_sha256, result.report.manifest_sha256);
+  assert.deepEqual(failure.approved_variation_ids, wildcardIssue.variation_ids);
+  assert.equal(failure.source_document.html, completeWildcardHtml);
+  assert.equal(failure.source_document.html_sha256, crypto.createHash("sha256").update(completeWildcardHtml).digest("hex"));
+  const reviewedIds = new Set(approvedWarriorBindings.map(([, id]) => id));
+  assert.deepEqual(result.report.review_rows.map((row) => row.offer_id), [...reviewedIds]);
+  for (const row of result.report.review_rows) {
+    assert.equal(row.proposed_offer, null);
+    assert.equal(row.changed_fields.price, false);
+    assert.equal(row.changed_fields.stock, false);
+    assert.equal(row.source_failure.disposition, wildcardIssue.reason_code);
+    assert.equal(row.source_failure.source_document.html, undefined);
+  }
+  const artifact = loadDryRunArtifact(output.artifact).artifact;
+  assert.equal(artifact.plans.length, 499);
+  assert.doesNotThrow(() => require("./six-pack-offer-refresh-executor").validateArtifactScope(artifact, manifest));
+  assert.ok(artifact.plans.every((row) => !reviewedIds.has(String(row.resolved_plan.offer.id))));
+  assert.ok(artifact.source_rows.every((row) => row.normalized_source_row.source.external_product_id !== "2769"));
+  assert.deepEqual(source.state, before);
+
+  const { baselineHash, verifyPostflight } = require("./retailer-offer-refresh-postflight");
+  const snapshot = { row_count: 506, price_history_count: 0, business_price_history_count: 0, daily_confirmation_count: 0,
+    rows: before.records.map(({ mapping: m, offer: o }) => ({
+      mapping_id: String(m.id), retailer_id: "11", mapping_product_id: String(m.product_id), mapping_variant_id: String(m.product_variant_id),
+      external_product_id: m.external_product_id, external_variant_id: m.external_variant_id, external_sku: m.external_sku,
+      external_gtin: m.external_gtin, external_options: m.external_options, external_url: m.external_url,
+      offer_id: String(o.id), offer_product_id: String(o.product_id), offer_variant_id: String(o.product_variant_id),
+      price: o.price, shipping_cost: o.shipping_cost, total_price: o.total_price, in_stock: o.in_stock, url: o.url,
+      last_checked_at: o.last_checked_at,
+    })) };
+  const baseline = { kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: "six-pack-supplements", snapshot };
+  baseline.evidence_hash = baselineHash(baseline);
+  const after = structuredClone(snapshot);
+  for (const row of after.rows) if (!reviewedIds.has(row.offer_id)) row.last_checked_at = result.report.source_captured_at;
+  const execution = { ...result.report, executed_plan_count: 499,
+    execution_offer_ids: artifact.plans.map((row) => String(row.resolved_plan.offer.id)) };
+  assert.equal(verifyPostflight(baseline, after, execution).result, "PASS");
+  for (const [field, value] of [["last_checked_at", result.report.source_captured_at], ["price", "1.99"], ["in_stock", false]]) {
+    const changed = structuredClone(after);
+    changed.rows.find((row) => reviewedIds.has(row.offer_id))[field] = value;
+    assert.throws(() => verifyPostflight(baseline, changed, execution), /Review offer .* changed/);
+  }
+  for (const record of source.state.records) if (!reviewedIds.has(String(record.offer.id))) {
+    record.offer.last_checked_at = result.report.source_captured_at;
+  }
+  const second = await run({ target: "production", ...paths(), isolateUnsafe: true }, {
+    state: source.state,
+    readLive: async (id, context) => String(id) === "2769"
+      ? wildcardRead()(id, context) : source.byProduct.get(String(id)),
+  });
+  assert.deepEqual(second.report.action_counts, { VERIFY_NO_CHANGE: 499 });
+  assert.deepEqual(second.report.review_rows.map((row) => row.offer_id), [...reviewedIds]);
+  assert.equal(second.report.database_writes, 0);
+
+  const profile = require("./lib/automation-review-publication-profiles").PROFILES["six-pack-supplements"];
+  const captureContext = { report: result.report, diagnostic: null, files: { artifact: output.artifact }, invariant: assert.ok };
+  profile.validateCapture(profile, captureContext);
+  assert.throws(() => profile.validateCapture(profile, { ...captureContext,
+    report: { ...result.report, source_snapshot_fingerprint: "f".repeat(64) } }), /source binding drifted/);
+  const baselineByOffer = new Map(snapshot.rows.map((row) => [row.offer_id, row]));
+  const partition = profile.validate(profile, { report: result.report, baselineByOffer,
+    files: { artifact: output.artifact }, invariant: assert.ok, sortedIds: (ids) => [...new Set(ids.map(String))].sort((a, b) => Number(a) - Number(b)) });
+  assert.equal(partition.executableCount, 499);
+  assert.equal(partition.changedRows.length, 7);
+  profile.validateChangedRows(profile, partition.changedRows, assert.ok);
+  for (const changed of partition.changedRows) {
+    const card = profile.reviewCard({}, changed);
+    assert.equal(card.sourcePrice, null);
+    assert.equal(card.evidenceReason, wildcardIssue.reason_code);
+    assert.equal(card.operationType, "MANUAL_REVIEW_IDENTITY");
+    assert.equal(card.proposedState.automatic_action, false);
+  }
+});
+
+test("only complete product-bound, fresh, manifest-closed wildcard evidence is product-scoped", async () => {
+  const capturedAt = new Date().toISOString();
+  let failure;
+  try { await wildcardRead()("2769", { capturedAt }); } catch (error) { failure = error; }
+  assert.ok(failure);
+  const approved = loadApprovedManifest();
+  assert.equal(approvedSourceFailureDisposition(failure, "2769", approved, capturedAt).scope, "PRODUCT");
+  const issue = () => failure.cause.detail;
+  const original = structuredClone(issue());
+  for (const change of [
+    (d) => { d.reason_code = "UNKNOWN"; },
+    (d) => { d.product_id = "99999"; },
+    (d) => { d.variation_ids.pop(); },
+    (d) => { d.variation_ids[0] = "99999"; },
+    (d) => { d.wildcard_attributes = ["attribute_flavours"]; },
+    (d) => { d.source_document.http_status = 404; },
+    (d) => { d.source_document.body_complete = false; },
+    (d) => { d.source_document.html_sha256 = "f".repeat(64); },
+    (d) => { d.source_document.html_bytes += 1; },
+    (d) => { d.source_document.html += "truncated"; },
+    (d) => { d.source_document.variation_ids.pop(); },
+    (d) => { d.source_document.captured_at = "2026-01-01T00:00:00Z"; },
+    (d) => { d.source_document.request_url = "https://other.example/?p=2769"; },
+    (d) => { d.source_document.response_url = "https://other.example/product/warrior/"; },
+    (d) => { d.source_document.content_type = "application/json"; },
+  ]) {
+    failure.cause.detail = structuredClone(original);
+    change(issue());
+    assert.equal(approvedSourceFailureDisposition(failure, "2769", approved, capturedAt).scope, "RETAILER");
+  }
+  failure.cause.detail = original;
+  for (const key of ["timeout", "network_code", "product_id", "http_status"]) {
+    const previous = failure.detail[key];
+    failure.detail[key] = { timeout: true, network_code: "ECONNRESET", product_id: "99999", http_status: 503 }[key];
+    assert.equal(approvedSourceFailureDisposition(failure, "2769", approved, capturedAt).scope, "RETAILER");
+    failure.detail[key] = previous;
+  }
+  assert.equal(approvedSourceFailureDisposition(failure, "2769", { ...approved, sha256: "f".repeat(64) }, capturedAt).scope, "RETAILER");
+  assert.equal(approvedSourceFailureDisposition(failure, "2769", approved, "2026-01-01T00:00:00Z").scope, "RETAILER");
+
+  const groups = new Map();
+  for (const row of manifest.rows) {
+    if (!groups.has(row.external_product_id)) groups.set(row.external_product_id, []);
+    groups.get(row.external_product_id).push(row);
+  }
+  const [otherId, bindings] = [...groups].find(([id, rows]) => id !== "2769"
+    && rows.length > 1 && rows.length < 7 && rows.every((row) => row.external_variant_id !== id)
+    && !manifest.rows.some((row) => row.external_product_id !== id
+      && rows.some((inside) => row.canonical_variant_id === inside.canonical_variant_id)));
+  const otherHtml = `<!doctype html><html>${changeWildcardHtml((p) => {
+    p.variations = p.variations.slice(0, bindings.length);
+    p.variations.forEach((row, index) => { row.id = Number(bindings[index].external_variant_id); });
+  }, (g) => {
+    const group = g['@graph'].find((node) => node['@type'] === "ProductGroup");
+    group.hasVariant = group.hasVariant.slice(0, bindings.length);
+    group.hasVariant.forEach((row, index) => {
+      row.sku = bindings[index].external_variant_id;
+      row['@id'] = row['@id'].replace(/#variant-\d+$/, `#variant-${row.sku}`);
+    });
+  }).replace("postid-2769", `postid-${otherId}`).replace("&quot;productId&quot;:2769", `&quot;productId&quot;:${otherId}`)}</html>`;
+  let otherFailure;
+  try { await wildcardRead(otherHtml)(otherId, { capturedAt }); } catch (error) { otherFailure = error; }
+  assert.equal(approvedSourceFailureDisposition(otherFailure, otherId, approved, capturedAt).scope, "PRODUCT");
+});
+
+test("other schema, identity, duplicates, unknown wildcards and incomplete documents keep retailer-wide BLOCK", async () => {
+  const graphProduct = (graph) => graph['@graph'].find((node) => node['@type'] === "ProductGroup");
+  const full = (html) => `<!doctype html><html>${html}</html>`;
+  const cases = [
+    completeWildcardHtml.replace("postid-2769", "postid-99999"),
+    full(changeWildcardHtml((p) => { p.variations.push(p.variations[0]); })),
+    full(changeWildcardHtml((p) => { delete p.variations[0].attributes.attribute_size; })),
+    full(changeWildcardHtml((p) => { p.variations[0].attributes.attribute_flavours = "Unknown"; })),
+    full(changeWildcardHtml(() => {}, (g) => { graphProduct(g).hasVariant[0].sku = "wrong"; })),
+    full(changeWildcardHtml(() => {}, (g) => { graphProduct(g).hasVariant[0].url = "https://other.example/product/"; })),
+    full(changeWildcardHtml((p) => { p.variations[0].id = 99999; }, (g) => {
+      const v = graphProduct(g).hasVariant[0]; v.sku = "99999"; v['@id'] = v['@id'].replace("3290", "99999");
+    })),
+    full(changeWildcardHtml((p) => { p.variations[0].attributes.attribute_size = "12pcs"; })),
+    ...["price", "in_stock"].map((field) => full(changeWildcardHtml((p) => {
+      const extra = structuredClone(p.variations[0]); extra.id = 99999; extra.attributes.attribute_size = "1pcs";
+      extra[field] = field === "price" ? 1.99 : true; p.variations.push(extra);
+    }))),
+    incompleteHtml,
+    completeWildcardHtml.slice(0, -8),
+  ];
+  for (const html of cases) {
+    const source = fixture(), output = paths();
+    await assert.rejects(run({ target: "production", ...output, isolateUnsafe: true }, {
+      state: source.state, readLive: async (id, context) => String(id) === "2769"
+        ? wildcardRead(html)(id, context) : source.byProduct.get(String(id)),
+    }));
+    const report = JSON.parse(fs.readFileSync(output.report, "utf8"));
+    assert.equal(report.result, "BLOCK");
+    assert.equal(report.executable_plan_count, 0);
+    assert.equal(report.review_row_count, 0);
+    assert.equal(report.database_writes, 0);
+    assert.equal(fs.existsSync(output.artifact), false);
+  }
+});
+
+test("wildcard isolation does not weaken source collapse or the isolateUnsafe switch", async () => {
+  for (const isolateUnsafe of [false, true]) {
+    const source = fixture(), output = paths();
+    const otherFailures = new Set([...source.byProduct.keys()].filter((id) => id !== "2769").slice(0, 28));
+    await assert.rejects(run({ target: "production", ...output, isolateUnsafe }, {
+      state: source.state, readLive: async (id, context) => {
+        if (String(id) === "2769") return wildcardRead()(id, context);
+        if (isolateUnsafe && otherFailures.has(String(id))) throw new WooCommerceSourceError("SOURCE_HTTP_ERROR", "404", {
+          product_id: String(id), http_status: 404, network_code: null, timeout: false,
+        });
+        return source.byProduct.get(String(id));
+      },
+    }));
+    const report = JSON.parse(fs.readFileSync(output.report, "utf8"));
+    assert.equal(report.result, "BLOCK");
+    assert.equal(report.executable_plan_count, 0);
+    assert.equal(report.database_writes, 0);
+    assert.equal(fs.existsSync(output.artifact), false);
+    assert.equal(report.block_reason, isolateUnsafe ? "SOURCE_COLLAPSE" : "SOURCE_SCHEMA_MISMATCH");
+  }
+});
+
+test("incomplete HTTP reads, bad redirects, wrong origin and wrong content type cannot become wildcard review", async () => {
+  for (const response of [
+    { status: 200, url: incompleteOptions.canonicalUrl, headers: { get: () => "text/html" },
+      text: async () => { throw Object.assign(new Error("incomplete"), { code: "ECONNRESET" }); } },
+    { status: 200, url: "https://other.example/product/warrior/", headers: { get: () => "text/html" }, text: async () => completeWildcardHtml },
+    { status: 404, url: "https://other.example/product/warrior/", headers: { get: () => "text/html" }, text: async () => completeWildcardHtml },
+    { status: 404, url: "https://6pack-supplements.co.uk/cart/", headers: { get: () => "text/html" }, text: async () => completeWildcardHtml },
+    { status: 200, url: "https://6pack-supplements.co.uk:8443/product/warrior/", headers: { get: () => "text/html" }, text: async () => completeWildcardHtml },
+    { status: 200, url: "https://6pack-supplements.co.uk/cart/", headers: { get: () => "text/html" }, text: async () => completeWildcardHtml },
+    { status: 200, url: incompleteOptions.canonicalUrl, headers: { get: () => "text/plain" }, text: async () => completeWildcardHtml },
+  ]) {
+    const source = fixture(), output = paths();
+    await assert.rejects(run({ target: "production", ...output, isolateUnsafe: true }, {
+      state: source.state, readLive: async (id, context) => String(id) === "2769"
+        ? readWooCommerceProductPage({ storeUrl: "https://6pack-supplements.co.uk", productId: id, capturedAt: context.capturedAt,
+          maximumAttempts: 1, parseProductPage: parseSixPackProductPage, fetchImpl: async () => response })
+        : source.byProduct.get(String(id)),
+    }));
+    const report = JSON.parse(fs.readFileSync(output.report, "utf8"));
+    assert.equal(report.result, "BLOCK");
+    assert.equal(report.executable_plan_count, 0);
+    assert.equal(report.review_row_count, 0);
+    assert.equal(report.database_writes, 0);
+    assert.equal(fs.existsSync(output.artifact), false);
+  }
 });
 
 test("exact product 4150 terminal 404 isolates only offer 2379 without inferring stock", async () => {

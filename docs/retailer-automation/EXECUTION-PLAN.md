@@ -1,21 +1,20 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: RECOVERY MIGRATION APPLIED; CANONICAL CLOSEOUT PREPARED; RETAILER RESTORATION STILL BLOCKED**
+**Status: PR #504 PRODUCT ISOLATION CANDIDATE; 506 = 499 + 7 PROVED IN FIXTURES ONLY; NO LIVE REFRESH**
 
-**Current active task:** the owner's 8 November 2026 approved deployment of PR
-#502 and exactly one production migration, its receipt-based repository closeout,
-then fresh read-only Jon's/Whey Okay checks and separate Fit House diagnosis.
-PR #502 was squash-merged as `10996f9d51fd6d8a6908c2132a2d565cf06f965a`;
-its tree equals the approved `5abe9c5d2c756af25e7214e31f175c3285e64899`.
-The migration has committed successfully. This repository change consumes only
-its actual receipt and updates the current production binding to ledger 261.
-Technical closeout merge is authorized after its checks. Jon's preflight must
-wait until that merge and canonical verification; control close, manual
-approval/apply/replay, guardrail, credential and schedule changes remain
-unauthorized. The 6 Pack source block remains unchanged and no new full capture
-is authorized without new evidence. Existing production paths remain
-controlling; RA-004 remains stopped, and completed RA-000 through RA-003 and
-RA-STAB-01/02 are not reopened.
+**Current active task:** continue existing PR #504 under the owner's 8 November
+safe product-isolation assessment. Reuse the existing product failure map and
+source-missing review path for a completely captured, manifest-closed,
+independently reproducible wildcard-size ambiguity. The seven box identities
+remain owner-confirmed; price/stock/freshness remain commercially blocked.
+No source-scope reduction, new queue/executor/approval path or product-ID
+exception. The 499/7 partition is isolated fixture evidence, not live coverage.
+Current main is
+`e5fcaed6722cd6e36c1389c52da934ce7607b932`, after canonical closeout PR #503;
+production ledger 261 remains the observed baseline. Earlier deployment text
+below is historical. Existing production paths remain controlling; RA-004 is
+not resumed. No merge, production apply or migration is authorized. No full
+live source dry-run is performed during this assessment.
 
 The immediate objective is to restore a trustworthy baseline for the existing
 production retailer paths before any consolidation work resumes. This is not a
@@ -24,7 +23,181 @@ workflows, artifacts, control ledger, Review Queue, postflight and watchdog.
 Work proceeds read-only until a specific recovery or business write has fresh
 bounded evidence and separate owner approval.
 
-## 8 November 2026 approved migration deployment and canonical closeout
+## 8 November 2026 owner-confirmed Warrior identity and bounded product isolation
+
+### Exact owner decision; identity only
+
+Owner authority: the 8 November instruction titled `6 PACK WARRIOR CRUNCH.
+OWNER-APPROVED PRODUCT IDENTITY AND SAFE WILDCARD SUPPORT`, source text SHA-256
+`b1ecf61cab3ae532a832854a54c94e6e23116277e096a23b3d8a14f02a9d9895`.
+All existing identifiers and mappings below remain unchanged. Every canonical
+variant represents one box of **12 x 64g = 768g**; existing per-bar size and
+pack_count semantics are preserved, without changing product net_weight_g.
+
+| External product / variation | Flavour | Offer / mapping | Canonical product / variant |
+|---|---|---|---|
+| 2769 / 3290 | Milk Chocolate Coconut | 2306 / 2492 | 1074 / 2286 |
+| 2769 / 3291 | Dark Chocolate Peanut | 2307 / 2493 | 1074 / 2287 |
+| 2769 / 3292 | Raspberry Lemon Cheesecake | 2308 / 2494 | 1074 / 2288 |
+| 2769 / 3293 | Salted Caramel | 2309 / 2495 | 1074 / 2289 |
+| 2769 / 3294 | White Chocolate | 2310 / 2496 | 1074 / 2290 |
+| 2769 / 3295 | Banoffee Pie | 2311 / 2497 | 1074 / 2291 |
+| 2769 / 3297 | Key Lime Pie | 2312 / 2498 | 1074 / 2292 |
+
+This records owner fact review in the existing ledger. No runtime owner
+override or unused approval manifest is introduced: the commercial block is
+retained, and the current commercial reviewed-batch contract does not authorize
+wildcard-to-fixed-unit inference. Any later use of reviewed evidence must use
+a supported exact contract, source binding and independent commercial guards.
+The decision does not authorize GBP 19.99 for arbitrary units, current stock,
+new mappings, rebind, production apply or weaker source identity validation.
+
+### Five independent findings
+
+1. **Flavour:** the seven exact current payload IDs carry the seven exact names
+   above and agree with the existing approved manifest.
+2. **Canonical physical identity:** the owner confirms the boxes; the READ ONLY
+   production capture at `2026-11-08T11:34:31.586Z` already has Pack=12,
+   per-bar size 64g and these same canonical bindings. Ledger 261 was verified.
+3. **WooCommerce identity:** current page capture at
+   `2026-11-08T11:28:29.586Z`, HTML SHA
+   `abce1b8bf315507c211b944cfc8cc9d4517caaff50c8caf9f37dc3f2cfe1030f`,
+   has empty `attribute_size`. Actual storefront matching accepts empty values
+   as Any attributes; 14/14 offline flavour x size selections resolve uniquely
+   to the same variation ID for both 1pcs and 12pcs. Official
+   [WooCommerce Any-attribute documentation](https://woocommerce.com/document/variable-product/#defining-variations-with-any-attributes)
+   supports this interpretation; it does not establish a merchant sales unit.
+4. **Live price unit:** the capture reports GBP 19.99 and a 12 x 64g label for
+   each variation, but both selector sizes reach that same row. Neither equal
+   prices, images, page defaults nor owner canonical identity establish which
+   selection the merchant contract prices as a fixed box. This remains unresolved.
+5. **Live stock unit:** the same source rows report false for both size
+   selections. Box-specific availability remains unresolved; owner identity
+   confirmation is not live stock evidence. No cart, checkout or order was used.
+
+Original native WooCommerce CSV SHA
+`6b9d131c658077b7f3982ebf94c80f34b6ae31ae4b158750d041adb73e6b1190`
+also has blank per-variation sizes; it is historical identity context, never
+current price/stock evidence. Latest retained natural full refresh
+`42470470122`, artifact `13613319233`, source timestamp
+`2026-11-08T10:27:34.758Z`, blocks on 2769 after 134 pages with zero executions
+or writes. No new full dry-run is justified merely by owner unit confirmation.
+
+### Existing product isolation extended to one fully proved failure class
+
+The owner explicitly authorizes this narrow assessment and a compatible change
+on PR #504; source instruction SHA
+`3b2f923e1bc1ae27a0e803772687693f19b181792a99dc2fdb6e9d627d56d2bc`.
+The original BLOCK was reproduced first (31 existing adapter tests PASS), then
+the new 499/7 test failed on the original wildcard block before implementation.
+
+The parser still returns no priced/stocked wildcard offer. For a completely
+consumed HTTP 200 HTML body, the existing reader additionally supplies generic
+document provenance to its parser callback: request/response URL, content type,
+completion, byte count and SHA. Failed reads never receive completion proof.
+Redirect/origin checks now run before HTTP error interpretation; a separately
+reproduced regression showed that a foreign 404 could otherwise be mistaken
+for product absence. Unchanged legitimate same-origin terminal 404 handling is
+retained. No retailer condition is added to the shared reader or its disposition.
+
+The Six Pack adapter refines the existing disposition only when all of these
+conditions hold: typed `WILDCARD_COMMERCIAL_UNIT_UNRESOLVED`, the expected product,
+clean bounded-reader transport context, complete HTML document, same approved
+origin/product URL, exact current capture timestamp, recomputed document SHA
+and byte count, and only the recognized `attribute_size` wildcard. Every source
+variation must be in the approved manifest and every approved variation of the
+product must be present and unresolved; extra, missing or unknown IDs fail
+retailer-wide. The manifest SHA is fixed to the existing configured authority.
+Cross-product shared canonical-variant dependencies cannot be split. Re-parsing
+the retained document must reproduce the entire typed issue exactly. Existing
+same-page JSON-LD checks additionally corroborate every wildcard ID/SKU, parent,
+heading, URL, currency and reported commercial value; they do not accept that
+value as the box's offer. No product or variation number is a runtime condition.
+
+Only then, with ordinary `isolateUnsafe=true` and no special reviewed execution
+mode, the same `isolatedSourceFailures` map excludes that product from trusted
+commercial source rows. The same classifier produces existing
+`SOURCE_VARIANT_MISSING` quarantine rows because no usable commercial variant
+exists in the normalized source. This does not claim the raw product vanished:
+the failure disposition and Review Queue evidence reason retain the exact
+wildcard-unit cause. Existing manual identity/source-review cards have no source
+price, KEEP_UNCHANGED state and no executable action. The publisher checks the
+product, manifest, variation and document-hash linkage before displaying that
+reason; no new approval/reason-code class is introduced.
+
+Full raw HTML and transport/manifest evidence remain once in the existing
+report's `source_failures`, covered by the existing report file hash and overall
+snapshot fingerprint. Per-row evidence retains its linkage without duplicating
+the HTML. Review Queue publication stores the existing bounded references,
+not raw HTML or an invented commercial fact. The seven rows have no plan or
+proposed offer and cannot advance last_checked_at. The approved 506 mappings
+remain intact; successful source rows plus explicitly isolated rows must still
+account for all 506. Source-collapse counts remain conservative and thresholds
+are unchanged; broad 404/wildcard failures still block the retailer.
+
+No product/variation ID condition, fixed unit, default-size expansion, owner
+override, price conversion or stock inference is added to runtime code.
+Shared executor, classifier, validator, locks, approvals, fingerprint algorithms,
+thresholds, production manifests and schedules are unchanged. Generic reader
+provenance and stronger redirect checks do not weaken source safety. The seven
+rows remain excluded from commercial execution while independently safe rows
+can reach the unchanged planner/validator/approval/executor/postflight paths.
+
+Smallest missing proof: an authoritative current, exact variation/configuration
+binding that establishes the unit to which both price and availability apply,
+and resolves the 1pcs/12pcs ambiguity. A future adapter acceptance rule must
+verify that proof against the unchanged approved box identity and reject
+unit-dependent price/stock conflicts; owner identity approval cannot replace it.
+No further owner approval alone can turn today's source into an executable box
+offer. Once this PR is reviewed, its checks pass and deployment is separately
+authorized, one ordinary full read-only preflight of all 506 mappings is a
+justified next validation. It must freshly prove the whole source and may find
+other review/blockers; 499 is not a live promise. The seven can leave review
+only after authoritative commercial-unit proof. Production apply remains a
+separate exact-plan decision. No new approval system or executor is proposed.
+
+### Validation and handoff
+
+Focused adapter/reader/publisher/executor tests: **105 PASS, 0 FAIL, 0 SKIP**.
+The complete isolated fixture accounts for 279 products and all 506 mappings:
+499 safe plans, seven unchanged source-review rows, zero omissions or dry-run
+writes. Shared executor scope validation accepts only the 499 plans. Existing
+postflight passes the modeled 499-only freshness advance, and rejects a price,
+stock or freshness change to a review row. A second isolated source run gives
+499 VERIFY_NO_CHANGE plus the same seven review IDs. Publisher guards produce
+seven non-executable manual identity cards with null source price and the exact
+wildcard reason. These are simulations, not production apply/postflight evidence.
+
+Adversarial cases cover corrupted hashes/bytes/timestamps, wrong manifest/IDs,
+unapproved source variants, unknown wildcard attributes, invalid SKU/JSON-LD,
+duplicate IDs, partial documents, incomplete HTTP bodies, foreign/invalid
+redirects including HTTP 404 and changed ports, missing scope, size-specific
+price/stock variants, isolation disabled and source collapse. All remain
+retailer-wide BLOCK with no artifact/plans/writes. Existing 6303, 4705/4708,
+ordinary complete attributes and legitimate 404 isolation regressions pass.
+The retained actual 11:28 single-product HTML also qualifies during an explicit
+offline historical replay, with all seven exact IDs and the same document SHA;
+this is not a new live fetch or proof of the other 278 products.
+Inventory reviewed: unchanged 355
+files and seal `7c2d270f8b1bc713d3921bf108f34611a4d4c941bd53e461d18824fe2c6037c4`.
+The earlier diagnostic-only iteration's local/CI full gate (3558 PASS, three
+existing SKIP) and integration 42477938614 (149 PASS, zero SKIP) are historical
+evidence only, not validation of this isolation change. Current local quick:
+**469 PASS**; current local full: **3564 PASS / 0 FAIL / 3 existing SKIP**, including
+lint, TypeScript, production build and baseline migration checks. Guardian
+passed before and after this ledger edit; `git diff --check` passes. Fresh
+isolated PostgreSQL integration and exact-head full CI are required before
+handoff, with final run links/results recorded in
+[existing PR #504](https://github.com/SupplementScout/supplementscout/pull/504).
+No additional retailer HTTP request, deployment, merge or production refresh
+is performed. Full current-head validation is recorded in the existing PR #504.
+
+Fit House's four unresolved cases remain untouched; no request follows its
+11:28 HTTP 429. Whey/Jon's completed 8 November refreshes and all schedules
+remain untouched. This task adds no recovery, importer, worker, scheduler,
+executor or parallel approval path and preserves RA-001.
+
+## 8 November 2026 approved migration deployment and canonical closeout (historical)
 
 Authority: the owner's `SUPPLEMENTSCOUT. ZATWIERDZONE WDROZENIE #502 ORAZ
 DIAGNOZA FIT HOUSE` instruction explicitly approves squash merge #502, exactly

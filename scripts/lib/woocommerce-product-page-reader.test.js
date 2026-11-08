@@ -10,6 +10,27 @@ const {
   sourceFailureDisposition,
 } = require("./woocommerce-product-page-reader");
 
+test("reader supplies HTTP document provenance only after consuming a complete successful body", async () => {
+  const html = "<html><body>Complete document</body></html>";
+  let calls = 0;
+  const parsed = await readWooCommerceProductPage({ storeUrl: "https://shop.example.test", productId: "21",
+    maximumAttempts: 1, fetchImpl: async () => ({ status: 200, url: "https://shop.example.test/product/example/",
+      headers: { get: () => "text/html; charset=utf-8" }, text: async () => html }),
+    parseProductPage: (body, options) => { calls += 1; assert.equal(body, html); return options; },
+  });
+  assert.deepEqual(parsed.sourceDocument, {
+    request_url: "https://shop.example.test/?p=21", response_url: parsed.canonicalUrl,
+    http_status: 200, content_type: "text/html; charset=utf-8", body_complete: true,
+    html_sha256: require("node:crypto").createHash("sha256").update(html).digest("hex"), html_bytes: Buffer.byteLength(html),
+  });
+  await assert.rejects(readWooCommerceProductPage({ storeUrl: "https://shop.example.test", productId: "21",
+    maximumAttempts: 1, fetchImpl: async () => ({ status: 200, url: "https://shop.example.test/product/example/",
+      headers: { get: () => "text/html" }, text: async () => { throw Object.assign(new Error("truncated body"), { code: "ECONNRESET" }); } }),
+    parseProductPage: () => { calls += 1; },
+  }), (error) => error.code === "SOURCE_UNAVAILABLE" && sourceFailureDisposition(error, "21").scope === "RETAILER");
+  assert.equal(calls, 1);
+});
+
 test("only an exact terminal product 404 is product-scoped", () => {
   const sourceError = (status, overrides = {}) => new WooCommerceSourceError(
     "SOURCE_HTTP_ERROR",

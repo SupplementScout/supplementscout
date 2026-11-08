@@ -343,7 +343,7 @@ async function readWooCommerceProductPage({
   }
   const requestUrl = productUrl ? new URL(productUrl) : new URL("/", origin);
   if (!productUrl) requestUrl.searchParams.set("p", id);
-  if (requestUrl.protocol !== "https:" || requestUrl.hostname !== origin.hostname ||
+  if (requestUrl.origin !== origin.origin ||
       requestUrl.username || requestUrl.password || requestUrl.hash) {
     fail("SOURCE_CONFIGURATION", "productUrl must stay on the credential-free HTTPS store origin");
   }
@@ -357,19 +357,26 @@ async function readWooCommerceProductPage({
         redirect: "follow",
         signal: controller.signal,
       });
+      const finalUrl = new URL(response.url || requestUrl);
+      const unchangedErrorUrl = response.status !== 200 && finalUrl.href === requestUrl.href;
+      // Validate redirects before interpreting an HTTP error as product absence.
+      if (finalUrl.origin !== origin.origin || finalUrl.username || finalUrl.password ||
+          (!unchangedErrorUrl && !allowedPathPrefixes.some((prefix) => finalUrl.pathname.startsWith(prefix)))) {
+        fail("SOURCE_REDIRECT_ERROR", `WooCommerce product ${id} redirected outside the approved product origin`, { final_url: finalUrl.href });
+      }
       if (response.status !== 200) fail("SOURCE_HTTP_ERROR", `WooCommerce product ${id} returned HTTP ${response.status}`, { status: response.status, attempt });
       const contentType = String(response.headers?.get?.("content-type") || "").toLowerCase();
       if (!contentType.startsWith("text/html")) fail("SOURCE_CONTENT_TYPE", `WooCommerce product ${id} returned ${contentType || "unknown content type"}`);
-      const finalUrl = new URL(response.url || requestUrl);
-      if (finalUrl.protocol !== "https:" || finalUrl.hostname !== origin.hostname ||
-          !allowedPathPrefixes.some((prefix) => finalUrl.pathname.startsWith(prefix))) {
-        fail("SOURCE_REDIRECT_ERROR", `WooCommerce product ${id} redirected outside the approved product origin`, { final_url: finalUrl.href });
-      }
       const html = await boundedText(response, maximumBytes);
       return parseProductPage(html, {
         productId: id,
         canonicalUrl: finalUrl.href,
         capturedAt,
+        sourceDocument: {
+          request_url: requestUrl.href, response_url: finalUrl.href,
+          http_status: response.status, content_type: contentType,
+          body_complete: true, html_sha256: sha256(html), html_bytes: Buffer.byteLength(html),
+        },
       });
     } catch (error) {
       lastError = error;

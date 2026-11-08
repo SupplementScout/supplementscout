@@ -45,8 +45,8 @@ function parseSixPackProductPage(html, options) {
   const scripts = [...String(html).matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
     .filter((match) => /(?:^|\s)id\s*=\s*["']product-variations["']/i.test(match[1]));
   if (!scripts.length) return parseWooCommerceProductPage(html, options);
-  const sourceFail = (message, code = "SOURCE_SCHEMA_MISMATCH") => {
-    throw new WooCommerceSourceError(code, message);
+  const sourceFail = (message, code = "SOURCE_SCHEMA_MISMATCH", detail = {}) => {
+    throw new WooCommerceSourceError(code, message, detail);
   };
   const schema = (condition, message) => {
     if (!condition) sourceFail(message);
@@ -85,11 +85,13 @@ function parseSixPackProductPage(html, options) {
   }
   const ids = new Set();
   const combinations = new Set();
+  const wildcardVariations = [];
+  const wildcardAttributes = new Set();
   const completeAttributes = (value) => value && typeof value === "object" && !Array.isArray(value)
     && Object.keys(value).length === attributes.size
     && [...attributes.keys()].every((name) => typeof value[name] === "string" && value[name].trim());
-  const corroborateSelected = (row) => {
-    schema(completeAttributes(payload.selected) && canonicalJson(row.attributes) === canonicalJson(payload.selected)
+  const corroborateVariant = (row, wildcard = false) => {
+    if (!wildcard) schema(completeAttributes(payload.selected) && canonicalJson(row.attributes) === canonicalJson(payload.selected)
       && payload.variations.filter((variant) => completeAttributes(variant?.attributes)
         && canonicalJson(variant.attributes) === canonicalJson(payload.selected)).length === 1,
     "Undeclared 6 Pack option is not a unique explicit selection");
@@ -114,16 +116,19 @@ function parseSixPackProductPage(html, options) {
     const products = nodes.filter((node) => hasType(node, "Product") && node["@id"] === variantId);
     schema(groups.length === 1 && groups[0].url === canonical.href && groups[0].name === productName
       && Array.isArray(groups[0].hasVariant) && products.length === 1
-      && groups[0].hasVariant.includes(products[0]), "Selected 6 Pack variant JSON-LD identity is ambiguous or unbound");
+      && groups[0].hasVariant.includes(products[0])
+      && (!wildcard || groups[0].hasVariant.length === payload.variations.length), "Selected 6 Pack variant JSON-LD identity is ambiguous or unbound");
     const product = products[0];
+    const concreteAttributeCount = Object.values(row.attributes).filter((value) => value !== "").length;
     const matchesUrl = (value) => {
       if (typeof value !== "string") return false;
       let url;
       try { url = new URL(value); } catch { return false; }
       const pairs = [...url.searchParams];
       return url.origin === canonical.origin && url.pathname === canonical.pathname && !url.hash
-        && !url.username && !url.password && pairs.length === attributes.size
-        && new Set(pairs.map(([name]) => name)).size === attributes.size
+        && !url.username && !url.password && pairs.length === concreteAttributeCount
+        && new Set(pairs.map(([name]) => name)).size === concreteAttributeCount
+        && pairs.every(([name]) => row.attributes[name] !== "")
         && pairs.every(([name, value]) => row.attributes[name] === value);
     };
     const offer = product.offers;
@@ -143,9 +148,20 @@ function parseSixPackProductPage(html, options) {
     schema(typeof row.price === "number" && Number.isFinite(row.price) && Number(row.price.toFixed(2)) > 0
       && typeof row.in_stock === "boolean" && Number.isSafeInteger(row.max_qty) && row.max_qty >= 0
       && (!row.in_stock || row.max_qty > 0), "Invalid 6 Pack variation price, stock or quantity");
-    schema(completeAttributes(row.attributes), "6 Pack variation attribute keys are incomplete");
+    // WooCommerce's empty string means Any attribute, not a concrete option.
+    // Recognize it without assigning its price/stock to a fixed sales unit.
+    schema(row.attributes && typeof row.attributes === "object" && !Array.isArray(row.attributes)
+      && Object.keys(row.attributes).length === attributes.size
+      && [...attributes.keys()].every((name) => typeof row.attributes[name] === "string"
+        && (row.attributes[name] === "" || row.attributes[name].trim())),
+    "6 Pack variation attribute keys are incomplete");
+    const wildcards = [...attributes.keys()].filter((name) => row.attributes[name] === "");
+    if (wildcards.length) {
+      wildcardVariations.push(id);
+      wildcards.forEach((name) => wildcardAttributes.add(name));
+    }
     // The new theme omits the selected default from its dropdown. Require exact same-page JSON-LD corroboration.
-    if (![...attributes].every(([name, values]) => values.has(row.attributes[name]))) corroborateSelected(row);
+    if (![...attributes].every(([name, values]) => row.attributes[name] === "" || values.has(row.attributes[name]))) corroborateVariant(row);
     const combination = canonicalJson(row.attributes);
     if (combinations.has(combination)) sourceFail("Duplicate 6 Pack variation options", "DUPLICATE_SOURCE_IDENTITY");
     combinations.add(combination);
@@ -159,6 +175,28 @@ function parseSixPackProductPage(html, options) {
       purchasable: row.max_qty > 0,
     };
   });
+  if (wildcardVariations.length) {
+    if (options.sourceDocument) {
+      for (const row of payload.variations) {
+        if (Object.values(row.attributes).some((value) => value === "")) corroborateVariant(row, true);
+      }
+    }
+    sourceFail("6 Pack wildcard variations require unambiguous sales-unit price and stock evidence",
+      "SOURCE_SCHEMA_MISMATCH", {
+        reason_code: "WILDCARD_COMMERCIAL_UNIT_UNRESOLVED",
+        product_id: productId,
+        variation_ids: wildcardVariations,
+        wildcard_attributes: [...wildcardAttributes],
+        ...(options.sourceDocument ? { source_document: {
+          request_url: options.sourceDocument.request_url, response_url: options.sourceDocument.response_url,
+          http_status: options.sourceDocument.http_status, content_type: options.sourceDocument.content_type,
+          body_complete: options.sourceDocument.body_complete, html_sha256: options.sourceDocument.html_sha256,
+          html_bytes: options.sourceDocument.html_bytes, product_id: productId,
+          canonical_url: String(options.canonicalUrl), captured_at: options.capturedAt,
+          variation_ids: variations.map((row) => row.external_variant_id), html: String(html),
+        } } : {}),
+      });
+  }
   return {
     schema_version: 1,
     external_product_id: productId,
@@ -656,7 +694,7 @@ function sourceErrorEvidence(error, productId) {
   requestUrl.searchParams.set("p", String(productId));
   const lastAttempt = Number(detail.last_attempt);
   const httpStatus = Number(detail.http_status);
-  return {
+  const evidence = {
     error_code: safeToken(error?.code, "SOURCE_UNAVAILABLE"),
     error_type: safeToken(detail.error_type, "Error"),
     network_code: safeToken(detail.network_code),
@@ -666,6 +704,73 @@ function sourceErrorEvidence(error, productId) {
     product_id: String(productId),
     http_status: Number.isInteger(httpStatus) && httpStatus >= 100 && httpStatus <= 599 ? httpStatus : null,
   };
+  const issue = wildcardSourceIssue(error, productId);
+  if (issue) evidence.sales_unit_binding = {
+    reason_code: issue.reason_code,
+    variation_ids: issue.variation_ids,
+    wildcard_attributes: issue.wildcard_attributes,
+  };
+  return evidence;
+}
+
+function wildcardSourceIssue(error, productId) {
+  // The bounded reader wraps parser errors. Accept only our product-bound,
+  // typed reason, never arbitrary source/error content.
+  for (let cause = error, depth = 0; cause && depth < 8; cause = cause.cause, depth += 1) {
+    const issue = cause.detail;
+    if (cause instanceof WooCommerceSourceError && cause.code === "SOURCE_SCHEMA_MISMATCH"
+      && issue?.reason_code === "WILDCARD_COMMERCIAL_UNIT_UNRESOLVED"
+      && issue.product_id === String(productId)
+      && Array.isArray(issue.variation_ids) && issue.variation_ids.length > 0
+      && issue.variation_ids.every((id) => typeof id === "string" && /^[1-9]\d*$/.test(id))
+      && Array.isArray(issue.wildcard_attributes) && issue.wildcard_attributes.length > 0
+      && issue.wildcard_attributes.every((name) => typeof name === "string" && /^attribute_[a-z0-9_-]+$/.test(name))) {
+      return issue;
+    }
+  }
+  return null;
+}
+
+function approvedSourceFailureDisposition(error, productId, approved, capturedAt) {
+  const ordinary = sourceFailureDisposition(error, productId);
+  if (ordinary.scope === "PRODUCT") return ordinary;
+  const issue = wildcardSourceIssue(error, productId), document = issue?.source_document;
+  const transport = error?.detail;
+  if (approved.sha256 !== config.automation.manifest_sha256
+    || !(error instanceof WooCommerceSourceError) || error.code !== "SOURCE_SCHEMA_MISMATCH"
+    || transport?.product_id !== String(productId) || transport.error_type !== "WooCommerceSourceError"
+    || transport.timeout !== false || transport.network_code !== null
+    || transport.http_status !== null || !Number.isInteger(transport.last_attempt)
+    || transport.last_attempt < 1 || transport.last_attempt > 5
+    || !document || document.product_id !== String(productId) || document.captured_at !== capturedAt
+    || document.http_status !== 200 || document.body_complete !== true
+    || document.request_url !== transport.request_url || document.response_url !== document.canonical_url
+    || typeof document.content_type !== "string" || !document.content_type.startsWith("text/html")
+    || typeof document.html !== "string" || !/<html(?:\s|>)/i.test(document.html)
+    || !/<\/body\s*>\s*<\/html\s*>\s*$/i.test(document.html)
+    || document.html_bytes !== Buffer.byteLength(document.html) || document.html_sha256 !== sha256(document.html)
+    || canonicalJson(issue.wildcard_attributes) !== canonicalJson(["attribute_size"])) return ordinary;
+  let request;
+  try { request = new URL(document.request_url); } catch { return ordinary; }
+  if (request.origin !== config.retailer.website || request.username || request.password || request.hash
+    || !(request.href === document.canonical_url || (request.pathname === "/"
+      && [...request.searchParams].length === 1 && request.searchParams.get("p") === String(productId)))) return ordinary;
+  const rows = approved.manifest.rows.filter((row) => row.external_product_id === String(productId));
+  const expected = rows.map((row) => row.external_variant_id).sort();
+  if (!expected.length || expected.includes(String(productId))
+    || canonicalJson([...issue.variation_ids].sort()) !== canonicalJson(expected)
+    || !Array.isArray(document.variation_ids) || canonicalJson([...document.variation_ids].sort()) !== canonicalJson(expected)
+    || approved.manifest.rows.some((row) => row.external_product_id !== String(productId)
+      && rows.some((isolated) => isolated.canonical_variant_id === row.canonical_variant_id))) return ordinary;
+  let reproduced;
+  try {
+    parseSixPackProductPage(document.html, { productId: String(productId), canonicalUrl: document.canonical_url,
+      capturedAt, sourceDocument: document });
+  } catch (failure) { reproduced = failure; }
+  if (!(reproduced instanceof WooCommerceSourceError) || reproduced.code !== "SOURCE_SCHEMA_MISMATCH"
+    || canonicalJson(reproduced.detail) !== canonicalJson(issue)) return ordinary;
+  return { scope: "PRODUCT", reason: issue.reason_code, manifest_sha256: approved.sha256,
+    approved_variation_ids: expected, source_document: document };
 }
 
 function writeSourceFailureReport({
@@ -791,13 +896,15 @@ async function run(options, dependencies = {}) {
       await new Promise((resolve) => setTimeout(resolve, 150));
     }
     try {
-      liveByProduct.set(productId, await readLive(productId));
+      liveByProduct.set(productId, await readLive(productId, { capturedAt }));
     } catch (error) {
-      const disposition = sourceFailureDisposition(error, productId);
+      const disposition = approvedSourceFailureDisposition(error, productId, approved, capturedAt);
       if (options.isolateUnsafe === true && disposition.scope === "PRODUCT" && !reviewed && !reviewedOwner) {
         isolatedSourceFailures.set(productId, {
           ...sourceErrorEvidence(error, productId),
           disposition: disposition.reason,
+          ...(disposition.source_document ? { source_document: disposition.source_document,
+            manifest_sha256: disposition.manifest_sha256, approved_variation_ids: disposition.approved_variation_ids } : {}),
         });
       } else {
         writeSourceFailureReport({
@@ -879,7 +986,8 @@ async function run(options, dependencies = {}) {
     options.isolateUnsafe && !reviewedOwner
   );
   const sourceByVariant = new Map(sourceRows.map((row) => [String(row.external_variant_id), row]));
-  const sourceFailureByProduct = new Map(sourceFailures.map((failure) => [failure.product_id, failure]));
+  const sourceFailureByProduct = new Map(sourceFailures.map((failure) => [failure.product_id,
+    failure.source_document ? { ...failure, source_document: { ...failure.source_document, html: undefined } } : failure]));
   const targetByOffer = new Map(state.records.map((record) => [String(record.offer.id), targetFor(record)]));
   const reviewRows = (classification.quarantined_rows || []).map((row) => {
     const source = sourceByVariant.get(String(row.external_variant_id));
@@ -1004,6 +1112,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  approvedSourceFailureDisposition,
   authorizeReviewedOwnerBatch,
   authorizeReviewedMassOos,
   buildArtifactRows,

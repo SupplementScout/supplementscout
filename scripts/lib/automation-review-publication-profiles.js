@@ -310,6 +310,17 @@ function validateSixPack(profile, context) {
     invariant(String(review.external_product_id) === String(before.external_product_id) && String(review.external_variant_id) === String(before.external_variant_id), `${label} source identity drift for offer ${offerId}`);
     invariant(review.current_offer && Number.isFinite(Number(review.current_offer.price)) && Number.isFinite(Number(before.price)) && Number(review.current_offer.price).toFixed(2) === Number(before.price).toFixed(2) && Boolean(review.current_offer.in_stock) === Boolean(before.in_stock), `${label} current state drift for offer ${offerId}`);
     invariant(["SOURCE_VARIANT_MISSING", "HARD_PRICE_ANOMALY", "MASS_OOS"].includes(review.reason), `${label} review reason drifted for offer ${offerId}`);
+    const wildcard = review.source_failure?.disposition === "WILDCARD_COMMERCIAL_UNIT_UNRESOLVED";
+    if (wildcard) {
+      const failure = (report.source_failures || []).filter((row) => row.product_id === review.external_product_id);
+      invariant(review.reason === "SOURCE_VARIANT_MISSING" && review.proposed_offer === null
+        && failure.length === 1 && failure[0].disposition === review.source_failure.disposition
+        && failure[0].manifest_sha256 === report.manifest_sha256
+        && failure[0].approved_variation_ids?.includes(String(review.external_variant_id))
+        && /^[a-f0-9]{64}$/.test(failure[0].source_document?.html_sha256 || "")
+        && failure[0].source_document.html_sha256 === review.source_failure.source_document?.html_sha256,
+      `${label} wildcard source evidence drifted for offer ${offerId}`);
+    }
     const proposed = review.proposed_offer || review.current_offer;
     return {
       offer_id: offerId,
@@ -321,7 +332,7 @@ function validateSixPack(profile, context) {
       old_stock: before.in_stock === true,
       new_stock: proposed.in_stock === true,
       action: review.reason === "SOURCE_VARIANT_MISSING" ? "SOURCE_MISSING" : "MANUAL_REVIEW",
-      evidence_reason: review.reason,
+      evidence_reason: wildcard ? review.source_failure.disposition : review.reason,
       proposed_url: proposed.url || before.url || null,
     };
   }).sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
@@ -338,7 +349,9 @@ function validateSixPackChangedRows(profile, changedRows, invariant) {
 }
 
 function sixPackReviewCard(beforeState, changed) {
-  if (changed.action === "SOURCE_MISSING") return reviewCard({ reviewType: "source-missing" }, beforeState, changed);
+  if (changed.action === "SOURCE_MISSING") return {
+    ...reviewCard({ reviewType: "source-missing" }, beforeState, changed), evidenceReason: changed.evidence_reason,
+  };
   return {
     proposedState: { ...beforeState, price: changed.new_price, in_stock: changed.new_stock, url: changed.proposed_url },
     reasonCodes: "POLICY_REVIEW", confidence: "LOW", sourcePrice: changed.new_price,
