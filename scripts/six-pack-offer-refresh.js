@@ -45,8 +45,8 @@ function parseSixPackProductPage(html, options) {
   const scripts = [...String(html).matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
     .filter((match) => /(?:^|\s)id\s*=\s*["']product-variations["']/i.test(match[1]));
   if (!scripts.length) return parseWooCommerceProductPage(html, options);
-  const sourceFail = (message, code = "SOURCE_SCHEMA_MISMATCH") => {
-    throw new WooCommerceSourceError(code, message);
+  const sourceFail = (message, code = "SOURCE_SCHEMA_MISMATCH", detail = {}) => {
+    throw new WooCommerceSourceError(code, message, detail);
   };
   const schema = (condition, message) => {
     if (!condition) sourceFail(message);
@@ -85,6 +85,8 @@ function parseSixPackProductPage(html, options) {
   }
   const ids = new Set();
   const combinations = new Set();
+  const wildcardVariations = [];
+  const wildcardAttributes = new Set();
   const completeAttributes = (value) => value && typeof value === "object" && !Array.isArray(value)
     && Object.keys(value).length === attributes.size
     && [...attributes.keys()].every((name) => typeof value[name] === "string" && value[name].trim());
@@ -143,9 +145,20 @@ function parseSixPackProductPage(html, options) {
     schema(typeof row.price === "number" && Number.isFinite(row.price) && Number(row.price.toFixed(2)) > 0
       && typeof row.in_stock === "boolean" && Number.isSafeInteger(row.max_qty) && row.max_qty >= 0
       && (!row.in_stock || row.max_qty > 0), "Invalid 6 Pack variation price, stock or quantity");
-    schema(completeAttributes(row.attributes), "6 Pack variation attribute keys are incomplete");
+    // WooCommerce's empty string means Any attribute, not a concrete option.
+    // Recognize it without assigning its price/stock to a fixed sales unit.
+    schema(row.attributes && typeof row.attributes === "object" && !Array.isArray(row.attributes)
+      && Object.keys(row.attributes).length === attributes.size
+      && [...attributes.keys()].every((name) => typeof row.attributes[name] === "string"
+        && (row.attributes[name] === "" || row.attributes[name].trim())),
+    "6 Pack variation attribute keys are incomplete");
+    const wildcards = [...attributes.keys()].filter((name) => row.attributes[name] === "");
+    if (wildcards.length) {
+      wildcardVariations.push(id);
+      wildcards.forEach((name) => wildcardAttributes.add(name));
+    }
     // The new theme omits the selected default from its dropdown. Require exact same-page JSON-LD corroboration.
-    if (![...attributes].every(([name, values]) => values.has(row.attributes[name]))) corroborateSelected(row);
+    if (![...attributes].every(([name, values]) => row.attributes[name] === "" || values.has(row.attributes[name]))) corroborateSelected(row);
     const combination = canonicalJson(row.attributes);
     if (combinations.has(combination)) sourceFail("Duplicate 6 Pack variation options", "DUPLICATE_SOURCE_IDENTITY");
     combinations.add(combination);
@@ -159,6 +172,15 @@ function parseSixPackProductPage(html, options) {
       purchasable: row.max_qty > 0,
     };
   });
+  if (wildcardVariations.length) {
+    sourceFail("6 Pack wildcard variations require unambiguous sales-unit price and stock evidence",
+      "SOURCE_SCHEMA_MISMATCH", {
+        reason_code: "WILDCARD_COMMERCIAL_UNIT_UNRESOLVED",
+        product_id: productId,
+        variation_ids: wildcardVariations,
+        wildcard_attributes: [...wildcardAttributes],
+      });
+  }
   return {
     schema_version: 1,
     external_product_id: productId,
@@ -656,7 +678,7 @@ function sourceErrorEvidence(error, productId) {
   requestUrl.searchParams.set("p", String(productId));
   const lastAttempt = Number(detail.last_attempt);
   const httpStatus = Number(detail.http_status);
-  return {
+  const evidence = {
     error_code: safeToken(error?.code, "SOURCE_UNAVAILABLE"),
     error_type: safeToken(detail.error_type, "Error"),
     network_code: safeToken(detail.network_code),
@@ -666,6 +688,26 @@ function sourceErrorEvidence(error, productId) {
     product_id: String(productId),
     http_status: Number.isInteger(httpStatus) && httpStatus >= 100 && httpStatus <= 599 ? httpStatus : null,
   };
+  // The bounded reader wraps parser errors. Retain only our product-bound,
+  // typed wildcard diagnostic; do not copy arbitrary source/error content.
+  for (let cause = error, depth = 0; cause && depth < 8; cause = cause.cause, depth += 1) {
+    const issue = cause.detail;
+    if (cause instanceof WooCommerceSourceError && cause.code === "SOURCE_SCHEMA_MISMATCH"
+      && issue?.reason_code === "WILDCARD_COMMERCIAL_UNIT_UNRESOLVED"
+      && issue.product_id === String(productId)
+      && Array.isArray(issue.variation_ids) && issue.variation_ids.length > 0
+      && issue.variation_ids.every((id) => typeof id === "string" && /^[1-9]\d*$/.test(id))
+      && Array.isArray(issue.wildcard_attributes) && issue.wildcard_attributes.length > 0
+      && issue.wildcard_attributes.every((name) => typeof name === "string" && /^attribute_[a-z0-9_-]+$/.test(name))) {
+      evidence.sales_unit_binding = {
+        reason_code: issue.reason_code,
+        variation_ids: issue.variation_ids,
+        wildcard_attributes: issue.wildcard_attributes,
+      };
+      break;
+    }
+  }
+  return evidence;
 }
 
 function writeSourceFailureReport({

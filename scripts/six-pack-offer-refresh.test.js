@@ -54,6 +54,8 @@ test("6 Pack selected default requires unique complete selection and matching id
     ...[
       (g) => { g.url = "https://other.example/product/"; },
       (g) => { g.hasVariant[5].isVariantOf['@id'] += "wrong"; },
+      (g) => { g.hasVariant[5].sku = "not-4708"; },
+      (g) => { g.hasVariant[5].url = "https://other.example/product/?attribute_flavours=Fruit"; },
       (g) => { g.hasVariant[5].url += "&attribute_size=7kg"; },
       (g) => { g.hasVariant[5].offers.url = selectedUrl; },
       (g) => { g.hasVariant[5].offers.price = "59.98"; },
@@ -149,6 +151,29 @@ test("6 Pack theme parsing rejects ambiguous, malformed and unbound source data"
 
 const incompleteHtml = fs.readFileSync(path.join(__dirname, "test-fixtures/six-pack-theme-incomplete-attributes.html"), "utf8");
 const incompleteOptions = { productId: "2769", canonicalUrl: "https://6pack-supplements.co.uk/product/high-protein-crunch-protein-bars/" };
+function changeWildcardHtml(changePayload = () => {}, changeGraph = () => {}) {
+  return incompleteHtml.replace(/(<script type="application\/(json|ld\+json)"[^>]*>)([\s\S]*?)(<\/script>)/g,
+    (_, start, type, content, end) => {
+      const data = JSON.parse(content);
+      (type === "json" ? changePayload : changeGraph)(data);
+      return start + JSON.stringify(data) + end;
+    });
+}
+
+const approvedWarriorBindings = [
+  ["3290", "2306", "2492", "2286", "Milk Chocolate Coconut"],
+  ["3291", "2307", "2493", "2287", "Dark Chocolate Peanut"],
+  ["3292", "2308", "2494", "2288", "Raspberry Lemon Cheesecake"],
+  ["3293", "2309", "2495", "2289", "Salted Caramel"],
+  ["3294", "2310", "2496", "2290", "White Chocolate"],
+  ["3295", "2311", "2497", "2291", "Banoffee Pie"],
+  ["3297", "2312", "2498", "2292", "Key Lime Pie"],
+];
+const wildcardIssue = {
+  reason_code: "WILDCARD_COMMERCIAL_UNIT_UNRESOLVED",
+  variation_ids: approvedWarriorBindings.map(([id]) => id),
+  wildcard_attributes: ["attribute_size"],
+};
 
 test("6 Pack blocks blank row attributes despite default selection and matching flavour-only JSON-LD", () => {
   const block = incompleteHtml.match(/<script type="application\/json" id="product-variations">([\s\S]*?)<\/script>/);
@@ -158,19 +183,113 @@ test("6 Pack blocks blank row attributes despite default selection and matching 
   assert.equal(payload.selected.attribute_size, "1pcs");
   assert.ok(payload.variations.every((row) => row.attributes.attribute_size === ""));
   // A page default, one dropdown option or an absent key cannot prove a row's size.
-  for (const change of [() => {},
+  for (const [index, change] of [() => {},
     (p) => { p.attributes[1].options = [p.attributes[1].options[0]]; },
     (p) => { delete p.variations[0].attributes.attribute_size; },
     (p) => { p.variations[0].attributes.attribute_size = null; },
     (p) => { p.variations[0].attributes.attribute_size = " "; },
-  ]) {
+  ].entries()) {
     const modified = structuredClone(payload);
     change(modified);
     const html = incompleteHtml.replace(block[1], () => JSON.stringify(modified));
     assert.throws(() => parseSixPackProductPage(html, incompleteOptions),
       (error) => error instanceof WooCommerceSourceError && error.code === "SOURCE_SCHEMA_MISMATCH"
-        && error.message === "6 Pack variation attribute keys are incomplete");
+        && (index < 2 ? error.detail.reason_code === wildcardIssue.reason_code
+          : error.message === "6 Pack variation attribute keys are incomplete"));
   }
+});
+
+test("all seven owner-reviewed Warrior identities remain exact while wildcard commercial units stay blocked", () => {
+  assert.deepEqual(manifest.rows.filter((row) => row.external_product_id === "2769")
+    .map((row) => [row.external_variant_id, row.offer_id, row.mapping_id, row.canonical_product_id, row.canonical_variant_id]),
+  approvedWarriorBindings.map(([id, offer, mapping, variant]) => [id, offer, mapping, "1074", variant]));
+  assert.throws(() => parseSixPackProductPage(incompleteHtml, incompleteOptions), (error) => {
+    assert.equal(error.code, "SOURCE_SCHEMA_MISMATCH");
+    assert.deepEqual(error.detail, { ...wildcardIssue, product_id: "2769" });
+    return true;
+  });
+  for (const [id, , , , flavour] of approvedWarriorBindings) {
+    const html = changeWildcardHtml((p) => {
+      p.variations = p.variations.filter((row) => String(row.id) === id);
+      assert.equal(p.variations[0].attributes.attribute_flavours, flavour);
+    });
+    assert.throws(() => parseSixPackProductPage(html, incompleteOptions), (error) => {
+      assert.deepEqual(error.detail.variation_ids, [id]);
+      assert.equal(error.detail.reason_code, wildcardIssue.reason_code);
+      return true;
+    });
+  }
+});
+
+test("wildcard detection is generic and does not replace absent or malformed attributes", () => {
+  const otherProduct = incompleteHtml.replaceAll("postid-2769", "postid-98765")
+    .replaceAll("&quot;productId&quot;:2769", "&quot;productId&quot;:98765");
+  assert.throws(() => parseSixPackProductPage(otherProduct, { ...incompleteOptions, productId: "98765" }),
+    (error) => error.detail.product_id === "98765" && error.detail.reason_code === wildcardIssue.reason_code);
+  const anyFlavour = changeWildcardHtml((p) => {
+    p.variations = [p.variations[0]];
+    p.variations[0].attributes = { attribute_flavours: "", attribute_size: "12pcs" };
+  });
+  assert.throws(() => parseSixPackProductPage(anyFlavour, incompleteOptions),
+    (error) => error.detail.wildcard_attributes[0] === "attribute_flavours");
+  for (const value of [undefined, null, 0, false, [], {}, " "]) {
+    const html = changeWildcardHtml((p) => { p.variations[0].attributes.attribute_size = value; });
+    assert.throws(() => parseSixPackProductPage(html, incompleteOptions),
+      (error) => error.code === "SOURCE_SCHEMA_MISMATCH" && !error.detail.reason_code);
+  }
+});
+
+test("complete explicit size rows remain parseable without inheriting a wildcard or page default", () => {
+  const html = changeWildcardHtml((p) => {
+    for (const row of p.variations) row.attributes.attribute_size = "12pcs";
+  });
+  const parsed = parseSixPackProductPage(html, incompleteOptions);
+  assert.equal(parsed.variations.length, 7);
+  assert.ok(parsed.variations.every((row) => row.attributes.attribute_size === "12pcs"));
+});
+
+test("wildcard does not authorize a unit from defaults, labels, prices or size-dependent stock", () => {
+  const cases = [
+    () => {}, // No owner confirmation or sales-unit contract.
+    (p) => { p.selected.attribute_size = "12pcs"; },
+    (p) => { for (const row of p.variations) row.price_html = "<p>1 x 64g bar</p>"; },
+    (p) => { p.variations[0].price = 1.99; },
+    (p) => { p.variations[0].in_stock = true; },
+    ...["price", "stock"].map((field) => (p) => {
+      const concrete = structuredClone(p.variations[0]);
+      concrete.id = 99999;
+      concrete.attributes.attribute_size = "1pcs";
+      if (field === "price") concrete.price = 1.99;
+      else concrete.in_stock = true;
+      p.variations.unshift(concrete);
+    }),
+    (p) => { p.variations[0].id = 99999; },
+  ];
+  for (const change of cases) {
+    assert.throws(() => parseSixPackProductPage(changeWildcardHtml(change), incompleteOptions),
+      (error) => error.code === "SOURCE_SCHEMA_MISMATCH" && error.detail.reason_code === wildcardIssue.reason_code);
+  }
+  for (const change of [
+    (p) => { p.variations[0].id = 0; },
+    (p) => { p.variations[0].id = "3290"; },
+    (p) => { p.variations.push(p.variations[0]); },
+    (p) => { p.variations[0].attributes.attribute_flavours = "Unknown"; },
+  ]) assert.throws(() => parseSixPackProductPage(changeWildcardHtml(change), incompleteOptions),
+    (error) => ["SOURCE_SCHEMA_MISMATCH", "DUPLICATE_SOURCE_IDENTITY"].includes(error.code));
+});
+
+test("wildcard cannot turn conflicting SKU, product identity or source URL into an accepted offer", async () => {
+  const invalidSku = changeWildcardHtml(() => {}, (graph) => {
+    const group = graph['@graph'].find((node) => node['@type'] === "ProductGroup");
+    group.hasVariant[0].sku = "wrong-sku";
+  });
+  assert.throws(() => parseSixPackProductPage(invalidSku, incompleteOptions), { code: "SOURCE_SCHEMA_MISMATCH" });
+  assert.throws(() => parseSixPackProductPage(incompleteHtml.replace("postid-2769", "postid-99999"), incompleteOptions),
+    { code: "SOURCE_IDENTITY_DRIFT" });
+  await assert.rejects(readWooCommerceProductPage({ storeUrl: "https://6pack-supplements.co.uk", productId: "2769",
+    maximumAttempts: 1, parseProductPage: parseSixPackProductPage, fetchImpl: async () => ({ status: 200,
+      url: "https://other.example/product/warrior/", headers: { get: () => "text/html" }, text: async () => incompleteHtml }) }),
+  { code: "SOURCE_REDIRECT_ERROR" });
 });
 
 test("6 Pack keeps legacy WooCommerce variations and other readers keep their default parser", () => {
@@ -332,6 +451,12 @@ test("systemic source failure blocks the whole run even when row isolation is en
 
 test("real incomplete-attribute source blocks downstream before plans or apply artifacts", async () => {
   const source = fixture();
+  for (const record of source.state.records.filter((row) => row.mapping.external_product_id === "2769")) {
+    const approved = approvedWarriorBindings.find(([id]) => id === record.mapping.external_variant_id);
+    record.mapping.external_options = { Pack: "12", Flavour: approved[4] };
+    Object.assign(record.variant, { size_value: "64", size_unit: "g", pack_count: 12 });
+  }
+  const before = structuredClone(source.state);
   const output = paths();
   let requests = 0;
   await assert.rejects(run(
@@ -355,6 +480,8 @@ test("real incomplete-attribute source blocks downstream before plans or apply a
   assert.equal(report.review_row_count, 0);
   assert.equal(report.database_writes, 0);
   assert.deepEqual(report.action_counts, {});
+  assert.deepEqual(report.source_error.sales_unit_binding, wildcardIssue);
+  assert.deepEqual(source.state, before);
   assert.equal(fs.existsSync(output.artifact), false);
 });
 
