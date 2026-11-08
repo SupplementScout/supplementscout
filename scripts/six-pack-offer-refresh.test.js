@@ -147,6 +147,32 @@ test("6 Pack theme parsing rejects ambiguous, malformed and unbound source data"
   }
 });
 
+const incompleteHtml = fs.readFileSync(path.join(__dirname, "test-fixtures/six-pack-theme-incomplete-attributes.html"), "utf8");
+const incompleteOptions = { productId: "2769", canonicalUrl: "https://6pack-supplements.co.uk/product/high-protein-crunch-protein-bars/" };
+
+test("6 Pack blocks blank row attributes despite default selection and matching flavour-only JSON-LD", () => {
+  const block = incompleteHtml.match(/<script type="application\/json" id="product-variations">([\s\S]*?)<\/script>/);
+  const payload = JSON.parse(block[1]);
+  assert.equal(payload.variations.length, 7);
+  assert.deepEqual(payload.attributes[1].options.map((option) => option.value), ["1pcs", "12pcs"]);
+  assert.equal(payload.selected.attribute_size, "1pcs");
+  assert.ok(payload.variations.every((row) => row.attributes.attribute_size === ""));
+  // A page default, one dropdown option or an absent key cannot prove a row's size.
+  for (const change of [() => {},
+    (p) => { p.attributes[1].options = [p.attributes[1].options[0]]; },
+    (p) => { delete p.variations[0].attributes.attribute_size; },
+    (p) => { p.variations[0].attributes.attribute_size = null; },
+    (p) => { p.variations[0].attributes.attribute_size = " "; },
+  ]) {
+    const modified = structuredClone(payload);
+    change(modified);
+    const html = incompleteHtml.replace(block[1], () => JSON.stringify(modified));
+    assert.throws(() => parseSixPackProductPage(html, incompleteOptions),
+      (error) => error instanceof WooCommerceSourceError && error.code === "SOURCE_SCHEMA_MISMATCH"
+        && error.message === "6 Pack variation attribute keys are incomplete");
+  }
+});
+
 test("6 Pack keeps legacy WooCommerce variations and other readers keep their default parser", () => {
   const row = { variation_id: 21, attributes: { attribute_flavour: "Cherry" }, display_price: 18.5,
     display_regular_price: 20, is_in_stock: true, is_purchasable: true, variation_is_active: true };
@@ -302,6 +328,34 @@ test("systemic source failure blocks the whole run even when row isolation is en
     assert.deepEqual(report.source_error, { error_code: errorCode, ...failure.detail });
     assert.equal(fs.existsSync(output.artifact), false);
   }
+});
+
+test("real incomplete-attribute source blocks downstream before plans or apply artifacts", async () => {
+  const source = fixture();
+  const output = paths();
+  let requests = 0;
+  await assert.rejects(run(
+    { target: "production", artifact: output.artifact, report: output.report, requireNoChange: false, isolateUnsafe: true },
+    { state: source.state, readLive: async (id) => {
+      if (String(id) !== incompleteOptions.productId) return source.byProduct.get(String(id));
+      return readWooCommerceProductPage({ storeUrl: "https://6pack-supplements.co.uk", productId: id,
+        maximumAttempts: 1, parseProductPage: parseSixPackProductPage,
+        fetchImpl: async () => { requests += 1; return { status: 200, url: incompleteOptions.canonicalUrl,
+          headers: { get: () => "text/html" }, text: async () => incompleteHtml }; } });
+    } }), { code: "SOURCE_SCHEMA_MISMATCH" });
+  assert.equal(requests, 1);
+  const report = JSON.parse(fs.readFileSync(output.report, "utf8"));
+  assert.equal(report.result, "BLOCK");
+  assert.equal(report.classification_state, "SOURCE_READ_FAILED");
+  assert.equal(report.block_reason, "SOURCE_SCHEMA_MISMATCH");
+  assert.equal(report.approved_mapping_count, manifest.rows.length);
+  assert.equal(report.blocked_row_count, manifest.rows.length);
+  assert.equal(report.executable_plan_count, 0);
+  assert.equal(report.executed_plan_count, 0);
+  assert.equal(report.review_row_count, 0);
+  assert.equal(report.database_writes, 0);
+  assert.deepEqual(report.action_counts, {});
+  assert.equal(fs.existsSync(output.artifact), false);
 });
 
 test("exact product 4150 terminal 404 isolates only offer 2379 without inferring stock", async () => {

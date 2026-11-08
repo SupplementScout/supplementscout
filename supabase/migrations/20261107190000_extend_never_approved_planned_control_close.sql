@@ -1,6 +1,6 @@
+begin;
 -- Preparation only. Separate owner authorization is required for deployment and
 -- for a fresh, exact parent/state close. This migration closes no existing plan.
-begin;
 set local lock_timeout='5s';
 set local statement_timeout='60s';
 

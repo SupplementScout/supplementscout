@@ -17,7 +17,7 @@ const partialScenario = fs.readFileSync(path.resolve(__dirname, "../supabase/tes
 test("never-approved extension preserves the v1 source and privileges and writes only existing control rows", () => {
   const body = partialSequentialMigration.replace(/\r\n/g, "\n").split("as $close_expired_internal$")[1].split("$close_expired_internal$;")[0];
   assert.ok(plannedMigration.includes(crypto.createHash("sha256").update(body).digest("hex")));
-  assert.match(plannedMigration, /^--[\s\S]+begin;/);
+  assert.match(plannedMigration, /^begin;/);
   assert.match(plannedMigration, /commit;\s*$/);
   assert.match(plannedMigration, /pg_catalog\.aclexplode/);
   assert.match(plannedMigration, /Locked planned control state differs from the sealed readback/);
