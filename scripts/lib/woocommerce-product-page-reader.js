@@ -9,6 +9,13 @@ class WooCommerceSourceError extends Error {
   }
 }
 
+function isPermanentSourceError(error) {
+  return error instanceof WooCommerceSourceError && [
+    "SOURCE_SCHEMA_MISMATCH", "SOURCE_IDENTITY_DRIFT", "DUPLICATE_SOURCE_IDENTITY",
+    "SOURCE_REDIRECT_ERROR", "SOURCE_CONTENT_TYPE", "SOURCE_TOO_LARGE", "SOURCE_CONFIGURATION",
+  ].includes(error.code);
+}
+
 function sourceFailureDisposition(error, expectedProductId) {
   const detail = error?.detail && typeof error.detail === "object" ? error.detail : {};
   const productId = String(expectedProductId || "");
@@ -348,6 +355,7 @@ async function readWooCommerceProductPage({
     fail("SOURCE_CONFIGURATION", "productUrl must stay on the credential-free HTTPS store origin");
   }
   let lastError;
+  let lastAttempt;
   for (let attempt = 1; attempt <= maximumAttempts; attempt += 1) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
@@ -380,6 +388,8 @@ async function readWooCommerceProductPage({
       });
     } catch (error) {
       lastError = error;
+      lastAttempt = attempt;
+      if (isPermanentSourceError(error)) break;
       if (attempt < maximumAttempts) {
         await sleepImpl(retryBaseDelayMs * attempt);
         continue;
@@ -391,7 +401,7 @@ async function readWooCommerceProductPage({
   const diagnostic = exhaustedRetryDiagnostic(lastError, {
     productId: id,
     requestUrl,
-    attempt: maximumAttempts,
+    attempt: lastAttempt,
   });
   const code = lastError instanceof WooCommerceSourceError
     ? lastError.code
@@ -401,6 +411,7 @@ async function readWooCommerceProductPage({
 
 module.exports = {
   WooCommerceSourceError,
+  isPermanentSourceError,
   decodeHtmlEntities,
   exhaustedRetryDiagnostic,
   extractProductOffer,

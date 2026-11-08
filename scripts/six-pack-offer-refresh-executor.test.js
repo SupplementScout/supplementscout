@@ -1,6 +1,7 @@
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
+const { spawnSync } = require("node:child_process");
 const test = require("node:test");
 const manifest = require("../config/retailers/six-pack-approved-offer-manifest.json");
 const { loadReviewedMassOosManifest } = require("./six-pack-offer-refresh");
@@ -11,6 +12,39 @@ const {
   validatePlansReadOnly,
   validateArtifactScope,
 } = require("./six-pack-offer-refresh-executor");
+
+test("all four workflow source loops stop permanent failures and bound transient retries without replaying writes", () => {
+  const workflow = fs.readFileSync(path.join(__dirname, "..", ".github/workflows/six-pack-offer-refresh.yml"), "utf8");
+  const loops = [...workflow.matchAll(/          for attempt in 1 2 3 4 5; do\r?\n[\s\S]*?          done/g)]
+    .map((m) => m[0].replace(/\$\{\{[^}]*\}\}/g, "test-only-reviewed-fingerprint"));
+  assert.equal(loops.length, 4);
+  const cli = fs.readFileSync(path.join(__dirname, "six-pack-offer-refresh.js"), "utf8");
+  assert.match(cli, /process\.exitCode = isPermanentSourceError\(error\) \? 2 : 1/);
+  const bash = process.platform === "win32" ? "C:/Program Files/Git/bin/bash.exe" : "/bin/bash";
+  for (const loop of loops) {
+    assert.match(loop, /node scripts\/six-pack-offer-refresh\.js/);
+    assert.doesNotMatch(loop, /node scripts\/six-pack-offer-refresh-executor\.js/);
+    for (const scenario of [
+      { statuses: [2], calls: 1, sleeps: 0, exit: 2 },
+      { statuses: [1, 1, 0], calls: 3, sleeps: 2, exit: 0 },
+      { statuses: [1, 1, 1, 1, 1], calls: 5, sleeps: 4, exit: 1 },
+      { statuses: [0], calls: 1, sleeps: 0, exit: 0 },
+    ]) {
+      const script = `set -e -o pipefail
+calls=0; sleeps=0; reviewed_args=()
+statuses=(${scenario.statuses.join(" ")})
+node() { local status=\${statuses[$calls]}; calls=$((calls + 1)); return "$status"; }
+sleep() { sleeps=$((sleeps + 1)); }
+trap 'printf "calls=%s sleeps=%s\\n" "$calls" "$sleeps"' EXIT
+${loop}
+`;
+      const result = spawnSync(bash, ["--noprofile", "--norc", "-c", script], { encoding: "utf8" });
+      assert.ifError(result.error);
+      assert.equal(result.status, scenario.exit, result.stderr);
+      assert.equal(result.stdout.trim(), `calls=${scenario.calls} sleeps=${scenario.sleeps}`);
+    }
+  }
+});
 
 function artifact() {
   const createdAt = new Date().toISOString();

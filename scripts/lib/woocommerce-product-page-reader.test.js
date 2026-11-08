@@ -2,6 +2,7 @@ const assert = require("node:assert/strict");
 const test = require("node:test");
 const {
   WooCommerceSourceError,
+  isPermanentSourceError,
   extractProductOffer,
   extractProductName,
   extractVariationPayload,
@@ -193,6 +194,52 @@ function networkFailure(name, code, secret = "hidden-input-must-not-leak") {
     : underlying;
 }
 
+test("permanent source contract failures stop at the first read and retain actual diagnostics", async () => {
+  for (const code of ["SOURCE_SCHEMA_MISMATCH", "SOURCE_IDENTITY_DRIFT", "DUPLICATE_SOURCE_IDENTITY",
+    "SOURCE_REDIRECT_ERROR", "SOURCE_CONTENT_TYPE", "SOURCE_TOO_LARGE", "SOURCE_CONFIGURATION"]) {
+    let reads = 0, sleeps = 0;
+    const failure = new WooCommerceSourceError(code, "controlled contract failure");
+    assert.equal(isPermanentSourceError(failure), true);
+    await assert.rejects(readWooCommerceProductPage({ storeUrl: "https://shop.example.test", productId: "10",
+      maximumAttempts: 5, fetchImpl: async () => { reads += 1; return { status: 200,
+        url: "https://shop.example.test/product/example/", headers: { get: () => "text/html" },
+        text: async () => "<html></html>" }; },
+      parseProductPage: () => { throw failure; }, sleepImpl: async () => { sleeps += 1; },
+    }), (error) => error.code === code && error.detail.last_attempt === 1 && error.cause === failure);
+    assert.equal(reads, 1);
+    assert.equal(sleeps, 0);
+  }
+  assert.equal(isPermanentSourceError(Object.assign(new Error("untrusted"), { code: "SOURCE_SCHEMA_MISMATCH" })), false);
+  assert.equal(isPermanentSourceError(new WooCommerceSourceError("SOURCE_UNAVAILABLE", "unknown transport")), false);
+});
+
+test("transient source read can recover before the existing limit without changing parser guards", async () => {
+  let calls = 0;
+  const parsed = await readWooCommerceProductPage({ storeUrl: "https://shop.example.test", productId: "10",
+    maximumAttempts: 3, sleepImpl: async () => {}, fetchImpl: async () => {
+      if (++calls < 3) throw networkFailure("Error", "ECONNRESET");
+      return { status: 200, url: "https://shop.example.test/product/example/", headers: { get: () => "text/html" },
+        text: async () => `<form data-product_id="10">${productJsonLd()}</form>` };
+    },
+  });
+  assert.equal(calls, 3);
+  assert.equal(parsed.external_product_id, "10");
+});
+
+test("a permanent parser failure after a transient read stops with the actual second attempt", async () => {
+  let calls = 0, sleeps = 0;
+  await assert.rejects(readWooCommerceProductPage({ storeUrl: "https://shop.example.test", productId: "10",
+    maximumAttempts: 5, sleepImpl: async () => { sleeps += 1; }, fetchImpl: async () => {
+      if (++calls === 1) throw networkFailure("Error", "ECONNRESET");
+      return { status: 200, url: "https://shop.example.test/product/example/", headers: { get: () => "text/html" },
+        text: async () => "<form data-product_id=\"10\"></form>" };
+    },
+  }), (error) => error.code === "SOURCE_SCHEMA_MISMATCH" && error.detail.last_attempt === 2
+    && error.detail.network_code === null && error.detail.timeout === false);
+  assert.equal(calls, 2);
+  assert.equal(sleeps, 1);
+});
+
 for (const scenario of [
   { label: "timeout", name: "AbortError", code: "ABORT_ERR", timeout: true },
   { label: "DNS", name: "TypeError", code: "ENOTFOUND", timeout: false },
@@ -235,7 +282,7 @@ for (const scenario of [
   });
 }
 
-for (const status of [404, 429, 503]) {
+for (const status of [404, 429, 500, 502, 503, 504]) {
   test(`live reader preserves HTTP ${status} after bounded retries`, async () => {
     let calls = 0;
     await assert.rejects(

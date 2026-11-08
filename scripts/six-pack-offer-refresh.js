@@ -8,6 +8,7 @@ const { buildGuardEvidence, classifyExistingOffers } = require("./lib/retailer-o
 const { buildExistingOfferUpdatePlan } = require("./lib/retailer-offer-sync/existing-offer-plan");
 const {
   readWooCommerceProductPage,
+  isPermanentSourceError,
   sourceFailureDisposition,
   decodeHtmlEntities,
   parseWooCommerceProductPage,
@@ -91,10 +92,18 @@ function parseSixPackProductPage(html, options) {
     && Object.keys(value).length === attributes.size
     && [...attributes.keys()].every((name) => typeof value[name] === "string" && value[name].trim());
   const corroborateVariant = (row, wildcard = false) => {
-    if (!wildcard) schema(completeAttributes(payload.selected) && canonicalJson(row.attributes) === canonicalJson(payload.selected)
-      && payload.variations.filter((variant) => completeAttributes(variant?.attributes)
+    if (!wildcard) {
+      // Dropdowns may omit complete options beyond the selected default. Neither
+      // the selection nor a JSON-LD node alone establishes a variant's identity.
+      schema(completeAttributes(payload.selected) && payload.variations.filter((variant) =>
+        completeAttributes(variant?.attributes)
         && canonicalJson(variant.attributes) === canonicalJson(payload.selected)).length === 1,
-    "Undeclared 6 Pack option is not a unique explicit selection");
+      "6 Pack selected option is not a unique explicit selection");
+      schema(completeAttributes(row.attributes) && payload.variations.filter((variant) =>
+        completeAttributes(variant?.attributes)
+        && canonicalJson(variant.attributes) === canonicalJson(row.attributes)).length === 1,
+      "Undeclared 6 Pack option is not a unique explicit variant");
+    }
     let canonical;
     try { canonical = new URL(options.canonicalUrl); } catch { sourceFail("Invalid 6 Pack canonical URL"); }
     schema(canonical.origin === "https://6pack-supplements.co.uk" && /^\/product\/[^/]+\/$/.test(canonical.pathname)
@@ -113,10 +122,11 @@ function parseSixPackProductPage(html, options) {
     const parentId = `${canonical.href}#product`;
     const variantId = `${canonical.href}#variant-${row.id}`;
     const groups = nodes.filter((node) => hasType(node, "ProductGroup") && node["@id"] === parentId);
-    const products = nodes.filter((node) => hasType(node, "Product") && node["@id"] === variantId);
+    const products = nodes.filter((node) => hasType(node, "Product")
+      && (node["@id"] === variantId || node.sku === String(row.id)));
     schema(groups.length === 1 && groups[0].url === canonical.href && groups[0].name === productName
       && Array.isArray(groups[0].hasVariant) && products.length === 1
-      && groups[0].hasVariant.includes(products[0])
+      && groups[0].hasVariant.includes(products[0]) && products[0]["@id"] === variantId
       && (!wildcard || groups[0].hasVariant.length === payload.variations.length), "Selected 6 Pack variant JSON-LD identity is ambiguous or unbound");
     const product = products[0];
     const concreteAttributeCount = Object.values(row.attributes).filter((value) => value !== "").length;
@@ -160,7 +170,7 @@ function parseSixPackProductPage(html, options) {
       wildcardVariations.push(id);
       wildcards.forEach((name) => wildcardAttributes.add(name));
     }
-    // The new theme omits the selected default from its dropdown. Require exact same-page JSON-LD corroboration.
+    // The theme can omit complete variants from dropdowns. Require exact same-page corroboration.
     if (![...attributes].every(([name, values]) => row.attributes[name] === "" || values.has(row.attributes[name]))) corroborateVariant(row);
     const combination = canonicalJson(row.attributes);
     if (combinations.has(combination)) sourceFail("Duplicate 6 Pack variation options", "DUPLICATE_SOURCE_IDENTITY");
@@ -1107,7 +1117,8 @@ if (require.main === module) {
     .then(({ report }) => console.log(JSON.stringify(report, null, 2)))
     .catch((error) => {
       console.error(`${error.code || "ERROR"}: ${error.message}`);
-      process.exitCode = 1;
+      // Exit 2 stops only source-read retry loops, never an executor or replay.
+      process.exitCode = isPermanentSourceError(error) ? 2 : 1;
     });
 }
 
