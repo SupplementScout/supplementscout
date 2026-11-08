@@ -19,6 +19,158 @@ const {
 
 const ROOT = path.resolve(__dirname, "..");
 
+const unbuyableHtml = fs.readFileSync(path.join(__dirname, "test-fixtures/six-pack-theme-unbuyable-parent.html"), "utf8");
+const unbuyableUrl = "https://6pack-supplements.co.uk/product/skull-labs-angel-dust-pump-pre-workout-fruit-killer-flavor/";
+const unbuyableName = "Skull Labs Angel Dust PUMP Pre-Workout";
+const unbuyableReason = "UNBUYABLE_PARENT_VARIANTS_UNRESOLVED";
+function unbuyableFixture() {
+  const source = fixture();
+  for (const record of source.state.records.filter((r) => r.mapping.external_product_id === "28570")) {
+    record.mapping.external_name = unbuyableName;
+    record.mapping.external_url = unbuyableUrl;
+  }
+  return source;
+}
+function unbuyableRead(html = unbuyableHtml, response = {}) {
+  return (id, context) => readWooCommerceProductPage({ storeUrl: "https://6pack-supplements.co.uk", productId: id,
+    capturedAt: context.capturedAt, maximumAttempts: 5, sleepImpl: async () => {}, parseProductPage: parseSixPackProductPage,
+    fetchImpl: async () => ({ status: 200, url: unbuyableUrl, headers: { get: () => "text/html" },
+      text: async () => html, ...response }),
+  });
+}
+
+test("complete unavailable parent is manifest-bound review evidence, never child price/stock evidence", async () => {
+  const source = unbuyableFixture(), capturedAt = new Date().toISOString();
+  let failure;
+  try { await unbuyableRead()("28570", { capturedAt }); } catch (error) { failure = error; }
+  assert.equal(failure.code, "SOURCE_SCHEMA_MISMATCH");
+  assert.equal(failure.detail.last_attempt, 1);
+  assert.equal(failure.cause.detail.reason_code, unbuyableReason);
+  const disposition = approvedSourceFailureDisposition(failure, "28570", loadApprovedManifest(), capturedAt, source.state.records);
+  assert.equal(disposition.scope, "PRODUCT");
+  assert.deepEqual(disposition.approved_variation_ids, ["29091", "29094", "29097"]);
+  assert.equal(disposition.reason, unbuyableReason);
+  assert.equal(disposition.source_document.html, unbuyableHtml);
+  assert.equal(disposition.source_document.html_sha256, crypto.createHash("sha256").update(unbuyableHtml).digest("hex"));
+  assert.equal(disposition.source_document.html_bytes, Buffer.byteLength(unbuyableHtml));
+  assert.equal(disposition.source_document.captured_at, capturedAt);
+  assert.equal(failure.cause.detail.price, undefined);
+  assert.equal(failure.cause.detail.in_stock, undefined);
+});
+
+const unbuyableNegatives = [
+  ["random HTTP 200 page", () => "<!doctype html><html><head></head><body>Not available to buy online</body></html>"],
+  ["empty response", () => ""],
+  ["infrastructure error", () => "<!doctype html><html><head></head><body><h1>Bad Gateway</h1></body></html>"],
+  ["wrong product ID", (h) => h.replace("postid-28570", "postid-99999")],
+  ["wrong product container", (h) => h.replace('id="product-28570"', 'id="product-99999"')],
+  ["wrong heading", (h) => h.replace(/(<h1\b[^>]*>)[\s\S]*?<\/h1>/, "$1Other Product</h1>")],
+  ["consistent page but wrong approved name", (h) => h.replaceAll(unbuyableName, "Other Product")],
+  ["incomplete document", (h) => h.replace("</body></html>", "")],
+  ["missing main close", (h) => h.replace("</main>", "")],
+  ["unknown variation IDs", (h) => h.replace("</head>", '<script type="application/json" id="other-variants">{"variation_id":99999}</script></head>')],
+  ["alternative payload", (h) => h.replace("</head>", '<script type="application/json" id="product-variations">{"variations":[]}</script></head>')],
+  ["broken variation payload", (h) => h.replace("</head>", '<script type="application/json" id="product-variations">{</script></head>')],
+  ["broken JSON-LD", (h) => h.replace(/(<script type="application\/ld\+json">)[\s\S]*?<\/script>/, "$1{</script>")],
+  ["conflicting price metadata", (h) => h.replace("55.00", "54.00")],
+  ["conflicting body stock", (h) => h.replace('first outofstock', 'first instock')],
+  ["conflicting stock metadata", (h) => h.replace('content="Out of stock"', 'content="In stock"')],
+  ["conflicting stock label", (h) => h.replace('>Out of stock</p>', '>In stock</p>')],
+  ["unknown structure", (h) => h.replace('id="main"', 'id="unknown-main"')],
+  ["changed stock structure", (h) => h.replace("data-product-stock", "data-new-stock")],
+  ["notice only in a comment", (h) => h.replace("Not available to buy online", "<!-- Not available to buy online -->")],
+  ["missing notice", (h) => h.replace("Not available to buy online", "Available soon")],
+  ["foreign canonical", (h) => h.replace('<link rel="canonical" href="https://6pack-supplements.co.uk/', '<link rel="canonical" href="https://other.example/')],
+  ["purchase form", (h) => h.replace("Not available to buy online</p>", 'Not available to buy online</p><form><button type="submit">Buy</button></form>')],
+  ["contradictory structured offer", (h) => h.replace('"@type":"ItemPage"', '"offers":{"price":"99.99"},"@type":"ItemPage"')],
+  ["unknown JSON data", (h) => h.replace("</head>", '<script type="application/json" id="unknown-data">{}</script></head>')],
+  ["unknown variant attribute", (h) => h.replace("</main>", '<div data-variant-id="99999"></div></main>')],
+  ["unknown variant JSON in allowed container", (h) => h.replace("</head>", '<script type="application/json" id="sixpack-wishlist">{"variants":[99999]}</script></head>')],
+  ["contradictory price meta", (h) => h.replace("</head>", '<meta property="product:price:amount" content="99.99"></head>')],
+  ["contradictory stock outside hero", (h) => h.replace("</main>", '<div data-product-stock>In stock</div></main>')],
+  ["unexpected section", (h) => h.replace("</main>", '<section>Unknown structure</section></main>')],
+  ["data-id is not main identity", (h) => h.replace('id="main"', 'data-id="main"')],
+  ["duplicate main identity attribute", (h) => h.replace('id="main"', 'id="main" id="other"')],
+  ["unknown nested schema", (h) => h.replace('"@type":"ItemPage"', '"extra":{"@type":"ProductVariant"},"@type":"ItemPage"')],
+  ["unquoted alternative variation data", (h) => h.replace("</head>", '<script>window.variants = [{id:99999}];</script></head>')],
+  ["mismatched identity quotes", (h) => h.replace('id="main"', "id=\"main'")],
+  ["alternative structured price value", (h) => h.replace('"@type":"ItemPage"', '"extra":{"@type":["PropertyValue"],"name":"price","value":"99.99"},"@type":"ItemPage"')],
+];
+for (const [label, change] of unbuyableNegatives) {
+  test(`unbuyable parent keeps retailer BLOCK for ${label}`, async () => {
+    const source = unbuyableFixture(), output = paths(), before = structuredClone(source.state);
+    await assert.rejects(run({ target: "production", ...output, isolateUnsafe: true }, {
+      state: source.state, readLive: (id, context) => id === "28570" ? unbuyableRead(change(unbuyableHtml))(id, context)
+        : source.byProduct.get(id),
+    }));
+    const report = JSON.parse(fs.readFileSync(output.report, "utf8"));
+    assert.equal(report.result, "BLOCK");
+    assert.equal(report.blocked_row_count, 506);
+    assert.equal(report.executable_plan_count, 0);
+    assert.equal(report.review_row_count, 0);
+    assert.equal(report.database_writes, 0);
+    assert.equal(fs.existsSync(output.artifact), false);
+    assert.deepEqual(source.state, before);
+  });
+}
+
+test("unbuyable review rejects stale/corrupt provenance and any incomplete approved-child/name binding", async () => {
+  const source = unbuyableFixture(), capturedAt = new Date().toISOString(), approved = loadApprovedManifest();
+  let failure;
+  try { await unbuyableRead()("28570", { capturedAt }); } catch (error) { failure = error; }
+  const original = structuredClone(failure.cause.detail);
+  for (const change of [
+    (d) => { d.reason_code = "UNKNOWN"; }, (d) => { d.product_id = "99999"; },
+    (d) => { d.source_document.captured_at = "2026-01-01T00:00:00Z"; },
+    (d) => { d.source_document.html_sha256 = "0".repeat(64); },
+    (d) => { d.source_document.html_bytes += 1; }, (d) => { d.source_document.body_complete = false; },
+    (d) => { d.source_document.http_status = 503; },
+    (d) => { d.source_document.response_url = "https://other.example/product/"; },
+    (d) => { d.source_document.request_url = "https://other.example/?p=28570"; },
+    (d) => { d.product_name = "Other Product"; },
+  ]) {
+    failure.cause.detail = structuredClone(original); change(failure.cause.detail);
+    assert.equal(approvedSourceFailureDisposition(failure, "28570", approved, capturedAt, source.state.records).scope, "RETAILER");
+  }
+  failure.cause.detail = original;
+  for (const change of [
+    (records) => records.splice(records.findIndex((r) => r.mapping.external_variant_id === "29091"), 1),
+    (records) => { records.find((r) => r.mapping.external_variant_id === "29091").mapping.external_name = "Other Product"; },
+    (records) => { records.find((r) => r.mapping.external_variant_id === "29091").variant.id = 99999; },
+    (records) => { records.find((r) => r.mapping.external_variant_id === "29091").mapping.external_variant_id = "99999"; },
+  ]) {
+    const records = structuredClone(source.state.records); change(records);
+    assert.equal(approvedSourceFailureDisposition(failure, "28570", approved, capturedAt, records).scope, "RETAILER");
+  }
+  const forged = structuredClone(approved); forged.manifest.rows = forged.manifest.rows.filter((r) => r.external_variant_id !== "29091");
+  assert.equal(approvedSourceFailureDisposition(failure, "28570", forged, capturedAt,
+    source.state.records.filter((r) => r.mapping.external_variant_id !== "29091")).scope, "RETAILER");
+  for (const response of [{ url: "https://6pack-supplements.co.uk/" }, { url: "https://other.example/product/" },
+    { status: 503 }, { headers: { get: () => "application/json" } },
+    { text: async () => { throw Object.assign(new Error("transport"), { code: "ECONNRESET" }); } }]) {
+    await assert.rejects(unbuyableRead(unbuyableHtml, response)("28570", { capturedAt }));
+  }
+});
+
+test("unbuyable parent qualification is generic for another existing approved parent and all its children", async () => {
+  const source = fixture(), capturedAt = new Date().toISOString(), parent = "6582", name = "Generic Unavailable Parent";
+  const url = omittedOptions.canonicalUrl;
+  const html = unbuyableHtml.replaceAll("28570", parent).replaceAll(unbuyableUrl, url).replaceAll(unbuyableName, name);
+  for (const record of source.state.records.filter((r) => r.mapping.external_product_id === parent)) {
+    record.mapping.external_name = name; record.mapping.external_url = url;
+  }
+  let failure;
+  try { await unbuyableRead(html, { url })(parent, { capturedAt }); } catch (error) { failure = error; }
+  const disposition = approvedSourceFailureDisposition(failure, parent, loadApprovedManifest(), capturedAt, source.state.records);
+  assert.equal(disposition.scope, "PRODUCT");
+  assert.equal(disposition.reason, unbuyableReason);
+  assert.deepEqual(disposition.approved_variation_ids, ["6583", "6584", "6585", "6586", "6587"]);
+  await assert.rejects(run({ target: "production", ...paths(), isolateUnsafe: false }, {
+    state: source.state, readLive: (id, context) => id === parent ? unbuyableRead(html, { url })(id, context)
+      : source.byProduct.get(id),
+  }), { code: "SOURCE_SCHEMA_MISMATCH" });
+});
+
 const omittedHtml = fs.readFileSync(path.join(__dirname, "test-fixtures/six-pack-theme-product-6582.html"), "utf8");
 const omittedOptions = { productId: "6582", canonicalUrl: "https://6pack-supplements.co.uk/product/cream-of-rice-2kg-nxt/" };
 function changeOmittedHtml(changePayload = () => {}, changeGroup = () => {}) {
@@ -607,8 +759,11 @@ test("captured complete omitted variants flow through full approved-scope classi
   assert.deepEqual(source.state, before);
 });
 
-test("complete approved wildcard product uses existing isolation: 506 = 499 executable + 7 unchanged review", async () => {
-  const source = fixture();
+for (const includeUnbuyable of [false, true]) test(includeUnbuyable
+  ? "complete offline scope: 506 = 496 executable + 10 unchanged Warrior/unbuyable review"
+  : "complete approved wildcard product uses existing isolation: 506 = 499 executable + 7 unchanged review", async () => {
+  const source = includeUnbuyable ? unbuyableFixture() : fixture();
+  const executableCount = includeUnbuyable ? 496 : 499, reviewCount = includeUnbuyable ? 10 : 7;
   for (const record of source.state.records.filter((row) => row.mapping.external_product_id === "2769")) {
     const binding = approvedWarriorBindings.find(([id]) => id === record.mapping.external_variant_id);
     record.mapping.external_options = { Pack: "12", Flavour: binding[4] };
@@ -618,37 +773,52 @@ test("complete approved wildcard product uses existing isolation: 506 = 499 exec
   const output = paths();
   const result = await run({ target: "production", ...output, isolateUnsafe: true }, {
     state: source.state,
-    readLive: async (id, context) => String(id) === "2769"
-      ? wildcardRead()(id, context) : source.byProduct.get(String(id)),
+    readLive: async (id, context) => String(id) === "2769" ? wildcardRead()(id, context)
+      : includeUnbuyable && String(id) === "28570" ? unbuyableRead()(id, context) : source.byProduct.get(String(id)),
   });
   assert.equal(result.report.result, "PASS_WITH_REVIEW");
   assert.equal(result.report.approved_mapping_count, 506);
-  assert.equal(result.report.executable_plan_count, 499);
-  assert.equal(result.report.review_row_count, 7);
+  assert.equal(result.report.executable_plan_count, executableCount);
+  assert.equal(result.report.review_row_count, reviewCount);
   assert.equal(result.report.blocked_row_count, 0);
   assert.equal(result.report.attempted_product_page_count, 279);
-  assert.equal(result.report.source_failure_count, 1);
+  assert.equal(result.report.source_failure_count, includeUnbuyable ? 2 : 1);
   assert.equal(result.report.database_writes, 0);
-  const failure = result.report.source_failures[0];
+  assert.equal(result.report.executed_plan_count, 0);
+  const failure = result.report.source_failures.find((row) => row.product_id === "2769");
   assert.equal(failure.disposition, wildcardIssue.reason_code);
   assert.equal(failure.manifest_sha256, result.report.manifest_sha256);
   assert.deepEqual(failure.approved_variation_ids, wildcardIssue.variation_ids);
   assert.equal(failure.source_document.html, completeWildcardHtml);
   assert.equal(failure.source_document.html_sha256, crypto.createHash("sha256").update(completeWildcardHtml).digest("hex"));
-  const reviewedIds = new Set(approvedWarriorBindings.map(([, id]) => id));
+  if (includeUnbuyable) {
+    const retained = JSON.parse(fs.readFileSync(output.report, "utf8")).source_failures
+      .filter((row) => row.product_id === "28570");
+    assert.equal(retained.length, 1);
+    assert.equal(retained[0].disposition, unbuyableReason);
+    assert.deepEqual(retained[0].approved_variation_ids, ["29091", "29094", "29097"]);
+    assert.equal(retained[0].manifest_sha256, result.report.manifest_sha256);
+    assert.equal(retained[0].source_document.html, unbuyableHtml);
+    assert.equal(retained[0].source_document.captured_at, result.report.source_captured_at);
+    assert.equal(retained[0].source_document.html_bytes, Buffer.byteLength(unbuyableHtml));
+    assert.equal(retained[0].source_document.html_sha256, crypto.createHash("sha256").update(unbuyableHtml).digest("hex"));
+  }
+  const reviewedIds = new Set([...approvedWarriorBindings.map(([, id]) => id),
+    ...(includeUnbuyable ? ["2427", "2428", "2429"] : [])]);
   assert.deepEqual(result.report.review_rows.map((row) => row.offer_id), [...reviewedIds]);
   for (const row of result.report.review_rows) {
     assert.equal(row.proposed_offer, null);
     assert.equal(row.changed_fields.price, false);
     assert.equal(row.changed_fields.stock, false);
-    assert.equal(row.source_failure.disposition, wildcardIssue.reason_code);
+    assert.equal(row.source_failure.disposition, row.external_product_id === "28570" ? unbuyableReason : wildcardIssue.reason_code);
     assert.equal(row.source_failure.source_document.html, undefined);
   }
   const artifact = loadDryRunArtifact(output.artifact).artifact;
-  assert.equal(artifact.plans.length, 499);
+  assert.equal(artifact.plans.length, executableCount);
   assert.doesNotThrow(() => require("./six-pack-offer-refresh-executor").validateArtifactScope(artifact, manifest));
   assert.ok(artifact.plans.every((row) => !reviewedIds.has(String(row.resolved_plan.offer.id))));
   assert.ok(artifact.source_rows.every((row) => row.normalized_source_row.source.external_product_id !== "2769"));
+  if (includeUnbuyable) assert.ok(artifact.source_rows.every((row) => row.normalized_source_row.source.external_product_id !== "28570"));
   assert.deepEqual(source.state, before);
 
   const { baselineHash, verifyPostflight } = require("./retailer-offer-refresh-postflight");
@@ -665,7 +835,7 @@ test("complete approved wildcard product uses existing isolation: 506 = 499 exec
   baseline.evidence_hash = baselineHash(baseline);
   const after = structuredClone(snapshot);
   for (const row of after.rows) if (!reviewedIds.has(row.offer_id)) row.last_checked_at = result.report.source_captured_at;
-  const execution = { ...result.report, executed_plan_count: 499,
+  const execution = { ...result.report, executed_plan_count: executableCount,
     execution_offer_ids: artifact.plans.map((row) => String(row.resolved_plan.offer.id)) };
   assert.equal(verifyPostflight(baseline, after, execution).result, "PASS");
   for (const [field, value] of [["last_checked_at", result.report.source_captured_at], ["price", "1.99"], ["in_stock", false]]) {
@@ -678,10 +848,10 @@ test("complete approved wildcard product uses existing isolation: 506 = 499 exec
   }
   const second = await run({ target: "production", ...paths(), isolateUnsafe: true }, {
     state: source.state,
-    readLive: async (id, context) => String(id) === "2769"
-      ? wildcardRead()(id, context) : source.byProduct.get(String(id)),
+    readLive: async (id, context) => String(id) === "2769" ? wildcardRead()(id, context)
+      : includeUnbuyable && String(id) === "28570" ? unbuyableRead()(id, context) : source.byProduct.get(String(id)),
   });
-  assert.deepEqual(second.report.action_counts, { VERIFY_NO_CHANGE: 499 });
+  assert.deepEqual(second.report.action_counts, { VERIFY_NO_CHANGE: executableCount });
   assert.deepEqual(second.report.review_rows.map((row) => row.offer_id), [...reviewedIds]);
   assert.equal(second.report.database_writes, 0);
 
@@ -693,13 +863,16 @@ test("complete approved wildcard product uses existing isolation: 506 = 499 exec
   const baselineByOffer = new Map(snapshot.rows.map((row) => [row.offer_id, row]));
   const partition = profile.validate(profile, { report: result.report, baselineByOffer,
     files: { artifact: output.artifact }, invariant: assert.ok, sortedIds: (ids) => [...new Set(ids.map(String))].sort((a, b) => Number(a) - Number(b)) });
-  assert.equal(partition.executableCount, 499);
-  assert.equal(partition.changedRows.length, 7);
+  assert.equal(partition.executableCount, executableCount);
+  assert.equal(partition.changedRows.length, reviewCount);
   profile.validateChangedRows(profile, partition.changedRows, assert.ok);
   for (const changed of partition.changedRows) {
     const card = profile.reviewCard({}, changed);
     assert.equal(card.sourcePrice, null);
-    assert.equal(card.evidenceReason, wildcardIssue.reason_code);
+    assert.equal(card.evidenceReason, changed.external_product_id === "28570" ? unbuyableReason : wildcardIssue.reason_code);
+    assert.equal(card.proposedState.price, undefined);
+    assert.equal(card.proposedState.in_stock, undefined);
+    assert.equal(card.proposedState.last_checked_at, undefined);
     assert.equal(card.operationType, "MANUAL_REVIEW_IDENTITY");
     assert.equal(card.proposedState.automatic_action, false);
   }

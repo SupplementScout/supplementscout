@@ -42,10 +42,121 @@ function canonicalHash(value) {
   return sha256(canonicalJson(value));
 }
 
+const UNBUYABLE_PARENT_REASON = "UNBUYABLE_PARENT_VARIANTS_UNRESOLVED";
+
+function capturedSourceDocument(html, options, variationIds) {
+  if (!options.sourceDocument) return null;
+  const source = options.sourceDocument;
+  return { request_url: source.request_url, response_url: source.response_url,
+    http_status: source.http_status, content_type: source.content_type,
+    body_complete: source.body_complete, html_sha256: source.html_sha256, html_bytes: source.html_bytes,
+    product_id: String(options.productId),
+    canonical_url: String(options.canonicalUrl), captured_at: options.capturedAt,
+    ...(variationIds ? { variation_ids: variationIds } : {}), html: String(html) };
+}
+
+// Recognize only the retained unavailable-parent template. A parent display
+// price/stock is consistency evidence, never a commercial fact for a child.
+function unbuyableParentName(html, options) {
+  const attr = (tag, name) => {
+    const entries = [...tag.matchAll(new RegExp(`(?:^|\\s)${name}=(["'])([^"']*)\\1`, "gi"))];
+    return entries.length === 1 ? entries[0][2] : undefined;
+  };
+  const text = (value) => decodeHtmlEntities(value.replace(/<[^>]*>/g, " "))
+    .replace(/&pound;/gi, "£").replace(/\s+/g, " ").trim();
+  try {
+    const canonical = new URL(options.canonicalUrl), id = String(options.productId);
+    if (canonical.origin !== config.retailer.website || canonical.search || canonical.hash
+      || canonical.username || canonical.password || !/^\/product\/[^/]+\/$/.test(canonical.pathname)) return null;
+    const clean = html.replace(/<!--[\s\S]*?-->/g, "");
+    for (const tag of ["html", "head", "body", "main"]) {
+      if ([...clean.matchAll(new RegExp(`<${tag}(?:\\s|>)`, "gi"))].length !== 1
+        || [...clean.matchAll(new RegExp(`</${tag}\\s*>`, "gi"))].length !== 1) return null;
+    }
+    if (!/^\s*<!doctype html>/i.test(clean) || !/<\/body\s*>\s*<\/html\s*>\s*$/i.test(clean)) return null;
+    const body = clean.match(/<body\b[^>]*>/i)[0], main = clean.match(/<main\b([^>]*)>([\s\S]*?)<\/main>/i);
+    if (attr(main[0].slice(0, main[0].indexOf(">") + 1), "id") !== "main"
+      || canonicalJson(attr(body, "class")?.match(/\bpostid-\d+\b/g)) !== canonicalJson([`postid-${id}`])
+      || productIdFromHtml(clean) !== id) return null;
+    const productTags = [...main[2].matchAll(/<div\b[^>]*\bid=["']product-\d+["'][^>]*>/gi)];
+    if (productTags.length !== 1 || attr(productTags[0][0], "id") !== `product-${id}`
+      || !/\bproduct-type-variable\b/.test(attr(productTags[0][0], "class"))
+      || !/\boutofstock\b/.test(attr(productTags[0][0], "class"))
+      || /\binstock\b/.test(attr(productTags[0][0], "class"))) return null;
+    const head = clean.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)[1];
+    const links = [...head.matchAll(/<link\b[^>]*>/gi)].filter((m) => attr(m[0], "rel") === "canonical");
+    if (links.length !== 1 || attr(links[0][0], "href") !== canonical.href) return null;
+    const meta = (name) => [...head.matchAll(/<meta\b[^>]*>/gi)].filter((m) => attr(m[0], "name") === name);
+    const metaValue = (name) => { const entries = meta(name); return entries.length === 1 ? text(attr(entries[0][0], "content") || "") : null; };
+    const sections = [...main[2].matchAll(/<section\b([^>]*)>([\s\S]*?)<\/section>/gi)], hero = sections[0];
+    const headings = [...main[2].matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)];
+    if (sections.length !== 2 || !/\bcontainer-page\b/.test(hero[1]) || !/\bgrid\b/.test(hero[1])
+      || headings.length !== 1 || !hero[2].includes(headings[0][0])
+      || !/\bdata-source-summary(?:\s|>)/.test(hero[2])
+      || !/aria-labelledby=["']source-description-title["']/.test(sections[1][1])) return null;
+    const name = text(headings[0][1]);
+    const stock = [...hero[2].matchAll(/<div data-product-stock>\s*<p\b[^>]*>([\s\S]*?)<\/p>\s*<\/div>\s*<p\b[^>]*>([^<]*)<\/p>/g)];
+    const priceAt = hero[2].indexOf("<div data-product-price>");
+    const priceHtml = hero[2].slice(priceAt, stock[0]?.index);
+    const prices = [...priceHtml.matchAll(/<bdi>([\s\S]*?)<\/bdi>/g)];
+    if (!name || stock.length !== 1 || text(stock[0][1]) !== "Out of stock"
+      || text(stock[0][2]) !== "Not available to buy online" || priceAt < 0
+      || [...main[2].matchAll(/data-product-price/g)].length !== 1
+      || [...main[2].matchAll(/data-product-stock/g)].length !== 1
+      || prices.length !== 1 || !/^£\d+\.\d{2}$/.test(text(prices[0][1]).replace(/\s/g, ""))
+      || metaValue("twitter:data1") !== text(prices[0][1]).replace(/\s/g, "")
+      || metaValue("twitter:data2") !== "Out of stock"
+      || /<(?:form|select|input)\b|type=["']submit|add-to-cart|data-product[_-]id|\battribute_|itemprop=["'](?:price|availability)/i.test(main[2])
+      || /<meta\b[^>]*(?:name|property)=["'](?:product:|og:price|price|availability)/i.test(clean)) return null;
+    // Reject alternative or broken payloads, including data outside the hero.
+    if (/product-variations|data-product[_-]variations|buyBox\(|data-vari(?:ation|ant)[_-]id|["'](?:variation|variant)_ids?["']\s*:|["'](?:variations|variants)["']\s*:|\b(?:variations|variants|variation_id|variant_id)\s*[:=]/i.test(clean)) return null;
+    const graphs = [];
+    for (const m of clean.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)) {
+      const type = attr(m[1], "type");
+      if (type === "application/ld+json") graphs.push(JSON.parse(m[2]));
+      if (type === "application/json") {
+        if (!["sixpack-store-api", "sixpack-wishlist", "sixpack-rewards"].includes(attr(m[1], "id"))) return null;
+        JSON.parse(m[2]);
+      }
+    }
+    if (graphs.length !== 1 || !Array.isArray(graphs[0]["@graph"]) || graphs[0]["@graph"].length !== 5) return null;
+    const nodes = [];
+    const visit = (v) => { if (!v || typeof v !== "object") return; if (!Array.isArray(v)) nodes.push(v); Object.values(v).forEach(visit); };
+    visit(graphs[0]);
+    const nonCommercialTypes = ["Organization", "OnlineStore", "Store", "WebSite", "ItemPage", "BreadcrumbList",
+      "ImageObject", "PostalAddress", "PropertyValue", "GeoCoordinates", "OpeningHoursSpecification", "SearchAction", "EntryPoint", "ListItem"];
+    if (nodes.some((n) => Object.keys(n).some((k) => /^(?:offers|hasVariant|sku|productId|price|priceCurrency|availability|variations?|variants?|variation_id|variant_id)$/i.test(k))
+      || ([n["@type"]].flat().includes("PropertyValue") && n.propertyID !== "Companies House")
+      || (n["@type"] !== undefined && [n["@type"]].flat().some((t) => !nonCommercialTypes.includes(t))))) return null;
+    const graph = graphs[0]["@graph"], find = (type) => graph.filter((n) => [n["@type"]].flat().includes(type));
+    if (["Organization", "Store", "WebSite", "ItemPage", "BreadcrumbList"].some((type) => find(type).length !== 1)) return null;
+    const page = find("ItemPage")[0], breadcrumb = find("BreadcrumbList")[0], items = breadcrumb.itemListElement;
+    if (page["@id"] !== canonical.href + "#webpage" || page.url !== canonical.href || page.name !== name
+      || page.mainEntity !== undefined || page.isPartOf?.["@id"] !== canonical.origin + "/#website"
+      || page.breadcrumb?.["@id"] !== canonical.href + "#breadcrumb"
+      || breadcrumb["@id"] !== canonical.href + "#breadcrumb" || !Array.isArray(items) || !items.length
+      || items.some((item, i) => item.position !== i + 1)
+      || items.at(-1).name !== name || items.at(-1).item !== canonical.href) return null;
+    return name;
+  } catch { return null; }
+}
+
 function parseSixPackProductPage(html, options) {
   const scripts = [...String(html).matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
     .filter((match) => /(?:^|\s)id\s*=\s*["']product-variations["']/i.test(match[1]));
-  if (!scripts.length) return parseWooCommerceProductPage(html, options);
+  if (!scripts.length) {
+    try { return parseWooCommerceProductPage(html, options); }
+    catch (error) {
+      const name = error instanceof WooCommerceSourceError && error.code === "SOURCE_SCHEMA_MISMATCH"
+        && error.message === "Expected one matching Product JSON-LD block, found 0"
+        && options.sourceDocument && unbuyableParentName(String(html), options);
+      if (!name) throw error;
+      throw new WooCommerceSourceError("SOURCE_SCHEMA_MISMATCH", "6 Pack unavailable parent has no variant commercial data", {
+        reason_code: UNBUYABLE_PARENT_REASON, product_id: String(options.productId), product_name: name,
+        source_document: capturedSourceDocument(html, options),
+      });
+    }
+  }
   const sourceFail = (message, code = "SOURCE_SCHEMA_MISMATCH", detail = {}) => {
     throw new WooCommerceSourceError(code, message, detail);
   };
@@ -197,14 +308,8 @@ function parseSixPackProductPage(html, options) {
         product_id: productId,
         variation_ids: wildcardVariations,
         wildcard_attributes: [...wildcardAttributes],
-        ...(options.sourceDocument ? { source_document: {
-          request_url: options.sourceDocument.request_url, response_url: options.sourceDocument.response_url,
-          http_status: options.sourceDocument.http_status, content_type: options.sourceDocument.content_type,
-          body_complete: options.sourceDocument.body_complete, html_sha256: options.sourceDocument.html_sha256,
-          html_bytes: options.sourceDocument.html_bytes, product_id: productId,
-          canonical_url: String(options.canonicalUrl), captured_at: options.capturedAt,
-          variation_ids: variations.map((row) => row.external_variant_id), html: String(html),
-        } } : {}),
+        ...(options.sourceDocument ? { source_document: capturedSourceDocument(html, options,
+          variations.map((row) => row.external_variant_id)) } : {}),
       });
   }
   return {
@@ -723,28 +828,34 @@ function sourceErrorEvidence(error, productId) {
   return evidence;
 }
 
-function wildcardSourceIssue(error, productId) {
-  // The bounded reader wraps parser errors. Accept only our product-bound,
-  // typed reason, never arbitrary source/error content.
+function productSourceIssue(error, productId, reason, accepts) {
+  // One typed cause-chain contract for the existing product-isolation path.
   for (let cause = error, depth = 0; cause && depth < 8; cause = cause.cause, depth += 1) {
     const issue = cause.detail;
     if (cause instanceof WooCommerceSourceError && cause.code === "SOURCE_SCHEMA_MISMATCH"
-      && issue?.reason_code === "WILDCARD_COMMERCIAL_UNIT_UNRESOLVED"
-      && issue.product_id === String(productId)
-      && Array.isArray(issue.variation_ids) && issue.variation_ids.length > 0
-      && issue.variation_ids.every((id) => typeof id === "string" && /^[1-9]\d*$/.test(id))
-      && Array.isArray(issue.wildcard_attributes) && issue.wildcard_attributes.length > 0
-      && issue.wildcard_attributes.every((name) => typeof name === "string" && /^attribute_[a-z0-9_-]+$/.test(name))) {
-      return issue;
-    }
+      && issue?.reason_code === reason && issue.product_id === String(productId) && accepts(issue)) return issue;
   }
   return null;
 }
 
-function approvedSourceFailureDisposition(error, productId, approved, capturedAt) {
+function wildcardSourceIssue(error, productId) {
+  return productSourceIssue(error, productId, "WILDCARD_COMMERCIAL_UNIT_UNRESOLVED", (issue) =>
+    Array.isArray(issue.variation_ids) && issue.variation_ids.length > 0
+    && issue.variation_ids.every((id) => typeof id === "string" && /^[1-9]\d*$/.test(id))
+    && Array.isArray(issue.wildcard_attributes) && issue.wildcard_attributes.length > 0
+    && issue.wildcard_attributes.every((name) => typeof name === "string" && /^attribute_[a-z0-9_-]+$/.test(name)));
+}
+
+function unbuyableSourceIssue(error, productId) {
+  return productSourceIssue(error, productId, UNBUYABLE_PARENT_REASON,
+    (issue) => typeof issue.product_name === "string" && issue.product_name.trim());
+}
+
+function approvedSourceFailureDisposition(error, productId, approved, capturedAt, records = []) {
   const ordinary = sourceFailureDisposition(error, productId);
   if (ordinary.scope === "PRODUCT") return ordinary;
-  const issue = wildcardSourceIssue(error, productId), document = issue?.source_document;
+  const wildcard = wildcardSourceIssue(error, productId);
+  const issue = wildcard || unbuyableSourceIssue(error, productId), document = issue?.source_document;
   const transport = error?.detail;
   if (approved.sha256 !== config.automation.manifest_sha256
     || !(error instanceof WooCommerceSourceError) || error.code !== "SOURCE_SCHEMA_MISMATCH"
@@ -758,8 +869,7 @@ function approvedSourceFailureDisposition(error, productId, approved, capturedAt
     || typeof document.content_type !== "string" || !document.content_type.startsWith("text/html")
     || typeof document.html !== "string" || !/<html(?:\s|>)/i.test(document.html)
     || !/<\/body\s*>\s*<\/html\s*>\s*$/i.test(document.html)
-    || document.html_bytes !== Buffer.byteLength(document.html) || document.html_sha256 !== sha256(document.html)
-    || canonicalJson(issue.wildcard_attributes) !== canonicalJson(["attribute_size"])) return ordinary;
+    || document.html_bytes !== Buffer.byteLength(document.html) || document.html_sha256 !== sha256(document.html)) return ordinary;
   let request;
   try { request = new URL(document.request_url); } catch { return ordinary; }
   if (request.origin !== config.retailer.website || request.username || request.password || request.hash
@@ -768,10 +878,28 @@ function approvedSourceFailureDisposition(error, productId, approved, capturedAt
   const rows = approved.manifest.rows.filter((row) => row.external_product_id === String(productId));
   const expected = rows.map((row) => row.external_variant_id).sort();
   if (!expected.length || expected.includes(String(productId))
-    || canonicalJson([...issue.variation_ids].sort()) !== canonicalJson(expected)
-    || !Array.isArray(document.variation_ids) || canonicalJson([...document.variation_ids].sort()) !== canonicalJson(expected)
     || approved.manifest.rows.some((row) => row.external_product_id !== String(productId)
       && rows.some((isolated) => isolated.canonical_variant_id === row.canonical_variant_id))) return ordinary;
+  if (wildcard) {
+    // Preserve the exact #504 qualification; no additional wildcard shape is accepted.
+    if (canonicalJson(issue.wildcard_attributes) !== canonicalJson(["attribute_size"])
+      || canonicalJson([...issue.variation_ids].sort()) !== canonicalJson(expected)
+      || !Array.isArray(document.variation_ids)
+      || canonicalJson([...document.variation_ids].sort()) !== canonicalJson(expected)) return ordinary;
+  } else {
+    // Missing child facts can establish review scope only. Require the current
+    // approved state to corroborate the parent name and every immutable binding.
+    const children = records.filter((record) => String(record.mapping.external_product_id) === String(productId));
+    if (transport.last_attempt !== 1 || canonicalHash(approved.manifest) !== canonicalHash(loadApprovedManifest().manifest)
+      || children.length !== expected.length || new Set(expected).size !== expected.length
+      || rows.some((row) => {
+        const matching = children.filter((record) => String(record.mapping.id) === row.mapping_id
+          && String(record.offer.id) === row.offer_id && String(record.mapping.external_variant_id) === row.external_variant_id
+          && String(record.product.id) === row.canonical_product_id && String(record.variant.id) === row.canonical_variant_id);
+        return matching.length !== 1 || matching[0].mapping.external_name !== issue.product_name
+          || matching[0].mapping.external_url !== document.canonical_url;
+      })) return ordinary;
+  }
   let reproduced;
   try {
     parseSixPackProductPage(document.html, { productId: String(productId), canonicalUrl: document.canonical_url,
@@ -908,7 +1036,7 @@ async function run(options, dependencies = {}) {
     try {
       liveByProduct.set(productId, await readLive(productId, { capturedAt }));
     } catch (error) {
-      const disposition = approvedSourceFailureDisposition(error, productId, approved, capturedAt);
+      const disposition = approvedSourceFailureDisposition(error, productId, approved, capturedAt, state.records);
       if (options.isolateUnsafe === true && disposition.scope === "PRODUCT" && !reviewed && !reviewedOwner) {
         isolatedSourceFailures.set(productId, {
           ...sourceErrorEvidence(error, productId),

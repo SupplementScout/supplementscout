@@ -1,17 +1,19 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: SIX PACK GENERIC VARIATION CONTRACT REPAIR CODE COMPLETE / LOCALLY VERIFIED; PR REVIEW REQUIRED; NO MERGE, LIVE DRY-RUN OR APPLY AUTHORITY**
+**Status: SIX PACK GENERIC UNBUYABLE-PARENT ISOLATION CODE COMPLETE / LOCAL GATES PASS; PR CI, INTEGRATION AND REVIEW REQUIRED; NO LIVE RUN, MERGE OR APPLY AUTHORITY**
 
-**Current active task:** the owner's 8 November `6 PACK GENERIC VARIATION
-CONTRACT REPAIR` authorization: one minimal code/test PR for complete variants
-omitted from dropdowns and unnecessary permanent-source retries. No merge,
-new full live source run, production apply, migrations, mapping changes or
-Review Queue publication is authorized. PR #504 and the previous single source
-attempt are complete; run `42485457991` failed closed on product 6582. Main is
-`e150183feef05f4071d55eac1a428ac541a83473`; production ledger 261 remains the
-verified read-only baseline. Earlier assessment/deployment text below is
-historical. RA-001 and existing guarded paths remain controlling; RA-004 is
-not resumed. No live offer refresh is claimed from this dry-run.
+**Current active task:** the owner's 8 November `GENERIC UNBUYABLE PARENT SOURCE
+ISOLATION` authorization: prove the general unavailable-parent class and, only
+with sufficient evidence, prepare one minimal adapter/test PR using existing
+product isolation and review. No merge, live source run, production apply,
+migration, mapping change or Review Queue publication is authorized. PR #505
+and the single attempt `42496198266` are complete; that run failed closed on
+missing variant-level source data for product 28570. No replay is authorized.
+Current verified main is
+`3253699f605ac8b25adc4bc668d66e355f20f8d9`; production ledger 261 and exact CURRENT
+binding were freshly reverified. Earlier assessment/deployment text below is
+historical. RA-001 and existing guarded paths remain controlling; RA-004 is not
+resumed. No live offer refresh is claimed from a read-only dry-run.
 
 The immediate objective is to restore a trustworthy baseline for the existing
 production retailer paths before any consolidation work resumes. This is not a
@@ -19,6 +21,234 @@ new runtime, importer, approval path or executor. It reuses the current
 workflows, artifacts, control ledger, Review Queue, postflight and watchdog.
 Work proceeds read-only until a specific recovery or business write has fresh
 bounded evidence and separate owner approval.
+
+## 8 November 2026 generic unbuyable-parent isolation (code complete)
+
+Base/main `3253699f605ac8b25adc4bc668d66e355f20f8d9`, merged #505 and terminal
+run `42496198266` / attempt 1 were reverified before code work. Latest production
+evidence is the preceding zero-write readback at `15:47:49.877Z`, ledger 261 /
+CURRENT fingerprint unchanged. This task performs no new production/source
+request: evidence is replayed offline. Branch:
+`fix/six-pack-unbuyable-parent-isolation`.
+
+### Class and retained safety boundary
+
+The preserved full 213,605-byte HTTP 200 capture, SHA-256
+`d88b55cfa2f9eabb07872b847413fcfe4f412265e4b4af95f1a15ddbda6a1829`,
+and reduced fixture both qualify as a complete current-theme variable-parent
+page with exact canonical/body/container identity, heading and ItemPage /
+BreadcrumbList identity, a scoped unavailable-online notice and no variant
+commerce payload or Product/Offer schema. Parent price/stock display and Twitter
+metadata must agree internally; neither becomes a child commercial fact.
+Unknown/changed structure, malformed or alternative data, purchase controls,
+conflicting commercial evidence and incomplete documents remain retailer BLOCK.
+The existing approved state must additionally match the parent heading exactly
+through every child's external_name and canonical URL, with every immutable
+offer/mapping/product/variant binding closed over the current manifest. The
+manifest supplies review scope only, never current child price or availability.
+
+One new typed reason, `UNBUYABLE_PARENT_VARIANTS_UNRESOLVED`, passes through the
+existing approvedSourceFailureDisposition / isolatedSourceFailures mechanism.
+Common transport/document integrity and cause-chain checks are reused; #504's
+wildcard-specific qualification remains unchanged. Exact source timestamp,
+HTTP 200 completeness, approved request/final origin, SHA/byte count and offline
+reproduction are required. Current manifest content, approved children and
+parent identity are rechecked. No product ID exception or alternate runtime is
+introduced. Shared reader, classifier, executor, approval and schedules are
+unchanged. The existing Review Queue profile preserves the distinct reason on
+manual source-missing cards with no proposed price/stock/freshness.
+
+### Offline proof and corpus limits
+
+Focused contracts pass **219/219**, including negative source/provenance/name/
+manifest cases, generic qualification of a different existing parent, retained
+2769/6582/4705/6303 behavior, normal 404, transport and retry contracts. The
+original 499+7 scenario remains independently tested. The new hypothetical
+complete fixture scenario proves **506 = 496 potential plans + 10 review rows**:
+seven Warrior and three Angel Dust, no omissions/overlap or executable reviewed
+offer, no proposed commercial facts, unchanged fixture state, valid sealed
+artifact/executor scope, review-preserving postflight and idempotency, and
+distinct correct Review Queue cards. It is not live source coverage.
+
+The local corpus search found one preserved full unavailable-parent page, 28570;
+no second real parent of that shape was found. Existing raw source corpus is six
+captures for five products, with 274 of 279 approved products lacking replayable
+HTML. The prior 51 pages outside the report's 228 usable-page count are not
+declared erroneous. No new crawl or full source run was performed.
+
+### Evidence retention is an existing limitation, not a new snapshot system
+
+Qualified isolated evidence already retains raw HTML, SHA, bytes, request/final
+URL, HTTP status, current capture timestamp and manifest child binding in the
+existing report's source_failures; compact review rows omit duplicated HTML.
+The new class uses that same artifact path. However, the current global
+writeSourceFailureReport keeps only sanitized fatal diagnostics: unknown fatal
+HTML and earlier partial captures/isolations are lost if a later source fails.
+Existing *.json artifact upload therefore cannot make those absent bytes
+available offline. **Separate architecture/retention decision required:** how
+to retain bounded failed-page and partial evidence in the existing artifacts.
+No snapshot system or additional evidence writer is implemented here.
+
+Local focused/quick/inventory and full-HTML replay evidence is under
+`tmp/unbuyable-parent-isolation/`. Final local quick passes **1020 PASS / zero
+FAIL / three existing SKIP**; final local full passes **3636 PASS / zero FAIL /
+three existing SKIP**, including lint, TypeScript, baseline validation,
+production build and Guardian. PR CI and actual isolated PostgreSQL integration
+on the exact PR head are recorded in its checks/description; a skipped job is
+not integration evidence. Existing test filenames and the sealed 355-file inventory are unchanged
+(295 safe / 56 isolated integration / four artifact-bound); new cases use the
+existing test file. No production commercial/control/history writes, source
+dispatch, migration, merge or other retailer operation occurred.
+
+## 8 November 2026 PR #505 merge and one complete read-only Six Pack attempt
+
+Exact approved head `531b1093b12d6ac6652ec96a866fc9308184dd46`, unchanged base
+`e150183feef05f4071d55eac1a428ac541a83473`, ordinary PR checks and actual isolated
+PostgreSQL integration were reverified. PR full CI `42491679217` passed 3596 /
+zero FAIL / three existing SKIP. Integration `42491684489`, attempt 2, passed
+149 / zero SKIP; attempt 1's unchanged local PostgreSQL startup failure remains
+documented in PR #505. A skipped integration job was not used as evidence.
+
+Standard squash merge, matched to exact approved head, completed at
+`2026-11-08T15:36:59Z` without bypass or force push. Merge/main:
+`3253699f605ac8b25adc4bc668d66e355f20f8d9`. Approved and merged tree are identical:
+`a53dc6316a850d374649aef5477aa60cc59a2f54`. Main full CI `42495714669`, actual job
+`128777497199`, passed 3596 / zero FAIL / three existing SKIP; main Guardian
+`42495714672` passed before dispatch.
+
+The existing ordinary manual dry-run path was inspected on that merged tree:
+source/state reads and local artifact/report generation only. Executor,
+approver/validator role sessions, business/history writes, control registration,
+Review Queue bind/publication and special reviewed apply are skipped. The source
+CLI and four source-only workflow loops retain #505's permanent-error stop;
+transient retry limits and schedules are unchanged. The workflow has no separate
+phase timing instrumentation: actual job/source timestamps will be reported,
+and absent parsing/classification/validation timings will not be estimated.
+
+READ ONLY baseline at `2026-11-08T15:38:55.304Z` preserves all 506 offers and
+mappings, all columns of the seven Warrior rows, history count 539 / latest ID
+10247, 709 scoped Review Queue rows and 49,115 approved_import_plans rows with
+full-row hashes. Scoped parent/child/apply-run/batch-approval tables are empty,
+with no active write-role session. A second READ ONLY check at 15:41:47.320Z
+asserted production identity and the exact 261 canonical ledger identifiers:
+CURRENT/live fingerprint
+`755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a`.
+No active potentially colliding workflow was present before dispatch.
+
+Exactly one create-only local dispatch receipt records run `42496198266`,
+attempt 1, `workflow_dispatch`, ref main, exact merge SHA above, input only
+`operation=dry-run`, created `2026-11-08T15:42:52Z`, terminal failure at
+`2026-11-08T15:46:26Z`. Actual refresh job `128778974371` failed at Fresh
+live-source dry-run. No reviewed selector, owner confirmation, apply mode,
+additional dispatch or replay was submitted. Executor, DB baseline/postflight,
+fresh idempotency and Review Queue bind steps were skipped; special reviewed
+apply and publication job `128779864664` were skipped too. Those skipped paths
+are not reported as successful execution.
+
+### Actual result and scope
+
+**BLOCK / SOURCE_READ_FAILED / SOURCE_SCHEMA_MISMATCH**, first fatal product
+**28570**, Skull Labs Angel Dust PUMP Pre-Workout. Exact final parser message:
+`Expected one matching Product JSON-LD block, found 0`. The report records
+**228 successfully parsed usable product pages**, **506 approved mappings**,
+**zero executable plans**, **zero executed plans**, **zero produced review rows**
+and **506 blocked rows**. Source scope remains 279 products. Canonical manifest
+ordering puts 28570 at position 235: six earlier product-scoped isolations are
+inferred from 234 processed predecessors minus 228 usable pages, and 44 later
+products were not visited. Their identities/reasons were not retained in this
+failure report and are not invented. A raw total of parsed source variations
+was not retained; full source/variant identity coverage is not established.
+Classification, local plan validation and database validator were not reached.
+No source snapshot fingerprint or sealed apply artifact was produced. The
+previous 6582 fatal error did not recur, but no 499/7 live success is claimed.
+
+Artifact `13623616512` contains only the 907-byte failure report. Downloaded ZIP
+SHA-256 matches its provider digest:
+`0824153b3c4692eef813559f135de826d6fe2d0e724fb4d8af275b550ac645ba`.
+Report SHA-256:
+`cb5b158eb5d2a2f2aec7ef8cbebec93707da2f3c2b55a2ceedd05d570a7ffb56`.
+Failure-report integrity is verified; absent executable artifacts are not
+treated as valid sealed plans. No future apply scope can be approved from this
+incomplete source attempt.
+
+### Measured duration and retry behavior
+
+Workflow create-to-terminal time: **214 seconds (3m34s)**. Actual refresh job:
+**210 seconds (3m30s)**. Fresh source step: **148 seconds (2m28s)**. Recorded
+source_captured_at `15:43:56.633Z` to fatal log timestamp
+`15:46:23.8258493Z` is **147.192 seconds**, combining source reads and parsing.
+Separate parsing duration is not instrumented. Classification/plan validation
+were not run; no invented phase durations or parsing benchmark is supplied.
+The original source log contains exactly one fatal schema line, last_attempt=1,
+timeout=false, network_code=null and exactly one workflow exit 2. There was
+one whole-source pass: #505's permanent-error stop worked in both the reader
+and the workflow. Existing transient retry limits were not modified.
+
+### Zero-write independent readback
+
+READ ONLY after-capture at `2026-11-08T15:47:49.877Z` matches every column of all
+506 offer and mapping rows. Shared before/after business hash:
+`561cd5d9fe96e79ae71031e82e6e85b1e390d6d187a591d835191d6fb0c06d87`.
+All seven Warrior mappings/offers, including prices, stock and last_checked_at,
+are identical. No proposed Warrior facts or executable plans were produced;
+their commercial review requirement remains unresolved. This failure produced
+zero new review rows, not seven published cards. History remains 539 rows /
+latest ID 10247. Full-row control hashes match: zero scoped parent/child/apply/
+batch-approval rows, all 709 Review Queue rows and all 49,115 approved plans.
+After CURRENT fingerprint remains
+`755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a` / 261 entries.
+No active parent or write-role session exists in the after-snapshot. Combined
+with the inspected read-only code and skipped mutation paths, this verifies
+**business writes=0, control writes=0, approvals=0, price_history writes=0**.
+There is no new database plan or lock from this attempt; source data is the
+blocker.
+
+### One real cause and smallest general next step (no patch/PR)
+
+The original workflow retained no raw HTML. One later successful single-page
+diagnostic through the existing reader at `/?p=28570`, maximumAttempts=1,
+captured complete HTTP 200 at `2026-11-08T15:48:46.945Z`, 213,605 bytes, SHA-256
+`d88b55cfa2f9eabb07872b847413fcfe4f412265e4b4af95f1a15ddbda6a1829`.
+Canonical URL, body product ID 28570 and heading agree with the approved parent.
+The same parser error reproduces offline. The page explicitly says `Out of
+stock` and `Not available to buy online`; it has no buy box, theme variation
+payload, legacy variation form, Product/ProductGroup JSON-LD or any of the
+three approved variant IDs **29091 / 29094 / 29097** (mappings 2613/2614/2615).
+Only Organization/Store/WebSite/ItemPage/BreadcrumbList JSON-LD exists. This is
+missing variant-level commercial evidence on an unavailable-parent page,
+not an omitted dropdown option. The parent stock label cannot safely establish
+price or stock for those three variants.
+
+The first local diagnostic stopped at certificate trust before receiving HTML;
+using the workflow's existing system-CA option completed the bounded page
+read, without disabling TLS checks. Both diagnostic outcomes are preserved.
+Neither was another workflow dispatch or full catalogue run; their durations
+are excluded from actual workflow timing.
+
+Preferred source repair is restoring exact public variant-level data upstream.
+If review-only continuation is separately authorized, the smallest adapter
+scope is a generic strict qualifier inside existing
+approvedSourceFailureDisposition/product isolation for this unavailable-page
+shape: complete approved-origin HTTP 200, exact parent ID/canonical/heading,
+explicit scoped unavailability marker, absent purchasable controls and absent
+or noncontradictory commercial data, bound to the exact current manifest.
+Route every mapping of that qualified parent through existing
+SOURCE_VARIANT_MISSING review with proposed_offer=null and no freshness change.
+Retain collapse/aggregate checks and retailer-wide BLOCK for all other unknown
+schema/identity errors. Do not infer per-variant OOS or prices from the parent,
+add a product-ID exception or create a new executor/importer. This proposal
+needs owner-approved policy and regression review before implementation;
+no code, new PR, migration, apply or additional retailer run was made here.
+No RESTORED status or production apply proposal is ready.
+
+Local evidence: `tmp/505-main-dryrun-20261108/merge-receipt.json`,
+`main-ci-summary.json`, `before.json`, `current-binding.json`,
+`dispatch-state.json`, `dispatch-response.txt`, `source-watch.log`, `run.json`,
+`jobs.json`, `source-job.log`, `artifact-integrity.json`, `after.json`,
+`postrun-verification.json`, `timing-and-retry.json`, `28570-source.html`,
+`28570-capture.json`, `28570-structure.json` and `28570-analysis.json`.
+This closeout update is local to the worktree, outside the merged #505 tree;
+no additional PR or code change is created.
 
 ## 8 November 2026 generic omitted-variation contract repair (code complete)
 
