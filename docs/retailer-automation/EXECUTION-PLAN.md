@@ -1,19 +1,20 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: SIX PACK BOX IDENTITY OWNER-CONFIRMED; WILDCARD DIAGNOSTICS IN REVIEW; COMMERCIAL EXECUTION BLOCKED**
+**Status: PR #504 PRODUCT ISOLATION CANDIDATE; 506 = 499 + 7 PROVED IN FIXTURES ONLY; NO LIVE REFRESH**
 
-**Current active task:** the owner's 8 November seven-row Warrior Crunch
-identity confirmation and minimal safe wildcard work in the existing Six Pack
-adapter. The unit decision is 12 bars x 64g = 768g per box; it is not current
-price/stock approval or production-apply authority. The independent code change
-recognizes legitimate Any attributes and retains a bounded commercial-unit
-block reason through the existing reader and failure report. It does not make
-wildcard rows executable. Current main is
+**Current active task:** continue existing PR #504 under the owner's 8 November
+safe product-isolation assessment. Reuse the existing product failure map and
+source-missing review path for a completely captured, manifest-closed,
+independently reproducible wildcard-size ambiguity. The seven box identities
+remain owner-confirmed; price/stock/freshness remain commercially blocked.
+No source-scope reduction, new queue/executor/approval path or product-ID
+exception. The 499/7 partition is isolated fixture evidence, not live coverage.
+Current main is
 `e5fcaed6722cd6e36c1389c52da934ce7607b932`, after canonical closeout PR #503;
 production ledger 261 remains the observed baseline. Earlier deployment text
 below is historical. Existing production paths remain controlling; RA-004 is
-not resumed. No merge, production apply, migration or additional full retailer
-capture is authorized by this task.
+not resumed. No merge, production apply or migration is authorized. No full
+live source dry-run is performed during this assessment.
 
 The immediate objective is to restore a trustworthy baseline for the existing
 production retailer paths before any consolidation work resumes. This is not a
@@ -22,7 +23,7 @@ workflows, artifacts, control ledger, Review Queue, postflight and watchdog.
 Work proceeds read-only until a specific recovery or business write has fresh
 bounded evidence and separate owner approval.
 
-## 8 November 2026 owner-confirmed Warrior identity and safe wildcard diagnostics
+## 8 November 2026 owner-confirmed Warrior identity and bounded product isolation
 
 ### Exact owner decision; identity only
 
@@ -82,24 +83,65 @@ current price/stock evidence. Latest retained natural full refresh
 `2026-11-08T10:27:34.758Z`, blocks on 2769 after 134 pages with zero executions
 or writes. No new full dry-run is justified merely by owner unit confirmation.
 
-### Independent adapter correction and preserved boundary
+### Existing product isolation extended to one fully proved failure class
 
-The existing `parseSixPackProductPage` now distinguishes a legitimate empty
-string wildcard from a missing key, null, non-string or whitespace-only value.
-It validates the declared keys/options and existing duplicate/identity and
-commercial field checks, then fails closed with `SOURCE_SCHEMA_MISMATCH` and
-typed detail `WILDCARD_COMMERCIAL_UNIT_UNRESOLVED`, all affected variation IDs
-and wildcard attribute names. It returns no priced/stocked offer for wildcard
-rows. The existing source-failure reporter retains only this exact product-bound
-typed reason through bounded-reader wrapping; arbitrary error detail is not
-published. Ordinary complete and explicit-selected formats retain their paths.
+The owner explicitly authorizes this narrow assessment and a compatible change
+on PR #504; source instruction SHA
+`3b2f923e1bc1ae27a0e803772687693f19b181792a99dc2fdb6e9d627d56d2bc`.
+The original BLOCK was reproduced first (31 existing adapter tests PASS), then
+the new 499/7 test failed on the original wildcard block before implementation.
+
+The parser still returns no priced/stocked wildcard offer. For a completely
+consumed HTTP 200 HTML body, the existing reader additionally supplies generic
+document provenance to its parser callback: request/response URL, content type,
+completion, byte count and SHA. Failed reads never receive completion proof.
+Redirect/origin checks now run before HTTP error interpretation; a separately
+reproduced regression showed that a foreign 404 could otherwise be mistaken
+for product absence. Unchanged legitimate same-origin terminal 404 handling is
+retained. No retailer condition is added to the shared reader or its disposition.
+
+The Six Pack adapter refines the existing disposition only when all of these
+conditions hold: typed `WILDCARD_COMMERCIAL_UNIT_UNRESOLVED`, the expected product,
+clean bounded-reader transport context, complete HTML document, same approved
+origin/product URL, exact current capture timestamp, recomputed document SHA
+and byte count, and only the recognized `attribute_size` wildcard. Every source
+variation must be in the approved manifest and every approved variation of the
+product must be present and unresolved; extra, missing or unknown IDs fail
+retailer-wide. The manifest SHA is fixed to the existing configured authority.
+Cross-product shared canonical-variant dependencies cannot be split. Re-parsing
+the retained document must reproduce the entire typed issue exactly. Existing
+same-page JSON-LD checks additionally corroborate every wildcard ID/SKU, parent,
+heading, URL, currency and reported commercial value; they do not accept that
+value as the box's offer. No product or variation number is a runtime condition.
+
+Only then, with ordinary `isolateUnsafe=true` and no special reviewed execution
+mode, the same `isolatedSourceFailures` map excludes that product from trusted
+commercial source rows. The same classifier produces existing
+`SOURCE_VARIANT_MISSING` quarantine rows because no usable commercial variant
+exists in the normalized source. This does not claim the raw product vanished:
+the failure disposition and Review Queue evidence reason retain the exact
+wildcard-unit cause. Existing manual identity/source-review cards have no source
+price, KEEP_UNCHANGED state and no executable action. The publisher checks the
+product, manifest, variation and document-hash linkage before displaying that
+reason; no new approval/reason-code class is introduced.
+
+Full raw HTML and transport/manifest evidence remain once in the existing
+report's `source_failures`, covered by the existing report file hash and overall
+snapshot fingerprint. Per-row evidence retains its linkage without duplicating
+the HTML. Review Queue publication stores the existing bounded references,
+not raw HTML or an invented commercial fact. The seven rows have no plan or
+proposed offer and cannot advance last_checked_at. The approved 506 mappings
+remain intact; successful source rows plus explicitly isolated rows must still
+account for all 506. Source-collapse counts remain conservative and thresholds
+are unchanged; broad 404/wildcard failures still block the retailer.
 
 No product/variation ID condition, fixed unit, default-size expansion, owner
 override, price conversion or stock inference is added to runtime code.
-Shared reader, executor, classifier, validator, locks, approvals, fingerprints,
-thresholds, production manifests and schedules are unchanged. The remaining
-commercial ambiguity still blocks the entire 506 scope before classification,
-plans, sealed apply artifacts, registration, approvals or business writes.
+Shared executor, classifier, validator, locks, approvals, fingerprint algorithms,
+thresholds, production manifests and schedules are unchanged. Generic reader
+provenance and stronger redirect checks do not weaken source safety. The seven
+rows remain excluded from commercial execution while independently safe rows
+can reach the unchanged planner/validator/approval/executor/postflight paths.
 
 Smallest missing proof: an authoritative current, exact variation/configuration
 binding that establishes the unit to which both price and availability apply,
@@ -107,34 +149,48 @@ and resolves the 1pcs/12pcs ambiguity. A future adapter acceptance rule must
 verify that proof against the unchanged approved box identity and reject
 unit-dependent price/stock conflicts; owner identity approval cannot replace it.
 No further owner approval alone can turn today's source into an executable box
-offer. Only after that source contract is established is one ordinary complete
-506-offer read-only preflight justified; production apply remains a separate
-exact-plan decision. No new approval system or executor is proposed.
+offer. Once this PR is reviewed, its checks pass and deployment is separately
+authorized, one ordinary full read-only preflight of all 506 mappings is a
+justified next validation. It must freshly prove the whole source and may find
+other review/blockers; 499 is not a live promise. The seven can leave review
+only after authoritative commercial-unit proof. Production apply remains a
+separate exact-plan decision. No new approval system or executor is proposed.
 
 ### Validation and handoff
 
-Focused Six Pack/parser-reader tests: **46 PASS, 0 FAIL, 0 SKIP**. Regressions
-cover all seven exact owner bindings, generic Any attributes without ID
-conditions, missing owner/commercial evidence, complete attributes, existing
-6303 and 4705/4708 formats, wrong IDs/SKU/URL/product identity, unit/default
-conflicts, overlapping size-specific price/stock rows, and downstream blocking
-with the real fixture despite canonical Pack=12. The latter retains every
-source-state field, writes a block report, creates no apply artifact and records
-zero executable/executed plans or writes. Inventory reviewed: unchanged 355
+Focused adapter/reader/publisher/executor tests: **105 PASS, 0 FAIL, 0 SKIP**.
+The complete isolated fixture accounts for 279 products and all 506 mappings:
+499 safe plans, seven unchanged source-review rows, zero omissions or dry-run
+writes. Shared executor scope validation accepts only the 499 plans. Existing
+postflight passes the modeled 499-only freshness advance, and rejects a price,
+stock or freshness change to a review row. A second isolated source run gives
+499 VERIFY_NO_CHANGE plus the same seven review IDs. Publisher guards produce
+seven non-executable manual identity cards with null source price and the exact
+wildcard reason. These are simulations, not production apply/postflight evidence.
+
+Adversarial cases cover corrupted hashes/bytes/timestamps, wrong manifest/IDs,
+unapproved source variants, unknown wildcard attributes, invalid SKU/JSON-LD,
+duplicate IDs, partial documents, incomplete HTTP bodies, foreign/invalid
+redirects including HTTP 404 and changed ports, missing scope, size-specific
+price/stock variants, isolation disabled and source collapse. All remain
+retailer-wide BLOCK with no artifact/plans/writes. Existing 6303, 4705/4708,
+ordinary complete attributes and legitimate 404 isolation regressions pass.
+The retained actual 11:28 single-product HTML also qualifies during an explicit
+offline historical replay, with all seven exact IDs and the same document SHA;
+this is not a new live fetch or proof of the other 278 products.
+Inventory reviewed: unchanged 355
 files and seal `7c2d270f8b1bc713d3921bf108f34611a4d4c941bd53e461d18824fe2c6037c4`.
-Local quick gate: **469 PASS**. Local full gate: **3558 PASS / 0 FAIL / 3 existing
-SKIP**, including Guardian, TypeScript, ESLint, baseline migration validation
-and production build. The actual retained full HTML was also replayed offline:
-all seven wildcard IDs are reported, no priced offer is returned. No additional
-retailer HTTP request was made for this verification.
-Isolated integration uses the existing Quality Gate workflow,
-[run 42477938614](https://github.com/SupplementScout/supplementscout/actions/runs/42477938614),
-on runtime commit `08c0aa4994641214ea878c68c51780f326e99d4c`; the later ledger
-change does not alter runtime/test/config/workflow bytes. Integration must
-actually pass its job; its intentionally skipped full job is not full-gate
-evidence. PR-head full CI is independently required before handoff. Project
-Guardian passed before and after this ledger edit; `git diff --check` passes.
-No deployment/merge/production refresh is performed.
+The earlier diagnostic-only iteration's local/CI full gate (3558 PASS, three
+existing SKIP) and integration 42477938614 (149 PASS, zero SKIP) are historical
+evidence only, not validation of this isolation change. Current local quick:
+**469 PASS**; current local full: **3564 PASS / 0 FAIL / 3 existing SKIP**, including
+lint, TypeScript, production build and baseline migration checks. Guardian
+passed before and after this ledger edit; `git diff --check` passes. Fresh
+isolated PostgreSQL integration and exact-head full CI are required before
+handoff, with final run links/results recorded in
+[existing PR #504](https://github.com/SupplementScout/supplementscout/pull/504).
+No additional retailer HTTP request, deployment, merge or production refresh
+is performed. Full current-head validation is recorded in the existing PR #504.
 
 Fit House's four unresolved cases remain untouched; no request follows its
 11:28 HTTP 429. Whey/Jon's completed 8 November refreshes and all schedules
