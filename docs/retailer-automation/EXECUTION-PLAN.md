@@ -1,20 +1,18 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: TWO OWNER-APPROVED REVIEW SCOPES; PRODUCTION RESTORATION STILL BLOCKED**
+**Status: TWO-BLOCKER REPAIR IN REVIEW PREPARATION; PRODUCTION RESTORATION BLOCKED**
 
-**Current active task:** owner-authorized restoration of 6 Pack, Jon's and Whey
-Okay, 7 November 2026 (`BLOCKED`). PR #499 is merged; the one authorized full
-6 Pack dry-run exposed a further source-format case. Jon's current unapproved
-PLANNED parent also falls outside the existing recovery contract and blocks
-Whey globally. The owner has now separately approved both code/test/review scopes and a forward-only migration proposal. Merge, migration deployment, exact control close and new production runs remain outside this preparation approval. Existing natural schedules remain
-unchanged; the owner explicitly accepted 6 Pack's established scheduled writes
-after merge. Gladiator adoption and homepage work do not advance here.
-RA-STAB-02 and RA-STAB-01 are `VERIFIED_COMPLETE`. On 29 September 2026 the
-owner stopped further RA-004 live canary retries after the five-day sequence of
-staging-interface, credential, ledger, ACL, provider-identity and final SQL
-contract failures. The consumed `v3` activation remains terminal and
-non-replayable. Its cleanup, credential revocation, closed selectors, unchanged
-business data and zero forbidden production operations remain authoritative.
+**Current active task:** the owner's 8 November 2026 bounded repair of the
+unapplied recovery migration format and investigation of the 6 Pack variant
+contract. PRs #499, #500 and #501 are merged; current fetched main is
+`bb8562dae6fb8dc194ce1bd428f853734b53e1bd`. This task permits one repair PR,
+local checks and isolated CI only. It authorizes no merge, shared-environment
+migration, control close, approval/apply, replay, status writes or new schedules.
+RA-STAB-02 and RA-STAB-01 remain `VERIFIED_COMPLETE`; RA-000 through RA-003
+remain complete within their recorded audit/decision/contract/fixture scopes.
+RA-002 did not switch production routing. RA-004 remains owner-stopped and
+blocked; its consumed activation, cleanup and revoked credentials remain closed.
+Existing guarded production paths remain authoritative until a separate cutover.
 
 The immediate objective is to restore a trustworthy baseline for the existing
 production retailer paths before any consolidation work resumes. This is not a
@@ -22,6 +20,100 @@ new runtime, importer, approval path or executor. It reuses the current
 workflows, artifacts, control ledger, Review Queue, postflight and watchdog.
 Work proceeds read-only until a specific recovery or business write has fresh
 bounded evidence and separate owner approval.
+
+## 8 November 2026 two-blocker repair evidence
+
+This is preparation for review, not a claim of production restoration.
+
+**Migration compatibility.** At `2026-11-08T06:25:49.937Z` / `06:25:50.211Z`,
+explicit READ ONLY repeatable-read transactions through the existing verified-TLS
+PostgreSQL client and canonical `databaseState` confirmed the migration version
+`20261107190000` absent from production and staging. Targets were the canonical
+project refs/identities, both sessions reported `read_only=on`. Production remains
+ledger **260**, fingerprint
+`17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e`;
+staging remains **120**,
+`31dc3e6e90dab56dd00843bef441cfba400e1d9480d2940f41b46cfff6e32277`.
+No future ledger binding is recorded as current.
+
+The real `unwrapTransaction` reproduced the pre-connection failure on the
+original file. Only its two leading comments moved after `begin;`, matching the
+existing migration convention. Executed SQL, recovery logic, owners, ACLs and
+security clauses are byte-identical. The applicator itself is unchanged.
+Old file SHA-256 (historical preparation evidence retained below):
+`f6d0bf7724ae6fe2e2f1e4e3df2bcdb89c50a4edf765dc4858f65741915eb69d`.
+Current pending SHA-256:
+`0c6a7ef27021c0ba2dc5ef38eea3289b8238e4dc3220ede03de6210336263ddf`.
+Only the canonical production pending pin, staging exclusion and matching selector
+test pin changed. Deterministic production confirmation is now
+`e681f06f0409b160`; it is not execution authorization. The existing applicator
+regression reconstructs and hashes the original rejected file, accepts the actual
+new file and verifies identical transaction body and one outer wrapper. The
+existing disposable PostgreSQL harness now prepares all three migration probes
+through the real exported `unwrapTransaction`, including incompatible input,
+success and replay. Actual final-SHA PostgreSQL execution is required below.
+
+**6 Pack source evidence and decision.** Run `42414877241` stopped at source
+product 2769 after 134 of 279 pages. Its 506 blocked rows mean interrupted source
+coverage, not 506 invalid offers. No complete source fingerprint or sealed apply
+artifact was produced. The existing main-only full-source workflow is preserved;
+a feature-branch full live run is not authorized by bypassing that gate.
+
+The read-only corpus audit enumerated all available workspace paths, inspected
+HTML, source/snapshot JSON, embedded-source formats and 363 ZIP candidates
+(17,880 entries; two candidates were actually text logs). Before the new capture,
+the retained 6 Pack HTML comprised two full captures and two reduced fixture
+contents (6303 and 4705); duplicate worktree copies and LF/CRLF copies are not
+additional source samples. One retained normalized CSV snapshot contains 576
+records, SHA-256
+`ea5afeaf582a48980b6b471d0fda098481b0b30eb6812dd4be559c2fdf31a34f`;
+it contains flavour-only 2769 records but no original theme DOM or size binding.
+No retained raw HTML for 2769 existed.
+
+One bounded public GET through the existing reader, `maximumAttempts=1`, captured
+2769 at `2026-11-08T06:26:57.434Z` and reproduced the exact schema failure. No
+403/429, alternative fetcher, retry loop or database access was involved. Raw
+HTML: 345,770 bytes, SHA-256
+`a87fb7f7715da3c4ece654cfc09fb0ef6a7efb17a79de11ac66d1acffda31f1d`.
+The reduced fixture retains exact attribute declarations, selected values, row
+identity/commercial data, price description and same-page JSON-LD. It does not
+fill missing values.
+
+| Source structure | Evidence and current outcome |
+|---|---|
+| Legacy WooCommerce variation form / simple Product | Existing shared-reader and adapter regressions retained; supported without runtime changes. |
+| Complete theme row attributes | 6303: five exact flavour variants, options complete; the full capture selects Watermelon within the dropdown, while the reduced fixture uses an empty selection; both supported. |
+| Complete explicit selection omitted from dropdown | 4705: six exact variants; selected 4708 requires the existing exact same-page group/variant ID, SKU, option URL, GBP price and availability corroboration; supported. |
+| Blank per-row attribute with multiple declared choices | 2769: all seven rows have `attribute_size:''`; dropdown offers `1pcs` and `12pcs`; selected `1pcs` is only a page default. JSON-LD Product/Offer URLs and properties identify flavour only; price HTML says `12 x 64g bars`. Correctly blocked as `SOURCE_SCHEMA_MISMATCH`. |
+| Missing keys, invalid identity, duplicates, conflicting selected JSON-LD or missing commercial evidence | Existing typed schema/identity/duplicate guards and regressions retained. |
+
+For 2769 all seven IDs/SKUs agree, prices round to GBP 19.99, stock is explicitly
+false and maximum quantity is 20. These facts cannot establish the absent size.
+Independent review reached the same conclusion: accepting or filling size would
+require guessing. **No parser runtime change is justified by this evidence.**
+The new regression preserves the block for blank/missing/null/whitespace row
+attributes, even with a default or a single remaining dropdown choice. Its real
+reader-to-run downstream case proves no classification actions, executable plan,
+Review Queue rows, sealed apply artifact or database writes. Offline replay also accepts both full retained captures (five/six variants) and
+reproduces the exact schema block on the full 2769 capture. The shared reader,
+other adapters, classifier, approval and executor are unchanged.
+
+Focused local validation: migration/applicator/selector/close contracts **95 PASS,
+0 FAIL, 0 SKIP**; 6 Pack plus shared page-reader **41 PASS, 0 FAIL, 0 SKIP**.
+Test inventory was reviewed: the existing 355 test paths and seal remain intact;
+only cases and one source fixture were added. Project Guardian passed before
+this ledger update. Final quick/full gates, actual integration CI and independent
+final-SHA review must be recorded in the PR before handoff. Historical skipped
+artifact tests must not be reported as executed integration passes.
+
+Architecture remains the approved RA-001 direction with current production
+routes preserved: no scheduler, queue, importer, executor, recovery framework,
+product allowlist, retry expansion, approval change or new source of truth.
+No production/shared-staging writes were performed. The single next release
+sequence, after separate approval, remains: review/merge; one full 6 Pack dry-run
+(which may correctly remain source-blocked); exact canonical migration and
+receipt-based closeout; fresh Jon's preflight; separately approved exact control
+close; Jon's and Whey Okay verification. No source or recovery blocker is waived.
 
 ## 7 November 2026 final review and deployment decision package
 
