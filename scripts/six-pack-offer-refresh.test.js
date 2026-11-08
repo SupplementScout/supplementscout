@@ -19,6 +19,79 @@ const {
 
 const ROOT = path.resolve(__dirname, "..");
 
+const omittedHtml = fs.readFileSync(path.join(__dirname, "test-fixtures/six-pack-theme-product-6582.html"), "utf8");
+const omittedOptions = { productId: "6582", canonicalUrl: "https://6pack-supplements.co.uk/product/cream-of-rice-2kg-nxt/" };
+function changeOmittedHtml(changePayload = () => {}, changeGroup = () => {}) {
+  return omittedHtml.replace(/(<script\b[^>]*type="application\/(json|ld\+json)"[^>]*>)([\s\S]*?)(<\/script>)/g,
+    (_, start, type, content, end) => {
+      const data = JSON.parse(content);
+      if (type === "json") changePayload(data);
+      else changeGroup(data["@graph"][0]);
+      return start + JSON.stringify(data) + end;
+    });
+}
+
+test("captured complete nondefault 6585/6586 omitted from dropdown retain all five exact commercial rows", async () => {
+  const parsed = await readWooCommerceProductPage({ storeUrl: "https://6pack-supplements.co.uk", productId: "6582",
+    maximumAttempts: 5, parseProductPage: parseSixPackProductPage,
+    fetchImpl: async () => ({ status: 200, url: omittedOptions.canonicalUrl,
+      headers: { get: () => "text/html" }, text: async () => omittedHtml }),
+  });
+  assert.equal(parsed.external_product_id, "6582");
+  assert.deepEqual(parsed.variations.map((r) => [r.external_variant_id, r.attributes.attribute_flavour, r.price, r.in_stock]), [
+    ["6583", "chocolate coconut", "15.99", true], ["6584", "apple pie", "15.99", true],
+    ["6585", "cinnamon cereal", "15.99", false], ["6586", "gingerbread", "15.99", false],
+    ["6587", "strawberry cheesecake", "15.99", false],
+  ]);
+});
+
+test("complete omitted-variant corroboration has no product or variation ID allowlist", () => {
+  const html = omittedHtml.replace(/658[2-7]/g, (id) => String(Number(id) + 100000));
+  const parsed = parseSixPackProductPage(html, { ...omittedOptions, productId: "106582" });
+  assert.deepEqual(parsed.variations.map((r) => r.external_variant_id), ["106583", "106584", "106585", "106586", "106587"]);
+});
+
+const omittedNegatives = [
+  ["missing SKU", () => {}, (g) => { delete g.hasVariant[2].sku; }],
+  ["wrong SKU", () => {}, (g) => { g.hasVariant[2].sku = "9999"; }],
+  ["wrong JSON-LD variation ID", () => {}, (g) => { g.hasVariant[2]["@id"] += "wrong"; }],
+  ["wrong payload variation ID", (p) => { p.variations[2].id = 9999; }],
+  ["foreign variant URL", () => {}, (g) => { g.hasVariant[2].url = "https://other.example/product/rice/?attribute_flavour=cinnamon+cereal"; }],
+  ["wrong variant URL attributes", () => {}, (g) => { g.hasVariant[2].url = omittedOptions.canonicalUrl + "?attribute_flavour=gingerbread"; }],
+  ["duplicate URL attributes", () => {}, (g) => { g.hasVariant[2].url += "&attribute_flavour=cinnamon+cereal"; }],
+  ["foreign offer URL", () => {}, (g) => { g.hasVariant[2].offers.url = "https://other.example/product/rice/"; }],
+  ["wrong parent", () => {}, (g) => { g.hasVariant[2].isVariantOf["@id"] += "wrong"; }],
+  ["unbound ProductGroup", () => {}, (g) => { g.url += "wrong"; }],
+  ["missing Product", () => {}, (g) => { g.hasVariant.splice(2, 1); }],
+  ["duplicate JSON-LD Product", () => {}, (g) => { g.hasVariant.push(structuredClone(g.hasVariant[2])); }],
+  ["conflicting JSON-LD identity", () => {}, (g) => {
+    const duplicate = structuredClone(g.hasVariant[2]); duplicate["@id"] += "wrong"; g.hasVariant.push(duplicate);
+  }],
+  ["wrong currency", () => {}, (g) => { g.hasVariant[2].offers.priceCurrency = "EUR"; }],
+  ["wrong price", () => {}, (g) => { g.hasVariant[2].offers.price = "15.98"; }],
+  ["wrong stock", () => {}, (g) => { g.hasVariant[2].offers.availability = "https://schema.org/InStock"; }],
+  ["missing attributes", (p) => { p.variations[2].attributes = {}; }],
+  ["unknown flavour", (p) => { p.variations[2].attributes.attribute_flavour = "unknown"; }],
+  ["duplicate complete combination", (p) => { p.variations[3].attributes = p.variations[2].attributes; }],
+  ["missing selection", (p) => { delete p.selected; }],
+  ["unknown selection", (p) => { p.selected.attribute_flavour = "unknown"; }],
+];
+for (const [label, payload, graph] of omittedNegatives) {
+  test(`complete omitted variants still block ${label}`, () => {
+    assert.throws(() => parseSixPackProductPage(changeOmittedHtml(payload, graph), omittedOptions),
+      { code: "SOURCE_SCHEMA_MISMATCH" });
+  });
+}
+
+test("omitted variants require same-page JSON-LD and approved product origin/identity", () => {
+  assert.throws(() => parseSixPackProductPage(omittedHtml.replace(/<script type="application\/ld\+json">[\s\S]*?<\/script>/g, ""),
+    omittedOptions), { code: "SOURCE_SCHEMA_MISMATCH" });
+  assert.throws(() => parseSixPackProductPage(omittedHtml, { ...omittedOptions,
+    canonicalUrl: "https://other.example/product/cream-of-rice-2kg-nxt/" }), { code: "SOURCE_SCHEMA_MISMATCH" });
+  assert.throws(() => parseSixPackProductPage(omittedHtml, { ...omittedOptions, productId: "9999" }),
+    { code: "SOURCE_IDENTITY_DRIFT" });
+});
+
 const selectedHtml = fs.readFileSync(path.join(__dirname, "test-fixtures/six-pack-theme-product-4705.html"), "utf8");
 const selectedUrl = "https://6pack-supplements.co.uk/product/7nutrition-bodybuilder-mass-gainer-7kg/";
 const selectedOptions = { productId: "4705", canonicalUrl: selectedUrl };
@@ -498,6 +571,41 @@ function wildcardRead(html = completeWildcardHtml, changeError = null) {
     } catch (error) { if (changeError) changeError(error); throw error; }
   };
 }
+
+test("captured complete omitted variants flow through full approved-scope classification and sealing beside Warrior isolation", async () => {
+  const source = fixture(), output = paths();
+  const live = parseSixPackProductPage(omittedHtml, omittedOptions);
+  for (const record of source.state.records.filter((r) => r.mapping.external_product_id === "6582")) {
+    const row = live.variations.find((v) => v.external_variant_id === record.mapping.external_variant_id);
+    assert.ok(row);
+    record.mapping.external_name = live.product_name;
+    record.mapping.external_url = live.canonical_url;
+    record.mapping.external_options = { Flavour: row.attributes.attribute_flavour };
+    Object.assign(record.variant, { flavour_label: row.attributes.attribute_flavour,
+      display_name: row.attributes.attribute_flavour });
+    Object.assign(record.offer, { price: row.price, shipping_cost: "4.99", total_price: "20.98",
+      in_stock: row.in_stock, url: live.canonical_url });
+  }
+  const before = structuredClone(source.state);
+  const result = await run({ target: "production", ...output, isolateUnsafe: true }, {
+    state: source.state, readLive: async (id, context) => String(id) === "2769" ? wildcardRead()(id, context)
+      : String(id) === "6582" ? live : source.byProduct.get(String(id)),
+  });
+  assert.equal(result.report.result, "PASS_WITH_REVIEW");
+  assert.equal(result.report.approved_mapping_count, 506);
+  assert.equal(result.report.executable_plan_count, 499);
+  assert.equal(result.report.review_row_count, 7);
+  assert.equal(result.report.blocked_row_count, 0);
+  assert.equal(result.report.database_writes, 0);
+  const artifact = loadDryRunArtifact(output.artifact).artifact;
+  assert.doesNotThrow(() => require("./six-pack-offer-refresh-executor").validateArtifactScope(artifact, manifest));
+  const capturedRows = artifact.source_rows.filter((r) => r.normalized_source_row.source.external_product_id === "6582");
+  assert.equal(capturedRows.length, 5);
+  const warriorOffers = new Set(approvedWarriorBindings.map(([, id]) => id));
+  assert.ok(artifact.plans.every((r) => !warriorOffers.has(String(r.resolved_plan.offer.id))));
+  assert.ok(result.report.review_rows.every((r) => r.proposed_offer === null));
+  assert.deepEqual(source.state, before);
+});
 
 test("complete approved wildcard product uses existing isolation: 506 = 499 executable + 7 unchanged review", async () => {
   const source = fixture();

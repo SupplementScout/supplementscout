@@ -1,20 +1,17 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: PR #504 PRODUCT ISOLATION CANDIDATE; 506 = 499 + 7 PROVED IN FIXTURES ONLY; NO LIVE REFRESH**
+**Status: SIX PACK GENERIC VARIATION CONTRACT REPAIR CODE COMPLETE / LOCALLY VERIFIED; PR REVIEW REQUIRED; NO MERGE, LIVE DRY-RUN OR APPLY AUTHORITY**
 
-**Current active task:** continue existing PR #504 under the owner's 8 November
-safe product-isolation assessment. Reuse the existing product failure map and
-source-missing review path for a completely captured, manifest-closed,
-independently reproducible wildcard-size ambiguity. The seven box identities
-remain owner-confirmed; price/stock/freshness remain commercially blocked.
-No source-scope reduction, new queue/executor/approval path or product-ID
-exception. The 499/7 partition is isolated fixture evidence, not live coverage.
-Current main is
-`e5fcaed6722cd6e36c1389c52da934ce7607b932`, after canonical closeout PR #503;
-production ledger 261 remains the observed baseline. Earlier deployment text
-below is historical. Existing production paths remain controlling; RA-004 is
-not resumed. No merge, production apply or migration is authorized. No full
-live source dry-run is performed during this assessment.
+**Current active task:** the owner's 8 November `6 PACK GENERIC VARIATION
+CONTRACT REPAIR` authorization: one minimal code/test PR for complete variants
+omitted from dropdowns and unnecessary permanent-source retries. No merge,
+new full live source run, production apply, migrations, mapping changes or
+Review Queue publication is authorized. PR #504 and the previous single source
+attempt are complete; run `42485457991` failed closed on product 6582. Main is
+`e150183feef05f4071d55eac1a428ac541a83473`; production ledger 261 remains the
+verified read-only baseline. Earlier assessment/deployment text below is
+historical. RA-001 and existing guarded paths remain controlling; RA-004 is
+not resumed. No live offer refresh is claimed from this dry-run.
 
 The immediate objective is to restore a trustworthy baseline for the existing
 production retailer paths before any consolidation work resumes. This is not a
@@ -23,7 +20,221 @@ workflows, artifacts, control ledger, Review Queue, postflight and watchdog.
 Work proceeds read-only until a specific recovery or business write has fresh
 bounded evidence and separate owner approval.
 
-## 8 November 2026 owner-confirmed Warrior identity and bounded product isolation
+## 8 November 2026 generic omitted-variation contract repair (code complete)
+
+Base/main `e150183feef05f4071d55eac1a428ac541a83473` and merged PR #504 were
+reverified on GitHub before work. Branch: `fix/six-pack-generic-variation-contract`.
+The preserved full 6582 HTML reproduces the exact previous schema error before
+the change; no source request was made for this task. The existing parser's
+selected-default-only fallback was the general defect: complete nondefault
+variants can also be absent from the theme's dropdown. Same-page JSON-LD is
+source consistency evidence, not an independent external identity authority.
+
+The existing corroborateVariant now requires both a valid unique selection and
+a complete unique explicit variant combination, then exact ProductGroup and
+Product membership/ID/SKU, parent binding, same-origin canonical/variant/offer
+URLs, exact URL attributes, GBP price and matching availability. A second
+Product with the same variation SKU but a conflicting ID is rejected too. No
+product ID exception, new parser, new source path or identity inference exists.
+Wildcard qualification/isolation from #504 and all approved bindings are intact.
+
+Offline corpus audit found five unique full captures covering four products:
+6303 (complete declared variants), 4705 (selected 4708 omitted), 6582 (complete
+nondefault omissions), and two captures of 2769 (wildcard Any size). Six unique
+reduced fixture versions were compared too. Main/new parser replay agrees on
+6303/4705 and 2769; only 6582 changes from schema BLOCK to five exact parsed
+rows. All 2769 captures still require WILDCARD_COMMERCIAL_UNIT_UNRESOLVED.
+Historical native CSV snapshot contains 576 normalized records (July); it and
+saved plans/reports do not establish current HTML shape. The local JSON audit
+inspected 1,435 candidate files / 749 unique contents without finding another
+embedded theme HTML capture. Of the 279 approved products, only four have
+preserved page identity coverage in this audit: 275 lack replayable page HTML.
+The prior 222 parsed pages are workflow evidence, not 222 replayable fixtures;
+the 57 remaining pages in that failed attempt are not assumed defective.
+An additional content search across all local worktrees/tmp/fixtures found 27
+variation-document paths and no new pre-existing capture after SHA deduplication.
+Eighteen saved archives (101 entries) and one text job log named .zip were
+inspected too; none contains another theme HTML document.
+
+Run 42485457991 logged five whole-source attempts, each reporting last_attempt=5
+for the same final permanent schema failure: 25 bounded read attempts for the
+failed product, with four whole-source workflow retries. Intermediate reader
+failure codes were not individually logged, so this is not proof of 25 identical
+schema failures. Offline replay of the old reader with preserved full HTML
+reproduces five schema-failing reads and four sleeps for that deterministic
+document; the new permanent-failure regression stops after one read/no sleep.
+The existing bounded reader now stops recognized typed schema, identity,
+duplicate, redirect, content-type, size and configuration failures immediately,
+preserving the original cause/code and actual attempt count. HTTP/transport
+retry limits, delays and source policy remain unchanged. Only the Six Pack
+source CLI maps those permanent errors to exit 2; all four existing source-only
+workflow loops stop that exit instead of restarting the source pass. Executor,
+approval, writes, unknown write outcomes and schedules gain no retry path.
+
+Regression fixture 6582 is reduced from the full capture, preserving the exact
+heading/buy-box/payload and ProductGroup; full/reduced parser rows match. Tests
+cover all five rows, arbitrary renamed IDs, omitted-variant identity/JSON-LD/
+URL/price/stock negatives, selected-default compatibility, wildcard isolation,
+actual Bash loop outcomes and reader terminal/transient behavior. The complete
+offline scope test also combines captured 6582 rows with Warrior isolation,
+classifier, sealed artifact and executor scope checks: 506 = 499 plans + seven
+review rows, database_writes=0 and unchanged fixture state. This is test evidence,
+not live source coverage or an offer refresh. Focused contracts pass **179/179**.
+Local quick gate passes **1020 PASS / zero FAIL / three existing SKIP**; local
+full passes **3596 PASS / zero FAIL / three existing SKIP**, including Guardian,
+TypeScript, ESLint, baseline migration validation and production build. A
+targeted lint rerun covers the final test additions; diff whitespace checks
+pass. PR CI and isolated PostgreSQL integration evidence belong to the PR head
+and are attached to its checks/description; the skipped integration job in
+ordinary PR CI is not counted as real integration. Existing test filenames are
+unchanged; the sealed 355-file
+inventory hash is unchanged and verified (295 safe / 56 integration / four
+artifact-bound). No test file was added, removed or renamed.
+
+Local audit evidence: `tmp/generic-variation-repair/html-corpus-comparison.json`,
+`json-corpus-index.json`, fixture/full comparison and focused/quick logs;
+archival inventory is in the original workspace `tmp/six-pack-archive-audit.json`.
+No Fit House, Jon's or Whey operation, production credentials, production write,
+merge or new retailer workflow dispatch was used by this repair.
+Next release boundary: owner review and a separately authorized merge, followed
+only with owner authorization by exactly one new complete ordinary read-only
+Six Pack dry-run on then-current main. Recheck 506 mappings / 279 products,
+source fingerprint/classification/validator/sealed artifact and all seven
+Warrior review rows from that fresh run. No apply scope or RESTORED status is
+claimed from this offline repair.
+
+## 8 November 2026 PR #504 merge and one complete read-only Six Pack attempt
+
+The owner approved exact head `3c407e7d853db0fc97dcd0dadfafa68e9f0706de`,
+standard squash merge and one `six-pack-offer-refresh.yml` dispatch on main
+with only `operation=dry-run`. PR preflight found that exact head, unchanged
+base `e5fcaed6722cd6e36c1389c52da934ce7607b932`, clean/mergeable state and all
+ordinary checks passing. Full CI `42481865110` had 3564 PASS / three existing
+SKIP; the separate actual PostgreSQL integration job `42481860243` had 149 PASS /
+zero SKIP. The skipped integration job in ordinary full CI is not evidence.
+
+Standard squash merge completed at `2026-11-08T13:28:06Z`, without admin bypass,
+force push or reopening a PR. Merge/main SHA:
+`e150183feef05f4071d55eac1a428ac541a83473`. Approved and merged tree SHA are
+identical: `79f725bfcd52c3f9cf6fa3b681d496526f85c646`. Main push full CI
+`42485098977` (actual full job `128745146108`: 3564 PASS / zero FAIL / three
+existing SKIP) and Guardian `42485098909` both passed before dispatch. Final
+GitHub API readback still has that exact main SHA.
+
+Workflow/code inspection confirms ordinary manual dry-run only reads production
+state and source, builds local plans/reports and uploads evidence. It skips DB
+baseline/postflight steps belonging to apply, Review Queue bind/publication,
+executor, approvals and special reviewed apply. Source code performs SELECTs;
+artifact contract binding is local metadata, not a remote seal/write. The
+existing source-step shell loop permits up to five internal read attempts on
+failure; it was not changed. This authorization results in one workflow dispatch,
+not a manual retry or replay. No apply-mode input or special selector was passed.
+
+The `2026-11-08T13:31:43.784Z` verified-TLS REPEATABLE READ READ ONLY snapshot
+preserves all 506 offers/mappings, full row hashes, all seven Warrior rows and
+history count 539 / latest history ID 10247. Ledger 261 / production identity
+were asserted. Scoped parent/child/apply-run/batch-approval tables have zero
+rows; Review Queue has 709 scoped rows, hashed. No active write-role session was
+found. A supplementary READ ONLY audit at 13:37:36.544Z while the source job
+was still running records 49,115 existing `approved_import_plans` rows, a full
+row hash and **zero** approvals created since dispatch. This supplementary
+capture is not mislabeled as a pre-dispatch snapshot.
+
+Exactly one dispatch was submitted and recorded locally with create-only
+semantics: run `42485457991`, attempt 1, `workflow_dispatch`, main SHA
+`e150183feef05f4071d55eac1a428ac541a83473`, created
+`2026-11-08T13:32:37Z`, completed with failure at `2026-11-08T14:03:40Z`.
+Actual source job `128746215837` failed in Fresh live-source dry-run. All five
+built-in shell read attempts reached product `6582` and failed with
+`SOURCE_SCHEMA_MISMATCH / Undeclared 6 Pack option is not a unique explicit
+selection`; the first logged failure was `2026-11-08T13:43:40.8248471Z`.
+The final reader error has last_attempt=5, timeout=false and no network code.
+These were existing internal read retries, not another dispatch or workflow
+replay. GitHub readback confirms run_attempt=1 and no later manual run.
+
+The final report is **BLOCK / SOURCE_READ_FAILED**. Scope remains **506 approved
+mappings / 279 expected products**, with **222 successfully parsed product
+pages in the final attempt**, **zero executable plans**, **zero executed plans**,
+**zero produced review rows** and **506 blocked rows**. This does not establish
+full source coverage or a total live variation count. Classification and the
+database validator were not reached; no source snapshot fingerprint or sealed
+apply artifact exists. Zero review rows is not a successful 499/7 result:
+source parsing stopped before classification. No safe confirmation, price/stock
+delta or future apply scope can be asserted from this incomplete attempt.
+
+Artifact `13620660080` contains only the 905-byte preflight report. Downloaded
+ZIP SHA-256 matches the provider digest exactly:
+`8850aa38d5e5b9738f2ad7e3b0a46f6bb4bcb9ed620361cd26df17a85b83f2bf`.
+Report SHA-256:
+`e6f2051f194e88f40a12ed4db0c40dcec90f0ef2cf28465cc4c667747e43ca70`.
+Integrity of that failure report is verified; no sealed executable artifact
+was produced. Apply baseline, Review Queue bind, executor, DB postflight and
+fresh idempotency steps were skipped, as were special reviewed apply and the
+Review Queue publication job. They are not reported as passed.
+
+Independent READ ONLY after-snapshot at `2026-11-08T14:06:52.173Z` matches every
+column of all 506 offer rows and 506 mapping rows. Before/after business hash:
+`561cd5d9fe96e79ae71031e82e6e85b1e390d6d187a591d835191d6fb0c06d87`.
+All seven Warrior mappings/offers, including price, stock and last_checked_at,
+are unchanged; no proposed commercial values or executable plans were produced
+for them. Their existing commercial review requirement remains unresolved;
+no new Review Queue rows were published. History remains 539 rows / latest ID
+10247. Scoped parent/child/apply-run/batch-approval tables remain empty; all 709
+Review Queue rows have the same full-row hash. All 49,115 approved_import_plans
+rows retain the supplementary snapshot hash
+`afdce10c65f6b672ef737843acb36f72d4c194a43ebaf054d6ba0623ca1ed0d0`.
+Together with zero approvals since dispatch at the supplementary capture and
+the inspected read-only path/skipped mutation jobs, this verifies business
+writes=0, price history writes=0, approvals=0 and control writes=0. Ledger
+remains 261, with no active parent or write-role session in the after-snapshot.
+There is no new database plan/block from this attempt; the source blocker
+prevents the next refresh.
+
+### First blocker diagnosis and precise next step (not implemented)
+
+One bounded single-product diagnostic GET, using the existing page reader at
+`/?p=6582` with maxAttempts=1, captured HTTP 200 at
+`2026-11-08T14:06:16.297Z`. This was not another full dry-run. Canonical source:
+`https://6pack-supplements.co.uk/product/cream-of-rice-2kg-nxt/`.
+Complete HTML is 333,593 bytes, SHA-256
+`db27f0a3e07e72f2c8dbb667bd44b28cad5012eec79e1852ffc8573b6be698bb`.
+The current merged parser reproduces the same schema error offline.
+
+The payload has five complete, nonempty, unique flavour combinations:
+6583 chocolate coconut, 6584 apple pie, 6585 cinnamon cereal, 6586 gingerbread,
+6587 strawberry cheesecake. Dropdown options contain only apple pie and
+strawberry cheesecake; selected default is chocolate coconut. All five have
+exact same-page ProductGroup/Product JSON-LD corroboration for variant ID/SKU,
+parent membership, flavour URL parameters, GBP 15.99 and matching stock
+(6583/6584 in stock, others out of stock). JSON-LD names and heading identify
+Cream of rice 2kg - NXT. The selected-only fallback admits 6583; the first
+unsupported complete unselected row is 6585, followed by 6586. This is a
+dropdown omission compatibility gap, distinct from Warrior's wildcard
+commercial-unit ambiguity. The diagnostic corroborates this captured page;
+it does not prove later unvisited products are error-free.
+
+Smallest proposed code scope: extend the existing corroborateVariant fallback
+to complete, unique attribute combinations omitted from dropdowns even when
+they are not the selected default, while retaining exact same-page parent,
+variant/SKU, URL, currency, price and stock corroboration. Preserve duplicate,
+missing, contradictory and wildcard guards; no product-6582 exception or new
+isolation category. Use this captured fixture for regression of all five rows,
+with negative cases for ambiguous combinations, wrong parent/SKU/URL, missing
+JSON-LD, currency/price/stock disagreement and incomplete attributes; retain
+existing selected-default and Warrior isolation regressions. This task only
+prepares the evidence and proposal: no code change or new PR was made. A
+bounded implementation/review and any fresh full source dispatch require new
+owner authorization; no apply proposal is ready.
+
+Local evidence: `tmp/504-main-dryrun-20261108/before.json`,
+`dispatch-state.json`, `dispatch-response.txt`, `approval-schema.json` and
+`approval-baseline.json`, `after.json`, `postrun-verification.json`,
+`source-errors.json`, `artifact-integrity.json`, the downloaded failure report,
+`6582-source.html`, `6582-diagnostic.json` and `6582-analysis.json`.
+No Fit House/Jon's/Whey operation was performed. This closeout ledger update
+is local; it is not part of the already-merged PR #504 tree.
+
+## 8 November 2026 owner-confirmed Warrior identity and bounded product isolation (merged assessment)
 
 ### Exact owner decision; identity only
 
