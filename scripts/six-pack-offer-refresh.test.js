@@ -1,11 +1,12 @@
 const assert = require("node:assert/strict");
 const crypto = require("node:crypto");
+const { spawnSync } = require("node:child_process");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
 const manifest = require("../config/retailers/six-pack-approved-offer-manifest.json");
 const { loadDryRunArtifact } = require("./import-products");
-const { WooCommerceSourceError, readWooCommerceProductPage } = require("./lib/woocommerce-product-page-reader");
+const { WooCommerceSourceError, readWooCommerceProductPage, isPermanentSourceError } = require("./lib/woocommerce-product-page-reader");
 const {
   isolateDefaultVariantConflicts,
   approvedSourceFailureDisposition,
@@ -588,6 +589,173 @@ function paths() {
     report: path.join(ROOT, "tmp", "six-pack-offer-refresh-tests", `${id}-report.json`),
   };
 }
+
+test("all eight approved 3980 bindings survive equivalent 1kg/1000g identity without mutation", async () => {
+  const source = fixture(), output = paths();
+  const records = source.state.records.filter((r) => r.mapping.external_product_id === "3980");
+  assert.deepEqual(records.map((r) => r.mapping.external_variant_id), ["3989", "3992", "3995", "5962", "5963", "3988", "3994", "3991"]);
+  for (const record of records) record.mapping.external_name = "7Nutrition Whey Isolate 90 1kg";
+  source.byProduct.get("3980").product_name = "7Nutrition Whey Isolate 90 1000g";
+  const before = structuredClone(source.state);
+  const { report } = await run({ target: "production", ...output, requireNoChange: true }, {
+    state: source.state, readLive: async (id) => source.byProduct.get(id),
+  });
+  assert.equal(report.result, "PASS");
+  const artifact = loadDryRunArtifact(output.artifact).artifact;
+  assert.doesNotThrow(() => require("./six-pack-offer-refresh-executor").validateArtifactScope(artifact, manifest));
+  for (const record of records) {
+    const plan = artifact.plans.find((p) => String(p.resolved_plan.offer.id) === String(record.offer.id)).resolved_plan;
+    assert.equal(String(plan.offer.id), String(record.offer.id));
+    const row = artifact.source_rows.find((r) => r.normalized_source_row.source.external_variant_id === record.mapping.external_variant_id);
+    assert.equal(String(row.normalized_source_row.target.retailer_product.id), String(record.mapping.id));
+    assert.equal(String(row.normalized_source_row.target.product_variant.id), String(record.variant.id));
+    assert.equal(String(row.normalized_source_row.target.product.id), String(record.product.id));
+  }
+  assert.deepEqual(source.state, before);
+});
+
+function conflictingIdentityFixture() {
+  const source = fixture();
+  for (const id of ["3980", "4110"]) {
+    for (const record of source.state.records.filter((r) => r.mapping.external_product_id === id)) {
+      record.mapping.external_name = "Example Vanilla 1kg";
+    }
+    Object.assign(source.byProduct.get(id), { product_name: "Example Vanilla 1.5kg", html_bytes: 1234 });
+  }
+  return source;
+}
+
+test("post-capture BLOCK retains every independent identity conflict and page evidence without plans", async () => {
+  const source = conflictingIdentityFixture(), before = structuredClone(source.state), output = paths();
+  const requests = [];
+  await assert.rejects(run({ target: "production", ...output, isolateUnsafe: true }, {
+    state: source.state, readLive: async (id, context) => {
+      requests.push(id);
+      return { ...source.byProduct.get(id), captured_at: context.capturedAt };
+    },
+  }), (error) => error instanceof WooCommerceSourceError && isPermanentSourceError(error)
+    && error.code === "SOURCE_IDENTITY_DRIFT");
+  const report = JSON.parse(fs.readFileSync(output.report));
+  assert.equal(requests.length, 279);
+  assert.equal(new Set(requests).size, 279);
+  assert.equal(report.result, "BLOCK");
+  assert.equal(report.classification_state, "SOURCE_NORMALIZATION_FAILED");
+  assert.equal(report.error_stage, "SOURCE_NORMALIZATION");
+  assert.equal(report.source_capture_complete, true);
+  assert.equal(report.source_snapshot_complete, false);
+  assert.equal(report.normalization_complete, true);
+  assert.equal(report.fetched_product_page_count, 279);
+  assert.equal(report.attempted_product_page_count, 279);
+  assert.equal(report.parsed_source_variant_count, 506);
+  assert.equal(report.manifest_sha256, loadApprovedManifest().sha256);
+  assert.ok(Date.parse(report.source_captured_at));
+  assert.equal(report.source_pages.length, 279);
+  const page = report.source_pages.find((r) => r.external_product_id === "3980");
+  assert.equal(page.html_bytes, 1234);
+  assert.equal(page.html_sha256, source.byProduct.get("3980").html_sha256);
+  assert.equal(page.captured_at, report.source_captured_at);
+  assert.deepEqual([...new Set(report.post_capture_errors.map((e) => e.product_id))], ["4110", "3980"]);
+  assert.equal(report.post_capture_errors.length, 9);
+  const error = report.post_capture_errors.find((e) => e.external_variant_id === "3989");
+  assert.equal(error.mapping_id, "2213");
+  assert.equal(error.offer_id, "2027");
+  assert.equal(error.error_code, "SOURCE_IDENTITY_DRIFT");
+  assert.equal(error.permanent, true);
+  assert.deepEqual(error.identity.csv_identity_tokens, ["1000g"]);
+  assert.deepEqual(error.identity.live_identity_tokens, ["1500g"]);
+  assert.equal(error.identity.csv_product_name, "Example Vanilla 1kg");
+  for (const key of ["executable_plan_count", "executed_plan_count", "review_row_count", "database_writes"]) assert.equal(report[key], 0);
+  assert.equal(report.blocked_row_count, 506);
+  assert.equal(report.source_snapshot_fingerprint, undefined);
+  assert.equal(report.artifact_sha256, undefined);
+  assert.equal(fs.existsSync(output.artifact), false);
+  assert.deepEqual(source.state, before);
+});
+
+test("unknown post-capture exceptions and transient/forged codes remain retryable and untrusted", async () => {
+  for (const error of [Object.assign(new Error("unknown"), { code: "SOURCE_IDENTITY_DRIFT" }),
+    Object.assign(new Error("timeout"), { code: "ETIMEDOUT" }), new Error("unknown"),
+    new WooCommerceSourceError("SOURCE_UNAVAILABLE", "network"),
+    ...[429, 500, 502, 503].map((status) => new WooCommerceSourceError("SOURCE_HTTP_ERROR", "HTTP", { http_status: status }))]) {
+    assert.equal(isPermanentSourceError(error), false);
+  }
+  const source = fixture(), output = paths(), error = Object.assign(new Error("not a proven contract error"), { code: "SOURCE_IDENTITY_DRIFT" });
+  Object.defineProperty(source.byProduct.get("3980").variations[0], "price", { get() { throw error; } });
+  await assert.rejects(run({ target: "production", ...output }, {
+    state: source.state, readLive: async (id) => source.byProduct.get(id),
+  }), (caught) => caught === error && !isPermanentSourceError(caught));
+  const report = JSON.parse(fs.readFileSync(output.report));
+  assert.equal(report.normalization_complete, false);
+  assert.equal(report.post_capture_errors[0].permanent, false);
+  assert.equal(report.executable_plan_count, 0);
+  assert.equal(fs.existsSync(output.artifact), false);
+});
+
+test("post-capture duplicate coverage is a typed permanent BLOCK with an existing failure report", async () => {
+  const source = fixture(), output = paths();
+  source.state.records.push(structuredClone(source.state.records[0]));
+  await assert.rejects(run({ target: "production", ...output }, {
+    state: source.state, readLive: async (id) => source.byProduct.get(id),
+  }), (error) => error.code === "SOURCE_COLLAPSE" && isPermanentSourceError(error));
+  assert.equal(isPermanentSourceError(Object.assign(new Error("untrusted"), { code: "SOURCE_COLLAPSE" })), false);
+  const report = JSON.parse(fs.readFileSync(output.report));
+  assert.equal(report.error_stage, "SOURCE_COVERAGE");
+  assert.equal(report.block_reason, "SOURCE_COLLAPSE");
+  assert.equal(report.source_error.normalized_row_count, 507);
+  assert.equal(report.source_error.unique_normalized_variant_count, 506);
+  assert.equal(report.executable_plan_count, 0);
+  assert.equal(fs.existsSync(output.artifact), false);
+});
+
+test("an unknown normalization row cannot hide independent proven identity conflicts in captured data", async () => {
+  const source = conflictingIdentityFixture(), output = paths();
+  const record = source.state.records.find((r) => !["4110", "3980"].includes(r.mapping.external_product_id));
+  const page = source.byProduct.get(record.mapping.external_product_id);
+  const row = page.product_offer || page.variations[0];
+  Object.defineProperty(row, "price", { get() { throw Object.assign(new Error("unknown"), { code: "SOURCE_IDENTITY_DRIFT" }); } });
+  await assert.rejects(run({ target: "production", ...output }, {
+    state: source.state, readLive: async (id) => source.byProduct.get(id),
+  }), (error) => isPermanentSourceError(error) && Boolean(error.detail.identity));
+  const report = JSON.parse(fs.readFileSync(output.report));
+  assert.equal(report.normalization_complete, false);
+  assert.equal(report.post_capture_errors.filter((e) => e.permanent).length, 9);
+  assert.ok(report.post_capture_errors.some((e) => e.permanent === false));
+  assert.equal(report.source_error.permanent, true);
+  assert.equal(report.executable_plan_count, 0);
+  assert.equal(fs.existsSync(output.artifact), false);
+});
+
+test("actual Bash source retry loop invokes CLI once for post-capture identity BLOCK, five times for unknown failure", () => {
+  const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/six-pack-offer-refresh.yml"), "utf8");
+  const loop = workflow.match(/for attempt in 1 2 3 4 5; do[\s\S]*?\n          done/)[0]
+    .replace(/node scripts\/six-pack-offer-refresh\.js \\\r?\n[\s\S]*?"\$\{reviewed_args\[@\]\}" && break/, 'node "$OFFLINE_RUNNER" && break');
+  assert.ok(loop.includes('node "$OFFLINE_RUNNER" && break'));
+  const bash = process.platform === "win32" ? "C:/Program Files/Git/bin/bash.exe" : "bash";
+  for (const mode of ["identity", "unknown"]) {
+    const output = paths(), dir = path.dirname(output.report), runner = `${output.report}-runner.cjs`, countFile = `${output.report}-calls.txt`;
+    fs.mkdirSync(dir, { recursive: true });
+    const source = conflictingIdentityFixture();
+    fs.writeFileSync(`${runner}.json`, JSON.stringify({ state: source.state, pages: Object.fromEntries(source.byProduct) }));
+    fs.writeFileSync(runner, `const fs=require('node:fs');const {main}=require(${JSON.stringify(path.join(__dirname, "six-pack-offer-refresh.js"))});
+const data=JSON.parse(fs.readFileSync(__filename+'.json'));fs.appendFileSync(${JSON.stringify(countFile)},'START\\n');
+main(${JSON.stringify({ target: "production", ...output })},{state:data.state,readLive:async id=>{
+fs.appendFileSync(${JSON.stringify(countFile)},id+'\\n');
+if(process.env.OFFLINE_MODE==='unknown')throw Object.assign(new Error('unknown'),{code:'SOURCE_IDENTITY_DRIFT'});
+return data.pages[id];}});`);
+    const child = spawnSync(bash, ["--noprofile", "--norc", "-c", `set -e\nsleep() { :; }\n${loop}`], {
+      cwd: ROOT, env: { ...process.env, OFFLINE_RUNNER: runner.replaceAll("\\", "/"), OFFLINE_MODE: mode }, encoding: "utf8", timeout: 30_000,
+    });
+    assert.ifError(child.error);
+    assert.equal(child.status, mode === "identity" ? 2 : 1, child.stdout + child.stderr);
+    const calls = fs.readFileSync(countFile, "utf8").trim().split("\n");
+    assert.equal(calls.filter((v) => v === "START").length, mode === "identity" ? 1 : 5);
+    assert.equal(calls.filter((v) => v !== "START").length, mode === "identity" ? 279 : 5);
+    assert.equal(fs.existsSync(output.artifact), false);
+    const report = JSON.parse(fs.readFileSync(output.report));
+    assert.equal(report.result, "BLOCK");
+    assert.equal(report.database_writes, 0);
+  }
+});
 
 function reviewedMassOosFixture() {
   const source = fixture();

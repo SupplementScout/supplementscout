@@ -739,13 +739,27 @@ async function readState(manifest, dependencies = {}) {
 function liveSourceFor(record, live) {
   const externalProductId = String(record.mapping.external_product_id);
   const externalVariantId = String(record.mapping.external_variant_id);
+  const contractFailure = (message, code, evidence = {}) => {
+    // Only these proven post-capture contract checks create a permanent source
+    // error. Arbitrary Error.code values and infrastructure exceptions stay untrusted.
+    throw new WooCommerceSourceError(code, message, {
+      stage: "SOURCE_NORMALIZATION", product_id: externalProductId,
+      external_variant_id: externalVariantId, mapping_id: String(record.mapping.id),
+      offer_id: String(record.offer.id), ...evidence,
+    });
+  };
   let offer;
+  if (String(live.external_product_id) !== externalProductId) {
+    contractFailure("Live parent differs from the approved binding", "SOURCE_IDENTITY_DRIFT", {
+      observed_product_id: String(live.external_product_id),
+    });
+  }
   if (externalProductId === externalVariantId) {
-    if (!live.product_offer) fail(`Simple live offer missing for ${externalProductId}`, "SOURCE_SCHEMA_MISMATCH");
+    if (!live.product_offer) contractFailure(`Simple live offer missing for ${externalProductId}`, "SOURCE_SCHEMA_MISMATCH");
     offer = { ...live.product_offer, active: true, purchasable: true };
   } else {
     offer = live.variations.find((row) => row.external_variant_id === externalVariantId);
-    if (!offer) fail(`Live variation ${externalVariantId} missing`, "SOURCE_IDENTITY_DRIFT");
+    if (!offer) contractFailure(`Live variation ${externalVariantId} missing`, "SOURCE_IDENTITY_DRIFT");
   }
   const identityDrift = liveIdentityDrift(
     {
@@ -754,7 +768,9 @@ function liveSourceFor(record, live) {
     },
     live
   );
-  if (identityDrift) fail(`Live commercial identity drift for ${externalVariantId}`, "SOURCE_IDENTITY_DRIFT");
+  if (identityDrift) contractFailure(`Live commercial identity drift for ${externalVariantId}`, "SOURCE_IDENTITY_DRIFT", {
+    identity: identityDrift,
+  });
   if (!offer.active || !offer.purchasable) {
     const shippingCost = shippingForPrice(offer.price);
     return {
@@ -918,6 +934,7 @@ function writeSourceFailureReport({
   fetchedProductPageCount,
   options,
   productId,
+  postCapture,
 }) {
   const sourceError = sourceErrorEvidence(error, productId);
   const report = {
@@ -939,6 +956,30 @@ function writeSourceFailureReport({
     action_counts: {},
     database_writes: 0,
   };
+  if (postCapture) {
+    const { liveByProduct, sourceFailures, errors, normalizationComplete } = postCapture;
+    const pages = [...liveByProduct.values()];
+    const variantsKnown = pages.every((page) => Array.isArray(page.variations));
+    Object.assign(report, {
+      classification_state: error.detail?.stage === "SOURCE_COVERAGE" ? "SOURCE_COVERAGE_FAILED" : "SOURCE_NORMALIZATION_FAILED",
+      error_stage: error.detail?.stage === "SOURCE_COVERAGE" ? "SOURCE_COVERAGE" : "SOURCE_NORMALIZATION",
+      source_capture_complete: true,
+      source_snapshot_complete: false,
+      normalization_complete: normalizationComplete,
+      attempted_product_page_count: new Set(approved.manifest.rows.map((row) => row.external_product_id)).size,
+      parsed_source_variant_count: variantsKnown ? pages.reduce((count, page) =>
+        count + page.variations.length + (page.product_offer ? 1 : 0), 0) : null,
+      source_failure_count: sourceFailures.length,
+      source_failures: sourceFailures,
+      source_pages: pages.map((page) => ({
+        external_product_id: page.external_product_id, canonical_url: page.canonical_url,
+        captured_at: page.captured_at || null, html_sha256: page.html_sha256 || null,
+        html_bytes: page.html_bytes ?? null,
+      })),
+      post_capture_errors: errors,
+      source_error: errors.find((failure) => failure.permanent) || errors[0],
+    });
+  }
   fs.mkdirSync(path.dirname(options.report), { recursive: true });
   fs.writeFileSync(options.report, `${JSON.stringify(report, null, 2)}\n`);
   return report;
@@ -1057,10 +1098,41 @@ async function run(options, dependencies = {}) {
       }
     }
   }
-  const sourceRows = state.records.flatMap((record) => {
-    const live = liveByProduct.get(String(record.mapping.external_product_id));
-    return live ? [liveSourceFor(record, live)] : [];
+  const sourceRows = [], normalizationErrors = [];
+  let firstNormalizationError, firstUnknownNormalizationError;
+  const sourceFailures = [...isolatedSourceFailures.values()].sort((left, right) => (
+    Number(left.product_id) - Number(right.product_id)
+  ));
+  const reportNormalizationFailure = (error, normalizationComplete) => writeSourceFailureReport({
+    approved, capturedAt, error, fetchedProductPageCount: liveByProduct.size, options,
+    productId: normalizationErrors[0]?.product_id,
+    postCapture: { liveByProduct, sourceFailures, errors: normalizationErrors, normalizationComplete },
   });
+  for (const record of state.records) {
+    const live = liveByProduct.get(String(record.mapping.external_product_id));
+    if (!live) continue; // Only already-qualified product isolation can omit a page.
+    try { sourceRows.push(liveSourceFor(record, live)); }
+    catch (error) {
+      if (!isPermanentSourceError(error)) {
+        // Retain available context without promoting an unknown exception to a
+        // permanent identity failure or exposing its arbitrary message.
+        normalizationErrors.push({ ...sourceErrorEvidence(error, record.mapping.external_product_id),
+          stage: "SOURCE_NORMALIZATION", external_variant_id: String(record.mapping.external_variant_id),
+          mapping_id: String(record.mapping.id), offer_id: String(record.offer.id), permanent: false });
+        firstUnknownNormalizationError ||= error;
+        continue;
+      }
+      firstNormalizationError ||= error;
+      normalizationErrors.push({ error_code: error.code, ...error.detail, permanent: true });
+    }
+  }
+  if (firstNormalizationError || firstUnknownNormalizationError) {
+    // Any independently proved conflict is sufficient to BLOCK without refetch.
+    // Unknown rows remain explicitly untrusted, and do not hide later conflicts.
+    const error = firstNormalizationError || firstUnknownNormalizationError;
+    reportNormalizationFailure(error, !firstUnknownNormalizationError);
+    throw error;
+  }
   const isolatedRowCount = state.records.filter((record) => (
     isolatedSourceFailures.has(String(record.mapping.external_product_id))
   )).length;
@@ -1068,11 +1140,15 @@ async function run(options, dependencies = {}) {
     sourceRows.length + isolatedRowCount !== approved.manifest.rows.length ||
     new Set(sourceRows.map((row) => row.external_variant_id)).size !== sourceRows.length
   ) {
-    fail("Approved source coverage is incomplete or duplicated", "SOURCE_COLLAPSE");
+    const error = new WooCommerceSourceError("SOURCE_COLLAPSE", "Approved source coverage is incomplete or duplicated", {
+      stage: "SOURCE_COVERAGE", product_id: null, external_variant_id: null, mapping_id: null,
+      normalized_row_count: sourceRows.length, isolated_row_count: isolatedRowCount,
+      unique_normalized_variant_count: new Set(sourceRows.map((row) => row.external_variant_id)).size,
+    });
+    normalizationErrors.push({ error_code: error.code, ...error.detail, permanent: true });
+    reportNormalizationFailure(error, true);
+    throw error;
   }
-  const sourceFailures = [...isolatedSourceFailures.values()].sort((left, right) => (
-    Number(left.product_id) - Number(right.product_id)
-  ));
   const snapshotFingerprint = sha256({
     captured_at: capturedAt,
     pages: [...liveByProduct.values()].map((row) => ({
@@ -1240,8 +1316,8 @@ async function run(options, dependencies = {}) {
   return { report, artifact };
 }
 
-if (require.main === module) {
-  run(parseArgs(process.argv.slice(2)))
+function main(options = parseArgs(process.argv.slice(2)), dependencies) {
+  return run(options, dependencies)
     .then(({ report }) => console.log(JSON.stringify(report, null, 2)))
     .catch((error) => {
       console.error(`${error.code || "ERROR"}: ${error.message}`);
@@ -1249,6 +1325,8 @@ if (require.main === module) {
       process.exitCode = isPermanentSourceError(error) ? 2 : 1;
     });
 }
+
+if (require.main === module) main();
 
 module.exports = {
   approvedSourceFailureDisposition,
@@ -1262,6 +1340,7 @@ module.exports = {
   loadApprovedManifest,
   loadReviewedMassOosManifest,
   money,
+  main,
   parseArgs,
   parseSixPackProductPage,
   reviewedSourceSemanticRows,

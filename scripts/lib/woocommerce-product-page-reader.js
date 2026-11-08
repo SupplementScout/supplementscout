@@ -13,6 +13,7 @@ function isPermanentSourceError(error) {
   return error instanceof WooCommerceSourceError && [
     "SOURCE_SCHEMA_MISMATCH", "SOURCE_IDENTITY_DRIFT", "DUPLICATE_SOURCE_IDENTITY",
     "SOURCE_REDIRECT_ERROR", "SOURCE_CONTENT_TYPE", "SOURCE_TOO_LARGE", "SOURCE_CONFIGURATION",
+    "SOURCE_COLLAPSE",
   ].includes(error.code);
 }
 
