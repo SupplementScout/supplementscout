@@ -4,6 +4,8 @@ const dotenv = require("dotenv");
 const { createClient } = require("@supabase/supabase-js");
 const { readWooCommerceProductPage, sha256 } = require("./lib/woocommerce-product-page-reader");
 const config = require("../config/retailers/six-pack-supplements-woocommerce.json");
+const { parseSize } = require("./lib/feed-variant-guards");
+const { normalizeDecimalString } = require("./lib/canonical-json");
 const { TARGETS } = require("./six-pack-match-report");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -129,25 +131,48 @@ function currentOffer(source, live) {
   };
 }
 
-function commercialIdentityTokens(value) {
-  const tokens = [];
-  const pattern = /(\d+(?:[.,]\d+)?)\s*(mcg|µg|mg|kg|g|ml|l|iu|capsules?|caps?|tablets?|tabs?)\b/gi;
-  for (const match of String(value || "").matchAll(pattern)) {
-    let unit = match[2].toLowerCase();
+function commercialIdentity(value) {
+  const tokens = [], literalTokens = [];
+  // A multipack retains its count and per-unit size; never sum it into a single pack.
+  const pattern = /(?:(\d+)\s*[x×]\s*)?(\d+(?:[.,]\d+)?)\s*(mcg|µg|mg|kg|g|ml|l|iu|capsules?|caps?|tablets?|tabs?|boxes|box|packs?|oz|lbs?)\b/gi;
+  const comparisonName = String(value || "").replace(pattern, (match, count, amount, rawUnit) => {
+    let unit = rawUnit.toLowerCase();
     if (/^caps?/.test(unit)) unit = "capsule";
     if (/^(tablets?|tabs?)$/.test(unit)) unit = "tablet";
-    tokens.push(`${match[1].replace(",", ".")}${unit}`);
-  }
-  return [...new Set(tokens)].sort();
+    if (/^(boxes|box)$/.test(unit)) unit = "box";
+    if (/^packs?$/.test(unit)) unit = "pack";
+    const decimal = normalizeDecimalString(amount.replace(",", "."), "commercial identity");
+    const prefix = count ? `${normalizeDecimalString(count)}x` : "";
+    const literal = `${prefix}${amount.replace(",", ".")}${unit}`;
+    // parseSize's mass contract fits kg/g packaging. Keep doses, counts and opaque
+    // units separate; no float tolerance or guessed oz/lb conversion is introduced.
+    const size = ["kg", "g"].includes(unit) ? parseSize(`${decimal}${unit}`) : null;
+    const token = size ? `${prefix}${size.value}${size.unit}` : `${prefix}${decimal}${unit}`;
+    tokens.push(token);
+    literalTokens.push(literal);
+    return token;
+  }).replace(/\b(box(?:es)?|packs?)\s+of\s+(\d+)\b/gi, (match, unit, count) => {
+    const token = `${normalizeDecimalString(count)}${/^box/i.test(unit) ? "box" : "pack"}`;
+    tokens.push(token); literalTokens.push(token);
+    return token;
+  }).toLowerCase().replace(/\s+/g, " ").trim();
+  return { tokens: [...new Set(tokens)].sort(), literalTokens, comparisonName };
+}
+
+function commercialIdentityTokens(value) {
+  return commercialIdentity(value).tokens;
 }
 
 function liveIdentityDrift(source, live) {
-  const sourceTokens = commercialIdentityTokens(source.product_name);
-  const liveTokens = commercialIdentityTokens(live.product_name);
+  const expected = commercialIdentity(source.product_name), observed = commercialIdentity(live.product_name);
+  const sourceTokens = expected.tokens, liveTokens = observed.tokens;
+  const equivalent = sourceTokens.every((token) => liveTokens.includes(token));
+  const packaging = (tokens) => tokens.filter((token) => /^\d+x/.test(token) || /(?:box|pack)$/.test(token));
+  const samePackaging = JSON.stringify(packaging(sourceTokens)) === JSON.stringify(packaging(liveTokens));
+  const needsUnitEquivalence = !expected.literalTokens.every((token) => observed.literalTokens.includes(token));
   if (
     !sourceTokens.length ||
-    !liveTokens.length ||
-    sourceTokens.every((token) => liveTokens.includes(token))
+    (equivalent && samePackaging && (!needsUnitEquivalence || expected.comparisonName === observed.comparisonName))
   ) {
     return null;
   }

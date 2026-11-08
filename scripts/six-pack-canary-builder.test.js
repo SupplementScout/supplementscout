@@ -33,6 +33,35 @@ test("live identity guard blocks changed dosage while tolerating capsule wording
   );
 });
 
+test("commercial packaging uses exact existing kg/g normalization without changing product names", () => {
+  for (const [left, right] of [["1kg", "1000g"], ["0.5 kg", "500 g"], ["1,5kg", "1500g"],
+    ["2kg", "2000g"], ["0.100000000000000001kg", "100.000000000000001g"]]) {
+    const source = { source_record_id: "example", product_name: `Example Vanilla ${left}` };
+    const live = { product_name: `Example Vanilla ${right}` };
+    const before = structuredClone({ source, live });
+    assert.deepEqual(commercialIdentityTokens(source.product_name), commercialIdentityTokens(live.product_name));
+    assert.equal(liveIdentityDrift(source, live), null);
+    assert.equal(liveIdentityDrift({ ...source, product_name: live.product_name }, { product_name: source.product_name }), null);
+    assert.deepEqual({ source, live }, before);
+  }
+});
+
+test("unit equivalence cannot authorize different sizes, counts, packs, flavours or names", () => {
+  for (const [left, right] of [["1kg", "1g"], ["1kg", "1.5kg"], ["500g", "500mg"],
+    ["60 capsules", "120 caps"], ["1 box", "12 boxes"], ["1kg", "2 x 500g"],
+    ["500g", "2x500g"], ["1kg", "1kg pack of 2"], ["1kg box of 1", "1kg box of 12"],
+    ["1kg", "1oz"], ["1kg", "1 k"], ["1kg", "1-1000g"]]) {
+    assert.equal(liveIdentityDrift({ product_name: `Example ${left}` }, { product_name: `Example ${right}` }).code,
+      "CSV_LIVE_IDENTITY_DRIFT", `${left} must not match ${right}`);
+  }
+  for (const name of ["Other Brand Vanilla 1000g", "Example Chocolate 1000g", "Example Vanilla 1000g pack of 2"]) {
+    assert.ok(liveIdentityDrift({ product_name: "Example Vanilla 1kg" }, { product_name: name }), name);
+  }
+  assert.ok(liveIdentityDrift({ product_name: "Example Vanilla 1.00kg" }, { product_name: "Example Chocolate 1kg" }));
+  assert.deepEqual(commercialIdentityTokens("Example 2 × 0.5kg"), ["2x500g"]);
+  assert.equal(liveIdentityDrift({ product_name: "Example 2 x 0.5kg" }, { product_name: "Example 2x500g" }), null);
+});
+
 test("canary builder requires an explicit target and a 5..20 row boundary", () => {
   assert.throws(() => parseArgs([]), /Required --target/);
   assert.throws(() => parseArgs(["--target=production", "--limit=4"]), /5..20/);
