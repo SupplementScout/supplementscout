@@ -132,15 +132,17 @@ function currentOffer(source, live) {
 }
 
 function commercialIdentity(value) {
-  const tokens = [], literalTokens = [];
+  const tokens = [], literalTokens = [], capsuleQualifiers = [];
   // A multipack retains its count and per-unit size; never sum it into a single pack.
-  const pattern = /(?:(\d+)\s*[x×]\s*)?(\d+(?:[.,]\d+)?)\s*(mcg|µg|mg|kg|g|ml|l|iu|capsules?|caps?|tablets?|tabs?|boxes|box|packs?|oz|lbs?)\b/gi;
-  const comparisonName = String(value || "").replace(pattern, (match, count, amount, rawUnit) => {
+  const pattern = /(?:(\d+)\s*[x×]\s*)?(\d+(?:[.,]\d+)?)\s*(?:(vege|vegetarian|vegan)\s+)?(mcg|µg|mg|kg|g|ml|l|iu|capsules?|caps?|tablets?|tabs?|servings?|serves?|boxes|box|packs?|oz|lbs?)\b/gi;
+  const comparisonName = String(value || "").replace(pattern, (match, count, amount, qualifier, rawUnit) => {
     let unit = rawUnit.toLowerCase();
+    if (qualifier && !/^caps?(?:ules?)?$/i.test(unit)) return match;
     if (/^caps?/.test(unit)) unit = "capsule";
     if (/^(tablets?|tabs?)$/.test(unit)) unit = "tablet";
     if (/^(boxes|box)$/.test(unit)) unit = "box";
     if (/^packs?$/.test(unit)) unit = "pack";
+    if (/^(servings?|serves?)$/.test(unit)) unit = "serving";
     const decimal = normalizeDecimalString(amount.replace(",", "."), "commercial identity");
     const prefix = count ? `${normalizeDecimalString(count)}x` : "";
     const literal = `${prefix}${amount.replace(",", ".")}${unit}`;
@@ -150,13 +152,21 @@ function commercialIdentity(value) {
     const token = size ? `${prefix}${size.value}${size.unit}` : `${prefix}${decimal}${unit}`;
     tokens.push(token);
     literalTokens.push(literal);
+    if (qualifier) capsuleQualifiers.push(qualifier.toLowerCase() === "vegan" ? "vegan" : "vegetarian");
     return token;
   }).replace(/\b(box(?:es)?|packs?)\s+of\s+(\d+)\b/gi, (match, unit, count) => {
     const token = `${normalizeDecimalString(count)}${/^box/i.test(unit) ? "box" : "pack"}`;
     tokens.push(token); literalTokens.push(token);
     return token;
   }).toLowerCase().replace(/\s+/g, " ").trim();
-  return { tokens: [...new Set(tokens)].sort(), literalTokens, comparisonName };
+  const normalizedTokens = [...new Set(tokens)].sort();
+  // Exact remaining words (including brand) support review identity only. This
+  // is a closed word-set comparison, never edit-distance or fuzzy name matching.
+  let anchors = comparisonName;
+  for (const token of normalizedTokens) anchors = anchors.split(token).join(" ");
+  return { tokens: normalizedTokens, literalTokens, comparisonName,
+    name_tokens: anchors.replace(/[^\p{L}\p{N}]+/gu, " ").trim().split(/\s+/).filter(Boolean).sort(),
+    capsule_qualifiers: [...new Set(capsuleQualifiers)].sort() };
 }
 
 function commercialIdentityTokens(value) {
@@ -170,9 +180,10 @@ function liveIdentityDrift(source, live) {
   const packaging = (tokens) => tokens.filter((token) => /^\d+x/.test(token) || /(?:box|pack)$/.test(token));
   const samePackaging = JSON.stringify(packaging(sourceTokens)) === JSON.stringify(packaging(liveTokens));
   const needsUnitEquivalence = !expected.literalTokens.every((token) => observed.literalTokens.includes(token));
+  const sameCapsuleKind = JSON.stringify(expected.capsule_qualifiers) === JSON.stringify(observed.capsule_qualifiers);
   if (
     !sourceTokens.length ||
-    (equivalent && samePackaging && (!needsUnitEquivalence || expected.comparisonName === observed.comparisonName))
+    (equivalent && samePackaging && sameCapsuleKind && (!needsUnitEquivalence || expected.comparisonName === observed.comparisonName))
   ) {
     return null;
   }
@@ -183,6 +194,8 @@ function liveIdentityDrift(source, live) {
     live_product_name: live.product_name,
     csv_identity_tokens: sourceTokens,
     live_identity_tokens: liveTokens,
+    ...(sameCapsuleKind ? {} : { csv_capsule_qualifiers: expected.capsule_qualifiers,
+      live_capsule_qualifiers: observed.capsule_qualifiers }),
   };
 }
 
@@ -361,6 +374,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  commercialIdentity,
   EXTRA_COLUMNS,
   canonicalFeedRow,
   commercialIdentityTokens,

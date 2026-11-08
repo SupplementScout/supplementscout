@@ -24,6 +24,247 @@ const unbuyableHtml = fs.readFileSync(path.join(__dirname, "test-fixtures/six-pa
 const unbuyableUrl = "https://6pack-supplements.co.uk/product/skull-labs-angel-dust-pump-pre-workout-fruit-killer-flavor/";
 const unbuyableName = "Skull Labs Angel Dust PUMP Pre-Workout";
 const unbuyableReason = "UNBUYABLE_PARENT_VARIANTS_UNRESOLVED";
+const simpleHtml = fs.readFileSync(path.join(__dirname, "test-fixtures/six-pack-theme-unbuyable-simple.html"), "utf8");
+const simpleUrl = "https://6pack-supplements.co.uk/product/zmb-gmc-90-caps/";
+const simpleName = "Zmb + Gmc 90 Vege Caps 7Nutrition";
+const simpleReason = "UNBUYABLE_SIMPLE_OFFER_UNRESOLVED";
+function simpleFixture() {
+  const source = unbuyableFixture();
+  const record = source.state.records.find((r) => r.mapping.external_product_id === "2819");
+  record.mapping.external_name = "7Nutrition ZMB + GMC 90 Caps";
+  record.mapping.external_url = simpleUrl;
+  return source;
+}
+function simpleRead(html = simpleHtml, response = {}) {
+  return (id, context) => readWooCommerceProductPage({ storeUrl: "https://6pack-supplements.co.uk", productId: id,
+    capturedAt: context.capturedAt, maximumAttempts: 5, sleepImpl: async () => {}, parseProductPage: parseSixPackProductPage,
+    fetchImpl: async () => ({ status: 200, url: simpleUrl, headers: { get: () => "text/html" },
+      text: async () => html, ...response }),
+  });
+}
+
+test("complete unavailable simple uses exact approved identity only for manual review", async () => {
+  const source = simpleFixture(), before = structuredClone(source.state), capturedAt = new Date().toISOString();
+  let failure;
+  try { await simpleRead()("2819", { capturedAt }); } catch (e) { failure = e; }
+  assert.equal(failure.cause.detail.reason_code, simpleReason);
+  assert.equal(failure.detail.last_attempt, 1);
+  const disposition = approvedSourceFailureDisposition(failure, "2819", loadApprovedManifest(), capturedAt, source.state.records);
+  assert.equal(disposition.scope, "PRODUCT");
+  assert.equal(disposition.reason, simpleReason);
+  assert.deepEqual(disposition.approved_variation_ids, ["2819"]);
+  assert.deepEqual(disposition.identity.observed_capsule_qualifiers, ["vegetarian"]);
+  assert.equal(disposition.identity.authority, "MANUAL_REVIEW_ONLY");
+  assert.equal(failure.cause.detail.price, undefined);
+  assert.equal(failure.cause.detail.in_stock, undefined);
+  assert.deepEqual(source.state, before);
+  for (const change of [
+    r => { r.mapping.external_name = "Other Brand ZMB + GMC 90 Caps"; },
+    r => { r.mapping.external_name = "7Nutrition ZMB + GMC 120 Caps"; },
+    r => { r.mapping.external_name = "7Nutrition ZMB + GMC 90 Tablets"; },
+    r => { r.offer.retailer_product_id = 999; }, r => { r.mapping.product_variant_id = 999; },
+    r => { r.mapping.retailer_id = 999; }, r => { r.offer.product_id = 999; },
+    r => { r.mapping.external_url = "https://other.example/product/"; },
+  ]) {
+    const records = structuredClone(source.state.records); change(records.find(r=>r.mapping.external_product_id === "2819"));
+    assert.equal(approvedSourceFailureDisposition(failure, "2819", loadApprovedManifest(), capturedAt, records).scope, "RETAILER");
+  }
+});
+
+for (const [label, change] of [
+  ["wrong ID", h => h.replace("postid-2819", "postid-9999")],
+  ["unknown type", h => h.replace("product-type-simple", "product-type-unknown")],
+  ["mixed type", h => h.replace("product-type-simple", "product-type-simple product-type-variable")],
+  ["variable cannot use simple scope", h => h.replace("product-type-simple", "product-type-variable")],
+  ["incomplete HTML", h => h.replace("</body></html>", "")],
+  ["foreign canonical", h => h.replace('href="'+simpleUrl+'"', 'href="https://other.example/product/"')],
+  ["contradictory stock", h => h.replace('first outofstock', 'first instock')],
+  ["contradictory price metadata", h => h.replace('property="product:price:amount" content="14.99"', 'property="product:price:amount" content="9.99"')],
+  ["foreign currency metadata", h => h.replace('property="product:price:currency" content="GBP"', 'property="product:price:currency" content="USD"')],
+  ["contradictory offer", h => h.replace('"@type":"ItemPage"', '"@type":"Product","offers":{"price":"2.99"}')],
+  ["alternate commerce", h => h.replace("</main>", '<div data-variant-id="999"></div></main>')],
+]) test(`unbuyable simple stays BLOCK for ${label}`, async () => {
+  const source = simpleFixture(), output = paths();
+  await assert.rejects(run({ target: "production", ...output, isolateUnsafe: true }, {
+    state: source.state, readLive: (id, context) => id === "2819" ? simpleRead(change(simpleHtml))(id, context) : source.byProduct.get(id),
+  }));
+  const report = JSON.parse(fs.readFileSync(output.report));
+  assert.equal(report.result, "BLOCK");
+  assert.equal(report.executable_plan_count, 0);
+  assert.equal(report.review_row_count, 0);
+  assert.equal(report.database_writes, 0);
+  assert.equal(fs.existsSync(output.artifact), false);
+});
+
+test("simple isolation has no product ID exception and rejects unclosed manifest dependencies", async () => {
+  const source = simpleFixture(), id = "4110", capturedAt = new Date().toISOString();
+  const html = simpleHtml.replaceAll("2819", id).replaceAll(simpleUrl, "https://6pack-supplements.co.uk/product/generic-simple/")
+    .replaceAll(simpleName, "Generic Brand Product 90 Caps");
+  const record = source.state.records.find(r=>r.mapping.external_product_id===id);
+  record.mapping.external_name = "Generic Brand Product 90 Caps";
+  record.mapping.external_url = "https://6pack-supplements.co.uk/product/generic-simple/";
+  let error;
+  try { await simpleRead(html, { url: record.mapping.external_url })(id, { capturedAt }); } catch (e) { error = e; }
+  assert.equal(approvedSourceFailureDisposition(error, id, loadApprovedManifest(), capturedAt, source.state.records).scope, "PRODUCT");
+  for (const modify of [
+    a => a.manifest.rows.push({ ...a.manifest.rows.find(r=>r.external_product_id===id), mapping_id:"999999" }),
+    a => { a.manifest.rows.find(r=>r.external_product_id!==id).canonical_variant_id = String(record.variant.id); },
+    a => { a.manifest.rows.find(r=>r.external_product_id===id).external_variant_id="999999"; },
+  ]) {
+    const approved = structuredClone(loadApprovedManifest()); modify(approved);
+    assert.equal(approvedSourceFailureDisposition(error, id, approved, capturedAt, source.state.records).scope, "RETAILER");
+  }
+});
+
+function missingProduct(id) {
+  return new WooCommerceSourceError("SOURCE_HTTP_ERROR", "missing", { product_id:id, error_type:"WooCommerceSourceError",
+    request_url:`https://6pack-supplements.co.uk/?p=${id}`, http_status:404, network_code:null, timeout:false, last_attempt:5 });
+}
+
+test("simple qualification rejects corrupt, stale, future and credential-bearing provenance", async () => {
+  const source = simpleFixture(), capturedAt = new Date().toISOString();
+  let failure;
+  try { await simpleRead()("2819", { capturedAt }); } catch (error) { failure = error; }
+  const original = structuredClone(failure.cause.detail.source_document);
+  for (const mutate of [
+    d => { d.html_sha256 = "f".repeat(64); },
+    d => { d.html_bytes += 1; },
+    d => { d.body_complete = false; },
+    d => { d.captured_at = "2026-01-01T00:00:00Z"; },
+    d => { d.captured_at = "2099-01-01T00:00:00Z"; },
+    d => { d.canonical_url = "https://user:secret@6pack-supplements.co.uk/product/zmb-gmc-90-caps/"; },
+    d => { d.request_url += "&credential=secret"; },
+  ]) {
+    failure.cause.detail.source_document = structuredClone(original);
+    mutate(failure.cause.detail.source_document);
+    assert.equal(approvedSourceFailureDisposition(failure, "2819", loadApprovedManifest(), capturedAt, source.state.records).scope, "RETAILER");
+  }
+});
+
+for (const [label, code, detail] of [
+  ["429", "SOURCE_HTTP_ERROR", { http_status: 429 }],
+  ["503", "SOURCE_HTTP_ERROR", { http_status: 503 }],
+  ["timeout", "SOURCE_UNAVAILABLE", { timeout: true }],
+  ["unknown", "UNKNOWN", {}],
+]) test(`source ${label} stops the existing loop without reading another parent`, async () => {
+  const source = fixture(), output = paths(), called = [];
+  await assert.rejects(run({ target: "production", ...output }, {
+    state: source.state, readLive: async id => {
+      called.push(id);
+      throw new WooCommerceSourceError(code, "untrusted secret must not be retained", {
+        product_id: id, error_type: "WooCommerceSourceError", http_status: null, timeout: false,
+        network_code: null, last_attempt: 5, ...detail,
+      });
+    },
+  }));
+  const reportText = fs.readFileSync(output.report, "utf8"), report = JSON.parse(reportText);
+  assert.equal(called.length, 1);
+  assert.equal(report.not_reached_product_page_count, 278);
+  assert.equal(report.source_errors[0].diagnostic_continuation_allowed, false);
+  assert.equal(reportText.includes("untrusted secret"), false);
+  assert.equal(fs.existsSync(output.artifact), false);
+  assertSourcePartition(report);
+});
+
+test("fatal HTML has one bounded report budget while all source hashes and failures remain", async () => {
+  const source = simpleFixture(), output = paths(), ids = ["4110", "2819"];
+  const url = "https://6pack-supplements.co.uk/product/generic-simple/";
+  source.state.records.filter(r => r.mapping.external_product_id === ids[0]).forEach(r => {
+    r.mapping.external_name = "Generic Brand Product 90 Caps";
+    r.mapping.external_url = url;
+  });
+  await assert.rejects(run({ target: "production", ...output }, {
+    state: source.state, readLive: (id, context) => {
+      if (!ids.includes(id)) return source.byProduct.get(id);
+      let html = simpleHtml.replace("Not available to buy online", "Unrecognized purchase state")
+        .replace("</head>", `<!--${"x".repeat(1_050_000)}--></head>`);
+      if (id === ids[0]) html = html.replaceAll("2819", id).replaceAll(simpleUrl, url).replaceAll(simpleName, "Generic Brand Product 90 Caps");
+      return simpleRead(html, { url: id === ids[0] ? url : simpleUrl })(id, context);
+    },
+  }), { code: "SOURCE_SCHEMA_MISMATCH" });
+  const report = JSON.parse(fs.readFileSync(output.report));
+  assert.equal(report.fatal_product_page_count, 2);
+  assert.equal(report.source_errors.filter(e => e.source_document.html).length, 1);
+  assert.equal(report.source_errors[1].source_document.html_retention, "REPORT_BUDGET_EXCEEDED");
+  assert.ok(report.source_errors.every(e => e.source_document.html_bytes > 1_000_000 && /^[a-f0-9]{64}$/.test(e.source_document.html_sha256)));
+  assertSourcePartition(report);
+});
+function assertSourcePartition(report) {
+  const counts = report.source_coverage.counts;
+  assert.equal(Object.values(counts).reduce((n,x)=>n+x.products,0),279);
+  assert.equal(Object.values(counts).reduce((n,x)=>n+x.mappings,0),506);
+  assert.equal(report.source_coverage.mappings.length,506);
+  assert.equal(new Set(report.source_coverage.mappings.map(x=>x.mapping_id)).size,506);
+  assert.equal(new Set(report.source_coverage.products.map(x=>x.external_product_id)).size,279);
+  assert.equal(report.source_snapshot_fingerprint,undefined);
+  assert.equal(report.artifact_sha256,undefined);
+  for (const key of ["executable_plan_count","executed_plan_count","review_row_count","database_writes"]) assert.equal(report[key],0);
+}
+
+test("fatal product 21 preserves all 20 earlier outcomes, exact isolation IDs and bounded fatal HTML", async () => {
+  const source = simpleFixture(), output = paths(), ids=[...source.byProduct.keys()], called=[];
+  await assert.rejects(run({ target:"production", ...output, isolateUnsafe:true }, {
+    state:source.state,readLive:async(id,ctx)=>{called.push(id);if(id===ids[0])throw missingProduct(id);
+      return id==='2819' ? simpleRead(simpleHtml.replace('first outofstock','first instock').replace('id="main"','id="incomplete-main"'))(id,ctx)
+        : source.byProduct.get(id);},
+  }),{code:'SOURCE_SCHEMA_MISMATCH'});
+  // Deliberately mismatched main identity is an integrity stop, not a reason to scan further.
+  const report=JSON.parse(fs.readFileSync(output.report));
+  assert.equal(called.length,21);assert.equal(new Set(called).size,21);
+  assert.equal(report.attempted_product_page_count,21);assert.equal(report.parsed_product_page_count,19);
+  assert.equal(report.isolated_product_page_count,1);assert.equal(report.fatal_product_page_count,1);
+  assert.equal(report.not_reached_product_page_count,258);assert.equal(report.source_capture_complete,false);
+  assert.equal(report.source_failures[0].product_id,ids[0]);
+  assert.equal(report.source_failures[0].disposition,'SOURCE_PRODUCT_NOT_FOUND');
+  assert.deepEqual(report.source_failures[0].approved_variation_ids,manifest.rows.filter(r=>r.external_product_id===ids[0]).map(r=>r.external_variant_id));
+  assert.equal(report.source_failures[0].affected_mapping_count,report.source_failures[0].mapping_ids.length);
+  assert.equal(report.source_errors[0].product_id,'2819');
+  assert.ok(report.source_errors[0].source_document.html.includes('incomplete-main'));
+  assert.equal(report.source_pages.length,19);assert.ok(report.source_pages.every(p=>/^[a-f0-9]{64}$/.test(p.html_sha256)));
+  assertSourcePartition(report);assert.equal(fs.existsSync(output.artifact),false);
+});
+
+test("one existing source loop collects independent complete-page schema failures without plans or refetch", async () => {
+  const source=simpleFixture(),output=paths(),called=[];
+  const secondId='4110',secondUrl='https://6pack-supplements.co.uk/product/generic-simple/';
+  const row=source.state.records.find(r=>r.mapping.external_product_id===secondId);
+  row.mapping.external_name='Generic Brand Product 90 Caps';row.mapping.external_url=secondUrl;
+  const second=simpleHtml.replaceAll('2819',secondId).replaceAll(simpleUrl,secondUrl).replaceAll(simpleName,row.mapping.external_name);
+  await assert.rejects(run({target:'production',...output,isolateUnsafe:true},{state:source.state,readLive:async(id,ctx)=>{
+    called.push(id);
+    if(id==='2819'||id===secondId)return simpleRead((id==='2819'?simpleHtml:second).replace('Not available to buy online','Unrecognized purchase state'),
+      {url:id==='2819'?simpleUrl:secondUrl})(id,ctx);
+    return source.byProduct.get(id);
+  }}),{code:'SOURCE_SCHEMA_MISMATCH'});
+  const report=JSON.parse(fs.readFileSync(output.report));
+  assert.equal(called.length,279);assert.equal(new Set(called).size,279);
+  assert.equal(report.source_capture_complete,true);assert.equal(report.source_snapshot_complete,false);
+  assert.equal(report.fatal_product_page_count,2);assert.equal(report.parsed_product_page_count,277);
+  assert.deepEqual(report.source_errors.map(e=>e.product_id),[secondId,'2819']);
+  assert.ok(report.source_errors.every(e=>e.diagnostic_continuation_allowed&&e.source_document.html));
+  assertSourcePartition(report);assert.equal(fs.existsSync(output.artifact),false);
+});
+
+test("a transient failure stops diagnosis and retains prior fatal evidence without promoting transport", async () => {
+  const source=simpleFixture(),output=paths(),ids=[...source.byProduct.keys()],called=[];
+  // First parent is a complete product-local schema failure; next is rate limited.
+  const first=ids[0],url='https://6pack-supplements.co.uk/product/generic-simple/';
+  source.state.records.filter(r=>r.mapping.external_product_id===first).forEach(r=>{
+    r.mapping.external_name='Generic Brand Product 90 Caps';r.mapping.external_url=url;
+  });
+  const html=simpleHtml.replaceAll('2819',first).replaceAll(simpleUrl,url).replaceAll(simpleName,'Generic Brand Product 90 Caps')
+    .replace('Not available to buy online','Unrecognized purchase state');
+  const rate=new WooCommerceSourceError('SOURCE_HTTP_ERROR','rate limited',{product_id:ids[1],error_type:'WooCommerceSourceError',
+    request_url:`https://6pack-supplements.co.uk/?p=${ids[1]}`,http_status:429,last_attempt:5,network_code:null,timeout:false});
+  await assert.rejects(run({target:'production',...output},{state:source.state,readLive:async(id,ctx)=>{
+    called.push(id);if(id===first)return simpleRead(html,{url})(id,ctx);throw rate;
+  }}),(error)=>isPermanentSourceError(error)&&error.code==='SOURCE_SCHEMA_MISMATCH');
+  const report=JSON.parse(fs.readFileSync(output.report));
+  assert.equal(called.length,2);assert.equal(isPermanentSourceError(rate),false);
+  assert.equal(report.source_errors[1].http_status,429);assert.equal(report.capture_stopped_by.product_id,ids[1]);
+  assert.equal(report.source_error.product_id,first);assert.equal(report.not_reached_product_page_count,277);
+  assertSourcePartition(report);
+});
 function unbuyableFixture() {
   const source = fixture();
   for (const record of source.state.records.filter((r) => r.mapping.external_product_id === "28570")) {
@@ -927,11 +1168,14 @@ test("captured complete omitted variants flow through full approved-scope classi
   assert.deepEqual(source.state, before);
 });
 
-for (const includeUnbuyable of [false, true]) test(includeUnbuyable
+for (const mode of ["wildcard", "variable", "simple"]) test(mode === "simple"
+  ? "complete offline scope: 506 = 495 executable + 11 unchanged Warrior/variable/simple review"
+  : mode === "variable"
   ? "complete offline scope: 506 = 496 executable + 10 unchanged Warrior/unbuyable review"
   : "complete approved wildcard product uses existing isolation: 506 = 499 executable + 7 unchanged review", async () => {
-  const source = includeUnbuyable ? unbuyableFixture() : fixture();
-  const executableCount = includeUnbuyable ? 496 : 499, reviewCount = includeUnbuyable ? 10 : 7;
+  const includeSimple = mode === "simple", includeUnbuyable = mode !== "wildcard";
+  const source = includeSimple ? simpleFixture() : includeUnbuyable ? unbuyableFixture() : fixture();
+  const executableCount = includeSimple ? 495 : includeUnbuyable ? 496 : 499, reviewCount = 506 - executableCount;
   for (const record of source.state.records.filter((row) => row.mapping.external_product_id === "2769")) {
     const binding = approvedWarriorBindings.find(([id]) => id === record.mapping.external_variant_id);
     record.mapping.external_options = { Pack: "12", Flavour: binding[4] };
@@ -942,6 +1186,7 @@ for (const includeUnbuyable of [false, true]) test(includeUnbuyable
   const result = await run({ target: "production", ...output, isolateUnsafe: true }, {
     state: source.state,
     readLive: async (id, context) => String(id) === "2769" ? wildcardRead()(id, context)
+      : includeSimple && String(id) === "2819" ? simpleRead()(id, context)
       : includeUnbuyable && String(id) === "28570" ? unbuyableRead()(id, context) : source.byProduct.get(String(id)),
   });
   assert.equal(result.report.result, "PASS_WITH_REVIEW");
@@ -950,7 +1195,7 @@ for (const includeUnbuyable of [false, true]) test(includeUnbuyable
   assert.equal(result.report.review_row_count, reviewCount);
   assert.equal(result.report.blocked_row_count, 0);
   assert.equal(result.report.attempted_product_page_count, 279);
-  assert.equal(result.report.source_failure_count, includeUnbuyable ? 2 : 1);
+  assert.equal(result.report.source_failure_count, includeSimple ? 3 : includeUnbuyable ? 2 : 1);
   assert.equal(result.report.database_writes, 0);
   assert.equal(result.report.executed_plan_count, 0);
   const failure = result.report.source_failures.find((row) => row.product_id === "2769");
@@ -972,13 +1217,13 @@ for (const includeUnbuyable of [false, true]) test(includeUnbuyable
     assert.equal(retained[0].source_document.html_sha256, crypto.createHash("sha256").update(unbuyableHtml).digest("hex"));
   }
   const reviewedIds = new Set([...approvedWarriorBindings.map(([, id]) => id),
-    ...(includeUnbuyable ? ["2427", "2428", "2429"] : [])]);
-  assert.deepEqual(result.report.review_rows.map((row) => row.offer_id), [...reviewedIds]);
+    ...(includeUnbuyable ? ["2427", "2428", "2429"] : []), ...(includeSimple ? ["2055"] : [])]);
+  assert.deepEqual(new Set(result.report.review_rows.map((row) => row.offer_id)), reviewedIds);
   for (const row of result.report.review_rows) {
     assert.equal(row.proposed_offer, null);
     assert.equal(row.changed_fields.price, false);
     assert.equal(row.changed_fields.stock, false);
-    assert.equal(row.source_failure.disposition, row.external_product_id === "28570" ? unbuyableReason : wildcardIssue.reason_code);
+    assert.equal(row.source_failure.disposition, row.external_product_id === "2819" ? simpleReason : row.external_product_id === "28570" ? unbuyableReason : wildcardIssue.reason_code);
     assert.equal(row.source_failure.source_document.html, undefined);
   }
   const artifact = loadDryRunArtifact(output.artifact).artifact;
@@ -987,6 +1232,12 @@ for (const includeUnbuyable of [false, true]) test(includeUnbuyable
   assert.ok(artifact.plans.every((row) => !reviewedIds.has(String(row.resolved_plan.offer.id))));
   assert.ok(artifact.source_rows.every((row) => row.normalized_source_row.source.external_product_id !== "2769"));
   if (includeUnbuyable) assert.ok(artifact.source_rows.every((row) => row.normalized_source_row.source.external_product_id !== "28570"));
+  if (includeSimple) {
+    assert.ok(artifact.source_rows.every((row) => row.normalized_source_row.source.external_product_id !== "2819"));
+    const failure = result.report.source_failures.find(row => row.product_id === "2819");
+    assert.equal(failure.disposition, simpleReason);
+    assert.deepEqual(failure.identity.observed_capsule_qualifiers, ["vegetarian"]);
+  }
   assert.deepEqual(source.state, before);
 
   const { baselineHash, verifyPostflight } = require("./retailer-offer-refresh-postflight");
@@ -1017,10 +1268,11 @@ for (const includeUnbuyable of [false, true]) test(includeUnbuyable
   const second = await run({ target: "production", ...paths(), isolateUnsafe: true }, {
     state: source.state,
     readLive: async (id, context) => String(id) === "2769" ? wildcardRead()(id, context)
+      : includeSimple && String(id) === "2819" ? simpleRead()(id, context)
       : includeUnbuyable && String(id) === "28570" ? unbuyableRead()(id, context) : source.byProduct.get(String(id)),
   });
   assert.deepEqual(second.report.action_counts, { VERIFY_NO_CHANGE: executableCount });
-  assert.deepEqual(second.report.review_rows.map((row) => row.offer_id), [...reviewedIds]);
+  assert.deepEqual(new Set(second.report.review_rows.map((row) => row.offer_id)), reviewedIds);
   assert.equal(second.report.database_writes, 0);
 
   const profile = require("./lib/automation-review-publication-profiles").PROFILES["six-pack-supplements"];
@@ -1037,7 +1289,7 @@ for (const includeUnbuyable of [false, true]) test(includeUnbuyable
   for (const changed of partition.changedRows) {
     const card = profile.reviewCard({}, changed);
     assert.equal(card.sourcePrice, null);
-    assert.equal(card.evidenceReason, changed.external_product_id === "28570" ? unbuyableReason : wildcardIssue.reason_code);
+    assert.equal(card.evidenceReason, changed.external_product_id === "2819" ? simpleReason : changed.external_product_id === "28570" ? unbuyableReason : wildcardIssue.reason_code);
     assert.equal(card.proposedState.price, undefined);
     assert.equal(card.proposedState.in_stock, undefined);
     assert.equal(card.proposedState.last_checked_at, undefined);

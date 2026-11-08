@@ -17,7 +17,7 @@ const {
 } = require("./lib/woocommerce-product-page-reader");
 const { buildVerifiedNoChangePlan } = require("./verified-no-change-offer-refresh");
 const { writeDryRunArtifact } = require("./import-products");
-const { liveIdentityDrift } = require("./six-pack-canary-builder");
+const { commercialIdentity, liveIdentityDrift } = require("./six-pack-canary-builder");
 const {
   assertFreshBatchMatch,
   buildReviewedBatch,
@@ -43,6 +43,7 @@ function canonicalHash(value) {
 }
 
 const UNBUYABLE_PARENT_REASON = "UNBUYABLE_PARENT_VARIANTS_UNRESOLVED";
+const UNBUYABLE_SIMPLE_REASON = "UNBUYABLE_SIMPLE_OFFER_UNRESOLVED";
 
 function capturedSourceDocument(html, options, variationIds) {
   if (!options.sourceDocument) return null;
@@ -57,7 +58,7 @@ function capturedSourceDocument(html, options, variationIds) {
 
 // Recognize only the retained unavailable-parent template. A parent display
 // price/stock is consistency evidence, never a commercial fact for a child.
-function unbuyableParentName(html, options) {
+function productDocumentIdentity(html, options) {
   const attr = (tag, name) => {
     const entries = [...tag.matchAll(new RegExp(`(?:^|\\s)${name}=(["'])([^"']*)\\1`, "gi"))];
     return entries.length === 1 ? entries[0][2] : undefined;
@@ -79,17 +80,29 @@ function unbuyableParentName(html, options) {
       || canonicalJson(attr(body, "class")?.match(/\bpostid-\d+\b/g)) !== canonicalJson([`postid-${id}`])
       || productIdFromHtml(clean) !== id) return null;
     const productTags = [...main[2].matchAll(/<div\b[^>]*\bid=["']product-\d+["'][^>]*>/gi)];
+    const types = attr(productTags[0]?.[0] || "", "class")?.match(/\bproduct-type-[a-z-]+\b/g) || [];
+    const productType = types.length === 1 ? types[0].slice("product-type-".length) : null;
     if (productTags.length !== 1 || attr(productTags[0][0], "id") !== `product-${id}`
-      || !/\bproduct-type-variable\b/.test(attr(productTags[0][0], "class"))
-      || !/\boutofstock\b/.test(attr(productTags[0][0], "class"))
-      || /\binstock\b/.test(attr(productTags[0][0], "class"))) return null;
+      || !["variable", "simple"].includes(productType)) return null;
     const head = clean.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)[1];
     const links = [...head.matchAll(/<link\b[^>]*>/gi)].filter((m) => attr(m[0], "rel") === "canonical");
     if (links.length !== 1 || attr(links[0][0], "href") !== canonical.href) return null;
+    const headings = [...main[2].matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)];
+    if (headings.length !== 1) return null;
+    return { canonical, clean, main, productTags, productType, head, headings, attr, text };
+  } catch { return null; }
+}
+
+function unbuyableParentName(html, options) {
+  try {
+    const frame = productDocumentIdentity(html, options);
+    if (!frame) return null;
+    const { canonical, clean, main, productTags, productType, head, headings, attr, text } = frame;
+    if (!/\boutofstock\b/.test(attr(productTags[0][0], "class"))
+      || /\binstock\b/.test(attr(productTags[0][0], "class"))) return null;
     const meta = (name) => [...head.matchAll(/<meta\b[^>]*>/gi)].filter((m) => attr(m[0], "name") === name);
     const metaValue = (name) => { const entries = meta(name); return entries.length === 1 ? text(attr(entries[0][0], "content") || "") : null; };
     const sections = [...main[2].matchAll(/<section\b([^>]*)>([\s\S]*?)<\/section>/gi)], hero = sections[0];
-    const headings = [...main[2].matchAll(/<h1\b[^>]*>([\s\S]*?)<\/h1>/gi)];
     if (sections.length !== 2 || !/\bcontainer-page\b/.test(hero[1]) || !/\bgrid\b/.test(hero[1])
       || headings.length !== 1 || !hero[2].includes(headings[0][0])
       || !/\bdata-source-summary(?:\s|>)/.test(hero[2])
@@ -106,8 +119,18 @@ function unbuyableParentName(html, options) {
       || prices.length !== 1 || !/^£\d+\.\d{2}$/.test(text(prices[0][1]).replace(/\s/g, ""))
       || metaValue("twitter:data1") !== text(prices[0][1]).replace(/\s/g, "")
       || metaValue("twitter:data2") !== "Out of stock"
-      || /<(?:form|select|input)\b|type=["']submit|add-to-cart|data-product[_-]id|\battribute_|itemprop=["'](?:price|availability)/i.test(main[2])
-      || /<meta\b[^>]*(?:name|property)=["'](?:product:|og:price|price|availability)/i.test(clean)) return null;
+      || /<(?:form|select|input)\b|type=["']submit|add-to-cart|data-product[_-]id|\battribute_|itemprop=["'](?:price|availability)/i.test(main[2])) return null;
+    const commercialMeta = [...clean.matchAll(/<meta\b[^>]*(?:name|property)=["'](?:product:|og:price|price|availability)[^>]*>/gi)];
+    if (commercialMeta.length) {
+      // Variable-parent policy is unchanged. Simple's two public price tags may
+      // corroborate the display only; they never establish an executable offer.
+      if (productType !== "simple" || commercialMeta.length !== 2) return null;
+      const values = commercialMeta.map(([tag]) => ({ key: attr(tag, "property"), value: attr(tag, "content"), name: attr(tag, "name") }));
+      const amount = text(prices[0][1]).replace(/\s/g, "").slice(1);
+      if (values.some((v) => v.name !== undefined)
+        || values.filter((v) => v.key === "product:price:amount" && v.value === amount).length !== 1
+        || values.filter((v) => v.key === "product:price:currency" && v.value === "GBP").length !== 1) return null;
+    }
     // Reject alternative or broken payloads, including data outside the hero.
     if (/product-variations|data-product[_-]variations|buyBox\(|data-vari(?:ation|ant)[_-]id|["'](?:variation|variant)_ids?["']\s*:|["'](?:variations|variants)["']\s*:|\b(?:variations|variants|variation_id|variant_id)\s*[:=]/i.test(clean)) return null;
     const graphs = [];
@@ -137,22 +160,24 @@ function unbuyableParentName(html, options) {
       || breadcrumb["@id"] !== canonical.href + "#breadcrumb" || !Array.isArray(items) || !items.length
       || items.some((item, i) => item.position !== i + 1)
       || items.at(-1).name !== name || items.at(-1).item !== canonical.href) return null;
-    return name;
+    return { name, product_type: productType };
   } catch { return null; }
 }
 
 function parseSixPackProductPage(html, options) {
+  try {
   const scripts = [...String(html).matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
     .filter((match) => /(?:^|\s)id\s*=\s*["']product-variations["']/i.test(match[1]));
   if (!scripts.length) {
     try { return parseWooCommerceProductPage(html, options); }
     catch (error) {
-      const name = error instanceof WooCommerceSourceError && error.code === "SOURCE_SCHEMA_MISMATCH"
+      const identity = error instanceof WooCommerceSourceError && error.code === "SOURCE_SCHEMA_MISMATCH"
         && error.message === "Expected one matching Product JSON-LD block, found 0"
         && options.sourceDocument && unbuyableParentName(String(html), options);
-      if (!name) throw error;
+      if (!identity) throw error;
       throw new WooCommerceSourceError("SOURCE_SCHEMA_MISMATCH", "6 Pack unavailable parent has no variant commercial data", {
-        reason_code: UNBUYABLE_PARENT_REASON, product_id: String(options.productId), product_name: name,
+        reason_code: identity.product_type === "simple" ? UNBUYABLE_SIMPLE_REASON : UNBUYABLE_PARENT_REASON,
+        product_id: String(options.productId), product_name: identity.name,
         source_document: capturedSourceDocument(html, options),
       });
     }
@@ -323,6 +348,17 @@ function parseSixPackProductPage(html, options) {
     html_sha256: sha256(html),
     html_bytes: Buffer.byteLength(html),
   };
+  } catch (error) {
+    // Reuse the bounded public document contract for parser diagnostics. Only a
+    // typed parser error after the existing HTTP reader supplies provenance can
+    // carry HTML; no network/unknown exception is promoted or serialized here.
+    if (error instanceof WooCommerceSourceError && error.code === "SOURCE_SCHEMA_MISMATCH"
+      && options.sourceDocument && !error.detail?.source_document) {
+      error.detail = { ...error.detail, product_id: String(options.productId),
+        source_document: capturedSourceDocument(html, options) };
+    }
+    throw error;
+  }
 }
 
 function money(value) {
@@ -863,18 +899,20 @@ function wildcardSourceIssue(error, productId) {
 }
 
 function unbuyableSourceIssue(error, productId) {
-  return productSourceIssue(error, productId, UNBUYABLE_PARENT_REASON,
-    (issue) => typeof issue.product_name === "string" && issue.product_name.trim());
+  const accepts = (issue) => typeof issue.product_name === "string" && issue.product_name.trim();
+  return productSourceIssue(error, productId, UNBUYABLE_PARENT_REASON, accepts)
+    || productSourceIssue(error, productId, UNBUYABLE_SIMPLE_REASON, accepts);
 }
 
-function approvedSourceFailureDisposition(error, productId, approved, capturedAt, records = []) {
-  const ordinary = sourceFailureDisposition(error, productId);
-  if (ordinary.scope === "PRODUCT") return ordinary;
-  const wildcard = wildcardSourceIssue(error, productId);
-  const issue = wildcard || unbuyableSourceIssue(error, productId), document = issue?.source_document;
+function verifiedSourceDocument(error, productId, capturedAt, requireCompleteHtml = true) {
+  let document;
+  for (let cause = error, depth = 0; cause && depth < 8; cause = cause.cause, depth += 1) {
+    if (cause instanceof WooCommerceSourceError && cause.code === "SOURCE_SCHEMA_MISMATCH"
+      && cause.detail?.source_document) { document = cause.detail.source_document; break; }
+  }
   const transport = error?.detail;
-  if (approved.sha256 !== config.automation.manifest_sha256
-    || !(error instanceof WooCommerceSourceError) || error.code !== "SOURCE_SCHEMA_MISMATCH"
+  const timestamp = Date.parse(capturedAt);
+  if (!(error instanceof WooCommerceSourceError) || error.code !== "SOURCE_SCHEMA_MISMATCH"
     || transport?.product_id !== String(productId) || transport.error_type !== "WooCommerceSourceError"
     || transport.timeout !== false || transport.network_code !== null
     || transport.http_status !== null || !Number.isInteger(transport.last_attempt)
@@ -883,17 +921,35 @@ function approvedSourceFailureDisposition(error, productId, approved, capturedAt
     || document.http_status !== 200 || document.body_complete !== true
     || document.request_url !== transport.request_url || document.response_url !== document.canonical_url
     || typeof document.content_type !== "string" || !document.content_type.startsWith("text/html")
-    || typeof document.html !== "string" || !/<html(?:\s|>)/i.test(document.html)
-    || !/<\/body\s*>\s*<\/html\s*>\s*$/i.test(document.html)
-    || document.html_bytes !== Buffer.byteLength(document.html) || document.html_sha256 !== sha256(document.html)) return ordinary;
-  let request;
-  try { request = new URL(document.request_url); } catch { return ordinary; }
-  if (request.origin !== config.retailer.website || request.username || request.password || request.hash
+    || !Number.isFinite(timestamp) || timestamp > Date.now()
+    || Date.now() - timestamp > config.guardrails.source_freshness_hours * 3_600_000
+    || typeof document.html !== "string" || document.html_bytes > 2_000_000
+    || (requireCompleteHtml && (!/<html(?:\s|>)/i.test(document.html)
+      || !/<\/body\s*>\s*<\/html\s*>\s*$/i.test(document.html)))
+    || document.html_bytes !== Buffer.byteLength(document.html) || document.html_sha256 !== sha256(document.html)) return null;
+  let request, canonical;
+  try { request = new URL(document.request_url); canonical = new URL(document.canonical_url); } catch { return null; }
+  if (canonical.origin !== config.retailer.website || canonical.username || canonical.password
+    || canonical.search || canonical.hash || !/^\/product\/[^/]+\/$/.test(canonical.pathname)
+    || request.origin !== config.retailer.website || request.username || request.password || request.hash
     || !(request.href === document.canonical_url || (request.pathname === "/"
-      && [...request.searchParams].length === 1 && request.searchParams.get("p") === String(productId)))) return ordinary;
+      && [...request.searchParams].length === 1 && request.searchParams.get("p") === String(productId)))) return null;
+  return document;
+}
+
+function approvedSourceFailureDisposition(error, productId, approved, capturedAt, records = []) {
+  const ordinary = sourceFailureDisposition(error, productId);
+  if (ordinary.scope === "PRODUCT") return ordinary;
+  const wildcard = wildcardSourceIssue(error, productId);
+  const issue = wildcard || unbuyableSourceIssue(error, productId);
+  const document = verifiedSourceDocument(error, productId, capturedAt);
+  if (approved.sha256 !== config.automation.manifest_sha256 || !issue || !document
+    || canonicalJson(document) !== canonicalJson(issue.source_document)) return ordinary;
+  const simple = issue.reason_code === UNBUYABLE_SIMPLE_REASON;
+  const transport = error.detail;
   const rows = approved.manifest.rows.filter((row) => row.external_product_id === String(productId));
   const expected = rows.map((row) => row.external_variant_id).sort();
-  if (!expected.length || expected.includes(String(productId))
+  if (!expected.length || (simple ? rows.length !== 1 || expected[0] !== String(productId) : expected.includes(String(productId)))
     || approved.manifest.rows.some((row) => row.external_product_id !== String(productId)
       && rows.some((isolated) => isolated.canonical_variant_id === row.canonical_variant_id))) return ordinary;
   if (wildcard) {
@@ -912,7 +968,21 @@ function approvedSourceFailureDisposition(error, productId, approved, capturedAt
         const matching = children.filter((record) => String(record.mapping.id) === row.mapping_id
           && String(record.offer.id) === row.offer_id && String(record.mapping.external_variant_id) === row.external_variant_id
           && String(record.product.id) === row.canonical_product_id && String(record.variant.id) === row.canonical_variant_id);
-        return matching.length !== 1 || matching[0].mapping.external_name !== issue.product_name
+        const expectedIdentity = simple && matching.length === 1 ? commercialIdentity(matching[0].mapping.external_name) : null;
+        const observedIdentity = simple ? commercialIdentity(issue.product_name) : null;
+        const nameMatches = simple ? expectedIdentity?.tokens.length > 0 && expectedIdentity.name_tokens.length > 0
+          && canonicalJson(expectedIdentity.tokens) === canonicalJson(observedIdentity.tokens)
+          && canonicalJson(expectedIdentity.name_tokens) === canonicalJson(observedIdentity.name_tokens)
+          : matching[0]?.mapping.external_name === issue.product_name;
+        return matching.length !== 1 || !nameMatches
+          || String(matching[0].mapping.product_id) !== row.canonical_product_id
+          || String(matching[0].mapping.product_variant_id) !== row.canonical_variant_id
+          || String(matching[0].offer.product_id) !== row.canonical_product_id
+          || String(matching[0].offer.product_variant_id) !== row.canonical_variant_id
+          || String(matching[0].offer.retailer_product_id) !== row.mapping_id
+          || String(matching[0].variant.product_id) !== row.canonical_product_id
+          || String(matching[0].mapping.retailer_id) !== String(approved.manifest.retailer.id)
+          || String(matching[0].offer.retailer_id) !== String(approved.manifest.retailer.id)
           || matching[0].mapping.external_url !== document.canonical_url;
       })) return ordinary;
   }
@@ -924,7 +994,56 @@ function approvedSourceFailureDisposition(error, productId, approved, capturedAt
   if (!(reproduced instanceof WooCommerceSourceError) || reproduced.code !== "SOURCE_SCHEMA_MISMATCH"
     || canonicalJson(reproduced.detail) !== canonicalJson(issue)) return ordinary;
   return { scope: "PRODUCT", reason: issue.reason_code, manifest_sha256: approved.sha256,
-    approved_variation_ids: expected, source_document: document };
+    approved_variation_ids: expected, source_document: document,
+    ...(simple ? { identity: { expected_name: records.find((r) => String(r.mapping.id) === rows[0].mapping_id).mapping.external_name,
+      observed_name: issue.product_name, observed_capsule_qualifiers: commercialIdentity(issue.product_name).capsule_qualifiers,
+      authority: "MANUAL_REVIEW_ONLY" } } : {}) };
+}
+
+function canContinueSourceDiagnosis(error, productId, capturedAt, records) {
+  const document = verifiedSourceDocument(error, productId, capturedAt);
+  if (!document || error.detail.last_attempt !== 1) return false;
+  const frame = productDocumentIdentity(document.html, { productId, canonicalUrl: document.canonical_url });
+  if (!frame) return false;
+  const observed = commercialIdentity(frame.text(frame.headings[0][1]));
+  const children = records.filter((r) => String(r.mapping.external_product_id) === String(productId));
+  return children.length > 0 && observed.name_tokens.length > 0 && children.every((r) => {
+    const expected = commercialIdentity(r.mapping.external_name);
+    return canonicalJson(expected.tokens) === canonicalJson(observed.tokens)
+      && canonicalJson(expected.name_tokens) === canonicalJson(observed.name_tokens);
+  });
+}
+
+function sourceCaptureEvidence(approved, liveByProduct, isolatedSourceFailures, fatalSourceFailures) {
+  const products = [...new Set(approved.manifest.rows.map((r) => r.external_product_id))].map((id) => {
+    const memberships = [liveByProduct.has(id), isolatedSourceFailures.has(id), fatalSourceFailures.has(id)].filter(Boolean).length;
+    if (memberships > 1) fail("Source evidence categories overlap", "SOURCE_COLLAPSE");
+    const rows = approved.manifest.rows.filter((r) => r.external_product_id === id);
+    return { external_product_id: id,
+      category: liveByProduct.has(id) ? "PARSED" : isolatedSourceFailures.has(id) ? "ISOLATED"
+        : fatalSourceFailures.has(id) ? "FATAL" : "NOT_REACHED",
+      approved_variant_ids: rows.map((r) => r.external_variant_id), mapping_ids: rows.map((r) => r.mapping_id),
+      offer_ids: rows.map((r) => r.offer_id), mapping_count: rows.length };
+  });
+  const counts = Object.fromEntries(["PARSED", "ISOLATED", "FATAL", "NOT_REACHED"].map((category) => [category,
+    { products: products.filter((p) => p.category === category).length,
+      mappings: products.filter((p) => p.category === category).reduce((sum, p) => sum + p.mapping_count, 0) }]));
+  const pages = [...liveByProduct.values()];
+  return {
+    source_capture_complete: counts.NOT_REACHED.products === 0, source_snapshot_complete: false,
+    attempted_product_page_count: products.length - counts.NOT_REACHED.products,
+    parsed_product_page_count: counts.PARSED.products, isolated_product_page_count: counts.ISOLATED.products,
+    fatal_product_page_count: counts.FATAL.products, not_reached_product_page_count: counts.NOT_REACHED.products,
+    source_coverage: { counts, products, mappings: approved.manifest.rows.map((row) => ({ ...row,
+      category: products.find((p) => p.external_product_id === row.external_product_id).category })) },
+    parsed_source_variant_count: pages.every((p) => Array.isArray(p.variations))
+      ? pages.reduce((sum, p) => sum + p.variations.length + (p.product_offer ? 1 : 0), 0) : null,
+    source_pages: pages.map((p) => ({ external_product_id: p.external_product_id, canonical_url: p.canonical_url,
+      captured_at: p.captured_at || null, html_sha256: p.html_sha256 || null, html_bytes: p.html_bytes ?? null,
+      ...(p.source_provenance ? { provenance: p.source_provenance } : {}) })),
+    source_failure_count: isolatedSourceFailures.size + fatalSourceFailures.size,
+    source_failures: [...isolatedSourceFailures.values()], source_errors: [...fatalSourceFailures.values()],
+  };
 }
 
 function writeSourceFailureReport({
@@ -935,6 +1054,7 @@ function writeSourceFailureReport({
   options,
   productId,
   postCapture,
+  capture,
 }) {
   const sourceError = sourceErrorEvidence(error, productId);
   const report = {
@@ -951,10 +1071,14 @@ function writeSourceFailureReport({
     blocked_row_count: approved.manifest.rows.length,
     fetched_product_page_count: fetchedProductPageCount,
     classification_state: "SOURCE_READ_FAILED",
+    error_stage: "SOURCE_CAPTURE",
     block_reason: sourceError.error_code,
     source_error: sourceError,
     action_counts: {},
     database_writes: 0,
+    ...(capture ? sourceCaptureEvidence(approved, capture.liveByProduct, capture.isolatedSourceFailures,
+      capture.fatalSourceFailures) : {}),
+    ...(capture ? { capture_stopped_by: capture.stoppedBy || null } : {}),
   };
   if (postCapture) {
     const { liveByProduct, sourceFailures, errors, normalizationComplete } = postCapture;
@@ -975,6 +1099,7 @@ function writeSourceFailureReport({
         external_product_id: page.external_product_id, canonical_url: page.canonical_url,
         captured_at: page.captured_at || null, html_sha256: page.html_sha256 || null,
         html_bytes: page.html_bytes ?? null,
+        ...(page.source_provenance ? { provenance: page.source_provenance } : {}),
       })),
       post_capture_errors: errors,
       source_error: errors.find((failure) => failure.permanent) || errors[0],
@@ -1065,11 +1190,15 @@ async function run(options, dependencies = {}) {
     capturedAt,
     maximumAttempts: 5,
     retryBaseDelayMs: 1_000,
-    parseProductPage: parseSixPackProductPage,
+    parseProductPage: (html, context) => ({ ...parseSixPackProductPage(html, context),
+      source_provenance: context.sourceDocument }),
   }));
   const liveByProduct = new Map();
   const isolatedSourceFailures = new Map();
+  const fatalSourceFailures = new Map();
+  let firstFatalError, retainedFatalHtmlBytes = 0;
   const productIds = [...new Set(state.records.map((record) => String(record.mapping.external_product_id)))];
+  const capture = { liveByProduct, isolatedSourceFailures, fatalSourceFailures };
   for (const [index, productId] of productIds.entries()) {
     if (!dependencies.readLive && index > 0) {
       await new Promise((resolve) => setTimeout(resolve, 150));
@@ -1082,21 +1211,49 @@ async function run(options, dependencies = {}) {
         isolatedSourceFailures.set(productId, {
           ...sourceErrorEvidence(error, productId),
           disposition: disposition.reason,
+          manifest_sha256: approved.sha256,
+          approved_variation_ids: approved.manifest.rows.filter((r) => r.external_product_id === productId).map((r) => r.external_variant_id),
+          mapping_ids: approved.manifest.rows.filter((r) => r.external_product_id === productId).map((r) => r.mapping_id),
+          affected_mapping_count: approved.manifest.rows.filter((r) => r.external_product_id === productId).length,
+          ...(disposition.identity ? { identity: disposition.identity } : {}),
           ...(disposition.source_document ? { source_document: disposition.source_document,
             manifest_sha256: disposition.manifest_sha256, approved_variation_ids: disposition.approved_variation_ids } : {}),
         });
       } else {
+        const document = verifiedSourceDocument(error, productId, capturedAt, false);
+        let retainedDocument;
+        if (document) {
+          const retainHtml = retainedFatalHtmlBytes + document.html_bytes <= 2_000_000;
+          retainedFatalHtmlBytes += retainHtml ? document.html_bytes : 0;
+          retainedDocument = { ...document, ...(retainHtml ? {} : { html: undefined, html_retention: "REPORT_BUDGET_EXCEEDED" }) };
+        }
+        const continuable = canContinueSourceDiagnosis(error, productId, capturedAt, state.records);
+        fatalSourceFailures.set(productId, { ...sourceErrorEvidence(error, productId),
+          diagnostic_continuation_allowed: continuable,
+          ...(retainedDocument ? { source_document: retainedDocument } : {}) });
+        firstFatalError ||= error;
+        if (continuable) continue; // Same bounded loop, no refetch and no review promotion.
+        // An earlier proved schema BLOCK remains sufficient to stop outer retry;
+        // the later transient/unknown failure is still recorded as such.
+        const terminalError = isPermanentSourceError(firstFatalError) ? firstFatalError : error;
+        capture.stoppedBy = sourceErrorEvidence(error, productId);
         writeSourceFailureReport({
           approved,
           capturedAt,
-          error,
+          error: terminalError,
           fetchedProductPageCount: liveByProduct.size,
           options,
-          productId,
+          productId: terminalError === firstFatalError ? [...fatalSourceFailures.keys()][0] : productId,
+          capture,
         });
-        throw error;
+        throw terminalError;
       }
     }
+  }
+  if (firstFatalError) {
+    writeSourceFailureReport({ approved, capturedAt, error: firstFatalError, fetchedProductPageCount: liveByProduct.size,
+      options, productId: [...fatalSourceFailures.keys()][0], capture });
+    throw firstFatalError; // Never classify or seal any plan if capture has a fatal row.
   }
   const sourceRows = [], normalizationErrors = [];
   let firstNormalizationError, firstUnknownNormalizationError;
@@ -1107,6 +1264,7 @@ async function run(options, dependencies = {}) {
     approved, capturedAt, error, fetchedProductPageCount: liveByProduct.size, options,
     productId: normalizationErrors[0]?.product_id,
     postCapture: { liveByProduct, sourceFailures, errors: normalizationErrors, normalizationComplete },
+    capture,
   });
   for (const record of state.records) {
     const live = liveByProduct.get(String(record.mapping.external_product_id));
@@ -1253,6 +1411,8 @@ async function run(options, dependencies = {}) {
     review_row_count: reviewRows.length,
     blocked_row_count: accepted ? 0 : approved.manifest.rows.length - reviewRows.length,
     fetched_product_page_count: liveByProduct.size,
+    ...sourceCaptureEvidence(approved, liveByProduct, isolatedSourceFailures, fatalSourceFailures),
+    source_snapshot_complete: true,
     attempted_product_page_count: productIds.length,
     source_failure_count: sourceFailures.length,
     source_failures: sourceFailures,
