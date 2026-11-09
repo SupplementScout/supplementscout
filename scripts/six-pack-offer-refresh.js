@@ -18,7 +18,7 @@ const {
 const { buildVerifiedNoChangePlan } = require("./verified-no-change-offer-refresh");
 const { writeDryRunArtifact } = require("./import-products");
 const { commercialIdentity, liveIdentityDrift } = require("./six-pack-canary-builder");
-const { assertCataloguePolicyAllowsRecords, catalogueScopeBindings, reconcileApprovedCatalogueScope } = require("./lib/feed-variant-guards");
+const { assessVariantCompatibility, assertCataloguePolicyAllowsRecords, catalogueScopeBindings, reconcileApprovedCatalogueScope } = require("./lib/feed-variant-guards");
 const {
   assertFreshBatchMatch,
   buildReviewedBatch,
@@ -732,8 +732,8 @@ async function readState(manifest, dependencies = {}) {
     client.from("retailers").select("id,name,slug,website").eq("id", manifest.retailer.id),
     client.from("retailer_products").select("id,retailer_id,product_id,product_variant_id,external_product_id,external_variant_id,external_sku,external_options,external_name,external_slug,external_gtin,external_url,match_method,match_confidence,updated_at").eq("retailer_id", manifest.retailer.id),
     client.from("offers").select("id,product_id,retailer_id,product_variant_id,retailer_product_id,price,shipping_cost,total_price,in_stock,url,last_checked_at").eq("retailer_id", manifest.retailer.id),
-    exactRows(client, "products", productIds, "id,name,is_active,merged_into_product_id,product_format" + (manifest.historical_withdrawn_rows ? ",owner_withdrawal_state,owner_withdrawal_reason,owner_withdrawn_at" : "")),
-    exactRows(client, "product_variants", variantIds, "id,product_id,variant_key,display_name,flavour_code,flavour_label,size_value,size_unit,pack_count,product_format,is_active,is_default"),
+    exactRows(client, "products", productIds, "id,name,brand,is_active,merged_into_product_id,product_format" + (manifest.historical_withdrawn_rows ? ",owner_withdrawal_state,owner_withdrawal_reason,owner_withdrawn_at" : "")),
+    exactRows(client, "product_variants", variantIds, "id,product_id,variant_key,display_name,flavour_code,flavour_label,size_value,size_unit,pack_count,product_format,is_active,is_default,gtin"),
     client.from("product_variants").select("id,product_id,variant_key,display_name,flavour_code,flavour_label,size_value,size_unit,pack_count,product_format,is_active,is_default").in("product_id", productIds).eq("is_active", true),
   ]);
   for (const result of [retailersResult, mappingsResult, offersResult, activeVariantsResult]) if (result.error) throw result.error;
@@ -769,9 +769,56 @@ async function readState(manifest, dependencies = {}) {
       String(offer.product_variant_id) !== binding.canonical_variant_id ||
       (!manifest.historical_withdrawn_rows && (product.is_active !== true || product.merged_into_product_id != null || variant.is_active !== true))
     ) fail(`Approved binding drift for ${binding.external_variant_id}`, "STATE_DRIFT");
-    return { product, variant, active_variants: activeVariantsByProduct.get(String(product.id)) || [variant], retailer, mapping, offer };
+    const { brand, ...planProduct } = product, { gtin, ...planVariant } = variant;
+    return { product: planProduct, variant: planVariant, identity_evidence: { brand, gtin },
+      active_variants: activeVariantsByProduct.get(String(product.id)) || [planVariant], retailer, mapping, offer };
   });
   return { records };
+}
+
+// Reuse the catalogue's existing dimensional/pack/brand checks. This admits
+// uncertainty to the one classifier quarantine, never to commercial identity.
+function normalizationReviewFor(error, record, live, capturedAt) {
+  const detail = error?.detail, p = live?.source_provenance;
+  if (!(error instanceof WooCommerceSourceError) || error.code !== "SOURCE_IDENTITY_DRIFT"
+    || detail?.stage !== "SOURCE_NORMALIZATION" || detail.identity?.code !== "CSV_LIVE_IDENTITY_DRIFT"
+    || detail.mapping_id !== String(record.mapping.id) || detail.offer_id !== String(record.offer.id)
+    || detail.product_id !== String(record.mapping.external_product_id)
+    || detail.external_variant_id !== String(record.mapping.external_variant_id)
+    || String(live.external_product_id) !== detail.product_id || !p
+    || live.technical_document_identity?.product_id !== detail.product_id
+    || live.technical_document_identity?.canonical_url !== live.canonical_url
+    || live.technical_document_identity?.html_sha256 !== live.html_sha256
+    || p.http_status !== 200 || p.body_complete !== true || !p.content_type?.startsWith("text/html")
+    || !/^[a-f0-9]{64}$/.test(live.html_sha256 || "") || p.html_sha256 !== live.html_sha256
+    || p.html_bytes !== live.html_bytes || !(p.html_bytes > 0 && p.html_bytes <= 2_000_000)
+    || live.captured_at !== capturedAt || !Number.isFinite(Date.parse(capturedAt))
+    || Date.parse(capturedAt) > Date.now()
+    || Date.now() - Date.parse(capturedAt) > config.guardrails.source_freshness_hours * 3_600_000) return null;
+  let url;
+  try { url = new URL(live.canonical_url); } catch { return null; }
+  const request = new URL("/", config.retailer.website); request.searchParams.set("p", detail.product_id);
+  if (url.origin !== config.retailer.website || url.username || url.password || url.search || url.hash
+    || !/^\/product\/[^/]+\/$/.test(url.pathname) || url.href !== record.mapping.external_url
+    || p.response_url !== url.href || ![request.href, url.href].includes(p.request_url)) return null;
+  const candidates = detail.product_id === detail.external_variant_id ? [live.product_offer]
+    : (live.variations || []).filter(v => String(v.external_variant_id) === detail.external_variant_id);
+  const offer = candidates[0];
+  if (candidates.length !== 1 || !offer || !Number.isFinite(Number(offer.price)) || Number(offer.price) <= 0
+    || typeof offer.in_stock !== "boolean" || (offer.currency && offer.currency !== "GBP")) return null;
+  for (const [expected, observed] of [[record.mapping.external_sku, offer.sku],
+    [record.mapping.external_gtin || record.identity_evidence?.gtin || record.variant.gtin, offer.gtin || offer.gtin13]]) {
+    if (expected != null && String(expected).trim() && String(expected).trim() !== String(observed ?? "").trim()) return null;
+  }
+  const compatibility = assessVariantCompatibility({ product_name: live.product_name, brand: live.brand },
+    { ...record.product, brand: record.identity_evidence?.brand || record.product.brand,
+      name: record.mapping.external_name || record.product.name });
+  if (compatibility.reasons.some(reason => ["brand conflict", "size conflict", "pack-count conflict", "format conflict"].includes(reason))
+    || detail.identity.csv_capsule_qualifiers || detail.identity.live_capsule_qualifiers) return null;
+  return { product_id: detail.product_id, external_variant_id: detail.external_variant_id,
+    mapping_id: detail.mapping_id, offer_id: detail.offer_id, disposition: "SOURCE_IDENTITY_UNVERIFIED",
+    identity: { ...detail.identity, commercial_identity: "UNVERIFIED", authority: "MANUAL_REVIEW_ONLY" },
+    source_provenance: p, compatibility };
 }
 
 function liveSourceFor(record, live) {
@@ -1089,8 +1136,16 @@ function writeSourceFailureReport({
     ...(capture ? { capture_stopped_by: capture.stoppedBy || null } : {}),
   };
   if (postCapture) {
-    const { liveByProduct, sourceFailures, errors, normalizationComplete } = postCapture;
+    const { liveByProduct, sourceFailures, errors, normalizationComplete, normalizationReviews = [] } = postCapture;
     const pages = [...liveByProduct.values()];
+    // Retain existing parsed reader output, not another source capture. Never
+    // invent the missing input when the bounded evidence budget is exceeded.
+    let normalizationInputs = null, inputRetention = "UNSERIALIZABLE_PARSED_INPUT";
+    try {
+      const inputBytes = Buffer.byteLength(canonicalJson(pages));
+      inputRetention = inputBytes <= 2_000_000 ? "COMPLETE_PARSED_INPUT" : "EVIDENCE_BUDGET_EXCEEDED";
+      if (inputBytes <= 2_000_000) normalizationInputs = pages;
+    } catch { /* Diagnostic retention must never mask the original failure. */ }
     const variantsKnown = pages.every((page) => Array.isArray(page.variations));
     Object.assign(report, {
       classification_state: error.detail?.stage === "SOURCE_COVERAGE" ? "SOURCE_COVERAGE_FAILED" : "SOURCE_NORMALIZATION_FAILED",
@@ -1110,6 +1165,9 @@ function writeSourceFailureReport({
         ...(page.source_provenance ? { provenance: page.source_provenance } : {}),
       })),
       post_capture_errors: errors,
+      normalization_review_rows: normalizationReviews,
+      normalization_inputs: normalizationInputs,
+      normalization_inputs_retention: inputRetention,
       source_error: errors.find((failure) => failure.permanent) || errors[0],
     });
   }
@@ -1201,7 +1259,9 @@ async function run(options, dependencies = {}) {
     maximumAttempts: 5,
     retryBaseDelayMs: 1_000,
     parseProductPage: (html, context) => ({ ...parseSixPackProductPage(html, context),
-      source_provenance: context.sourceDocument }),
+      source_provenance: context.sourceDocument,
+      technical_document_identity: productDocumentIdentity(html, context)
+        ? { product_id: String(context.productId), canonical_url: context.canonicalUrl, html_sha256: sha256(html) } : null }),
   }));
   const liveByProduct = new Map();
   const isolatedSourceFailures = new Map();
@@ -1265,7 +1325,7 @@ async function run(options, dependencies = {}) {
       options, productId: [...fatalSourceFailures.keys()][0], capture });
     throw firstFatalError; // Never classify or seal any plan if capture has a fatal row.
   }
-  const sourceRows = [], normalizationErrors = [];
+  const sourceRows = [], normalizationErrors = [], normalizationReviews = [];
   let firstNormalizationError, firstUnknownNormalizationError;
   const sourceFailures = [...isolatedSourceFailures.values()].sort((left, right) => (
     Number(left.product_id) - Number(right.product_id)
@@ -1273,7 +1333,7 @@ async function run(options, dependencies = {}) {
   const reportNormalizationFailure = (error, normalizationComplete) => writeSourceFailureReport({
     approved, capturedAt, error, fetchedProductPageCount: liveByProduct.size, options,
     productId: normalizationErrors[0]?.product_id,
-    postCapture: { liveByProduct, sourceFailures, errors: normalizationErrors, normalizationComplete },
+    postCapture: { liveByProduct, sourceFailures, errors: normalizationErrors, normalizationComplete, normalizationReviews },
     capture,
   });
   for (const record of state.records) {
@@ -1281,6 +1341,9 @@ async function run(options, dependencies = {}) {
     if (!live) continue; // Only already-qualified product isolation can omit a page.
     try { sourceRows.push(liveSourceFor(record, live)); }
     catch (error) {
+      const review = options.isolateUnsafe && !reviewed && !reviewedOwner
+        ? normalizationReviewFor(error, record, live, capturedAt) : null;
+      if (review) { normalizationReviews.push(review); continue; }
       if (!isPermanentSourceError(error)) {
         // Retain available context without promoting an unknown exception to a
         // permanent identity failure or exposing its arbitrary message.
@@ -1305,12 +1368,13 @@ async function run(options, dependencies = {}) {
     isolatedSourceFailures.has(String(record.mapping.external_product_id))
   )).length;
   if (
-    sourceRows.length + isolatedRowCount !== approved.manifest.rows.length ||
+    sourceRows.length + isolatedRowCount + normalizationReviews.length !== approved.manifest.rows.length ||
     new Set(sourceRows.map((row) => row.external_variant_id)).size !== sourceRows.length
   ) {
     const error = new WooCommerceSourceError("SOURCE_COLLAPSE", "Approved source coverage is incomplete or duplicated", {
       stage: "SOURCE_COVERAGE", product_id: null, external_variant_id: null, mapping_id: null,
       normalized_row_count: sourceRows.length, isolated_row_count: isolatedRowCount,
+      normalization_review_row_count: normalizationReviews.length,
       unique_normalized_variant_count: new Set(sourceRows.map((row) => row.external_variant_id)).size,
     });
     normalizationErrors.push({ error_code: error.code, ...error.detail, permanent: true });
@@ -1326,6 +1390,7 @@ async function run(options, dependencies = {}) {
     })).sort((left, right) => Number(left.external_product_id) - Number(right.external_product_id)),
     rows: sourceRows,
     source_failures: sourceFailures,
+    ...(normalizationReviews.length ? { normalization_reviews: normalizationReviews } : {}),
   });
   const guardScope = { name: "SIX_PACK_APPROVED_MANIFEST", retailer: config.retailer.name };
   const policy = {
@@ -1370,10 +1435,11 @@ async function run(options, dependencies = {}) {
   const sourceByVariant = new Map(sourceRows.map((row) => [String(row.external_variant_id), row]));
   const sourceFailureByProduct = new Map(sourceFailures.map((failure) => [failure.product_id,
     failure.source_document ? { ...failure, source_document: { ...failure.source_document, html: undefined } } : failure]));
+  const normalizationReviewByOffer = new Map(normalizationReviews.map(row => [row.offer_id, row]));
   const targetByOffer = new Map(state.records.map((record) => [String(record.offer.id), targetFor(record)]));
   const reviewRows = (classification.quarantined_rows || []).map((row) => {
     const source = sourceByVariant.get(String(row.external_variant_id));
-    const sourceFailure = sourceFailureByProduct.get(String(row.external_product_id)) || null;
+    const sourceFailure = normalizationReviewByOffer.get(String(row.offer_id)) || sourceFailureByProduct.get(String(row.external_product_id)) || null;
     const target = targetByOffer.get(String(row.offer_id));
     if (!target || (!source && row.reason !== "SOURCE_VARIANT_MISSING")) {
       fail("Review row escaped the approved source/target scope", "REVIEW_SCOPE_DRIFT");
@@ -1427,6 +1493,7 @@ async function run(options, dependencies = {}) {
     attempted_product_page_count: productIds.length,
     source_failure_count: sourceFailures.length,
     source_failures: sourceFailures,
+    normalization_review_rows: normalizationReviews,
     classification_state: classification.state,
     block_reason: classification.reason || null,
     guard_evidence: classification.guard_evidence || null,
@@ -1477,7 +1544,8 @@ async function run(options, dependencies = {}) {
       ? `six-pack-reviewed-mass-oos-${reviewed.sha256}-${Date.now()}`
       : `six-pack-refresh-${Date.now()}`,
     createdAt: capturedAt,
-    sourceContent: canonicalJson({ snapshot_fingerprint: snapshotFingerprint, rows: sourceRows, source_failures: sourceFailures }),
+    sourceContent: canonicalJson({ snapshot_fingerprint: snapshotFingerprint, rows: sourceRows, source_failures: sourceFailures,
+      ...(normalizationReviews.length ? { normalization_reviews: normalizationReviews } : {}) }),
     sourceFileName: "six-pack-live-approved-scope.json",
     environmentMarker: "production",
   });
@@ -1508,6 +1576,7 @@ module.exports = {
   isolateAggregateChanges,
   isolateDefaultVariantConflicts,
   liveSourceFor,
+  normalizationReviewFor,
   loadApprovedManifest,
   loadReviewedMassOosManifest,
   money,

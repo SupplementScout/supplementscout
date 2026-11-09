@@ -1,5 +1,20 @@
 # Retailer Automation Consolidation Execution Plan
 
+**9 November two-retailer quarantine preparation — current bounded task:**
+#515 is merged as2f669cd6, main CI42655256357/Guardian42655256546 passed,
+and the exact production deployment was READY. Six read-only run42656307444
+completed capture (271 parsed/6 isolated parents,490+14 mappings), then BLOCKED
+on115 normalization incidents. Fit run42647242017 retained the four unknown
+absences. This owner-authorized draft integrates existing quarantine only:
+Fit preserves all78 audited bindings and284+2 lifecycle; Six reuses existing
+dimensional checks and technical document identity without changing the global
+normalizer. Captured artifacts lack commercial input for a full offline replay;
+no VERIFIED/plans or restoration claim is inferred. No source run, publication,
+approval or production write is authorized or performed. CURRENT262 is the last
+read-only production baseline, reconfirmed at17:38:04Z; RA-001 unchanged, RA-004 suspended, both schedules
+PAUSED. Prior preparation entries below are historical. See the
+[bounded replay and reuse evidence](TWO-RETAILER-QUARANTINE-2026-11-09.md).
+
 **9 November owner fast-track checkpoint:** #514 is merged as fec18e42 with
 equal approved tree, main CI/Guardian PASS and exact-SHA production READY.
 One Fit House read-only run42647242017 passed historical reconciliation, then

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 357,
-    "sha256": "535bf6eb79065d89792b1c8bed3be32f337255c1e3c266cfe36f87dbd8e8da0b"
+    "count": 358,
+    "sha256": "56b51200799690995b04d5fb7d96c52abb0aeead63cd6edd89264bfa38a2a29b"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -136,6 +136,7 @@
     "scripts/whey-protein-page.test.js",
     "scripts/gladiator-nutrition-offer-refresh.test.js",
     "scripts/homepage-comparisons.test.js",
-    "scripts/retailer-active-historical-reconciliation.test.js"
+    "scripts/retailer-active-historical-reconciliation.test.js",
+    "scripts/retailer-unverified-source-quarantine.test.js"
   ]
 }
