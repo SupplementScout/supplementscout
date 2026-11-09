@@ -16,7 +16,11 @@ const {
   CONTRACTS,
   ledgerRowsFingerprint,
   validateDatabaseOwner,
+  validateSelection,
 } = require("./supabase-migration-selector");
+
+const { verifySelectedMigrationPreflight } = require("./lib/selected-migration-preflight");
+const SOURCE_DIR = path.resolve(__dirname, "..", "supabase", "migrations");
 
 function invariant(value, message) {
   if (!value) throw new Error(message);
@@ -25,13 +29,15 @@ function invariant(value, message) {
 function parseArgs(argv) {
   const values = {};
   for (const argument of argv) {
-    const match = argument.match(/^--(environment|project-ref|env-file)=(.+)$/);
+    const match = argument.match(/^--(environment|project-ref|env-file|mode)=(.+)$/);
     invariant(match && values[match[1]] === undefined, `invalid argument ${argument}`);
     values[match[1]] = match[2];
   }
   invariant(values.environment && values["project-ref"], "missing required arguments");
+  invariant(!values.mode || ["preflight", "postflight"].includes(values.mode), "mode must be preflight or postflight");
   const production = values.environment === "PRODUCTION";
   return {
+    mode: values.mode || "postflight",
     environment: values.environment,
     projectRef: values["project-ref"],
     envFile: values["env-file"]
@@ -75,6 +81,18 @@ async function main(argv = process.argv.slice(2)) {
         state.databaseTarget.database_identity === contract.databaseIdentity,
       "database target identity mismatch",
     );
+    if (options.mode === "preflight") {
+      const selection = validateSelection({ environment: options.environment,
+        projectRef: options.projectRef, databaseTarget: state.databaseTarget,
+        remoteLedger: state.remoteLedger, sourceDir: SOURCE_DIR });
+      const checks = await verifySelectedMigrationPreflight(client, contract.pending, SOURCE_DIR);
+      await client.query("rollback");
+      console.log(JSON.stringify({ result: "PASS", mode: "preflight", environment: options.environment,
+        project_ref: options.projectRef, database_state: "CURRENT", ledger_count: state.remoteLedger.length,
+        ledger_fingerprint: ledgerRowsFingerprint(state.remoteLedger, { targetEnvironment: options.environment }),
+        pending_files: selection.pending_files, control_preflight: checks, database_writes: 0 }, null, 2));
+      return;
+    }
     const closeoutDerivation = derivePostApplyMigrationBinding(options.environment);
     assertDerivationMatchesContract(closeoutDerivation, contract);
     const ledgerFingerprint = ledgerRowsFingerprint(state.remoteLedger, {

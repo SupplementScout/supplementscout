@@ -101,7 +101,7 @@ const PENDING_REFRESH_BINDING_MIGRATION_SHA256 = "015f0de7448c10fcca10174e74dfbf
 const PENDING_REFRESH_BINDING = Object.freeze({ filename: PENDING_REFRESH_BINDING_MIGRATION, sha256: PENDING_REFRESH_BINDING_MIGRATION_SHA256 });
 const PLANNED_CONTROL_CLOSE_PENDING = Object.freeze({ filename: "20261107190000_extend_never_approved_planned_control_close.sql", sha256: "0c6a7ef27021c0ba2dc5ef38eea3289b8238e4dc3220ede03de6210336263ddf" });
 const STAGING_PENDING = Object.freeze([...HARD_PRICE_ANOMALY_PENDING, PENDING_REFRESH_BINDING]);
-const PRODUCTION_PENDING = Object.freeze([{ filename: "20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql", sha256: "a9cb6d18c60dda40dbc10322e23971f929e929a4344761e8f97328677b04e29b" }]);
+const PRODUCTION_PENDING = Object.freeze([{ filename: "20261109120000_add_owner_withdrawal_terminal_preflight.sql", sha256: "70957859d879e822db0627c671d5a9bd8e0f77f5c0da58fddce7a011e678fe9e", preflight_required: true }]);
 
 test("production-only planned-close migration is applied in production and excluded from staging", () => {
   assert.equal(CONTRACTS.STAGING.excluded[PLANNED_CONTROL_CLOSE_PENDING.filename], PLANNED_CONTROL_CLOSE_PENDING.sha256);
@@ -1124,7 +1124,7 @@ test("runtime staging artifacts bind the same migration ledger as the staging se
 
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(Object.keys(contract.excluded).length, 30);
+  assert.equal(Object.keys(contract.excluded).length, 31);
   assert.deepEqual(contract.pending, PRODUCTION_PENDING);
   assert.equal(
     contract.excluded["20261031120000_add_verified_automation_review_stock_transition_reader.sql"],
