@@ -73,7 +73,9 @@ concurrency:
 
 jobs:
   fit-house-offer-refresh:
-    if: ${{ github.ref == 'refs/heads/main' && ((github.event_name == 'schedule' && github.event.schedule == '47 2 * * *') || (github.event_name == 'workflow_dispatch' && inputs.operation != 'control-discovery' && inputs.operation != 'control-preflight' && inputs.operation != 'control-recovery' && (inputs.retailer == 'all' || inputs.retailer == 'fit-house'))) }}
+    # Temporary owner-withdrawal rollout pause: only the Fit House scheduled job.
+    # Remove the event guard only after separate owner approval and postflight.
+    if: ${{ github.event_name != 'schedule' && github.ref == 'refs/heads/main' && ((github.event_name == 'schedule' && github.event.schedule == '47 2 * * *') || (github.event_name == 'workflow_dispatch' && inputs.operation != 'control-discovery' && inputs.operation != 'control-preflight' && inputs.operation != 'control-recovery' && (inputs.retailer == 'all' || inputs.retailer == 'fit-house'))) }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: production-readonly

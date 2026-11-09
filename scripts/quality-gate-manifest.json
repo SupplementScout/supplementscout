@@ -133,6 +133,7 @@
     "scripts/seo15-accrual-audit.test.js",
     "scripts/sitemap-freshness.test.js",
     "scripts/whey-protein-page.test.js",
+    "scripts/gladiator-nutrition-offer-refresh.test.js",
     "scripts/homepage-comparisons.test.js"
   ]
 }
