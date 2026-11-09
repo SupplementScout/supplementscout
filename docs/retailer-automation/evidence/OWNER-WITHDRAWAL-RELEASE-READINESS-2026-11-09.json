@@ -365,8 +365,9 @@
   },
   "release_authorization": "separate owner approval required for every production step; no commercial refresh/recovery/schedule restart",
   "github_active_jobs_readback": {
-    "checked_at": "2026-11-09T09:48:00Z",
-    "in_progress_count": 0,
-    "main": "1dce913d28fb727bac9989b49a470cb7ad4bf4af"
+    "checked_at": "2026-11-09T09:51:06.333Z",
+    "main": "1dce913d28fb727bac9989b49a470cb7ad4bf4af",
+    "active_retailer_runs": [],
+    "total_in_progress": 0
   }
 }
