@@ -1,5 +1,20 @@
 # Retailer Automation Consolidation Execution Plan
 
+**9 November final targeted repair — DRAFT PREPARATION:** #516 is merged on
+main800497966452f9c777102b7e6db2c0bd736d0a1f. The one new Fit read-only
+run42676328398 captured231 products/326 variants, then exposed the consumed
+owner-contract veto again:261 unchanged+19 stock observations+4 missing rows.
+The October shared partition already exists; this draft reconciles deferred
+bindings across commercial/quarantine rows and retains all19 stock observations
+for review. Six uses only retained run42671293775 inputs: four selected CNP
+75g/12pc packages normalize, eight missing-evidence rows qualify for existing
+review, and three unresolved identities remain hard BLOCK. No full-source or
+SQL end-to-end PASS is claimed. The current read-only production binding is
+CURRENT262; both schedules remain PAUSED. No retailer dispatch, apply,
+publication, approval, migration or recovery in this preparation. RA-001
+unchanged, RA-004 remains suspended. Earlier entries are historical. See the
+[bounded implementation evidence](evidence/TARGETED-FIT-SIX-REPAIR-2026-11-09.json).
+
 **9 November two-retailer quarantine preparation — current bounded task:**
 #515 is merged as2f669cd6, main CI42655256357/Guardian42655256546 passed,
 and the exact production deployment was READY. Six read-only run42656307444

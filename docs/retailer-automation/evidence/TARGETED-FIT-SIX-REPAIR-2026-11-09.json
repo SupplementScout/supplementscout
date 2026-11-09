@@ -1,0 +1,74 @@
+{
+  "status": "DRAFT_PREPARATION_NOT_PRODUCTION_RESTORATION",
+  "base_main": "800497966452f9c777102b7e6db2c0bd736d0a1f",
+  "architecture": "RA-001 unchanged; existing classifier, executor, Review Queue and approval path",
+  "fit_house": {
+    "run_id": 42676328398,
+    "artifact_id": 13701450103,
+    "artifact_zip_sha256": "b94934a3b22b9c0f138c65be3d3c9bee67ce88de8b583f32e565d12e58836fd6",
+    "source_products": 231,
+    "source_variants": 326,
+    "source_health": "PASS",
+    "pagination": "PASS",
+    "active": 284,
+    "historical": 2,
+    "audited_bindings": "78 preserved:76 active and2 historical",
+    "incident": "FIT_HOUSE_ISOLATION_SCOPE_MISMATCH before shared aggregate review partition",
+    "existing_repair": "RA-STAB-01-SHARED-AGGREGATE-REVIEW-PARTITION-PREPARATION-2026-10-09.json records the same consumed-contract cause and shared partition",
+    "recurrence": "deferred1859 now belongs to SOURCE_VARIANT_MISSING quarantine; the consumed contract still required all14 deferred offers in commercial rows",
+    "change": "verify every historical deferred binding across the existing partition, keep consumed authority separate from ordinary execution, retain deferred changes and MASS_OOS restocks for review, then reuse isolateAggregateRiskRows and partitionExecutableRows",
+    "retained_native_classifier_projection": {
+      "input": { "verify_no_change": 261, "stock_observations": 19, "source_missing": 4 },
+      "output": { "executable_confirmations": 261, "stock_review": 19, "missing_review": 4 },
+      "sql_validator": "NOT_RUN_OFFLINE"
+    },
+    "preserved": ["OOS104", "offer1859 false and EXECUTED review1114", "all78 audited bindings", "historical manifests", "MASS_OOS thresholds", "strict unconsumed/non-isolated owner scope"],
+    "limit": "Raw Shopify feed was not retained. This is a replay of recorded native classifier observations plus immutable DB bindings, not raw-feed or SQL end-to-end validation."
+  },
+  "six_pack": {
+    "run_id": 42671293775,
+    "artifact_id": 13698583092,
+    "artifact_zip_sha256": "d75f4faf46a5d7e7906001b06a6384f090a7a09b691a2df2adfdaa6303d76a7c",
+    "retained_page_json_sha256": "5a60b0a399f1a62249acb82f2ee586f1bd3aece6b18f96b10e4d120e8e396e5c",
+    "active": 504,
+    "historical": 2,
+    "replay_scope": "15 original blockers,12 complete parsed page records; original capture time frozen in offline tests",
+    "selected_multipacks_normalized": { "parent": "4566", "variants": ["4568", "4570", "4572", "4580"], "per_item": "75g", "selected_attribute_size": "box (12pc)" },
+    "review_only": ["5086", "5090", "5092", "8189", "8191", "30999:31005", "6742", "5280"],
+    "remaining_hard_blocks": {
+      "5088": "Battle Bites document versus Skinny Food2x30g approved/response URL; matching identifier cannot conceal conflicting selling-unit URL evidence",
+      "5091": "approved GTIN500318691586 fails existing checksum validation; SKU is a separate namespace",
+      "4145": "unapproved Gold30g to Black URL/name change"
+    },
+    "reuse": ["parsePackCount", "parseSize and its existing parseMultipack", "assessVariantCompatibility with exact canonical variant", "normalizeFlavour", "commercialIdentity name tokens", "liveIdentityDrift unchanged globally", "isValidGtin", "productDocumentIdentity record", "SOURCE_VARIANT_MISSING quarantine"],
+    "new_code_reason": "Recognize an exact standalone boxed-piece label in existing parsePackCount; project selected package evidence into existing comparison; distinguish missing identifiers (manual review only) from explicit conflicts and invalid approved identifiers.",
+    "new_normalizer": false,
+    "duplicate_unit_or_serving_arithmetic": false,
+    "commercial_plan_for_review": false,
+    "freshness_for_review": false,
+    "automatic_approval_for_review": false,
+    "full_runtime": "BLOCK remains until three unresolved identities have independently approved evidence; no sealed artifact or SQL PASS is claimed",
+    "limit": "Parsed inputs are complete for retained pages, but raw HTML was not retained. Missing parsed GTIN/SKU cannot establish whether the original document supplied those fields."
+  },
+  "production_readback": {
+    "captured_at": "2026-11-09T19:15:44.835Z",
+    "read_only": true,
+    "tls_verified": true,
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "ledger": 262,
+    "fingerprint": "209719c865f07c9e77006d01f7ae526aa47461b9a0bd5154071b4f29052c8333",
+    "fit_scope": "284+2",
+    "six_scope": "504+2",
+    "OOS104": "PASS",
+    "offer1859": false,
+    "withdrawn951_999_1114": "unchanged inactive"
+  },
+  "verification": {
+    "focused_quick_full_ci_guardian": "recorded in exact-head draft PR checks after implementation",
+    "integration": "Not required: no SQL, RPC, DB contracts or privileges changed",
+    "skips": "Reported separately; never counted as PASS"
+  },
+  "production_actions": { "business_writes": 0, "control_writes": 0, "approvals": 0, "review_queue_publication": 0, "price_history_writes": 0, "retailer_dispatches": 0, "merge": 0, "migrations": 0, "recovery": 0 },
+  "schedules": { "fit_house": "PAUSED", "six_pack": "PAUSED" },
+  "next_gate": "Owner review of one draft PR; no production execution. Fit requires a separately authorized fresh read-only dry-run/SQL validation after release. Six hard identities must be resolved before another full capture can be expected to reach classification."
+}
