@@ -523,11 +523,25 @@ function authorizeOwnerApprovedSixStockOnly(classification,ownerApprovedSix,{iso
         ? row.target.in_stock===true&&row.source.in_stock===true&&!row.changed_fields?.price&&!row.changed_fields?.stock&&!row.changed_fields?.url
         : row.action==="UPDATE_STOCK"&&row.target.in_stock===false&&row.source.in_stock===true&&row.changed_fields?.stock===true&&!row.changed_fields?.price&&!row.changed_fields?.url
       : row.action==="VERIFY_NO_CHANGE"&&row.target.in_stock===false&&row.source.in_stock===false&&!row.changed_fields?.price&&!row.changed_fields?.stock&&!row.changed_fields?.url);
-  if(isolateUnsafe&&ownerApprovedSix.authorizedChangeCount===0&&selectedScopeExact){
-    const deferredIds=new Set(deferredChanged.map(row=>String(row.offer_id)));
+  // A consumed one-time contract is not authority over later ordinary rows.
+  // Retain every protected binding across the existing commercial/review partition.
+  const partitionByOffer=new Map([...rows,...(classification.quarantined_rows||[])].map(row=>[String(row.offer_id),row]));
+  const deferredBindingsExact=[...deferredByOffer.values()].every(expected=>{
+    const row=partitionByOffer.get(expected.offer_id);
+    return row&&String(row.retailer_product_id)===expected.mapping_id&&String(row.external_product_id)===expected.external_product_id&&String(row.external_variant_id)===expected.external_variant_id;
+  });
+  const selectedStable=selected.length===approved.size&&selected.every(row=>row.action==="VERIFY_NO_CHANGE"
+    &&row.target.in_stock===(String(row.offer_id)===returnedOfferId)&&row.source.in_stock===row.target.in_stock
+    &&!row.changed_fields?.price&&!row.changed_fields?.stock&&!row.changed_fields?.url);
+  if(isolateUnsafe&&ownerApprovedSix.authorizedChangeCount===0&&selectedStable&&deferredBindingsExact){
+    // During MASS_OOS, restocks are observations requiring review too. New OOS
+    // transitions continue through the unchanged shared aggregate-risk partition.
+    const held=[...deferredChanged,...allChanged.filter(row=>!deferredByOffer.has(String(row.offer_id))
+      &&classification.reason==="MASS_OOS"&&row.changed_fields?.stock&&row.target.in_stock===false&&row.source.in_stock===true)];
+    const deferredIds=new Set(held.map(row=>String(row.offer_id)));
     const remaining=rows.filter(row=>!deferredIds.has(String(row.offer_id)));
     const unrelatedChanged=remaining.filter(row=>row.action!=="VERIFY_NO_CHANGE");
-    return{...classification,state:unrelatedChanged.length?classification.state:"DRY_RUN_READY_WITH_REVIEW",reason:unrelatedChanged.length?classification.reason:null,rows:remaining,quarantined_rows:[...(classification.quarantined_rows||[]),...deferredChanged.map(row=>({...row,reason:"OWNER_DEFERRED_STOCK_REVIEW"}))],deferred_changed_offer_ids:[...deferredIds]};
+    return{...classification,state:unrelatedChanged.length?classification.state:"DRY_RUN_READY_WITH_REVIEW",reason:unrelatedChanged.length?classification.reason:null,rows:remaining,quarantined_rows:[...(classification.quarantined_rows||[]),...held.map(row=>({...row,reason:"OWNER_DEFERRED_STOCK_REVIEW"}))],deferred_changed_offer_ids:[...deferredIds]};
   }
   const exact=rows.length===config.approved_mapping_count&&selected.length===6
     &&allChanged.length===ownerApprovedSix.authorizedChangeCount+deferredChanged.length

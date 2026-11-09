@@ -123,6 +123,9 @@ function parsePackCount(value = "") {
     return multipack.count;
   }
 
+  const boxedPieces = text.match(/^\s*box\s*\(\s*([1-9]\d*)\s*pcs?\s*\)\s*$/);
+  if (boxedPieces) return Number.isSafeInteger(Number(boxedPieces[1])) ? Number(boxedPieces[1]) : null;
+
   const packOfMatch = text.match(/\bpack\s+of\s+(\d+)\b/);
 
   if (packOfMatch) {

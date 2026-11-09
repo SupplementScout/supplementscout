@@ -1,0 +1,316 @@
+{
+  "status": "DRAFT_PREPARATION_NOT_PRODUCTION_RESTORATION",
+  "base_main": "800497966452f9c777102b7e6db2c0bd736d0a1f",
+  "architecture": "RA-001 unchanged; existing classifier, executor, Review Queue and approval path",
+  "fit_house": {
+    "run_id": 42676328398,
+    "artifact_id": 13701450103,
+    "artifact_zip_sha256": "b94934a3b22b9c0f138c65be3d3c9bee67ce88de8b583f32e565d12e58836fd6",
+    "source_products": 231,
+    "source_variants": 326,
+    "source_health": "PASS",
+    "pagination": "PASS",
+    "active": 284,
+    "historical": 2,
+    "audited_bindings": "78 preserved:76 active and2 historical",
+    "incident": "FIT_HOUSE_ISOLATION_SCOPE_MISMATCH before shared aggregate review partition",
+    "existing_repair": "RA-STAB-01-SHARED-AGGREGATE-REVIEW-PARTITION-PREPARATION-2026-10-09.json records the same consumed-contract cause and shared partition",
+    "recurrence": "deferred1859 now belongs to SOURCE_VARIANT_MISSING quarantine; the consumed contract still required all14 deferred offers in commercial rows",
+    "change": "verify every historical deferred binding across the existing partition, keep consumed authority separate from ordinary execution, retain deferred changes and MASS_OOS restocks for review, then reuse isolateAggregateRiskRows and partitionExecutableRows",
+    "retained_native_classifier_projection": {
+      "input": {
+        "verify_no_change": 261,
+        "stock_observations": 19,
+        "source_missing": 4
+      },
+      "output": {
+        "executable_confirmations": 261,
+        "stock_review": 19,
+        "missing_review": 4
+      },
+      "sql_validator": "NOT_RUN_OFFLINE"
+    },
+    "preserved": [
+      "OOS104",
+      "offer1859 false and EXECUTED review1114",
+      "all78 audited bindings",
+      "historical manifests",
+      "MASS_OOS thresholds",
+      "strict unconsumed/non-isolated owner scope"
+    ],
+    "limit": "Raw Shopify feed was not retained. This is a replay of recorded native classifier observations plus immutable DB bindings, not raw-feed or SQL end-to-end validation."
+  },
+  "six_pack": {
+    "run_id": 42671293775,
+    "artifact_id": 13698583092,
+    "artifact_zip_sha256": "d75f4faf46a5d7e7906001b06a6384f090a7a09b691a2df2adfdaa6303d76a7c",
+    "retained_page_json_sha256": "5a60b0a399f1a62249acb82f2ee586f1bd3aece6b18f96b10e4d120e8e396e5c",
+    "active": 504,
+    "historical": 2,
+    "replay_scope": "15 original blockers,12 complete parsed page records; original capture time frozen in offline tests",
+    "selected_multipacks_normalized": {
+      "parent": "4566",
+      "variants": [
+        "4568",
+        "4570",
+        "4572",
+        "4580"
+      ],
+      "per_item": "75g",
+      "selected_attribute_size": "box (12pc)"
+    },
+    "review_only": [
+      "5088",
+      "5086",
+      "5090",
+      "5092",
+      "8189",
+      "8191",
+      "30999:31005",
+      "6742",
+      "5280"
+    ],
+    "remaining_hard_blocks": {
+      "4145": "unapproved Gold30g to Black URL/name change",
+      "5091": "approved GTIN500318691586 fails existing checksum validation; SKU is a separate namespace"
+    },
+    "reuse": [
+      "parsePackCount",
+      "parseSize and its existing parseMultipack",
+      "assessVariantCompatibility with exact canonical variant",
+      "normalizeFlavour",
+      "commercialIdentity name tokens",
+      "liveIdentityDrift unchanged globally",
+      "isValidGtin",
+      "productDocumentIdentity record",
+      "SOURCE_VARIANT_MISSING quarantine"
+    ],
+    "new_code_reason": "Recognize an exact standalone boxed-piece label in existing parsePackCount; project selected package evidence into existing comparison; distinguish missing identifiers (manual review only) from explicit conflicts and invalid approved identifiers.",
+    "new_normalizer": false,
+    "duplicate_unit_or_serving_arithmetic": false,
+    "commercial_plan_for_review": false,
+    "freshness_for_review": false,
+    "automatic_approval_for_review": false,
+    "full_runtime": "BLOCK remains for5091 invalid approved GTIN and4145 Gold/Black identity conflict; no full-source, SQL or sealed artifact PASS claimed",
+    "limit": "Parsed inputs are complete for retained pages, but raw HTML was not retained. Missing parsed GTIN/SKU cannot establish whether the original document supplied those fields.",
+    "owner_evidence_update": {
+      "date": "2026-11-09",
+      "starting_pr_head": "8d96fc0c040b2d75af4e2ed1df61fa2f0736416b",
+      "replay": {
+        "source_rows": 4,
+        "review_only": 9,
+        "hard_blocks": 2,
+        "scope": "15 retained incidents only, not all504 active mappings"
+      },
+      "parent5088": {
+        "status": "REVIEW_ONLY",
+        "mapping": 2486,
+        "offer": 2300,
+        "historical_manifest": "config/retailers/six-pack-production-expansion-v12.csv",
+        "approved_csv_sha256": "bc087c3e12ea44a329acf81c558b7f48eda7dbc09708036a64d26cfc5e406074",
+        "approved_at": "2026-07-28",
+        "approved_gtin": "5060318692125",
+        "approved_sku": "5060318692125",
+        "approved_and_current_url": "https://6pack-supplements.co.uk/product/salted-caramel-high-protein-low-sugar-bar-2x-30g-skinny-food/",
+        "evidence": "Retained actual Battle Bites marshmallow title, parent5088, matching SKU, exact approved canonical/request/response/document provenance. Current parsed source lacks independent GTIN/62g evidence: no commercial equivalence.",
+        "change": "Remove semantic package inference from unchanged approved slug in this PR admission check; retain exact URL, origin, request, response, document ID, hash, completeness, freshness and explicit identifier/body-conflict guards.",
+        "owner_stock_observation": "OUT_OF_STOCK, informational only; no write or new source timestamp",
+        "commercial_authority": false
+      },
+      "parent5091": {
+        "status": "BLOCK_INVALID_APPROVED_GTIN",
+        "mapping": 2488,
+        "offer": 2302,
+        "historical_columns": {
+          "external_gtin": "500318691586",
+          "external_sku": "5060318691586"
+        },
+        "finding": "The original GTIN fails the unchanged checksum validator. The second number was historically SKU, not a second GTIN column. Independent evidence supports it as the Chocolate Caramel barcode; checksum/SKU alone was not used.",
+        "independent_evidence": [
+          {
+            "url": "https://www.supreme.co.uk/wp-content/uploads/2022/08/Battle-Bites-Brouchure1-compressed.pdf",
+            "access": "Search-indexed product-code section only; direct retrieval returned404, so no current PDF/hash/screenshot verification claimed",
+            "facts": {
+              "product_code": "P3077",
+              "flavour": "Chocolate Caramel",
+              "unit_mass": "62g",
+              "unit_ean": "5060318691586",
+              "outer_ean": "5060318691616"
+            }
+          },
+          {
+            "url": "https://www.bol.com/nl/nl/p/battle-bites-20g-proteine-bites-12x-62g-chocolate-caramel/9200000094700850/",
+            "access": "Independent product listing read, identifies EAN5060318691586 for Chocolate Caramel62g; listing offers12 units, so not sole unit-versus-outer proof"
+          }
+        ],
+        "proposed_correction": {
+          "status": "PROPOSAL_ONLY_REQUIRES_SEPARATE_OWNER_APPROVAL_AND_EXISTING_CONTROLLED_MAPPING_PATH",
+          "retailer_id": 11,
+          "mapping_id": 2488,
+          "offer_id": 2302,
+          "external_product_id": "5091",
+          "external_variant_id": "5091",
+          "product_id": 384,
+          "product_variant_id": 2281,
+          "field": "external_gtin",
+          "from": "500318691586",
+          "to": "5060318691586",
+          "external_sku_unchanged": "5060318691586",
+          "justification": "Historical GTIN invalid; matching flavour/62g/approved binding, independent listing and indexed supplier unit/outer barcode distinction corroborate candidate. No inference of SKU namespace equivalence.",
+          "deployment": "Do not rewrite July28 CSV or fingerprints. Before a separately approved controlled correction, retain authoritative package/supplier barcode proof for the exact Six unit and reconcile current approved scope/fingerprint/history through the existing mapping lifecycle. No SQL, manifest or mapping change is included here."
+        },
+        "owner_stock_observation": "IN_STOCK, informational only; no write"
+      },
+      "parent4145": {
+        "status": "BLOCK_REQUIRES_OWNER_EVIDENCE",
+        "mapping": 2564,
+        "offer": 2378,
+        "approved": "Gold Shilajit Resin30g; SKU854822007521; v14July28",
+        "retained_source": "Black title/canonical URL, same SKU; does not prove Gold equivalence",
+        "targeted_read": {
+          "requested_url": "https://6pack-supplements.co.uk/product/good-guru-gold-shilajit-resin-30g/",
+          "response_url": "https://6pack-supplements.co.uk/product/shilajit-black-the-good-guru/",
+          "status": 200,
+          "content_type": "text/html; charset=UTF-8",
+          "bytes": 299227,
+          "sha256": "b4047a94995726a11720354c558356f31e488a4668f0ab58047e9a287ea66197",
+          "h1": [
+            "Shilajit Black - The Good Guru"
+          ],
+          "snippets": [
+            " Shilajit Black - The Good Guru - 6 Pack Supplements Skip to content Free UK delivery over £99.00 Free UK delivery over £99.00 Free sha",
+            "&#039;s health Home Vitamins &amp; Health Focus &amp; Brain Shilajit Black &#8211; The Good Guru Open full-size image 1\"> / 1\" @click=\"go(-1)\" aria-label=\"Previous photo\"> 1\" @click=\"go(1)\" aria",
+            "-label=\"Next photo\"> Good Guru Shilajit Black - The Good Guru No reviews yet, be the first &pound; 44.99 In stock and ready to ship S Earn 44 Sixpack Points How Sixp",
+            "tell you as soon as it&#039;s back. Email address Notify me Shilajit Black - The Good Guru £44.99 Add to basket We aim to dispatch orders paid before 2pm Mon, Tue, Wed, Thu, Fri on the same work",
+            "ivery &amp; returns Reviews Product details The Good Guru's Gold Shilajit Resin is harvested from the high-altitude mountains of the Himalayas and provided in its purest, resin form. No fillers",
+            "clable packaging Suitable for Vegetarians and Vegans &nbsp; Gold Shilajit Resin with Ashwagandha - 30g An enhanced Ayurvedic formula combining purified Himalayan shilajit with Ashwagandha, Blac"
+          ],
+          "captured_at": "2026-11-09T19:55:11.100Z"
+        },
+        "discrepancy_origin": "The retailer document itself mixes Black H1 and structured product name with Gold description and Gold with Ashwagandha30g heading. The approved Gold URL redirects to Black. This is not solely a parser spelling error.",
+        "exact_owner_check": "Obtain retailer confirmation/photo for the actual product sold as4145: Gold or Black, exact30g presentation, plain versus Ashwagandha formula and printed barcode. Confirm whether the redirect changed the trade item. Do not rebind or equate Gold/Black automatically."
+      },
+      "parent4566": {
+        "status": "ALL_FOUR_SELECTED_VARIANTS_HANDLED",
+        "variants": [
+          "4568",
+          "4570",
+          "4572",
+          "4580"
+        ],
+        "approved_unit": "Box of12x75g since July28",
+        "source_unit": "box (12pc)",
+        "source_price": "14.99",
+        "change": "None in this update; reuse existing selected-variant pack proof and captured price/stock, without new owner approval or manual stock substitution"
+      },
+      "unchanged": [
+        "Fit House implementation and261+19+4 partition",
+        "504+2 Six scope",
+        "284+2 Fit scope",
+        "all approved CSV/manifests and bindings",
+        "global liveIdentityDrift and URL guards",
+        "classifier/executor/Review Queue/approvals",
+        "schedules PAUSED"
+      ]
+    }
+  },
+  "production_readback": {
+    "captured_at": "2026-11-09T19:59:02.920Z",
+    "read_only": true,
+    "tls_verified": true,
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "ledger": 262,
+    "fingerprint": "209719c865f07c9e77006d01f7ae526aa47461b9a0bd5154071b4f29052c8333",
+    "fit_scope": "284+2",
+    "six_scope": "504+2",
+    "OOS104": "PASS",
+    "offer1859": false,
+    "withdrawn951_999_1114": "unchanged inactive",
+    "owner_evidence_mapping_readback": [
+      {
+        "id": "2486",
+        "retailer_id": "11",
+        "product_id": "384",
+        "product_variant_id": "2279",
+        "external_product_id": "5088",
+        "external_variant_id": "5088",
+        "external_gtin": "5060318692125",
+        "external_sku": "5060318692125",
+        "external_url": "https://6pack-supplements.co.uk/product/salted-caramel-high-protein-low-sugar-bar-2x-30g-skinny-food/",
+        "offer_id": "2300",
+        "price": "2.5",
+        "in_stock": false
+      },
+      {
+        "id": "2488",
+        "retailer_id": "11",
+        "product_id": "384",
+        "product_variant_id": "2281",
+        "external_product_id": "5091",
+        "external_variant_id": "5091",
+        "external_gtin": "500318691586",
+        "external_sku": "5060318691586",
+        "external_url": "https://6pack-supplements.co.uk/product/chocolate-caramel-high-protein-bar-battle-bites/",
+        "offer_id": "2302",
+        "price": "2.5",
+        "in_stock": true
+      },
+      {
+        "id": "2564",
+        "retailer_id": "11",
+        "product_id": "1096",
+        "product_variant_id": "2379",
+        "external_product_id": "4145",
+        "external_variant_id": "4145",
+        "external_gtin": null,
+        "external_sku": "854822007521",
+        "external_url": "https://6pack-supplements.co.uk/product/good-guru-gold-shilajit-resin-30g/",
+        "offer_id": "2378",
+        "price": "26.99",
+        "in_stock": true
+      }
+    ]
+  },
+  "verification": {
+    "focused_quick_full_ci_guardian": "recorded in exact-head draft PR checks after implementation",
+    "integration": "Not required: no SQL, RPC, DB contracts or privileges changed",
+    "skips": "Reported separately; never counted as PASS",
+    "owner_update_local": {
+      "focused": {
+        "pass": 159,
+        "skip": 0
+      },
+      "quick": {
+        "pass": 1071,
+        "skip": 3
+      },
+      "full": {
+        "pass": 3722,
+        "skip": 3
+      },
+      "fail": 0,
+      "typescript": "PASS",
+      "eslint": "PASS",
+      "production_build": "PASS",
+      "guardian": "PASS",
+      "test_file_inventory": 359,
+      "automatic_ci": "Exact-head results in PR517 checks; no workflow_dispatch"
+    }
+  },
+  "production_actions": {
+    "business_writes": 0,
+    "control_writes": 0,
+    "approvals": 0,
+    "review_queue_publication": 0,
+    "price_history_writes": 0,
+    "retailer_dispatches": 0,
+    "merge": 0,
+    "migrations": 0,
+    "recovery": 0
+  },
+  "schedules": {
+    "fit_house": "PAUSED",
+    "six_pack": "PAUSED"
+  },
+  "next_gate": "Review existing draft PR517 only. Fit may receive one separately approved fresh read-only dry-run/SQL validation after release. Six still has2 hard blocks;5091 requires separately approved controlled mapping correction with retained barcode evidence,4145 exact owner identity evidence. No dispatch, merge or production write in this task."
+}

@@ -18,7 +18,8 @@ const {
 const { buildVerifiedNoChangePlan } = require("./verified-no-change-offer-refresh");
 const { writeDryRunArtifact } = require("./import-products");
 const { commercialIdentity, liveIdentityDrift } = require("./six-pack-canary-builder");
-const { assessVariantCompatibility, assertCataloguePolicyAllowsRecords, catalogueScopeBindings, reconcileApprovedCatalogueScope } = require("./lib/feed-variant-guards");
+const { assessVariantCompatibility, assertCataloguePolicyAllowsRecords, catalogueScopeBindings, reconcileApprovedCatalogueScope, normalizeFlavour, parsePackCount, parseSize, sizeKey } = require("./lib/feed-variant-guards");
+const { isValidGtin } = require("./lib/gtin-promotion");
 const {
   assertFreshBatchMatch,
   buildReviewedBatch,
@@ -776,9 +777,9 @@ async function readState(manifest, dependencies = {}) {
   return { records };
 }
 
-// Reuse the catalogue's existing dimensional/pack/brand checks. This admits
-// uncertainty to the one classifier quarantine, never to commercial identity.
-function normalizationReviewFor(error, record, live, capturedAt) {
+// Reuse existing checks for exact selected-pack evidence. Incomplete evidence
+// can enter only the existing classifier quarantine, without commercial identity.
+function normalizationIdentityEvidence(error, record, live, capturedAt) {
   const detail = error?.detail, p = live?.source_provenance;
   if (!(error instanceof WooCommerceSourceError) || error.code !== "SOURCE_IDENTITY_DRIFT"
     || detail?.stage !== "SOURCE_NORMALIZATION" || detail.identity?.code !== "CSV_LIVE_IDENTITY_DRIFT"
@@ -806,14 +807,50 @@ function normalizationReviewFor(error, record, live, capturedAt) {
   const offer = candidates[0];
   if (candidates.length !== 1 || !offer || !Number.isFinite(Number(offer.price)) || Number(offer.price) <= 0
     || typeof offer.in_stock !== "boolean" || (offer.currency && offer.currency !== "GBP")) return null;
-  for (const [expected, observed] of [[record.mapping.external_sku, offer.sku],
-    [record.mapping.external_gtin || record.identity_evidence?.gtin || record.variant.gtin, offer.gtin || offer.gtin13]]) {
-    if (expected != null && String(expected).trim() && String(expected).trim() !== String(observed ?? "").trim()) return null;
+  const expectedGtin = record.mapping.external_gtin || record.identity_evidence?.gtin || record.variant.gtin;
+  const observedGtin = offer.gtin || offer.gtin13;
+  if ((expectedGtin && !isValidGtin(expectedGtin)) || (observedGtin && !isValidGtin(observedGtin))) return null;
+  let identifiersComplete = true;
+  for (const [expected, observed] of [[record.mapping.external_sku, offer.sku], [expectedGtin, observedGtin]]) {
+    if (expected != null && String(expected).trim()) {
+      if (observed == null || !String(observed).trim()) identifiersComplete = false;
+      else if (String(expected).trim() !== String(observed).trim()) return null;
+    }
   }
-  const compatibility = assessVariantCompatibility({ product_name: live.product_name, brand: live.brand },
+  const approvedName = record.mapping.external_name || record.product.name;
+  const hardReasons = ["brand conflict", "size conflict", "pack-count conflict", "format conflict"];
+  const approvedOptions = record.mapping.external_options || {};
+  const expectedFlavour = normalizeFlavour(approvedOptions["Retailer Flavour"] || approvedOptions.Flavour || approvedOptions.Flavor);
+  const selectedFlavour = normalizeFlavour(offer.attributes?.attribute_flavour || offer.attributes?.attribute_flavor);
+  const canonicalFlavour = normalizeFlavour(record.variant.flavour_label);
+  const approvedFlavour = normalizeFlavour(approvedOptions.Flavour || approvedOptions.Flavor);
+  if (expectedFlavour && selectedFlavour && expectedFlavour !== selectedFlavour) return null;
+  const approvedSize = parseSize(approvedName), parentSize = parseSize(live.product_name);
+  const selectedPack = parsePackCount(offer.attributes?.attribute_size || "");
+  const parentPack = parsePackCount(live.product_name);
+  // Project the explicit selected box into the existing name-token parser;
+  // quantities are checked separately below, without summing per-item mass.
+  const selectedName = `${live.product_name} box of ${selectedPack} x ${parentSize?.value}${parentSize?.unit}`;
+  const selectedCompatibility = assessVariantCompatibility({ product_name: live.product_name, brand: live.brand,
+    size: parentSize ? `${parentSize.value}${parentSize.unit}` : "", variant: offer.attributes?.attribute_size || "",
+    flavour: selectedFlavour }, { ...record.product, name: approvedName, brand: record.identity_evidence?.brand || record.product.brand }, record.variant);
+  const selectedPackBound = detail.product_id !== detail.external_variant_id
+    && approvedSize?.perUnit === true && selectedPack > 1 && selectedPack === parsePackCount(approvedName)
+    && selectedPack === Number(record.variant.pack_count) && (parentPack == null || parentPack === selectedPack)
+    && expectedFlavour && selectedFlavour === expectedFlavour
+    && canonicalFlavour && canonicalFlavour === approvedFlavour
+    && sizeKey({ ...approvedSize, perUnit: false }) === sizeKey(parentSize)
+    && JSON.stringify(commercialIdentity(approvedName).name_tokens) === JSON.stringify(commercialIdentity(selectedName).name_tokens)
+    && !selectedCompatibility.reasons.some(reason => hardReasons.includes(reason));
+  // An unchanged approved slug is a document binding, not package evidence.
+  // The exact URL/provenance guards above still apply; missing commercial
+  // evidence below grants only manual review, never equivalence or writes.
+  if (selectedPackBound && identifiersComplete) return { identity: { commercial_identity: "VERIFIED_SELECTED_MULTIPACK" },
+    compatibility: selectedCompatibility };
+  const compatibility = selectedPackBound ? selectedCompatibility : assessVariantCompatibility({ product_name: live.product_name, brand: live.brand },
     { ...record.product, brand: record.identity_evidence?.brand || record.product.brand,
-      name: record.mapping.external_name || record.product.name });
-  if (compatibility.reasons.some(reason => ["brand conflict", "size conflict", "pack-count conflict", "format conflict"].includes(reason))
+      name: approvedName });
+  if (compatibility.reasons.some(reason => hardReasons.includes(reason))
     || detail.identity.csv_capsule_qualifiers || detail.identity.live_capsule_qualifiers) return null;
   return { product_id: detail.product_id, external_variant_id: detail.external_variant_id,
     mapping_id: detail.mapping_id, offer_id: detail.offer_id, disposition: "SOURCE_IDENTITY_UNVERIFIED",
@@ -821,30 +858,39 @@ function normalizationReviewFor(error, record, live, capturedAt) {
     source_provenance: p, compatibility };
 }
 
+function normalizationReviewFor(error, record, live, capturedAt) {
+  const evidence = normalizationIdentityEvidence(error, record, live, capturedAt);
+  return evidence?.identity.commercial_identity === "UNVERIFIED" ? evidence : null;
+}
+
 function liveSourceFor(record, live) {
   const externalProductId = String(record.mapping.external_product_id);
   const externalVariantId = String(record.mapping.external_variant_id);
-  const contractFailure = (message, code, evidence = {}) => {
+  const contractError = (message, code, evidence = {}) => {
     // Only these proven post-capture contract checks create a permanent source
     // error. Arbitrary Error.code values and infrastructure exceptions stay untrusted.
-    throw new WooCommerceSourceError(code, message, {
+    return new WooCommerceSourceError(code, message, {
       stage: "SOURCE_NORMALIZATION", product_id: externalProductId,
       external_variant_id: externalVariantId, mapping_id: String(record.mapping.id),
       offer_id: String(record.offer.id), ...evidence,
     });
   };
+  const approvedGtin = record.mapping.external_gtin || record.identity_evidence?.gtin || record.variant.gtin;
+  if (approvedGtin && !isValidGtin(approvedGtin)) throw contractError("Approved GTIN checksum is invalid", "SOURCE_IDENTITY_DRIFT", {
+    reason_code: "INVALID_APPROVED_GTIN",
+  });
   let offer;
   if (String(live.external_product_id) !== externalProductId) {
-    contractFailure("Live parent differs from the approved binding", "SOURCE_IDENTITY_DRIFT", {
+    throw contractError("Live parent differs from the approved binding", "SOURCE_IDENTITY_DRIFT", {
       observed_product_id: String(live.external_product_id),
     });
   }
   if (externalProductId === externalVariantId) {
-    if (!live.product_offer) contractFailure(`Simple live offer missing for ${externalProductId}`, "SOURCE_SCHEMA_MISMATCH");
+    if (!live.product_offer) throw contractError(`Simple live offer missing for ${externalProductId}`, "SOURCE_SCHEMA_MISMATCH");
     offer = { ...live.product_offer, active: true, purchasable: true };
   } else {
     offer = live.variations.find((row) => row.external_variant_id === externalVariantId);
-    if (!offer) contractFailure(`Live variation ${externalVariantId} missing`, "SOURCE_IDENTITY_DRIFT");
+    if (!offer) throw contractError(`Live variation ${externalVariantId} missing`, "SOURCE_IDENTITY_DRIFT");
   }
   const identityDrift = liveIdentityDrift(
     {
@@ -853,9 +899,10 @@ function liveSourceFor(record, live) {
     },
     live
   );
-  if (identityDrift) contractFailure(`Live commercial identity drift for ${externalVariantId}`, "SOURCE_IDENTITY_DRIFT", {
-    identity: identityDrift,
-  });
+  if (identityDrift) {
+    const error = contractError(`Live commercial identity drift for ${externalVariantId}`, "SOURCE_IDENTITY_DRIFT", { identity: identityDrift });
+    if (normalizationIdentityEvidence(error, record, live, live.captured_at)?.identity.commercial_identity !== "VERIFIED_SELECTED_MULTIPACK") throw error;
+  }
   if (!offer.active || !offer.purchasable) {
     const shippingCost = shippingForPrice(offer.price);
     return {
