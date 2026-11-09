@@ -1,5 +1,18 @@
 # Retailer Automation Consolidation Execution Plan
 
+**9 November bounded blocker repair — DRAFT PREPARATION:** the owner authorized
+one minimal existing-path fix, offline tests and one draft PR, without merge,
+production writes, migrations, retailer dry-runs or schedule restart. Fit House
+run42637602428 exposed historical audited rows being required in active scope;
+the existing reconciliation now verifies all78 bindings across the activated
+284+2 lifecycle and reconciles only76 active audited rows. Six run42635372462
+remains BLOCKED: retained7565 content explicitly lists melatonin, lacks exact
+225g/7567 evidence and cannot receive an identity alias or REVIEW_ONLY bypass.
+8628 remains NOT_REACHED/unverified. Current manifests, RA-001 and OOS104 are
+unchanged; RA-004 stays suspended and both schedules PAUSED. This is code
+preparation, not production recovery. See the
+[bounded repair and owner evidence decision](RETAILER-BLOCKER-REPAIR-2026-11-09.md).
+
 **Status: OWNER WITHDRAWAL DB COMMITTED; RECEIPT-BASED CURRENT262 CLOSEOUT; FIT HOUSE AND SIX PACK PAUSED**
 
 **9 November production checkpoint:** owner authorization b6e7fc5c explicitly
