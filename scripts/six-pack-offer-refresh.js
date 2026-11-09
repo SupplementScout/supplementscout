@@ -961,8 +961,9 @@ function approvedSourceFailureDisposition(error, productId, approved, capturedAt
       || !Array.isArray(document.variation_ids)
       || canonicalJson([...document.variation_ids].sort()) !== canonicalJson(expected)) return ordinary;
   } else {
-    // Missing child facts can establish review scope only. Require the current
-    // approved state to corroborate the parent name and every immutable binding.
+    // Missing child facts establish review scope only. A variable parent may
+    // retain an unverified name when the complete document, canonical URL and
+    // every immutable approved binding agree. Simple qualification is unchanged.
     const children = records.filter((record) => String(record.mapping.external_product_id) === String(productId));
     if (transport.last_attempt !== 1 || canonicalHash(approved.manifest) !== canonicalHash(loadApprovedManifest().manifest)
       || children.length !== expected.length || new Set(expected).size !== expected.length
@@ -976,7 +977,7 @@ function approvedSourceFailureDisposition(error, productId, approved, capturedAt
           && canonicalJson(expectedIdentity.tokens) === canonicalJson(observedIdentity.tokens)
           && canonicalJson(expectedIdentity.name_tokens) === canonicalJson(observedIdentity.name_tokens)
           : matching[0]?.mapping.external_name === issue.product_name;
-        return matching.length !== 1 || !nameMatches
+        return matching.length !== 1 || (simple && !nameMatches)
           || String(matching[0].mapping.product_id) !== row.canonical_product_id
           || String(matching[0].mapping.product_variant_id) !== row.canonical_variant_id
           || String(matching[0].offer.product_id) !== row.canonical_product_id
@@ -999,7 +1000,12 @@ function approvedSourceFailureDisposition(error, productId, approved, capturedAt
     approved_variation_ids: expected, source_document: document,
     ...(simple ? { identity: { expected_name: records.find((r) => String(r.mapping.id) === rows[0].mapping_id).mapping.external_name,
       observed_name: issue.product_name, observed_capsule_qualifiers: commercialIdentity(issue.product_name).capsule_qualifiers,
-      authority: "MANUAL_REVIEW_ONLY" } } : {}) };
+      authority: "MANUAL_REVIEW_ONLY" } } : !wildcard && rows.some((row) =>
+      records.find((r) => String(r.mapping.id) === row.mapping_id).mapping.external_name !== issue.product_name)
+      ? { identity: { expected_names: [...new Set(records.filter((r) => String(r.mapping.external_product_id) === String(productId))
+        .map((r) => r.mapping.external_name))], observed_name: issue.product_name,
+        technical_parent_binding: "VERIFIED", commercial_identity: "UNVERIFIED",
+        name_equivalence_verified: false, authority: "MANUAL_REVIEW_ONLY" } } : {}) };
 }
 
 function canContinueSourceDiagnosis(error, productId, capturedAt, records) {

@@ -138,7 +138,7 @@ test('other retailer profiles retain generic reconciliation without the Fit hist
   assert.equal((source.match(/:reconcileMissingMappedVariants\(targets,/g)||[]).length, 2);
 });
 
-test('Six unavailable parent identity conflict cannot acquire product-only REVIEW authority', async () => {
+test('Six unavailable parent retains unverified commercial identity in technical-scope manual review', async () => {
   // Synthetic parser fixture reproduces the retained name conflict; it is not
   // additional merchant evidence for pack, composition or product identity.
   const url = 'https://6pack-supplements.co.uk/product/trec-nutrition-sleep-er/';
@@ -152,13 +152,66 @@ test('Six unavailable parent identity conflict cannot acquire product-only REVIE
     maximumAttempts:1,parseProductPage:six.parseSixPackProductPage,
     fetchImpl:async()=>({status:200,url,headers:{get:()=> 'text/html'},text:async()=>html})}); } catch(e) { error=e; }
   assert.equal(error?.code,'SOURCE_SCHEMA_MISMATCH');
-  assert.notEqual(six.approvedSourceFailureDisposition(error,'7565',sixApproved,capturedAt,records).scope,'PRODUCT');
+  const disposition=six.approvedSourceFailureDisposition(error,'7565',sixApproved,capturedAt,records);
+  assert.equal(disposition.scope,'PRODUCT');
+  assert.equal(disposition.identity.commercial_identity,'UNVERIFIED');
+  assert.equal(disposition.identity.name_equivalence_verified,false);
+  assert.equal(disposition.identity.authority,'MANUAL_REVIEW_ONLY');
+  for(const mutate of [r=>{r.mapping.external_url='https://6pack-supplements.co.uk/product/other/';},
+    r=>{r.offer.retailer_product_id='99999';},r=>{r.mapping.external_variant_id='99999';},
+    r=>{r.offer.product_variant_id='99999';},r=>{r.variant.product_id='99999';},r=>{r.offer.retailer_id=9;}]){
+    const invalid=structuredClone(records);mutate(invalid.find(r=>r.mapping.id==='2674'));
+    assert.equal(six.approvedSourceFailureDisposition(error,'7565',sixApproved,capturedAt,invalid).scope,'RETAILER');
+  }
   assert.deepEqual(records,before);
 });
 
-test('melatonin policy cannot be waived by a source identity alias or reviewed marker', () => {
-  for (const evidence of ['Melatonin 0.6mg','Melatonin 1mg']) {
-    const r = {product:{name:'Trec Sleep-er 225g'},variant:{display_name:evidence},mapping:{external_name:'Trec Nutrition SLEEPer night regeneration formula'},offer:{id:'2488'},__reviewed_catalogue_identity:{approved:true}};
+test('current Six offline 504+2 isolates one unverified parent, continues all 277, and cannot apply its review row', async () => {
+  const records=physicalRecords(sixApproved.manifest), byProduct=new Map();
+  for(const [i,r]of records.entries()){
+    const simple=r.mapping.external_product_id===r.mapping.external_variant_id;
+    Object.assign(r.product,{name:`Fixture ${r.mapping.external_product_id}`,product_format:'capsule'});
+    Object.assign(r.variant,{variant_key:simple?'default':`flavour-${i}`,display_name:simple?'Default':`Flavour ${i}`,
+      flavour_code:simple?null:`flavour-${i}`,flavour_label:simple?null:`Flavour ${i}`,size_value:null,size_unit:null,pack_count:null,product_format:null,is_default:simple});
+    const url=`https://6pack-supplements.co.uk/product/fixture-${r.mapping.external_product_id}/`;
+    Object.assign(r.mapping,{external_url:url,external_name:r.product.name,external_options:{},external_slug:`fixture-${i}`,external_gtin:null,match_method:'slug',match_confidence:90,updated_at:capturedAt});
+    Object.assign(r.offer,{url,in_stock:true,shipping_cost:'4.99',total_price:'14.99',last_checked_at:capturedAt});
+    r.retailer={id:11,name:'6 Pack Supplements',slug:'6-pack-supplements',website:'https://6pack-supplements.co.uk'};
+    let page=byProduct.get(r.mapping.external_product_id);
+    if(!page){page={external_product_id:r.mapping.external_product_id,canonical_url:url,product_name:r.product.name,product_offer:null,variations:[],html_sha256:require('node:crypto').createHash('sha256').update(r.mapping.external_product_id).digest('hex')};byProduct.set(r.mapping.external_product_id,page);}
+    if(simple)page.product_offer={price:'10.00',in_stock:true};
+    else page.variations.push({external_variant_id:r.mapping.external_variant_id,price:'10.00',in_stock:true,active:true,purchasable:true});
+  }
+  const url='https://6pack-supplements.co.uk/product/trec-nutrition-sleep-er/';
+  const affected=records.find(r=>r.mapping.id==='2674');affected.mapping.external_name='Trec Sleep-er 225g';affected.mapping.external_url=url;affected.offer.url=url;
+  const html=fs.readFileSync(path.join(__dirname,'test-fixtures/six-pack-theme-unbuyable-parent.html'),'utf8')
+    .replaceAll('28570','7565').replaceAll('Skull Labs Angel Dust PUMP Pre-Workout','Trec Nutrition SLEEPer night regeneration formula')
+    .replaceAll('https://6pack-supplements.co.uk/product/skull-labs-angel-dust-pump-pre-workout-fruit-killer-flavor/',url);
+  const before=structuredClone(records),called=[],key=require('node:crypto').randomUUID();
+  const artifact=path.join(__dirname,'../tmp/six-pack-offer-refresh-tests',key+'.json'),report=artifact.replace('.json','-report.json');
+  const result=await six.run({target:'production',artifact,report,isolateUnsafe:true},{state:{records},
+    readLive:async(id,ctx)=>{called.push(id);if(id!=='7565')return byProduct.get(id);
+      return readWooCommerceProductPage({storeUrl:'https://6pack-supplements.co.uk',productId:id,capturedAt:ctx.capturedAt,maximumAttempts:1,
+        parseProductPage:six.parseSixPackProductPage,fetchImpl:async()=>({status:200,url,headers:{get:()=> 'text/html'},text:async()=>html})});}});
+  assert.equal(result.report.result,'PASS_WITH_REVIEW');assert.equal(result.report.approved_mapping_count,504);
+  assert.equal(called.length,277);assert.equal(new Set(called).size,277);
+  assert.ok(!called.includes('4110')&&!called.includes('29928'));assert.ok(called.includes('8628')); // Injected fixture, never live verification.
+  assert.equal(result.report.executable_plan_count,503);assert.equal(result.report.review_row_count,1);assert.equal(result.report.blocked_row_count,0);
+  const row=result.report.review_rows[0];assert.equal(row.offer_id,'2488');assert.equal(row.proposed_offer,null);
+  assert.equal(row.changed_fields.price,false);assert.equal(row.changed_fields.stock,false);assert.equal(row.changed_fields.url,false);
+  assert.equal(row.source_failure.identity.commercial_identity,'UNVERIFIED');
+  const sealed=require('./import-products').loadDryRunArtifact(artifact).artifact,executor=require('./six-pack-offer-refresh-executor');
+  assert.doesNotThrow(()=>executor.validateArtifactScope(sealed,sixApproved.manifest));
+  assert.equal(sealed.plans.length,503);assert.ok(sealed.plans.every(p=>String(p.resolved_plan.offer.id)!=='2488'));
+  assert.ok(sealed.source_rows.every(r=>r.normalized_source_row.source.external_product_id!=='7565'));
+  const forged=structuredClone(sealed);forged.plans[0].resolved_plan.offer.id='2488';
+  assert.throws(()=>executor.validateArtifactScope(forged,sixApproved.manifest));
+  assert.equal(result.report.database_writes,0);assert.equal(result.report.executed_plan_count,0);assert.deepEqual(records,before);
+});
+
+test('source quarantine cannot reactivate the previously excluded standalone products', () => {
+  for (const name of ['7Nutrition Melatonin 1mg 60 Capsules','Soma Melatonin 4mg 100 Tablets']) {
+    const r = {product:{name},variant:{display_name:'Default'},mapping:{external_name:'Unverified merchant alias'},offer:{id:'fixture'},__reviewed_catalogue_identity:{approved:true}};
     assert.throws(() => assertCataloguePolicyAllowsRecords([r]),{code:'CATALOGUE_POLICY_SCOPE_BLOCKED'});
   }
 });

@@ -337,7 +337,6 @@ const unbuyableNegatives = [
   ["wrong product ID", (h) => h.replace("postid-28570", "postid-99999")],
   ["wrong product container", (h) => h.replace('id="product-28570"', 'id="product-99999"')],
   ["wrong heading", (h) => h.replace(/(<h1\b[^>]*>)[\s\S]*?<\/h1>/, "$1Other Product</h1>")],
-  ["consistent page but wrong approved name", (h) => h.replaceAll(unbuyableName, "Other Product")],
   ["incomplete document", (h) => h.replace("</body></html>", "")],
   ["missing main close", (h) => h.replace("</main>", "")],
   ["unknown variation IDs", (h) => h.replace("</head>", '<script type="application/json" id="other-variants">{"variation_id":99999}</script></head>')],
@@ -386,7 +385,7 @@ for (const [label, change] of unbuyableNegatives) {
   });
 }
 
-test("unbuyable review rejects stale/corrupt provenance and any incomplete approved-child/name binding", async () => {
+test("unbuyable review rejects stale/corrupt provenance and any incomplete approved-child binding", async () => {
   const source = unbuyableFixture(), capturedAt = new Date().toISOString(), approved = loadApprovedManifest();
   let failure;
   try { await unbuyableRead()("28570", { capturedAt }); } catch (error) { failure = error; }
@@ -407,7 +406,6 @@ test("unbuyable review rejects stale/corrupt provenance and any incomplete appro
   failure.cause.detail = original;
   for (const change of [
     (records) => records.splice(records.findIndex((r) => r.mapping.external_variant_id === "29091"), 1),
-    (records) => { records.find((r) => r.mapping.external_variant_id === "29091").mapping.external_name = "Other Product"; },
     (records) => { records.find((r) => r.mapping.external_variant_id === "29091").variant.id = 99999; },
     (records) => { records.find((r) => r.mapping.external_variant_id === "29091").mapping.external_variant_id = "99999"; },
   ]) {
@@ -422,6 +420,36 @@ test("unbuyable review rejects stale/corrupt provenance and any incomplete appro
     { text: async () => { throw Object.assign(new Error("transport"), { code: "ECONNRESET" }); } }]) {
     await assert.rejects(unbuyableRead(unbuyableHtml, response)("28570", { capturedAt }));
   }
+});
+
+test("a technically bound unavailable variable parent reports unverified names only through manual review", async () => {
+  const source = unbuyableFixture(), output = paths();
+  const html = unbuyableHtml.replaceAll(unbuyableName, "Different unverified merchant title");
+  const before = structuredClone(source.state), called = [];
+  const result = await run({target:'production',...output,isolateUnsafe:true}, {
+    state:source.state, readLive:async(id,ctx)=>{
+      called.push(id); return id==='28570'?unbuyableRead(html)(id,ctx):source.byProduct.get(id);
+    }
+  });
+  assert.equal(result.report.result,'PASS_WITH_REVIEW');
+  assert.equal(called.length,279); assert.equal(new Set(called).size,279);
+  assert.equal(result.report.executable_plan_count,503); assert.equal(result.report.review_row_count,3);
+  const reviewed = new Set(['2427','2428','2429']);
+  for(const row of result.report.review_rows){
+    assert.equal(row.proposed_offer,null);
+    assert.deepEqual(row.changed_fields,{price:false,stock:false,url:false,blocked:true});
+    assert.equal(row.source_failure.identity.technical_parent_binding,'VERIFIED');
+    assert.equal(row.source_failure.identity.commercial_identity,'UNVERIFIED');
+    assert.equal(row.source_failure.identity.name_equivalence_verified,false);
+    assert.equal(row.source_failure.identity.authority,'MANUAL_REVIEW_ONLY');
+  }
+  const artifact=loadDryRunArtifact(output.artifact).artifact;
+  assert.ok(artifact.plans.every(p=>!reviewed.has(String(p.resolved_plan.offer.id))));
+  assert.ok(artifact.source_rows.every(r=>r.normalized_source_row.source.external_product_id!=='28570'));
+  assert.doesNotThrow(()=>require('./six-pack-offer-refresh-executor').validateArtifactScope(artifact,manifest));
+  await assert.rejects(run({target:'production',...paths(),isolateUnsafe:false},{state:source.state,
+    readLive:async(id,ctx)=>id==='28570'?unbuyableRead(html)(id,ctx):source.byProduct.get(id)}),{code:'SOURCE_SCHEMA_MISMATCH'});
+  assert.deepEqual(source.state,before);
 });
 
 test("unbuyable parent qualification is generic for another existing approved parent and all its children", async () => {

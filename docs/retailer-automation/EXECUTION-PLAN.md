@@ -1,5 +1,17 @@
 # Retailer Automation Consolidation Execution Plan
 
+**9 November owner fast-track checkpoint:** #514 is merged as fec18e42 with
+equal approved tree, main CI/Guardian PASS and exact-SHA production READY.
+One Fit House read-only run42647242017 passed historical reconciliation, then
+BLOCKED on four unallowlisted source absences690/2042/2044/2045; no repeat or
+write. The owner explicitly preserves Trec Sleep-er and the prior951/999/1114
+decisions. One minimal Six Pack draft preparation reuses product source isolation
+for technically manifest-bound unavailable parents with unverified commercial
+identity, null proposals and no apply/freshness authority. Saved7565 qualifies
+offline;8628 remains unverified. No new Six run is authorized or performed.
+RA-001 unchanged, RA-004 suspended, both schedules PAUSED. See the
+[bounded technical isolation receipt](SIX-PACK-TECHNICAL-ISOLATION-2026-11-09.md).
+
 **9 November bounded blocker repair — DRAFT PREPARATION:** the owner authorized
 one minimal existing-path fix, offline tests and one draft PR, without merge,
 production writes, migrations, retailer dry-runs or schedule restart. Fit House
