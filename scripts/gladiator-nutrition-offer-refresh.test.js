@@ -323,8 +323,9 @@ test("Gladiator scheduled refresh reuses the shared guarded flow while manual ap
   const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
   const gladiatorJob = workflow.match(/  gladiator-nutrition-offer-refresh:[\s\S]*?(?=\n  refresh-review-queue:)/)?.[0] || "";
   assert.equal((runtime.match(/gladiator-nutrition/g) || []).length, 4);
-  // The shared owner-policy gate runs before source capture for every profile.
-  assert.equal(sha256Text(path.join(ROOT, "scripts/fit-house-offer-refresh.js")), "d13ae26b832d63ebbd8c18f384e0cd166a4c297a3525a27a4dedb2f5bf7bd659");
+  // Resealed for Fit House active/historical audited evidence reconciliation.
+  // Other profiles keep the shared pre-source owner-policy gate and generic path.
+  assert.equal(sha256Text(path.join(ROOT, "scripts/fit-house-offer-refresh.js")), "ff0639b93e3c987779f750182f820cad4186c2f0afb93e1266082ae0e9383e40");
   assert.doesNotMatch(runtime, /retailer_id\s*={2,3}\s*15|config\.retailer_id\s*={2,3}\s*15/);
   assert.match(gladiatorJob, /github\.event_name == 'workflow_dispatch'/);
   assert.match(gladiatorJob, /inputs\.operation == 'dry-run'[\s\S]*inputs\.operation == 'review-only'/);
