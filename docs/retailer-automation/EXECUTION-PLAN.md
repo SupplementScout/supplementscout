@@ -1,30 +1,33 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: OWNER CATALOGUE WITHDRAWAL IMPLEMENTED FOR DRAFT REVIEW; PRODUCTION DEPLOYMENT_BLOCKED; SIX PACK SCHEDULE PAUSED**
+**Status: OWNER WITHDRAWAL TERMINAL PREFLIGHT REPAIR IN REVIEW; PRODUCTION WITHDRAWAL BLOCKED; FIT HOUSE AND SIX PACK PAUSED**
 
-**Current active task:** complete the general withdrawal lifecycle in existing
-DRAFT PR #510 under the owner's 9 November instruction. Forward-only schema,
-owner-only guards, active/historical manifest partitions and existing Fit SQL
-registration/OOS bindings are prepared; no production migration/write/merge or
-retailer dispatch is authorized/performed. RA-004 remains suspended. The old
-policy-only deployment blocker is addressed in review code, not in production.
-Current production remains main1dce913d28fb727bac9989b49a470cb7ad4bf4af and ledger261.
-Fresh verified TLS READ ONLY snapshot at 2026-11-09T08:27:17Z confirms all affected
-row hashes and five history records unchanged, no affected pending approvals or
-active parent/execution plans; GitHub active/queued jobs0 at that check.
-Candidate scope is Six504+historical2 of506, Fit284+historical2 of286. Ordinary
-nutrition peptides remain permitted. Owner EXCLUDE and Limitless DEFER remain.
+**Current active task:** prepare one generic selected-migration/preflight repair
+under the owner's 9 November blocker-closeout instruction. PR510/511 are already
+merged; main is e56a5b0feeec022d5c22f567d1cc6207415c7f69 and deployment READY.
+The one approved migration attempt failed OWNER_WITHDRAWAL_PENDING_CONTROL and
+fully rolled back. That authorization is consumed: no second production attempt,
+merge, recovery, retailer dispatch, cache purge or schedule restart in this task.
+RA-004 remains suspended.
 
-Actual isolated PostgreSQL17.11:20 PASS,0 FAIL,0 SKIP, including A-S and genuine
-approved RPC rejection after withdrawal, history, shared variant, physical
-scope, public loaders, idempotency, rollback and unaffected retailer RPC.
-Full/quick/CI evidence is retained in the current PR receipt and machine record;
-old-head CI below is historical. Deployment requires separate owner approval,
-Fit-only job pause, selected migration and canonical receipt closeout261 to262,
-verified production deployment plus existing platform cache purge/public readback.
-Other schedules unchanged; Six stays PAUSED. No RESTORED/public withdrawal claimed.
-See [implementation and exact rollout](OWNER-CATALOGUE-WITHDRAWAL-2026-11-09.md)
-and [fresh machine evidence](evidence/OWNER-CATALOGUE-WITHDRAWAL-2026-11-09.json).
+Fresh TLS-verified production REPEATABLE READ READ ONLY audit at11:04–11:18 UTC
+classifies all nine historical Fit FAILED as TERMINAL_ZERO_WRITE_CONFIRMED.
+Complete event chains and exact historical worker/run evidence establish failure
+before registration/approvals/writes; later writes belong to distinct requests.
+No active plan, request, affected approval or unknown result. All affected row
+hashes/history remain unchanged; production ledger261/CURRENT remains frozen.
+
+The old SQL/hash is preserved as an explicit never-applied exclusion. One versioned
+pending replacement and its sealed SELECT are shared by the existing verifier,
+applicator and transactional activation guard. Active/unresolved/missing evidence
+still blocks; no UUID exceptions or control-status edits. Scope remains Six504+2,
+Fit284+2; products951/999 EXCLUDE,1114 DEFER; four variants and all five history
+rows preserved. New SQL/confirmation and future receipt closeout require separate
+owner approval. No RESTORED/public withdrawal claimed.
+See [audit, exact binding, tests and bounded deployment proposal](OWNER-WITHDRAWAL-TERMINAL-PREFLIGHT-2026-11-09.md).
+The earlier [withdrawal design](OWNER-CATALOGUE-WITHDRAWAL-2026-11-09.md) and its
+[evidence](evidence/OWNER-CATALOGUE-WITHDRAWAL-2026-11-09.json) are historical;
+the new versioned selection above supersedes their pending-SQL authorization.
 
 The immediate objective is to restore a trustworthy baseline for the existing
 production retailer paths before any consolidation work resumes. This is not a

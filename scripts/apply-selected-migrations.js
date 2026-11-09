@@ -15,6 +15,8 @@ const {
   validateSelection,
 } = require("./supabase-migration-selector");
 
+const { verifySelectedMigrationPreflight } = require("./lib/selected-migration-preflight");
+
 const ROOT = path.resolve(__dirname, "..");
 const SOURCE_DIR = path.join(ROOT, "supabase", "migrations");
 const DEFAULT_CLOSEOUT_DIR = path.join(ROOT, "tmp", "selected-migrations");
@@ -368,6 +370,7 @@ async function main(argv = process.argv.slice(2)) {
     });
     assertDerivationMatchesContract(closeoutDerivation, contract);
 
+    await verifySelectedMigrationPreflight(client, contract.pending, SOURCE_DIR);
     const beforeCounts = await catalogueCounts(client);
     const expectedAfterCounts = expectedCatalogueCounts(beforeCounts, contract.pending);
     for (const migration of pendingSql) {

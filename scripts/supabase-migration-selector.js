@@ -135,6 +135,8 @@ const CONTRACTS = Object.freeze({
       "31dc3e6e90dab56dd00843bef441cfba400e1d9480d2940f41b46cfff6e32277",
     appliedExcluded: APPLIED_EXCLUSIONS.STAGING,
     excluded: Object.freeze({
+      "20261109120000_add_owner_withdrawal_terminal_preflight.sql":
+        "70957859d879e822db0627c671d5a9bd8e0f77f5c0da58fddce7a011e678fe9e",
       "20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql":
         "a9cb6d18c60dda40dbc10322e23971f929e929a4344761e8f97328677b04e29b",
       "20261107190000_extend_never_approved_planned_control_close.sql":
@@ -481,6 +483,8 @@ const CONTRACTS = Object.freeze({
       "755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a",
     appliedExcluded: APPLIED_EXCLUSIONS.PRODUCTION,
     excluded: Object.freeze({
+      "20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql":
+        "a9cb6d18c60dda40dbc10322e23971f929e929a4344761e8f97328677b04e29b",
       "20261031120000_add_verified_automation_review_stock_transition_reader.sql":
         "9d1f9c004d58926101c4adc60e7515d8040bc9b6102213180538113e1c925608",
       "20261030120000_create_sealed_artifacts_registry.sql":

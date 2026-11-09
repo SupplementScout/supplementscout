@@ -12,8 +12,13 @@ const { capture, PROFILES, baselineHash, verifyPostflight } = require("./retaile
 const fixture = require("../supabase/test/fixtures/owner-catalogue-withdrawal-2026-11-09.json");
 const six = require("../config/retailers/six-pack-approved-offer-manifest-owner-withdrawal-v2.json");
 const fit = require("../config/retailers/fit-house-approved-offer-manifest-owner-withdrawal-v2.json");
+const terminalFixture = require("../supabase/test/fixtures/owner-withdrawal-terminal-failures-2026-11-09.json");
+const { verifySelectedMigrationPreflight } = require("./lib/selected-migration-preflight");
+const { CONTRACTS, ledgerRowsFingerprint } = require("./supabase-migration-selector");
+const { derivePostApplyMigrationBinding } = require("./lib/environment-migrations");
+const { unwrapTransaction, validatePostApplyReadback } = require("./apply-selected-migrations");
 const ROOT = path.resolve(__dirname, "..");
-const MIGRATION = "supabase/migrations/20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql";
+const MIGRATION = "supabase/migrations/20261109120000_add_owner_withdrawal_terminal_preflight.sql";
 const sql = fs.readFileSync(path.join(ROOT, MIGRATION), "utf8");
 const schemaSql = sql.split("-- OWNER_ACTIVATION_BEGIN")[0] + "\ncommit;";
 const activationSql = "do $owner_activation$" + sql.split("do $owner_activation$")[1].split("-- OWNER_ACTIVATION_END")[0];
@@ -77,18 +82,24 @@ function fixtureSql() {
   parts.push(`create table retailer_catalogue_parent_plans(id uuid primary key,retailer_id bigint,status text);
     create table nutrition_candidates(id bigint primary key,product_id bigint,status text);
     create table price_observation_producers(retailer_id bigint primary key,retailer_slug text,enabled boolean,public_use text,terms_mode text,updated_at timestamptz,approved_scope text,source_importer text,technically_capable boolean);
-    create table product_match_review_queue(id bigint primary key,offer_id bigint,retailer_id bigint,operation_type text,review_status text,source_row_fingerprint text,plan_fingerprint text,before_state jsonb,proposed_state jsonb);
-    create table automation_review_execution_requests(id uuid primary key,review_id bigint,retailer_id bigint,operation_type text,status text,review_fingerprint text,plan_fingerprint text,postflight_hash text,executed_offer_ids jsonb,failed_offer_ids jsonb,remaining_offer_ids jsonb,actual_deltas jsonb,database_writes integer,idempotency_result text,last_checkpoint text,completed_at timestamptz);
+    create table product_match_review_queue(id bigint primary key,offer_id bigint,retailer_id bigint,operation_type text,review_status text,source_row_fingerprint text,plan_fingerprint text,before_state jsonb,proposed_state jsonb,expires_at timestamptz,execution_id uuid);
+    create table automation_review_execution_requests(id uuid primary key,review_id bigint,retailer_id bigint,operation_type text,status text,review_fingerprint text,plan_fingerprint text,postflight_hash text,executed_offer_ids jsonb,failed_offer_ids jsonb,remaining_offer_ids jsonb,actual_deltas jsonb,database_writes integer,idempotency_result text,last_checkpoint text,completed_at timestamptz,requested_at timestamptz,workflow_name text,execution_mode text,environment_name text,run_id text,run_url text,commit_sha text,error_code text,idempotency_key text,before_state_hash text,expected_deltas jsonb,price_history_delta integer);
+    create table automation_review_execution_events(id bigint primary key,execution_request_id uuid,review_id bigint,checkpoint text,created_at timestamptz,new_status text,previous_status text,evidence jsonb);
     create table outbound_clicks(id bigint primary key,product_id bigint,offer_id bigint,created_at timestamptz);
     insert into outbound_clicks values(1,951,1984,'2026-11-01T12:00:00Z');`);
   for (const row of fixture.producers) insert("price_observation_producers",row);
   for (const r of fixture.review_transitions) {
     insert("product_match_review_queue", { id: r.review_id, offer_id: r.offer_id, retailer_id: r.retailer_id, operation_type: r.review_operation_type, review_status: r.review_status,
+      expires_at: terminalFixture.reviews.find(q=>String(q.id)===String(r.review_id))?.expires_at, execution_id: terminalFixture.reviews.find(q=>String(q.id)===String(r.review_id))?.execution_id,
       source_row_fingerprint: r.source_row_fingerprint, plan_fingerprint: r.review_plan_fingerprint, before_state: { in_stock: r.before_in_stock }, proposed_state: { in_stock: r.proposed_in_stock } });
     insert("automation_review_execution_requests", { id: r.execution_request_id, review_id: r.review_id, retailer_id: r.retailer_id, operation_type: r.execution_operation_type, status: r.execution_status,
       review_fingerprint: r.review_fingerprint, plan_fingerprint: r.execution_plan_fingerprint, postflight_hash: r.postflight_hash, executed_offer_ids: r.executed_offer_ids, failed_offer_ids: r.failed_offer_ids,
       remaining_offer_ids: r.remaining_offer_ids, actual_deltas: r.actual_deltas, database_writes: r.database_writes, idempotency_result: r.idempotency_result, last_checkpoint: r.last_checkpoint, completed_at: r.completed_at });
   }
+  // Minimal, verbatim request/review/event fields from the fresh read-only audit.
+  for (const row of terminalFixture.reviews.filter(row=>!fixture.review_transitions.some(r=>String(r.review_id)===String(row.id)))) insert("product_match_review_queue",row);
+  for (const row of terminalFixture.requests) insert("automation_review_execution_requests",row);
+  for (const row of terminalFixture.events) insert("automation_review_execution_events",row);
   return parts.join("\n");
 }
 
@@ -200,6 +211,74 @@ test("owner lifecycle and complete retailer partitions on isolated PostgreSQL", 
       for (const [retailer,manifest] of [[9,fit],[11,six]]) assert.throws(
         ()=>reconcileApprovedCatalogueScope(manifest,records(base,retailer)),error=>error.code==="CATALOGUE_SCOPE_NOT_ACTIVATED");
     });
+    const sourceDir = path.join(ROOT, "supabase/migrations");
+    const binding = derivePostApplyMigrationBinding("PRODUCTION");
+    ok(psql(base, "create schema supabase_migrations; create table supabase_migrations.schema_migrations(version text primary key,name text,statements text[]);"));
+    const ledgerValues = binding.pre_identifiers.map(id => {
+      const split=id.indexOf("_"); return `(${q(id.slice(0,split))},${q(id.slice(split+1))})`;
+    });
+    ok(psql(base, `insert into supabase_migrations.schema_migrations(version,name) values ${ledgerValues};`));
+    const ledger = database => json(database,"select version,name from supabase_migrations.schema_migrations order by version,name");
+    const preflight = async database => verifySelectedMigrationPreflight({ async query(text) {
+      const wrapped = `begin read only; select coalesce(jsonb_agg(to_jsonb(q)),'[]'::jsonb) from (${text.replace(/;\s*$/, "")}) q; rollback;`;
+      const output = ok(psql(database,wrapped)).split(/\r?\n/).find(line=>line.startsWith("["));
+      return { rows: JSON.parse(output) };
+    } }, CONTRACTS.PRODUCTION.pending, sourceDir);
+    const control = database => json(database, "select 'request' kind,id::text,to_jsonb(t) row from automation_review_execution_requests t union all select 'review',id::text,to_jsonb(t) from product_match_review_queue t union all select 'event',id::text,to_jsonb(t) from automation_review_execution_events t order by kind,id");
+    await t.test("nine audited FAILED reproduce the old BLOCK with full rollback and unchanged ledger261", () => {
+      assert.equal(terminalFixture.requests.length,9); assert.equal(terminalFixture.events.length,27);
+      const old = create("oldblocked",base), prior=business(old), priorControl=control(old);
+      denied(psql(old,fs.readFileSync(path.join(sourceDir,"20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql"),"utf8")),/OWNER_WITHDRAWAL_PENDING_CONTROL/);
+      assert.deepEqual(business(old),prior); assert.deepEqual(control(old),priorControl);
+      assert.equal(ledger(old).length,261);
+      assert.equal(scalar(old,"(select count(*) from information_schema.columns where table_schema='public' and table_name='products' and column_name='owner_withdrawal_state')"),0);
+    });
+    await t.test("all nine terminal pre-write chains pass the sealed READ ONLY preflight without any mutation", async () => {
+      const before=business(base), priorControl=control(base);
+      assert.equal((await preflight(base))[0].result,"PASS");
+      assert.deepEqual(business(base),before); assert.deepEqual(control(base),priorControl);
+      assert.equal(ledgerRowsFingerprint(ledger(base),{targetEnvironment:"PRODUCTION"}),binding.pre_ledger_fingerprint);
+    });
+    // Test each negative fixture against both entry points. These mutations
+    // run only in isolated databases, never against production control rows.
+    const first=terminalFixture.requests[0].id, expired=terminalFixture.requests[2].id;
+    const invalid = [
+      ["NULL counter", `update automation_review_execution_requests set database_writes=null where id=${q(first)}`],
+      ["possible partial write", `update automation_review_execution_requests set database_writes=1 where id=${q(first)}`],
+      ["inconsistent event counter", `update automation_review_execution_events set evidence=jsonb_set(evidence,'{database_writes}','1') where execution_request_id=${q(first)} and checkpoint='EXECUTION_FAILED'`],
+      ["missing event", `delete from automation_review_execution_events where execution_request_id=${q(first)} and checkpoint='WORKFLOW_DISPATCH_CLAIMED'`],
+      ["event from another review", `update automation_review_execution_events set review_id=1 where execution_request_id=${q(first)} and checkpoint='EXECUTION_FAILED'`],
+      ["write-boundary checkpoint", `update automation_review_execution_events set checkpoint='REVALIDATION_PASSED',new_status='EXECUTING' where execution_request_id=${q(first)} and checkpoint='WORKFLOW_DISPATCH_CLAIMED'`],
+      ["source binding drift", `update automation_review_execution_requests set review_fingerprint=repeat('f',64) where id=${q(first)}`],
+      ["operation binding drift", `update automation_review_execution_requests set operation_type='UPDATE_PRICE' where id=${q(first)}`],
+      ["run binding drift", `update automation_review_execution_requests set run_id='123456' where id=${q(first)}`],
+      ["missing completion", `update automation_review_execution_requests set completed_at=null where id=${q(first)}`],
+      ["nonempty executed scope", `update automation_review_execution_requests set executed_offer_ids='["1982"]' where id=${q(first)}`],
+      ["deltas despite zero counter", `update automation_review_execution_requests set actual_deltas='{"stock":1}' where id=${q(first)}`],
+      ["history delta despite zero counter", `update automation_review_execution_requests set price_history_delta=1 where id=${q(first)}`],
+      ["expired review reapproved", `update product_match_review_queue set review_status='APPROVED' where id=(select review_id from automation_review_execution_requests where id=${q(expired)})`],
+      ["missing later postflight", "update automation_review_execution_requests set postflight_hash=null where id='976f67b4-c06c-4f73-a3c6-48ca63f45dfd'"],
+      ["later idempotency failed", "update automation_review_execution_requests set idempotency_result='FAIL' where id='976f67b4-c06c-4f73-a3c6-48ca63f45dfd'"],
+      ["FAILED after verified writes still requires existing canonical recovery", "update automation_review_execution_requests set status='FAILED' where id='976f67b4-c06c-4f73-a3c6-48ca63f45dfd'"],
+      ...["QUEUED","DISPATCHED","EXECUTING","UNKNOWN"].map(status=>[status,`update automation_review_execution_requests set status=${q(status)} where id=${q(first)}`]),
+      ["NULL status", `update automation_review_execution_requests set status=null where id=${q(first)}`],
+    ];
+    for (const [index,[name,mutation]] of invalid.entries()) await t.test(`preflight and SQL both BLOCK: ${name}`,async () => {
+      const bad=create(`invalid${String.fromCharCode(97+index)}`,base);
+      ok(psql(bad,mutation)); const prior=business(bad), priorControl=control(bad);
+      await assert.rejects(preflight(bad),error=>error.code==="OWNER_WITHDRAWAL_PENDING_CONTROL");
+      denied(psql(bad,sql),/OWNER_WITHDRAWAL_PENDING_CONTROL/);
+      assert.deepEqual(business(bad),prior); assert.deepEqual(control(bad),priorControl);
+      assert.equal(ledger(bad).length,261);
+      ok(psql("postgres",`drop database ${ident(bad)};`)); databases.splice(databases.indexOf(bad),1);
+    });
+    await t.test("genuine earlier write/recovery remains EXECUTED with postflight and idempotency", async () => {
+      const later=terminalFixture.later_verified_successor;
+      assert.equal(later.database_writes,20); assert.equal(later.status,"EXECUTED");
+      assert.equal(later.last_checkpoint,"VERIFIED_POSTFLIGHT_RECOVERY");
+      assert.equal((await preflight(base))[0].result,"PASS");
+      assert.equal(scalar(base,"(select idempotency_result from automation_review_execution_requests where id='976f67b4-c06c-4f73-a3c6-48ca63f45dfd')"),"PASS");
+    });
     const schema = create("schema", base); ok(psql(schema, schemaSql));
     await t.test("A/B: active and genuinely merged states remain valid", () => {
       ok(psql(schema, "update products set is_active=false,merged_into_product_id=900002,merged_at=now() where id=900001;"));
@@ -221,6 +300,12 @@ test("owner lifecycle and complete retailer partitions on isolated PostgreSQL", 
     oldPlan.meta.plan_fingerprint = null;
     oldPlan.meta.plan_fingerprint = crypto.createHash("md5").update(canonicalJson(oldPlan)).digest("hex");
     const approved = scalar(schema, `approve_product_import_plan(${q(JSON.stringify(oldPlan))}::jsonb,repeat('b',64),'owner-stale-fixture','isolated-owner-test',now()+interval '30 minutes')`);
+    await t.test("unconsumed live target approval blocks both preflight and activation", async () => {
+      const prior=business(schema);
+      await assert.rejects(preflight(schema),error=>error.code==="OWNER_WITHDRAWAL_PENDING_CONTROL" && error.blockers.some(b=>b.kind==="approval"));
+      denied(psql(schema,activationSql),/OWNER_WITHDRAWAL_PENDING_CONTROL/);
+      assert.deepEqual(business(schema),prior);
+    });
     await t.test("C/D/N: owner exclusion and defer atomically deactivate all four variants across retailers", () => {
       ok(psql(schema, "begin; update products set is_active=false,owner_withdrawal_state=case when id=1114 then 'OWNER_DEFERRED' else 'OWNER_EXCLUDED' end,owner_withdrawal_reason='owner-test',owner_withdrawn_at=now() where id in (951,999,1114); update product_variants set is_active=false where product_id in (951,999,1114); commit;"));
       assert.equal(scalar(schema, "(select count(*) from products where owner_withdrawal_state is not null and merged_into_product_id is null and not is_active)"), 3);
@@ -237,8 +322,13 @@ test("owner lifecycle and complete retailer partitions on isolated PostgreSQL", 
       denied(psql(schema,"update price_history set price=999 where offer_id=1984;"),/OWNER_WITHDRAWN_PRODUCT_WRITE_BLOCKED/);
     });
     const full = create("full", base), before = business(full);
-    await t.test("G/H: complete selected forward SQL preserves every mapping, offer and five history rows", () => {
-      ok(psql(full, sql)); assert.deepEqual(business(full), before);
+    await t.test("G/H: complete selected forward SQL preserves every mapping, offer and five history rows, ledger261 -> 262", async () => {
+      assert.equal((await preflight(full))[0].result,"PASS");
+      const migration=CONTRACTS.PRODUCTION.pending[0], split=migration.filename.indexOf("_");
+      ok(psql(full,"begin;"+unwrapTransaction(sql,migration.filename)+`\ninsert into supabase_migrations.schema_migrations(version,name,statements) values(${q(migration.filename.slice(0,split))},${q(migration.filename.slice(split+1,-4))},array[${q(sql)}]); commit;`));
+      const readback=validatePostApplyReadback(binding,ledger(full));
+      assert.equal(readback.ledger_count,262); assert.equal(readback.ledger_fingerprint,binding.post_ledger_fingerprint);
+      assert.deepEqual(business(full), before);
       assert.equal(scalar(full, "(select count(*) from product_variants where product_id in (951,999,1114) and not is_active)"), 4);
     });
     await t.test("L/M: physical 506/286 partition into exactly 504+2 and 284+2", () => {

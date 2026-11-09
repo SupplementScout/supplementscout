@@ -32,7 +32,8 @@ const HISTORICAL_PENDING = Object.freeze([Object.freeze({
 const historicalSource = fs.mkdtempSync(path.join(os.tmpdir(), "migration-pre-planned-close-"));
 for (const name of fs.readdirSync(SOURCE)) {
   if (name.endsWith(".sql") && name !== "20261107190000_extend_never_approved_planned_control_close.sql"
-    && name !== "20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql")
+    && name !== "20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql"
+    && name !== "20261109120000_add_owner_withdrawal_terminal_preflight.sql")
     fs.copyFileSync(path.join(SOURCE, name), path.join(historicalSource, name));
 }
 test.after(() => fs.rmSync(historicalSource, { recursive: true, force: true }));
@@ -178,12 +179,12 @@ test("CURRENT stays at 261 while the sealed owner withdrawal separately derives 
   assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 261);
   assert.equal(derivation.status, "CLOSEOUT_REQUIRED");
   assert.equal(derivation.pending_count, 1);
-  assert.deepEqual(derivation.consumed_pending.map(row=>row.filename), ["20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql"]);
+  assert.deepEqual(derivation.consumed_pending.map(row=>row.filename), ["20261109120000_add_owner_withdrawal_terminal_preflight.sql"]);
   assert.deepEqual(CONTRACTS.PRODUCTION.pending, PENDING_MIGRATIONS.PRODUCTION);
   assert.equal(derivation.pre_ledger_count, 261);
   assert.equal(derivation.post_ledger_count, 262);
   assert.equal(derivation.pre_ledger_fingerprint, "755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a");
-  assert.equal(derivation.post_ledger_fingerprint, "e19d8c8960651ff6f8deca27e518be222a191320234053a34a13d9223a975362");
+  assert.equal(derivation.post_ledger_fingerprint, "209719c865f07c9e77006d01f7ae526aa47461b9a0bd5154071b4f29052c8333");
   assert.equal(derivation.post_identifiers.length, derivation.pre_identifiers.length+1);
   assert.ok(Object.isFrozen(derivation.post_identifiers));
   assertDerivationMatchesContract(derivation, CONTRACTS.PRODUCTION);
@@ -365,4 +366,57 @@ test("verify-selected-migrations exposes only CURRENT or exact POST_APPLY_VERIFI
   assert.match(source, /repository_closeout: closeout\.closeout_status/);
   assert.match(source, /derivePostApplyMigrationBinding\(options\.environment\)/);
   assert.doesNotMatch(source, /APPROXIMATE|accept.*either|allowed.*ledger/i);
+});
+
+test("owner withdrawal replacement preserves the failed SQL seal and selects exactly one new pending version", () => {
+  const old = "20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql";
+  const original = "a9cb6d18c60dda40dbc10322e23971f929e929a4344761e8f97328677b04e29b";
+  const { sha256File } = require("./lib/environment-migrations");
+  assert.equal(sha256File(path.join(SOURCE,old)),original);
+  assert.equal(CONTRACTS.PRODUCTION.excluded[old],original);
+  assert.equal(CONTRACTS.PRODUCTION.pending.length,1);
+  assert.equal(CONTRACTS.PRODUCTION.pending[0].preflight_required,true);
+  assert.notEqual(pendingConfirmation(CONTRACTS.PRODUCTION),"527587a55780f61f");
+});
+
+test("preflight verifier is an explicit read-only mode; apply and unrecognized arguments are rejected", () => {
+  const verifier = require("./verify-selected-migrations");
+  const args=["--environment=PRODUCTION",`--project-ref=${CONTRACTS.PRODUCTION.projectRef}`];
+  assert.equal(verifier.parseArgs(args).mode,"postflight");
+  assert.equal(verifier.parseArgs([...args,"--mode=preflight"]).mode,"preflight");
+  assert.throws(()=>verifier.parseArgs([...args,"--mode=apply"]),/mode must/);
+  assert.throws(()=>verifier.parseArgs([...args,"--confirm=anything"]),/invalid argument/);
+});
+
+test("preflight and applicator share exactly the sealed migration SELECT, with structured blockers", async () => {
+  const { selectedMigrationPreflightSql, verifySelectedMigrationPreflight } = require("./lib/selected-migration-preflight");
+  const pending=CONTRACTS.PRODUCTION.pending;
+  const query=selectedMigrationPreflightSql(pending[0],SOURCE);
+  const sql=fs.readFileSync(path.join(SOURCE,pending[0].filename),"utf8").replaceAll("\r\n","\n");
+  const embedded=sql.split("-- SELECTED_MIGRATION_PREFLIGHT_BEGIN")[1].split("-- SELECTED_MIGRATION_PREFLIGHT_END")[0].trim();
+  assert.equal(query,embedded.replace(/\binto v_selected_preflight_blockers\b/g,""));
+  assert.doesNotMatch(query,/\b(insert|update|delete|execute|grant|alter|create)\b/i);
+  assert.doesNotMatch(query,/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/);
+  const seen=[];
+  const result=await verifySelectedMigrationPreflight({query:async text=>{seen.push(text);return {rows:[{blockers:[]}]};}},pending,SOURCE);
+  assert.deepEqual(seen,[query]); assert.equal(result[0].result,"PASS");
+  const blocker={kind:"execution_request",id:"unresolved",status:"FAILED"};
+  await assert.rejects(verifySelectedMigrationPreflight({query:async()=>({rows:[{blockers:[blocker]}]})},pending,SOURCE),error=>error.code==="OWNER_WITHDRAWAL_PENDING_CONTROL" && error.blockers[0]===blocker);
+  for(const rows of [[],[{blockers:null}],[{blockers:[]},{blockers:[]}]]) {
+    await assert.rejects(verifySelectedMigrationPreflight({query:async()=>({rows})},pending,SOURCE),/evidence missing/);
+  }
+});
+
+test("required preflight rejects unsealed SQL and missing, duplicate or reordered markers", () => {
+  const { selectedMigrationPreflightSql } = require("./lib/selected-migration-preflight");
+  const pending=CONTRACTS.PRODUCTION.pending[0];
+  assert.throws(()=>selectedMigrationPreflightSql({...pending,sha256:"0".repeat(64)},SOURCE),/hash mismatch/);
+  const directory=fs.mkdtempSync(path.join(os.tmpdir(),"selected-preflight-test-"));
+  try {
+    for(const sql of ["with x as (select 1) select 1;", "-- SELECTED_MIGRATION_PREFLIGHT_END\n-- SELECTED_MIGRATION_PREFLIGHT_BEGIN", "-- SELECTED_MIGRATION_PREFLIGHT_BEGIN\n-- SELECTED_MIGRATION_PREFLIGHT_BEGIN\n-- SELECTED_MIGRATION_PREFLIGHT_END", "-- SELECTED_MIGRATION_PREFLIGHT_BEGIN\nwith x as (select 1) select 1;\n-- SELECTED_MIGRATION_PREFLIGHT_END"]){
+      fs.writeFileSync(path.join(directory,pending.filename),sql);
+      const sha256=crypto.createHash("sha256").update(sql).digest("hex");
+      assert.throws(()=>selectedMigrationPreflightSql({...pending,sha256},directory),/markers|one sealed SELECT/);
+    }
+  } finally { fs.rmSync(directory,{recursive:true,force:true}); }
 });
