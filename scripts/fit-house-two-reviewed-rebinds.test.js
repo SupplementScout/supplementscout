@@ -11,6 +11,13 @@ const rollback = fs.readFileSync(rollbackPath, "utf8");
 const manifestBytes = fs.readFileSync(manifestPath);
 const manifest = JSON.parse(manifestBytes);
 const config = require("../config/retailers/fit-house-offer-sync.json");
+// Freeze the historical 286-row contract tested by these immutable migrations.
+// Current 284+2 activation is covered by owner-catalogue-withdrawal.integration.test.js.
+Object.assign(config, { manifest_path: "config/retailers/fit-house-approved-offer-manifest.json",
+  manifest_sha256: "a1e596f7707c851534e04e30d13f4289439449556787c572736e77b279c75292", approved_mapping_count: 286 });
+delete config.physical_mapping_count;
+config.guardrails.required_matched_offers = 286;
+
 
 test("two owner-reviewed Fit House rebinds are exact and production-bound", () => {
   for (const token of [

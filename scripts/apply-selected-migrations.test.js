@@ -31,7 +31,8 @@ const HISTORICAL_PENDING = Object.freeze([Object.freeze({
 })]);
 const historicalSource = fs.mkdtempSync(path.join(os.tmpdir(), "migration-pre-planned-close-"));
 for (const name of fs.readdirSync(SOURCE)) {
-  if (name.endsWith(".sql") && name !== "20261107190000_extend_never_approved_planned_control_close.sql")
+  if (name.endsWith(".sql") && name !== "20261107190000_extend_never_approved_planned_control_close.sql"
+    && name !== "20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql")
     fs.copyFileSync(path.join(SOURCE, name), path.join(historicalSource, name));
 }
 test.after(() => fs.rmSync(historicalSource, { recursive: true, force: true }));
@@ -172,18 +173,18 @@ test("historical production pending migration deterministically derives ledger 2
     "17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e");
 });
 
-test("applied planned-close migration is canonically closed at production ledger 261", () => {
+test("CURRENT stays at 261 while the sealed owner withdrawal separately derives ledger 262", () => {
   const derivation = derivePostApplyMigrationBinding("PRODUCTION");
   assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 261);
-  assert.equal(derivation.status, "ALREADY_CLOSED");
-  assert.equal(derivation.pending_count, 0);
-  assert.deepEqual(derivation.consumed_pending, []);
-  assert.deepEqual(CONTRACTS.PRODUCTION.pending, []);
+  assert.equal(derivation.status, "CLOSEOUT_REQUIRED");
+  assert.equal(derivation.pending_count, 1);
+  assert.deepEqual(derivation.consumed_pending.map(row=>row.filename), ["20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql"]);
+  assert.deepEqual(CONTRACTS.PRODUCTION.pending, PENDING_MIGRATIONS.PRODUCTION);
   assert.equal(derivation.pre_ledger_count, 261);
-  assert.equal(derivation.post_ledger_count, 261);
+  assert.equal(derivation.post_ledger_count, 262);
   assert.equal(derivation.pre_ledger_fingerprint, "755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a");
-  assert.equal(derivation.post_ledger_fingerprint, derivation.pre_ledger_fingerprint);
-  assert.deepEqual(derivation.pre_identifiers, derivation.post_identifiers);
+  assert.equal(derivation.post_ledger_fingerprint, "e19d8c8960651ff6f8deca27e518be222a191320234053a34a13d9223a975362");
+  assert.equal(derivation.post_identifiers.length, derivation.pre_identifiers.length+1);
   assert.ok(Object.isFrozen(derivation.post_identifiers));
   assertDerivationMatchesContract(derivation, CONTRACTS.PRODUCTION);
 });

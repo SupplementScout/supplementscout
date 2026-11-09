@@ -152,7 +152,7 @@ export async function generateMetadata({
 
   const { data: product } = await getProductByRouteParam(
     id,
-    "id, name, slug, brand, category, image, product_format, net_weight_g, net_volume_ml, serving_count_verified, unit_count, unit_type"
+    "id, name, slug, brand, category, image, product_format, net_weight_g, net_volume_ml, serving_count_verified, unit_count, unit_type, is_active, merged_into_product_id"
   );
 
   if (!product) {
@@ -162,6 +162,12 @@ export async function generateMetadata({
     };
   }
 
+  if (product.is_active === false) {
+    if (product.merged_into_product_id !== null) {
+      permanentRedirect(`/product/${String(product.merged_into_product_id)}`);
+    }
+    notFound();
+  }
   const description = buildProductMetadataDescription(product);
   const productUrl = productCanonicalUrl(product);
 

@@ -1,23 +1,30 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: OWNER CATALOGUE EXCLUSION PR; PUBLIC WITHDRAWAL DEPLOYMENT_BLOCKED; SIX PACK SCHEDULE PAUSED**
+**Status: OWNER CATALOGUE WITHDRAWAL IMPLEMENTED FOR DRAFT REVIEW; PRODUCTION DEPLOYMENT_BLOCKED; SIX PACK SCHEDULE PAUSED**
 
-**Current active task:** the owner's 8 November catalogue exclusion decision:
-all melatonin doses (the 1mg exception is revoked), SARMs and pharmacological /
-research peptides are EXCLUDE; Limitless 29928 remains DEFER. Prepare only a
-minimal guarded PR, full catalogue accounting and controlled deployment plan.
-The read-only production baseline is main `1dce913d28fb727bac9989b49a470cb7ad4bf4af`,
-ledger261 / canonical CURRENT. Three active products, four variants and four
-mapping/offer pairs require publication withdrawal. The existing DB constraint
-does not allow inactive unmerged products; no safe withdrawal operation exists.
-Policy gates are prepared but publication is not withdrawn; deployment is blocked
-pending a separately reviewed lifecycle/scope transition through existing controls.
-The prior source attempt is complete, not repeated. Do not repair source parsing
-for excluded products or infer identity aliases for DEFER. No source dispatch,
-apply, migration, recovery, scope activation or schedule restoration is authorized
-by this task. `SIX_PACK_SCHEDULE_PAUSED_PENDING_OWNER_APPROVAL` remains in force.
-Earlier permissions below are historical; RA-001 and existing guarded paths remain
-controlling. RA-004 is not resumed and no RESTORED status is claimed.
+**Current active task:** complete the general withdrawal lifecycle in existing
+DRAFT PR #510 under the owner's 9 November instruction. Forward-only schema,
+owner-only guards, active/historical manifest partitions and existing Fit SQL
+registration/OOS bindings are prepared; no production migration/write/merge or
+retailer dispatch is authorized/performed. RA-004 remains suspended. The old
+policy-only deployment blocker is addressed in review code, not in production.
+Current production remains main1dce913d28fb727bac9989b49a470cb7ad4bf4af and ledger261.
+Fresh verified TLS READ ONLY snapshot at 2026-11-09T08:27:17Z confirms all affected
+row hashes and five history records unchanged, no affected pending approvals or
+active parent/execution plans; GitHub active/queued jobs0 at that check.
+Candidate scope is Six504+historical2 of506, Fit284+historical2 of286. Ordinary
+nutrition peptides remain permitted. Owner EXCLUDE and Limitless DEFER remain.
+
+Actual isolated PostgreSQL17.11:20 PASS,0 FAIL,0 SKIP, including A-S and genuine
+approved RPC rejection after withdrawal, history, shared variant, physical
+scope, public loaders, idempotency, rollback and unaffected retailer RPC.
+Full/quick/CI evidence is retained in the current PR receipt and machine record;
+old-head CI below is historical. Deployment requires separate owner approval,
+Fit-only job pause, selected migration and canonical receipt closeout261 to262,
+verified production deployment plus existing platform cache purge/public readback.
+Other schedules unchanged; Six stays PAUSED. No RESTORED/public withdrawal claimed.
+See [implementation and exact rollout](OWNER-CATALOGUE-WITHDRAWAL-2026-11-09.md)
+and [fresh machine evidence](evidence/OWNER-CATALOGUE-WITHDRAWAL-2026-11-09.json).
 
 The immediate objective is to restore a trustworthy baseline for the existing
 production retailer paths before any consolidation work resumes. This is not a

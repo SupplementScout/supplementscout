@@ -1814,12 +1814,12 @@ test("shared DB postflight covers exact retailer scopes", () => {
     "discount-supplements": [109, 109],
     "dolphin-fitness": [1, 1],
     "ebay-uk": [237, 237],
-    "fit-house": [286, null],
+    "fit-house": [284, 284],
     "gladiator-nutrition": [603, 603],
     "jons-supplements": [506, null],
     "kior-health": [11, 11],
     "simply-supplements": [120, null],
-    "six-pack-supplements": [506, 506],
+    "six-pack-supplements": [504, 504],
     "whey-okay": [589, 589],
   };
 

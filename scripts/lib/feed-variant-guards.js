@@ -869,6 +869,66 @@ function assertCataloguePolicyAllowsRecords(records) {
   throw error;
 }
 
+const SCOPE_BINDING_KEYS = ["mapping_id", "offer_id", "external_product_id", "external_variant_id", "canonical_product_id", "canonical_variant_id"];
+function catalogueScopeBindings(manifest) {
+  return [...manifest.rows, ...(manifest.historical_withdrawn_rows || [])].map(row =>
+    Object.fromEntries(SCOPE_BINDING_KEYS.map(key => [key, String(row[key])]))
+  ).sort((a, b) => Number(a.mapping_id) - Number(b.mapping_id));
+}
+
+// A partition of the existing approved manifest, not another visibility registry.
+// Every physical binding is checked before any row can leave classifier input.
+function reconcileApprovedCatalogueScope(manifest, records) {
+  if (!manifest.historical_withdrawn_rows) return { records, historical_records: [] };
+  const fail = message => { const error = new Error(message); error.code = "CATALOGUE_SCOPE_NOT_ACTIVATED"; throw error; };
+  const bindings = catalogueScopeBindings(manifest);
+  const hash = require("node:crypto").createHash("sha256").update(canonicalJson(bindings)).digest("hex");
+  if (hash !== manifest.physical_scope_fingerprint || bindings.length !== manifest.physical_mapping_count
+    || manifest.rows.length !== manifest.approved_mapping_count || records.length !== bindings.length
+    || new Set(bindings.map(r => r.mapping_id)).size !== bindings.length
+    || new Set(bindings.map(r => r.offer_id)).size !== bindings.length) fail("Physical catalogue scope fingerprint/count mismatch");
+  const byMapping = new Map(records.map(r => [String(r.mapping.id), r]));
+  if (byMapping.size !== records.length) fail("Duplicate physical mapping");
+  const historical = new Map(manifest.historical_withdrawn_rows.map(r => [String(r.mapping_id), r]));
+  const active = [], withdrawn = [];
+  for (const binding of bindings) {
+    const r = byMapping.get(binding.mapping_id);
+    if (!r || String(r.mapping.retailer_id) !== String(manifest.retailer.id)
+      || String(r.offer.retailer_id) !== String(manifest.retailer.id)
+      || String(r.offer.id) !== binding.offer_id || String(r.product.id) !== binding.canonical_product_id
+      || String(r.variant.id) !== binding.canonical_variant_id || String(r.variant.product_id) !== String(r.product.id)
+      || String(r.mapping.product_id) !== String(r.product.id) || String(r.mapping.product_variant_id) !== String(r.variant.id)
+      || String(r.offer.product_id) !== String(r.product.id) || String(r.offer.product_variant_id) !== String(r.variant.id)
+      || String(r.offer.retailer_product_id) !== String(r.mapping.id)
+      || String(r.mapping.external_product_id) !== binding.external_product_id
+      || String(r.mapping.external_variant_id) !== binding.external_variant_id) fail("Physical catalogue binding drift");
+    const decision = historical.get(binding.mapping_id);
+    if (decision) {
+      if (!["OWNER_EXCLUDED", "OWNER_DEFERRED"].includes(decision.withdrawal_state)
+        || r.product.owner_withdrawal_state !== decision.withdrawal_state
+        || r.product.owner_withdrawal_reason !== decision.decision_reference
+        || !Number.isFinite(Date.parse(r.product.owner_withdrawn_at))
+        || r.product.is_active !== false || r.variant.is_active !== false
+        || r.product.merged_into_product_id != null) fail("Owner withdrawal has not been activated or has drifted");
+      withdrawn.push(r);
+    } else {
+      if (r.product.is_active !== true || r.variant.is_active !== true || r.product.merged_into_product_id != null
+        || r.product.owner_withdrawal_state != null) fail("Active approved catalogue state drift");
+      const product = { ...r.product };
+      delete product.owner_withdrawal_state;
+      delete product.owner_withdrawal_reason;
+      delete product.owner_withdrawn_at;
+      active.push({ ...r, product });
+    }
+  }
+  if (active.length !== manifest.approved_mapping_count || withdrawn.length !== historical.size) fail("Incomplete catalogue partition");
+  assertCataloguePolicyAllowsRecords(active);
+  return { records: active, historical_records: withdrawn, scope_partition: {
+    physical_mapping_count: bindings.length, active_approved_mapping_count: active.length,
+    historical_withdrawn_mapping_count: withdrawn.length, physical_scope_fingerprint: hash,
+  } };
+}
+
 function reviewedSafeCreateFamily(row) {
   const category = String(row.category || "").trim();
   const productName = String(row.product_name || "").trim();
@@ -1498,6 +1558,8 @@ function formatPreflightReport(report) {
 module.exports = {
   cataloguePolicyDecision,
   assertCataloguePolicyAllowsRecords,
+  catalogueScopeBindings,
+  reconcileApprovedCatalogueScope,
   analyzeFeedRows,
   assessVariantCompatibility,
   formatPreflightReport,

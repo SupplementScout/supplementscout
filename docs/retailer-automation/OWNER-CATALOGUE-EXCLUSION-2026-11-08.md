@@ -1,5 +1,7 @@
 # Decyzja właściciela: wykluczenie produktów z katalogu
 
+> Aktualizacja 9 listopada: [implementacja lifecycle i rollout](OWNER-CATALOGUE-WITHDRAWAL-2026-11-09.md). Ponizszy audyt jest historyczny; produkcja nie zostala zmieniona.
+
 Data decyzji i odczytów: **8 listopada 2026**.
 Status: **PR do review; DEPLOYMENT_BLOCKED; produkty jeszcze niewycofane**.
 

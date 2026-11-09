@@ -101,7 +101,7 @@ const PENDING_REFRESH_BINDING_MIGRATION_SHA256 = "015f0de7448c10fcca10174e74dfbf
 const PENDING_REFRESH_BINDING = Object.freeze({ filename: PENDING_REFRESH_BINDING_MIGRATION, sha256: PENDING_REFRESH_BINDING_MIGRATION_SHA256 });
 const PLANNED_CONTROL_CLOSE_PENDING = Object.freeze({ filename: "20261107190000_extend_never_approved_planned_control_close.sql", sha256: "0c6a7ef27021c0ba2dc5ef38eea3289b8238e4dc3220ede03de6210336263ddf" });
 const STAGING_PENDING = Object.freeze([...HARD_PRICE_ANOMALY_PENDING, PENDING_REFRESH_BINDING]);
-const PRODUCTION_PENDING = Object.freeze([]);
+const PRODUCTION_PENDING = Object.freeze([{ filename: "20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql", sha256: "a9cb6d18c60dda40dbc10322e23971f929e929a4344761e8f97328677b04e29b" }]);
 
 test("production-only planned-close migration is applied in production and excluded from staging", () => {
   assert.equal(CONTRACTS.STAGING.excluded[PLANNED_CONTROL_CLOSE_PENDING.filename], PLANNED_CONTROL_CLOSE_PENDING.sha256);
@@ -913,11 +913,13 @@ test("production records ledger 261 with the planned-close migration applied", (
   });
   assert.equal(result.ledger_count, 261);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 261);
+  assert.equal(result.selected_files.length, 261 + PRODUCTION_PENDING.length);
+  assert.ok(result.selected_files.includes(PRODUCTION_PENDING[0].filename));
+  assert.ok(!migrationBinding("PRODUCTION").versions.includes(PRODUCTION_PENDING[0].filename.slice(0,-4)));
   assert.deepEqual(result.pending_files, PRODUCTION_PENDING.map(({ filename }) => filename));
   assert.deepEqual(result.pending_sha256s, Object.fromEntries(PRODUCTION_PENDING.map(({filename, sha256}) => [filename, sha256])));
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.equal(result.pending_file, PRODUCTION_PENDING[0].filename);
+  assert.equal(result.pending_sha256, PRODUCTION_PENDING[0].sha256);
   assert.ok(result.selected_files.includes(PENDING_REFRESH_BINDING_MIGRATION));
   assert.ok(result.selected_files.includes(PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION));
   assert.ok(result.excluded_files.includes(PRODUCT_PACK_CORRECTION_MIGRATION));
@@ -1809,8 +1811,8 @@ test("shared production binding includes hard-price and refresh-binding migratio
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.equal(result.pending_file, PRODUCTION_PENDING[0].filename);
+  assert.equal(result.pending_sha256, PRODUCTION_PENDING[0].sha256);
   assert.deepEqual(result.pending_files, PRODUCTION_PENDING.map(({ filename }) => filename));
   assert.deepEqual(result.pending_sha256s, Object.fromEntries(PRODUCTION_PENDING.map(({filename, sha256}) => [filename, sha256])));
   assert.ok(result.selected_files.includes(HARD_PRICE_ANOMALY_MIGRATION));

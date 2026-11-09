@@ -1,0 +1,316 @@
+{
+  "kind": "owner-catalogue-withdrawal-review-package-v1",
+  "date": "2026-11-09",
+  "status": "DEPLOYMENT_BLOCKED",
+  "production_applied": false,
+  "main": "1dce913d28fb727bac9989b49a470cb7ad4bf4af",
+  "pr": 510,
+  "branch": "fix/owner-catalogue-exclusion",
+  "production_readback": {
+    "captured_at": "2026-11-09T08:27:17.228Z",
+    "tls_verified": true,
+    "target": {
+      "project_ref": "aftboxmrdgyhizicfsfu",
+      "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu",
+      "target_environment": "PRODUCTION"
+    },
+    "transaction": {
+      "session_user": "postgres",
+      "current_user": "postgres",
+      "transaction_read_only": "on",
+      "transaction_isolation": "repeatable read"
+    },
+    "ledger_count": 261,
+    "ledger_fingerprint": "755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a",
+    "counts": {
+      "products": 1399,
+      "product_variants": 4070,
+      "retailer_products": 4361,
+      "offers": 4361,
+      "retailers": 13
+    },
+    "pending_affected_approvals": [],
+    "parent_statuses": [
+      {
+        "status": "COMPLETED",
+        "count": 76
+      },
+      {
+        "status": "EXPIRED",
+        "count": 1
+      },
+      {
+        "status": "SUPERSEDED",
+        "count": 3
+      }
+    ],
+    "execution_statuses": [
+      {
+        "status": "EXPIRED",
+        "count": 42
+      }
+    ],
+    "affected_row_hashes": {
+      "products": [
+        {
+          "id": "1114",
+          "hash": "fa5e1540e5bbf4b0392f721505c7f1047830a046a143ac121b8183b63f498b55"
+        },
+        {
+          "id": "951",
+          "hash": "e32c699bf874145ba37ffc18cd6a1b3726eb66fcc88ea2771d084a5801e66253"
+        },
+        {
+          "id": "999",
+          "hash": "dc4fdf7172000312240575d5999d717b785540d742b97057e88a52f565f5ba89"
+        }
+      ],
+      "product_variants": [
+        {
+          "id": "1853",
+          "hash": "8cb33463c409d07ad7a78c5ffbe86fd8b729a46701666ac6685de0e89c170c42"
+        },
+        {
+          "id": "1960",
+          "hash": "3d18bcff205448f5755352597cf2c62133485a3f604c8ee1d161755cba3f5e44"
+        },
+        {
+          "id": "2414",
+          "hash": "9bad48565303ac281f7a0b165985526d7c2f82b80a0143ff5410edc7fbf4acb9"
+        },
+        {
+          "id": "2415",
+          "hash": "0dfa1abd59613af9bb492e1f73f920ac67af4d052ce2002317b62ec3796ec834"
+        }
+      ],
+      "retailer_products": [
+        {
+          "id": "2082",
+          "hash": "5b45f5f917b4c65d9554449987d6d4fcbd48d4b520fcfb927b432f86f9433f3f"
+        },
+        {
+          "id": "2151",
+          "hash": "e65ea60bb1a538d431e3e3cd8ce2f02b5c5bc9955d2e49fe0b41bdd687180119"
+        },
+        {
+          "id": "2170",
+          "hash": "a6045b548ffd0a9c0990fb2c0740b2df7c9f791775d0e9eb265cdc176670af04"
+        },
+        {
+          "id": "2582",
+          "hash": "bd734fdd2b90858afe0762ee7d10bd8509d7da60c53882dfa570714150ec2e53"
+        }
+      ],
+      "offers": [
+        {
+          "id": "1896",
+          "hash": "d81f928b7c45be902acdeb9dcbdec969a53bbdbe5581ef03e7b26eb3ea5a81dd"
+        },
+        {
+          "id": "1965",
+          "hash": "3003518637a33a3f3da7b6395b9e12450c335a9f9a47e467cb18763ffdb6fea6"
+        },
+        {
+          "id": "1984",
+          "hash": "9867e2930cb72a733116a4464f80a2baca0084cc8ca680b56036faae58dfffab"
+        },
+        {
+          "id": "2396",
+          "hash": "e2fb94105542843e8720c0df8eabd92fb16b992075cfd2d50ebc1e41efa4e5c6"
+        }
+      ],
+      "price_history": [
+        {
+          "id": "1900",
+          "hash": "4ce44c7364c0a828741d6ce5de9271ee226f21d4720886551655a79d67f14f20"
+        },
+        {
+          "id": "1969",
+          "hash": "ec6a398f77528236b8aa1c34bf7784078c4ccd3caefac8d32b5cabf5676a1c80"
+        },
+        {
+          "id": "1988",
+          "hash": "5730464ac37d8570a363619a02ba3fa6100ee4a4591bb315487b3a1ddd67c14f"
+        },
+        {
+          "id": "2003",
+          "hash": "ba980e3adec01b337e2a93e38a8ee301eedde465acb31fe65651a195cd699c2c"
+        },
+        {
+          "id": "2415",
+          "hash": "dc8e95183e495e2f65af1f328e560bf3e86ec4f992c572fd8bbb964b09bd41bf"
+        }
+      ]
+    },
+    "unchanged_since_initial_snapshot": true,
+    "github_active_jobs": 0,
+    "github_queued_jobs": 0
+  },
+  "scope": [
+    {
+      "product_id": 951,
+      "state": "OWNER_EXCLUDED",
+      "variant_ids": [
+        1853
+      ],
+      "mappings": [
+        2082,
+        2170
+      ],
+      "offers": [
+        1896,
+        1984
+      ]
+    },
+    {
+      "product_id": 999,
+      "state": "OWNER_EXCLUDED",
+      "variant_ids": [
+        1960
+      ],
+      "mappings": [
+        2151
+      ],
+      "offers": [
+        1965
+      ]
+    },
+    {
+      "product_id": 1114,
+      "state": "OWNER_DEFERRED",
+      "variant_ids": [
+        2414,
+        2415
+      ],
+      "mappings": [
+        2582
+      ],
+      "offers": [
+        2396
+      ]
+    }
+  ],
+  "preserved": {
+    "products": 3,
+    "variants": 4,
+    "mappings": 4,
+    "offers": 4,
+    "price_history": 5,
+    "commercial_values": "identical",
+    "historical_outbound_evidence": "preserved"
+  },
+  "artifacts": {
+    "migration": {
+      "path": "supabase/migrations/20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql",
+      "normalized_sha256": "a9cb6d18c60dda40dbc10322e23971f929e929a4344761e8f97328677b04e29b"
+    },
+    "six": {
+      "path": "config/retailers/six-pack-approved-offer-manifest-owner-withdrawal-v2.json",
+      "normalized_sha256": "a038f86f98057c5edde505ec5c07f262066dbc53001157a933ebee6c468ae77e"
+    },
+    "fit": {
+      "path": "config/retailers/fit-house-approved-offer-manifest-owner-withdrawal-v2.json",
+      "normalized_sha256": "b25aaafadecb848e08507ba488f34a4b4a84871f67d993d93538eff50600e3b5"
+    }
+  },
+  "scope_partitions": {
+    "six_pack": {
+      "physical": 506,
+      "active": 504,
+      "historical": 2,
+      "source_parents_before": 279,
+      "source_parents_after": 277
+    },
+    "fit_house": {
+      "physical": 286,
+      "active": 284,
+      "historical": 2,
+      "source_parents_before": 174,
+      "source_parents_after": 172
+    }
+  },
+  "binding": {
+    "pre_count": 261,
+    "pre_fingerprint": "755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a",
+    "post_count": 262,
+    "post_fingerprint": "e19d8c8960651ff6f8deca27e518be222a191320234053a34a13d9223a975362",
+    "confirmation": "527587a55780f61f",
+    "closeout_required": true
+  },
+  "safety": {
+    "production_business_writes": 0,
+    "production_control_writes": 0,
+    "production_approvals": 0,
+    "production_price_history_writes": 0,
+    "production_migrations": 0,
+    "retailer_dispatches": 0,
+    "six_pack_schedule": "PAUSED_UNCHANGED"
+  },
+  "tests": {
+    "isolated_postgresql": {
+      "version": "17.11",
+      "pass": 20,
+      "fail": 0,
+      "skip": 0,
+      "command": "OWNER_WITHDRAWAL_TEST_PSQL=<workspace-local psql> node --test scripts/owner-catalogue-withdrawal.integration.test.js",
+      "evidence": "tmp/owner-lifecycle-postgres-final.log"
+    },
+    "full": {
+      "result": "PASS",
+      "pass": 3681,
+      "fail": 0,
+      "skip": 3,
+      "historical_skips": true,
+      "typescript": "PASS",
+      "eslint": "PASS",
+      "build": "PASS",
+      "guardian": "PASS",
+      "baseline": "PASS",
+      "environment": "NODE_OPTIONS=--use-system-ca NEXT_TURBOPACK_EXPERIMENTAL_USE_SYSTEM_TLS_CERTS=1 (local TLS verification retained)",
+      "evidence": "tmp/owner-lifecycle-full-tls.log"
+    },
+    "quick": {
+      "result": "PASS",
+      "pass": 1020,
+      "fail": 0,
+      "skip": 3,
+      "historical_skips": true
+    }
+  },
+  "rollout_blockers": [
+    "separate owner approval of final head, Fit-only pause and bounded selected migration",
+    "fresh expected-state/target/ledger/jobs check immediately before activation",
+    "receipt-based canonical CURRENT closeout after DB commit",
+    "verified production deploy and platform cache purge/readback; no claim of Git/DB/cache atomicity"
+  ],
+  "production_public_readback": {
+    "captured_at": "2026-11-09T08:38:47.310Z",
+    "origin": "https://www.supplementscout.co.uk",
+    "verified_tls": true,
+    "results": [
+      {
+        "slug": "7nutrition-melatonin-1mg-60-capsules",
+        "status": 200,
+        "location": null,
+        "title": "7Nutrition Melatonin 1mg 60 Capsules | SupplementScout",
+        "bytes": 41813
+      },
+      {
+        "slug": "soma-melatonin-4-mg-100-tablets",
+        "status": 200,
+        "location": null,
+        "title": "Soma Melatonin 4 mg - 100 Tablets | SupplementScout",
+        "bytes": 41963
+      },
+      {
+        "slug": "ultra-nutrio-limitless-nootropic-100-capsules",
+        "status": 200,
+        "location": null,
+        "title": "Ultra Nutrio Limitless Nootropic 100 Capsules | SupplementScout",
+        "bytes": 44359
+      }
+    ],
+    "outbound_requests": 0,
+    "database_write_operations": 0
+  }
+}

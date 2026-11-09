@@ -1,0 +1,1394 @@
+{
+  "schema_version": 1,
+  "kind": "isolated-owner-withdrawal-fixture",
+  "captured_at": "2026-11-09T07:32:14.854Z",
+  "columns": [
+    {
+      "table_name": "approved_import_plans",
+      "name": "id",
+      "type": "uuid",
+      "not_null": true,
+      "default_expression": "gen_random_uuid()"
+    },
+    {
+      "table_name": "approved_import_plans",
+      "name": "artifact_sha256",
+      "type": "text",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "approved_import_plans",
+      "name": "run_id",
+      "type": "text",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "approved_import_plans",
+      "name": "plan_fingerprint",
+      "type": "text",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "approved_import_plans",
+      "name": "source_row_fingerprint",
+      "type": "text",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "approved_import_plans",
+      "name": "plan_kind",
+      "type": "text",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "approved_import_plans",
+      "name": "retailer_id",
+      "type": "bigint",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "approved_import_plans",
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "not_null": true,
+      "default_expression": "now()"
+    },
+    {
+      "table_name": "approved_import_plans",
+      "name": "expires_at",
+      "type": "timestamp with time zone",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "approved_import_plans",
+      "name": "consumed_at",
+      "type": "timestamp with time zone",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "approved_import_plans",
+      "name": "source",
+      "type": "text",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "approved_import_plans",
+      "name": "plan_json",
+      "type": "jsonb",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "approved_import_plans",
+      "name": "status",
+      "type": "text",
+      "not_null": true,
+      "default_expression": "'approved'::text"
+    },
+    {
+      "table_name": "approved_import_plans",
+      "name": "apply_result",
+      "type": "jsonb",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "approved_import_plans",
+      "name": "identity_observation_result",
+      "type": "jsonb",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "approved_import_plans",
+      "name": "execution_result",
+      "type": "jsonb",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "approved_import_plans",
+      "name": "authorization_envelope",
+      "type": "jsonb",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "offers",
+      "name": "id",
+      "type": "bigint",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "offers",
+      "name": "product_id",
+      "type": "bigint",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "offers",
+      "name": "price",
+      "type": "numeric",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "offers",
+      "name": "url",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "offers",
+      "name": "in_stock",
+      "type": "boolean",
+      "not_null": false,
+      "default_expression": "true"
+    },
+    {
+      "table_name": "offers",
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "not_null": true,
+      "default_expression": "now()"
+    },
+    {
+      "table_name": "offers",
+      "name": "retailer_id",
+      "type": "bigint",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "offers",
+      "name": "shipping_cost",
+      "type": "numeric",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "offers",
+      "name": "total_price",
+      "type": "numeric",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "offers",
+      "name": "last_checked_at",
+      "type": "timestamp with time zone",
+      "not_null": false,
+      "default_expression": "now()"
+    },
+    {
+      "table_name": "offers",
+      "name": "retailer_product_id",
+      "type": "bigint",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "offers",
+      "name": "product_variant_id",
+      "type": "bigint",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "price_history",
+      "name": "id",
+      "type": "bigint",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "price_history",
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "not_null": true,
+      "default_expression": "now()"
+    },
+    {
+      "table_name": "price_history",
+      "name": "offer_id",
+      "type": "bigint",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "price_history",
+      "name": "price",
+      "type": "numeric",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "price_history",
+      "name": "shipping_cost",
+      "type": "numeric",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "price_history",
+      "name": "total_price",
+      "type": "numeric",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "price_history",
+      "name": "checked_at",
+      "type": "timestamp with time zone",
+      "not_null": false,
+      "default_expression": "now()"
+    },
+    {
+      "table_name": "price_history",
+      "name": "identity_series_id",
+      "type": "bigint",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "price_history",
+      "name": "currency",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "price_history",
+      "name": "in_stock",
+      "type": "boolean",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "price_history",
+      "name": "observation_kind",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "price_history",
+      "name": "source_run_id",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "price_history",
+      "name": "source_importer",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "price_history",
+      "name": "recorder_version",
+      "type": "smallint",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "price_history",
+      "name": "observation_date",
+      "type": "date",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "price_history",
+      "name": "evidence_status",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "price_history",
+      "name": "anomaly_flags",
+      "type": "text[]",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "product_variants",
+      "name": "id",
+      "type": "bigint",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "product_variants",
+      "name": "product_id",
+      "type": "bigint",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "product_variants",
+      "name": "variant_key",
+      "type": "text",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "product_variants",
+      "name": "display_name",
+      "type": "text",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "product_variants",
+      "name": "flavour_code",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "product_variants",
+      "name": "flavour_label",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "product_variants",
+      "name": "size_value",
+      "type": "numeric",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "product_variants",
+      "name": "size_unit",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "product_variants",
+      "name": "pack_count",
+      "type": "integer",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "product_variants",
+      "name": "product_format",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "product_variants",
+      "name": "gtin",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "product_variants",
+      "name": "image",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "product_variants",
+      "name": "nutrition_override",
+      "type": "jsonb",
+      "not_null": true,
+      "default_expression": "'{}'::jsonb"
+    },
+    {
+      "table_name": "product_variants",
+      "name": "is_active",
+      "type": "boolean",
+      "not_null": true,
+      "default_expression": "true"
+    },
+    {
+      "table_name": "product_variants",
+      "name": "is_default",
+      "type": "boolean",
+      "not_null": true,
+      "default_expression": "false"
+    },
+    {
+      "table_name": "product_variants",
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "not_null": true,
+      "default_expression": "now()"
+    },
+    {
+      "table_name": "product_variants",
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "not_null": true,
+      "default_expression": "now()"
+    },
+    {
+      "table_name": "products",
+      "name": "id",
+      "type": "bigint",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "name",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "slug",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "brand",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "category",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "price",
+      "type": "numeric",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "retailer",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "image",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "description",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "servings",
+      "type": "integer",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "not_null": true,
+      "default_expression": "now()"
+    },
+    {
+      "table_name": "products",
+      "name": "gtin",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "merged_into_product_id",
+      "type": "bigint",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "merged_at",
+      "type": "timestamp with time zone",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "is_active",
+      "type": "boolean",
+      "not_null": true,
+      "default_expression": "true"
+    },
+    {
+      "table_name": "products",
+      "name": "net_weight_g",
+      "type": "numeric",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "serving_count_verified",
+      "type": "integer",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "serving_size_g",
+      "type": "numeric",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "protein_per_serving_g",
+      "type": "numeric",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "creatine_per_serving_g",
+      "type": "numeric",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "unit_count",
+      "type": "integer",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "unit_type",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "product_format",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "unit_pricing_verified",
+      "type": "boolean",
+      "not_null": true,
+      "default_expression": "false"
+    },
+    {
+      "table_name": "products",
+      "name": "nutrition_verified",
+      "type": "boolean",
+      "not_null": true,
+      "default_expression": "false"
+    },
+    {
+      "table_name": "products",
+      "name": "net_volume_ml",
+      "type": "numeric",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "products",
+      "name": "serving_size_ml",
+      "type": "numeric",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailer_products",
+      "name": "id",
+      "type": "bigint",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailer_products",
+      "name": "retailer_id",
+      "type": "bigint",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailer_products",
+      "name": "product_id",
+      "type": "bigint",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailer_products",
+      "name": "external_name",
+      "type": "text",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailer_products",
+      "name": "external_slug",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailer_products",
+      "name": "external_gtin",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailer_products",
+      "name": "external_url",
+      "type": "text",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailer_products",
+      "name": "match_method",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailer_products",
+      "name": "match_confidence",
+      "type": "numeric(5,2)",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailer_products",
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "not_null": true,
+      "default_expression": "now()"
+    },
+    {
+      "table_name": "retailer_products",
+      "name": "updated_at",
+      "type": "timestamp with time zone",
+      "not_null": true,
+      "default_expression": "now()"
+    },
+    {
+      "table_name": "retailer_products",
+      "name": "product_variant_id",
+      "type": "bigint",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailer_products",
+      "name": "external_product_id",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailer_products",
+      "name": "external_variant_id",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailer_products",
+      "name": "external_sku",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailer_products",
+      "name": "external_options",
+      "type": "jsonb",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailers",
+      "name": "id",
+      "type": "bigint",
+      "not_null": true,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailers",
+      "name": "name",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailers",
+      "name": "slug",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailers",
+      "name": "website",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailers",
+      "name": "logo",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailers",
+      "name": "affiliate_network",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailers",
+      "name": "affiliate_id",
+      "type": "text",
+      "not_null": false,
+      "default_expression": null
+    },
+    {
+      "table_name": "retailers",
+      "name": "created_at",
+      "type": "timestamp with time zone",
+      "not_null": true,
+      "default_expression": "now()"
+    }
+  ],
+  "affected_raw_rows": {
+    "products": [
+      "{\"id\": 951, \"gtin\": null, \"name\": \"7Nutrition Melatonin 1mg 60 Capsules\", \"slug\": \"7nutrition-melatonin-1mg-60-capsules\", \"brand\": \"7Nutrition\", \"image\": \"https://cdn.shopify.com/s/files/1/0661/8202/1360/files/Untitleddesign_76.jpg?v=1688397543\", \"price\": null, \"category\": \"Health Supplements\", \"retailer\": null, \"servings\": null, \"is_active\": true, \"merged_at\": null, \"unit_type\": null, \"created_at\": \"2026-07-26T14:19:55.552431+00:00\", \"unit_count\": null, \"description\": null, \"net_weight_g\": null, \"net_volume_ml\": null, \"product_format\": \"capsule\", \"serving_size_g\": null, \"serving_size_ml\": null, \"nutrition_verified\": false, \"protein_per_serving_g\": null, \"unit_pricing_verified\": false, \"creatine_per_serving_g\": null, \"merged_into_product_id\": null, \"serving_count_verified\": null}",
+      "{\"id\": 999, \"gtin\": null, \"name\": \"Soma Melatonin 4 mg - 100 Tablets\", \"slug\": \"soma-melatonin-4-mg-100-tablets\", \"brand\": \"Soma\", \"image\": \"https://cdn.shopify.com/s/files/1/0661/8202/1360/files/Untitleddesign_1_e023d62a-9ab3-4073-b5d8-a99b5d093939.jpg?v=1756994062\", \"price\": null, \"category\": \"Health Supplements\", \"retailer\": null, \"servings\": null, \"is_active\": true, \"merged_at\": null, \"unit_type\": null, \"created_at\": \"2026-07-26T14:19:55.552431+00:00\", \"unit_count\": null, \"description\": null, \"net_weight_g\": null, \"net_volume_ml\": null, \"product_format\": \"tablet\", \"serving_size_g\": null, \"serving_size_ml\": null, \"nutrition_verified\": false, \"protein_per_serving_g\": null, \"unit_pricing_verified\": false, \"creatine_per_serving_g\": null, \"merged_into_product_id\": null, \"serving_count_verified\": null}",
+      "{\"id\": 1114, \"gtin\": null, \"name\": \"Ultra Nutrio Limitless Nootropic 100 Capsules\", \"slug\": \"ultra-nutrio-limitless-nootropic-100-capsules\", \"brand\": \"Ultra Nutrio\", \"image\": \"https://6pack-supplements.co.uk/wp-content/uploads/2025/07/ultra-nutrio-limitlesss-supplements-6pack.jpg\", \"price\": 49.99, \"category\": \"Nootropics\", \"retailer\": null, \"servings\": null, \"is_active\": true, \"merged_at\": null, \"unit_type\": \"capsule\", \"created_at\": \"2026-07-28T18:51:50.382669+00:00\", \"unit_count\": 100, \"description\": null, \"net_weight_g\": null, \"net_volume_ml\": null, \"product_format\": \"capsule\", \"serving_size_g\": null, \"serving_size_ml\": null, \"nutrition_verified\": false, \"protein_per_serving_g\": null, \"unit_pricing_verified\": false, \"creatine_per_serving_g\": null, \"merged_into_product_id\": null, \"serving_count_verified\": null}"
+    ],
+    "product_variants": [
+      "{\"id\": 1853, \"gtin\": null, \"image\": null, \"is_active\": true, \"size_unit\": null, \"created_at\": \"2026-07-26T14:19:55.552431+00:00\", \"is_default\": true, \"pack_count\": null, \"product_id\": 951, \"size_value\": null, \"updated_at\": \"2026-07-26T14:19:55.552431+00:00\", \"variant_key\": \"default\", \"display_name\": \"Default\", \"flavour_code\": null, \"flavour_label\": null, \"product_format\": null, \"nutrition_override\": {}}",
+      "{\"id\": 1960, \"gtin\": null, \"image\": null, \"is_active\": true, \"size_unit\": null, \"created_at\": \"2026-07-26T14:19:55.552431+00:00\", \"is_default\": true, \"pack_count\": null, \"product_id\": 999, \"size_value\": null, \"updated_at\": \"2026-07-26T14:19:55.552431+00:00\", \"variant_key\": \"default\", \"display_name\": \"Default\", \"flavour_code\": null, \"flavour_label\": null, \"product_format\": null, \"nutrition_override\": {}}",
+      "{\"id\": 2414, \"gtin\": null, \"image\": null, \"is_active\": true, \"size_unit\": null, \"created_at\": \"2026-07-28T18:51:50.768831+00:00\", \"is_default\": true, \"pack_count\": 1, \"product_id\": 1114, \"size_value\": null, \"updated_at\": \"2026-07-28T18:51:50.768831+00:00\", \"variant_key\": \"default\", \"display_name\": \"Default\", \"flavour_code\": null, \"flavour_label\": null, \"product_format\": \"capsule\", \"nutrition_override\": {}}",
+      "{\"id\": 2415, \"gtin\": null, \"image\": null, \"is_active\": true, \"size_unit\": null, \"created_at\": \"2026-07-28T18:51:50.768831+00:00\", \"is_default\": false, \"pack_count\": 1, \"product_id\": 1114, \"size_value\": null, \"updated_at\": \"2026-07-28T18:51:50.768831+00:00\", \"variant_key\": \"unflavoured-100capsule\", \"display_name\": \"Unflavoured / 100 capsules\", \"flavour_code\": \"unflavoured\", \"flavour_label\": \"Unflavoured\", \"product_format\": \"capsule\", \"nutrition_override\": {}}"
+    ],
+    "retailer_products": [
+      "{\"id\": 2082, \"created_at\": \"2026-07-26T14:28:07.940821+00:00\", \"product_id\": 951, \"updated_at\": \"2026-07-26T14:28:07.940821+00:00\", \"retailer_id\": 9, \"external_sku\": null, \"external_url\": \"https://fithouse.uk/products/7-nutrition-melatonin-1mg-60-vege-caps?variant=44147305251056\", \"match_method\": \"slug\", \"external_gtin\": null, \"external_name\": \"7Nutrition Melatonin 1mg 60 Capsules\", \"external_slug\": \"7nutrition-melatonin-1mg-60-capsules\", \"external_options\": {}, \"match_confidence\": 90.00, \"product_variant_id\": 1853, \"external_product_id\": \"8291615637744\", \"external_variant_id\": \"44147305251056\"}",
+      "{\"id\": 2151, \"created_at\": \"2026-07-26T14:28:07.940821+00:00\", \"product_id\": 999, \"updated_at\": \"2026-07-26T14:28:07.940821+00:00\", \"retailer_id\": 9, \"external_sku\": null, \"external_url\": \"https://fithouse.uk/products/soma-melatonin-4-mg-100-tablets?variant=47984607690992\", \"match_method\": \"slug\", \"external_gtin\": null, \"external_name\": \"Soma Melatonin 4 mg - 100 Tablets\", \"external_slug\": \"soma-melatonin-4-mg-100-tablets\", \"external_options\": {}, \"match_confidence\": 90.00, \"product_variant_id\": 1960, \"external_product_id\": \"9623362011376\", \"external_variant_id\": \"47984607690992\"}",
+      "{\"id\": 2170, \"created_at\": \"2026-07-27T13:42:56.383823+00:00\", \"product_id\": 951, \"updated_at\": \"2026-07-27T13:42:56.383823+00:00\", \"retailer_id\": 11, \"external_sku\": \"5904067876767\", \"external_url\": \"https://6pack-supplements.co.uk/product/melatonin-4mg-60-caps-7nutrition/\", \"match_method\": \"slug\", \"external_gtin\": \"5904067876767\", \"external_name\": \"7Nutrition Melatonin 1mg 60 Capsules\", \"external_slug\": \"7nutrition-melatonin-1mg-60-capsules\", \"external_options\": {\"Brands\": \"7 Nutrition\"}, \"match_confidence\": 90.00, \"product_variant_id\": 1853, \"external_product_id\": \"4110\", \"external_variant_id\": \"4110\"}",
+      "{\"id\": 2582, \"created_at\": \"2026-07-28T19:17:13.337579+00:00\", \"product_id\": 1114, \"updated_at\": \"2026-07-28T19:17:13.337579+00:00\", \"retailer_id\": 11, \"external_sku\": \"5070002542469-1-1-1\", \"external_url\": \"https://6pack-supplements.co.uk/product/limitlesss-nootropic-brain-booster-100-caps-ultra-nutrio/\", \"match_method\": \"slug\", \"external_gtin\": null, \"external_name\": \"Ultra Nutrio Limitless Nootropic 100 Capsules\", \"external_slug\": \"ultra-nutrio-limitless-nootropic-100-capsules\", \"external_options\": {}, \"match_confidence\": 90.00, \"product_variant_id\": 2415, \"external_product_id\": \"29928\", \"external_variant_id\": \"29928\"}"
+    ],
+    "offers": [
+      "{\"id\": 1896, \"url\": \"https://fithouse.uk/products/7-nutrition-melatonin-1mg-60-vege-caps?variant=44147305251056\", \"price\": 8.99, \"in_stock\": false, \"created_at\": \"2026-07-26T14:28:07.940821+00:00\", \"product_id\": 951, \"retailer_id\": 9, \"total_price\": 12.98, \"shipping_cost\": 3.99, \"last_checked_at\": \"2026-11-04T09:53:43.038+00:00\", \"product_variant_id\": 1853, \"retailer_product_id\": 2082}",
+      "{\"id\": 1965, \"url\": \"https://fithouse.uk/products/soma-melatonin-4-mg-100-tablets?variant=47984607690992\", \"price\": 11.99, \"in_stock\": false, \"created_at\": \"2026-07-26T14:28:07.940821+00:00\", \"product_id\": 999, \"retailer_id\": 9, \"total_price\": 15.98, \"shipping_cost\": 3.99, \"last_checked_at\": \"2026-11-04T09:53:43.038+00:00\", \"product_variant_id\": 1960, \"retailer_product_id\": 2151}",
+      "{\"id\": 1984, \"url\": \"https://6pack-supplements.co.uk/product/melatonin-4mg-60-caps-7nutrition/\", \"price\": 9.99, \"in_stock\": true, \"created_at\": \"2026-07-27T13:42:56.383823+00:00\", \"product_id\": 951, \"retailer_id\": 11, \"total_price\": 14.98, \"shipping_cost\": 4.99, \"last_checked_at\": \"2026-11-06T10:46:56.23+00:00\", \"product_variant_id\": 1853, \"retailer_product_id\": 2170}",
+      "{\"id\": 2396, \"url\": \"https://6pack-supplements.co.uk/product/limitlesss-nootropic-brain-booster-100-caps-ultra-nutrio/\", \"price\": 49.99, \"in_stock\": true, \"created_at\": \"2026-07-28T19:17:13.337579+00:00\", \"product_id\": 1114, \"retailer_id\": 11, \"total_price\": 54.98, \"shipping_cost\": 4.99, \"last_checked_at\": \"2026-11-06T10:46:56.23+00:00\", \"product_variant_id\": 2415, \"retailer_product_id\": 2582}"
+    ],
+    "price_history": [
+      "{\"id\": 1900, \"price\": 8.99, \"currency\": null, \"in_stock\": null, \"offer_id\": 1896, \"checked_at\": \"2026-07-26T14:24:24.389+00:00\", \"created_at\": \"2026-07-26T14:28:07.940821+00:00\", \"total_price\": 12.98, \"anomaly_flags\": null, \"shipping_cost\": 3.99, \"source_run_id\": null, \"evidence_status\": null, \"source_importer\": null, \"observation_date\": null, \"observation_kind\": null, \"recorder_version\": null, \"identity_series_id\": null}",
+      "{\"id\": 1969, \"price\": 11.99, \"currency\": null, \"in_stock\": null, \"offer_id\": 1965, \"checked_at\": \"2026-07-26T14:24:31.345+00:00\", \"created_at\": \"2026-07-26T14:28:07.940821+00:00\", \"total_price\": 15.98, \"anomaly_flags\": null, \"shipping_cost\": 3.99, \"source_run_id\": null, \"evidence_status\": null, \"source_importer\": null, \"observation_date\": null, \"observation_kind\": null, \"recorder_version\": null, \"identity_series_id\": null}",
+      "{\"id\": 1988, \"price\": 9.99, \"currency\": null, \"in_stock\": null, \"offer_id\": 1984, \"checked_at\": \"2026-07-27T13:42:53.091+00:00\", \"created_at\": \"2026-07-27T13:42:56.383823+00:00\", \"total_price\": null, \"anomaly_flags\": null, \"shipping_cost\": null, \"source_run_id\": null, \"evidence_status\": null, \"source_importer\": null, \"observation_date\": null, \"observation_kind\": null, \"recorder_version\": null, \"identity_series_id\": null}",
+      "{\"id\": 2003, \"price\": 9.99, \"currency\": null, \"in_stock\": null, \"offer_id\": 1984, \"checked_at\": \"2026-07-27T14:29:33.533+00:00\", \"created_at\": \"2026-07-27T14:29:35.522204+00:00\", \"total_price\": 14.98, \"anomaly_flags\": null, \"shipping_cost\": 4.99, \"source_run_id\": null, \"evidence_status\": null, \"source_importer\": null, \"observation_date\": null, \"observation_kind\": null, \"recorder_version\": null, \"identity_series_id\": null}",
+      "{\"id\": 2415, \"price\": 49.99, \"currency\": null, \"in_stock\": null, \"offer_id\": 2396, \"checked_at\": \"2026-07-28T19:16:05.304+00:00\", \"created_at\": \"2026-07-28T19:17:13.337579+00:00\", \"total_price\": 54.98, \"anomaly_flags\": null, \"shipping_cost\": 4.99, \"source_run_id\": null, \"evidence_status\": null, \"source_importer\": null, \"observation_date\": null, \"observation_kind\": null, \"recorder_version\": null, \"identity_series_id\": null}"
+    ]
+  },
+  "fit_house_oos_offer_ids": [
+    "689",
+    "712",
+    "713",
+    "717",
+    "718",
+    "723",
+    "729",
+    "730",
+    "735",
+    "737",
+    "743",
+    "749",
+    "751",
+    "757",
+    "758",
+    "908",
+    "911",
+    "912",
+    "913",
+    "914",
+    "915",
+    "917",
+    "921",
+    "928",
+    "936",
+    "937",
+    "939",
+    "940",
+    "944",
+    "947",
+    "957",
+    "968",
+    "983",
+    "985",
+    "986",
+    "987",
+    "988",
+    "989",
+    "1859",
+    "1860",
+    "1861",
+    "1862",
+    "1863",
+    "1864",
+    "1865",
+    "1866",
+    "1867",
+    "1868",
+    "1869",
+    "1870",
+    "1871",
+    "1873",
+    "1874",
+    "1875",
+    "1877",
+    "1878",
+    "1879",
+    "1880",
+    "1881",
+    "1882",
+    "1884",
+    "1885",
+    "1886",
+    "1887",
+    "1888",
+    "1892",
+    "1893",
+    "1894",
+    "1895",
+    "1896",
+    "1899",
+    "1901",
+    "1902",
+    "1903",
+    "1905",
+    "1907",
+    "1911",
+    "1914",
+    "1921",
+    "1922",
+    "1923",
+    "1924",
+    "1925",
+    "1927",
+    "1930",
+    "1933",
+    "1938",
+    "1941",
+    "1942",
+    "1943",
+    "1944",
+    "1947",
+    "1948",
+    "1949",
+    "1950",
+    "1953",
+    "1954",
+    "1955",
+    "1963",
+    "1965",
+    "1967",
+    "1968",
+    "1969",
+    "1970",
+    "1971",
+    "1973",
+    "1974",
+    "1976",
+    "1977",
+    "1982",
+    "1983"
+  ],
+  "fit_house_baseline_offers": [
+    {
+      "id": 718,
+      "url": "https://fithouse.uk/products/now-foods-choline-inositol-100-veg-caps?variant=46667614945520",
+      "price": 12.99,
+      "in_stock": false,
+      "created_at": "2026-07-11T20:01:28.899143+00:00",
+      "product_id": 699,
+      "retailer_id": 9,
+      "total_price": 16.98,
+      "shipping_cost": 3.99,
+      "last_checked_at": "2026-11-04T09:53:43.038+00:00",
+      "product_variant_id": 3060,
+      "retailer_product_id": 742
+    },
+    {
+      "id": 749,
+      "url": "https://fithouse.uk/products/now-foods-5-htp-double-strength-200-mg-60-veg-capsules?variant=47199795413232",
+      "price": 16.99,
+      "in_stock": false,
+      "created_at": "2026-07-11T21:45:45.966154+00:00",
+      "product_id": 730,
+      "retailer_id": 9,
+      "total_price": 20.98,
+      "shipping_cost": 3.99,
+      "last_checked_at": "2026-11-04T09:53:43.038+00:00",
+      "product_variant_id": 3074,
+      "retailer_product_id": 863
+    },
+    {
+      "id": 757,
+      "url": "https://fithouse.uk/products/7-nutrition-beta-alanine-250g-unflavoured?variant=46620421816560",
+      "price": 11.99,
+      "in_stock": false,
+      "created_at": "2026-07-11T21:45:48.051069+00:00",
+      "product_id": 768,
+      "retailer_id": 9,
+      "total_price": 15.98,
+      "shipping_cost": 3.99,
+      "last_checked_at": "2026-11-04T09:53:43.038+00:00",
+      "product_variant_id": 933,
+      "retailer_product_id": 871
+    },
+    {
+      "id": 759,
+      "url": "https://fithouse.uk/products/7-nutrition-berberine-stack-90-vege-caps?variant=46969725714672",
+      "price": 11.99,
+      "in_stock": true,
+      "created_at": "2026-07-11T21:45:48.605211+00:00",
+      "product_id": 740,
+      "retailer_id": 9,
+      "total_price": 15.98,
+      "shipping_cost": 3.99,
+      "last_checked_at": "2026-11-04T09:53:43.038+00:00",
+      "product_variant_id": 3021,
+      "retailer_product_id": 873
+    },
+    {
+      "id": 913,
+      "url": "https://fithouse.uk/products/lenny-larrys-fitzels-protein-pretzels-85-g?variant=48123945124080",
+      "price": 2.5,
+      "in_stock": false,
+      "created_at": "2026-07-15T15:20:00.279979+00:00",
+      "product_id": 502,
+      "retailer_id": 9,
+      "total_price": 6.49,
+      "shipping_cost": 3.99,
+      "last_checked_at": "2026-11-04T09:53:43.038+00:00",
+      "product_variant_id": 914,
+      "retailer_product_id": 1099
+    },
+    {
+      "id": 939,
+      "url": "https://fithouse.uk/products/ostrovit-carbo-1000-g?variant=49719663100144",
+      "price": 9.99,
+      "in_stock": false,
+      "created_at": "2026-07-15T15:20:03.310208+00:00",
+      "product_id": 766,
+      "retailer_id": 9,
+      "total_price": 13.98,
+      "shipping_cost": 3.99,
+      "last_checked_at": "2026-11-04T09:53:43.038+00:00",
+      "product_variant_id": 926,
+      "retailer_product_id": 1125
+    },
+    {
+      "id": 940,
+      "url": "https://fithouse.uk/products/ostrovit-carbo-1000-g?variant=49719663067376",
+      "price": 9.99,
+      "in_stock": false,
+      "created_at": "2026-07-15T15:20:03.412908+00:00",
+      "product_id": 766,
+      "retailer_id": 9,
+      "total_price": 13.98,
+      "shipping_cost": 3.99,
+      "last_checked_at": "2026-11-04T09:53:43.038+00:00",
+      "product_variant_id": 928,
+      "retailer_product_id": 1126
+    }
+  ],
+  "fit_house_baseline_mappings": [
+    {
+      "id": 742,
+      "created_at": "2026-07-11T20:01:28.808478+00:00",
+      "product_id": 699,
+      "updated_at": "2026-07-26T14:28:07.940821+00:00",
+      "retailer_id": 9,
+      "external_sku": null,
+      "external_url": "https://fithouse.uk/products/now-foods-choline-inositol-100-veg-caps?variant=46667614945520",
+      "match_method": "slug",
+      "external_gtin": null,
+      "external_name": "Now Foods Choline & Inositol 100 Capsules",
+      "external_slug": "now-foods-choline-inositol-100-capsules",
+      "external_options": null,
+      "match_confidence": 90,
+      "product_variant_id": 3060,
+      "external_product_id": "9058975187184",
+      "external_variant_id": "46667614945520"
+    },
+    {
+      "id": 863,
+      "created_at": "2026-07-11T21:45:45.870603+00:00",
+      "product_id": 730,
+      "updated_at": "2026-07-26T14:28:07.940821+00:00",
+      "retailer_id": 9,
+      "external_sku": null,
+      "external_url": "https://fithouse.uk/products/now-foods-5-htp-double-strength-200-mg-60-veg-capsules?variant=47199795413232",
+      "match_method": "slug",
+      "external_gtin": null,
+      "external_name": "Now Foods 5-HTP Double Strength 200mg 60 Capsules",
+      "external_slug": "now-foods-5-htp-double-strength-200mg-60-capsules",
+      "external_options": null,
+      "match_confidence": 90,
+      "product_variant_id": 3074,
+      "external_product_id": "9347614343408",
+      "external_variant_id": "47199795413232"
+    },
+    {
+      "id": 871,
+      "created_at": "2026-07-11T21:45:47.948402+00:00",
+      "product_id": 768,
+      "updated_at": "2026-07-26T14:28:07.940821+00:00",
+      "retailer_id": 9,
+      "external_sku": null,
+      "external_url": "https://fithouse.uk/products/7-nutrition-beta-alanine-250g-unflavoured?variant=46620421816560",
+      "match_method": "slug",
+      "external_gtin": null,
+      "external_name": "7Nutrition Beta-Alanine Powder 250g Unflavoured",
+      "external_slug": "7nutrition-beta-alanine-powder-250g-unflavoured",
+      "external_options": null,
+      "match_confidence": 90,
+      "product_variant_id": 933,
+      "external_product_id": "9041428283632",
+      "external_variant_id": "46620421816560"
+    },
+    {
+      "id": 873,
+      "created_at": "2026-07-11T21:45:48.470991+00:00",
+      "product_id": 740,
+      "updated_at": "2026-07-26T14:28:07.940821+00:00",
+      "retailer_id": 9,
+      "external_sku": null,
+      "external_url": "https://fithouse.uk/products/7-nutrition-berberine-stack-90-vege-caps?variant=46969725714672",
+      "match_method": "slug",
+      "external_gtin": null,
+      "external_name": "7Nutrition Berberine Stack 500mg 90 Capsules",
+      "external_slug": "7nutrition-berberine-stack-500mg-90-capsules",
+      "external_options": null,
+      "match_confidence": 90,
+      "product_variant_id": 3021,
+      "external_product_id": "9168824172784",
+      "external_variant_id": "46969725714672"
+    },
+    {
+      "id": 1099,
+      "created_at": "2026-07-15T15:20:00.279979+00:00",
+      "product_id": 502,
+      "updated_at": "2026-07-15T15:20:00.279979+00:00",
+      "retailer_id": 9,
+      "external_sku": null,
+      "external_url": "https://fithouse.uk/products/lenny-larrys-fitzels-protein-pretzels-85-g?variant=48123945124080",
+      "match_method": "slug",
+      "external_gtin": null,
+      "external_name": "Lenny & Larry Fitzels Pretzels 85g",
+      "external_slug": "lenny--larry-fitzels-pretzels-85g",
+      "external_options": {
+        "Flavor": "Pizza Palooza"
+      },
+      "match_confidence": 90,
+      "product_variant_id": 914,
+      "external_product_id": "9674414915824",
+      "external_variant_id": "48123945124080"
+    },
+    {
+      "id": 1125,
+      "created_at": "2026-07-15T15:20:03.310208+00:00",
+      "product_id": 766,
+      "updated_at": "2026-07-15T15:20:03.310208+00:00",
+      "retailer_id": 9,
+      "external_sku": null,
+      "external_url": "https://fithouse.uk/products/ostrovit-carbo-1000-g?variant=49719663100144",
+      "match_method": "slug",
+      "external_gtin": null,
+      "external_name": "OstroVit Carbo 1000g",
+      "external_slug": "ostrovit-carbo-1000g",
+      "external_options": {
+        "flavour": "Cherry"
+      },
+      "match_confidence": 90,
+      "product_variant_id": 926,
+      "external_product_id": "10021385273584",
+      "external_variant_id": "49719663100144"
+    },
+    {
+      "id": 1126,
+      "created_at": "2026-07-15T15:20:03.412908+00:00",
+      "product_id": 766,
+      "updated_at": "2026-07-15T15:20:03.412908+00:00",
+      "retailer_id": 9,
+      "external_sku": null,
+      "external_url": "https://fithouse.uk/products/ostrovit-carbo-1000-g?variant=49719663067376",
+      "match_method": "slug",
+      "external_gtin": null,
+      "external_name": "OstroVit Carbo 1000g",
+      "external_slug": "ostrovit-carbo-1000g",
+      "external_options": {
+        "flavour": "Lemon"
+      },
+      "match_confidence": 90,
+      "product_variant_id": 928,
+      "external_product_id": "10021385273584",
+      "external_variant_id": "49719663067376"
+    }
+  ],
+  "review_transitions": [
+    {
+      "review_id": "1121",
+      "execution_request_id": "976f67b4-c06c-4f73-a3c6-48ca63f45dfd",
+      "offer_id": "1982",
+      "retailer_id": "9",
+      "review_operation_type": "UPDATE_STOCK",
+      "review_status": "EXECUTED",
+      "source_row_fingerprint": "f54eea2edb5dde64de1185bec9a7f24314ea5240c002a709d69210ba1f1be7f2",
+      "review_plan_fingerprint": "92b74f47441f06fe3f17822fb0f440ee3aed531656199f8c2721a874c9120676",
+      "before_in_stock": true,
+      "proposed_in_stock": false,
+      "execution_operation_type": "UPDATE_STOCK",
+      "execution_status": "EXECUTED",
+      "review_fingerprint": "f54eea2edb5dde64de1185bec9a7f24314ea5240c002a709d69210ba1f1be7f2",
+      "execution_plan_fingerprint": "92b74f47441f06fe3f17822fb0f440ee3aed531656199f8c2721a874c9120676",
+      "postflight_hash": "ad8b4fcba6020f89639f432801b1e1a3b879a3bae6ce45fddc20fe7b7def1954",
+      "executed_offer_ids": [
+        "1982"
+      ],
+      "failed_offer_ids": [],
+      "remaining_offer_ids": [],
+      "actual_deltas": {
+        "price": 0,
+        "stock": 1,
+        "total": 0,
+        "shipping": 0,
+        "freshness": 20,
+        "offer_url": 0,
+        "mapping_url": 0
+      },
+      "database_writes": 20,
+      "idempotency_result": "PASS",
+      "last_checkpoint": "VERIFIED_POSTFLIGHT_RECOVERY",
+      "completed_at": "2026-10-06T17:27:53.098Z"
+    },
+    {
+      "review_id": "1113",
+      "execution_request_id": "0f86dd83-f2e5-4f7a-ae6f-c5fb4d05a298",
+      "offer_id": "983",
+      "retailer_id": "9",
+      "review_operation_type": "UPDATE_STOCK",
+      "review_status": "EXECUTED",
+      "source_row_fingerprint": "691efcfef46dd67e01a88caacb076e1e3ff1e5658c4b5d88dd7a6db0d01bfc58",
+      "review_plan_fingerprint": "77b1c37541d2e1c0be7e5a065183f462e8c51e5520500f4d53b5b0c359e6aa85",
+      "before_in_stock": true,
+      "proposed_in_stock": false,
+      "execution_operation_type": "UPDATE_STOCK",
+      "execution_status": "EXECUTED",
+      "review_fingerprint": "691efcfef46dd67e01a88caacb076e1e3ff1e5658c4b5d88dd7a6db0d01bfc58",
+      "execution_plan_fingerprint": "77b1c37541d2e1c0be7e5a065183f462e8c51e5520500f4d53b5b0c359e6aa85",
+      "postflight_hash": "3cca6adb6b8b37e59597e6684599a38eb13dc6280ad37249521744676a100420",
+      "executed_offer_ids": [
+        "983"
+      ],
+      "failed_offer_ids": [],
+      "remaining_offer_ids": [],
+      "actual_deltas": {
+        "price": 0,
+        "stock": 1,
+        "total": 0,
+        "shipping": 0,
+        "freshness": 20,
+        "offer_url": 0,
+        "mapping_url": 0
+      },
+      "database_writes": 20,
+      "idempotency_result": "PASS",
+      "last_checkpoint": "IDEMPOTENCY_PASSED",
+      "completed_at": "2026-10-09T00:41:24.224Z"
+    },
+    {
+      "review_id": "1114",
+      "execution_request_id": "ad5a0e50-2771-4aad-9175-6f731b7eb235",
+      "offer_id": "1859",
+      "retailer_id": "9",
+      "review_operation_type": "UPDATE_STOCK",
+      "review_status": "EXECUTED",
+      "source_row_fingerprint": "72cd38cabda33aaa25798ebcf87eb7734d5a7a36e508a03a2e1b33ecb1b622cd",
+      "review_plan_fingerprint": "77b1c37541d2e1c0be7e5a065183f462e8c51e5520500f4d53b5b0c359e6aa85",
+      "before_in_stock": true,
+      "proposed_in_stock": false,
+      "execution_operation_type": "UPDATE_STOCK",
+      "execution_status": "EXECUTED",
+      "review_fingerprint": "72cd38cabda33aaa25798ebcf87eb7734d5a7a36e508a03a2e1b33ecb1b622cd",
+      "execution_plan_fingerprint": "77b1c37541d2e1c0be7e5a065183f462e8c51e5520500f4d53b5b0c359e6aa85",
+      "postflight_hash": "99423cdeca628b7c03fbe701cbb67f372a9ef817d25fc1473e47e03a5957d725",
+      "executed_offer_ids": [
+        "1859"
+      ],
+      "failed_offer_ids": [],
+      "remaining_offer_ids": [],
+      "actual_deltas": {
+        "price": 0,
+        "stock": 1,
+        "total": 0,
+        "shipping": 0,
+        "freshness": 20,
+        "offer_url": 0,
+        "mapping_url": 0
+      },
+      "database_writes": 20,
+      "idempotency_result": "PASS",
+      "last_checkpoint": "IDEMPOTENCY_PASSED",
+      "completed_at": "2026-10-09T00:42:35.661Z"
+    },
+    {
+      "review_id": "1115",
+      "execution_request_id": "0f058ea0-20b7-43ea-8e69-83acb831a56c",
+      "offer_id": "697",
+      "retailer_id": "9",
+      "review_operation_type": "UPDATE_STOCK",
+      "review_status": "EXECUTED",
+      "source_row_fingerprint": "eefcaaeb13bad1de840f29b9d03ff8b6622ecb6daaaa748d1166354f24e621dd",
+      "review_plan_fingerprint": "77b1c37541d2e1c0be7e5a065183f462e8c51e5520500f4d53b5b0c359e6aa85",
+      "before_in_stock": false,
+      "proposed_in_stock": true,
+      "execution_operation_type": "UPDATE_STOCK",
+      "execution_status": "EXECUTED",
+      "review_fingerprint": "eefcaaeb13bad1de840f29b9d03ff8b6622ecb6daaaa748d1166354f24e621dd",
+      "execution_plan_fingerprint": "77b1c37541d2e1c0be7e5a065183f462e8c51e5520500f4d53b5b0c359e6aa85",
+      "postflight_hash": "35086fa26e721f405e042ee00f8718e487817ed47e502ed638d7cba15bdc6432",
+      "executed_offer_ids": [
+        "697"
+      ],
+      "failed_offer_ids": [],
+      "remaining_offer_ids": [],
+      "actual_deltas": {
+        "price": 0,
+        "stock": 1,
+        "total": 0,
+        "shipping": 0,
+        "freshness": 20,
+        "offer_url": 0,
+        "mapping_url": 0
+      },
+      "database_writes": 20,
+      "idempotency_result": "PASS",
+      "last_checkpoint": "VERIFIED_POSTFLIGHT_RECOVERY",
+      "completed_at": "2026-10-09T04:31:36.945Z"
+    }
+  ],
+  "pre_activation_functions": [
+    {
+      "proname": "fit_house_six_oos_baseline_exact",
+      "arguments": "",
+      "definition": "CREATE OR REPLACE FUNCTION public.fit_house_six_oos_baseline_exact()\n RETURNS boolean\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'public', 'pg_temp'\nAS $function$\r\ndeclare\r\n  v_rows constant jsonb := '[\r\n    {\"offer_id\":\"718\",\"mapping_id\":\"742\",\"product_id\":\"699\",\"variant_id\":\"3060\",\"external_product_id\":\"9058975187184\",\"external_variant_id\":\"46667614945520\",\"price\":\"12.99\",\"url\":\"https://fithouse.uk/products/now-foods-choline-inositol-100-veg-caps?variant=46667614945520\"},\r\n    {\"offer_id\":\"749\",\"mapping_id\":\"863\",\"product_id\":\"730\",\"variant_id\":\"3074\",\"external_product_id\":\"9347614343408\",\"external_variant_id\":\"47199795413232\",\"price\":\"16.99\",\"url\":\"https://fithouse.uk/products/now-foods-5-htp-double-strength-200-mg-60-veg-capsules?variant=47199795413232\"},\r\n    {\"offer_id\":\"757\",\"mapping_id\":\"871\",\"product_id\":\"768\",\"variant_id\":\"933\",\"external_product_id\":\"9041428283632\",\"external_variant_id\":\"46620421816560\",\"price\":\"11.99\",\"url\":\"https://fithouse.uk/products/7-nutrition-beta-alanine-250g-unflavoured?variant=46620421816560\"},\r\n    {\"offer_id\":\"759\",\"mapping_id\":\"873\",\"product_id\":\"740\",\"variant_id\":\"3021\",\"external_product_id\":\"9168824172784\",\"external_variant_id\":\"46969725714672\",\"price\":\"11.99\",\"url\":\"https://fithouse.uk/products/7-nutrition-berberine-stack-90-vege-caps?variant=46969725714672\"},\r\n    {\"offer_id\":\"913\",\"mapping_id\":\"1099\",\"product_id\":\"502\",\"variant_id\":\"914\",\"external_product_id\":\"9674414915824\",\"external_variant_id\":\"48123945124080\",\"price\":\"2.50\",\"url\":\"https://fithouse.uk/products/lenny-larrys-fitzels-protein-pretzels-85-g?variant=48123945124080\"},\r\n    {\"offer_id\":\"939\",\"mapping_id\":\"1125\",\"product_id\":\"766\",\"variant_id\":\"926\",\"external_product_id\":\"10021385273584\",\"external_variant_id\":\"49719663100144\",\"price\":\"9.99\",\"url\":\"https://fithouse.uk/products/ostrovit-carbo-1000-g?variant=49719663100144\"},\r\n    {\"offer_id\":\"940\",\"mapping_id\":\"1126\",\"product_id\":\"766\",\"variant_id\":\"928\",\"external_product_id\":\"10021385273584\",\"external_variant_id\":\"49719663067376\",\"price\":\"9.99\",\"url\":\"https://fithouse.uk/products/ostrovit-carbo-1000-g?variant=49719663067376\"}\r\n  ]'::jsonb;\r\n  v_row jsonb;\r\n  v_stock boolean;\r\n  v_applied integer:=0;\r\nbegin\r\n  if (select count(*) from public.offers where retailer_id=9)<>286\r\n     or (select count(*) from public.retailer_products where retailer_id=9)<>286 then return false; end if;\r\n  for v_row in select value from jsonb_array_elements(v_rows) loop\r\n    select o.in_stock into v_stock\r\n      from public.offers o join public.retailer_products m on m.id=o.retailer_product_id\r\n     where o.id=(v_row->>'offer_id')::bigint and o.retailer_id=9\r\n       and o.retailer_product_id=(v_row->>'mapping_id')::bigint\r\n       and o.product_id=(v_row->>'product_id')::bigint\r\n       and o.product_variant_id=(v_row->>'variant_id')::bigint\r\n       and o.price=(v_row->>'price')::numeric and o.shipping_cost=3.99\r\n       and o.total_price=(v_row->>'price')::numeric+3.99\r\n       and o.url=v_row->>'url' and m.external_url=v_row->>'url'\r\n       and m.retailer_id=9 and m.product_id=(v_row->>'product_id')::bigint\r\n       and m.product_variant_id=(v_row->>'variant_id')::bigint\r\n       and m.external_product_id=v_row->>'external_product_id'\r\n       and m.external_variant_id=v_row->>'external_variant_id'\r\n       and m.external_sku is null;\r\n    if not found then return false; end if;\r\n    if v_row->>'offer_id'='939' then\r\n      if v_stock then return false; end if;\r\n    elsif not v_stock then v_applied:=v_applied+1; end if;\r\n  end loop;\r\n  return (select count(*) from public.offers where retailer_id=9 and not in_stock)=104+v_applied;\r\nend\r\n$function$\n",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres}"
+    },
+    {
+      "proname": "fit_house_six_oos_owner_exception",
+      "arguments": "p_request jsonb",
+      "definition": "CREATE OR REPLACE FUNCTION public.fit_house_six_oos_owner_exception(p_request jsonb)\n RETURNS boolean\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'public', 'pg_temp'\nAS $function$\r\ndeclare\r\n  v_rows constant jsonb := '[\r\n    {\"offer_id\":\"718\",\"mapping_id\":\"742\",\"product_id\":\"699\",\"variant_id\":\"3060\",\"external_product_id\":\"9058975187184\",\"external_variant_id\":\"46667614945520\",\"price\":\"12.99\",\"url\":\"https://fithouse.uk/products/now-foods-choline-inositol-100-veg-caps?variant=46667614945520\"},\r\n    {\"offer_id\":\"749\",\"mapping_id\":\"863\",\"product_id\":\"730\",\"variant_id\":\"3074\",\"external_product_id\":\"9347614343408\",\"external_variant_id\":\"47199795413232\",\"price\":\"16.99\",\"url\":\"https://fithouse.uk/products/now-foods-5-htp-double-strength-200-mg-60-veg-capsules?variant=47199795413232\"},\r\n    {\"offer_id\":\"757\",\"mapping_id\":\"871\",\"product_id\":\"768\",\"variant_id\":\"933\",\"external_product_id\":\"9041428283632\",\"external_variant_id\":\"46620421816560\",\"price\":\"11.99\",\"url\":\"https://fithouse.uk/products/7-nutrition-beta-alanine-250g-unflavoured?variant=46620421816560\"},\r\n    {\"offer_id\":\"759\",\"mapping_id\":\"873\",\"product_id\":\"740\",\"variant_id\":\"3021\",\"external_product_id\":\"9168824172784\",\"external_variant_id\":\"46969725714672\",\"price\":\"11.99\",\"url\":\"https://fithouse.uk/products/7-nutrition-berberine-stack-90-vege-caps?variant=46969725714672\"},\r\n    {\"offer_id\":\"913\",\"mapping_id\":\"1099\",\"product_id\":\"502\",\"variant_id\":\"914\",\"external_product_id\":\"9674414915824\",\"external_variant_id\":\"48123945124080\",\"price\":\"2.50\",\"url\":\"https://fithouse.uk/products/lenny-larrys-fitzels-protein-pretzels-85-g?variant=48123945124080\"},\r\n    {\"offer_id\":\"940\",\"mapping_id\":\"1126\",\"product_id\":\"766\",\"variant_id\":\"928\",\"external_product_id\":\"10021385273584\",\"external_variant_id\":\"49719663067376\",\"price\":\"9.99\",\"url\":\"https://fithouse.uk/products/ostrovit-carbo-1000-g?variant=49719663067376\"}\r\n  ]'::jsonb;\r\n  v_row jsonb;\r\n  v_review jsonb;\r\n  v_changes integer:=0;\r\nbegin\r\n  if p_request#>>'{artifact,target_environment}' is distinct from 'PRODUCTION'\r\n     or p_request#>>'{artifact,retailer_id}' is distinct from '9'\r\n     or p_request->>'source_snapshot_fingerprint' is distinct from 'ebe563f0f620ff4b501c1e8f56adfe51d854ff912e5089149688d5d0a60c43c1'\r\n     or p_request#>>'{artifact,source_snapshot_fingerprint}' is distinct from 'ebe563f0f620ff4b501c1e8f56adfe51d854ff912e5089149688d5d0a60c43c1'\r\n     or p_request->>'policy_fingerprint' is distinct from 'dd2f583394ffa3787b595d7009731dff5bb8e485b9114d3778084a71c120dfc1'\r\n     or not public.fit_house_six_oos_baseline_exact() then return false; end if;\r\n  for v_row in select value from jsonb_array_elements(p_request#>'{artifact,rows}') loop\r\n    if v_row->>'action'='VERIFY_NO_CHANGE' then\r\n      if v_row#>>'{atomic_plan,expected_state,offer,in_stock}' is distinct from 'true'\r\n         or v_row#>>'{atomic_plan,offer,values,in_stock}' is distinct from 'true' then return false; end if;\r\n    elsif v_row->>'action'='UPDATE_STOCK' then\r\n      select value into v_review from jsonb_array_elements(v_rows)\r\n       where value->>'offer_id'=v_row->>'offer_id';\r\n      if not found then return false; end if;\r\n      if v_row->>'retailer_product_id' is distinct from v_review->>'mapping_id'\r\n         or v_row->>'external_product_id' is distinct from v_review->>'external_product_id'\r\n         or v_row->>'external_variant_id' is distinct from v_review->>'external_variant_id'\r\n         or v_row#>>'{changed_fields,stock}' is distinct from 'true'\r\n         or v_row#>>'{changed_fields,price}' is distinct from 'false'\r\n         or v_row#>>'{changed_fields,url}' is distinct from 'false'\r\n         or v_row#>>'{atomic_plan,expected_state,product,id}' is distinct from v_review->>'product_id'\r\n         or v_row#>>'{atomic_plan,expected_state,product_variant,id}' is distinct from v_review->>'variant_id'\r\n         or v_row#>>'{atomic_plan,expected_state,retailer_product,id}' is distinct from v_review->>'mapping_id'\r\n         or v_row#>>'{atomic_plan,expected_state,offer,id}' is distinct from v_review->>'offer_id'\r\n         or v_row#>>'{atomic_plan,expected_state,offer,in_stock}' is distinct from 'true'\r\n         or v_row#>>'{atomic_plan,offer,values,in_stock}' is distinct from 'false'\r\n         or (v_row#>>'{atomic_plan,expected_state,offer,price}')::numeric is distinct from (v_review->>'price')::numeric\r\n         or (v_row#>>'{atomic_plan,offer,values,price}')::numeric is distinct from (v_review->>'price')::numeric\r\n         or (v_row#>>'{atomic_plan,expected_state,offer,shipping_cost}')::numeric is distinct from 3.99\r\n         or (v_row#>>'{atomic_plan,offer,values,shipping_cost}')::numeric is distinct from 3.99\r\n         or (v_row#>>'{atomic_plan,expected_state,offer,total_price}')::numeric is distinct from (v_review->>'price')::numeric+3.99\r\n         or (v_row#>>'{atomic_plan,offer,values,total_price}')::numeric is distinct from (v_review->>'price')::numeric+3.99\r\n         or v_row#>>'{atomic_plan,expected_state,offer,url}' is distinct from v_review->>'url'\r\n         or v_row#>>'{atomic_plan,offer,values,url}' is distinct from v_review->>'url'\r\n         or v_row#>>'{atomic_plan,expected_state,retailer_product,external_url}' is distinct from v_review->>'url'\r\n         or v_row#>>'{atomic_plan,retailer_product,values,external_url}' is distinct from v_review->>'url' then return false; end if;\r\n      v_changes:=v_changes+1;\r\n    else return false; end if;\r\n  end loop;\r\n  return v_changes between 1 and 3;\r\nend\r\n$function$\n",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres}"
+    },
+    {
+      "proname": "register_fit_house_offer_sync_control_plan",
+      "arguments": "p_request jsonb",
+      "definition": "CREATE OR REPLACE FUNCTION public.register_fit_house_offer_sync_control_plan(p_request jsonb)\n RETURNS jsonb\n LANGUAGE plpgsql\n SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'public', 'pg_temp'\nAS $function$\ndeclare\n  v_effective_role text := current_setting('role', true);\n  v_expected_role text;\n  v_expected_login text;\n  v_target text;\n  v_project_ref text;\n  v_database_identity text;\n  v_manifest jsonb;\n  v_manifest_fingerprint text;\n  v_entry jsonb;\n  v_children jsonb;\n  v_child jsonb;\n  v_artifact jsonb;\n  v_child_manifest jsonb := '[]'::jsonb;\n  v_child_fingerprints jsonb := '[]'::jsonb;\n  v_child_ids jsonb := '[]'::jsonb;\n  v_expected_deltas jsonb := jsonb_build_object(\n    'row_count_deltas', jsonb_build_object(\n      'products',0,'product_variants',0,'retailer_products',0,\n      'offers',0,'price_history',0\n    ),\n    'logical_field_deltas', jsonb_build_object(\n      'offer_price_updates',0,'offer_shipping_updates',0,\n      'offer_total_updates',0,'offer_stock_updates',0,\n      'offer_url_updates',0,'mapping_url_updates',0,\n      'mapping_updated_at_updates',0,'last_checked_at_updates',0\n    )\n  );\n  v_parent_hash_input jsonb;\n  v_parent_plan jsonb;\n  v_parent_id uuid;\n  v_parent_fingerprint text;\n  v_source_fingerprint text;\n  v_source_captured_at timestamptz;\n  v_expires_at timestamptz;\n  v_code_commit text;\n  v_first_expected_state text;\n  v_first_adapter text;\n  v_first_policy text;\n  v_mapping public.retailer_products%rowtype;\n  v_offer public.offers%rowtype;\n  v_product public.products%rowtype;\n  v_variant public.product_variants%rowtype;\n  v_mapping_id bigint;\n  v_offer_id bigint;\n  v_previous_mapping_id bigint := 0;\n  v_seen_mapping_ids bigint[] := '{}'::bigint[];\n  v_seen_offer_ids bigint[] := '{}'::bigint[];\n  v_manifest_count integer;\n  v_child_count integer;\n  v_child_index integer := 0;\n  v_row jsonb;\n  v_row_count integer := 0;\n  v_rows jsonb;\n  v_record_ids jsonb;\n  v_registration_actor text;\n  v_approved_manifest_sha text;\nbegin\n  if not public.atomic_import_has_exact_keys(p_request,array[\n    'schema_version','kind','target_environment','target_project_ref',\n    'target_database_identity','retailer_id','retailer_slug',\n    'source_platform','source_domain','source_country',\n    'source_snapshot_fingerprint','source_captured_at',\n    'approved_manifest_sha256','manifest','manifest_fingerprint',\n    'parent_plan_id','parent_plan_fingerprint','children','code_commit',\n    'expires_at','workflow','request_fingerprint'\n  ]) or p_request->>'schema_version'<>'1'\n     or p_request->>'kind'<>'retailer-existing-offer-sync-control-plan-registration' then\n    perform public.retailer_catalogue_raise(\n      'RSBI_SOURCE_SCHEMA_MISMATCH',\n      'Invalid approved retailer plan registration request'\n    );\n  end if;\n\n  v_target := p_request->>'target_environment';\n  v_project_ref := p_request->>'target_project_ref';\n  v_database_identity := p_request->>'target_database_identity';\n  if v_target = 'STAGING' then\n    v_expected_role := 'retailer_catalogue_staging_validator';\n    v_expected_login := 'supplementscout_staging_validator_login';\n    if v_project_ref <> 'hxnrsyyqffztlvcrtgbf'\n       or v_database_identity <> 'supplementscout-staging:hxnrsyyqffztlvcrtgbf' then\n      perform public.retailer_catalogue_raise(\n        'RSBI_ENVIRONMENT_BLOCKED','Invalid staging target binding'\n      );\n    end if;\n    perform public.retailer_catalogue_staging_runtime_guard(\n      'STAGING',v_project_ref,v_database_identity\n    );\n  elsif v_target = 'PRODUCTION' then\n    v_expected_role := 'retailer_catalogue_production_validator';\n    v_expected_login := 'supplementscout_production_validator_login';\n    if v_project_ref <> 'aftboxmrdgyhizicfsfu'\n       or v_database_identity <> 'supplementscout-production:aftboxmrdgyhizicfsfu' then\n      perform public.retailer_catalogue_raise(\n        'RSBI_ENVIRONMENT_BLOCKED','Invalid production target binding'\n      );\n    end if;\n    perform public.retailer_catalogue_production_runtime_guard(\n      'PRODUCTION',v_project_ref,v_database_identity\n    );\n  else\n    perform public.retailer_catalogue_raise(\n      'RSBI_ENVIRONMENT_BLOCKED','Unsupported registration target'\n    );\n  end if;\n  if v_effective_role is distinct from v_expected_role\n     or session_user is distinct from v_expected_login then\n    perform public.retailer_catalogue_raise(\n      'RSBI_ENVIRONMENT_BLOCKED',\n      'Dedicated workflow validator identity required'\n    );\n  end if;\n  if current_setting('app.safe_update', true) is not null then\n    perform public.retailer_catalogue_raise(\n      'RSBI_ENVIRONMENT_BLOCKED','SAFE_UPDATE must remain unset'\n    );\n  end if;\n\n  if (p_request->>'request_fingerprint') !~ '^[0-9a-f]{64}$'\n     or public.retailer_catalogue_sha256_json(\n       jsonb_set(p_request,'{request_fingerprint}','null'::jsonb,false)\n     ) is distinct from p_request->>'request_fingerprint' then\n    perform public.retailer_catalogue_raise(\n      'RSBI_CHILD_FINGERPRINT_MISMATCH',\n      'Registration request fingerprint mismatch'\n    );\n  end if;\n  if not public.atomic_import_has_exact_keys(\n       p_request->'workflow',array['repository','run_id','run_attempt','actor']\n     )\n     or p_request#>>'{workflow,repository}' <> 'SupplementScout/supplementscout'\n     or nullif(trim(p_request#>>'{workflow,run_id}'),'') is null\n     or nullif(trim(p_request#>>'{workflow,run_attempt}'),'') is null\n     or nullif(trim(p_request#>>'{workflow,actor}'),'') is null\n     or p_request#>>'{workflow,run_id}' !~ '^[A-Za-z0-9._:-]{1,128}$'\n     or p_request#>>'{workflow,run_attempt}' !~ '^[A-Za-z0-9._:-]{1,64}$' then\n    perform public.retailer_catalogue_raise(\n      'RSBI_SOURCE_SCHEMA_MISMATCH','Invalid workflow audit identity'\n    );\n  end if;\n\n  v_approved_manifest_sha := lower(p_request->>'approved_manifest_sha256');\n  if p_request->>'retailer_id' <> '9'\n     or p_request->>'retailer_slug' <> 'fit-house'\n     or p_request->>'source_platform' <> 'SHOPIFY'\n     or lower(p_request->>'source_domain') <> 'fithouse.uk'\n     or p_request->>'source_country' <> 'GB'\n     or v_approved_manifest_sha <>\n       'a1e596f7707c851534e04e30d13f4289439449556787c572736e77b279c75292'\n     or not exists(\n       select 1 from public.retailers\n       where id=9 and slug='fit-house' and website='https://fithouse.uk'\n     ) then\n    perform public.retailer_catalogue_raise(\n      'RSBI_ENVIRONMENT_BLOCKED',\n      'Registration is restricted to the frozen Fit House Shopify manifest'\n    );\n  end if;\n\n  v_source_fingerprint := p_request->>'source_snapshot_fingerprint';\n  v_code_commit := p_request->>'code_commit';\n  v_source_captured_at := (p_request->>'source_captured_at')::timestamptz;\n  v_expires_at := (p_request->>'expires_at')::timestamptz;\n  if v_source_fingerprint !~ '^[0-9a-f]{64}$'\n     or v_code_commit !~ '^[0-9a-f]{40}$'\n     or v_source_captured_at < now()-interval '24 hours'\n     or v_source_captured_at > now()+interval '5 minutes'\n     or v_expires_at <= now()\n     or v_expires_at > now()+interval '45 minutes' then\n    perform public.retailer_catalogue_raise(\n      'RSBI_SOURCE_STALE','Invalid source fingerprint, commit or expiry'\n    );\n  end if;\n\n  v_manifest := p_request->'manifest';\n  if jsonb_typeof(v_manifest) is distinct from 'array'\n     or jsonb_array_length(v_manifest) <> 286 then\n    perform public.retailer_catalogue_raise(\n      'RSBI_EXPECTED_STATE_MISMATCH',\n      'Manifest must contain exactly 286 approved Fit House mappings'\n    );\n  end if;\n  v_manifest_count := jsonb_array_length(v_manifest);\n  v_manifest_fingerprint := public.retailer_catalogue_sha256_json(\n    jsonb_build_object(\n      'approved_manifest_sha256',upper(v_approved_manifest_sha),\n      'environment',v_target,\n      'rows',v_manifest\n    )\n  );\n  if (p_request->>'manifest_fingerprint') !~ '^[0-9a-f]{64}$'\n     or p_request->>'manifest_fingerprint' is distinct from v_manifest_fingerprint then\n    perform public.retailer_catalogue_raise(\n      'RSBI_SOURCE_HASH_MISMATCH','Manifest fingerprint mismatch'\n    );\n  end if;\n\n  for v_entry in select value from jsonb_array_elements(v_manifest) loop\n    if not public.atomic_import_has_exact_keys(v_entry,array[\n      'mapping_id','offer_id','external_product_id','external_variant_id',\n      'canonical_product_id','canonical_variant_id'\n    ]) then\n      perform public.retailer_catalogue_raise(\n        'RSBI_SOURCE_SCHEMA_MISMATCH','Invalid approved mapping manifest row'\n      );\n    end if;\n    v_mapping_id := (v_entry->>'mapping_id')::bigint;\n    v_offer_id := (v_entry->>'offer_id')::bigint;\n    if v_mapping_id <= v_previous_mapping_id\n        then\n      perform public.retailer_catalogue_raise(\n        'RSBI_DUPLICATE_IDENTITY',\n        'Manifest mappings must be unique, ascending '\n      );\n    end if;\n    v_previous_mapping_id := v_mapping_id;\n    select * into v_mapping from public.retailer_products where id=v_mapping_id;\n    select * into v_offer from public.offers where id=v_offer_id;\n    if v_mapping.id is null or v_offer.id is null\n       or v_mapping.retailer_id <> 9 or v_offer.retailer_id <> 9\n       or v_offer.retailer_product_id is distinct from v_mapping.id\n       or v_offer.product_id is distinct from v_mapping.product_id\n       or v_offer.product_variant_id is distinct from v_mapping.product_variant_id\n       or v_mapping.product_id::text is distinct from v_entry->>'canonical_product_id'\n       or v_mapping.product_variant_id::text is distinct from v_entry->>'canonical_variant_id'\n       or v_mapping.external_product_id is distinct from v_entry->>'external_product_id'\n       or v_mapping.external_variant_id is distinct from v_entry->>'external_variant_id'\n       or nullif(trim(v_mapping.external_product_id),'') is null\n       or nullif(trim(v_mapping.external_variant_id),'') is null then\n      perform public.retailer_catalogue_raise(\n        'RSBI_EXPECTED_STATE_MISMATCH',\n        'Manifest row is not an approved Fit House mapping/offer identity'\n      );\n    end if;\n    select * into v_product from public.products where id=v_mapping.product_id;\n    select * into v_variant from public.product_variants\n    where id=v_mapping.product_variant_id;\n    if v_product.id is null or v_variant.id is null\n       or not coalesce(v_product.is_active,false)\n       or v_product.merged_into_product_id is not null\n       or v_product.merged_at is not null\n       or not coalesce(v_variant.is_active,false)\n       or v_variant.product_id is distinct from v_product.id then\n      perform public.retailer_catalogue_raise(\n        'RSBI_EXPECTED_STATE_MISMATCH',\n        'Manifest contains inactive, merged or conflicting catalogue identity'\n      );\n    end if;\n  end loop;\n\n  if exists(\n    select 1 from public.retailer_products rp\n    where rp.retailer_id=9\n      and nullif(trim(rp.external_product_id),'') is not null\n      and nullif(trim(rp.external_variant_id),'') is not null\n      and not exists(\n        select 1 from jsonb_array_elements(v_manifest) m\n        where (m->>'mapping_id')::bigint=rp.id\n      )\n  ) or exists(\n    select 1 from public.offers o\n    join public.retailer_products rp on rp.id=o.retailer_product_id\n    where o.retailer_id=9\n      and nullif(trim(rp.external_product_id),'') is not null\n      and nullif(trim(rp.external_variant_id),'') is not null\n      and not exists(\n        select 1 from jsonb_array_elements(v_manifest) m\n        where (m->>'offer_id')::bigint=o.id\n      )\n  ) then\n    perform public.retailer_catalogue_raise(\n      'RSBI_EXPECTED_STATE_MISMATCH',\n      'Manifest omits an approved exact Fit House mapping or offer'\n    );\n  end if;\n\n  v_children := p_request->'children';\n  if jsonb_typeof(v_children) is distinct from 'array' then\n    perform public.retailer_catalogue_raise(\n      'RSBI_SOURCE_SCHEMA_MISMATCH','Children must be an array'\n    );\n  end if;\n  v_child_count := jsonb_array_length(v_children);\n  if v_child_count < 1 or v_child_count > 50 then\n    perform public.retailer_catalogue_raise(\n      'RSBI_GUARDRAIL_EXCEEDED','Invalid child count'\n    );\n  end if;\n\n  for v_child in select value from jsonb_array_elements(v_children) loop\n    if not public.atomic_import_has_exact_keys(\n      v_child,array['child_plan_id','artifact']\n    ) then\n      perform public.retailer_catalogue_raise(\n        'RSBI_SOURCE_SCHEMA_MISMATCH','Invalid child registration row'\n      );\n    end if;\n    v_artifact := v_child->'artifact';\n    perform public.retailer_offer_sync_validate_manifest(v_artifact);\n    if v_artifact->>'retailer_id' <> '9'\n       or v_artifact->>'retailer_slug' <> 'fit-house'\n       or v_artifact->>'target_environment' is distinct from v_target\n       or v_artifact->>'target_project_ref' is distinct from v_project_ref\n       or v_artifact->>'target_database_identity' is distinct from v_database_identity\n       or v_artifact->>'source_snapshot_fingerprint' is distinct from v_source_fingerprint\n       or v_artifact->>'source_captured_at' is distinct from p_request->>'source_captured_at'\n       or v_artifact->>'code_commit' is distinct from v_code_commit\n       or v_artifact->>'artifact_fingerprint' !~ '^[0-9a-f]{64}$' then\n      perform public.retailer_catalogue_raise(\n        'RSBI_CHILD_FINGERPRINT_MISMATCH',\n        'Child artifact does not bind the registration'\n      );\n    end if;\n    if v_child_index=0 then\n      v_first_expected_state := v_artifact->>'expected_state_fingerprint';\n      v_first_adapter := v_artifact->>'adapter_fingerprint';\n      v_first_policy := v_artifact->>'policy_fingerprint';\n    elsif v_artifact->>'expected_state_fingerprint' is distinct from v_first_expected_state\n       or v_artifact->>'adapter_fingerprint' is distinct from v_first_adapter\n       or v_artifact->>'policy_fingerprint' is distinct from v_first_policy then\n      perform public.retailer_catalogue_raise(\n        'RSBI_CHILD_FINGERPRINT_MISMATCH',\n        'Children do not share immutable state bindings'\n      );\n    end if;\n    v_rows := v_artifact->'rows';\n    v_record_ids := '[]'::jsonb;\n    for v_row in select value from jsonb_array_elements(v_rows) loop\n      v_mapping_id := (v_row->>'retailer_product_id')::bigint;\n      v_offer_id := (v_row->>'offer_id')::bigint;\n      if not exists(\n        select 1 from jsonb_array_elements(v_manifest) m\n        where (m->>'mapping_id')::bigint=v_mapping_id\n          and (m->>'offer_id')::bigint=v_offer_id\n          and m->>'external_product_id'=v_row->>'external_product_id'\n          and m->>'external_variant_id'=v_row->>'external_variant_id'\n      ) then\n        perform public.retailer_catalogue_raise(\n          'RSBI_EXPECTED_STATE_MISMATCH',\n          'Child contains an identity outside the approved Fit House manifest'\n        );\n      end if;\n      if v_mapping_id=any(v_seen_mapping_ids)\n         or v_offer_id=any(v_seen_offer_ids) then\n        perform public.retailer_catalogue_raise(\n          'RSBI_DUPLICATE_IDENTITY','Child rows overlap'\n        );\n      end if;\n      v_seen_mapping_ids := array_append(v_seen_mapping_ids,v_mapping_id);\n      v_seen_offer_ids := array_append(v_seen_offer_ids,v_offer_id);\n      v_record_ids := v_record_ids||to_jsonb(v_offer_id::text);\n      v_row_count := v_row_count+1;\n    end loop;\n    v_expected_deltas := jsonb_set(\n      v_expected_deltas,'{row_count_deltas,price_history}',\n      to_jsonb(\n        (v_expected_deltas#>>'{row_count_deltas,price_history}')::int+\n        (v_artifact#>>'{expected_deltas,row_count_deltas,price_history}')::int\n      )\n    );\n    v_expected_deltas := jsonb_set(\n      v_expected_deltas,'{logical_field_deltas,offer_price_updates}',\n      to_jsonb(\n        (v_expected_deltas#>>'{logical_field_deltas,offer_price_updates}')::int+\n        (v_artifact#>>'{expected_deltas,logical_field_deltas,offer_price_updates}')::int\n      )\n    );\n    v_expected_deltas := jsonb_set(\n      v_expected_deltas,'{logical_field_deltas,offer_shipping_updates}',\n      to_jsonb(\n        (v_expected_deltas#>>'{logical_field_deltas,offer_shipping_updates}')::int+\n        (v_artifact#>>'{expected_deltas,logical_field_deltas,offer_shipping_updates}')::int\n      )\n    );\n    v_expected_deltas := jsonb_set(\n      v_expected_deltas,'{logical_field_deltas,offer_total_updates}',\n      to_jsonb(\n        (v_expected_deltas#>>'{logical_field_deltas,offer_total_updates}')::int+\n        (v_artifact#>>'{expected_deltas,logical_field_deltas,offer_total_updates}')::int\n      )\n    );\n    v_expected_deltas := jsonb_set(\n      v_expected_deltas,'{logical_field_deltas,offer_stock_updates}',\n      to_jsonb(\n        (v_expected_deltas#>>'{logical_field_deltas,offer_stock_updates}')::int+\n        (v_artifact#>>'{expected_deltas,logical_field_deltas,offer_stock_updates}')::int\n      )\n    );\n    v_expected_deltas := jsonb_set(\n      v_expected_deltas,'{logical_field_deltas,offer_url_updates}',\n      to_jsonb(\n        (v_expected_deltas#>>'{logical_field_deltas,offer_url_updates}')::int+\n        (v_artifact#>>'{expected_deltas,logical_field_deltas,offer_url_updates}')::int\n      )\n    );\n    v_expected_deltas := jsonb_set(\n      v_expected_deltas,'{logical_field_deltas,mapping_url_updates}',\n      to_jsonb(\n        (v_expected_deltas#>>'{logical_field_deltas,mapping_url_updates}')::int+\n        (v_artifact#>>'{expected_deltas,logical_field_deltas,mapping_url_updates}')::int\n      )\n    );\n    v_expected_deltas := jsonb_set(\n      v_expected_deltas,'{logical_field_deltas,mapping_updated_at_updates}',\n      to_jsonb(\n        (v_expected_deltas#>>'{logical_field_deltas,mapping_updated_at_updates}')::int+\n        (v_artifact#>>'{expected_deltas,logical_field_deltas,mapping_updated_at_updates}')::int\n      )\n    );\n    v_expected_deltas := jsonb_set(\n      v_expected_deltas,'{logical_field_deltas,last_checked_at_updates}',\n      to_jsonb(\n        (v_expected_deltas#>>'{logical_field_deltas,last_checked_at_updates}')::int+\n        (v_artifact#>>'{expected_deltas,logical_field_deltas,last_checked_at_updates}')::int\n      )\n    );\n    v_child_manifest := v_child_manifest||jsonb_build_array(\n      jsonb_build_object(\n        'child_plan_id',v_child->>'child_plan_id',\n        'parent_plan_id',p_request->>'parent_plan_id',\n        'child_plan_fingerprint',v_artifact->>'artifact_fingerprint',\n        'batch_index',v_child_index,'batch_count',v_child_count,\n        'dependency_group','retailer-offer-sync:9:'||v_source_fingerprint,\n        'rollback_group','retailer-offer-sync:9:'||v_source_fingerprint,\n        'record_ids',v_record_ids,\n        'expected_deltas',v_artifact->'expected_deltas'\n      )\n    );\n    v_child_fingerprints := v_child_fingerprints||\n      to_jsonb(v_artifact->>'artifact_fingerprint');\n    v_child_ids := v_child_ids||to_jsonb(v_child->>'child_plan_id');\n    v_child_index := v_child_index+1;\n  end loop;\n  if v_row_count<1 or v_row_count>v_manifest_count\n     or cardinality(v_seen_mapping_ids)<>v_row_count\n     or cardinality(v_seen_offer_ids)<>v_row_count then\n    perform public.retailer_catalogue_raise(\n      'RSBI_EXPECTED_STATE_MISMATCH',\n      'Isolated child rows do not reconcile with the approved manifest'\n    );\n  end if;\n\n  v_parent_id := (p_request->>'parent_plan_id')::uuid;\n  v_parent_hash_input := jsonb_build_object(\n    'schema_version',1,'kind','retailer-existing-offer-sync-parent',\n    'parent_plan_id',v_parent_id,'target_environment',v_target,\n    'target_project_ref',v_project_ref,\n    'target_database_identity',v_database_identity,\n    'retailer_id','9','source_country','GB',\n    'source_snapshot_fingerprint',v_source_fingerprint,\n    'source_captured_at',p_request->>'source_captured_at',\n    'manifest_fingerprint',v_manifest_fingerprint,\n    'approved_manifest_sha256',upper(v_approved_manifest_sha),\n    'child_plan_ids',v_child_ids,\n    'child_fingerprints',v_child_fingerprints,\n    'code_commit',v_code_commit,'expires_at',p_request->>'expires_at',\n    'workflow',p_request->'workflow'\n  );\n  v_parent_fingerprint := public.retailer_catalogue_sha256_json(\n    v_parent_hash_input\n  );\n  if (p_request->>'parent_plan_fingerprint') !~ '^[0-9a-f]{64}$'\n     or p_request->>'parent_plan_fingerprint' is distinct from v_parent_fingerprint then\n    perform public.retailer_catalogue_raise(\n      'RSBI_PARENT_FINGERPRINT_MISMATCH','Parent plan fingerprint mismatch'\n    );\n  end if;\n\n  perform pg_advisory_xact_lock(hashtextextended(v_target||':9',0));\n  if exists(\n    select 1 from public.retailer_catalogue_parent_plans\n    where parent_plan_fingerprint=v_parent_fingerprint or id=v_parent_id\n  ) then\n    perform public.retailer_catalogue_raise(\n      'RSBI_REPLAY_BLOCKED','Registered or consumed plan cannot be replayed'\n    );\n  end if;\n  if exists(\n    select 1 from public.retailer_catalogue_parent_plans\n    where retailer_id=9 and target_environment=v_target\n      and status in ('PLANNED','APPROVED','PARTIALLY_APPLIED','FAILED')\n  ) then\n    perform public.retailer_catalogue_raise(\n      'RSBI_REPLAY_BLOCKED',\n      'An equivalent Fit House control plan is already active'\n    );\n  end if;\n\n  v_registration_actor := 'github:'||\n    (p_request#>>'{workflow,repository}')||':'||\n    (p_request#>>'{workflow,run_id}')||':'||\n    (p_request#>>'{workflow,run_attempt}');\n  v_parent_plan := v_parent_hash_input||jsonb_build_object(\n    'parent_plan_fingerprint',v_parent_fingerprint,\n    'manifest_count',v_manifest_count,\n    'expected_deltas',v_expected_deltas\n  );\n  insert into public.retailer_catalogue_parent_plans(\n    id,parent_plan_fingerprint,retailer_id,target_environment,\n    source_snapshot_fingerprint,canonical_snapshot_fingerprint,\n    adapter_fingerprint,policy_fingerprint,code_commit,\n    expected_state_fingerprint,status,expected_deltas,plan_json,\n    child_manifest,rollback_manifest,source_captured_at,\n    canonical_snapshot_at,created_by,audit_log\n  ) values (\n    v_parent_id,v_parent_fingerprint,9,v_target,v_source_fingerprint,\n    v_first_expected_state,v_first_adapter,v_first_policy,v_code_commit,\n    v_first_expected_state,'PLANNED',v_expected_deltas,v_parent_plan,\n    v_child_manifest,jsonb_build_object(\n      'kind','MIXED_EXISTING_OFFER_UPDATE',\n      'mapping_ids',to_jsonb(v_seen_mapping_ids)\n    ),\n    v_source_captured_at,now(),v_registration_actor,\n    jsonb_build_array(jsonb_build_object(\n      'event','APPROVED_RETAILER_AUTOMATION_PLAN_REGISTERED','at',now(),\n      'caller_role',v_effective_role,'session_user',session_user,\n      'workflow',p_request->'workflow',\n      'approved_manifest_sha256',upper(v_approved_manifest_sha),\n      'manifest_fingerprint',v_manifest_fingerprint,\n      'source_snapshot_fingerprint',v_source_fingerprint,\n      'operation_count',v_row_count\n    ))\n  );\n\n  v_child_index := 0;\n  for v_child in select value from jsonb_array_elements(v_children) loop\n    v_artifact := v_child->'artifact';\n    v_entry := v_child_manifest->v_child_index;\n    insert into public.retailer_catalogue_child_plans(\n      id,parent_plan_id,retailer_id,target_environment,\n      child_plan_fingerprint,parent_plan_fingerprint,\n      source_snapshot_fingerprint,canonical_snapshot_fingerprint,\n      adapter_fingerprint,policy_fingerprint,code_commit,\n      expected_state_fingerprint,batch_index,batch_count,\n      dependency_group,rollback_group,record_ids,status,expected_deltas,\n      plan_json,rollback_manifest,audit_log\n    ) values (\n      (v_child->>'child_plan_id')::uuid,v_parent_id,9,v_target,\n      v_artifact->>'artifact_fingerprint',v_parent_fingerprint,\n      v_source_fingerprint,v_artifact->>'expected_state_fingerprint',\n      v_first_adapter,v_first_policy,v_code_commit,\n      v_artifact->>'expected_state_fingerprint',v_child_index,v_child_count,\n      v_entry->>'dependency_group',v_entry->>'rollback_group',\n      v_entry->'record_ids','PLANNED',v_artifact->'expected_deltas',\n      v_artifact,'[]'::jsonb,\n      jsonb_build_array(jsonb_build_object(\n        'event','APPROVED_RETAILER_AUTOMATION_CHILD_REGISTERED','at',now(),\n        'caller_role',v_effective_role,'workflow',p_request->'workflow',\n        'batch_index',v_child_index,\n        'artifact_fingerprint',v_artifact->>'artifact_fingerprint'\n      ))\n    );\n    v_child_index := v_child_index+1;\n  end loop;\n\n  return jsonb_build_object(\n    'status','REGISTERED','parent_plan_id',v_parent_id,\n    'parent_plan_fingerprint',v_parent_fingerprint,\n    'child_plan_ids',v_child_ids,\n    'child_fingerprints',v_child_fingerprints,\n    'manifest_fingerprint',v_manifest_fingerprint,\n    'approved_manifest_sha256',upper(v_approved_manifest_sha),\n    'source_snapshot_fingerprint',v_source_fingerprint,\n    'mapping_count',v_manifest_count,'child_count',v_child_count,\n    'target_environment',v_target,'workflow',p_request->'workflow',\n    'control_writes',1+v_child_count,'business_writes',0\n  );\nend\n$function$\n",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres,retailer_catalogue_production_validator=X/postgres}"
+    },
+    {
+      "proname": "retailer_offer_sync_validate_batch_read_only_internal",
+      "arguments": "p_request jsonb",
+      "definition": "CREATE OR REPLACE FUNCTION public.retailer_offer_sync_validate_batch_read_only_internal(p_request jsonb)\n RETURNS jsonb\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'public', 'pg_temp'\nAS $function$\nbegin\n  if p_request#>>'{artifact,target_environment}'='PRODUCTION'\n     and p_request#>>'{artifact,retailer_id}'='5' then\n    return public.validate_dolphin_single_offer_read_only(p_request);\n  end if;\n  if p_request ? 'reviewed_mixed_change_contract' then\n    return public.retailer_offer_sync_validate_reviewed_mixed_change_internal(p_request);\n  end if;\n  if p_request ? 'retailer_price_confirmation' then\n    case p_request#>>'{artifact,retailer_id}'\n      when '9' then return public.validate_fit_house_confirmed_price_read_only(p_request);\n      when '7' then return public.validate_simply_confirmed_price_read_only(p_request);\n      when '5' then return public.validate_dolphin_confirmed_price_read_only(p_request);\n      when '3' then return public.validate_whey_okay_confirmed_price_read_only(p_request);\n      when '4' then return public.validate_discount_supplements_confirmed_price_read_only(p_request);\n      else perform public.retailer_catalogue_raise('RSBI_GUARDRAIL_EXCEEDED','Unsupported retailer price confirmation scope');\n    end case;\n  end if;\n  if p_request ? 'jons_price_confirmation'\n     and p_request#>>'{artifact,target_environment}'='PRODUCTION'\n     and p_request#>>'{artifact,retailer_id}'='10' then\n    return public.validate_jons_confirmed_price_read_only(p_request);\n  end if;\n  return public.retailer_offer_sync_validate_before_reviewed_mixed(p_request);\nend\n$function$\n",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres,retailer_catalogue_production_validator=X/postgres}"
+    },
+    {
+      "proname": "validate_fit_house_confirmed_price_read_only",
+      "arguments": "p_request jsonb",
+      "definition": "CREATE OR REPLACE FUNCTION public.validate_fit_house_confirmed_price_read_only(p_request jsonb)\n RETURNS jsonb\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'public', 'pg_temp'\nAS $function$\ndeclare\n  v_artifact jsonb;\n  v_guardrails jsonb;\n  v_limits jsonb;\n  v_manifest_result jsonb;\n  v_row jsonb;\n  v_row_result jsonb;\n  v_row_results jsonb:='[]'::jsonb;\n  v_row_count integer;\n  v_changed integer;\n  v_price_changed integer;\n  v_new_oos integer;\n  v_total_oos integer;\n  v_previous_oos integer;\n  v_price_anomalies integer;\n  v_source_products integer;\n  v_previous_source_products integer;\n  v_minimum_source_ratio numeric;\n  v_maximum_new_oos integer;\n  v_maximum_oos_increase numeric;\n  v_maximum_total_oos numeric;\n  v_maximum_changed numeric;\n  v_mass_price_ratio numeric;\n  v_price_anomaly_ratio numeric;\n  v_price_anomaly_absolute numeric;\n  v_actual_migration text;\n  v_actual_batch_fingerprint text;\nbegin\n  p_request:=public.require_retailer_price_confirmation(p_request,'9','fit-house');\n  if p_request#>>'{artifact,target_environment}'<>'PRODUCTION'\n     or p_request#>>'{artifact,retailer_id}'<>'9'\n     or p_request->>'policy_fingerprint'<>'dd2f583394ffa3787b595d7009731dff5bb8e485b9114d3778084a71c120dfc1'\n     or p_request#>>'{artifact,policy_fingerprint}'<>'dd2f583394ffa3787b595d7009731dff5bb8e485b9114d3778084a71c120dfc1'\n     or (select count(*) from public.retailer_products where retailer_id=9)<>286\n     or (select count(*) from public.offers where retailer_id=9)<>286\n     or not public.fit_house_six_oos_baseline_exact()\n     or exists(select 1 from jsonb_array_elements(p_request#>'{artifact,rows}') row(value)\n       where row.value#>>'{atomic_plan,retailer,id}'<>'9') then\n    perform public.retailer_catalogue_raise('RSBI_ENVIRONMENT_BLOCKED','Fit House stable OOS validator scope mismatch');\n  end if;\n  /* Fit House exact approved stable OOS baseline: max 104 and no net increase */\n  if not public.atomic_import_has_exact_keys(p_request,array[\n       'schema_version','kind','artifact','validation_expires_at','production_project_ref',\n       'production_database_identity','expected_migration_versions','expected_migration_fingerprint',\n       'migration_fingerprint_algorithm','migration_fingerprint_version','code_commit',\n       'source_snapshot_fingerprint','policy_fingerprint','action_manifest_fingerprint',\n       'artifact_fingerprint','guardrails','batch_fingerprint','package_fingerprint'])\n     or p_request->>'schema_version'<>'1'\n     or p_request->>'kind'<>'retailer-existing-offer-mixed-batch-read-only-validation'\n     or jsonb_typeof(p_request->'artifact') is distinct from 'object'\n     or jsonb_typeof(p_request->'guardrails') is distinct from 'object' then\n    perform public.retailer_catalogue_raise('RSBI_SOURCE_SCHEMA_MISMATCH','Invalid read-only mixed-batch validation package');\n  end if;\n\n  if p_request->>'package_fingerprint'!~'^[0-9a-f]{64}$'\n     or public.retailer_catalogue_sha256_json(jsonb_set(p_request,'{package_fingerprint}','null'::jsonb,false)) is distinct from p_request->>'package_fingerprint' then\n    perform public.retailer_catalogue_raise('RSBI_CHILD_FINGERPRINT_MISMATCH','Read-only validation package fingerprint mismatch');\n  end if;\n  if (p_request->>'validation_expires_at')::timestamptz<=now()\n     or (p_request->>'validation_expires_at')::timestamptz>now()+interval '15 minutes' then\n    perform public.retailer_catalogue_raise('RSBI_APPROVAL_EXPIRED','Read-only validation expiry must be within 15 minutes');\n  end if;\n\n  perform public.retailer_catalogue_production_runtime_guard(\n    'PRODUCTION',p_request->>'production_project_ref',p_request->>'production_database_identity');\n\n  v_artifact:=p_request->'artifact';\n  if p_request->'expected_migration_versions' is distinct from v_artifact->'expected_migration_versions'\n     or p_request->>'expected_migration_fingerprint' is distinct from v_artifact->>'expected_migration_fingerprint'\n     or p_request->>'migration_fingerprint_algorithm' is distinct from v_artifact->>'migration_fingerprint_algorithm'\n     or p_request->>'migration_fingerprint_version' is distinct from v_artifact->>'migration_fingerprint_version'\n     or p_request->>'code_commit' is distinct from v_artifact->>'code_commit'\n     or p_request->>'source_snapshot_fingerprint' is distinct from v_artifact->>'source_snapshot_fingerprint'\n     or p_request->>'policy_fingerprint' is distinct from v_artifact->>'policy_fingerprint'\n     or p_request->>'action_manifest_fingerprint' is distinct from v_artifact->>'action_manifest_fingerprint'\n     or p_request->>'artifact_fingerprint' is distinct from v_artifact->>'artifact_fingerprint'\n     or p_request->>'code_commit'!~'^[0-9a-f]{40}$' then\n    perform public.retailer_catalogue_raise('RSBI_SOURCE_HASH_MISMATCH','Read-only validation bindings do not match the immutable artifact');\n  end if;\n  if exists(\n    select 1 from jsonb_array_elements(v_artifact->'rows') row(value)\n    where row.value#>>'{atomic_plan,meta,source_snapshot_sha256}' is distinct from p_request->>'source_snapshot_fingerprint'\n       or row.value#>>'{atomic_plan,meta,source_captured_at}' is distinct from v_artifact->>'source_captured_at') then\n    perform public.retailer_catalogue_raise('RSBI_SOURCE_HASH_MISMATCH','Row source binding does not match the immutable artifact');\n  end if;\n\n  v_row_count:=jsonb_array_length(v_artifact->'rows');\n  if exists(\n    select 1\n    from (\n      select (value->>'offer_id')::bigint offer_id,\n        lag((value->>'offer_id')::bigint) over(order by ordinality) previous_offer_id\n      from jsonb_array_elements(v_artifact->'rows') with ordinality\n    ) ordered\n    where previous_offer_id is not null and offer_id<=previous_offer_id) then\n    perform public.retailer_catalogue_raise('RSBI_DUPLICATE_IDENTITY','Rows must be unique and ascending by offer ID');\n  end if;\n  v_actual_batch_fingerprint:=public.retailer_catalogue_sha256_json(jsonb_build_object(\n    'artifact_fingerprint',v_artifact->>'artifact_fingerprint',\n    'action_manifest_fingerprint',v_artifact->>'action_manifest_fingerprint',\n    'policy_fingerprint',v_artifact->>'policy_fingerprint',\n    'source_snapshot_fingerprint',v_artifact->>'source_snapshot_fingerprint',\n    'row_count',v_row_count,\n    'rows',v_artifact->'rows'));\n  if p_request->>'batch_fingerprint'!~'^[0-9a-f]{64}$'\n     or p_request->>'batch_fingerprint' is distinct from v_actual_batch_fingerprint then\n    perform public.retailer_catalogue_raise('RSBI_CHILD_FINGERPRINT_MISMATCH','Read-only batch fingerprint mismatch');\n  end if;\n\n  v_actual_migration:=public.retailer_catalogue_assert_migration_ledger(\n    p_request->'expected_migration_versions',p_request->>'expected_migration_fingerprint');\n\n  v_guardrails:=p_request->'guardrails';\n  if not public.atomic_import_has_exact_keys(v_guardrails,array[\n       'schema_version','policy_fingerprint','source_product_count','previous_source_product_count',\n       'required_source_rows','matched_source_rows','new_oos_count','total_oos_count',\n       'previous_oos_count','changed_row_count','price_changed_row_count','price_anomaly_count',\n       'limits','result'])\n     or v_guardrails->>'schema_version'<>'1'\n     or v_guardrails->>'policy_fingerprint' is distinct from p_request->>'policy_fingerprint'\n     or v_guardrails->>'result'<>'PASS'\n     or jsonb_typeof(v_guardrails->'limits') is distinct from 'object' then\n    perform public.retailer_catalogue_raise('RSBI_SOURCE_SCHEMA_MISMATCH','Invalid read-only policy guardrail evidence');\n  end if;\n  v_limits:=v_guardrails->'limits';\n  if not public.atomic_import_has_exact_keys(v_limits,array[\n       'minimum_source_count_ratio','maximum_new_oos_count','maximum_oos_increase_ratio',\n       'maximum_total_oos_ratio','maximum_changed_record_ratio','mass_price_change_ratio',\n       'price_anomaly_ratio','price_anomaly_absolute_gbp']) then\n    perform public.retailer_catalogue_raise('RSBI_SOURCE_SCHEMA_MISMATCH','Invalid read-only policy guardrail limits');\n  end if;\n\n  v_minimum_source_ratio:=(v_limits->>'minimum_source_count_ratio')::numeric;\n  v_maximum_new_oos:=(v_limits->>'maximum_new_oos_count')::integer;\n  v_maximum_oos_increase:=(v_limits->>'maximum_oos_increase_ratio')::numeric;\n  v_maximum_total_oos:=(v_limits->>'maximum_total_oos_ratio')::numeric;\n  v_maximum_changed:=(v_limits->>'maximum_changed_record_ratio')::numeric;\n  v_mass_price_ratio:=(v_limits->>'mass_price_change_ratio')::numeric;\n  v_price_anomaly_ratio:=(v_limits->>'price_anomaly_ratio')::numeric;\n  v_price_anomaly_absolute:=(v_limits->>'price_anomaly_absolute_gbp')::numeric;\n  if v_minimum_source_ratio not between 0.90 and 1\n     or v_maximum_new_oos not between 0 and 3\n     or v_maximum_oos_increase not between 0 and 0.15\n     or v_maximum_total_oos not between 0 and 0.35\n     or v_maximum_changed not between 0 and 0.25\n     or v_mass_price_ratio<=0 or v_mass_price_ratio>0.20\n     or v_price_anomaly_ratio<=0 or v_price_anomaly_ratio>0.60\n     or v_price_anomaly_absolute<=0 or v_price_anomaly_absolute>20 then\n    perform public.retailer_catalogue_raise('RSBI_GUARDRAIL_EXCEEDED','Read-only validation limits may not weaken the mixed-batch policy');\n  end if;\n\n  select count(*) filter(where value->>'action'<>'VERIFY_NO_CHANGE'),\n         count(*) filter(where (value#>>'{changed_fields,price}')::boolean),\n         count(*) filter(where (value#>>'{atomic_plan,expected_state,offer,in_stock}')::boolean and not (value#>>'{atomic_plan,offer,values,in_stock}')::boolean),\n         count(*) filter(where not (value#>>'{atomic_plan,offer,values,in_stock}')::boolean),\n         count(*) filter(where not (value#>>'{atomic_plan,expected_state,offer,in_stock}')::boolean),\n         count(*) filter(where (value#>>'{changed_fields,price}')::boolean and\n           (abs((value#>>'{atomic_plan,offer,values,price}')::numeric-(value#>>'{atomic_plan,expected_state,offer,price}')::numeric)>=v_price_anomaly_absolute\n            or abs((value#>>'{atomic_plan,offer,values,price}')::numeric-(value#>>'{atomic_plan,expected_state,offer,price}')::numeric)\n               /greatest(0.01,(value#>>'{atomic_plan,expected_state,offer,price}')::numeric)>=v_price_anomaly_ratio))\n  into v_changed,v_price_changed,v_new_oos,v_total_oos,v_previous_oos,v_price_anomalies\n  from jsonb_array_elements(v_artifact->'rows');\n\n  v_source_products:=(v_guardrails->>'source_product_count')::integer;\n  v_previous_source_products:=(v_guardrails->>'previous_source_product_count')::integer;\n  if (v_guardrails->>'required_source_rows')::integer<>v_row_count\n     or (v_guardrails->>'matched_source_rows')::integer<>v_row_count\n     or (v_guardrails->>'new_oos_count')::integer<>v_new_oos\n     or (v_guardrails->>'total_oos_count')::integer<>v_total_oos\n     or (v_guardrails->>'previous_oos_count')::integer<>v_previous_oos\n     or (v_guardrails->>'changed_row_count')::integer<>v_changed\n     or (v_guardrails->>'price_changed_row_count')::integer<>v_price_changed\n     or (v_guardrails->>'price_anomaly_count')::integer<>v_price_anomalies then\n    perform public.retailer_catalogue_raise('RSBI_EXPECTED_STATE_MISMATCH','Read-only source coverage or guardrail metrics do not match rows');\n  end if;\n  if v_source_products<=0 or v_previous_source_products<=0\n     or v_source_products::numeric/v_previous_source_products<v_minimum_source_ratio then\n    perform public.retailer_catalogue_raise('RSBI_GUARDRAIL_EXCEEDED','Read-only source collapse guard blocked the batch');\n  end if;\n  if v_new_oos>v_maximum_new_oos\n     or (v_total_oos-v_previous_oos)::numeric/v_row_count>v_maximum_oos_increase\n     or v_total_oos>v_previous_oos then\n    perform public.retailer_catalogue_raise('RSBI_GUARDRAIL_EXCEEDED','Read-only mass OOS guard blocked the batch');\n  end if;\n  if v_changed::numeric/v_row_count>v_maximum_changed\n     or v_price_changed::numeric/v_row_count>=v_mass_price_ratio\n     or false /* price anomalies exactly confirmed above */ then\n    perform public.retailer_catalogue_raise('RSBI_GUARDRAIL_EXCEEDED','Read-only mass change or price anomaly guard blocked the batch');\n  end if;\n\n  v_manifest_result:=public.retailer_offer_sync_validate_manifest(v_artifact);\n  for v_row in select value from jsonb_array_elements(v_artifact->'rows') order by (value->>'offer_id')::bigint loop\n    v_row_result:=public.validate_product_import_plan_read_only(v_row->'atomic_plan');\n    v_row_results:=v_row_results||jsonb_build_array(jsonb_build_object(\n      'offer_id',v_row->>'offer_id','retailer_product_id',v_row->>'retailer_product_id',\n      'action',v_row->>'action','valid',true,'expected_deltas',v_row->'expected_deltas',\n      'validator_result',v_row_result));\n  end loop;\n\n  return jsonb_build_object(\n    'valid',true,'status','DRY_RUN_VALIDATED','row_count',v_row_count,\n    'rows',v_row_results,'expected_deltas',v_artifact->'expected_deltas',\n    'batch_preview',jsonb_build_object(\n      'actions',(select jsonb_object_agg(action,row_count) from (select value->>'action' action,count(*) row_count from jsonb_array_elements(v_artifact->'rows') group by value->>'action') counts),\n      'guardrails',v_guardrails,'source_captured_at',v_artifact->>'source_captured_at',\n      'batch_fingerprint',v_actual_batch_fingerprint,'artifact_fingerprint',v_artifact->>'artifact_fingerprint',\n      'actual_migration_fingerprint',v_actual_migration),\n    'manifest_validation',v_manifest_result,'business_writes',0,'control_writes',0,\n    'validation_expires_at',p_request->>'validation_expires_at');\nend\n$function$\n",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres}"
+    },
+    {
+      "proname": "validate_fit_house_stable_oos_read_only",
+      "arguments": "p_request jsonb",
+      "definition": "CREATE OR REPLACE FUNCTION public.validate_fit_house_stable_oos_read_only(p_request jsonb)\n RETURNS jsonb\n LANGUAGE plpgsql\n STABLE SECURITY DEFINER\n SET search_path TO 'pg_catalog', 'public', 'pg_temp'\nAS $function$\ndeclare\n  v_artifact jsonb;\n  v_guardrails jsonb;\n  v_limits jsonb;\n  v_manifest_result jsonb;\n  v_row jsonb;\n  v_row_result jsonb;\n  v_row_results jsonb:='[]'::jsonb;\n  v_row_count integer;\n  v_changed integer;\n  v_price_changed integer;\n  v_new_oos integer;\n  v_total_oos integer;\n  v_previous_oos integer;\n  v_price_anomalies integer;\n  v_source_products integer;\n  v_previous_source_products integer;\n  v_minimum_source_ratio numeric;\n  v_maximum_new_oos integer;\n  v_maximum_oos_increase numeric;\n  v_maximum_total_oos numeric;\n  v_maximum_changed numeric;\n  v_mass_price_ratio numeric;\n  v_price_anomaly_ratio numeric;\n  v_price_anomaly_absolute numeric;\n  v_actual_migration text;\n  v_actual_batch_fingerprint text;\nbegin\n  if p_request#>>'{artifact,target_environment}'<>'PRODUCTION'\n     or p_request#>>'{artifact,retailer_id}'<>'9'\n     or p_request->>'policy_fingerprint'<>'dd2f583394ffa3787b595d7009731dff5bb8e485b9114d3778084a71c120dfc1'\n     or p_request#>>'{artifact,policy_fingerprint}'<>'dd2f583394ffa3787b595d7009731dff5bb8e485b9114d3778084a71c120dfc1'\n     or (select count(*) from public.retailer_products where retailer_id=9)<>286\n     or (select count(*) from public.offers where retailer_id=9)<>286\n     or not public.fit_house_six_oos_baseline_exact()\n     or exists(select 1 from jsonb_array_elements(p_request#>'{artifact,rows}') row(value)\n       where row.value#>>'{atomic_plan,retailer,id}'<>'9') then\n    perform public.retailer_catalogue_raise('RSBI_ENVIRONMENT_BLOCKED','Fit House stable OOS validator scope mismatch');\n  end if;\n  /* Fit House exact approved stable OOS baseline: max 104 and no net increase */\n  if not public.atomic_import_has_exact_keys(p_request,array[\n       'schema_version','kind','artifact','validation_expires_at','production_project_ref',\n       'production_database_identity','expected_migration_versions','expected_migration_fingerprint',\n       'migration_fingerprint_algorithm','migration_fingerprint_version','code_commit',\n       'source_snapshot_fingerprint','policy_fingerprint','action_manifest_fingerprint',\n       'artifact_fingerprint','guardrails','batch_fingerprint','package_fingerprint'])\n     or p_request->>'schema_version'<>'1'\n     or p_request->>'kind'<>'retailer-existing-offer-mixed-batch-read-only-validation'\n     or jsonb_typeof(p_request->'artifact') is distinct from 'object'\n     or jsonb_typeof(p_request->'guardrails') is distinct from 'object' then\n    perform public.retailer_catalogue_raise('RSBI_SOURCE_SCHEMA_MISMATCH','Invalid read-only mixed-batch validation package');\n  end if;\n\n  if p_request->>'package_fingerprint'!~'^[0-9a-f]{64}$'\n     or public.retailer_catalogue_sha256_json(jsonb_set(p_request,'{package_fingerprint}','null'::jsonb,false)) is distinct from p_request->>'package_fingerprint' then\n    perform public.retailer_catalogue_raise('RSBI_CHILD_FINGERPRINT_MISMATCH','Read-only validation package fingerprint mismatch');\n  end if;\n  if (p_request->>'validation_expires_at')::timestamptz<=now()\n     or (p_request->>'validation_expires_at')::timestamptz>now()+interval '15 minutes' then\n    perform public.retailer_catalogue_raise('RSBI_APPROVAL_EXPIRED','Read-only validation expiry must be within 15 minutes');\n  end if;\n\n  perform public.retailer_catalogue_production_runtime_guard(\n    'PRODUCTION',p_request->>'production_project_ref',p_request->>'production_database_identity');\n\n  v_artifact:=p_request->'artifact';\n  if p_request->'expected_migration_versions' is distinct from v_artifact->'expected_migration_versions'\n     or p_request->>'expected_migration_fingerprint' is distinct from v_artifact->>'expected_migration_fingerprint'\n     or p_request->>'migration_fingerprint_algorithm' is distinct from v_artifact->>'migration_fingerprint_algorithm'\n     or p_request->>'migration_fingerprint_version' is distinct from v_artifact->>'migration_fingerprint_version'\n     or p_request->>'code_commit' is distinct from v_artifact->>'code_commit'\n     or p_request->>'source_snapshot_fingerprint' is distinct from v_artifact->>'source_snapshot_fingerprint'\n     or p_request->>'policy_fingerprint' is distinct from v_artifact->>'policy_fingerprint'\n     or p_request->>'action_manifest_fingerprint' is distinct from v_artifact->>'action_manifest_fingerprint'\n     or p_request->>'artifact_fingerprint' is distinct from v_artifact->>'artifact_fingerprint'\n     or p_request->>'code_commit'!~'^[0-9a-f]{40}$' then\n    perform public.retailer_catalogue_raise('RSBI_SOURCE_HASH_MISMATCH','Read-only validation bindings do not match the immutable artifact');\n  end if;\n  if exists(\n    select 1 from jsonb_array_elements(v_artifact->'rows') row(value)\n    where row.value#>>'{atomic_plan,meta,source_snapshot_sha256}' is distinct from p_request->>'source_snapshot_fingerprint'\n       or row.value#>>'{atomic_plan,meta,source_captured_at}' is distinct from v_artifact->>'source_captured_at') then\n    perform public.retailer_catalogue_raise('RSBI_SOURCE_HASH_MISMATCH','Row source binding does not match the immutable artifact');\n  end if;\n\n  v_row_count:=jsonb_array_length(v_artifact->'rows');\n  if exists(\n    select 1\n    from (\n      select (value->>'offer_id')::bigint offer_id,\n        lag((value->>'offer_id')::bigint) over(order by ordinality) previous_offer_id\n      from jsonb_array_elements(v_artifact->'rows') with ordinality\n    ) ordered\n    where previous_offer_id is not null and offer_id<=previous_offer_id) then\n    perform public.retailer_catalogue_raise('RSBI_DUPLICATE_IDENTITY','Rows must be unique and ascending by offer ID');\n  end if;\n  v_actual_batch_fingerprint:=public.retailer_catalogue_sha256_json(jsonb_build_object(\n    'artifact_fingerprint',v_artifact->>'artifact_fingerprint',\n    'action_manifest_fingerprint',v_artifact->>'action_manifest_fingerprint',\n    'policy_fingerprint',v_artifact->>'policy_fingerprint',\n    'source_snapshot_fingerprint',v_artifact->>'source_snapshot_fingerprint',\n    'row_count',v_row_count,\n    'rows',v_artifact->'rows'));\n  if p_request->>'batch_fingerprint'!~'^[0-9a-f]{64}$'\n     or p_request->>'batch_fingerprint' is distinct from v_actual_batch_fingerprint then\n    perform public.retailer_catalogue_raise('RSBI_CHILD_FINGERPRINT_MISMATCH','Read-only batch fingerprint mismatch');\n  end if;\n\n  v_actual_migration:=public.retailer_catalogue_assert_migration_ledger(\n    p_request->'expected_migration_versions',p_request->>'expected_migration_fingerprint');\n\n  v_guardrails:=p_request->'guardrails';\n  if not public.atomic_import_has_exact_keys(v_guardrails,array[\n       'schema_version','policy_fingerprint','source_product_count','previous_source_product_count',\n       'required_source_rows','matched_source_rows','new_oos_count','total_oos_count',\n       'previous_oos_count','changed_row_count','price_changed_row_count','price_anomaly_count',\n       'limits','result'])\n     or v_guardrails->>'schema_version'<>'1'\n     or v_guardrails->>'policy_fingerprint' is distinct from p_request->>'policy_fingerprint'\n     or v_guardrails->>'result'<>'PASS'\n     or jsonb_typeof(v_guardrails->'limits') is distinct from 'object' then\n    perform public.retailer_catalogue_raise('RSBI_SOURCE_SCHEMA_MISMATCH','Invalid read-only policy guardrail evidence');\n  end if;\n  v_limits:=v_guardrails->'limits';\n  if not public.atomic_import_has_exact_keys(v_limits,array[\n       'minimum_source_count_ratio','maximum_new_oos_count','maximum_oos_increase_ratio',\n       'maximum_total_oos_ratio','maximum_changed_record_ratio','mass_price_change_ratio',\n       'price_anomaly_ratio','price_anomaly_absolute_gbp']) then\n    perform public.retailer_catalogue_raise('RSBI_SOURCE_SCHEMA_MISMATCH','Invalid read-only policy guardrail limits');\n  end if;\n\n  v_minimum_source_ratio:=(v_limits->>'minimum_source_count_ratio')::numeric;\n  v_maximum_new_oos:=(v_limits->>'maximum_new_oos_count')::integer;\n  v_maximum_oos_increase:=(v_limits->>'maximum_oos_increase_ratio')::numeric;\n  v_maximum_total_oos:=(v_limits->>'maximum_total_oos_ratio')::numeric;\n  v_maximum_changed:=(v_limits->>'maximum_changed_record_ratio')::numeric;\n  v_mass_price_ratio:=(v_limits->>'mass_price_change_ratio')::numeric;\n  v_price_anomaly_ratio:=(v_limits->>'price_anomaly_ratio')::numeric;\n  v_price_anomaly_absolute:=(v_limits->>'price_anomaly_absolute_gbp')::numeric;\n  if v_minimum_source_ratio not between 0.90 and 1\n     or v_maximum_new_oos not between 0 and 3\n     or v_maximum_oos_increase not between 0 and 0.15\n     or v_maximum_total_oos not between 0 and 0.35\n     or v_maximum_changed not between 0 and 0.25\n     or v_mass_price_ratio<=0 or v_mass_price_ratio>0.20\n     or v_price_anomaly_ratio<=0 or v_price_anomaly_ratio>0.60\n     or v_price_anomaly_absolute<=0 or v_price_anomaly_absolute>20 then\n    perform public.retailer_catalogue_raise('RSBI_GUARDRAIL_EXCEEDED','Read-only validation limits may not weaken the mixed-batch policy');\n  end if;\n\n  select count(*) filter(where value->>'action'<>'VERIFY_NO_CHANGE'),\n         count(*) filter(where (value#>>'{changed_fields,price}')::boolean),\n         count(*) filter(where (value#>>'{atomic_plan,expected_state,offer,in_stock}')::boolean and not (value#>>'{atomic_plan,offer,values,in_stock}')::boolean),\n         count(*) filter(where not (value#>>'{atomic_plan,offer,values,in_stock}')::boolean),\n         count(*) filter(where not (value#>>'{atomic_plan,expected_state,offer,in_stock}')::boolean),\n         count(*) filter(where (value#>>'{changed_fields,price}')::boolean and\n           (abs((value#>>'{atomic_plan,offer,values,price}')::numeric-(value#>>'{atomic_plan,expected_state,offer,price}')::numeric)>=v_price_anomaly_absolute\n            or abs((value#>>'{atomic_plan,offer,values,price}')::numeric-(value#>>'{atomic_plan,expected_state,offer,price}')::numeric)\n               /greatest(0.01,(value#>>'{atomic_plan,expected_state,offer,price}')::numeric)>=v_price_anomaly_ratio))\n  into v_changed,v_price_changed,v_new_oos,v_total_oos,v_previous_oos,v_price_anomalies\n  from jsonb_array_elements(v_artifact->'rows');\n\n  v_source_products:=(v_guardrails->>'source_product_count')::integer;\n  v_previous_source_products:=(v_guardrails->>'previous_source_product_count')::integer;\n  if (v_guardrails->>'required_source_rows')::integer<>v_row_count\n     or (v_guardrails->>'matched_source_rows')::integer<>v_row_count\n     or (v_guardrails->>'new_oos_count')::integer<>v_new_oos\n     or (v_guardrails->>'total_oos_count')::integer<>v_total_oos\n     or (v_guardrails->>'previous_oos_count')::integer<>v_previous_oos\n     or (v_guardrails->>'changed_row_count')::integer<>v_changed\n     or (v_guardrails->>'price_changed_row_count')::integer<>v_price_changed\n     or (v_guardrails->>'price_anomaly_count')::integer<>v_price_anomalies then\n    perform public.retailer_catalogue_raise('RSBI_EXPECTED_STATE_MISMATCH','Read-only source coverage or guardrail metrics do not match rows');\n  end if;\n  if v_source_products<=0 or v_previous_source_products<=0\n     or v_source_products::numeric/v_previous_source_products<v_minimum_source_ratio then\n    perform public.retailer_catalogue_raise('RSBI_GUARDRAIL_EXCEEDED','Read-only source collapse guard blocked the batch');\n  end if;\n  if v_new_oos>v_maximum_new_oos\n     or (v_total_oos-v_previous_oos)::numeric/v_row_count>v_maximum_oos_increase\n     or (v_total_oos>v_previous_oos and not public.fit_house_six_oos_owner_exception(p_request)) then\n    perform public.retailer_catalogue_raise('RSBI_GUARDRAIL_EXCEEDED','Read-only mass OOS guard blocked the batch');\n  end if;\n  if v_changed::numeric/v_row_count>v_maximum_changed\n     or v_price_changed::numeric/v_row_count>=v_mass_price_ratio\n     or v_price_anomalies>0 then\n    perform public.retailer_catalogue_raise('RSBI_GUARDRAIL_EXCEEDED','Read-only mass change or price anomaly guard blocked the batch');\n  end if;\n\n  v_manifest_result:=public.retailer_offer_sync_validate_manifest(v_artifact);\n  for v_row in select value from jsonb_array_elements(v_artifact->'rows') order by (value->>'offer_id')::bigint loop\n    v_row_result:=public.validate_product_import_plan_read_only(v_row->'atomic_plan');\n    v_row_results:=v_row_results||jsonb_build_array(jsonb_build_object(\n      'offer_id',v_row->>'offer_id','retailer_product_id',v_row->>'retailer_product_id',\n      'action',v_row->>'action','valid',true,'expected_deltas',v_row->'expected_deltas',\n      'validator_result',v_row_result));\n  end loop;\n\n  return jsonb_build_object(\n    'valid',true,'status','DRY_RUN_VALIDATED','row_count',v_row_count,\n    'rows',v_row_results,'expected_deltas',v_artifact->'expected_deltas',\n    'batch_preview',jsonb_build_object(\n      'actions',(select jsonb_object_agg(action,row_count) from (select value->>'action' action,count(*) row_count from jsonb_array_elements(v_artifact->'rows') group by value->>'action') counts),\n      'guardrails',v_guardrails,'source_captured_at',v_artifact->>'source_captured_at',\n      'batch_fingerprint',v_actual_batch_fingerprint,'artifact_fingerprint',v_artifact->>'artifact_fingerprint',\n      'actual_migration_fingerprint',v_actual_migration),\n    'manifest_validation',v_manifest_result,'business_writes',0,'control_writes',0,\n    'validation_expires_at',p_request->>'validation_expires_at');\nend\n$function$\n",
+      "owner": "postgres",
+      "acl": "{postgres=X/postgres}"
+    }
+  ],
+  "producers": [
+    {
+      "enabled": true,
+      "public_use": "eligible-after-separate-approval",
+      "terms_mode": "standard-single-purchase-only",
+      "updated_at": "2026-08-26T16:06:04.004597+00:00",
+      "retailer_id": 9,
+      "retailer_slug": "fit-house",
+      "approved_scope": "approved-286",
+      "source_importer": "retailer_offer_mixed_batch",
+      "technically_capable": true
+    },
+    {
+      "enabled": false,
+      "public_use": "blocked",
+      "terms_mode": "standard-single-purchase-only",
+      "updated_at": "2026-08-24T17:56:32.441625+00:00",
+      "retailer_id": 11,
+      "retailer_slug": "6-pack-supplements",
+      "approved_scope": "blocked-pending-mass-oos-review",
+      "source_importer": "retailer_offer_mixed_batch",
+      "technically_capable": false
+    }
+  ]
+}
