@@ -842,15 +842,9 @@ function normalizationIdentityEvidence(error, record, live, capturedAt) {
     && sizeKey({ ...approvedSize, perUnit: false }) === sizeKey(parentSize)
     && JSON.stringify(commercialIdentity(approvedName).name_tokens) === JSON.stringify(commercialIdentity(selectedName).name_tokens)
     && !selectedCompatibility.reasons.some(reason => hardReasons.includes(reason));
-  // An approved URL can itself contain contradictory selling-unit evidence.
-  // Identifiers alone do not resolve it; an exact selected pack can explain a
-  // per-item size in a product URL without turning missing IDs into VERIFIED.
-  if (!selectedPackBound) {
-    let urlName;
-    try { urlName = decodeURIComponent(url.pathname.split("/").filter(Boolean).at(-1)).replace(/-/g, " "); } catch { return null; }
-    const urlIdentity = assessVariantCompatibility({ product_name: urlName }, { name: approvedName });
-    if (urlIdentity.reasons.some(reason => hardReasons.includes(reason))) return null;
-  }
+  // An unchanged approved slug is a document binding, not package evidence.
+  // The exact URL/provenance guards above still apply; missing commercial
+  // evidence below grants only manual review, never equivalence or writes.
   if (selectedPackBound && identifiersComplete) return { identity: { commercial_identity: "VERIFIED_SELECTED_MULTIPACK" },
     compatibility: selectedCompatibility };
   const compatibility = selectedPackBound ? selectedCompatibility : assessVariantCompatibility({ product_name: live.product_name, brand: live.brand },

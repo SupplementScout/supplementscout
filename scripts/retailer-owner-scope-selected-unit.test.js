@@ -80,19 +80,19 @@ test('immutable captured source and504+2 approved scope remain sealed',()=>{
   assert.equal(captured.six.records.length,15);assert.equal(captured.six.pages.length,12);
 });
 
-test('real15 retained blockers now yield4 exact selected multipacks,8 manual reviews and3 hard blocks',t=>{
+test('real15 retained blockers now yield4 exact selected multipacks,9 manual reviews and2 hard blocks',t=>{
   freeze(t);const counts={source:0,review:0,block:0},outcomes=[];
   for(const {record,live} of sixRows()){
     assert.ok(liveIdentityDrift({source_record_id:record.mapping.external_variant_id,product_name:record.mapping.external_name},live));
     const result=normalize(record,live),kind=result.source?'source':result.review?'review':'block';counts[kind]++;
     if(result.review){assert.equal(result.review.identity.commercial_identity,'UNVERIFIED');assert.equal(result.review.identity.authority,'MANUAL_REVIEW_ONLY');}
     if(result.source)assert.equal(record.mapping.external_product_id,'4566');
-    if(kind==='block')assert.ok(['5088','5091','4145'].includes(record.mapping.external_product_id));
+    if(kind==='block')assert.ok(['5091','4145'].includes(record.mapping.external_product_id));
     outcomes.push({mapping:record.mapping.id,parent:record.mapping.external_product_id,variant:record.mapping.external_variant_id,disposition:kind});
   }
-  assert.deepEqual(counts,{source:4,review:8,block:3});
+  assert.deepEqual(counts,{source:4,review:9,block:2});
   fs.writeFileSync(path.resolve('tmp/targeted-repair/captured-six15-replay.json'),JSON.stringify({mode:'CAPTURED_PARSED_SOURCE_REPLAY_WITH_FROZEN_CAPTURE_CLOCK',
-    counts,outcomes,full_runtime_result:'BLOCK_REMAINS_FOR_THREE_UNRESOLVED_IDENTITIES',classifier:'NOT_RUN',sql_validator:'NOT_RUN',
+    counts,outcomes,full_runtime_result:'BLOCK_REMAINS_FOR_TWO_UNRESOLVED_IDENTITIES',classifier:'NOT_RUN',sql_validator:'NOT_RUN',
     executable_artifacts:0,production_writes:0},null,2)+'\n');
 });
 
@@ -117,24 +117,53 @@ test('CNP exact variants retain their actual prices and stocks; a single75g cann
   }
 });
 
-test('eight missing-identifier reviews cannot supply commercial classifier rows or apply confirmations',t=>{
+test('nine unverified reviews cannot supply commercial classifier rows or apply confirmations',t=>{
   freeze(t);const reviews=sixRows().map(({record,live})=>({record,result:normalize(record,live)})).filter(x=>x.result.review);
-  assert.equal(reviews.length,8);
+  assert.equal(reviews.length,9);
   // Subset contract of the unchanged classifier, not a full source dry-run.
   const targets=reviews.map(({record:r})=>({offer_id:String(r.offer.id),retailer_product_id:String(r.mapping.id),external_product_id:r.mapping.external_product_id,
     external_variant_id:r.mapping.external_variant_id,external_sku:r.mapping.external_sku,price:r.offer.price,shipping_cost:r.offer.shipping_cost,
     total_price:r.offer.total_price,in_stock:r.offer.in_stock,url:r.offer.url,external_url:r.mapping.external_url}));
-  const c=classifyExistingOffers({targets,sourceVariants:[],policy:{...fit.effectiveOfferPolicy(),required_matched_offers:8},
+  const c=classifyExistingOffers({targets,sourceVariants:[],policy:{...fit.effectiveOfferPolicy(),required_matched_offers:9},
     sourceCapturedAt:captured.six.source_captured_at,now:new Date(captured.six.source_captured_at),sourceProductCount:277,previousSourceProductCount:277,quarantineUnsafeRows:true});
-  assert.equal(c.rows.length,0);assert.equal(c.quarantined_rows.length,8);
+  assert.equal(c.rows.length,0);assert.equal(c.quarantined_rows.length,9);
   for(const row of c.quarantined_rows){assert.equal(row.reason,'SOURCE_VARIANT_MISSING');assert.equal(row.source,null);
     assert.deepEqual(row.changed_fields,{price:false,stock:false,url:false,blocked:true});assert.equal(fit.reviewReportRow(row).proposed_offer,null);}
 });
 
-test('an explicit GTIN cannot hide the unresolved5088 URL selling-unit contradiction',t=>{
+test('5088 approved legacy slug permits manual isolation without becoming commercial identity',t=>{
   freeze(t);const {record,live}=sixRows().find(x=>x.record.mapping.external_product_id==='5088');
+  assert.equal(record.mapping.external_url,live.canonical_url);
+  assert.match(live.canonical_url,/skinny-food/);
+  const original=normalize(record,live);assert.equal(original.source,undefined);
+  assert.equal(original.review.identity.authority,'MANUAL_REVIEW_ONLY');
+  assert.equal(live.product_offer.in_stock,false); // Captured source, not the owner's manual observation.
   live.product_offer.gtin=record.mapping.external_gtin;
-  const result=normalize(record,live);assert.equal(result.source,undefined);assert.equal(result.review,null);
+  const result=normalize(record,live);assert.equal(result.source,undefined);
+  assert.equal(result.review.identity.commercial_identity,'UNVERIFIED');
+  for(const mutate of [p=>{p.canonical_url='https://6pack-supplements.co.uk/product/unapproved/';},
+    p=>{p.source_provenance.request_url='https://6pack-supplements.co.uk/?p=5091';},
+    p=>{p.source_provenance.response_url='https://other.example/product/';},
+    p=>{p.technical_document_identity.product_id='5091';},p=>{p.source_provenance.body_complete=false;},
+    p=>{p.product_offer.sku='DIFFERENT';},p=>{p.product_name='Battle Bites 120g';}]){
+    const changed=structuredClone(live);mutate(changed);
+    assert.equal(normalize(record,changed).review,null);
+    assert.equal(normalize(record,changed).source,undefined);
+  }
+});
+
+test('historical v12 preserves separate GTIN and SKU columns, bindings and the approved5088 slug',()=>{
+  const {parse}=require('csv-parse/sync');
+  const bytes=fs.readFileSync(path.resolve('config/retailers/six-pack-production-expansion-v12.csv'));
+  assert.equal(crypto.createHash('sha256').update(bytes).digest('hex'),'bc087c3e12ea44a329acf81c558b7f48eda7dbc09708036a64d26cfc5e406074');
+  const rows=parse(bytes,{columns:true,skip_empty_lines:true}),caramel=rows.find(r=>r.external_product_id==='5091');
+  assert.equal(caramel.external_gtin,'500318691586');assert.equal(caramel.external_sku,'5060318691586');
+  assert.equal(caramel.product_id,'384');assert.equal(caramel.product_variant_id,'2281');
+  const marshmallow=rows.find(r=>r.external_product_id==='5088');
+  const {record}=sixRows().find(x=>x.record.mapping.external_product_id==='5088');
+  assert.equal(marshmallow.external_url,record.mapping.external_url);
+  assert.equal(marshmallow.external_gtin,record.mapping.external_gtin);
+  assert.equal(marshmallow.external_sku,record.mapping.external_sku);
 });
 
 test('invalid approved GTIN stays BLOCK even when merchant title matches the approved title exactly',t=>{

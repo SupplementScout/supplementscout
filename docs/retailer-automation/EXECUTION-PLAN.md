@@ -7,10 +7,17 @@ owner-contract veto again:261 unchanged+19 stock observations+4 missing rows.
 The October shared partition already exists; this draft reconciles deferred
 bindings across commercial/quarantine rows and retains all19 stock observations
 for review. Six uses only retained run42671293775 inputs: four selected CNP
-75g/12pc packages normalize, eight missing-evidence rows qualify for existing
-review, and three unresolved identities remain hard BLOCK. No full-source or
+75g/12pc packages normalize, nine unverified rows qualify for existing review,
+and two unresolved identities remain hard BLOCK. The owner evidence update in
+the existing draft PR517 admits5088 to REVIEW_ONLY using its July28 approved
+legacy slug, retaining all technical URL/document guards and no write authority.
+5091 has an invalid historical GTIN: independent barcode evidence supports an
+unapplied single-mapping correction proposal.4145 remains BLOCK because the
+merchant document mixes Black title/URL with Gold description; exact package,
+formula and barcode evidence is still required. Fit and all four CNP selected
+units are unchanged in this update. No full-source or
 SQL end-to-end PASS is claimed. The current read-only production binding is
-CURRENT262; both schedules remain PAUSED. No retailer dispatch, apply,
+CURRENT262, reconfirmed read-only at19:59:02Z; both schedules remain PAUSED. No retailer dispatch, apply,
 publication, approval, migration or recovery in this preparation. RA-001
 unchanged, RA-004 remains suspended. Earlier entries are historical. See the
 [bounded implementation evidence](evidence/TARGETED-FIT-SIX-REPAIR-2026-11-09.json).
