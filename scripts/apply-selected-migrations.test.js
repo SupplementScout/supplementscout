@@ -23,6 +23,8 @@ const {
   derivePostApplyMigrationBinding,
 } = require("./lib/environment-migrations");
 
+// Historical sealed selection: retained after the production receipt consumes it.
+const WITHDRAWAL_PENDING = Object.freeze({ filename: "20261109120000_add_owner_withdrawal_terminal_preflight.sql", sha256: "70957859d879e822db0627c671d5a9bd8e0f77f5c0da58fddce7a011e678fe9e", preflight_required: true });
 const ROOT = path.resolve(__dirname, "..");
 const SOURCE = path.join(ROOT, "supabase", "migrations");
 const HISTORICAL_PENDING = Object.freeze([Object.freeze({
@@ -174,9 +176,12 @@ test("historical production pending migration deterministically derives ledger 2
     "17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e");
 });
 
-test("CURRENT stays at 261 while the sealed owner withdrawal separately derives ledger 262", () => {
-  const derivation = derivePostApplyMigrationBinding("PRODUCTION");
-  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 261);
+test("receipt closes CURRENT262 while the historical sealed selection still proves 261 to 262", () => {
+  const current=derivePostApplyMigrationBinding("PRODUCTION");
+  assert.equal(current.status,"ALREADY_CLOSED");
+  assert.equal(current.pending_count,0);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount,262);
+  const derivation = derivePostApplyMigrationBinding("PRODUCTION",{pendingMigrations:[WITHDRAWAL_PENDING]});
   assert.equal(derivation.status, "CLOSEOUT_REQUIRED");
   assert.equal(derivation.pending_count, 1);
   assert.deepEqual(derivation.consumed_pending.map(row=>row.filename), ["20261109120000_add_owner_withdrawal_terminal_preflight.sql"]);
@@ -187,7 +192,9 @@ test("CURRENT stays at 261 while the sealed owner withdrawal separately derives 
   assert.equal(derivation.post_ledger_fingerprint, "209719c865f07c9e77006d01f7ae526aa47461b9a0bd5154071b4f29052c8333");
   assert.equal(derivation.post_identifiers.length, derivation.pre_identifiers.length+1);
   assert.ok(Object.isFrozen(derivation.post_identifiers));
-  assertDerivationMatchesContract(derivation, CONTRACTS.PRODUCTION);
+  assertDerivationMatchesContract(derivation, {...CONTRACTS.PRODUCTION,
+    ledgerCount:261,ledgerFingerprint:"755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a",
+    pending:[WITHDRAWAL_PENDING]});
 });
 
 test("current staging pending migrations derive one exact ordered 120 to 122 transition", () => {
@@ -368,14 +375,15 @@ test("verify-selected-migrations exposes only CURRENT or exact POST_APPLY_VERIFI
   assert.doesNotMatch(source, /APPROXIMATE|accept.*either|allowed.*ledger/i);
 });
 
-test("owner withdrawal replacement preserves the failed SQL seal and selects exactly one new pending version", () => {
+test("owner withdrawal closeout preserves both SQL seals and consumes the reviewed pending selection", () => {
   const old = "20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql";
   const original = "a9cb6d18c60dda40dbc10322e23971f929e929a4344761e8f97328677b04e29b";
   const { sha256File } = require("./lib/environment-migrations");
   assert.equal(sha256File(path.join(SOURCE,old)),original);
   assert.equal(CONTRACTS.PRODUCTION.excluded[old],original);
-  assert.equal(CONTRACTS.PRODUCTION.pending.length,1);
-  assert.equal(CONTRACTS.PRODUCTION.pending[0].preflight_required,true);
+  assert.equal(CONTRACTS.PRODUCTION.pending.length,0);
+  assert.equal(WITHDRAWAL_PENDING.preflight_required,true);
+  assert.equal(pendingConfirmation({pending:[WITHDRAWAL_PENDING]}),"79c7b8609789562c");
   assert.notEqual(pendingConfirmation(CONTRACTS.PRODUCTION),"527587a55780f61f");
 });
 
@@ -390,7 +398,7 @@ test("preflight verifier is an explicit read-only mode; apply and unrecognized a
 
 test("preflight and applicator share exactly the sealed migration SELECT, with structured blockers", async () => {
   const { selectedMigrationPreflightSql, verifySelectedMigrationPreflight } = require("./lib/selected-migration-preflight");
-  const pending=CONTRACTS.PRODUCTION.pending;
+  const pending=[WITHDRAWAL_PENDING];
   const query=selectedMigrationPreflightSql(pending[0],SOURCE);
   const sql=fs.readFileSync(path.join(SOURCE,pending[0].filename),"utf8").replaceAll("\r\n","\n");
   const embedded=sql.split("-- SELECTED_MIGRATION_PREFLIGHT_BEGIN")[1].split("-- SELECTED_MIGRATION_PREFLIGHT_END")[0].trim();
@@ -409,7 +417,7 @@ test("preflight and applicator share exactly the sealed migration SELECT, with s
 
 test("required preflight rejects unsealed SQL and missing, duplicate or reordered markers", () => {
   const { selectedMigrationPreflightSql } = require("./lib/selected-migration-preflight");
-  const pending=CONTRACTS.PRODUCTION.pending[0];
+  const pending=WITHDRAWAL_PENDING;
   assert.throws(()=>selectedMigrationPreflightSql({...pending,sha256:"0".repeat(64)},SOURCE),/hash mismatch/);
   const directory=fs.mkdtempSync(path.join(os.tmpdir(),"selected-preflight-test-"));
   try {

@@ -256,7 +256,7 @@ const PENDING_MIGRATIONS = Object.freeze({
       sha256: "015f0de7448c10fcca10174e74dfbf7ca9e3150951f49090d01cd6eee869024c",
     }),
   ]),
-  PRODUCTION: Object.freeze([Object.freeze({ filename: "20261109120000_add_owner_withdrawal_terminal_preflight.sql", sha256: "70957859d879e822db0627c671d5a9bd8e0f77f5c0da58fddce7a011e678fe9e", preflight_required: true })]),
+  PRODUCTION: Object.freeze([]),
 });
 
 function migrationIdentifier(filename) {

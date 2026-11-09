@@ -1,33 +1,36 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: OWNER WITHDRAWAL TERMINAL PREFLIGHT REPAIR IN REVIEW; PRODUCTION WITHDRAWAL BLOCKED; FIT HOUSE AND SIX PACK PAUSED**
+**Status: OWNER WITHDRAWAL DB COMMITTED; RECEIPT-BASED CURRENT262 CLOSEOUT; FIT HOUSE AND SIX PACK PAUSED**
 
-**Current active task:** prepare one generic selected-migration/preflight repair
-under the owner's 9 November blocker-closeout instruction. PR510/511 are already
-merged; main is e56a5b0feeec022d5c22f567d1cc6207415c7f69 and deployment READY.
-The one approved migration attempt failed OWNER_WITHDRAWAL_PENDING_CONTROL and
-fully rolled back. That authorization is consumed: no second production attempt,
-merge, recovery, retailer dispatch, cache purge or schedule restart in this task.
-RA-004 remains suspended.
+**9 November production checkpoint:** owner authorization b6e7fc5c explicitly
+covers #512 merge, one new selected-migration attempt, its technical repository
+closeout, project-scoped Vercel Data/CDN purge and public/DB postflight. PR512
+merged as b1f33a26514770372982fc518d7f3a8ae466c22b with the approved tree;
+main full CI42616969720 and Guardian42616969680 PASS, production Vercel READY.
 
-Fresh TLS-verified production REPEATABLE READ READ ONLY audit at11:04–11:18 UTC
-classifies all nine historical Fit FAILED as TERMINAL_ZERO_WRITE_CONFIRMED.
-Complete event chains and exact historical worker/run evidence establish failure
-before registration/approvals/writes; later writes belong to distinct requests.
-No active plan, request, affected approval or unknown result. All affected row
-hashes/history remain unchanged; production ledger261/CURRENT remains frozen.
+The one canonical applicator attempt COMMITTED migration20261109120000 with
+SHA70957859d879e822db0627c671d5a9bd8e0f77f5c0da58fddce7a011e678fe9e.
+Independent TLS-verified REPEATABLE READ READ ONLY postflight confirms ledger262
+and fingerprint209719c865f07c9e77006d01f7ae526aa47461b9a0bd5154071b4f29052c8333.
+Three products are inactive (951/999 OWNER_EXCLUDED,1114 OWNER_DEFERRED), four
+variants inactive. Four mappings/offers and five history rows preserved, all
+4361 offers and49064 history rows unchanged. Fit284+2 and Six504+2, SQL/ACL
+and stable OOS104 PASS. All control/approval hashes and nine FAILED unchanged.
+No source refresh, approval, recovery or commercial-field write was performed.
 
-The old SQL/hash is preserved as an explicit never-applied exclusion. One versioned
-pending replacement and its sealed SELECT are shared by the existing verifier,
-applicator and transactional activation guard. Active/unresolved/missing evidence
-still blocks; no UUID exceptions or control-status edits. Scope remains Six504+2,
-Fit284+2; products951/999 EXCLUDE,1114 DEFER; four variants and all five history
-rows preserved. New SQL/confirmation and future receipt closeout require separate
-owner approval. No RESTORED/public withdrawal claimed.
-See [audit, exact binding, tests and bounded deployment proposal](OWNER-WITHDRAWAL-TERMINAL-PREFLIGHT-2026-11-09.md).
-The earlier [withdrawal design](OWNER-CATALOGUE-WITHDRAWAL-2026-11-09.md) and its
-[evidence](evidence/OWNER-CATALOGUE-WITHDRAWAL-2026-11-09.json) are historical;
-the new versioned selection above supersedes their pending-SQL authorization.
+This technical closeout consumes only the actual receipt's pending entry and
+promotes canonical CURRENT261 to262. SQL, exclusions, workflows, manifests and
+all business mechanisms remain unchanged. Historical tests retain the sealed
+pre-activation261 fixture. Fit/Six stay PAUSED; other retailers unchanged.
+The final operational completion evidence, including cache purge and public
+readback performed after this repository checkpoint, is maintained in the
+technical closeout PR description for branch
+`closeout/owner-withdrawal-production-262`. This checkpoint alone does not claim
+public completion. RA-004 remains suspended; no schedule restart is authorized.
+
+[Exact canonical closeout receipt](evidence/OWNER-WITHDRAWAL-PRODUCTION-262-CLOSEOUT-2026-11-09.json).
+[Audit and original sealed selection](OWNER-WITHDRAWAL-TERMINAL-PREFLIGHT-2026-11-09.md).
+The older pending/blocked checkpoints below are historical, not current actions.
 
 The immediate objective is to restore a trustworthy baseline for the existing
 production retailer paths before any consolidation work resumes. This is not a
