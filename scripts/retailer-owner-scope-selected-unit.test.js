@@ -136,3 +136,10 @@ test('an explicit GTIN cannot hide the unresolved5088 URL selling-unit contradic
   live.product_offer.gtin=record.mapping.external_gtin;
   const result=normalize(record,live);assert.equal(result.source,undefined);assert.equal(result.review,null);
 });
+
+test('invalid approved GTIN stays BLOCK even when merchant title matches the approved title exactly',t=>{
+  freeze(t);const {record,live}=sixRows().find(x=>x.record.mapping.external_product_id==='5091');
+  live.product_name=record.mapping.external_name;
+  const result=normalize(record,live);assert.equal(result.source,undefined);assert.equal(result.review,null);
+  assert.equal(result.error.detail.reason_code,'INVALID_APPROVED_GTIN');
+});

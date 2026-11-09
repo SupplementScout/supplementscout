@@ -881,6 +881,10 @@ function liveSourceFor(record, live) {
       offer_id: String(record.offer.id), ...evidence,
     });
   };
+  const approvedGtin = record.mapping.external_gtin || record.identity_evidence?.gtin || record.variant.gtin;
+  if (approvedGtin && !isValidGtin(approvedGtin)) throw contractError("Approved GTIN checksum is invalid", "SOURCE_IDENTITY_DRIFT", {
+    reason_code: "INVALID_APPROVED_GTIN",
+  });
   let offer;
   if (String(live.external_product_id) !== externalProductId) {
     throw contractError("Live parent differs from the approved binding", "SOURCE_IDENTITY_DRIFT", {
