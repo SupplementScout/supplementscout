@@ -1,17 +1,30 @@
 # Retailer Automation Consolidation Execution Plan
 
-**Status: SIX PACK SOURCE-BOUNDARY REPAIR IMPLEMENTED FOR REVIEW; NO NEW LIVE RUN OR WRITE**
+**Status: OWNER CATALOGUE WITHDRAWAL IMPLEMENTED FOR DRAFT REVIEW; PRODUCTION DEPLOYMENT_BLOCKED; SIX PACK SCHEDULE PAUSED**
 
-**Current active task:** the owner's 8 November `SIX PACK SOURCE RELIABILITY
-AND GENERIC UNBUYABLE SIMPLE PRODUCT SUPPORT` authorization: one coherent
-minimal PR from main `dd94e81d744c5ab2bbd78b94f85531b9b39ca2bb`, using preserved
-source evidence and the existing RA-001 runtime. Implementation and isolated
-quality/integration tests are authorized. Merge, live catalogue dry-run, apply,
-migrations, mapping changes and schedule changes are not authorized. The last
-actual source run `42510124005` remains BLOCKED; the verified zero-write
-production readback below is historical evidence, not a new refresh. RA-001 and
-the existing guarded paths remain controlling; RA-004 is not resumed. No
-RESTORED or live source verification is claimed.
+**Current active task:** complete the general withdrawal lifecycle in existing
+DRAFT PR #510 under the owner's 9 November instruction. Forward-only schema,
+owner-only guards, active/historical manifest partitions and existing Fit SQL
+registration/OOS bindings are prepared; no production migration/write/merge or
+retailer dispatch is authorized/performed. RA-004 remains suspended. The old
+policy-only deployment blocker is addressed in review code, not in production.
+Current production remains main1dce913d28fb727bac9989b49a470cb7ad4bf4af and ledger261.
+Fresh verified TLS READ ONLY snapshot at 2026-11-09T08:27:17Z confirms all affected
+row hashes and five history records unchanged, no affected pending approvals or
+active parent/execution plans; GitHub active/queued jobs0 at that check.
+Candidate scope is Six504+historical2 of506, Fit284+historical2 of286. Ordinary
+nutrition peptides remain permitted. Owner EXCLUDE and Limitless DEFER remain.
+
+Actual isolated PostgreSQL17.11:20 PASS,0 FAIL,0 SKIP, including A-S and genuine
+approved RPC rejection after withdrawal, history, shared variant, physical
+scope, public loaders, idempotency, rollback and unaffected retailer RPC.
+Full/quick/CI evidence is retained in the current PR receipt and machine record;
+old-head CI below is historical. Deployment requires separate owner approval,
+Fit-only job pause, selected migration and canonical receipt closeout261 to262,
+verified production deployment plus existing platform cache purge/public readback.
+Other schedules unchanged; Six stays PAUSED. No RESTORED/public withdrawal claimed.
+See [implementation and exact rollout](OWNER-CATALOGUE-WITHDRAWAL-2026-11-09.md)
+and [fresh machine evidence](evidence/OWNER-CATALOGUE-WITHDRAWAL-2026-11-09.json).
 
 The immediate objective is to restore a trustworthy baseline for the existing
 production retailer paths before any consolidation work resumes. This is not a
@@ -19,6 +32,128 @@ new runtime, importer, approval path or executor. It reuses the current
 workflows, artifacts, control ledger, Review Queue, postflight and watchdog.
 Work proceeds read-only until a specific recovery or business write has fresh
 bounded evidence and separate owner approval.
+
+## 8 November 2026 owner catalogue exclusion preparation
+
+Read-only audit covered all 13 retailers: 1399 products, 4070 variants and
+4361 mapping/offer pairs. EXCLUDE: canonical951 / variant1853 with Fit House
+mapping2082 / offer1896 and Six Pack4110 / mapping2170 / offer1984; canonical999 /
+variant1960 with Fit House mapping2151 / offer1965. DEFER remains canonical1114,
+variants2414/2415, Six Pack29928 / mapping2582 / offer2396. Existing v11 DEFER
+conflicts with the later approval builder and active manifest; historical evidence
+is preserved and current owner policy takes precedence. No current SARMs/research
+peptides found under the qualified policy inventory; ordinary nutrition peptides
+are preserved. All three canonical public product URLs still returned HTTP200.
+
+The common existing feed guard now rejects excluded/deferred identities before
+planning; Six Pack/shared Fit House refresh also stop before HTTP on conflicting
+approved scope, without silent row omission. Existing classifier/executor/queue,
+approvals and workflows are unchanged. Current manifest bytes/counts remain
+506/279 and 286/174. Candidate active scopes 504/277 and 284/172 are proposals
+only, not activated or approved; physical records and five history rows remain.
+Deploying only the guard would block the entire affected retailer refresh.
+
+Public withdrawal is DEPLOYMENT_BLOCKED by `products_merge_state_consistent`,
+which permits inactive products only when genuinely merged. No fake merge,
+force-OOS, direct deletion or silent manifest trim is acceptable. The required
+general lifecycle extension and coordinated scope/readers/DB-registration change
+must be separately reviewed and deployed through the existing migration selector,
+with fresh expected-state checks and an owner-bounded write receipt.
+
+See [exact audit and deployment gates](OWNER-CATALOGUE-EXCLUSION-2026-11-08.md)
+and [fingerprinted scope proposal](evidence/OWNER-CATALOGUE-EXCLUSION-2026-11-08.json).
+Focused regressions: 481 PASS / zero FAIL / zero SKIP; final policy/scope/import
+267 PASS and retry boundary 27 PASS. Quick469 PASS; full3680 PASS / zero FAIL /
+three prior SKIP, TypeScript/lint/build/Guardian PASS. Actual PR CI evidence
+belongs in the PR receipt; no live source dry-run or write occurred. A 9 November
+pre-PR DB read failed with connection code08006, so the dated 8 November audit
+is retained and fresh successful readback remains a deployment gate.
+Business/control/approval/history writes 0; no new plan or lock created by this
+task. Six Pack schedule stays paused. This is preparation, not public withdrawal
+or RESTORED automation.
+
+## 8 November 2026 paused release and one read-only run closeout
+
+**Result: BLOCKED; schedule stays paused; zero production writes verified.**
+
+PR #509 exact head `5400358d793fc3ac03d1b263f708690411faf828` passed focused
+5, quick 469, full 3645 / zero FAIL / three previous SKIP, lint/TS/build and
+Guardian. PR CI `42521135503` and Guardian `42521135518` passed. Standard
+squash merge `c71c23e84b43e523fe8a9f9187f04a2f518c0d6d` preserved cron and
+manual dispatch while excluding schedule at both main job and downstream
+Review Queue job boundaries. All three jobs reject schedule, even with
+nonempty downstream outputs. No other retailer or approval/executor changed.
+
+Only after that protection was proved on main, PR #508's unchanged approved
+head `d46f6c647a3e92140a522c24e14037a8f626cc9e` was squash-merged as final
+main `1dce913d28fb727bac9989b49a470cb7ad4bf4af`. Composite tree
+`d603344c35b2677e2f96877c11ef4f322cfd7c28` matches the calculated clean
+merge; approved runtime blobs and protection blobs are unchanged. Main full
+CI `42521757075`, actual job `128856628581`, passed 3669 / zero FAIL /
+three earlier SKIP; Guardian `42521757023` passed. Actual PostgreSQL evidence
+`42516413463` remains 149 PASS / zero SKIP on approved #508 head; no skipped
+integration job is counted as execution on final main. No bypass/force/auto
+merge or approved-head change occurred.
+
+One create-only receipt records dispatch `42522154741`, attempt 1,
+workflow_dispatch / operation=dry-run on exact final main. Workflow time:
+20:50:32-20:58:44 UTC, 8m12s. Fresh source/inline parsing/preflight step:
+20:51:27-20:58:41 UTC, 7m14s. Source captured_at 20:51:29.057 UTC. There was one
+incomplete traversal, no complete catalogue traversal and no whole-source
+Bash retry; one terminal source error and exit 2. No replay or later GET.
+
+All 279 products / 506 mappings reconcile disjointly: PARSED 201 / 406,
+ISOLATED 4 / 10, FATAL 2 / 2, NOT_REACHED 72 / 88; attempted 207. The report
+retains 412 parsed source positions, metadata for all 201 parsed pages and
+both complete fatal HTML documents (429451 bytes total, below 2 MB). Full
+source fingerprint, normalization, classifier, validator and sealed artifact
+were not reached. Executable/executed plans 0, new review rows 0, blocked rows
+506, action_counts empty. Partial freshness is recent, not a full-source PASS.
+
+Fatal 4110 / variant 4110 / mapping 2170 / offer 1984, manifest position 1,
+is a complete HTTP200 simple with in-stock inventory plus Not available to buy
+online and no Product/Offer JSON-LD. Current unavailable contract requires
+outofstock; exact name/count/dose anchors match, so safe diagnosis continued.
+The same schema combination occurs at 29928 / variant 29928 / mapping 2582 /
+offer 2396, position 207. Here approved Limitless Nootropic versus observed
+Limitlesss Nootropic Brain Booster fails exact word identity; count 100 and
+brand alone are insufficient. Diagnosis stopped there, not at a transport
+error. No fuzzy alias or dose/stock inference is accepted.
+
+Retained existing isolations: 2819 (mapping 2241, manual-only vegetarian capsule
+identity); Warrior 2769 (seven variants 3290/3291/3292/3293/3294/3295/3297,
+mappings 2492-2498); confirmed bounded 404s 3915 (mapping 2562) and 4150
+(mapping 2565). Angel 28570's three mappings 2613-2615 were NOT_REACHED. All
+11 protected offers are unchanged; only eight of them were qualified in this
+source attempt. There are no newly classified/published review rows.
+
+Independent verified-TLS REPEATABLE READ READ ONLY captures at 20:48:47.024 and
+20:59:47.031 UTC show all columns of 506 offers and 506 mappings identical,
+ledger261/CURRENT unchanged, full price-history hashes unchanged (539 rows,
+latest10247), Review Queue709 and approved import plans49115 hashes unchanged.
+Parent/child/apply/batch rows, active approvals, writers and advisory locks are
+zero. Business/control/approval/history writes from this task are all zero;
+no new DB blocker and no unknown write outcome. Apply, DB postflight,
+idempotency and Review Queue publication were skipped, never counted as PASS.
+
+Preserved source artifact `13634261085` provider ZIP SHA
+`98d8a2313e490b629f815f7cc1cb00bb83e2d6f14b30f102c61dc5db0730f62b` verified.
+Report SHA `eb406b0013c957a994cb412fd570664078b62a7a044ea4e3e84710f4f30fa42d`.
+Local evidence: `tmp/508-paused-main-dryrun-20261108/analysis-report.md`,
+`verification.json`, `mapping-accounting.csv` (506),
+`all-detected-conflicts.csv` (12 affected mappings), `protected-11.csv`,
+original report, source job log and before/after full readbacks. Final receipt
+is also recorded in the existing pause PR description; no new PR after BLOCK.
+
+No apply can be approved from this incomplete capture. A future separately
+authorized minimal general fix belongs in the existing unavailable-simple
+qualifier: distinguish online purchasability from physical stock, retaining
+review-only, exact identity and all guards, with no commercial proposal.
+29928 additionally needs owner source/identity review. Schedule remains paused
+in workflow job conditions at lines39/196, marker above; restoration requires
+separate owner approval, fresh collision/control inventory and a normal PR
+restoring both schedule conditions with regression. No expiry or flag system.
+Manual dry-run remains technically available; this task's one-shot is consumed.
 
 ## 8 November 2026 source reliability and unavailable-simple review repair
 

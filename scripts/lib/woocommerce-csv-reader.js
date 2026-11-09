@@ -1,5 +1,6 @@
 const crypto = require("node:crypto");
 const { parse } = require("csv-parse/sync");
+const { cataloguePolicyDecision } = require("./feed-variant-guards");
 
 const REQUIRED_HEADERS = Object.freeze([
   "ID",
@@ -153,12 +154,13 @@ function expiryEvidence(row, parent, capturedAt) {
 }
 
 function policyDecision({ row, parent, categories, capturedAt }) {
+  const decisions = [row.Name, parent?.Name].filter(Boolean).map(name => cataloguePolicyDecision({ product_name: name,
+    category: categories.join(" "), description: [row.Description, row["Short description"], parent?.Description].filter(Boolean).join(" ") })).filter(Boolean);
+  const catalogue = decisions.find(value => value.state === "EXCLUDE") || decisions[0];
+  if (catalogue) return { state: catalogue.state === "EXCLUDE" ? "EXCLUDED" : "DEFERRED", code: catalogue.code };
   const normalizedCategories = new Set(categories.map(normalized));
   if (normalizedCategories.has("sarms") || normalizedCategories.has("sarm")) {
     return { state: "EXCLUDED", code: "EXCLUDE_SARM" };
-  }
-  if (normalizedCategories.has("peptides") || normalizedCategories.has("peptide")) {
-    return { state: "EXCLUDED", code: "EXCLUDE_PEPTIDE" };
   }
   const expiry = expiryEvidence(row, parent, capturedAt);
   if (expiry?.expired) return { state: "EXCLUDED", code: "EXCLUDE_EXPIRED", evidence: expiry };

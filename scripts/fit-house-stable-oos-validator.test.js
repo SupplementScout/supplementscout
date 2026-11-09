@@ -4,6 +4,13 @@ const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
 const config = require("../config/retailers/fit-house-offer-sync.json");
+// Freeze the historical 286-row contract tested by these immutable migrations.
+// Current 284+2 activation is covered by owner-catalogue-withdrawal.integration.test.js.
+Object.assign(config, { manifest_path: "config/retailers/fit-house-approved-offer-manifest.json",
+  manifest_sha256: "a1e596f7707c851534e04e30d13f4289439449556787c572736e77b279c75292", approved_mapping_count: 286 });
+delete config.physical_mapping_count;
+config.guardrails.required_matched_offers = 286;
+
 const { sha256 } = require("./lib/shopify-snapshot-reader");
 const { CONTRACTS, sha256File } = require("./supabase-migration-selector");
 

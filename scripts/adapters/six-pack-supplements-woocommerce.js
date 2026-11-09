@@ -39,7 +39,8 @@ function validateConfig(value) {
   if (!/^[0-9A-F]{64}$/.test(value.source?.baseline_sha256 || "")) fail("Missing source baseline SHA-256");
   if (
     value.category_policy?.permanently_excluded?.includes("SARMs") !== true ||
-    value.category_policy?.permanently_excluded?.includes("Peptides") !== true ||
+    value.category_policy?.permanently_excluded?.includes("pharmacological and research peptides") !== true ||
+    value.category_policy?.permanently_excluded?.includes("melatonin (all doses, including 1mg)") !== true ||
     value.guardrails?.catalogue_creates !== false ||
     value.guardrails?.discovery_mode !== "REPORT_ONLY" ||
     value.automation?.retailer_id !== 11 ||

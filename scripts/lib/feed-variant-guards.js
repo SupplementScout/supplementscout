@@ -813,11 +813,120 @@ function safeCreateEvidenceText(row) {
     .join(" ");
 }
 
+function cataloguePolicyDecision(row) {
+  const identity = [row.product_name, row.external_name, row.name, row.evidence_name, row.category,
+    row.raw_category, row.merchant_category].filter(Boolean).join(" ");
+  const melatonin = /\bmelatonin(?:a|e)?\b/i;
+  const withoutMelatoninFreeClaims = text => text.replace(/\bmelatonin[-\s]+free\b|\bfree\s+(?:of|from)\s+melatonin\b/gi, " ");
+  if (melatonin.test(withoutMelatoninFreeClaims(identity))) return {
+    state: "EXCLUDE", code: "EXCLUDE_MELATONIN", reason: "prohibited catalogue type: melatonin (all doses)",
+  };
+  if (/\bselective androgen receptor modulators?\b/i.test(identity)) return {
+    state: "EXCLUDE", code: "EXCLUDE_SARM", reason: "prohibited catalogue type: SARM or peptide",
+  };
+  if (/\b(?:pharmacological|research)\s+peptides?\b|\bpeptydy\s+(?:badawcze|farmakologiczne)\b/i.test(identity)) return {
+    state: "EXCLUDE", code: "EXCLUDE_PEPTIDE", reason: "prohibited catalogue type: SARM or peptide",
+  };
+  if (PROHIBITED_CATALOGUE_TYPE_PATTERNS.some(pattern => pattern.test(identity))) return {
+    state: "EXCLUDE", code: /\b(?:sarms?|ostarine|ligandrol|testolone|andarine|cardarine|ibutamoren)\b/i.test(identity)
+      || PROHIBITED_CATALOGUE_TYPE_PATTERNS[0].test(identity) ? "EXCLUDE_SARM" : "EXCLUDE_PEPTIDE",
+    reason: "prohibited catalogue type: SARM or peptide",
+  };
+  // This existing named owner DEFER is not an identity alias or a product-ID rule.
+  if (/\blimitlesss?\s+nootropic\b/i.test(identity)) return {
+    state: "DEFER", code: "DEFER_OWNER_NAMED_PRODUCT", reason: "catalogue policy deferred: Limitless Nootropic requires owner review",
+  };
+  if (/\bpeptides?\b/i.test(identity) && !/\b(?:collagen|whey|protein)\b/i.test(identity)) return {
+    state: "DEFER", code: "DEFER_PEPTIDE_REVIEW", reason: "catalogue policy deferred: unresolved peptide identity",
+  };
+  const supportingEvidence = safeCreateEvidenceText(row);
+  if (melatonin.test(withoutMelatoninFreeClaims(supportingEvidence))
+    || PROHIBITED_CATALOGUE_TYPE_PATTERNS.some(pattern => pattern.test(supportingEvidence))) return {
+    state: "DEFER", code: "DEFER_INGREDIENT_REVIEW", reason: "catalogue policy deferred: description-only ingredient evidence",
+  };
+  return null;
+}
+
 function getProhibitedCatalogueTypeReason(row) {
-  const text = safeCreateEvidenceText(row);
-  return PROHIBITED_CATALOGUE_TYPE_PATTERNS.some((pattern) => pattern.test(text))
-    ? "prohibited catalogue type: SARM or peptide"
-    : null;
+  return cataloguePolicyDecision(row)?.reason || null;
+}
+
+function assertCataloguePolicyAllowsRecords(records) {
+  const blocked = records.flatMap(record => {
+    const candidates = [record.product?.name, record.mapping?.external_name,
+      record.variant?.display_name && [record.product?.name, record.variant.display_name].filter(Boolean).join(" ")].filter(Boolean);
+    const decisions = candidates.map(name => cataloguePolicyDecision({ product_name: name })).filter(Boolean);
+    const decision = decisions.find(value => value.state === "EXCLUDE") || decisions[0];
+    return decision ? [{ product_id: String(record.product?.id), variant_id: String(record.variant?.id),
+      mapping_id: String(record.mapping?.id), offer_id: String(record.offer?.id),
+      external_product_id: record.mapping?.external_product_id, ...decision }] : [];
+  });
+  if (!blocked.length) return;
+  const error = new Error("Approved scope conflicts with current owner catalogue policy; controlled scope reconciliation required");
+  error.code = "CATALOGUE_POLICY_SCOPE_BLOCKED";
+  error.stage = "CATALOGUE_POLICY";
+  error.detail = { blocked_records: blocked, automatic_scope_reduction: false };
+  throw error;
+}
+
+const SCOPE_BINDING_KEYS = ["mapping_id", "offer_id", "external_product_id", "external_variant_id", "canonical_product_id", "canonical_variant_id"];
+function catalogueScopeBindings(manifest) {
+  return [...manifest.rows, ...(manifest.historical_withdrawn_rows || [])].map(row =>
+    Object.fromEntries(SCOPE_BINDING_KEYS.map(key => [key, String(row[key])]))
+  ).sort((a, b) => Number(a.mapping_id) - Number(b.mapping_id));
+}
+
+// A partition of the existing approved manifest, not another visibility registry.
+// Every physical binding is checked before any row can leave classifier input.
+function reconcileApprovedCatalogueScope(manifest, records) {
+  if (!manifest.historical_withdrawn_rows) return { records, historical_records: [] };
+  const fail = message => { const error = new Error(message); error.code = "CATALOGUE_SCOPE_NOT_ACTIVATED"; throw error; };
+  const bindings = catalogueScopeBindings(manifest);
+  const hash = require("node:crypto").createHash("sha256").update(canonicalJson(bindings)).digest("hex");
+  if (hash !== manifest.physical_scope_fingerprint || bindings.length !== manifest.physical_mapping_count
+    || manifest.rows.length !== manifest.approved_mapping_count || records.length !== bindings.length
+    || new Set(bindings.map(r => r.mapping_id)).size !== bindings.length
+    || new Set(bindings.map(r => r.offer_id)).size !== bindings.length) fail("Physical catalogue scope fingerprint/count mismatch");
+  const byMapping = new Map(records.map(r => [String(r.mapping.id), r]));
+  if (byMapping.size !== records.length) fail("Duplicate physical mapping");
+  const historical = new Map(manifest.historical_withdrawn_rows.map(r => [String(r.mapping_id), r]));
+  const active = [], withdrawn = [];
+  for (const binding of bindings) {
+    const r = byMapping.get(binding.mapping_id);
+    if (!r || String(r.mapping.retailer_id) !== String(manifest.retailer.id)
+      || String(r.offer.retailer_id) !== String(manifest.retailer.id)
+      || String(r.offer.id) !== binding.offer_id || String(r.product.id) !== binding.canonical_product_id
+      || String(r.variant.id) !== binding.canonical_variant_id || String(r.variant.product_id) !== String(r.product.id)
+      || String(r.mapping.product_id) !== String(r.product.id) || String(r.mapping.product_variant_id) !== String(r.variant.id)
+      || String(r.offer.product_id) !== String(r.product.id) || String(r.offer.product_variant_id) !== String(r.variant.id)
+      || String(r.offer.retailer_product_id) !== String(r.mapping.id)
+      || String(r.mapping.external_product_id) !== binding.external_product_id
+      || String(r.mapping.external_variant_id) !== binding.external_variant_id) fail("Physical catalogue binding drift");
+    const decision = historical.get(binding.mapping_id);
+    if (decision) {
+      if (!["OWNER_EXCLUDED", "OWNER_DEFERRED"].includes(decision.withdrawal_state)
+        || r.product.owner_withdrawal_state !== decision.withdrawal_state
+        || r.product.owner_withdrawal_reason !== decision.decision_reference
+        || !Number.isFinite(Date.parse(r.product.owner_withdrawn_at))
+        || r.product.is_active !== false || r.variant.is_active !== false
+        || r.product.merged_into_product_id != null) fail("Owner withdrawal has not been activated or has drifted");
+      withdrawn.push(r);
+    } else {
+      if (r.product.is_active !== true || r.variant.is_active !== true || r.product.merged_into_product_id != null
+        || r.product.owner_withdrawal_state != null) fail("Active approved catalogue state drift");
+      const product = { ...r.product };
+      delete product.owner_withdrawal_state;
+      delete product.owner_withdrawal_reason;
+      delete product.owner_withdrawn_at;
+      active.push({ ...r, product });
+    }
+  }
+  if (active.length !== manifest.approved_mapping_count || withdrawn.length !== historical.size) fail("Incomplete catalogue partition");
+  assertCataloguePolicyAllowsRecords(active);
+  return { records: active, historical_records: withdrawn, scope_partition: {
+    physical_mapping_count: bindings.length, active_approved_mapping_count: active.length,
+    historical_withdrawn_mapping_count: withdrawn.length, physical_scope_fingerprint: hash,
+  } };
 }
 
 function reviewedSafeCreateFamily(row) {
@@ -1447,6 +1556,10 @@ function formatPreflightReport(report) {
 }
 
 module.exports = {
+  cataloguePolicyDecision,
+  assertCataloguePolicyAllowsRecords,
+  catalogueScopeBindings,
+  reconcileApprovedCatalogueScope,
   analyzeFeedRows,
   assessVariantCompatibility,
   formatPreflightReport,

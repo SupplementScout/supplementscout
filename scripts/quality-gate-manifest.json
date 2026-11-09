@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 355,
-    "sha256": "7c2d270f8b1bc713d3921bf108f34611a4d4c941bd53e461d18824fe2c6037c4"
+    "count": 356,
+    "sha256": "d9a5336068bcc65d3960b9e430258898b6d5177df4ad3c94ac33f25325a38d94"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -25,22 +25,23 @@
     "scripts/jons-per4m-product-families-data-migration.test.js",
     "scripts/jons-sync-metadata-contract.integration.test.js",
     "scripts/nutrition-variant-provenance.integration.test.js",
+    "scripts/owner-catalogue-withdrawal.integration.test.js",
     "scripts/price-observation-foundation.integration.test.js",
     "scripts/product-7-variants-data-migration.test.js",
-    "scripts/production-retailer-sync-enablement.integration.test.js",
     "scripts/product-variants-stage2-migration.test.js",
+    "scripts/production-retailer-sync-enablement.integration.test.js",
     "scripts/ra-stab-01-control-plan-credential-lifecycle.integration.test.js",
     "scripts/ra-stab-central-readback.integration.test.js",
-    "scripts/retailer-catalogue-control-ledger.integration.test.js",
     "scripts/ra004-staging-preflight.integration.test.js",
     "scripts/ra004-staging-retailer-fixture.integration.test.js",
+    "scripts/retailer-catalogue-control-ledger.integration.test.js",
     "scripts/retailer-control-state-interface.integration.test.js",
     "scripts/retailer-identity-bootstrap.integration.test.js",
     "scripts/retailer-offer-expired-approval-close.integration.test.js",
     "scripts/retailer-offer-mixed-batch-migration.integration.test.js",
     "scripts/retailer-offer-read-only-validator.integration.test.js",
-    "scripts/retailer-offer-sync.integration.test.js",
     "scripts/retailer-offer-sync-recovery.integration.test.js",
+    "scripts/retailer-offer-sync.integration.test.js",
     "scripts/retailer-snapshot-phase1.integration.test.js",
     "scripts/retailer-snapshot-staging-executor.integration.test.js",
     "scripts/retailer-url-identity-migration.integration.test.js",

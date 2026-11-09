@@ -19,7 +19,7 @@ test("all four workflow source loops stop permanent failures and bound transient
     .map((m) => m[0].replace(/\$\{\{[^}]*\}\}/g, "test-only-reviewed-fingerprint"));
   assert.equal(loops.length, 4);
   const cli = fs.readFileSync(path.join(__dirname, "six-pack-offer-refresh.js"), "utf8");
-  assert.match(cli, /process\.exitCode = isPermanentSourceError\(error\) \? 2 : 1/);
+  assert.match(cli, /process\.exitCode = isPermanentSourceError\(error\) \|\| \["CATALOGUE_POLICY_SCOPE_BLOCKED", "CATALOGUE_SCOPE_NOT_ACTIVATED"\]\.includes\(error\.code\) \? 2 : 1/);
   const bash = process.platform === "win32" ? "C:/Program Files/Git/bin/bash.exe" : "/bin/bash";
   for (const loop of loops) {
     assert.match(loop, /node scripts\/six-pack-offer-refresh\.js/);
@@ -44,6 +44,17 @@ ${loop}
       assert.equal(result.stdout.trim(), `calls=${scenario.calls} sleeps=${scenario.sleeps}`);
     }
   }
+});
+
+test("current active scope rejects an archived 506-row artifact containing owner-withdrawn bindings", () => {
+  const current = require("../config/retailers/six-pack-approved-offer-manifest-owner-withdrawal-v2.json");
+  assert.equal(current.rows.length, 504);
+  assert.throws(() => validateArtifactScope(artifact(), current), /scope|manifest|artifact/i);
+  const activeIds = new Set(current.rows.map(row => row.offer_id)), active = artifact();
+  active.plans = active.plans.filter(row => activeIds.has(row.resolved_plan.offer.id));
+  const sourceRows = new Set(active.plans.map(row => row.row_number));
+  active.source_rows = active.source_rows.filter(row => sourceRows.has(row.row_number));
+  assert.equal(validateArtifactScope(active, current).length, 504);
 });
 
 function artifact() {

@@ -4,6 +4,7 @@ const path = require("node:path");
 const { Client } = require("pg");
 const { canonicalJson, normalizeDecimalString } = require("./lib/canonical-json");
 const { canonicalizeTimestamps, timestampEpochNanoseconds } = require("./lib/canonical-timestamp");
+const { reconcileApprovedCatalogueScope } = require("./lib/feed-variant-guards");
 const { normalizeConnectionString, withPostgresRoleSession } = require("./lib/retailer-offer-sync/production-role-session");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -42,7 +43,9 @@ const PROFILES = Object.freeze({
     retailerId: "9",
     retailerName: "Fit House",
     credential: "FIT_HOUSE_SYNC_VALIDATOR_DATABASE_URL",
-    approvedMappingCount: 286,
+    manifestPath: "config/retailers/fit-house-approved-offer-manifest-owner-withdrawal-v2.json",
+    approvedMappingCount: 284,
+    physicalMappingCount: 286,
   },
   "gladiator-nutrition": {
     retailerId: "15",
@@ -74,8 +77,9 @@ const PROFILES = Object.freeze({
     retailerId: "11",
     retailerName: "6 Pack Supplements",
     credential: "SIX_PACK_SYNC_VALIDATOR_DATABASE_URL",
-    manifestPath: "config/retailers/six-pack-approved-offer-manifest.json",
-    approvedMappingCount: 506,
+    manifestPath: "config/retailers/six-pack-approved-offer-manifest-owner-withdrawal-v2.json",
+    approvedMappingCount: 504,
+    physicalMappingCount: 506,
   },
   "whey-okay": {
     retailerId: "3",
@@ -143,6 +147,11 @@ function parseArgs(argv) {
 
 async function capture(client, profile) {
   const scopedOfferIds = approvedOfferIds(profile);
+  const lifecycleManifest = profile.physicalMappingCount ? read(path.join(ROOT, profile.manifestPath)) : null;
+  if (lifecycleManifest) {
+    const counts = (await client.query("select (select count(*)::int from public.retailer_products where retailer_id=$1::bigint) mappings,(select count(*)::int from public.offers where retailer_id=$1::bigint) offers", [profile.retailerId])).rows[0];
+    invariant(counts.mappings === profile.physicalMappingCount && counts.offers === profile.physicalMappingCount, "Physical postflight DB scope drift");
+  }
   const result = await client.query(`
     select rp.id::text mapping_id, rp.retailer_id::text retailer_id,
            rp.product_id::text mapping_product_id, rp.product_variant_id::text mapping_variant_id,
@@ -151,12 +160,29 @@ async function capture(client, profile) {
            o.id::text offer_id, o.product_id::text offer_product_id,
            o.product_variant_id::text offer_variant_id, o.price::text, o.shipping_cost::text,
            o.total_price::text, o.in_stock, o.url, o.last_checked_at
+           ${lifecycleManifest ? ",to_jsonb(p) catalogue_product,to_jsonb(v) catalogue_variant" : ""}
       from public.retailer_products rp
       join public.offers o on o.retailer_product_id=rp.id and o.retailer_id=rp.retailer_id
+      ${lifecycleManifest ? "join public.products p on p.id=rp.product_id join public.product_variants v on v.id=rp.product_variant_id" : ""}
      where rp.retailer_id=$1::bigint
        and ($2::bigint[] is null or o.id=any($2::bigint[]))
-     order by o.id`, [profile.retailerId, scopedOfferIds]);
-  const rows = result.rows;
+     order by o.id`, [profile.retailerId, lifecycleManifest ? null : scopedOfferIds]);
+  let rows = result.rows, historicalRows = [], historicalHistory = [];
+  if (lifecycleManifest) {
+    invariant(rows.length === profile.physicalMappingCount, "Physical postflight scope drift");
+    const partition = reconcileApprovedCatalogueScope(lifecycleManifest, rows.map(row => ({
+      product: row.catalogue_product, variant: row.catalogue_variant,
+      mapping: { id: row.mapping_id, retailer_id: row.retailer_id, product_id: row.mapping_product_id, product_variant_id: row.mapping_variant_id,
+        external_product_id: row.external_product_id, external_variant_id: row.external_variant_id },
+      offer: { id: row.offer_id, retailer_id: row.retailer_id, retailer_product_id: row.mapping_id, product_id: row.offer_product_id, product_variant_id: row.offer_variant_id },
+    })));
+    const historicalIds = new Set(partition.historical_records.map(r => String(r.offer.id)));
+    historicalRows = rows.filter(row => historicalIds.has(row.offer_id));
+    rows = rows.filter(row => !historicalIds.has(row.offer_id)).map(row => {
+      const value = { ...row }; delete value.catalogue_product; delete value.catalogue_variant; return value;
+    });
+    historicalHistory = (await client.query("select to_jsonb(h) row from public.price_history h where offer_id=any($1::bigint[]) order by id", [[...historicalIds]])).rows.map(row => row.row);
+  }
   if (profile.approvedMappingCount !== undefined) {
     invariant(rows.length === profile.approvedMappingCount, "Approved postflight DB scope drift");
   }
@@ -174,6 +200,8 @@ async function capture(client, profile) {
     business_price_history_count: history.rows[0].business_count,
     daily_confirmation_count: history.rows[0].daily_confirmation_count,
     rows,
+    ...(lifecycleManifest ? { physical_row_count: result.rows.length, historical_row_count: historicalRows.length,
+      historical_rows: historicalRows, historical_price_history: historicalHistory } : {}),
   };
 }
 
@@ -185,6 +213,11 @@ function verifyPostflight(baseline, after, execution) {
   invariant(execution.blocked_row_count === 0, "Apply contains blocked rows");
   invariant(execution.executed_plan_count === execution.executable_plan_count, "Executed plan count differs from executable plan count");
   invariant(after.row_count === baseline.snapshot.row_count, "Retailer mapping or offer row-count drift");
+  if (baseline.snapshot.historical_rows) {
+    invariant(after.physical_row_count === baseline.snapshot.physical_row_count, "Physical retailer scope drift");
+    invariant(hash(after.historical_rows) === hash(baseline.snapshot.historical_rows), "Withdrawn historical catalogue changed");
+    invariant(hash(after.historical_price_history) === hash(baseline.snapshot.historical_price_history), "Withdrawn price history changed");
+  }
   const beforeByOffer = new Map(baseline.snapshot.rows.map((row) => [row.offer_id, row]));
   const afterByOffer = new Map(after.rows.map((row) => [row.offer_id, row]));
   const reviewIds = new Set((execution.review_rows || []).map((row) => String(row.offer_id)));

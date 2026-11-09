@@ -5,9 +5,9 @@
   "retailer_slug": "fit-house",
   "store_url": "https://fithouse.uk",
   "source_platform": "SHOPIFY",
-  "manifest_path": "config/retailers/fit-house-approved-offer-manifest.json",
-  "manifest_sha256": "a1e596f7707c851534e04e30d13f4289439449556787c572736e77b279c75292",
-  "approved_mapping_count": 286,
+  "manifest_path": "config/retailers/fit-house-approved-offer-manifest-owner-withdrawal-v2.json",
+  "manifest_sha256": "b25aaafadecb848e08507ba488f34a4b4a84871f67d993d93538eff50600e3b5",
+  "approved_mapping_count": 284,
   "approved_stable_oos_baseline": {
     "retailer_id": 9,
     "approved_mapping_count": 286,
@@ -31,7 +31,7 @@
     "user_agent": "SupplementScout-Fit-House-Refresh/1.0"
   },
   "guardrails": {
-    "required_matched_offers": 286,
+    "required_matched_offers": 284,
     "source_freshness_hours": 24,
     "future_clock_skew_minutes": 5,
     "full_snapshot_minimum_source_count_ratio": 0.9,
@@ -62,5 +62,6 @@
   },
   "schedule": {
     "cron_utc": "47 2 * * *"
-  }
+  },
+  "physical_mapping_count": 286
 }

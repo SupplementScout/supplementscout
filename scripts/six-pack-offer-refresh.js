@@ -18,6 +18,7 @@ const {
 const { buildVerifiedNoChangePlan } = require("./verified-no-change-offer-refresh");
 const { writeDryRunArtifact } = require("./import-products");
 const { commercialIdentity, liveIdentityDrift } = require("./six-pack-canary-builder");
+const { assertCataloguePolicyAllowsRecords, catalogueScopeBindings, reconcileApprovedCatalogueScope } = require("./lib/feed-variant-guards");
 const {
   assertFreshBatchMatch,
   buildReviewedBatch,
@@ -724,13 +725,14 @@ async function readState(manifest, dependencies = {}) {
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!url || !key || new URL(url).hostname.split(".")[0] !== PROJECT_REF) fail("Production read credential mismatch", "TARGET_MISMATCH");
   const client = dependencies.client || createClient(url, key, { auth: { persistSession: false, autoRefreshToken: false } });
-  const productIds = [...new Set(manifest.rows.map((row) => row.canonical_product_id))];
-  const variantIds = [...new Set(manifest.rows.map((row) => row.canonical_variant_id))];
+  const physicalBindings = manifest.historical_withdrawn_rows ? catalogueScopeBindings(manifest) : manifest.rows;
+  const productIds = [...new Set(physicalBindings.map((row) => row.canonical_product_id))];
+  const variantIds = [...new Set(physicalBindings.map((row) => row.canonical_variant_id))];
   const [retailersResult, mappingsResult, offersResult, products, variants, activeVariantsResult] = await Promise.all([
     client.from("retailers").select("id,name,slug,website").eq("id", manifest.retailer.id),
     client.from("retailer_products").select("id,retailer_id,product_id,product_variant_id,external_product_id,external_variant_id,external_sku,external_options,external_name,external_slug,external_gtin,external_url,match_method,match_confidence,updated_at").eq("retailer_id", manifest.retailer.id),
     client.from("offers").select("id,product_id,retailer_id,product_variant_id,retailer_product_id,price,shipping_cost,total_price,in_stock,url,last_checked_at").eq("retailer_id", manifest.retailer.id),
-    exactRows(client, "products", productIds, "id,name,is_active,merged_into_product_id,product_format"),
+    exactRows(client, "products", productIds, "id,name,is_active,merged_into_product_id,product_format" + (manifest.historical_withdrawn_rows ? ",owner_withdrawal_state,owner_withdrawal_reason,owner_withdrawn_at" : "")),
     exactRows(client, "product_variants", variantIds, "id,product_id,variant_key,display_name,flavour_code,flavour_label,size_value,size_unit,pack_count,product_format,is_active,is_default"),
     client.from("product_variants").select("id,product_id,variant_key,display_name,flavour_code,flavour_label,size_value,size_unit,pack_count,product_format,is_active,is_default").in("product_id", productIds).eq("is_active", true),
   ]);
@@ -738,7 +740,7 @@ async function readState(manifest, dependencies = {}) {
   if (retailersResult.data.length !== 1) fail("Retailer identity missing or duplicated", "STATE_DRIFT");
   const retailer = retailersResult.data[0];
   if (retailer.slug !== config.retailer.slug || retailer.website !== config.retailer.website) fail("Retailer identity drift", "STATE_DRIFT");
-  if (mappingsResult.data.length !== manifest.rows.length || offersResult.data.length !== manifest.rows.length) {
+  if (mappingsResult.data.length !== physicalBindings.length || offersResult.data.length !== physicalBindings.length) {
     fail("Approved manifest no longer covers the full retailer scope", "SCOPE_DRIFT");
   }
   const productById = new Map(products.map((row) => [String(row.id), row]));
@@ -751,7 +753,7 @@ async function readState(manifest, dependencies = {}) {
     if (!activeVariantsByProduct.has(key)) activeVariantsByProduct.set(key, []);
     activeVariantsByProduct.get(key).push(row);
   }
-  const records = manifest.rows.map((binding) => {
+  const records = physicalBindings.map((binding) => {
     const mapping = mappingById.get(binding.mapping_id);
     const offer = offerById.get(binding.offer_id);
     const product = productById.get(binding.canonical_product_id);
@@ -765,7 +767,7 @@ async function readState(manifest, dependencies = {}) {
       String(offer.retailer_product_id) !== binding.mapping_id ||
       String(offer.product_id) !== binding.canonical_product_id ||
       String(offer.product_variant_id) !== binding.canonical_variant_id ||
-      product.is_active !== true || product.merged_into_product_id != null || variant.is_active !== true
+      (!manifest.historical_withdrawn_rows && (product.is_active !== true || product.merged_into_product_id != null || variant.is_active !== true))
     ) fail(`Approved binding drift for ${binding.external_variant_id}`, "STATE_DRIFT");
     return { product, variant, active_variants: activeVariantsByProduct.get(String(product.id)) || [variant], retailer, mapping, offer };
   });
@@ -1182,7 +1184,9 @@ async function run(options, dependencies = {}) {
   const reviewedOwner = options.reviewedBatchFingerprint
     ? loadReviewedBatch(options.reviewedBatchFingerprint, dependencies.reviewedBatchOptions || {})
     : null;
-  const state = await readState(approved.manifest, dependencies);
+  const physicalState = await readState(approved.manifest, dependencies);
+  const state = { ...physicalState, ...reconcileApprovedCatalogueScope(approved.manifest, physicalState.records) };
+  assertCataloguePolicyAllowsRecords(state.records);
   const capturedAt = new Date().toISOString();
   const readLive = dependencies.readLive || ((productId) => readWooCommerceProductPage({
     storeUrl: config.retailer.website,
@@ -1402,6 +1406,7 @@ async function run(options, dependencies = {}) {
     kind: "six-pack-approved-offer-refresh-dry-run",
     result: accepted ? (reviewRows.length ? "PASS_WITH_REVIEW" : "PASS") : "BLOCK",
     target_project_ref: PROJECT_REF,
+    ...(state.scope_partition ? { catalogue_scope: state.scope_partition } : {}),
     manifest_sha256: approved.sha256,
     source_snapshot_fingerprint: snapshotFingerprint,
     source_captured_at: capturedAt,
@@ -1481,8 +1486,8 @@ function main(options = parseArgs(process.argv.slice(2)), dependencies) {
     .then(({ report }) => console.log(JSON.stringify(report, null, 2)))
     .catch((error) => {
       console.error(`${error.code || "ERROR"}: ${error.message}`);
-      // Exit 2 stops only source-read retry loops, never an executor or replay.
-      process.exitCode = isPermanentSourceError(error) ? 2 : 1;
+      // Deterministic source or owner-policy blocks cannot improve by rereading.
+      process.exitCode = isPermanentSourceError(error) || ["CATALOGUE_POLICY_SCOPE_BLOCKED", "CATALOGUE_SCOPE_NOT_ACTIVATED"].includes(error.code) ? 2 : 1;
     });
 }
 

@@ -1,3 +1,18 @@
+// Public eligibility is shared with the catalogue; historical offers remain counted.
+const OFFER_FRESHNESS_SQL = `with scoped as (
+ select o.*,coalesce(p.is_active and p.merged_into_product_id is null and v.is_active,false) eligible,
+   coalesce(to_jsonb(p)->>'owner_withdrawal_state' in ('OWNER_EXCLUDED','OWNER_DEFERRED'),false) owner_withdrawn
+ from public.offers o left join public.products p on p.id=o.product_id
+ left join public.product_variants v on v.id=o.product_variant_id
+ where o.retailer_id=any($1::bigint[])
+)
+select retailer_id::text,count(*) filter(where eligible)::integer offer_count,
+ count(*)::integer physical_offer_count,count(*) filter(where not eligible)::integer historical_offer_count,
+ count(*) filter(where owner_withdrawn)::integer owner_withdrawn_offer_count,
+ min(last_checked_at) filter(where eligible) oldest_check,max(last_checked_at) filter(where eligible) newest_check,
+ count(*) filter(where eligible and (last_checked_at is null or last_checked_at<=now()-interval '48 hours'))::integer offers_older_than_48h,
+ coalesce(array_agg(id::text order by id) filter(where eligible and (last_checked_at is null or last_checked_at<=now()-interval '48 hours')),'{}'::text[]) older_offer_ids
+from scoped group by retailer_id`;
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
@@ -1368,21 +1383,7 @@ async function databaseEvidence(config, env, dependencies = {}) {
     async (client) => {
       const ids = config.retailers.map((row) => String(row.id));
       const result = await client.query(
-        `select retailer_id::text,
-                count(*)::integer offer_count,
-                min(last_checked_at) oldest_check,
-                max(last_checked_at) newest_check,
-                count(*) filter (
-                  where last_checked_at is null
-                     or last_checked_at <= now() - interval '48 hours'
-                )::integer offers_older_than_48h,
-                coalesce(array_agg(id::text order by id) filter (
-                  where last_checked_at is null
-                     or last_checked_at <= now() - interval '48 hours'
-                ), '{}'::text[]) older_offer_ids
-           from public.offers
-          where retailer_id = any($1::bigint[])
-          group by retailer_id`,
+        OFFER_FRESHNESS_SQL,
         [ids],
       );
       return result.rows;
@@ -1557,6 +1558,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  OFFER_FRESHNESS_SQL,
   CONFIG_PATH,
   VALIDATOR_LOGIN,
   VALIDATOR_ROLE,

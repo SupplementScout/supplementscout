@@ -1,6 +1,7 @@
 const { planFingerprint, serializeImportPlan, sourceRowFingerprint } = require("../../import-products");
 const { normalizeDecimalString, normalizeNumbersToDecimalStrings } = require("../canonical-json");
 const { canonicalTimestamp, timestampEpochNanoseconds } = require("../canonical-timestamp");
+const { assertCataloguePolicyAllowsRecords } = require("../feed-variant-guards");
 
 const PRODUCT_KEYS = ["id", "name", "is_active", "merged_into_product_id", "product_format"];
 const RETAILER_KEYS = ["id", "name", "slug", "website"];
@@ -29,6 +30,7 @@ function normalizeState(input) {
 }
 
 function buildExistingOfferUpdatePlan(input) {
+  assertCataloguePolicyAllowsRecords([input]);
   const state=normalizeState(input),source=input.source,capturedAt=canonicalTimestamp(input.sourceCapturedAt,"sourceCapturedAt");
   if (!/^[0-9a-f]{64}$/.test(input.sourceSnapshotFingerprint)||!externalIdentity(source.external_product_id)||!externalIdentity(source.external_variant_id)) throw new Error("invalid source identity");
   if (state.mapping.external_product_id!==String(source.external_product_id)||state.mapping.external_variant_id!==String(source.external_variant_id)) throw new Error("external identity drift");

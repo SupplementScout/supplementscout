@@ -47,3 +47,41 @@ test("builder output is confined to tmp", () => {
     /inside repository tmp or the approved manifest path/
   );
 });
+
+test("owner withdrawal proposal accounts for every binding without changing or activating approved scope", () => {
+  const fs = require("node:fs");
+  const path = require("node:path");
+  const { createHash } = require("node:crypto");
+  const { canonicalJson } = require("./lib/canonical-json");
+  const { cataloguePolicyDecision } = require("./lib/feed-variant-guards");
+  const root = path.resolve(__dirname, "..");
+  const evidence = require("../docs/retailer-automation/evidence/OWNER-CATALOGUE-EXCLUSION-2026-11-08.json");
+  const hash = value => createHash("sha256").update(value).digest("hex");
+  assert.equal(evidence.status, "READY_FOR_REVIEW_DEPLOYMENT_BLOCKED");
+  assert.equal(evidence.approved_for_production_writes, false);
+  assert.equal(evidence.approved_for_scope_activation, false);
+  for (const proposal of evidence.retailer_scope_proposals) {
+    const bytes = fs.readFileSync(path.join(root, proposal.current_manifest_path));
+    assert.equal(hash(bytes), proposal.current_manifest_sha256);
+    const rows = JSON.parse(bytes).rows;
+    const keys = new Set(proposal.withdrawn_bindings.map(row => `${row.external_product_id}|${row.external_variant_id}`));
+    const withdrawn = rows.filter(row => keys.has(`${row.external_product_id}|${row.external_variant_id}`));
+    const retained = rows.filter(row => !keys.has(`${row.external_product_id}|${row.external_variant_id}`));
+    assert.equal(rows.length, proposal.current_approved_mappings);
+    assert.equal(withdrawn.length, proposal.withdrawn_bindings.length);
+    assert.equal(rows.length, withdrawn.length + retained.length);
+    assert.equal(retained.length, proposal.candidate_approved_mappings);
+    assert.equal(new Set(retained.map(row => row.external_product_id)).size, proposal.candidate_approved_source_products);
+    assert.equal(hash(canonicalJson(retained)), proposal.candidate_scope_rows_sha256);
+    assert.equal(proposal.candidate_approved, false);
+    assert.equal(proposal.physical_mappings_deleted + proposal.physical_offers_deleted, 0);
+  }
+  for (const product of evidence.products) {
+    assert.equal(cataloguePolicyDecision({ product_name: product.name }).state, product.decision);
+  }
+  for (const product of evidence.unchanged_nutrition_controls) {
+    assert.equal(cataloguePolicyDecision({ product_name: product.name }), null);
+  }
+  assert.equal(evidence.dependencies.history.reduce((count, row) => count + row.count, 0), 5);
+  assert.equal(evidence.dependencies.cross_retailer_shared_variant.offer_ids.length, 2);
+});

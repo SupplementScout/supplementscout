@@ -27,15 +27,15 @@
   },
   "category_policy": {
     "permanently_excluded": [
+      "melatonin (all doses, including 1mg)",
       "SARMs",
-      "Peptides",
+      "pharmacological and research peptides",
       "positively expired or past-best-before products",
       "DMAA products",
       "yohimbine products",
       "T5 ECA products"
     ],
     "deferred": [
-      "melatonin above the already approved 1mg product",
       "NMN",
       "Limitlesss Nootropic Brain Booster",
       "Vitamin D3 8000 IU"
@@ -110,10 +110,10 @@
   },
   "automation": {
     "retailer_id": 11,
-    "manifest_path": "config/retailers/six-pack-approved-offer-manifest.json",
-    "manifest_sha256": "62f88fabc33e339d1106e597091217eabbbfaa4c5015b5625fb5257eacf0e7ff",
-    "approved_mapping_count": 506,
-    "approved_product_page_count": 279,
+    "manifest_path": "config/retailers/six-pack-approved-offer-manifest-owner-withdrawal-v2.json",
+    "manifest_sha256": "a038f86f98057c5edde505ec5c07f262066dbc53001157a933ebee6c468ae77e",
+    "approved_mapping_count": 504,
+    "approved_product_page_count": 277,
     "model": "ONE_SHARED_RETAILER_MANIFEST",
     "new_products": "REPORT_ONLY_UNTIL_REVIEWED",
     "reviewed_mass_oos_selector": "2026-08-11-whey-isolate-stock",
@@ -121,7 +121,8 @@
     "reviewed_mass_oos_manifest_sha256": "002be1127ca657a7412c5b5e7f63d541267dde3b7a6557e817f8c9ea2767365f",
     "status": "OPERATIONAL",
     "schedule_cron_utc": "17 3 * * *",
-    "first_successful_run_id": "30272677883"
+    "first_successful_run_id": "30272677883",
+    "physical_mapping_count": 506
   },
   "guardrails": {
     "source_freshness_hours": 24,
@@ -133,6 +134,7 @@
     "per_row_price_hard_block_ratio": 0.6,
     "per_row_price_hard_block_absolute_gbp": "20.00",
     "discovery_mode": "REPORT_ONLY",
-    "catalogue_creates": false
+    "catalogue_creates": false,
+    "required_matched_offers": 504
   }
 }

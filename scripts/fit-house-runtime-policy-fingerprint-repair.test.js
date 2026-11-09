@@ -7,6 +7,15 @@ const { sha256 } = require("./lib/shopify-snapshot-reader");
 
 const configPath = path.resolve("config/retailers/fit-house-offer-sync.json");
 const rawConfig = JSON.parse(fs.readFileSync(configPath, "utf8"));
+// Freeze the historical 286-row contract tested by these immutable migrations.
+// Current 284+2 activation is covered by owner-catalogue-withdrawal.integration.test.js.
+Object.assign(rawConfig, { manifest_path: "config/retailers/fit-house-approved-offer-manifest.json",
+  manifest_sha256: "a1e596f7707c851534e04e30d13f4289439449556787c572736e77b279c75292", approved_mapping_count: 286 });
+delete rawConfig.physical_mapping_count;
+rawConfig.guardrails.required_matched_offers = 286;
+
+require(configPath);
+require.cache[require.resolve(configPath)].exports = structuredClone(rawConfig);
 const engine = require("./fit-house-offer-refresh");
 const migrationPath = path.resolve("supabase/migrations/20260811020000_repair_fit_house_runtime_policy_fingerprint.sql");
 const rollbackPath = path.resolve("supabase/rollbacks/20260811020000_repair_fit_house_runtime_policy_fingerprint.sql");

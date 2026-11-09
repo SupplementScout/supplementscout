@@ -15,6 +15,7 @@ const PENDING_POLICY = Object.freeze({
 });
 const EXCLUSIONS = Object.freeze({
   STAGING: Object.freeze([
+    "20261109100000_add_owner_catalogue_withdrawal_lifecycle",
     "20261107190000_extend_never_approved_planned_control_close",
     "20261031120000_add_verified_automation_review_stock_transition_reader",
     "20261030120000_create_sealed_artifacts_registry",
@@ -252,7 +253,7 @@ const PENDING_MIGRATIONS = Object.freeze({
       sha256: "015f0de7448c10fcca10174e74dfbf7ca9e3150951f49090d01cd6eee869024c",
     }),
   ]),
-  PRODUCTION: Object.freeze([]),
+  PRODUCTION: Object.freeze([Object.freeze({ filename: "20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql", sha256: "a9cb6d18c60dda40dbc10322e23971f929e929a4344761e8f97328677b04e29b" })]),
 });
 
 function migrationIdentifier(filename) {
