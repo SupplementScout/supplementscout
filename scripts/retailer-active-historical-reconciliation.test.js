@@ -125,8 +125,8 @@ test('stable OOS104 retains all four proven stock transitions over the physical 
 
 test('both initial reconciliation and aggregate confirmation retain historical proof', () => {
   const source = fs.readFileSync(path.join(__dirname,'fit-house-offer-refresh.js'),'utf8');
-  assert.match(source,/reconcileAuditedMissingVariants\(state.records,ownerReconciledSourceVariants,auditedMissing,state.historical_records\|\|\[\]\)/);
-  assert.match(source,/reconcileAuditedMissingVariants\(state.records,secondOwnerReconciledSourceVariants,auditedMissing,state.historical_records\|\|\[\]\)/);
+  assert.match(source,/reconcileAuditedMissingVariants\(state.records,ownerReconciledSourceVariants,auditedMissing,state.historical_records\|\|\[\],\{isolateUnsafe:/);
+  assert.match(source,/reconcileAuditedMissingVariants\(state.records,secondOwnerReconciledSourceVariants,auditedMissing,state.historical_records\|\|\[\],\{isolateUnsafe:/);
 });
 
 test('other retailer profiles retain generic reconciliation without the Fit historical audit path', () => {
