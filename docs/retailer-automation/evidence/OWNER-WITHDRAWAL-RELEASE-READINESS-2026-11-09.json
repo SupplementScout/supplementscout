@@ -1,0 +1,373 @@
+{
+  "kind": "owner-withdrawal-final-release-readiness-v1",
+  "reviewed_pr": 510,
+  "reviewed_head": "3a1a98cda305a265d48d60e918fc891f15efcce1",
+  "main": "1dce913d28fb727bac9989b49a470cb7ad4bf4af",
+  "production_authorized": false,
+  "production_writes": 0,
+  "migration_applied": false,
+  "purge_executed": false,
+  "retailer_dispatches": 0,
+  "six_schedule": "PAUSED_UNCHANGED",
+  "review": {
+    "security_findings": [],
+    "scope": {
+      "products": 3,
+      "variants": 4,
+      "mappings": 4,
+      "offers": 4,
+      "price_history": 5
+    },
+    "independent_queue_worker": "existing shared executor entrypoint; must prove no queued Fit requests before activation",
+    "historical_test_isolation": "Node per-file process; no historical test import in PostgreSQL fixture"
+  },
+  "database_readback": {
+    "captured_at": "2026-11-09T09:36:37.896Z",
+    "tls_verified": true,
+    "target": {
+      "project_ref": "aftboxmrdgyhizicfsfu",
+      "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu",
+      "target_environment": "PRODUCTION"
+    },
+    "ledger_count": 261,
+    "ledger_fingerprint": "755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a",
+    "affected_hashes": {
+      "products": [
+        {
+          "id": "1114",
+          "hash": "fa5e1540e5bbf4b0392f721505c7f1047830a046a143ac121b8183b63f498b55"
+        },
+        {
+          "id": "951",
+          "hash": "e32c699bf874145ba37ffc18cd6a1b3726eb66fcc88ea2771d084a5801e66253"
+        },
+        {
+          "id": "999",
+          "hash": "dc4fdf7172000312240575d5999d717b785540d742b97057e88a52f565f5ba89"
+        }
+      ],
+      "product_variants": [
+        {
+          "id": "1853",
+          "hash": "8cb33463c409d07ad7a78c5ffbe86fd8b729a46701666ac6685de0e89c170c42"
+        },
+        {
+          "id": "1960",
+          "hash": "3d18bcff205448f5755352597cf2c62133485a3f604c8ee1d161755cba3f5e44"
+        },
+        {
+          "id": "2414",
+          "hash": "9bad48565303ac281f7a0b165985526d7c2f82b80a0143ff5410edc7fbf4acb9"
+        },
+        {
+          "id": "2415",
+          "hash": "0dfa1abd59613af9bb492e1f73f920ac67af4d052ce2002317b62ec3796ec834"
+        }
+      ],
+      "retailer_products": [
+        {
+          "id": "2082",
+          "hash": "5b45f5f917b4c65d9554449987d6d4fcbd48d4b520fcfb927b432f86f9433f3f"
+        },
+        {
+          "id": "2151",
+          "hash": "e65ea60bb1a538d431e3e3cd8ce2f02b5c5bc9955d2e49fe0b41bdd687180119"
+        },
+        {
+          "id": "2170",
+          "hash": "a6045b548ffd0a9c0990fb2c0740b2df7c9f791775d0e9eb265cdc176670af04"
+        },
+        {
+          "id": "2582",
+          "hash": "bd734fdd2b90858afe0762ee7d10bd8509d7da60c53882dfa570714150ec2e53"
+        }
+      ],
+      "offers": [
+        {
+          "id": "1896",
+          "hash": "d81f928b7c45be902acdeb9dcbdec969a53bbdbe5581ef03e7b26eb3ea5a81dd"
+        },
+        {
+          "id": "1965",
+          "hash": "3003518637a33a3f3da7b6395b9e12450c335a9f9a47e467cb18763ffdb6fea6"
+        },
+        {
+          "id": "1984",
+          "hash": "9867e2930cb72a733116a4464f80a2baca0084cc8ca680b56036faae58dfffab"
+        },
+        {
+          "id": "2396",
+          "hash": "e2fb94105542843e8720c0df8eabd92fb16b992075cfd2d50ebc1e41efa4e5c6"
+        }
+      ],
+      "price_history": [
+        {
+          "id": "1900",
+          "hash": "4ce44c7364c0a828741d6ce5de9271ee226f21d4720886551655a79d67f14f20"
+        },
+        {
+          "id": "1969",
+          "hash": "ec6a398f77528236b8aa1c34bf7784078c4ccd3caefac8d32b5cabf5676a1c80"
+        },
+        {
+          "id": "1988",
+          "hash": "5730464ac37d8570a363619a02ba3fa6100ee4a4591bb315487b3a1ddd67c14f"
+        },
+        {
+          "id": "2003",
+          "hash": "ba980e3adec01b337e2a93e38a8ee301eedde465acb31fe65651a195cd699c2c"
+        },
+        {
+          "id": "2415",
+          "hash": "dc8e95183e495e2f65af1f328e560bf3e86ec4f992c572fd8bbb964b09bd41bf"
+        }
+      ]
+    },
+    "sql_contracts": [
+      {
+        "proname": "fit_house_six_oos_baseline_exact",
+        "definition_md5": "9dbc2ae0cb6b979fd7781dd0fbbb4a51",
+        "owner": "postgres",
+        "acl": "{postgres=X/postgres}",
+        "proconfig": [
+          "search_path=pg_catalog, public, pg_temp"
+        ],
+        "prosecdef": true
+      },
+      {
+        "proname": "fit_house_six_oos_owner_exception",
+        "definition_md5": "d7fc5bacbac87fd38e7f58314cb1b0e2",
+        "owner": "postgres",
+        "acl": "{postgres=X/postgres}",
+        "proconfig": [
+          "search_path=pg_catalog, public, pg_temp"
+        ],
+        "prosecdef": true
+      },
+      {
+        "proname": "register_fit_house_offer_sync_control_plan",
+        "definition_md5": "9c92303c81971ae8f648fb889383362b",
+        "owner": "postgres",
+        "acl": "{postgres=X/postgres,retailer_catalogue_production_validator=X/postgres}",
+        "proconfig": [
+          "search_path=pg_catalog, public, pg_temp"
+        ],
+        "prosecdef": true
+      },
+      {
+        "proname": "validate_fit_house_confirmed_price_read_only",
+        "definition_md5": "b6f0195b7f431a2a9ec25312088ee9aa",
+        "owner": "postgres",
+        "acl": "{postgres=X/postgres}",
+        "proconfig": [
+          "search_path=pg_catalog, public, pg_temp"
+        ],
+        "prosecdef": true
+      },
+      {
+        "proname": "validate_fit_house_stable_oos_read_only",
+        "definition_md5": "2ceb7dc5bf04ca04db3f6cc6380999f1",
+        "owner": "postgres",
+        "acl": "{postgres=X/postgres}",
+        "proconfig": [
+          "search_path=pg_catalog, public, pg_temp"
+        ],
+        "prosecdef": true
+      }
+    ],
+    "fit_queued": [],
+    "pending_affected_approvals": [],
+    "parent_statuses": [
+      {
+        "status": "COMPLETED",
+        "count": 76
+      },
+      {
+        "status": "EXPIRED",
+        "count": 1
+      },
+      {
+        "status": "SUPERSEDED",
+        "count": 3
+      }
+    ],
+    "execution_statuses": [
+      {
+        "status": "EXPIRED",
+        "count": 42
+      }
+    ]
+  },
+  "runtime_cold_check": {
+    "captured_at": "2026-11-09T09:37:55.116Z",
+    "context": "fresh Node process, actual committed runtime modules; no historical test preload, no config mutation, no require.cache assignment",
+    "six": {
+      "active": 504,
+      "historical": 2,
+      "physical": 506,
+      "sha": "a038f86f98057c5edde505ec5c07f262066dbc53001157a933ebee6c468ae77e"
+    },
+    "fit": {
+      "active": 284,
+      "historical": 2,
+      "physical": 286,
+      "sha": "b25aaafadecb848e08507ba488f34a4b4a84871f67d993d93538eff50600e3b5",
+      "required_matched": 284,
+      "policy": "bd01649903badb820d3595ea5c9776311370c2c97341783078e39d64e867c5da"
+    },
+    "migration": {
+      "path": "supabase/migrations/20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql",
+      "sha256": "a9cb6d18c60dda40dbc10322e23971f929e929a4344761e8f97328677b04e29b",
+      "unwrap_pass": true,
+      "pre_count": 261,
+      "post_count": 262,
+      "post_fingerprint": "e19d8c8960651ff6f8deca27e518be222a191320234053a34a13d9223a975362"
+    },
+    "retailer_source_calls": 0,
+    "database_calls": 0,
+    "result": "PASS"
+  },
+  "vercel": {
+    "captured_at": "2026-11-09T09:33:11.557Z",
+    "project_id": "prj_nvEdQJHTuwd1QA2KhLCshs7a9p7c",
+    "project_name": "supplementscout",
+    "account_id": "team_1RQu0vdcBjVpCZcW3JqGdZcz",
+    "team_id": "team_1RQu0vdcBjVpCZcW3JqGdZcz",
+    "team_slug": "supplement-scout",
+    "operator_username": "supplementscout",
+    "team_membership": {
+      "uid": "IVELYVmTwJbtVpVD353fAi7o",
+      "teamId": "team_1RQu0vdcBjVpCZcW3JqGdZcz",
+      "role": "OWNER",
+      "created": 1782641036517,
+      "createdAt": 1782641036517,
+      "updatedAt": 1782641036785,
+      "confirmed": true
+    },
+    "project_link": {
+      "type": "github",
+      "repo": "supplementscout",
+      "org": "SupplementScout",
+      "productionBranch": "main"
+    },
+    "production": {
+      "id": "dpl_4St5nSmFrm6HxULdPbyCsvHzQnXe",
+      "url": "supplementscout-m2zkg82v5-supplement-scout.vercel.app",
+      "readyState": "READY",
+      "target": "production",
+      "createdAt": 1794170742558,
+      "meta": {
+        "githubCommitSha": "1dce913d28fb727bac9989b49a470cb7ad4bf4af",
+        "githubCommitRef": "main"
+      }
+    },
+    "auth_expired_after_cli": false,
+    "mutating_project_requests": 0,
+    "purge_executed": false,
+    "production_domains": [
+      {
+        "name": "supplementscout.co.uk",
+        "verified": true,
+        "redirect": "www.supplementscout.co.uk"
+      },
+      {
+        "name": "www.supplementscout.co.uk",
+        "verified": true,
+        "redirect": null
+      },
+      {
+        "name": "supplementscout.vercel.app",
+        "verified": true,
+        "redirect": null
+      }
+    ],
+    "public_readback": [
+      {
+        "slug": "7nutrition-melatonin-1mg-60-capsules",
+        "status": 200,
+        "title": "7Nutrition Melatonin 1mg 60 Capsules | SupplementScout",
+        "bytes": 41813
+      },
+      {
+        "slug": "soma-melatonin-4-mg-100-tablets",
+        "status": 200,
+        "title": "Soma Melatonin 4 mg - 100 Tablets | SupplementScout",
+        "bytes": 41963
+      },
+      {
+        "slug": "ultra-nutrio-limitless-nootropic-100-capsules",
+        "status": 200,
+        "title": "Ultra Nutrio Limitless Nootropic 100 Capsules | SupplementScout",
+        "bytes": 44359
+      }
+    ],
+    "public_readback_at": "2026-11-09T09:38:37.499Z",
+    "official_purge_method": {
+      "cli_version": "65.9.0",
+      "help_verified": true,
+      "command": "vercel cache purge --project prj_nvEdQJHTuwd1QA2KhLCshs7a9p7c --scope supplement-scout --type all --yes",
+      "types": [
+        "data",
+        "cdn",
+        "all"
+      ],
+      "docs": "https://vercel.com/docs/cli/cache",
+      "executed": false
+    },
+    "capability": "VERIFIED_ROLE_AND_READ_ACCESS_NO_PURGE_EXECUTED"
+  },
+  "combined_tree": {
+    "composition": "reviewed PR510 + three-file Fit-only pause, actual Git LF blobs, ordinary three-way merge",
+    "merge_conflicts": 0,
+    "inventory": {
+      "count": 356,
+      "sha256": "d9a5336068bcc65d3960b9e430258898b6d5177df4ad3c94ac33f25325a38d94"
+    },
+    "quick_files": 54,
+    "integration_files": 57,
+    "changed_file_hashes": {
+      ".github/workflows/fit-house-offer-refresh.yml": "ed06324295564a2c74676dd5b9b385678e600082ad6acf817b28b415cfc49d53",
+      "scripts/gladiator-nutrition-offer-refresh.test.js": "b937bc4455e23d81a779664ed996cc201acc9e8f6564174616578328110a5f10",
+      "scripts/quality-gate-manifest.json": "66972757c3e21a60ed5791c7ab4a894627ad90fd9a0ba6f8f1ad5fb0ffa7481f"
+    },
+    "focused": {
+      "pass": 40,
+      "fail": 0,
+      "skip": 0
+    },
+    "full_gate": "CI/final PR receipt; do not infer production execution"
+  },
+  "pause": {
+    "scope": "one existing job-level event guard; manual/control and other retailer jobs preserved",
+    "focused_pass": 21,
+    "focused_fail": 0,
+    "focused_skip": 0,
+    "full_ci": "see PR receipt on exact published head",
+    "local_quick": {
+      "pass": 1041,
+      "fail": 0,
+      "skip": 3,
+      "historical_skips": true,
+      "result": "PASS"
+    },
+    "local_full": {
+      "pass": 3676,
+      "fail": 0,
+      "skip": 3,
+      "historical_skips": true,
+      "typescript": "PASS",
+      "lint": "PASS",
+      "build": "PASS",
+      "guardian": "PASS",
+      "baseline": "PASS",
+      "result": "PASS"
+    }
+  },
+  "release_authorization": "separate owner approval required for every production step; no commercial refresh/recovery/schedule restart",
+  "github_active_jobs_readback": {
+    "checked_at": "2026-11-09T09:51:06.333Z",
+    "main": "1dce913d28fb727bac9989b49a470cb7ad4bf4af",
+    "active_retailer_runs": [],
+    "total_in_progress": 0
+  }
+}
