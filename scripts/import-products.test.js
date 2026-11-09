@@ -1,4 +1,14 @@
 const assert = require("node:assert/strict");
+
+require("node:test")("owner policy cannot be bypassed by rebuilding a reviewed existing import plan", () => {
+  const { buildAtomicImportPlan } = require("./import-products");
+  for (const name of ["Melatonin 1mg", "Melatonin 4mg", "Ultra Nutrio Limitless Nootropic 100 Capsules"]) {
+    assert.throws(() => buildAtomicImportPlan({ row: { product_name: name, __reviewed_catalogue_identity: { approved: true } } }),
+      /prohibited catalogue type|catalogue policy deferred/);
+    assert.throws(() => buildAtomicImportPlan({ row: { product_name: "Other source alias" }, product: { name } }),
+      error => error.code === "CATALOGUE_POLICY_SCOPE_BLOCKED");
+  }
+});
 const crypto = require("node:crypto");
 const fs = require("node:fs");
 const os = require("node:os");

@@ -18,6 +18,7 @@ const {
 const { buildVerifiedNoChangePlan } = require("./verified-no-change-offer-refresh");
 const { writeDryRunArtifact } = require("./import-products");
 const { commercialIdentity, liveIdentityDrift } = require("./six-pack-canary-builder");
+const { assertCataloguePolicyAllowsRecords } = require("./lib/feed-variant-guards");
 const {
   assertFreshBatchMatch,
   buildReviewedBatch,
@@ -1183,6 +1184,7 @@ async function run(options, dependencies = {}) {
     ? loadReviewedBatch(options.reviewedBatchFingerprint, dependencies.reviewedBatchOptions || {})
     : null;
   const state = await readState(approved.manifest, dependencies);
+  assertCataloguePolicyAllowsRecords(state.records);
   const capturedAt = new Date().toISOString();
   const readLive = dependencies.readLive || ((productId) => readWooCommerceProductPage({
     storeUrl: config.retailer.website,
@@ -1481,8 +1483,8 @@ function main(options = parseArgs(process.argv.slice(2)), dependencies) {
     .then(({ report }) => console.log(JSON.stringify(report, null, 2)))
     .catch((error) => {
       console.error(`${error.code || "ERROR"}: ${error.message}`);
-      // Exit 2 stops only source-read retry loops, never an executor or replay.
-      process.exitCode = isPermanentSourceError(error) ? 2 : 1;
+      // Deterministic source or owner-policy blocks cannot improve by rereading.
+      process.exitCode = isPermanentSourceError(error) || error.code === "CATALOGUE_POLICY_SCOPE_BLOCKED" ? 2 : 1;
     });
 }
 

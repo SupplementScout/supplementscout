@@ -2,11 +2,76 @@ const assert = require("node:assert/strict");
 const test = require("node:test");
 
 const {
+  cataloguePolicyDecision,
+  assertCataloguePolicyAllowsRecords,
   assessVariantCompatibility,
   normalizeFlavour,
   parseVariantIdentity,
   rowIdentityKey,
 } = require("./feed-variant-guards");
+
+test("owner melatonin exclusion covers every dose and has no reviewed 1mg exception", () => {
+  for (const name of ["7Nutrition Melatonin 1mg 60 Capsules", "Soma Melatonin 4 mg", "Melatonin 0.3mg",
+    "Melatonin 5mg Gummies", "Melatonin Sleep Blend", "Melatonina 1 mg",
+    "Melatonin 1mg with melatonin-free herbs"]) {
+    const row = { product_name: name, __reviewed_catalogue_identity: { approved: true } };
+    assert.equal(cataloguePolicyDecision(row).state, "EXCLUDE");
+    assert.equal(cataloguePolicyDecision(row).code, "EXCLUDE_MELATONIN");
+  }
+  assert.equal(cataloguePolicyDecision({ product_name: "Melatonin 1mg", external_name: "Melatonin-free alias" }).state, "EXCLUDE");
+});
+
+test("owner policy excludes named research compounds without excluding ordinary nutrition peptides", () => {
+  for (const name of ["SARMs", "Selective Androgen Receptor Modulators", "Research Peptides", "Pharmacological Peptide",
+    "Ostarine MK-2866", "RAD-140", "BPC-157", "TB-500", "Selank", "Semax"]) {
+    assert.equal(cataloguePolicyDecision({ product_name: name }).state, "EXCLUDE", name);
+  }
+  for (const name of ["Collagen Peptides", "CNP Peptide Whey Protein Blend", "L-Theanine 200mg", "Creatine 300g",
+    "L-Tryptophan", "Pharma Grade EAA", "Ashwagandha", "Generic Nootropic", "Pre Workout 30 Servings", "Melatonin-free Sleep Blend"]) {
+    assert.equal(cataloguePolicyDecision({ product_name: name }), null, name);
+  }
+  assert.equal(cataloguePolicyDecision({ product_name: "Peptide complex" }).state, "DEFER");
+  assert.equal(cataloguePolicyDecision({ product_name: "L-Tryptophan", description: "Supports endogenous melatonin production" }).state, "DEFER");
+  assert.equal(cataloguePolicyDecision({ product_name: "Other title", evidence_name: "BPC-157" }).state, "EXCLUDE");
+  assert.equal(cataloguePolicyDecision({ product_name: "Other title", evidence_format: "BPC-157" }).state, "DEFER");
+});
+
+test("existing Limitless owner DEFER survives spelling and canonical-title differences", () => {
+  for (const name of ["Ultra Nutrio Limitless Nootropic 100 Capsules", "Limitlesss Nootropic Brain Booster 100 caps - Ultra Nutrio"]) {
+    assert.equal(cataloguePolicyDecision({ product_name: name }).code, "DEFER_OWNER_NAMED_PRODUCT");
+  }
+  assert.equal(cataloguePolicyDecision({ product_name: "Ordinary Nootropic 100 Capsules" }), null);
+});
+
+test("revoked scope fails closed using names, aliases and variants without mutating or shrinking authority", () => {
+  const records = [
+    { product: { id: "random", name: "Melatonin 1mg" }, mapping: { id: "m1", external_name: "Other alias" }, offer: { id: "o1" } },
+    { product: { id: "another", name: "Other canonical" }, mapping: { id: "m2", external_name: "Melatonin 4mg" }, offer: { id: "o2" } },
+    { product: { id: "third", name: "Sleep Blend" }, variant: { display_name: "with Melatonin" }, mapping: { id: "m3" }, offer: { id: "o3" } },
+    { product: { name: "Ultra Nutrio Limitless Nootropic" }, mapping: { id: "m4" }, offer: { id: "o4" } },
+  ];
+  const before = structuredClone(records);
+  assert.throws(() => assertCataloguePolicyAllowsRecords(records), error => {
+    assert.equal(error.code, "CATALOGUE_POLICY_SCOPE_BLOCKED");
+    assert.equal(error.detail.blocked_records.length, 4);
+    assert.equal(error.detail.automatic_scope_reduction, false);
+    return true;
+  });
+  assert.deepEqual(records, before);
+  assert.doesNotThrow(() => assertCataloguePolicyAllowsRecords([{ product: { name: "Collagen Peptides" } }]));
+});
+
+test("existing commercial and freshness plan entrypoints cannot recreate excluded or deferred authority", () => {
+  const { buildExistingOfferUpdatePlan } = require("./retailer-offer-sync/existing-offer-plan");
+  const { buildVerifiedNoChangePlan } = require("../verified-no-change-offer-refresh");
+  for (const name of ["Melatonin 1mg", "BPC-157", "Ultra Nutrio Limitless Nootropic 100 Capsules"]) {
+    const state = { product: { name }, mapping: { id: "any" }, offer: { id: "any" }, variant: { id: "any" } };
+    assert.throws(() => buildExistingOfferUpdatePlan(state), error => error.code === "CATALOGUE_POLICY_SCOPE_BLOCKED");
+    assert.throws(() => buildVerifiedNoChangePlan({ target: { product: state.product,
+      retailer_product: state.mapping, product_variant: state.variant, offer: state.offer } }),
+    error => error.code === "CATALOGUE_POLICY_SCOPE_BLOCKED");
+  }
+});
 
 test("reviewed shaker identity remains an accessory despite ml capacity", () => {
   const result = assessVariantCompatibility(

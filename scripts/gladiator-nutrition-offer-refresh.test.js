@@ -215,7 +215,8 @@ test("environment binding freezes the classifier, reader, executor and Phase-B g
     "scripts/lib/retailer-offer-sync/classifier.js": "475ed7dbe9fa73b2903e152466fbdf5085b238a69c067a9e3a0e3eea0ee613a0",
     "scripts/lib/shopify-snapshot-reader.js": "06d93e363ee95e4bbd73a17bd2292d9d258efb677634fa148685c42277811fce",
     "scripts/reviewed-catalogue-package-executor.js": "3450d4ca82784c2494ed97b1fa96147c629d2ff4b6bc51dda58a7085d4c9fc88",
-    "scripts/import-products.js": "72dada752a9b9089ae87d3fe3cd84469a7194e03f8720d3936b5b8723a6032e2",
+    // Owner policy now blocks revoked identities before planning; writer and approval paths are unchanged.
+    "scripts/import-products.js": "4e5eaaa0c9d5dcb2214d2d39d36efbcd4d0bc9c136842959948178b42e5437ae",
     "supabase/migrations/20260718170000_add_read_only_mixed_batch_validator.sql": "09ece7d68328ee7e383375f6d13f55933e7c18be88137fa0108046d69f121510",
   };
   for (const [relative, expected] of Object.entries(immutable)) assert.equal(sha256Text(path.join(ROOT, relative)), expected, relative);
@@ -322,7 +323,8 @@ test("Gladiator scheduled refresh reuses the shared guarded flow while manual ap
   const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
   const gladiatorJob = workflow.match(/  gladiator-nutrition-offer-refresh:[\s\S]*?(?=\n  refresh-review-queue:)/)?.[0] || "";
   assert.equal((runtime.match(/gladiator-nutrition/g) || []).length, 4);
-  assert.equal(sha256Text(path.join(ROOT, "scripts/fit-house-offer-refresh.js")), "ce3c82020cb24e017e99426b1f79450dd101952a0fd0e6ae311738b9df19630c");
+  // The shared owner-policy gate runs before source capture for every profile.
+  assert.equal(sha256Text(path.join(ROOT, "scripts/fit-house-offer-refresh.js")), "c3ed828e3307296149b5fdae44a96b46e1e7f37308809a6aa4b27fd10346b9f9");
   assert.doesNotMatch(runtime, /retailer_id\s*={2,3}\s*15|config\.retailer_id\s*={2,3}\s*15/);
   assert.match(gladiatorJob, /github\.event_name == 'workflow_dispatch'/);
   assert.match(gladiatorJob, /inputs\.operation == 'dry-run'[\s\S]*inputs\.operation == 'review-only'/);

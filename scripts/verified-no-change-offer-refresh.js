@@ -9,6 +9,7 @@ const {
 } = require("./import-products");
 const { canonicalJson, normalizeDecimalString, normalizeNumbersToDecimalStrings } = require("./lib/canonical-json");
 const { canonicalTimestamp, timestampEpochNanoseconds } = require("./lib/canonical-timestamp");
+const { assertCataloguePolicyAllowsRecords } = require("./lib/feed-variant-guards");
 
 const SHA256 = /^[0-9a-f]{64}$/;
 const TARGETS = new Map([
@@ -151,6 +152,8 @@ function normalizeRecord(record, options) {
 }
 
 function buildVerifiedNoChangePlan(record, options = {}) {
+  if (record?.target) assertCataloguePolicyAllowsRecords([{ product: record.target.product,
+    variant: record.target.product_variant, mapping: record.target.retailer_product, offer: record.target.offer }]);
   const { environment, projectRef } = validateTarget(options.targetEnvironment, options.targetProjectRef);
   const now = options.now instanceof Date ? options.now : new Date(options.now || Date.now());
   if (!Number.isFinite(now.getTime())) fail("now is invalid");

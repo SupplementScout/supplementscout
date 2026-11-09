@@ -1,0 +1,594 @@
+{
+  "schema_version": 1,
+  "kind": "owner-catalogue-exclusion-decision-and-scope-proposal",
+  "status": "READY_FOR_REVIEW_DEPLOYMENT_BLOCKED",
+  "decision_date": "2026-11-08",
+  "authority": "OWNER_EXPLICIT_CATALOGUE_EXCLUSION_DECISION",
+  "approved_for_production_writes": false,
+  "approved_for_scope_activation": false,
+  "excluded_classes": [
+    "MELATONIN_ALL_DOSES",
+    "SARMS",
+    "PHARMACOLOGICAL_AND_RESEARCH_PEPTIDES"
+  ],
+  "revoked_melatonin_1mg_exception": true,
+  "retained_defer": "Ultra Nutrio Limitless Nootropic",
+  "ordinary_nutrition_peptides_excluded": false,
+  "base_main": "1dce913d28fb727bac9989b49a470cb7ad4bf4af",
+  "snapshot": {
+    "captured_at": "2026-11-08T21:23:46.245Z",
+    "counts": {
+      "products": 1399,
+      "product_variants": 4070,
+      "retailer_products": 4361,
+      "offers": 4361,
+      "retailers": 13
+    },
+    "ledger_count": 261,
+    "ledger_fingerprint": "755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a",
+    "catalogue_sha256": "d5c305afb431b29437d86f23a0635f49b9ed457065e31c1763e8ce9ba8c3e590",
+    "transaction_read_only": true,
+    "tls_verified": true
+  },
+  "counts": {
+    "excluded_products": 2,
+    "excluded_variants": 2,
+    "excluded_mappings": 3,
+    "excluded_offers": 3,
+    "deferred_products": 1,
+    "deferred_variants": 2,
+    "deferred_mappings": 1,
+    "deferred_offers": 1,
+    "sarm_products_found": 0,
+    "research_peptide_products_found": 0,
+    "total_products_requiring_public_withdrawal": 3,
+    "total_variants_affected": 4,
+    "total_mappings_affected": 4,
+    "total_offers_affected": 4,
+    "historical_price_rows_to_preserve": 5
+  },
+  "products": [
+    {
+      "id": 951,
+      "name": "7Nutrition Melatonin 1mg 60 Capsules",
+      "slug": "7nutrition-melatonin-1mg-60-capsules",
+      "is_active": true,
+      "decision": "EXCLUDE",
+      "code": "EXCLUDE_MELATONIN",
+      "expected_product_row_sha256": "d47f66a1e9f7d4dab30db9421cfddfa3fc405e5a0027a986f05990a087f4645b",
+      "variants": [
+        {
+          "id": 1853,
+          "name": "Default",
+          "is_active": true,
+          "expected_row_sha256": "153bb22bfc62da40dc186c3e656bf97101741660b5a34fff7aa46e9535d07983"
+        }
+      ],
+      "mappings": [
+        {
+          "mapping_id": 2082,
+          "product_id": 951,
+          "variant_id": 1853,
+          "external_product_id": "8291615637744",
+          "retailer_id": 9,
+          "name": "7Nutrition Melatonin 1mg 60 Capsules",
+          "decision": {
+            "state": "EXCLUDE",
+            "code": "EXCLUDE_MELATONIN",
+            "reason": "prohibited catalogue type: melatonin (all doses)"
+          },
+          "offer_ids": [
+            1896
+          ]
+        },
+        {
+          "mapping_id": 2170,
+          "product_id": 951,
+          "variant_id": 1853,
+          "external_product_id": "4110",
+          "retailer_id": 11,
+          "name": "7Nutrition Melatonin 1mg 60 Capsules",
+          "decision": {
+            "state": "EXCLUDE",
+            "code": "EXCLUDE_MELATONIN",
+            "reason": "prohibited catalogue type: melatonin (all doses)"
+          },
+          "offer_ids": [
+            1984
+          ]
+        }
+      ]
+    },
+    {
+      "id": 999,
+      "name": "Soma Melatonin 4 mg - 100 Tablets",
+      "slug": "soma-melatonin-4-mg-100-tablets",
+      "is_active": true,
+      "decision": "EXCLUDE",
+      "code": "EXCLUDE_MELATONIN",
+      "expected_product_row_sha256": "70ac98dfe4aa74395835e1e35e0d1f9a36d7ae7fd9b94beaf3b96f7c3e01b841",
+      "variants": [
+        {
+          "id": 1960,
+          "name": "Default",
+          "is_active": true,
+          "expected_row_sha256": "141558d2f8a775e040532b89a7bb12d1f43ba25969d88e0cc542e201f137a11d"
+        }
+      ],
+      "mappings": [
+        {
+          "mapping_id": 2151,
+          "product_id": 999,
+          "variant_id": 1960,
+          "external_product_id": "9623362011376",
+          "retailer_id": 9,
+          "name": "Soma Melatonin 4 mg - 100 Tablets",
+          "decision": {
+            "state": "EXCLUDE",
+            "code": "EXCLUDE_MELATONIN",
+            "reason": "prohibited catalogue type: melatonin (all doses)"
+          },
+          "offer_ids": [
+            1965
+          ]
+        }
+      ]
+    },
+    {
+      "id": 1114,
+      "name": "Ultra Nutrio Limitless Nootropic 100 Capsules",
+      "slug": "ultra-nutrio-limitless-nootropic-100-capsules",
+      "is_active": true,
+      "decision": "DEFER",
+      "code": "DEFER_OWNER_NAMED_PRODUCT",
+      "expected_product_row_sha256": "94f27468ce218473c671532ededee4ed1c1d26ed78d46559a63bb1a259bb2a96",
+      "variants": [
+        {
+          "id": 2414,
+          "name": "Default",
+          "is_active": true,
+          "expected_row_sha256": "361b717d0def9c54e14e4c2bcc1a7acc0d0ab8371a6baaa7586c4e20578d6bbe"
+        },
+        {
+          "id": 2415,
+          "name": "Unflavoured / 100 capsules",
+          "is_active": true,
+          "expected_row_sha256": "cacafe0049fbc0026858d0a61c289d421063b97e96557ee8157b7f28f4d0b7d8"
+        }
+      ],
+      "mappings": [
+        {
+          "mapping_id": 2582,
+          "product_id": 1114,
+          "variant_id": 2415,
+          "external_product_id": "29928",
+          "retailer_id": 11,
+          "name": "Ultra Nutrio Limitless Nootropic 100 Capsules",
+          "decision": {
+            "state": "DEFER",
+            "code": "DEFER_OWNER_NAMED_PRODUCT",
+            "reason": "catalogue policy deferred: Limitless Nootropic requires owner review"
+          },
+          "offer_ids": [
+            2396
+          ]
+        }
+      ]
+    }
+  ],
+  "unchanged_nutrition_controls": [
+    {
+      "product_id": 422,
+      "name": "Vital Proteins Collagen Peptides Unflavoured 284g",
+      "decision": "NOT_EXCLUDED",
+      "mapping_ids": [
+        435
+      ],
+      "offer_ids": [
+        426
+      ]
+    },
+    {
+      "product_id": 681,
+      "name": "Doctor's Best Pure Collagen Peptides 417g",
+      "decision": "NOT_EXCLUDED",
+      "mapping_ids": [
+        701
+      ],
+      "offer_ids": [
+        699
+      ]
+    },
+    {
+      "product_id": 720,
+      "name": "Now Foods Collagen Peptides Powder 227g",
+      "decision": "NOT_EXCLUDED",
+      "mapping_ids": [
+        801,
+        2836
+      ],
+      "offer_ids": [
+        739,
+        2650
+      ]
+    },
+    {
+      "product_id": 865,
+      "name": "CNP Peptide Whey Protein Blend 2.27kg",
+      "decision": "NOT_EXCLUDED",
+      "mapping_ids": [
+        1421,
+        1422,
+        2746,
+        2747
+      ],
+      "offer_ids": [
+        1235,
+        1236,
+        2561,
+        2562
+      ]
+    },
+    {
+      "product_id": 1002,
+      "name": "Swanson Collagen Peptides Unflavoured 28 Servings",
+      "decision": "NOT_EXCLUDED",
+      "mapping_ids": [
+        2119
+      ],
+      "offer_ids": [
+        1933
+      ]
+    },
+    {
+      "product_id": 1221,
+      "name": "Applied Nutrition Collagen Peptides 300g",
+      "decision": "NOT_EXCLUDED",
+      "mapping_ids": [
+        3594
+      ],
+      "offer_ids": [
+        3407
+      ]
+    },
+    {
+      "product_id": 1343,
+      "name": "Swanson Marine Collagen Peptides 400mg Capsules",
+      "decision": "NOT_EXCLUDED",
+      "mapping_ids": [
+        3899
+      ],
+      "offer_ids": [
+        3712
+      ]
+    }
+  ],
+  "retailer_scope_proposals": [
+    {
+      "retailer_id": 11,
+      "retailer": "6 Pack Supplements",
+      "current_manifest_path": "config/retailers/six-pack-approved-offer-manifest.json",
+      "current_manifest_sha256": "62f88fabc33e339d1106e597091217eabbbfaa4c5015b5625fb5257eacf0e7ff",
+      "current_approved_mappings": 506,
+      "current_approved_source_products": 279,
+      "withdrawn_bindings": [
+        {
+          "mapping_id": 2170,
+          "product_id": 951,
+          "variant_id": 1853,
+          "external_product_id": "4110",
+          "retailer_id": 11,
+          "name": "7Nutrition Melatonin 1mg 60 Capsules",
+          "decision": {
+            "state": "EXCLUDE",
+            "code": "EXCLUDE_MELATONIN",
+            "reason": "prohibited catalogue type: melatonin (all doses)"
+          },
+          "offer_ids": [
+            1984
+          ],
+          "external_variant_id": "4110"
+        },
+        {
+          "mapping_id": 2582,
+          "product_id": 1114,
+          "variant_id": 2415,
+          "external_product_id": "29928",
+          "retailer_id": 11,
+          "name": "Ultra Nutrio Limitless Nootropic 100 Capsules",
+          "decision": {
+            "state": "DEFER",
+            "code": "DEFER_OWNER_NAMED_PRODUCT",
+            "reason": "catalogue policy deferred: Limitless Nootropic requires owner review"
+          },
+          "offer_ids": [
+            2396
+          ],
+          "external_variant_id": "29928"
+        }
+      ],
+      "candidate_approved_mappings": 504,
+      "candidate_approved_source_products": 277,
+      "candidate_scope_rows_sha256": "9f702829fd63051430a30d71362160dcca6b773c30bba0af9b948f1165c22824",
+      "candidate_approved": false,
+      "candidate_activation": "BLOCKED_NO_WITHDRAWAL_OPERATION",
+      "physical_mappings_deleted": 0,
+      "physical_offers_deleted": 0
+    },
+    {
+      "retailer_id": 9,
+      "retailer": "Fit House",
+      "current_manifest_path": "config/retailers/fit-house-approved-offer-manifest.json",
+      "current_manifest_sha256": "a1e596f7707c851534e04e30d13f4289439449556787c572736e77b279c75292",
+      "current_approved_mappings": 286,
+      "current_approved_source_products": 174,
+      "withdrawn_bindings": [
+        {
+          "mapping_id": 2082,
+          "product_id": 951,
+          "variant_id": 1853,
+          "external_product_id": "8291615637744",
+          "retailer_id": 9,
+          "name": "7Nutrition Melatonin 1mg 60 Capsules",
+          "decision": {
+            "state": "EXCLUDE",
+            "code": "EXCLUDE_MELATONIN",
+            "reason": "prohibited catalogue type: melatonin (all doses)"
+          },
+          "offer_ids": [
+            1896
+          ],
+          "external_variant_id": "44147305251056"
+        },
+        {
+          "mapping_id": 2151,
+          "product_id": 999,
+          "variant_id": 1960,
+          "external_product_id": "9623362011376",
+          "retailer_id": 9,
+          "name": "Soma Melatonin 4 mg - 100 Tablets",
+          "decision": {
+            "state": "EXCLUDE",
+            "code": "EXCLUDE_MELATONIN",
+            "reason": "prohibited catalogue type: melatonin (all doses)"
+          },
+          "offer_ids": [
+            1965
+          ],
+          "external_variant_id": "47984607690992"
+        }
+      ],
+      "candidate_approved_mappings": 284,
+      "candidate_approved_source_products": 172,
+      "candidate_scope_rows_sha256": "fdd399f1b143a3502e99ab9a0684a92451339090bcb14d98577a4e60c5001313",
+      "candidate_approved": false,
+      "candidate_activation": "BLOCKED_NO_WITHDRAWAL_OPERATION",
+      "physical_mappings_deleted": 0,
+      "physical_offers_deleted": 0
+    }
+  ],
+  "retailer_accounting": [
+    {
+      "id": 1,
+      "name": "GYM HIGH",
+      "observed_mapping_count": 66,
+      "affected_mapping_count": 0,
+      "approved_scope_delta": 0
+    },
+    {
+      "id": 3,
+      "name": "Whey Okay",
+      "observed_mapping_count": 870,
+      "affected_mapping_count": 0,
+      "approved_scope_delta": 0
+    },
+    {
+      "id": 4,
+      "name": "Discount Supplements",
+      "observed_mapping_count": 156,
+      "affected_mapping_count": 0,
+      "approved_scope_delta": 0
+    },
+    {
+      "id": 5,
+      "name": "Dolphin Fitness",
+      "observed_mapping_count": 3,
+      "affected_mapping_count": 0,
+      "approved_scope_delta": 0
+    },
+    {
+      "id": 7,
+      "name": "Simply Supplements",
+      "observed_mapping_count": 120,
+      "affected_mapping_count": 0,
+      "approved_scope_delta": 0
+    },
+    {
+      "id": 8,
+      "name": "KIOR Health",
+      "observed_mapping_count": 11,
+      "affected_mapping_count": 0,
+      "approved_scope_delta": 0
+    },
+    {
+      "id": 9,
+      "name": "Fit House",
+      "observed_mapping_count": 286,
+      "affected_mapping_count": 2,
+      "approved_scope_delta": -2
+    },
+    {
+      "id": 10,
+      "name": "Jon's Supplements",
+      "observed_mapping_count": 506,
+      "affected_mapping_count": 0,
+      "approved_scope_delta": 0
+    },
+    {
+      "id": 11,
+      "name": "6 Pack Supplements",
+      "observed_mapping_count": 506,
+      "affected_mapping_count": 2,
+      "approved_scope_delta": -2
+    },
+    {
+      "id": 12,
+      "name": "eBay UK",
+      "observed_mapping_count": 237,
+      "affected_mapping_count": 0,
+      "approved_scope_delta": 0
+    },
+    {
+      "id": 13,
+      "name": "Predators Gear",
+      "observed_mapping_count": 47,
+      "affected_mapping_count": 0,
+      "approved_scope_delta": 0
+    },
+    {
+      "id": 14,
+      "name": "10 Reps",
+      "observed_mapping_count": 950,
+      "affected_mapping_count": 0,
+      "approved_scope_delta": 0
+    },
+    {
+      "id": 15,
+      "name": "Gladiator Nutrition",
+      "observed_mapping_count": 603,
+      "affected_mapping_count": 0,
+      "approved_scope_delta": 0
+    }
+  ],
+  "dependencies": {
+    "cross_retailer_shared_variant": {
+      "product_id": 951,
+      "variant_id": 1853,
+      "retailer_ids": [
+        9,
+        11
+      ],
+      "offer_ids": [
+        1896,
+        1984
+      ]
+    },
+    "history": [
+      {
+        "offer_id": "1896",
+        "count": 1,
+        "latest_id": "1900"
+      },
+      {
+        "offer_id": "1965",
+        "count": 1,
+        "latest_id": "1969"
+      },
+      {
+        "offer_id": "1984",
+        "count": 2,
+        "latest_id": "2003"
+      },
+      {
+        "offer_id": "2396",
+        "count": 1,
+        "latest_id": "2415"
+      }
+    ],
+    "review_rows": 0,
+    "execution_requests": 0,
+    "active_approvals": 0,
+    "blocking_parents": 0
+  },
+  "public_readback": {
+    "captured_at": "2026-11-08T21:38:43.883Z",
+    "origin": "https://www.supplementscout.co.uk",
+    "verified_tls": true,
+    "results": [
+      {
+        "slug": "7nutrition-melatonin-1mg-60-capsules",
+        "status": 200,
+        "location": null,
+        "title": "7Nutrition Melatonin 1mg 60 Capsules | SupplementScout",
+        "robots": null,
+        "bytes": 41813
+      },
+      {
+        "slug": "soma-melatonin-4-mg-100-tablets",
+        "status": 200,
+        "location": null,
+        "title": "Soma Melatonin 4 mg - 100 Tablets | SupplementScout",
+        "robots": null,
+        "bytes": 41963
+      },
+      {
+        "slug": "ultra-nutrio-limitless-nootropic-100-capsules",
+        "status": 200,
+        "location": null,
+        "title": "Ultra Nutrio Limitless Nootropic 100 Capsules | SupplementScout",
+        "robots": null,
+        "bytes": 44359
+      }
+    ]
+  },
+  "withdrawal_blocker": {
+    "existing_constraint": {
+      "conname": "products_merge_state_consistent",
+      "relation": "products",
+      "definition": "CHECK ((((merged_into_product_id IS NULL) AND (merged_at IS NULL) AND (is_active = true)) OR ((merged_into_product_id IS NOT NULL) AND (merged_at IS NOT NULL) AND (is_active = false))))"
+    },
+    "dedicated_withdrawal_function_found": false,
+    "existing_refresh_actions": [
+      "VERIFY_NO_CHANGE",
+      "UPDATE_PRICE",
+      "UPDATE_STOCK",
+      "UPDATE_PRICE_AND_STOCK",
+      "UPDATE_URL",
+      "UPDATE_PRICE_STOCK_URL"
+    ],
+    "forbidden_workarounds": [
+      "FAKE_MERGE",
+      "FORCE_OOS",
+      "DELETE_PRODUCTS",
+      "DELETE_MAPPINGS",
+      "DELETE_OFFERS",
+      "SILENT_MANIFEST_TRIM"
+    ],
+    "required_before_activation": [
+      "owner-reviewed auditable unmerged inactive-product lifecycle extension via existing migration selector",
+      "exact expected-state-bounded withdrawal preserving all financial/identity/history rows",
+      "coordinated approved scope, DB registration, runtime readers, fingerprints and postflight/profile cardinalities",
+      "public cache/sitemap/detail readback plus zero prohibited future source identities"
+    ]
+  },
+  "historical_conflict": {
+    "defer_file": "config/retailers/six-pack-reviewed-catalogue-decisions-v11.json",
+    "defer_name": "Limitlesss Nootropic Brain Booster",
+    "later_approval_builder": "scripts/six-pack-reviewed-decision-execution-builder.js",
+    "later_spec_external_product_id": 29928,
+    "active_manifest_mapping_id": 2582,
+    "active_offer_id": 2396,
+    "current_owner_decision": "DEFER_REMAINS_EFFECTIVE_NO_AUTOMATIC_IDENTITY_ALIAS"
+  },
+  "schedule": {
+    "six_pack_status": "SIX_PACK_SCHEDULE_PAUSED_PENDING_OWNER_APPROVAL",
+    "protection_merge": "c71c23e84b43e523fe8a9f9187f04a2f518c0d6d",
+    "workflow_unchanged": true
+  },
+  "pre_pr_readback_limitation": {
+    "date": "2026-11-09",
+    "result": "CONNECTION_FAILED",
+    "code": "08006",
+    "fresh_snapshot_obtained": false,
+    "prior_snapshot_preserved": true,
+    "retry_performed": false,
+    "successful_fresh_readback_required_before_deployment": true
+  },
+  "operations": {
+    "production_writes": 0,
+    "source_refresh_dispatches": 0,
+    "merges": 0,
+    "migrations_applied": 0,
+    "mapping_or_offer_deletions": 0
+  }
+}

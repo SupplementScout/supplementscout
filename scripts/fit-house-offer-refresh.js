@@ -16,6 +16,7 @@ const {buildExistingOfferUpdatePlan}=require("./lib/retailer-offer-sync/existing
 const {migrationBinding}=require("./lib/environment-migrations");
 const {readRowManifestState}=require("./lib/reviewed-catalogue-state");
 const {canonicalJson}=require("./lib/canonical-json");
+const {assertCataloguePolicyAllowsRecords}=require("./lib/feed-variant-guards");
 const {canonicalTimestamp}=require("./lib/canonical-timestamp");
 const {bindReviewedMixedChangeContract,buildMappedScopeEvidence,buildReviewedMixedChangeContract,buildScopedSourceEvidence}=require("./lib/retailer-offer-sync/reviewed-mixed-change");
 const {bindAutomationReviewDecision,verifyAutomationReviewIdempotencyTransition}=require("./lib/retailer-offer-sync/automation-review-decision");
@@ -654,6 +655,7 @@ function applyOwnerApprovedMissingVariantGuardBaseline(guard,authorization){
 }
 
 async function buildRun(target,state,diagnostic=null,reviewed=null,isolateUnsafe=false,scopeSegment=null,reviewQueueSelection=null,idempotencyTransition=null){
+  assertCataloguePolicyAllowsRecords(state.records);
   const spec=TARGETS[target],capturedAt=freshCapturedAt();
   const stableOosGuard=applyApprovedStableOosBaselineGuard(state,diagnostic,idempotencyTransition);
   let snapshot;

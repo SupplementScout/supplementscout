@@ -83,7 +83,7 @@ test("joins variations through parent SKU and id references", () => {
   assert.deepEqual(result.records.map((row) => row.brand), ["Example", "Example"]);
 });
 
-test("excludes SARMs, real peptide categories and positively expired rows", () => {
+test("excludes SARMs and expired rows while deferring unresolved peptide identity", () => {
   const result = parseWooCommerceCsv(csv([
     { ...base, ID: "30", Type: "simple", Name: "Research product", Categories: "SARMs", "Regular price": "10" },
     { ...base, ID: "31", Type: "simple", Name: "Peptide product", Categories: "Peptides", "Regular price": "11" },
@@ -92,10 +92,30 @@ test("excludes SARMs, real peptide categories and positively expired rows", () =
   ]), { storeUrl: "https://shop.example.test", capturedAt: "2026-07-27T12:00:00.000Z" });
   assert.deepEqual(result.records.map((row) => row.policy_code), [
     "EXCLUDE_SARM",
-    "EXCLUDE_PEPTIDE",
+    "DEFER_PEPTIDE_REVIEW",
     "EXCLUDE_EXPIRED",
     "ELIGIBLE",
   ]);
+});
+
+test("owner policy overrides legacy eligibility for melatonin and keeps named DEFER effective", () => {
+  const result = parseWooCommerceCsv(csv([
+    { ...base, ID: "101", Type: "simple", Name: "Melatonin 1mg", "Regular price": "10" },
+    { ...base, ID: "102", Type: "simple", Name: "Melatonin 5mg", "Regular price": "10" },
+    { ...base, ID: "103", Type: "simple", Name: "Ultra Nutrio Limitless Nootropic 100 Capsules", "Regular price": "10" },
+    { ...base, ID: "104", Type: "simple", Name: "BPC-157 Research Peptide", Categories: "Peptides", "Regular price": "10" },
+    { ...base, ID: "105", Type: "simple", Name: "CNP Peptide Whey Protein Blend", "Regular price": "10" },
+    { ...base, ID: "106", Type: "variable", Name: "Melatonin Gummies", "Regular price": "10" },
+    { ...base, ID: "107", Type: "variation", Parent: "id:106", Name: "Melatonin-free flavour label", "Regular price": "10",
+      "Attribute 1 name": "Flavour", "Attribute 1 value(s)": "Cherry" },
+  ]), { storeUrl: "https://shop.example.test", capturedAt: "2026-11-08T12:00:00Z" });
+  assert.deepEqual(result.records.map(r => [r.policy_state, r.policy_code]), [
+    ["EXCLUDED", "EXCLUDE_MELATONIN"], ["EXCLUDED", "EXCLUDE_MELATONIN"],
+    ["DEFERRED", "DEFER_OWNER_NAMED_PRODUCT"], ["EXCLUDED", "EXCLUDE_PEPTIDE"], ["ELIGIBLE", "ELIGIBLE"],
+    ["EXCLUDED", "EXCLUDE_MELATONIN"],
+  ]);
+  assert.equal(result.records.at(-1).external_product_id, "106");
+  assert.equal(result.records.at(-1).external_variant_id, "107");
 });
 
 test("quarantines orphan and missing-price variations without aborting the snapshot", () => {

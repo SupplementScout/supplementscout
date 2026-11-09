@@ -5,6 +5,15 @@ const path = require("node:path");
 const test = require("node:test");
 
 const config = require("../config/retailers/fit-house-offer-sync.json");
+
+test("shared refresh blocks owner-excluded existing catalogue scope before source fetch", async () => {
+  const { buildRun } = require("./fit-house-offer-refresh");
+  const state = { records: [{ product: { id: "unrelated-id", name: "Soma Melatonin 4mg" },
+    mapping: { id: "any-mapping" }, variant: { id: "any-variant" }, offer: { id: "any-offer" } }] };
+  const before = structuredClone(state);
+  await assert.rejects(buildRun("production", state), error => error.code === "CATALOGUE_POLICY_SCOPE_BLOCKED" && error.stage === "CATALOGUE_POLICY");
+  assert.deepEqual(state, before);
+});
 const {
   APPROVED_CANONICAL_REBINDINGS,
   MAXIMUM_SEQUENTIAL_CHILDREN,

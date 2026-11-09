@@ -27,15 +27,15 @@
   },
   "category_policy": {
     "permanently_excluded": [
+      "melatonin (all doses, including 1mg)",
       "SARMs",
-      "Peptides",
+      "pharmacological and research peptides",
       "positively expired or past-best-before products",
       "DMAA products",
       "yohimbine products",
       "T5 ECA products"
     ],
     "deferred": [
-      "melatonin above the already approved 1mg product",
       "NMN",
       "Limitlesss Nootropic Brain Booster",
       "Vitamin D3 8000 IU"

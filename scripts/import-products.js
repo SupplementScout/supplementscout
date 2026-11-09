@@ -46,6 +46,7 @@ const {
 } = require("./lib/reviewed-catalogue-target");
 const {
   analyzeFeedRows,
+  assertCataloguePolicyAllowsRecords,
   assessVariantCompatibility,
   formatPreflightReport,
   getExternalGtin,
@@ -4959,6 +4960,9 @@ function buildAtomicImportPlan(item) {
     row, retailer, product, productVariant, mapping, existingOffer, offerPlan,
     legacyMappingUpgrade,
   } = item;
+  const cataloguePolicyReason = getProhibitedCatalogueTypeReason(row);
+  if (cataloguePolicyReason) throw new Error(cataloguePolicyReason);
+  assertCataloguePolicyAllowsRecords([{ product, variant: productVariant, mapping, offer: existingOffer }]);
   const reviewedParentVariantCreate = Boolean(productVariant?.reviewed_parent_variant_create);
   const reviewedTenRepsDefaultVariant =
     (row.__reviewed_catalogue_identity || row.__reviewed_10reps_new_product_identity)?.action ===

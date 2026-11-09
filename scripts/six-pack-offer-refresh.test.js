@@ -20,6 +20,30 @@ const {
 
 const ROOT = path.resolve(__dirname, "..");
 
+test("current owner EXCLUDE and DEFER block Six Pack before any source request without trimming 506 mappings", async () => {
+  const source = fixture(), beforeManifest = structuredClone(loadApprovedManifest()), output = paths();
+  source.state.records.find(r => r.mapping.external_product_id === "4110").product.name = "7Nutrition Melatonin 1mg 60 Capsules";
+  source.state.records.find(r => r.mapping.external_product_id === "29928").product.name = "Ultra Nutrio Limitless Nootropic 100 Capsules";
+  const before = structuredClone(source.state); let sourceCalls = 0;
+  await assert.rejects(run({ target: "production", ...output, isolateUnsafe: true }, {
+    state: source.state, readLive: async () => { sourceCalls++; throw new Error("source must not be requested"); },
+  }), error => error.code === "CATALOGUE_POLICY_SCOPE_BLOCKED" && error.detail.blocked_records.length === 2);
+  assert.equal(sourceCalls, 0);
+  assert.equal(fs.existsSync(output.artifact), false);
+  assert.deepEqual(source.state, before);
+  assert.deepEqual(loadApprovedManifest(), beforeManifest);
+  assert.equal(beforeManifest.manifest.rows.length, 506);
+});
+
+test("owner catalogue block exits 2 and cannot cause a full source retry", () => {
+  const code = `require(${JSON.stringify(path.join(__dirname, "six-pack-offer-refresh.js"))}).main({target:'production'},
+    {state:{records:[{product:{name:'Melatonin 1mg'},mapping:{id:'random'},offer:{id:'random'}}]},readLive:()=>{throw Error('network forbidden')}});`;
+  const result = spawnSync(process.execPath, ["-e", code], { cwd: ROOT, encoding: "utf8" });
+  assert.equal(result.status, 2);
+  assert.match(result.stderr, /CATALOGUE_POLICY_SCOPE_BLOCKED/);
+  assert.doesNotMatch(result.stderr, /network forbidden/);
+});
+
 const unbuyableHtml = fs.readFileSync(path.join(__dirname, "test-fixtures/six-pack-theme-unbuyable-parent.html"), "utf8");
 const unbuyableUrl = "https://6pack-supplements.co.uk/product/skull-labs-angel-dust-pump-pre-workout-fruit-killer-flavor/";
 const unbuyableName = "Skull Labs Angel Dust PUMP Pre-Workout";

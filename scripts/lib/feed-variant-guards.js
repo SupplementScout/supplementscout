@@ -813,11 +813,60 @@ function safeCreateEvidenceText(row) {
     .join(" ");
 }
 
+function cataloguePolicyDecision(row) {
+  const identity = [row.product_name, row.external_name, row.name, row.evidence_name, row.category,
+    row.raw_category, row.merchant_category].filter(Boolean).join(" ");
+  const melatonin = /\bmelatonin(?:a|e)?\b/i;
+  const withoutMelatoninFreeClaims = text => text.replace(/\bmelatonin[-\s]+free\b|\bfree\s+(?:of|from)\s+melatonin\b/gi, " ");
+  if (melatonin.test(withoutMelatoninFreeClaims(identity))) return {
+    state: "EXCLUDE", code: "EXCLUDE_MELATONIN", reason: "prohibited catalogue type: melatonin (all doses)",
+  };
+  if (/\bselective androgen receptor modulators?\b/i.test(identity)) return {
+    state: "EXCLUDE", code: "EXCLUDE_SARM", reason: "prohibited catalogue type: SARM or peptide",
+  };
+  if (/\b(?:pharmacological|research)\s+peptides?\b|\bpeptydy\s+(?:badawcze|farmakologiczne)\b/i.test(identity)) return {
+    state: "EXCLUDE", code: "EXCLUDE_PEPTIDE", reason: "prohibited catalogue type: SARM or peptide",
+  };
+  if (PROHIBITED_CATALOGUE_TYPE_PATTERNS.some(pattern => pattern.test(identity))) return {
+    state: "EXCLUDE", code: /\b(?:sarms?|ostarine|ligandrol|testolone|andarine|cardarine|ibutamoren)\b/i.test(identity)
+      || PROHIBITED_CATALOGUE_TYPE_PATTERNS[0].test(identity) ? "EXCLUDE_SARM" : "EXCLUDE_PEPTIDE",
+    reason: "prohibited catalogue type: SARM or peptide",
+  };
+  // This existing named owner DEFER is not an identity alias or a product-ID rule.
+  if (/\blimitlesss?\s+nootropic\b/i.test(identity)) return {
+    state: "DEFER", code: "DEFER_OWNER_NAMED_PRODUCT", reason: "catalogue policy deferred: Limitless Nootropic requires owner review",
+  };
+  if (/\bpeptides?\b/i.test(identity) && !/\b(?:collagen|whey|protein)\b/i.test(identity)) return {
+    state: "DEFER", code: "DEFER_PEPTIDE_REVIEW", reason: "catalogue policy deferred: unresolved peptide identity",
+  };
+  const supportingEvidence = safeCreateEvidenceText(row);
+  if (melatonin.test(withoutMelatoninFreeClaims(supportingEvidence))
+    || PROHIBITED_CATALOGUE_TYPE_PATTERNS.some(pattern => pattern.test(supportingEvidence))) return {
+    state: "DEFER", code: "DEFER_INGREDIENT_REVIEW", reason: "catalogue policy deferred: description-only ingredient evidence",
+  };
+  return null;
+}
+
 function getProhibitedCatalogueTypeReason(row) {
-  const text = safeCreateEvidenceText(row);
-  return PROHIBITED_CATALOGUE_TYPE_PATTERNS.some((pattern) => pattern.test(text))
-    ? "prohibited catalogue type: SARM or peptide"
-    : null;
+  return cataloguePolicyDecision(row)?.reason || null;
+}
+
+function assertCataloguePolicyAllowsRecords(records) {
+  const blocked = records.flatMap(record => {
+    const candidates = [record.product?.name, record.mapping?.external_name,
+      record.variant?.display_name && [record.product?.name, record.variant.display_name].filter(Boolean).join(" ")].filter(Boolean);
+    const decisions = candidates.map(name => cataloguePolicyDecision({ product_name: name })).filter(Boolean);
+    const decision = decisions.find(value => value.state === "EXCLUDE") || decisions[0];
+    return decision ? [{ product_id: String(record.product?.id), variant_id: String(record.variant?.id),
+      mapping_id: String(record.mapping?.id), offer_id: String(record.offer?.id),
+      external_product_id: record.mapping?.external_product_id, ...decision }] : [];
+  });
+  if (!blocked.length) return;
+  const error = new Error("Approved scope conflicts with current owner catalogue policy; controlled scope reconciliation required");
+  error.code = "CATALOGUE_POLICY_SCOPE_BLOCKED";
+  error.stage = "CATALOGUE_POLICY";
+  error.detail = { blocked_records: blocked, automatic_scope_reduction: false };
+  throw error;
 }
 
 function reviewedSafeCreateFamily(row) {
@@ -1447,6 +1496,8 @@ function formatPreflightReport(report) {
 }
 
 module.exports = {
+  cataloguePolicyDecision,
+  assertCataloguePolicyAllowsRecords,
   analyzeFeedRows,
   assessVariantCompatibility,
   formatPreflightReport,

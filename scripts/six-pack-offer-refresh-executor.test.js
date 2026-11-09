@@ -19,7 +19,7 @@ test("all four workflow source loops stop permanent failures and bound transient
     .map((m) => m[0].replace(/\$\{\{[^}]*\}\}/g, "test-only-reviewed-fingerprint"));
   assert.equal(loops.length, 4);
   const cli = fs.readFileSync(path.join(__dirname, "six-pack-offer-refresh.js"), "utf8");
-  assert.match(cli, /process\.exitCode = isPermanentSourceError\(error\) \? 2 : 1/);
+  assert.match(cli, /process\.exitCode = isPermanentSourceError\(error\) \|\| error\.code === "CATALOGUE_POLICY_SCOPE_BLOCKED" \? 2 : 1/);
   const bash = process.platform === "win32" ? "C:/Program Files/Git/bin/bash.exe" : "/bin/bash";
   for (const loop of loops) {
     assert.match(loop, /node scripts\/six-pack-offer-refresh\.js/);
