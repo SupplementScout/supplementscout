@@ -26,6 +26,7 @@ on:
         options:
           - dry-run
           - apply
+          - apply-exact-confirmations
           - review-only
           - control-discovery
           - control-preflight
@@ -85,12 +86,16 @@ jobs:
       source_contract_sha256: ${{ steps.review_source.outputs.contract_sha256 }}
       review_scope_fingerprint: ${{ steps.review_source.outputs.review_scope_fingerprint }}
     env:
+      FIT_HOUSE_REFRESH_SCOPE_SEGMENT: ${{ inputs.operation == 'apply-exact-confirmations' && 'owner_exact_confirmations_261' || '' }}
       FIT_HOUSE_REFRESH_CONFIRMATIONS_ONLY: ${{ github.event_name == 'workflow_dispatch' && inputs.confirmations_only && 'true' || 'false' }}
 
     steps:
       - name: Validate protected execution context
         env:
           EXPECTED_REPOSITORY: SupplementScout/supplementscout
+          REFRESH_OPERATION: ${{ inputs.operation }}
+          REFRESH_RETAILER: ${{ inputs.retailer }}
+          REFRESH_VALIDATION_CONTEXT: ${{ inputs.validation_context }}
         run: |
           test "$GITHUB_REF" = "refs/heads/main"
           case "$GITHUB_EVENT_NAME" in
@@ -98,6 +103,11 @@ jobs:
             *) exit 1 ;;
           esac
           test "$GITHUB_REPOSITORY" = "$EXPECTED_REPOSITORY"
+          if [ "$REFRESH_OPERATION" = "apply-exact-confirmations" ]; then
+            test "$GITHUB_EVENT_NAME" = "workflow_dispatch"
+            test "$REFRESH_RETAILER" = "fit-house"
+            test "$REFRESH_VALIDATION_CONTEXT" = "workflow_dispatch"
+          fi
 
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -126,10 +136,13 @@ jobs:
           FIT_HOUSE_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           FIT_HOUSE_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           FIT_HOUSE_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
-        run: node scripts/fit-house-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
+        run: |
+          SCOPE_ARG=""
+          if [ -n "$FIT_HOUSE_REFRESH_SCOPE_SEGMENT" ]; then SCOPE_ARG="--scope-segment=$FIT_HOUSE_REFRESH_SCOPE_SEGMENT"; fi
+          node scripts/fit-house-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true $SCOPE_ARG
 
       - name: Capture Fit House DB baseline read-only
-        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'review-only' }}
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'apply-exact-confirmations' || inputs.operation == 'review-only' }}
         env:
           FIT_HOUSE_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
         run: node scripts/retailer-offer-refresh-postflight.js --profile=fit-house --mode=baseline --output=tmp/fit-house-offer-refresh/production-db-baseline.json
@@ -140,7 +153,7 @@ jobs:
         run: node scripts/shared-retailer-automation-review-source.js --mode=bind --profile=fit-house --source-artifact-dir=tmp/fit-house-offer-refresh
 
       - name: Apply all approved Fit House offer refresh
-        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'apply-exact-confirmations' }}
         env:
           FIT_HOUSE_REFRESH_PHASE: apply
           FIT_HOUSE_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
@@ -149,16 +162,19 @@ jobs:
           FIT_HOUSE_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           FIT_HOUSE_SYNC_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           FIT_HOUSE_SYNC_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
-        run: node scripts/fit-house-offer-refresh.js --target=production --mode=apply --isolate-unsafe=true
+        run: |
+          SCOPE_ARG=""
+          if [ -n "$FIT_HOUSE_REFRESH_SCOPE_SEGMENT" ]; then SCOPE_ARG="--scope-segment=$FIT_HOUSE_REFRESH_SCOPE_SEGMENT"; fi
+          node scripts/fit-house-offer-refresh.js --target=production --mode=apply --isolate-unsafe=true $SCOPE_ARG
 
       - name: Verify Fit House DB postflight read-only
-        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'apply-exact-confirmations' }}
         env:
           FIT_HOUSE_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
         run: node scripts/retailer-offer-refresh-postflight.js --profile=fit-house --mode=postflight --baseline=tmp/fit-house-offer-refresh/production-db-baseline.json --execution=tmp/fit-house-offer-refresh/production-apply.json --output=tmp/fit-house-offer-refresh/production-db-postflight.json
 
       - name: Verify idempotency with a fresh source capture
-        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'apply-exact-confirmations' }}
         env:
           FIT_HOUSE_REFRESH_PHASE: idempotency
           FIT_HOUSE_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || inputs.validation_context }}
@@ -190,7 +206,7 @@ jobs:
           path: tmp/fit-house-offer-refresh/*.json
 
   ten-reps-offer-refresh:
-    if: ${{ github.ref == 'refs/heads/main' && ((github.event_name == 'schedule' && github.event.schedule == '47 2 * * *') || (github.event_name == 'workflow_dispatch' && inputs.operation != 'control-discovery' && inputs.operation != 'control-preflight' && inputs.operation != 'control-recovery' && (inputs.retailer == 'all' || inputs.retailer == '10reps'))) }}
+    if: ${{ github.ref == 'refs/heads/main' && ((github.event_name == 'schedule' && github.event.schedule == '47 2 * * *') || (github.event_name == 'workflow_dispatch' && inputs.operation != 'apply-exact-confirmations' && inputs.operation != 'control-discovery' && inputs.operation != 'control-preflight' && inputs.operation != 'control-recovery' && (inputs.retailer == 'all' || inputs.retailer == '10reps'))) }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     environment: production-readonly

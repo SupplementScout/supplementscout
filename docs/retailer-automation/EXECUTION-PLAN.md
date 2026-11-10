@@ -1,5 +1,19 @@
 # Retailer Automation Consolidation Execution Plan
 
+**10 November exact Fit House confirmation gate — DRAFT PREPARATION:** main
+98d5b1297e74688ab6439f24c7a6a8e162734eb3 released517. Read-only run42692247024
+returned261 confirmations+19 stock review+4 source-missing review, SQL PASS14
+batches, zero writes. Owner execution stopped before any write because no native
+exact-subset pre-registration gate existed. This bounded preparation versions the
+261/23 owner evidence, reuses the existing scope selector and requires exact
+source/DB/plan/delta validation after SQL and before registration, including direct
+ordinary Fit apply. The manual Fit-only mode excludes Review Queue publication.
+CURRENT262 and both pinned state hashes were reconfirmed read-only on10November;
+284+2, OOS104, OOS1859 and historical protections remain intact. No source capture,
+dispatch, merge, production write or schedule restart in this task; both schedules
+remain PAUSED. RA-001 unchanged, RA-004 suspended. Earlier preparation entries are
+historical. See the [bounded gate and release procedure](FIT-HOUSE-EXACT-CONFIRMATIONS-2026-11-10.md).
+
 **9 November final targeted repair — DRAFT PREPARATION:** #516 is merged on
 main800497966452f9c777102b7e6db2c0bd736d0a1f. The one new Fit read-only
 run42676328398 captured231 products/326 variants, then exposed the consumed
