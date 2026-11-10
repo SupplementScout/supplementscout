@@ -391,14 +391,14 @@ test("registration migration is a thin exact-scope boundary and rollback is line
   assert.match(rollback, /rollback lineage or security guard failed/);
 });
 
-// Temporary Fit House schedule pause uses the existing shared-workflow contracts.
+// Owner-authorized Fit House schedule restoration uses the existing contracts.
 const vm = require("node:vm");
 const pauseWorkflow = fs.readFileSync(path.join(__dirname, "../.github/workflows/fit-house-offer-refresh.yml"), "utf8").replaceAll("\r\n", "\n");
 const pauseStarts = [...pauseWorkflow.matchAll(/^  ([a-z0-9-]+):\n/gm)];
 const pauseJobs = Object.fromEntries(pauseStarts.map((match, index) => [match[1], pauseWorkflow.slice(match.index, pauseStarts[index+1]?.index || pauseWorkflow.length)]));
 const pauseEmptyOutputs = () => ({artifact_id:"",artifact_digest:"",source_contract_sha256:"",review_scope_fingerprint:""});
 function pauseContext(event, cron="47 2 * * *", retailer="fit-house", operation="dry-run", ref="refs/heads/main") {
-  return { github:{ref,event_name:event,event:{schedule:cron}}, inputs:{retailer,operation}, always:()=>true,
+  return { github:{ref,event_name:event,event:{schedule:cron}}, inputs:{retailer,operation}, always:()=>true, success:()=>true,
     needs:Object.fromEntries(["fit-house-offer-refresh","ten-reps-offer-refresh","gladiator-nutrition-offer-refresh"].map(name=>[name,{outputs:pauseEmptyOutputs()}])) };
 }
 function pauseEvaluate(expression, ctx) { return Boolean(vm.runInNewContext(expression.replace(/needs\.([a-z0-9-]+)/g, (_, key) => "needs[" + JSON.stringify(key) + "]"),ctx,{timeout:1000})); }
@@ -407,13 +407,14 @@ function pauseEligible(job, ctx) {
   assert.ok(line,"Missing existing job guard: "+job);return pauseEvaluate(line[1],ctx);
 }
 
-test("Fit House scheduled job cannot reach source, approval, apply, postflight or queue outputs during withdrawal pause",()=>{
+test("Fit House restores only its exact daily cron on main",()=>{
   for(const cron of ["47 2 * * *","17 8 * * *","unknown"])
     for(const retailer of ["fit-house","all","10reps","gladiator-nutrition"])
       for(const operation of ["dry-run","apply","review-only"])
-        assert.equal(pauseEligible("fit-house-offer-refresh",pauseContext("schedule",cron,retailer,operation)),false);
+        assert.equal(pauseEligible("fit-house-offer-refresh",pauseContext("schedule",cron,retailer,operation)),cron==="47 2 * * *");
+  assert.equal(pauseEligible("fit-house-offer-refresh",pauseContext("schedule","47 2 * * *","fit-house","","refs/heads/other")),false);
 });
-test("10 Reps and Gladiator retain their own scheduled pauseJobs and exact cron routing",()=>{
+test("10 Reps and Gladiator retain their own exact scheduled cron routing",()=>{
   assert.equal(pauseEligible("ten-reps-offer-refresh",pauseContext("schedule")),true);
   assert.equal(pauseEligible("gladiator-nutrition-offer-refresh",pauseContext("schedule","17 8 * * *")),true);
   assert.equal(pauseEligible("ten-reps-offer-refresh",pauseContext("schedule","17 8 * * *")),false);
@@ -424,6 +425,30 @@ test("manual Fit House dry-run stays available on main and cannot cross retailer
   for(const retailer of ["10reps","gladiator-nutrition"])assert.equal(pauseEligible("fit-house-offer-refresh",pauseContext("workflow_dispatch","",retailer)),false);
   assert.equal(pauseEligible("fit-house-offer-refresh",pauseContext("workflow_dispatch","","fit-house","dry-run","refs/heads/feature")),false);
 });
+
+test("Fit scheduled execution and manual review-only retain their existing steps; dry-run cannot write or publish",()=>{
+  const workflow=require("js-yaml").load(pauseWorkflow),fit=workflow.jobs["fit-house-offer-refresh"];
+  const steps=["Capture Fit House DB baseline read-only","Bind fresh Fit House Review Queue source","Apply all approved Fit House offer refresh","Verify Fit House DB postflight read-only","Verify idempotency with a fresh source capture"];
+  for(const name of steps){
+    const step=fit.steps.find(row=>row.name===name);assert.ok(step?.if,name);
+    const expression=step.if.replace(/^\$\{\{\s*|\s*\}\}$/g,"");
+    assert.equal(pauseEvaluate(expression,pauseContext("workflow_dispatch","","fit-house","dry-run")),false,name);
+    assert.equal(pauseEvaluate(expression,pauseContext("schedule")),true,name);
+    assert.equal(pauseEvaluate(expression,pauseContext("workflow_dispatch","","fit-house","review-only")),name.startsWith("Capture")||name.startsWith("Bind"),name);
+  }
+  assert.equal(pauseEligible("refresh-review-queue",pauseContext("workflow_dispatch","","fit-house","dry-run")),false);
+  const healthy=pauseContext("schedule");Object.assign(healthy.needs["fit-house-offer-refresh"].outputs,{artifact_id:"fit",artifact_digest:"digest",source_contract_sha256:"contract",review_scope_fingerprint:"scope"});
+  assert.equal(pauseEligible("refresh-review-queue",healthy),true);
+  const fitStep=workflow.jobs["refresh-review-queue"].steps.find(row=>row.name==="Reconcile and publish fresh Fit House Review Queue source");
+  assert.equal(pauseEvaluate(fitStep.if.replace(/^\$\{\{\s*|\s*\}\}$/g,""),healthy),true);
+  assert.equal(fitStep.with["source-run-id"],"${{ github.run_id }}");assert.equal(fitStep.with["source-commit-sha"],"${{ github.sha }}");
+  assert.equal(fitStep.with["artifact-id"],"${{ needs.fit-house-offer-refresh.outputs.artifact_id }}");
+  for(const key of Object.keys(healthy.needs["fit-house-offer-refresh"].outputs)){
+    const missing=pauseContext("schedule");Object.assign(missing.needs["fit-house-offer-refresh"].outputs,healthy.needs["fit-house-offer-refresh"].outputs,{[key]:""});
+    assert.equal(pauseEligible("refresh-review-queue",missing),false,key);
+  }
+  assert.deepEqual(workflow.permissions,{contents:"read",actions:"read"});assert.equal(workflow.concurrency.group,"retailer-offer-production-write");
+});
 test("manual read-only control discovery/preflight and existing recovery retain their independent job",()=>{
   for(const operation of ["control-discovery","control-preflight","control-recovery"]){
     const ctx=pauseContext("workflow_dispatch","","fit-house",operation);
@@ -431,15 +456,14 @@ test("manual read-only control discovery/preflight and existing recovery retain 
     assert.equal(pauseEligible("expired-control-plan-recovery",ctx),true);
   }
 });
-test("shared scheduled queue publication cannot publish missing Fit outputs while other retailer evidence remains pauseEligible",()=>{
+test("shared scheduled queue publication cannot publish missing Fit outputs while other retailer evidence stays eligible",()=>{
   const ctx=pauseContext("schedule");Object.assign(ctx.needs["ten-reps-offer-refresh"].outputs,{artifact_id:"ten",artifact_digest:"digest",source_contract_sha256:"contract",review_scope_fingerprint:"scope"});
   assert.equal(pauseEligible("refresh-review-queue",ctx),true);
   const fitStep=pauseJobs["refresh-review-queue"].match(/- name: Reconcile and publish fresh Fit House Review Queue source\n        if: \$\{\{ (.*) \}\}/);
   assert.ok(fitStep);assert.equal(pauseEvaluate(fitStep[1],ctx),false);
 });
-test("the shared review-restoration workflow retains the reversible Fit schedule pause",()=>{
-  const restored=pauseWorkflow.replace("    # Temporary owner-withdrawal rollout pause: only the Fit House scheduled job.\n    # Remove the event guard only after separate owner approval and postflight.\n","").replace("github.event_name != 'schedule' && ","");
-  assert.equal(crypto.createHash("sha256").update(restored).digest("hex"),"b9f94af1a03f2952fa76ba237357883816122cdd5bbbdf066be657d153b83935");
+test("the restored shared workflow equals the previously sealed version with only the deliberate Fit pause removed",()=>{
+  assert.equal(crypto.createHash("sha256").update(pauseWorkflow).digest("hex"),"b9f94af1a03f2952fa76ba237357883816122cdd5bbbdf066be657d153b83935");
 });
 
 test("existing independent queue worker performs zero writes with an empty QUEUED inventory, a separate rollout precondition",async()=>{

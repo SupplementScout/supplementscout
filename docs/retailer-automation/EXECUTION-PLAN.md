@@ -1,5 +1,61 @@
 # Retailer Automation Consolidation Execution Plan
 
+**10 November final schedule restoration — OWNER-APPROVED RELEASE:**
+Starting main is `60470af1da8a8a88f2bf0611b60d634b863333f5`. The owner authorizes
+one minimal PR, standard squash merge after required checks, the existing normal
+scheduled writes/publication, and observation of three natural cycles. Before
+merge/main CI/Guardian/Vercel READY this entry is preparation, not a live claim.
+After those release gates the status is **ROLLOUT_ENABLED_AWAITING_STABILITY**;
+only three verified natural cycles per retailer permit **STABLE**.
+
+The change removes only Fit's explicit schedule veto, restores Six's exact daily
+cron, and admits Six's existing publisher after a successful scheduled source job
+with all four same-run binding outputs. Manual operations and other retailer jobs
+retain their existing contracts. No parser/classifier/executor/SQL/permission,
+manifest, approval or schema change; no manual apply, extra dispatch or migration.
+Scheduled execution continues to require fresh source/identity checks, ordinary
+policy, SQL validation, guarded approval/execution, DB postflight and idempotency.
+Six scheduled publication requires the source job's success; a failed catalogue
+execution remains a failed workflow. Existing manual captured-review publication
+semantics are unchanged. Publication creates pending decisions, not approvals.
+
+Release evidence is the existing10November live read-only runs:
+[Fit42794643765](https://github.com/SupplementScout/supplementscout/actions/runs/42794643765)
+and [Six42794718703](https://github.com/SupplementScout/supplementscout/actions/runs/42794718703).
+Fit284+2 returned246 confirmations/38 review, SQL PASS13 batches; Six504+2
+returned293 confirmations/211 review, SQL PASS293 plans. These are dated source
+observations, not future runtime expectations. CURRENT262, both exact lifecycle
+scopes and absence of active control plans were reconfirmed read-only at10:55UTC.
+HOLD1938 remains stock=false;954 requires a new owner stock decision. Six5091 and
+4145 remain noncommercial identity review. MASS_OOS, OOS104/OOS1859/EXECUTED1114,
+historical decisions, expiry and deduplication remain authoritative. The consumed
+historical261 scope is never replayed.
+
+Operational handoff: inspect existing workflow artifacts/Queue and the existing
+Automation Reliability Watchdog (`automation-reliability-watchdog.yml`, every six
+hours at minute11). Do not add a monitor or substitute manual dispatches. Count
+only actual non-skipped `schedule` executions on the released SHA or its approved
+successors; GitHub may start a cron late. Planned next cycles (UTC):
+
+| Cycle | Date | Fit House02:47 | Six Pack03:17 |
+| --- | --- | --- | --- |
+| 1 | 2026-11-11 | PENDING | PENDING |
+| 2 | 2026-11-12 | PENDING | PENDING |
+| 3 | 2026-11-13 | PENDING | PENDING |
+
+For each cycle record the run ID/SHA, source completeness/health, ACTIVE/HISTORICAL
+scope, executable/executed/review/blocked counts, actual commercial deltas and
+freshness confirmations, price-history observations, Queue publication evidence,
+DB postflight, idempotency and failures in this same ledger. Check actual apply
+and publication artifacts, not workflow color. Daily `daily_confirmation` history
+is a legitimate recorder result, not a price change: verify identity/provenance,
+uniqueness and observation_kind separately from `delivered_price_changed`, replay
+and skipped identity observations. Rollout-time zero writes and later authorized
+scheduled writes are separate evidence. Safely isolated review debt does not
+reopen development; source/integrity failure or unauthorized writes are incidents.
+No further development is planned without such an incident. RA-001 unchanged;
+RA-004 remains suspended. Older entries below are historical.
+
 **10 November final bounded closeout — RELEASE VERIFIED / SIX DRAFT:**
 Owner-approved PR519 merged unchanged as
 `fbc99f848129ea0753d6514b116b34cba5c53884` (tree equals approved
