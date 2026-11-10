@@ -9,6 +9,9 @@ const config = require("../config/retailers/fit-house-offer-sync.json");
 Object.assign(config, { manifest_path: "config/retailers/fit-house-approved-offer-manifest.json",
   manifest_sha256: "a1e596f7707c851534e04e30d13f4289439449556787c572736e77b279c75292", approved_mapping_count: 286 });
 delete config.physical_mapping_count;
+// Keep this immutable historical business-policy fixture free of later execution metadata.
+delete config.exact_confirmation_scope;
+delete config.require_exact_confirmation_scope;
 config.guardrails.required_matched_offers = 286;
 
 const { sha256 } = require("./lib/shopify-snapshot-reader");

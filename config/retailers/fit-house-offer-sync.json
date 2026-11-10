@@ -63,5 +63,12 @@
   "schedule": {
     "cron_utc": "47 2 * * *"
   },
-  "physical_mapping_count": 286
+  "physical_mapping_count": 286,
+  "require_exact_confirmation_scope": true,
+  "exact_confirmation_scope": {
+    "segment": "owner_exact_confirmations_261",
+    "path": "config/retailers/fit-house-exact-confirmations-2026-11-10.json",
+    "sha256": "c3bc81f6d788a835bb89ab6b6afb2323b068ae36c3329e7722f55d76405f9cd1",
+    "authority": "owner-chat-2026-11-10-fit-house-exact-261"
+  }
 }

@@ -314,7 +314,8 @@ test("shared workflow retains declared cron routing and unaffected retailer runt
   assert.match(workflow, /group: retailer-offer-production-write[\s\S]*cancel-in-progress: false/);
 
   const runtimeBody = (job) => job.slice(job.indexOf("\n    runs-on:"));
-  assert.equal(crypto.createHash("sha256").update(runtimeBody(fitHouseJob).replaceAll("\r\n", "\n")).digest("hex"), "4d3e118cb2151b946681cf6cacfaa0be4fe70f77688df4e1717bb6924d83db71");
+  // Resealed for the Fit-only exact confirmation selector; 10 Reps runtime stays pinned below.
+  assert.equal(crypto.createHash("sha256").update(runtimeBody(fitHouseJob).replaceAll("\r\n", "\n")).digest("hex"), "b6474a06d68a756a5ec4591b324645f4f34a03d3823a3902de23de5d349f5d71");
   assert.equal(crypto.createHash("sha256").update(runtimeBody(tenRepsJob).replaceAll("\r\n", "\n")).digest("hex"), "9b0d7ead1f35faa61ae9efebd189bb40932c76c1dbe0092a5cfc7531f6e676eb");
 });
 
@@ -323,9 +324,9 @@ test("Gladiator scheduled refresh reuses the shared guarded flow while manual ap
   const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
   const gladiatorJob = workflow.match(/  gladiator-nutrition-offer-refresh:[\s\S]*?(?=\n  refresh-review-queue:)/)?.[0] || "";
   assert.equal((runtime.match(/gladiator-nutrition/g) || []).length, 4);
-  // Resealed for Fit House consumed-owner scope reconciliation.
+  // Resealed for the configured Fit House exact confirmation gate.
   // Other profiles keep the shared pre-source owner-policy gate and generic path.
-  assert.equal(sha256Text(path.join(ROOT, "scripts/fit-house-offer-refresh.js")), "08179332ef9270f3752335c67060afefdb0c6bdbe408cdb5b883d27bff998dfd");
+  assert.equal(sha256Text(path.join(ROOT, "scripts/fit-house-offer-refresh.js")), "9d6c3c46c8c05dc8c0a0c3160dd4be020d1a84b6d57fdb7d0ccca90ee5716b6a");
   assert.doesNotMatch(runtime, /retailer_id\s*={2,3}\s*15|config\.retailer_id\s*={2,3}\s*15/);
   assert.match(gladiatorJob, /github\.event_name == 'workflow_dispatch'/);
   assert.match(gladiatorJob, /inputs\.operation == 'dry-run'[\s\S]*inputs\.operation == 'review-only'/);
@@ -436,9 +437,9 @@ test("shared scheduled queue publication cannot publish missing Fit outputs whil
   const fitStep=pauseJobs["refresh-review-queue"].match(/- name: Reconcile and publish fresh Fit House Review Queue source\n        if: \$\{\{ (.*) \}\}/);
   assert.ok(fitStep);assert.equal(pauseEvaluate(fitStep[1],ctx),false);
 });
-test("the only shared pauseWorkflow difference is the reversible Fit job event guard and its two comments",()=>{
+test("the shared exact-confirmation workflow retains the reversible Fit schedule pause",()=>{
   const restored=pauseWorkflow.replace("    # Temporary owner-withdrawal rollout pause: only the Fit House scheduled job.\n    # Remove the event guard only after separate owner approval and postflight.\n","").replace("    if: ${{ github.event_name != 'schedule' && github.ref == 'refs/heads/main' && ((github.event_name == 'schedule' && github.event.schedule == '47 2 * * *') || (github.event_name == 'workflow_dispatch' && inputs.operation != 'control-discovery' && inputs.operation != 'control-preflight' && inputs.operation != 'control-recovery' && (inputs.retailer == 'all' || inputs.retailer == 'fit-house'))) }}","    if: ${{ github.ref == 'refs/heads/main' && ((github.event_name == 'schedule' && github.event.schedule == '47 2 * * *') || (github.event_name == 'workflow_dispatch' && inputs.operation != 'control-discovery' && inputs.operation != 'control-preflight' && inputs.operation != 'control-recovery' && (inputs.retailer == 'all' || inputs.retailer == 'fit-house'))) }}");
-  assert.equal(crypto.createHash("sha256").update(restored).digest("hex"),"e2e2a4adbf450bc6cd7a1716b23424b6005fa32ba97913b50baa0c7bd85db51e");
+  assert.equal(crypto.createHash("sha256").update(restored).digest("hex"),"69b9ea671a0e5a797e7c7be000f2efeab83d00d23719abda993b31d5573fbb62");
 });
 test("existing independent queue worker performs zero writes with an empty QUEUED inventory, a separate rollout precondition",async()=>{
   const {run}=require("./automation-review-queue-worker");const reads=[];const query={select(){return this},eq(key,value){reads.push([key,value]);return this},order(){return this},async limit(){return{data:[],error:null}}};

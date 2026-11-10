@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 359,
-    "sha256": "845f1710c711dec11e5cc40b656c387d5c6beadcda617a8982f7f70afd302493"
+    "count": 360,
+    "sha256": "c164bdc150e708e87d13bcd1fb72a7fbfca519eb00ad3a9cac6cedaac58bf82a"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -138,6 +138,7 @@
     "scripts/homepage-comparisons.test.js",
     "scripts/retailer-active-historical-reconciliation.test.js",
     "scripts/retailer-unverified-source-quarantine.test.js",
-    "scripts/retailer-owner-scope-selected-unit.test.js"
+    "scripts/retailer-owner-scope-selected-unit.test.js",
+    "scripts/fit-house-exact-confirmations.test.js"
   ]
 }
