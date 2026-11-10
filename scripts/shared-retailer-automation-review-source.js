@@ -280,7 +280,9 @@ function buildManifestRows(source, baseline, options) {
     const beforeState = { offer_id: changed.offer_id, retailer_product_id: changed.retailer_product_id, product_id: String(offer.product_id), product_variant_id: String(offer.product_variant_id), price: String(offer.price), shipping_cost: nullable(offer.shipping_cost), total_price: nullable(offer.total_price), in_stock: offer.in_stock === true, url: offer.url || null, external_url: mapping.external_url || null, external_product_id: nullable(mapping.external_product_id), external_variant_id: nullable(mapping.external_variant_id) };
     const card = profile.reviewCard(beforeState, changed, { offer, mapping, variant: variants.get(String(offer.product_variant_id)), sourceFingerprint: source.contract.source_fingerprint, sourceCapturedAt: source.contract.created_at });
     const proposedState = card.proposedState;
-    const sourceRowFingerprint = sha256({ contract: `${profile.key}-automation-review-row-v1`, retailer_id: retailer.id, offer_id: changed.offer_id, source_fingerprint: source.contract.source_fingerprint, before_state: beforeState, proposed_state: proposedState, ...(card.identityEvidence ? { identity_evidence: card.identityEvidence, review_reason: card.evidenceReason } : {}) });
+    const semanticIdentity = card.identityEvidence ? { ...card.identityEvidence } : null;
+    if (semanticIdentity) delete semanticIdentity.source_captured_at;
+    const sourceRowFingerprint = sha256({ contract: `${profile.key}-automation-review-row-v1`, retailer_id: retailer.id, offer_id: changed.offer_id, source_fingerprint: source.contract.source_fingerprint, before_state: beforeState, proposed_state: proposedState, ...(semanticIdentity ? { identity_evidence: semanticIdentity, review_reason: card.evidenceReason } : {}) });
     return {
       snapshot_id: `automation-review-${retailer.id}-${options.sourceRunId}`,
       review_item_id: `${retailer.id}:${changed.offer_id}:${options.sourceRunId}:${sourceRowFingerprint}`,

@@ -264,6 +264,12 @@ test('expired PENDING is superseded,not approved;repeat reconciliation creates n
   baseline.activeRows = rows.map((r, i) => ({ ...r, id: String(9000 + i) }));
   const repeated = buildOutput(source, baseline, rows, options, env);
   assert.equal(repeated.operations.CREATE, 0); assert.equal(repeated.operations.REFRESH, 23); assert.equal(repeated.operations.SUPERSEDE, 0);
+  source.contract.created_at = new Date(Date.parse(source.contract.created_at) + 60000).toISOString();
+  const recapturedRows = buildManifestRows(source, baseline, options);
+  const recaptured = buildOutput(source, baseline, recapturedRows, options, env);
+  assert.equal(recaptured.operations.CREATE, 0); assert.equal(recaptured.operations.REFRESH, 23);
+  assert.deepEqual(recapturedRows.map(r => r.source_row_fingerprint), rows.map(r => r.source_row_fingerprint));
+  assert.notEqual(recapturedRows[0].source_captured_at, rows[0].source_captured_at);
   assert.equal(repeated.expected.catalogue_writes, 0); assert.equal(repeated.production_writes, 0);
   const review = { ...baseline.activeRows[0], decision_actor: 'owner', decision_at: retained.diagnostic.timestamp, expires_at: '2026-11-05T09:52:40.247Z' };
   const request = { review_id: review.id, retailer_slug: 'fit-house', operation_type: review.operation_type, status: 'DISPATCHED', review_fingerprint: review.source_row_fingerprint, plan_fingerprint: review.plan_fingerprint };
