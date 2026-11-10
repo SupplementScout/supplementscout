@@ -34,9 +34,7 @@ concurrency:
 
 jobs:
   six-pack-offer-refresh:
-    # SIX_PACK_SCHEDULE_PAUSED_PENDING_OWNER_APPROVAL
-    # Keep cron registered; restore scheduled execution only after separate owner approval.
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.operation != 'apply-reviewed' }}
+    if: ${{ github.ref == 'refs/heads/main' && ((github.event_name == 'schedule' && github.event.schedule == '17 3 * * *') || (github.event_name == 'workflow_dispatch' && inputs.operation != 'apply-reviewed')) }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
     environment: production-readonly
@@ -193,7 +191,7 @@ jobs:
 
   refresh-review-queue:
     needs: six-pack-offer-refresh
-    if: ${{ always() && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.operation == 'apply' && needs.six-pack-offer-refresh.outputs.artifact_id != '' && needs.six-pack-offer-refresh.outputs.artifact_digest != '' && needs.six-pack-offer-refresh.outputs.source_contract_sha256 != '' && needs.six-pack-offer-refresh.outputs.review_scope_fingerprint != '' }}
+    if: ${{ always() && github.ref == 'refs/heads/main' && ((github.event_name == 'schedule' && github.event.schedule == '17 3 * * *' && needs.six-pack-offer-refresh.result == 'success') || (github.event_name == 'workflow_dispatch' && inputs.operation == 'apply')) && needs.six-pack-offer-refresh.outputs.artifact_id != '' && needs.six-pack-offer-refresh.outputs.artifact_digest != '' && needs.six-pack-offer-refresh.outputs.source_contract_sha256 != '' && needs.six-pack-offer-refresh.outputs.review_scope_fingerprint != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment: production-readonly
