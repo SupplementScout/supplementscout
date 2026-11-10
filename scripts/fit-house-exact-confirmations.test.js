@@ -8,7 +8,11 @@ const {buildVerifiedNoChangePlan}=require('./verified-no-change-offer-refresh');
 const {migrationBinding}=require('./lib/environment-migrations');
 const {sha256}=require('./lib/shopify-snapshot-reader');
 const {projectRowManifestOfferSyncState,ROW_MANIFEST_OFFER_SYNC_KEYS}=require('./lib/reviewed-catalogue-state');
-const config=require('../config/retailers/fit-house-offer-sync.json'),prior=require('./test-fixtures/retailer-quarantine-captured-evidence-2026-11-09.json');
+const activeConfig=require('../config/retailers/fit-house-offer-sync.json'),prior=require('./test-fixtures/retailer-quarantine-captured-evidence-2026-11-09.json');
+// Archived policy is exercised only as a historical gate fixture, never active runtime configuration.
+const config={...activeConfig,require_exact_confirmation_scope:true,exact_confirmation_scope:{
+ segment:'owner_exact_confirmations_261',path:'config/retailers/fit-house-exact-confirmations-2026-11-10.json',
+ sha256:'c3bc81f6d788a835bb89ab6b6afb2323b068ae36c3329e7722f55d76405f9cd1',authority:'owner-chat-2026-11-10-fit-house-exact-261'}};
 const ROOT=path.resolve(__dirname,'..'),evidence=loadExactConfirmationScope(ROOT,config);
 const NOW=Date.parse('2026-11-10T12:00:00Z'),capturedAt=new Date(NOW-1000).toISOString(),sourceHash='a'.repeat(64);
 const state=reconcileApprovedCatalogueScope(engine.loadApprovedManifest().manifest,structuredClone(prior.fit.records));
@@ -108,10 +112,10 @@ test('other retailer,target,migration or nonisolated context cannot use this app
  blocked(f=>{f.run.target='staging';});blocked(f=>{f.run.spec.ref='other';});blocked(f=>{f.run.reviewed={};});
  blocked(f=>{f.run.isolateUnsafe=false;});blocked(f=>{f.run.binding.fingerprint='0'.repeat(64);});
 });
-test('native scope selector cannot silently discard an extra executable row',()=>{
+test('retired exact selector is absent from the active policy and catalogue',()=>{
  const f=fixture(),m=engine.loadApprovedManifest().manifest;
- assert.equal(engine.selectApprovedScopeSegment(f.run.classification.rows,f.run.classification,m,evidence.segment).length,261);
- assert.throws(()=>engine.selectApprovedScopeSegment([...f.run.classification.rows,{offer_id:'999999'}],f.run.classification,m,evidence.segment),/extra executable/);
+ assert.equal(activeConfig.exact_confirmation_scope,undefined);assert.equal(activeConfig.require_exact_confirmation_scope,undefined);
+ assert.throws(()=>engine.selectApprovedScopeSegment(f.run.classification.rows,f.run.classification,m,evidence.segment),/unknown approved scope segment/);
 });
 test('process gate is mandatory for configured ordinary apply, after SQL and before registration',()=>{
  const source=engine.executeRefresh.toString();
@@ -154,18 +158,16 @@ function enabled(item,operation,retailer='fit-house',event='workflow_dispatch',s
  const needs=Object.fromEntries(['fit-house-offer-refresh','ten-reps-offer-refresh','gladiator-nutrition-offer-refresh'].map(k=>[k,{outputs}]));
  return Boolean(vm.runInNewContext(item.if.replace(/^\$\{\{\s*|\s*\}\}$/g,'').replace(/needs\.([a-z-]+)/g,(_,key)=>`needs["${key}"]`),{github:{ref:'refs/heads/main',event_name:event,event:{schedule}},inputs:{operation,retailer},needs,always:()=>true,success:()=>true},{timeout:1000}));
 }
-test('exact manual operation runs Fit baseline/apply/postflight/idempotency,never Review Queue or another retailer',()=>{
- assert.ok(workflow.on.workflow_dispatch.inputs.operation.options.includes('apply-exact-confirmations'));
- const fit=workflow.jobs['fit-house-offer-refresh'];assert.equal(enabled(fit,'apply-exact-confirmations'),true);
- for(const key of ['ten-reps-offer-refresh','gladiator-nutrition-offer-refresh','refresh-review-queue','expired-control-plan-recovery'])
+test('retired exact operation is unavailable and cannot enable any job or another retailer',()=>{
+ assert.equal(workflow.on.workflow_dispatch.inputs.operation.options.includes('apply-exact-confirmations'),false);
+ for(const key of ['fit-house-offer-refresh','ten-reps-offer-refresh','gladiator-nutrition-offer-refresh','refresh-review-queue','expired-control-plan-recovery'])
   for(const retailer of ['fit-house','10reps','gladiator-nutrition','all'])assert.equal(enabled(workflow.jobs[key],'apply-exact-confirmations',retailer),false,key+retailer);
+ const fit=workflow.jobs['fit-house-offer-refresh'];assert.equal(fit.env.FIT_HOUSE_REFRESH_SCOPE_SEGMENT,undefined);
  for(const name of ['Capture Fit House DB baseline read-only','Apply all approved Fit House offer refresh','Verify Fit House DB postflight read-only','Verify idempotency with a fresh source capture'])
-  assert.equal(enabled(fit.steps.find(s=>s.name===name),'apply-exact-confirmations'),true,name);
- assert.equal(enabled(fit.steps.find(s=>s.id==='review_source'),'apply-exact-confirmations'),false);
- assert.match(fit.steps.find(s=>s.name==='Validate protected execution context').run,/test "\$REFRESH_RETAILER" = "fit-house"/);
- assert.match(fit.steps.find(s=>s.name==='Apply all approved Fit House offer refresh').run,/--scope-segment=\$FIT_HOUSE_REFRESH_SCOPE_SEGMENT/);
+  assert.equal(enabled(fit.steps.find(s=>s.name===name),'apply-exact-confirmations'),false,name);
  assert.equal(enabled(fit,'apply-exact-confirmations','fit-house','schedule'),false);
 });
+
 test('ordinary operations keep their job/publication choices and existing permissions',()=>{
  for(const operation of ['dry-run','apply','review-only']){
   assert.equal(enabled(workflow.jobs['fit-house-offer-refresh'],operation),true);

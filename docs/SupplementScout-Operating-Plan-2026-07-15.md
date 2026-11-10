@@ -5,6 +5,15 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**10 November 2026 Fit House Review Queue preparation:** the bounded owner task
+aligns the existing publisher with 284 ACTIVE + 2 HISTORICAL and 19 stock + 4
+source-missing reviews, preserves stock-only owner approval and decision history,
+and prepares retirement of the completed exact 261 confirmation mode. Completed
+execution receipts are retained. This is draft code preparation, with zero
+production writes, dispatches or source captures; both schedules remain PAUSED.
+RA-001 is unchanged and RA-004 remains suspended. See the
+[release boundary and evidence](retailer-automation/FIT-HOUSE-AUTOMATIC-REVIEW-RESTORATION-2026-11-10.md).
+
 **6 November 2026 shared automation concurrency correction:** the existing
 single production-write lane remains the only path. After eleven exact 10 Reps
 Review Queue dispatches, GitHub preserved the running workflow but its default

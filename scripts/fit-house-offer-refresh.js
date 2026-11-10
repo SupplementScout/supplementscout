@@ -896,6 +896,7 @@ function enforceProtectedStockReportScope(run,{executionOfferIds,stockChangeOffe
 async function executeRefresh(args,diagnostic,reviewed=null){
   const spec=TARGETS[args.target];
   invariant(!process.env.SAFE_UPDATE,"SAFE_UPDATE must be unset");
+  if(args.scopeSegment)invariant(args.scopeSegment===config.exact_confirmation_scope?.segment||Array.isArray(loadApprovedManifest().manifest.scope_segments?.[args.scopeSegment]),`unknown approved scope segment ${args.scopeSegment}`);
   invariant(git("branch","--show-current")==="main","main required");
   if(!process.env.GITHUB_ACTIONS)invariant(git("status","--short").split(/\r?\n/).filter(line=>line&&!line.startsWith("?? tmp/")).length===0,"unexpected tracked worktree changes");
   // The configured ordinary apply cannot bypass owner scope by omitting a YAML operation/selector.
@@ -904,8 +905,8 @@ async function executeRefresh(args,diagnostic,reviewed=null){
     ?loadExactConfirmationScope(ROOT,config):null;
   const before=await readState(args.target);
   const approvedManifest=loadApprovedManifest().manifest;
-  diagnostic.approved_mapping_count=before.counts.mappings;
-  diagnostic.approved_offer_count=before.counts.offers;
+  diagnostic.approved_mapping_count=config.approved_mapping_count;
+  diagnostic.approved_offer_count=config.approved_mapping_count;
   diagnostic.database_before=before.counts;
   const run=await buildRun(args.target,before,diagnostic,reviewed,args.isolateUnsafe,args.scopeSegment);
   enforceConfirmationOnly(run,process.env[`${config.phase_prefix}_CONFIRMATIONS_ONLY`]);

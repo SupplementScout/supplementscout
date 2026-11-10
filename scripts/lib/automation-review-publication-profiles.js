@@ -69,7 +69,7 @@ function validateJonsCapture(profile, { report, diagnostic, invariant }) {
 function validateStandardChangedRows(profile, changedRows, invariant) {
   const validStockChange = (row) => row.action === "UPDATE_STOCK"
     && row.old_price === row.new_price && row.old_stock !== row.new_stock;
-  const validCompoundChange = (row) => row.action === "UPDATE_PRICE_AND_STOCK"
+  const validCompoundChange = (row) => !profile.stockOnlyCommercialChanges && row.action === "UPDATE_PRICE_AND_STOCK"
     && row.old_price !== row.new_price && row.old_stock !== row.new_stock;
   const valid = profile.reviewType === "stock"
     ? changedRows.every(validStockChange)
@@ -148,13 +148,13 @@ function normalizeStockReviewRows(report, baselineByOffer, label, invariant) {
   return normalizeCommercialReviewRows(report, baselineByOffer, label, invariant, ["UPDATE_STOCK"]);
 }
 
-function normalizeMixedReviewRows(report, baselineByOffer, label, invariant) {
+function normalizeMixedReviewRows(report, baselineByOffer, label, invariant, stockOnly = false) {
   const missingRows = report.review_rows.filter((row) => row.reason === "SOURCE_VARIANT_MISSING");
   const stockRows = report.review_rows.filter((row) => row.reason !== "SOURCE_VARIANT_MISSING");
   const normalizedMissing = normalizeMissingRows({ review_rows: missingRows }, baselineByOffer, label, invariant);
   const normalizedStock = normalizeCommercialReviewRows(
     { review_rows: stockRows }, baselineByOffer, label, invariant,
-    ["UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"],
+    stockOnly ? ["UPDATE_STOCK"] : ["UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"],
   );
   return [...normalizedMissing, ...normalizedStock].sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
 }
@@ -174,7 +174,7 @@ function validateStandard(profile, context) {
     && stockChangeIds.length === report.stock_change_offer_ids.length,
   `${label} executable offer IDs drifted`);
 
-  if (profile.reviewType === "stock") {
+  if (profile.reviewType === "stock" || profile.stockOnlyCommercialChanges) {
     invariant(stockChangeIds.length === 0, `${label} executable offer IDs drifted`);
     invariant(verificationIds.length === executableCount, `${label} verification offer IDs drifted`);
     sameJson(executionIds, verificationIds, `${label} executable and verified scopes differ`);
@@ -224,9 +224,9 @@ function validateStandard(profile, context) {
   const changedRows = profile.reviewType === "stock"
     ? normalizeStockReviewRows(report, baselineByOffer, label, invariant)
     : profile.reviewType === "mixed"
-      ? normalizeMixedReviewRows(report, baselineByOffer, label, invariant)
+      ? normalizeMixedReviewRows(report, baselineByOffer, label, invariant, profile.stockOnlyCommercialChanges)
       : normalizeMissingRows(report, baselineByOffer, label, invariant);
-  if (profile.reviewType === "stock") {
+  if (profile.reviewType === "stock" || profile.stockOnlyCommercialChanges) {
     const deferredReviewIds = sortedIds(report.review_rows
       .filter((row) => row.reason === "OWNER_DEFERRED_STOCK_REVIEW")
       .map((row) => row.offer_id));
@@ -409,7 +409,7 @@ function profile(values) {
 }
 
 const PROFILES = Object.freeze({
-  "fit-house": profile({ key: "fit-house", retailer: Object.freeze({ id: "9", name: "Fit House", slug: "fit-house" }), approvedMappingCount: 286, sourceDirectory: "fit-house-offer-refresh", artifactPrefix: "fit-house-offer-refresh", reconciliationFile: "fit-house-reconciliation-dry-run.json", contractName: "fit-house-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "stock", classifierCoverage: "full-partition" }),
+  "fit-house": profile({ key: "fit-house", retailer: Object.freeze({ id: "9", name: "Fit House", slug: "fit-house" }), approvedMappingCount: 284, sourceDirectory: "fit-house-offer-refresh", artifactPrefix: "fit-house-offer-refresh", reconciliationFile: "fit-house-reconciliation-dry-run.json", contractName: "fit-house-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", stockOnlyCommercialChanges: true, classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS", "OWNER_DEFERRED_STOCK_REVIEW"]) }),
   "gladiator-nutrition": profile({ key: "gladiator-nutrition", retailer: Object.freeze({ id: "15", name: "Gladiator Nutrition", slug: "gladiator-nutrition" }), approvedMappingCount: 603, sourceDirectory: "gladiator-nutrition-offer-refresh", artifactPrefix: "gladiator-nutrition-offer-refresh", reconciliationFile: "gladiator-nutrition-reconciliation-dry-run.json", contractName: "gladiator-nutrition-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS"]) }),
   "10-reps": profile({ key: "10-reps", retailer: Object.freeze({ id: "14", name: "10 Reps", slug: "10-reps" }), approvedMappingCount: 950, sourceDirectory: "10reps-offer-refresh", artifactPrefix: "10reps-offer-refresh", reconciliationFile: "10reps-reconciliation-dry-run.json", contractName: "10-reps-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS"]) }),
   "whey-okay": profile({ key: "whey-okay", retailer: Object.freeze({ id: "3", name: "Whey Okay", slug: "whey-okay" }), approvedMappingCount: 589, sourceDirectory: "whey-okay-offer-refresh", artifactPrefix: "whey-okay-offer-refresh", reconciliationFile: "whey-okay-reconciliation-dry-run.json", contractName: "whey-okay-automation-review-source-v1", workflow: ".github/workflows/whey-okay-offer-refresh.yml", workflowName: "Whey Okay Offer Refresh", reviewType: "source-missing", captureFiles: WHEY_CAPTURE_FILES, sealedFiles: WHEY_SEALED_FILES, sourceFingerprint: (report) => report.source?.semantic_fingerprint, validate: validateWhey }),

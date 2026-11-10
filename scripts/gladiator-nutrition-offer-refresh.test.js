@@ -314,8 +314,8 @@ test("shared workflow retains declared cron routing and unaffected retailer runt
   assert.match(workflow, /group: retailer-offer-production-write[\s\S]*cancel-in-progress: false/);
 
   const runtimeBody = (job) => job.slice(job.indexOf("\n    runs-on:"));
-  // Resealed for the Fit-only exact confirmation selector; 10 Reps runtime stays pinned below.
-  assert.equal(crypto.createHash("sha256").update(runtimeBody(fitHouseJob).replaceAll("\r\n", "\n")).digest("hex"), "b6474a06d68a756a5ec4591b324645f4f34a03d3823a3902de23de5d349f5d71");
+  // Resealed after retiring the consumed Fit selector; 10 Reps runtime stays pinned below.
+  assert.equal(crypto.createHash("sha256").update(runtimeBody(fitHouseJob).replaceAll("\r\n", "\n")).digest("hex"), "87b56fccdab6a542d9dc548b94f094dded0063581ee48f80801a76410bfa525f");
   assert.equal(crypto.createHash("sha256").update(runtimeBody(tenRepsJob).replaceAll("\r\n", "\n")).digest("hex"), "9b0d7ead1f35faa61ae9efebd189bb40932c76c1dbe0092a5cfc7531f6e676eb");
 });
 
@@ -324,9 +324,9 @@ test("Gladiator scheduled refresh reuses the shared guarded flow while manual ap
   const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
   const gladiatorJob = workflow.match(/  gladiator-nutrition-offer-refresh:[\s\S]*?(?=\n  refresh-review-queue:)/)?.[0] || "";
   assert.equal((runtime.match(/gladiator-nutrition/g) || []).length, 4);
-  // Resealed for the configured Fit House exact confirmation gate.
+  // Resealed for active diagnostic counts and early inactive-selector rejection.
   // Other profiles keep the shared pre-source owner-policy gate and generic path.
-  assert.equal(sha256Text(path.join(ROOT, "scripts/fit-house-offer-refresh.js")), "9d6c3c46c8c05dc8c0a0c3160dd4be020d1a84b6d57fdb7d0ccca90ee5716b6a");
+  assert.equal(sha256Text(path.join(ROOT, "scripts/fit-house-offer-refresh.js")), "2a3a0d583ab8e8e9523fde2f445f010032ce26ed6ffc4c1fde82c6186d479227");
   assert.doesNotMatch(runtime, /retailer_id\s*={2,3}\s*15|config\.retailer_id\s*={2,3}\s*15/);
   assert.match(gladiatorJob, /github\.event_name == 'workflow_dispatch'/);
   assert.match(gladiatorJob, /inputs\.operation == 'dry-run'[\s\S]*inputs\.operation == 'review-only'/);
@@ -437,10 +437,11 @@ test("shared scheduled queue publication cannot publish missing Fit outputs whil
   const fitStep=pauseJobs["refresh-review-queue"].match(/- name: Reconcile and publish fresh Fit House Review Queue source\n        if: \$\{\{ (.*) \}\}/);
   assert.ok(fitStep);assert.equal(pauseEvaluate(fitStep[1],ctx),false);
 });
-test("the shared exact-confirmation workflow retains the reversible Fit schedule pause",()=>{
-  const restored=pauseWorkflow.replace("    # Temporary owner-withdrawal rollout pause: only the Fit House scheduled job.\n    # Remove the event guard only after separate owner approval and postflight.\n","").replace("    if: ${{ github.event_name != 'schedule' && github.ref == 'refs/heads/main' && ((github.event_name == 'schedule' && github.event.schedule == '47 2 * * *') || (github.event_name == 'workflow_dispatch' && inputs.operation != 'control-discovery' && inputs.operation != 'control-preflight' && inputs.operation != 'control-recovery' && (inputs.retailer == 'all' || inputs.retailer == 'fit-house'))) }}","    if: ${{ github.ref == 'refs/heads/main' && ((github.event_name == 'schedule' && github.event.schedule == '47 2 * * *') || (github.event_name == 'workflow_dispatch' && inputs.operation != 'control-discovery' && inputs.operation != 'control-preflight' && inputs.operation != 'control-recovery' && (inputs.retailer == 'all' || inputs.retailer == 'fit-house'))) }}");
-  assert.equal(crypto.createHash("sha256").update(restored).digest("hex"),"69b9ea671a0e5a797e7c7be000f2efeab83d00d23719abda993b31d5573fbb62");
+test("the shared review-restoration workflow retains the reversible Fit schedule pause",()=>{
+  const restored=pauseWorkflow.replace("    # Temporary owner-withdrawal rollout pause: only the Fit House scheduled job.\n    # Remove the event guard only after separate owner approval and postflight.\n","").replace("github.event_name != 'schedule' && ","");
+  assert.equal(crypto.createHash("sha256").update(restored).digest("hex"),"b9f94af1a03f2952fa76ba237357883816122cdd5bbbdf066be657d153b83935");
 });
+
 test("existing independent queue worker performs zero writes with an empty QUEUED inventory, a separate rollout precondition",async()=>{
   const {run}=require("./automation-review-queue-worker");const reads=[];const query={select(){return this},eq(key,value){reads.push([key,value]);return this},order(){return this},async limit(){return{data:[],error:null}}};
   const result=await run({env:{GITHUB_ACTIONS:"true",GITHUB_EVENT_NAME:"schedule",GITHUB_REF:"refs/heads/main",GITHUB_REPOSITORY:"SupplementScout/supplementscout",NEXT_PUBLIC_SUPABASE_URL:"http://127.0.0.1:54321",SUPABASE_SERVICE_ROLE_KEY:"test-only"},client:{from(table){assert.equal(table,"automation_review_execution_requests");return query}},persistReport(){}});

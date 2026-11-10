@@ -612,10 +612,10 @@ test("dry-run builder has no direct queue writes or publication RPC apply call",
   assert.match(source, /buildPublicationRpcRequest/);
 });
 
-function writeFitHouseFixture({ executableCount = 272, reviewCount = 14 } = {}) {
+function writeFitHouseFixture({ executableCount = 270, reviewCount = 14 } = {}) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "fit-house-review-source-"));
   const sourceFingerprint = "8".repeat(64);
-  const baselineRows = Array.from({ length: 286 }, (_, index) => ({
+  const baselineRows = Array.from({ length: 284 }, (_, index) => ({
     mapping_id: String(1001 + index),
     retailer_id: "9",
     mapping_product_id: String(2001 + index),
@@ -655,41 +655,41 @@ function writeFitHouseFixture({ executableCount = 272, reviewCount = 14 } = {}) 
   const executionOfferIds = baselineRows.slice(reviewCount, reviewCount + executableCount).map((row) => row.offer_id);
   const report = {
     result: "PASS_WITH_REVIEW", mode: "dry-run", target: "production",
-    source: { fingerprint: sourceFingerprint }, approved_mapping_count: 286,
+    source: { fingerprint: sourceFingerprint }, approved_mapping_count: 284,
     deferred_changed_offer_ids: reviewRows.filter((row) => row.reason === "OWNER_DEFERRED_STOCK_REVIEW").map((row) => row.offer_id), execution_offer_ids: executionOfferIds,
     verification_offer_ids: executionOfferIds, stock_change_offer_ids: [], executable_plan_count: executableCount,
     executed_plan_count: 0, review_row_count: reviewCount, blocked_row_count: 0,
     classification: { VERIFY_NO_CHANGE: executableCount },
     review_rows: reviewRows,
   };
-  const diagnostic = { result: "PASS", timestamp: "2026-10-05T09:01:00.000Z", failure_stage: null, approved_mapping_count: 286, source: { fingerprint: sourceFingerprint }, database_writes_attempted: 0, database_writes_completed: 0, business_writes_completed: 0, control_writes_completed: 0, approvals_created: 0, approvals_consumed: 0, recovery_calls: 0, classifier_summary: { scope: { scope_row_ids: baselineRows.map((row) => row.offer_id), blocked_rows: 0, reconciled: true, reconciled_total: 286 }, action_counts: report.classification, changed_row_ids: [], changed_rows: [] } };
-  const baseline = { schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: "fit-house", snapshot: { captured_at: "2026-10-05T09:00:59.000Z", retailer_id: "9", retailer_name: "Fit House", row_count: 286, rows: baselineRows }, evidence_hash: "a".repeat(64) };
+  const diagnostic = { result: "PASS", timestamp: "2026-10-05T09:01:00.000Z", failure_stage: null, approved_mapping_count: 284, source: { fingerprint: sourceFingerprint }, database_writes_attempted: 0, database_writes_completed: 0, business_writes_completed: 0, control_writes_completed: 0, approvals_created: 0, approvals_consumed: 0, recovery_calls: 0, classifier_summary: { scope: { scope_row_ids: baselineRows.map((row) => row.offer_id), blocked_rows: 0, reconciled: true, reconciled_total: 284 }, action_counts: report.classification, changed_row_ids: [], changed_rows: [] } };
+  const baseline = { schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: "fit-house", snapshot: { captured_at: "2026-10-05T09:00:59.000Z", retailer_id: "9", retailer_name: "Fit House", row_count: 284, rows: baselineRows }, evidence_hash: "a".repeat(64) };
   writeJson(path.join(directory, "production-dry-run.json"), report);
   writeJson(path.join(directory, "production-preflight-diagnostic.json"), diagnostic);
   writeJson(path.join(directory, "production-db-baseline.json"), baseline);
   return { directory, baselineRows, changedRows };
 }
 
-test("Fit House source adapter seals the fresh 272 safe plus 14 review classification before execution", () => {
+test("Fit House source adapter seals the fresh 270 safe plus 14 review classification before execution", () => {
   const fixture = writeFitHouseFixture();
   const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37313299039", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
   const contract = buildFitHouseSourceContract(fixture.directory, env);
-  assert.equal(contract.approved_mapping_count, 286);
-  assert.equal(contract.executable_plan_count, 272);
+  assert.equal(contract.approved_mapping_count, 284);
+  assert.equal(contract.executable_plan_count, 270);
   assert.equal(contract.review_row_count, 14);
   assert.equal(contract.blocked_row_count, 0);
-  assert.equal(contract.catalogue_offer_ids.length, 286);
+  assert.equal(contract.catalogue_offer_ids.length, 284);
   assert.equal(contract.review_offer_ids.length, 14);
   assert.equal(contract.catalogue_writes, 0);
   assert.match(contract.review_scope_fingerprint, /^[0-9a-f]{64}$/);
   assert.match(contract.contract_fingerprint, /^[0-9a-f]{64}$/);
 });
 
-test("Fit House source adapter accepts the ordinary 272 safe confirmations plus 14 review rows", () => {
-  const fixture = writeFitHouseFixture({ executableCount: 272, confirmationCount: 246 });
+test("Fit House source adapter accepts the ordinary 270 safe confirmations plus 14 review rows", () => {
+  const fixture = writeFitHouseFixture({ executableCount: 270, confirmationCount: 246 });
   const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37347458788", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
   const contract = buildFitHouseSourceContract(fixture.directory, env);
-  assert.equal(contract.executable_plan_count, 272);
+  assert.equal(contract.executable_plan_count, 270);
   assert.equal(contract.review_row_count, 14);
   assert.equal(contract.catalogue_writes, 0);
 
@@ -700,18 +700,18 @@ test("Fit House source adapter accepts the ordinary 272 safe confirmations plus 
   assert.throws(() => buildFitHouseSourceContract(fixture.directory, env), /executable offer IDs drifted/);
 });
 
-test("Fit House source adapter accepts the exact natural 275 plus 11 isolated partition", () => {
-  const fixture = writeFitHouseFixture({ executableCount: 275, reviewCount: 11 });
+test("Fit House source adapter accepts the exact natural 273 plus 11 isolated partition", () => {
+  const fixture = writeFitHouseFixture({ executableCount: 273, reviewCount: 11 });
   const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "38039918378", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
   const contract = buildFitHouseSourceContract(fixture.directory, env);
-  assert.equal(contract.executable_plan_count, 275);
+  assert.equal(contract.executable_plan_count, 273);
   assert.equal(contract.review_row_count, 11);
-  assert.equal(contract.catalogue_offer_ids.length, 286);
+  assert.equal(contract.catalogue_offer_ids.length, 284);
   assert.deepEqual(contract.review_offer_ids, fixture.changedRows.map((row) => row.offer_id));
 });
 
 test("Fit House source adapter keeps aggregate MASS_OOS review separate from owner-deferred IDs", () => {
-  const fixture = writeFitHouseFixture({ executableCount: 275, reviewCount: 11 });
+  const fixture = writeFitHouseFixture({ executableCount: 273, reviewCount: 11 });
   const reportPath = path.join(fixture.directory, "production-dry-run.json");
   const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
   report.deferred_changed_offer_ids.push(fixture.changedRows[0].offer_id);
@@ -742,7 +742,7 @@ test("Fit House source adapter rejects count-to-row drift and accepts an exact r
   assert.equal(contract.review_offer_ids.length, 13);
 });
 
-test("Fit House source adapter rejects a classifier scope that omits one of the 286 approved offers", () => {
+test("Fit House source adapter rejects a classifier scope that omits one of the 284 approved offers", () => {
   const fixture = writeFitHouseFixture();
   const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37442830504", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
   const diagnosticPath = path.join(fixture.directory, "production-preflight-diagnostic.json");
