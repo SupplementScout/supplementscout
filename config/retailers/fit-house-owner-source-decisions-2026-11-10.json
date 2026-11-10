@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "kind": "retailer-owner-source-decisions",
+  "authority": "owner-chat-2026-11-10-fit-house-final-safety-fix-pr519",
+  "retailer_id": "9",
+  "retailer_slug": "fit-house",
+  "approved_manifest_sha256": "b25aaafadecb848e08507ba488f34a4b4a84871f67d993d93538eff50600e3b5",
+  "holds": [
+    {
+      "offer_id": "1938",
+      "mapping_id": "2124",
+      "product_id": "778",
+      "variant_id": "1978",
+      "external_product_id": "9076807237872",
+      "external_variant_id": "46722065432816",
+      "expected_flavour": "Strawberry Mango",
+      "required_in_stock": false,
+      "release": "SEPARATE_EXPLICIT_OWNER_DECISION_ONLY",
+      "reason": "Owner reports Strawberry Mango absent and historical URL selecting another flavour. No restock authority. Prior rejections are context only."
+    }
+  ],
+  "identity_observations": [
+    {
+      "offer_id": "954",
+      "mapping_id": "1140",
+      "product_id": "770",
+      "variant_id": "942",
+      "external_product_id": "9673940762864",
+      "external_variant_id": "48120966873328",
+      "expected_flavour": "Berry Slush",
+      "source_fingerprint": "6026c4a154e31f6b00063a0acbe8499c279ef4c1b055149a1e349654da67fa1a",
+      "observed_on": "2026-11-10",
+      "price": "21.99",
+      "source_in_stock": false,
+      "page_labels": ["BERRY SLUSH - UNAVAILABLE", "SOLD OUT"],
+      "authority_scope": "IDENTITY_OBSERVATION_ONLY_REQUIRES_NEW_REVIEW_QUEUE_OWNER_DECISION"
+    }
+  ]
+}

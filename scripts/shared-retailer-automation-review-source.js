@@ -251,9 +251,9 @@ async function fetchPublicationBaseline(db, source) {
   const variantIds = sortedIds(baselineRows.map((row) => row.offer_variant_id));
   const results = offerIds.length ? await Promise.all([
     db.from("offers").select("id,retailer_id,retailer_product_id,product_id,product_variant_id,price,shipping_cost,total_price,in_stock,url").in("id", offerIds),
-    db.from("retailer_products").select("id,retailer_id,product_id,product_variant_id,external_product_id,external_variant_id,external_sku,external_gtin,external_url").in("id", mappingIds),
+    db.from("retailer_products").select(`id,retailer_id,product_id,product_variant_id,external_product_id,external_variant_id,external_sku,external_gtin${source.profile.identityReviewReasons ? ",external_options" : ""},external_url`).in("id", mappingIds),
     db.from("products").select("id,name").in("id", productIds),
-    db.from("product_variants").select("id,display_name").in("id", variantIds),
+    db.from("product_variants").select(`id,display_name${source.profile.identityReviewReasons ? ",flavour_label,flavour_code" : ""}`).in("id", variantIds),
   ]) : [{ data: [] }, { data: [] }, { data: [] }, { data: [] }];
   for (const result of results) if (result.error) throw result.error;
   return { catalogueCounts, activeRows: activeRows || [], offers: results[0].data || [], mappings: results[1].data || [], products: results[2].data || [], variants: results[3].data || [] };
@@ -278,9 +278,11 @@ function buildManifestRows(source, baseline, options) {
     invariant(String(mapping.external_product_id) === changed.external_product_id && String(mapping.external_variant_id) === changed.external_variant_id, `Current ${label} source identity drift for offer ${changed.offer_id}`);
     invariant(sameMoney(offer.price, changed.old_price) && offer.in_stock === changed.old_stock && nullable(offer.url) === nullable(before.url) && nullable(mapping.external_url) === nullable(before.external_url), `Current ${label} commercial state drift for offer ${changed.offer_id}`);
     const beforeState = { offer_id: changed.offer_id, retailer_product_id: changed.retailer_product_id, product_id: String(offer.product_id), product_variant_id: String(offer.product_variant_id), price: String(offer.price), shipping_cost: nullable(offer.shipping_cost), total_price: nullable(offer.total_price), in_stock: offer.in_stock === true, url: offer.url || null, external_url: mapping.external_url || null, external_product_id: nullable(mapping.external_product_id), external_variant_id: nullable(mapping.external_variant_id) };
-    const card = profile.reviewCard(beforeState, changed);
+    const card = profile.reviewCard(beforeState, changed, { offer, mapping, variant: variants.get(String(offer.product_variant_id)), sourceFingerprint: source.contract.source_fingerprint, sourceCapturedAt: source.contract.created_at });
     const proposedState = card.proposedState;
-    const sourceRowFingerprint = sha256({ contract: `${profile.key}-automation-review-row-v1`, retailer_id: retailer.id, offer_id: changed.offer_id, source_fingerprint: source.contract.source_fingerprint, before_state: beforeState, proposed_state: proposedState });
+    const semanticIdentity = card.identityEvidence ? { ...card.identityEvidence } : null;
+    if (semanticIdentity) delete semanticIdentity.source_captured_at;
+    const sourceRowFingerprint = sha256({ contract: `${profile.key}-automation-review-row-v1`, retailer_id: retailer.id, offer_id: changed.offer_id, source_fingerprint: source.contract.source_fingerprint, before_state: beforeState, proposed_state: proposedState, ...(semanticIdentity ? { identity_evidence: semanticIdentity, review_reason: card.evidenceReason } : {}) });
     return {
       snapshot_id: `automation-review-${retailer.id}-${options.sourceRunId}`,
       review_item_id: `${retailer.id}:${changed.offer_id}:${options.sourceRunId}:${sourceRowFingerprint}`,
@@ -311,7 +313,7 @@ function buildManifestRows(source, baseline, options) {
       before_state: beforeState,
       proposed_state: proposedState,
       impact_summary: { catalogue_writes: 0, executable: false, review_only: true },
-      source_evidence: { workflow_run_id: options.sourceRunId, artifact_id: options.sourceArtifactId, artifact_digest: options.sourceArtifactDigest, contract_sha256: options.sourceContractSha256, source_fingerprint: source.contract.source_fingerprint, review_scope_fingerprint: source.contract.review_scope_fingerprint, reason: card.evidenceReason },
+      source_evidence: { workflow_run_id: options.sourceRunId, artifact_id: options.sourceArtifactId, artifact_digest: options.sourceArtifactDigest, contract_sha256: options.sourceContractSha256, source_fingerprint: source.contract.source_fingerprint, review_scope_fingerprint: source.contract.review_scope_fingerprint, reason: card.evidenceReason, ...(card.identityEvidence ? { identity_check: card.identityEvidence } : {}) },
       source_captured_at: source.contract.created_at,
       expires_at: expiresAt,
       workflow_run_url: `https://github.com/${REPOSITORY}/actions/runs/${options.sourceRunId}`,

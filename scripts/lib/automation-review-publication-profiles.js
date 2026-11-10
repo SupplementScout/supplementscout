@@ -1,4 +1,5 @@
 const { reasonList } = require("./automation-review-publisher");
+const stockIdentity = require("./fit-house-stock-identity");
 
 const STANDARD_CAPTURE_FILES = Object.freeze({
   report: "production-dry-run.json",
@@ -69,25 +70,27 @@ function validateJonsCapture(profile, { report, diagnostic, invariant }) {
 function validateStandardChangedRows(profile, changedRows, invariant) {
   const validStockChange = (row) => row.action === "UPDATE_STOCK"
     && row.old_price === row.new_price && row.old_stock !== row.new_stock;
-  const validCompoundChange = (row) => row.action === "UPDATE_PRICE_AND_STOCK"
+  const validCompoundChange = (row) => !profile.stockOnlyCommercialChanges && row.action === "UPDATE_PRICE_AND_STOCK"
     && row.old_price !== row.new_price && row.old_stock !== row.new_stock;
   const valid = profile.reviewType === "stock"
     ? changedRows.every(validStockChange)
     : profile.reviewType === "mixed"
       ? changedRows.every((row) => row.action === "SOURCE_MISSING"
         ? row.old_price === row.new_price && row.old_stock === row.new_stock
-        : validStockChange(row) || validCompoundChange(row))
+        : row.action === "IDENTITY_REVIEW" && profile.identityReviewReasons?.includes(row.evidence_reason)
+          ? row.old_price === row.new_price && row.old_stock === row.new_stock
+          : validStockChange(row) || validCompoundChange(row))
       : changedRows.every((row) => row.action === "SOURCE_MISSING" && row.old_price === row.new_price && row.old_stock === row.new_stock);
   invariant(valid, `${profile.retailer.name} review scope contains an unsafe catalogue change`);
 }
 
-function normalizeMissingRows(report, baselineByOffer, label, invariant) {
+function normalizeMissingRows(report, baselineByOffer, label, invariant, reasons = ["SOURCE_VARIANT_MISSING"]) {
   invariant(Array.isArray(report.review_rows), `${label} review rows are missing`);
   return [...report.review_rows].map((review) => {
     const offerId = String(review.offer_id);
     const before = baselineByOffer.get(offerId);
     invariant(before, `${label} baseline missing for review offer ${offerId}`);
-    invariant(review.reason === "SOURCE_VARIANT_MISSING", `${label} review reason drifted for offer ${offerId}`);
+    invariant(reasons.includes(review.reason), `${label} review reason drifted for offer ${offerId}`);
     invariant(String(review.external_product_id) === String(before.external_product_id) && String(review.external_variant_id) === String(before.external_variant_id), `${label} source identity drift for offer ${offerId}`);
     return {
       offer_id: offerId,
@@ -98,8 +101,9 @@ function normalizeMissingRows(report, baselineByOffer, label, invariant) {
       new_price: String(before.price),
       old_stock: before.in_stock === true,
       new_stock: before.in_stock === true,
-      action: "SOURCE_MISSING",
+      action: review.reason === "SOURCE_VARIANT_MISSING" ? "SOURCE_MISSING" : "IDENTITY_REVIEW",
       reason: review.reason,
+      ...(review.identity_evidence ? { evidence_reason: review.reason, identity_evidence: review.identity_evidence } : {}),
     };
   }).sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
 }
@@ -140,6 +144,7 @@ function normalizeCommercialReviewRows(report, baselineByOffer, label, invariant
       new_stock: review.new_stock,
       action: review.action,
       evidence_reason: review.reason,
+      ...(review.identity_evidence ? { identity_evidence: review.identity_evidence } : {}),
     };
   }).sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
 }
@@ -148,13 +153,14 @@ function normalizeStockReviewRows(report, baselineByOffer, label, invariant) {
   return normalizeCommercialReviewRows(report, baselineByOffer, label, invariant, ["UPDATE_STOCK"]);
 }
 
-function normalizeMixedReviewRows(report, baselineByOffer, label, invariant) {
-  const missingRows = report.review_rows.filter((row) => row.reason === "SOURCE_VARIANT_MISSING");
-  const stockRows = report.review_rows.filter((row) => row.reason !== "SOURCE_VARIANT_MISSING");
-  const normalizedMissing = normalizeMissingRows({ review_rows: missingRows }, baselineByOffer, label, invariant);
+function normalizeMixedReviewRows(report, baselineByOffer, label, invariant, stockOnly = false, identityReasons = []) {
+  const readOnlyReasons = ["SOURCE_VARIANT_MISSING", ...identityReasons];
+  const missingRows = report.review_rows.filter((row) => readOnlyReasons.includes(row.reason));
+  const stockRows = report.review_rows.filter((row) => !readOnlyReasons.includes(row.reason));
+  const normalizedMissing = normalizeMissingRows({ review_rows: missingRows }, baselineByOffer, label, invariant, readOnlyReasons);
   const normalizedStock = normalizeCommercialReviewRows(
     { review_rows: stockRows }, baselineByOffer, label, invariant,
-    ["UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"],
+    stockOnly ? ["UPDATE_STOCK"] : ["UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"],
   );
   return [...normalizedMissing, ...normalizedStock].sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
 }
@@ -174,7 +180,7 @@ function validateStandard(profile, context) {
     && stockChangeIds.length === report.stock_change_offer_ids.length,
   `${label} executable offer IDs drifted`);
 
-  if (profile.reviewType === "stock") {
+  if (profile.reviewType === "stock" || profile.stockOnlyCommercialChanges) {
     invariant(stockChangeIds.length === 0, `${label} executable offer IDs drifted`);
     invariant(verificationIds.length === executableCount, `${label} verification offer IDs drifted`);
     sameJson(executionIds, verificationIds, `${label} executable and verified scopes differ`);
@@ -186,7 +192,7 @@ function validateStandard(profile, context) {
   const reviewIds = sortedIds(report.review_rows.map((row) => row.offer_id));
   const classifierCoversReview = profile.classifierCoverage === "full-partition";
   const classifierReviewRows = profile.classifierCoverage === "mixed-partition"
-    ? report.review_rows.filter((row) => profile.classifierReviewReasons.includes(row.reason))
+    ? report.review_rows.filter((row) => profile.classifierReviewReasons.includes(row.reason) && (!profile.identityReviewReasons || row.identity_evidence?.source_variant_present !== false))
     : [];
   const classifierReviewIds = sortedIds(classifierReviewRows.map((row) => row.offer_id));
   const expectedClassifierIds = classifierCoversReview || classifierReviewIds.length > 0
@@ -224,9 +230,9 @@ function validateStandard(profile, context) {
   const changedRows = profile.reviewType === "stock"
     ? normalizeStockReviewRows(report, baselineByOffer, label, invariant)
     : profile.reviewType === "mixed"
-      ? normalizeMixedReviewRows(report, baselineByOffer, label, invariant)
+      ? normalizeMixedReviewRows(report, baselineByOffer, label, invariant, profile.stockOnlyCommercialChanges, profile.identityReviewReasons)
       : normalizeMissingRows(report, baselineByOffer, label, invariant);
-  if (profile.reviewType === "stock") {
+  if (profile.reviewType === "stock" || profile.stockOnlyCommercialChanges) {
     const deferredReviewIds = sortedIds(report.review_rows
       .filter((row) => row.reason === "OWNER_DEFERRED_STOCK_REVIEW")
       .map((row) => row.offer_id));
@@ -386,7 +392,8 @@ function reviewCard(profile, beforeState, changed) {
 function matchesActiveReview(profile, row) {
   if (profile.reviewType === "mixed") return (row.review_kind === "COMMERCIAL_CHANGE" && row.operation_type === "UPDATE_STOCK" && reasonList(row.reason_codes).includes("STOCK_CHANGE"))
     || (row.review_kind === "COMMERCIAL_CHANGE" && row.operation_type === "UPDATE_PRICE_AND_STOCK" && reasonList(row.reason_codes).includes("PRICE_AND_STOCK_CHANGE"))
-    || (row.review_kind === "IDENTITY_CONFLICT" && row.operation_type === "MANUAL_REVIEW_IDENTITY" && reasonList(row.reason_codes).includes("SOURCE_MISSING"));
+    || (row.review_kind === "IDENTITY_CONFLICT" && row.operation_type === "MANUAL_REVIEW_IDENTITY" && reasonList(row.reason_codes).some(reason => reason === "SOURCE_MISSING" || (profile.identityReviewReasons?.includes(row.source_evidence?.reason) && reason === "IDENTITY_CONFLICT")))
+    || (profile.identityReviewReasons?.includes(row.source_evidence?.reason) && row.review_kind === "POLICY_REVIEW" && row.operation_type === "MANUAL_REVIEW" && reasonList(row.reason_codes).includes("POLICY_REVIEW"));
   return profile.reviewType === "stock"
     ? row.review_kind === "COMMERCIAL_CHANGE" && row.operation_type === "UPDATE_STOCK" && reasonList(row.reason_codes).includes("STOCK_CHANGE")
     : row.review_kind === "IDENTITY_CONFLICT" && row.operation_type === "MANUAL_REVIEW_IDENTITY" && reasonList(row.reason_codes).includes("SOURCE_MISSING");
@@ -409,7 +416,7 @@ function profile(values) {
 }
 
 const PROFILES = Object.freeze({
-  "fit-house": profile({ key: "fit-house", retailer: Object.freeze({ id: "9", name: "Fit House", slug: "fit-house" }), approvedMappingCount: 286, sourceDirectory: "fit-house-offer-refresh", artifactPrefix: "fit-house-offer-refresh", reconciliationFile: "fit-house-reconciliation-dry-run.json", contractName: "fit-house-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "stock", classifierCoverage: "full-partition" }),
+  "fit-house": profile({ key: "fit-house", retailer: Object.freeze({ id: "9", name: "Fit House", slug: "fit-house" }), approvedMappingCount: 284, sourceDirectory: "fit-house-offer-refresh", artifactPrefix: "fit-house-offer-refresh", reconciliationFile: "fit-house-reconciliation-dry-run.json", contractName: "fit-house-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", stockOnlyCommercialChanges: true, identityReviewReasons: stockIdentity.IDENTITY_REASONS, reviewCard: stockIdentity.reviewCard, classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS", "OWNER_DEFERRED_STOCK_REVIEW", ...stockIdentity.IDENTITY_REASONS]) }),
   "gladiator-nutrition": profile({ key: "gladiator-nutrition", retailer: Object.freeze({ id: "15", name: "Gladiator Nutrition", slug: "gladiator-nutrition" }), approvedMappingCount: 603, sourceDirectory: "gladiator-nutrition-offer-refresh", artifactPrefix: "gladiator-nutrition-offer-refresh", reconciliationFile: "gladiator-nutrition-reconciliation-dry-run.json", contractName: "gladiator-nutrition-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS"]) }),
   "10-reps": profile({ key: "10-reps", retailer: Object.freeze({ id: "14", name: "10 Reps", slug: "10-reps" }), approvedMappingCount: 950, sourceDirectory: "10reps-offer-refresh", artifactPrefix: "10reps-offer-refresh", reconciliationFile: "10reps-reconciliation-dry-run.json", contractName: "10-reps-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS"]) }),
   "whey-okay": profile({ key: "whey-okay", retailer: Object.freeze({ id: "3", name: "Whey Okay", slug: "whey-okay" }), approvedMappingCount: 589, sourceDirectory: "whey-okay-offer-refresh", artifactPrefix: "whey-okay-offer-refresh", reconciliationFile: "whey-okay-reconciliation-dry-run.json", contractName: "whey-okay-automation-review-source-v1", workflow: ".github/workflows/whey-okay-offer-refresh.yml", workflowName: "Whey Okay Offer Refresh", reviewType: "source-missing", captureFiles: WHEY_CAPTURE_FILES, sealedFiles: WHEY_SEALED_FILES, sourceFingerprint: (report) => report.source?.semantic_fingerprint, validate: validateWhey }),
