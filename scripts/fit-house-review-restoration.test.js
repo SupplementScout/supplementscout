@@ -17,6 +17,9 @@ const { prepareAutomationReviewDecision } = require('./lib/retailer-offer-sync/a
 
 const env = { GITHUB_ACTIONS: 'true', GITHUB_EVENT_NAME: 'workflow_dispatch', GITHUB_REF: 'refs/heads/main', GITHUB_REPOSITORY: 'SupplementScout/supplementscout', GITHUB_RUN_ID: '42766571104', GITHUB_RUN_ATTEMPT: '1', GITHUB_SHA: retained.provenance.commit };
 const config = require('../config/retailers/fit-house-offer-sync.json');
+const stockIdentity = require('./lib/fit-house-stock-identity');
+const { projectShopifyCanonicalRecords } = require('./lib/shopify-snapshot-reader');
+const { classifyExistingOffers } = require('./lib/retailer-offer-sync/classifier');
 function fixture(t, mutate = () => {}) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'fit-review-restoration-'));
   t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
@@ -35,7 +38,13 @@ function publication(t) {
   const { directory } = fixture(t), source = loadAndValidateSource(directory);
   source.contract = buildSourceContract(directory, env);
   const byId = new Map(prior.fit.records.map(r => [String(r.offer.id), r]));
-  const records = source.changedRows.map(row => byId.get(row.offer_id));
+  const records = source.changedRows.map(row => {
+    const record = structuredClone(byId.get(row.offer_id));
+    const identity = retained.canonical_review_bindings.find(binding => binding.offer_id === row.offer_id);
+    Object.assign(record.variant, { flavour_label: identity.flavour_label, flavour_code: identity.flavour_code });
+    record.mapping.external_options = identity.external_options;
+    return record;
+  });
   const baseline = {
     catalogueCounts: { products: 1399, product_variants: 4070, retailer_products: 4361, offers: 4361, price_history: 49855 },
     activeRows: [], offers: records.map(r => r.offer), mappings: records.map(r => r.mapping),
@@ -96,19 +105,130 @@ test('Fit mixed publication rejects price,compound and URL changes without expan
   assert.equal(profileFor('six-pack-supplements').reviewType, 'mixed-policy');
 });
 
-test('19 commercial cards are stock-only;4 missing cards retain no commercial proposal or rebind', t => {
+test('retained labels are not invented:7 stock cards,15 identity cards and1 owner HOLD', t => {
   const { rows } = publication(t);
   const stock = rows.filter(r => r.operation_type === 'UPDATE_STOCK'), missing = rows.filter(r => r.operation_type === 'MANUAL_REVIEW_IDENTITY');
-  assert.equal(stock.length, 19); assert.equal(missing.length, 4);
+  assert.equal(stock.length, 7); assert.equal(missing.length, 15);
+  assert.equal(missing.filter(r => r.reason_codes === 'SOURCE_MISSING').length, 4);
+  const hold = rows.find(r => r.offer_id === '1938');
+  assert.equal(hold.operation_type, 'MANUAL_REVIEW'); assert.equal(hold.review_kind, 'POLICY_REVIEW');
+  assert.equal(hold.source_evidence.reason, 'OWNER_HOLD'); assert.equal(hold.before_state.in_stock, false);
+  assert.equal(hold.proposed_state.automatic_action, false); assert.equal(hold.proposed_state.in_stock, undefined);
+  assert.ok(stock.some(r => r.offer_id === '954' && r.review_status === 'PENDING'));
   assert.ok(stock.every(r => r.reason_codes === 'STOCK_CHANGE' && r.before_state.price === r.proposed_state.price && r.before_state.in_stock !== r.proposed_state.in_stock));
   for (const row of missing) {
-    assert.equal(row.review_kind, 'IDENTITY_CONFLICT'); assert.equal(row.reason_codes, 'SOURCE_MISSING');
+    assert.equal(row.review_kind, 'IDENTITY_CONFLICT'); assert.ok(['SOURCE_MISSING', 'IDENTITY_CONFLICT'].includes(row.reason_codes));
     assert.deepEqual(row.proposed_state, { catalogue_action: 'KEEP_UNCHANGED', identity_review: 'READ_ONLY', automatic_action: false });
     assert.equal(row.source_price, null); assert.equal(row.proposed_product_id, null); assert.equal(row.proposed_variant_id, null);
     assert.equal(row.impact_summary.executable, false);
   }
   assert.equal(missing.find(r => r.offer_id === '1859').before_state.in_stock, false);
-  assert.ok(missing.filter(r => r.offer_id !== '1859').every(r => r.before_state.in_stock === true));
+  assert.ok(missing.filter(r => r.reason_codes === 'SOURCE_MISSING' && r.offer_id !== '1859').every(r => r.before_state.in_stock === true));
+});
+
+function identityRecord(id = '953') {
+  const record = structuredClone(prior.fit.records.find(r => String(r.offer.id) === id));
+  const binding = retained.canonical_review_bindings.find(r => r.offer_id === id);
+  record.mapping.external_options = binding.external_options;
+  Object.assign(record.variant, { flavour_label: binding.flavour_label, flavour_code: binding.flavour_code });
+  return record;
+}
+function canonicalSource(record, flavour) {
+  return projectShopifyCanonicalRecords({ store_origin: 'https://fithouse.uk', products: [{ id: record.mapping.external_product_id, title: record.product.name, handle: new URL(record.offer.url).pathname.split('/')[2], options: [{ name: 'Flavour', position: 1 }], variants: [{ id: record.mapping.external_variant_id, title: flavour || 'Default Title', option1: flavour || null, available: !record.offer.in_stock, price: record.offer.price }] }] })[0];
+}
+function guardRow(record, flavour) {
+  const source = canonicalSource(record, flavour), row = { offer_id: String(record.offer.id), retailer_product_id: String(record.mapping.id), external_product_id: record.mapping.external_product_id, external_variant_id: record.mapping.external_variant_id, action: 'UPDATE_STOCK', reason: 'OWNER_DEFERRED_STOCK_REVIEW', changed_fields: { stock: true, price: false, url: false, blocked: false }, target: record.offer, source, source_captured_at: retained.diagnostic.timestamp };
+  const snapshot = { captured_at: retained.diagnostic.timestamp, semantic_source_fingerprint: 'f'.repeat(64), products: [{ id: source.external_product_id, title: record.product.name, options: [{ name: 'Flavour', position: 1 }], variants: [{ id: source.external_variant_id, title: flavour || 'Default Title', option1: flavour || null, available: source.in_stock, price: source.price }] }] };
+  const guard_evidence = { scope_row_ids: [row.offer_id], guards: [{ guard: 'MASS_OOS', result: 'BLOCK' }] };
+  const result = stockIdentity.guardClassification({ state: 'DRY_RUN_READY_WITH_REVIEW', rows: [row], quarantined_rows: [], guard_evidence }, { config, records: [record], snapshot });
+  assert.deepEqual(result.guard_evidence, guard_evidence);
+  return { result, source, snapshot, row };
+}
+
+test('same variant ID with an explicit different flavour cannot reach a stock plan or commercial card', () => {
+  const record = identityRecord(), { result, row: inputRow, snapshot } = guardRow(record, 'Orange and Passionfruit');
+  assert.equal(result.rows.length, 0); assert.equal(result.quarantined_rows[0].reason, 'SOURCE_VARIANT_FLAVOUR_CONFLICT');
+  const row = result.quarantined_rows[0]; assert.equal(row.identity_evidence.expected_flavour, 'banana');
+  assert.equal(row.identity_evidence.observed_flavour, 'orange and passionfruit');
+  assert.equal(fit.reviewReportRow(row).new_stock, null); assert.equal(fit.reviewReportRow(row).proposed_offer, null);
+  assert.throws(() => selectReviewQueueExecutionRows(result, { offerId: String(record.offer.id), operation: 'UPDATE_STOCK', maximumCommercialChanges: 1, freshnessConfirmationCount: 19 }), { code: 'REVIEW_EXECUTION_SOURCE_OPERATION_DRIFT' });
+  const context = { config, records: [record], snapshot };
+  assert.equal(stockIdentity.guardClassification({ state: 'DRY_RUN_READY', rows: [inputRow], quarantined_rows: [] }, context).state, 'DRY_RUN_READY_WITH_REVIEW');
+  assert.equal(stockIdentity.guardClassification({ state: 'BLOCKED', reason: 'MASS_OOS', rows: [inputRow], quarantined_rows: [] }, context).state, 'BLOCKED');
+});
+
+test('matching exact flavour passes normal validation;absent flavour stays review-only', () => {
+  const record = identityRecord();
+  const matched = guardRow(record, 'Banana').result;
+  assert.equal(matched.rows[0].action, 'UPDATE_STOCK'); assert.equal(matched.rows[0].identity_evidence.status, 'VERIFIED');
+  const unknown = guardRow(record, null).result;
+  assert.equal(unknown.rows.length, 0); assert.equal(unknown.quarantined_rows[0].reason, 'SOURCE_VARIANT_FLAVOUR_UNVERIFIED');
+  assert.notEqual(unknown.quarantined_rows[0].reason, 'SOURCE_VARIANT_MISSING');
+});
+
+test('a genuinely absent variant keeps SOURCE_VARIANT_MISSING instead of borrowing another flavour', () => {
+  const record = identityRecord(), source = canonicalSource(record, 'Orange'); source.external_variant_id = '90000000000001';
+  const target = { ...record.offer, offer_id: String(record.offer.id), retailer_product_id: String(record.mapping.id), external_product_id: record.mapping.external_product_id, external_variant_id: record.mapping.external_variant_id };
+  // Isolated one-row classifier contract, not a production scope or source capture.
+  const result = classifyExistingOffers({ targets: [target], sourceVariants: [source], policy: { ...fit.effectiveOfferPolicy(), required_matched_offers: 1 }, sourceCapturedAt: retained.diagnostic.timestamp, now: new Date(retained.diagnostic.timestamp), quarantineUnsafeRows: true });
+  assert.equal(result.quarantined_rows[0].reason, 'SOURCE_VARIANT_MISSING');
+  assert.equal(result.quarantined_rows[0].source, null);
+});
+
+test('owner HOLD blocks matching,conflicting and missing flavour plus a forged old registration', () => {
+  const record = identityRecord('1938');
+  for (const flavour of ['Strawberry Mango', 'Orange and Passionfruit', null]) {
+    const { result } = guardRow(record, flavour); assert.equal(result.rows.length, 0);
+    assert.equal(result.quarantined_rows[0].reason, 'OWNER_HOLD'); assert.equal(record.offer.in_stock, false);
+  }
+  assert.throws(() => fit.registrationRequest({ artifacts: [{ rows: [{ offer_id: '1938', action: 'UPDATE_STOCK' }] }] }), { code: 'OWNER_HOLD_EXECUTION_BLOCKED' });
+  const changed = structuredClone(record); changed.offer.in_stock = true;
+  assert.throws(() => guardRow(changed, 'Strawberry Mango'), { code: 'OWNER_HOLD_STATE_DRIFT' });
+});
+
+test('conflicting approved mapping and canonical flavour cannot grant commercial identity', () => {
+  const record = identityRecord(); record.mapping.external_options = { Flavour: 'Orange' };
+  const { result } = guardRow(record, 'Banana');
+  assert.equal(result.quarantined_rows[0].reason, 'CANONICAL_VARIANT_FLAVOUR_CONFLICT');
+  const clean = identityRecord(), source = canonicalSource(clean, 'Banana'); source.variant_name = 'Orange';
+  const result2 = stockIdentity.assess(clean, source, { fingerprint: 'f'.repeat(64), capturedAt: retained.diagnostic.timestamp, sourceStock: source.in_stock, sourcePrice: source.price });
+  assert.equal(result2.reason, 'SOURCE_VARIANT_FLAVOUR_EVIDENCE_CONFLICT');
+  assert.deepEqual(result2.evidence.conflicting_source_flavours, { option: 'banana', title: 'orange' });
+});
+
+test('954 owner observation supports only its bound evidence;explicit source conflict overrides it', t => {
+  const { rows } = publication(t), row = rows.find(r => r.offer_id === '954');
+  assert.equal(row.operation_type, 'UPDATE_STOCK'); assert.equal(row.review_status, 'PENDING');
+  assert.equal(row.before_state.in_stock, true); assert.equal(row.proposed_state.in_stock, false);
+  const record = identityRecord('954'); const conflict = guardRow(record, 'Orange').result;
+  assert.equal(conflict.rows.length, 0); assert.equal(conflict.quarantined_rows[0].reason, 'SOURCE_VARIANT_FLAVOUR_CONFLICT');
+  const stale = stockIdentity.assess(record, null, { fingerprint: 'a'.repeat(64), capturedAt: retained.diagnostic.timestamp, sourceStock: false, sourcePrice: '21.99' });
+  assert.equal(stale.reason, 'SOURCE_VARIANT_FLAVOUR_UNVERIFIED');
+});
+
+test('other retailer profiles keep the previous guard result and fingerprint components', () => {
+  const classification = { state: 'DRY_RUN_READY', rows: [], quarantined_rows: [] };
+  const other = { retailer_id: 14, retailer_slug: '10reps' };
+  assert.equal(stockIdentity.guardClassification(classification, { config: other }), classification);
+  assert.deepEqual(stockIdentity.adapterFingerprint(other), {});
+  assert.doesNotThrow(() => stockIdentity.assertNoHeldExecution(other, [{ rows: [{ offer_id: '1938' }] }]));
+});
+
+test('stock identity guard runs before native plan construction and worker row selection', () => {
+  const source = fit.buildRun.toString(), guard = source.indexOf('classification=stockIdentity.guardClassification');
+  assert.ok(guard >= 0 && guard < source.indexOf('selectReviewQueueExecutionRows'));
+  assert.ok(guard < source.indexOf('buildExistingOfferUpdatePlan'));
+  assert.ok(fit.registrationRequest.toString().startsWith('function registrationRequest(run){stockIdentity.assertNoHeldExecution'));
+});
+
+test('publication rejects stale identity provenance even for a variant without flavour', t => {
+  const { source, baseline, options } = publication(t), changed = source.changedRows.find(r => r.offer_id === '692');
+  changed.identity_evidence = { source_fingerprint: '0'.repeat(64), source_record: null };
+  const card = buildManifestRows(source, baseline, options).find(r => r.offer_id === '692');
+  assert.equal(card.operation_type, 'MANUAL_REVIEW_IDENTITY');
+  assert.equal(card.proposed_state.in_stock, undefined);
+  assert.equal(card.source_evidence.identity_check.technical_reason, 'SOURCE_IDENTITY_PROVENANCE_MISMATCH');
+  assert.equal(card.source_evidence.identity_check.status, 'UNVERIFIED');
 });
 
 test('missing source cannot select a stock execution and the shared worker keeps one-stock-plus19 authority', t => {

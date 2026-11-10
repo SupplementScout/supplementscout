@@ -1,6 +1,16 @@
 # Retailer Automation Consolidation Execution Plan
 
 **10 November Fit House Automatic Review Queue restoration — DRAFT PREPARATION:**
+The same PR519 now enforces the versioned owner HOLD1938 before stock plan/card
+construction and registration, and reuses canonical Shopify options plus existing
+flavour normalization for commercial identity. Present conflicts and unknown
+flavour evidence remain distinct read-only reviews. The conservative retained
+publication replay is7 stock+15 identity+1 HOLD; the original19+4 source report is
+unchanged and is not a new live measurement. The08:27UTC read-only production
+check reconfirmed CURRENT262 and unchanged owner protections. No source capture,
+publication, approval, production write or merge. See the existing bounded plan
+below for the exact safety/release boundary.
+
 The completed 261-confirmation run 42766571104 and its 237 valid daily observations
 are preserved as execution receipts. This bounded correction aligns the existing
 publisher and native diagnostic with 284 ACTIVE+2 HISTORICAL, reuses mixed review

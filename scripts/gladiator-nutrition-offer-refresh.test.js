@@ -324,9 +324,9 @@ test("Gladiator scheduled refresh reuses the shared guarded flow while manual ap
   const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
   const gladiatorJob = workflow.match(/  gladiator-nutrition-offer-refresh:[\s\S]*?(?=\n  refresh-review-queue:)/)?.[0] || "";
   assert.equal((runtime.match(/gladiator-nutrition/g) || []).length, 4);
-  // Resealed for active diagnostic counts and early inactive-selector rejection.
+  // Resealed for deny-only Fit stock identity/HOLD checks and active diagnostic counts.
   // Other profiles keep the shared pre-source owner-policy gate and generic path.
-  assert.equal(sha256Text(path.join(ROOT, "scripts/fit-house-offer-refresh.js")), "2a3a0d583ab8e8e9523fde2f445f010032ce26ed6ffc4c1fde82c6186d479227");
+  assert.equal(sha256Text(path.join(ROOT, "scripts/fit-house-offer-refresh.js")), "da16bd9104b609fb491c9191418fd41f374e82c7b47d30ad8ba9a5bff9c4ea6c");
   assert.doesNotMatch(runtime, /retailer_id\s*={2,3}\s*15|config\.retailer_id\s*={2,3}\s*15/);
   assert.match(gladiatorJob, /github\.event_name == 'workflow_dispatch'/);
   assert.match(gladiatorJob, /inputs\.operation == 'dry-run'[\s\S]*inputs\.operation == 'review-only'/);

@@ -6,6 +6,10 @@
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
 **10 November 2026 Fit House Review Queue preparation:** the bounded owner task
+now enforces HOLD1938 in the same draft PR519 and quarantines conflicting or
+unverified source flavour before stock plans/cards, using existing identity tools.
+Retained publication evidence yields7 stock+15 identity+1 HOLD; a fresh source is
+not fetched here and historical19+4 observations remain unchanged. The correction
 aligns the existing publisher with 284 ACTIVE + 2 HISTORICAL and 19 stock + 4
 source-missing reviews, preserves stock-only owner approval and decision history,
 and prepares retirement of the completed exact 261 confirmation mode. Completed

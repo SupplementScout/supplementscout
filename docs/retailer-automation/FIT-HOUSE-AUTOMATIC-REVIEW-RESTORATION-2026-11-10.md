@@ -3,6 +3,48 @@
 Status: DRAFT PREPARATION. This change is not production restoration or authority
 to merge, publish, approve, apply or resume either paused schedule.
 
+## Final safety correction in the same PR519
+
+The current owner HOLD is now executable policy in a SHA-pinned, tuple-bound
+[owner decision](../../config/retailers/fit-house-owner-source-decisions-2026-11-10.json),
+not a note or a historical REJECTED status. Offer1938 must retain stock=false.
+The native adapter quarantines it even when the source flavour matches; the
+publication adapter cannot emit a commercial card for it, and registration rejects
+any artifact containing the held offer. There is no expiry-based release. A later
+explicit owner decision and reviewed code/evidence change are required to release it.
+
+The adapter reuses `projectShopifyCanonicalRecords`, `parseVariantIdentity`,
+`normalizeFlavour` and `parseSize` to compare approved mapping options and canonical
+flavour against current source options/title. No second projector or normalizer is
+introduced. Present-but-conflicting variants retain flavour-conflict reasons;
+unknown evidence is FLAVOUR_UNVERIFIED. Genuine absence remains
+SOURCE_VARIANT_MISSING. Conflicting source option/title evidence also stays review.
+Checks run after existing owner/aggregate classification and before stock plans or
+worker selection, retaining the original MASS_OOS evidence and thresholds.
+
+Fresh native review rows carry their identity evidence; the shared publication
+adapter rechecks current binding/flavour and source fingerprint. Old reports that
+lack flavour evidence cannot acquire commercial authority from approved mapping
+labels alone. Identity cards use IDENTITY_CONFLICT/MANUAL_REVIEW_IDENTITY;
+OWNER_HOLD uses POLICY_REVIEW/MANUAL_REVIEW. Neither has a commercial proposed state.
+All decisions still use the existing Review Queue, approver and shared executor.
+
+The original source report remains immutable19 stock observations+4 missing.
+The conservative publication replay with retained source evidence and read-only
+canonical metadata yields7 stock cards,15 identity cards (4 missing+11 unknown
+flavour) and1 OWNER_HOLD card. This is not a fresh source measurement. No historical
+mapping label is substituted for a current source flavour. Offer954's separate
+owner observation supports Berry Slush identity only for its exact source
+fingerprint/date/tuple/price and observed unavailable state; it remains PENDING
+and requires a new owner stock decision. Explicit source conflict overrides that
+observation, and a different source fingerprint does not inherit it.
+
+The08:27:55UTC read-only production check reconfirmed CURRENT262, unchanged23
+offers/cards, OOS104/OOS1859 and EXECUTED1114. No production action is performed.
+The deny-only decision and guard are included in the adapter fingerprint; the
+installed business-policy/SQL fingerprint, approved manifests, shared executor,
+approval registry, other retailer defaults and both schedule pauses stay unchanged.
+
 ## Verified starting point
 
 Production main is `e5075b67b705fb283eb7832de3eccc110fa52359`, CURRENT262.
@@ -57,8 +99,9 @@ remain authoritative; RA-004 remains suspended.
 The reconciler leaves terminal EXPIRED, REJECTED and EXECUTED records intact.
 Fresh evidence produces PENDING cards only; old PENDING evidence can be refreshed
 or superseded without becoming an approval. Reconciliation is fingerprint-bound
-and repeated identical publication creates no duplicate card. Offers 954 and 1938
-require fresh owner decisions; no historical rejection is approval authority.
+and repeated identical publication creates no duplicate card. Offer954 requires
+a fresh owner stock decision. Offer1938 remains HOLD; an ordinary queue approval
+cannot release it. No historical rejection is approval authority.
 Review 1114 remains historical execution evidence, not authority over today's
 missing-source case. Existing owner decision and expiry checks stay unchanged.
 

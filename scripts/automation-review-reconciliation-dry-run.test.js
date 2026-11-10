@@ -766,7 +766,7 @@ test("Fit House adapter builds one shared-publisher request with 14 review cards
     offers: reviewBaselineRows.map((row) => ({ id: row.offer_id, retailer_id: "9", retailer_product_id: row.mapping_id, product_id: row.offer_product_id, product_variant_id: row.offer_variant_id, price: row.price, shipping_cost: row.shipping_cost, total_price: row.total_price, in_stock: row.in_stock, url: row.url })),
     mappings: reviewBaselineRows.map((row) => ({ id: row.mapping_id, retailer_id: "9", product_id: row.mapping_product_id, product_variant_id: row.mapping_variant_id, external_product_id: row.external_product_id, external_variant_id: row.external_variant_id, external_sku: null, external_gtin: null, external_url: row.external_url })),
     products: reviewBaselineRows.map((row) => ({ id: row.offer_product_id, name: `Product ${row.offer_id}` })),
-    variants: reviewBaselineRows.map((row) => ({ id: row.offer_variant_id, display_name: `Variant ${row.offer_id}` })),
+    variants: reviewBaselineRows.map((row) => ({ id: row.offer_variant_id, display_name: `Variant ${row.offer_id}`, flavour_label: null, flavour_code: null })),
   };
   const rows = buildFitHouseManifestRows(source, baseline, options);
   const output = buildFitHouseOutput(source, baseline, rows, options, env);
