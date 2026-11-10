@@ -5,7 +5,19 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
-**10 November 2026 Fit House Review Queue preparation:** the bounded owner task
+**10 November 2026 retailer closeout checkpoint:** owner-approved PR519 is
+released on main `fbc99f848129ea0753d6514b116b34cba5c53884`, with main CI,
+Guardian and Vercel Production passed. Fit is prepared for a separately approved
+fresh read-only test; its261 completed confirmations are not repeated. One bounded
+Six draft reuses existing isolation for unresolved GTIN/trade-item conflicts,
+without approving identity or changing mappings. Retained15-row replay gives4
+CNP source candidates+11 noncommercial reviews, not a full504-row production
+validation. CURRENT262 and284+2/504+2 were reconfirmed read-only; no database
+writes, retailer dispatches or new source captures. Both schedules remain PAUSED.
+RA-001 and the SEO priorities remain unchanged; RA-004 remains suspended. See
+the latest entry in the [existing execution ledger](retailer-automation/EXECUTION-PLAN.md).
+
+**Earlier10 November 2026 Fit House Review Queue preparation:** the bounded owner task
 now enforces HOLD1938 in the same draft PR519 and quarantines conflicting or
 unverified source flavour before stock plans/cards, using existing identity tools.
 Retained publication evidence yields7 stock+15 identity+1 HOLD; a fresh source is

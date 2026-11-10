@@ -80,7 +80,7 @@ test('immutable captured source and504+2 approved scope remain sealed',()=>{
   assert.equal(captured.six.records.length,15);assert.equal(captured.six.pages.length,12);
 });
 
-test('real15 retained blockers now yield4 exact selected multipacks,9 manual reviews and2 hard blocks',t=>{
+test('real15 retained incidents yield4 exact selected multipacks and11 noncommercial reviews',t=>{
   freeze(t);const counts={source:0,review:0,block:0},outcomes=[];
   for(const {record,live} of sixRows()){
     assert.ok(liveIdentityDrift({source_record_id:record.mapping.external_variant_id,product_name:record.mapping.external_name},live));
@@ -90,9 +90,9 @@ test('real15 retained blockers now yield4 exact selected multipacks,9 manual rev
     if(kind==='block')assert.ok(['5091','4145'].includes(record.mapping.external_product_id));
     outcomes.push({mapping:record.mapping.id,parent:record.mapping.external_product_id,variant:record.mapping.external_variant_id,disposition:kind});
   }
-  assert.deepEqual(counts,{source:4,review:9,block:2});
+  assert.deepEqual(counts,{source:4,review:11,block:0});
   fs.writeFileSync(path.resolve('tmp/targeted-repair/captured-six15-replay.json'),JSON.stringify({mode:'CAPTURED_PARSED_SOURCE_REPLAY_WITH_FROZEN_CAPTURE_CLOCK',
-    counts,outcomes,full_runtime_result:'BLOCK_REMAINS_FOR_TWO_UNRESOLVED_IDENTITIES',classifier:'NOT_RUN',sql_validator:'NOT_RUN',
+    counts,outcomes,full_runtime_result:'NOT_RUN_PARTIAL_OFFLINE_REPLAY_ONLY',classifier:'NOT_RUN',sql_validator:'NOT_RUN',
     executable_artifacts:0,production_writes:0},null,2)+'\n');
 });
 
@@ -117,16 +117,16 @@ test('CNP exact variants retain their actual prices and stocks; a single75g cann
   }
 });
 
-test('nine unverified reviews cannot supply commercial classifier rows or apply confirmations',t=>{
+test('eleven unverified reviews cannot supply commercial classifier rows or apply confirmations',t=>{
   freeze(t);const reviews=sixRows().map(({record,live})=>({record,result:normalize(record,live)})).filter(x=>x.result.review);
-  assert.equal(reviews.length,9);
+  assert.equal(reviews.length,11);
   // Subset contract of the unchanged classifier, not a full source dry-run.
   const targets=reviews.map(({record:r})=>({offer_id:String(r.offer.id),retailer_product_id:String(r.mapping.id),external_product_id:r.mapping.external_product_id,
     external_variant_id:r.mapping.external_variant_id,external_sku:r.mapping.external_sku,price:r.offer.price,shipping_cost:r.offer.shipping_cost,
     total_price:r.offer.total_price,in_stock:r.offer.in_stock,url:r.offer.url,external_url:r.mapping.external_url}));
-  const c=classifyExistingOffers({targets,sourceVariants:[],policy:{...fit.effectiveOfferPolicy(),required_matched_offers:9},
+  const c=classifyExistingOffers({targets,sourceVariants:[],policy:{...fit.effectiveOfferPolicy(),required_matched_offers:11},
     sourceCapturedAt:captured.six.source_captured_at,now:new Date(captured.six.source_captured_at),sourceProductCount:277,previousSourceProductCount:277,quarantineUnsafeRows:true});
-  assert.equal(c.rows.length,0);assert.equal(c.quarantined_rows.length,9);
+  assert.equal(c.rows.length,0);assert.equal(c.quarantined_rows.length,11);
   for(const row of c.quarantined_rows){assert.equal(row.reason,'SOURCE_VARIANT_MISSING');assert.equal(row.source,null);
     assert.deepEqual(row.changed_fields,{price:false,stock:false,url:false,blocked:true});assert.equal(fit.reviewReportRow(row).proposed_offer,null);}
 });
@@ -141,13 +141,19 @@ test('5088 approved legacy slug permits manual isolation without becoming commer
   live.product_offer.gtin=record.mapping.external_gtin;
   const result=normalize(record,live);assert.equal(result.source,undefined);
   assert.equal(result.review.identity.commercial_identity,'UNVERIFIED');
-  for(const mutate of [p=>{p.canonical_url='https://6pack-supplements.co.uk/product/unapproved/';},
+  for(const [index,mutate] of [p=>{p.canonical_url='https://6pack-supplements.co.uk/product/unapproved/';},
     p=>{p.source_provenance.request_url='https://6pack-supplements.co.uk/?p=5091';},
     p=>{p.source_provenance.response_url='https://other.example/product/';},
     p=>{p.technical_document_identity.product_id='5091';},p=>{p.source_provenance.body_complete=false;},
-    p=>{p.product_offer.sku='DIFFERENT';},p=>{p.product_name='Battle Bites 120g';}]){
+    p=>{p.product_offer.sku='DIFFERENT';},p=>{p.product_name='Battle Bites 120g';}].entries()){
     const changed=structuredClone(live);mutate(changed);
-    assert.equal(normalize(record,changed).review,null);
+    const result=normalize(record,changed);
+    if(index<5) assert.equal(result.review,null);
+    else {
+      assert.equal(result.review.disposition,'SOURCE_IDENTITY_CONFLICT');
+      assert.equal(result.review.identity.commercial_identity,'UNVERIFIED');
+      assert.equal(result.review.identity.authority,'MANUAL_REVIEW_ONLY');
+    }
     assert.equal(normalize(record,changed).source,undefined);
   }
 });
@@ -166,9 +172,12 @@ test('historical v12 preserves separate GTIN and SKU columns, bindings and the a
   assert.equal(marshmallow.external_sku,record.mapping.external_sku);
 });
 
-test('invalid approved GTIN stays BLOCK even when merchant title matches the approved title exactly',t=>{
+test('invalid approved GTIN still blocks commercial normalization even when its document is isolated',t=>{
   freeze(t);const {record,live}=sixRows().find(x=>x.record.mapping.external_product_id==='5091');
   live.product_name=record.mapping.external_name;
-  const result=normalize(record,live);assert.equal(result.source,undefined);assert.equal(result.review,null);
+  const result=normalize(record,live);assert.equal(result.source,undefined);
+  assert.equal(result.review.disposition,'SOURCE_IDENTITY_CONFLICT');
+  assert.equal(result.review.identity.expected_gtin,'500318691586');
+  assert.equal(result.review.identity.commercial_identity,'UNVERIFIED');
   assert.equal(result.error.detail.reason_code,'INVALID_APPROVED_GTIN');
 });

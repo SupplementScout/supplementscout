@@ -1241,7 +1241,7 @@ function writeSixPackFixture() {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "six-pack-review-source-"));
   const capturedAt = "2026-10-07T03:18:00.000Z";
   const sourceFingerprint = "6".repeat(64);
-  const offerIds = Array.from({ length: 506 }, (_, index) => String(9000 + index));
+  const offerIds = Array.from({ length: 504 }, (_, index) => String(9000 + index));
   const reviewIds = new Set(offerIds.slice(0, 14));
   const baselineRows = offerIds.map((offerId, index) => ({
     mapping_id: String(10000 + index), retailer_id: "11", mapping_product_id: String(11000 + index), mapping_variant_id: String(12000 + index),
@@ -1258,9 +1258,9 @@ function writeSixPackFixture() {
     proposed_offer: index === 0 ? null : { price: index === 1 ? "44.99" : row.price, in_stock: index === 1 ? true : false, url: row.url, source_captured_at: capturedAt },
   }));
   const executableRows = baselineRows.filter((row) => !reviewIds.has(row.offer_id));
-  const report = { schema_version: 1, kind: "six-pack-approved-offer-refresh-dry-run", result: "PASS_WITH_REVIEW", source_snapshot_fingerprint: sourceFingerprint, source_captured_at: capturedAt, approved_mapping_count: 506, executable_plan_count: 492, executed_plan_count: 0, review_row_count: 14, blocked_row_count: 0, classification_state: "DRY_RUN_READY_WITH_REVIEW", review_rows: reviewRows, action_counts: { VERIFY_NO_CHANGE: 492 }, database_writes: 0 };
-  const artifact = { artifact_version: 1, created_at: capturedAt, row_count: "492", plans: executableRows.map(() => ({ retailer_id: "11", operation_type: "verify_offer_no_change" })), source_rows: executableRows.map((row) => ({ normalized_source_row: { source_snapshot_sha256: sourceFingerprint, source_captured_at: capturedAt, target: { offer: { id: row.offer_id } } } })), blocked_rows: [] };
-  const baseline = { schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: "six-pack-supplements", snapshot: { captured_at: capturedAt, retailer_id: "11", retailer_name: "6 Pack Supplements", row_count: 506, rows: baselineRows }, evidence_hash: "5".repeat(64) };
+  const report = { schema_version: 1, kind: "six-pack-approved-offer-refresh-dry-run", result: "PASS_WITH_REVIEW", source_snapshot_fingerprint: sourceFingerprint, source_captured_at: capturedAt, approved_mapping_count: 504, executable_plan_count: 490, executed_plan_count: 0, review_row_count: 14, blocked_row_count: 0, classification_state: "DRY_RUN_READY_WITH_REVIEW", review_rows: reviewRows, action_counts: { VERIFY_NO_CHANGE: 490 }, database_writes: 0 };
+  const artifact = { artifact_version: 1, created_at: capturedAt, row_count: "490", plans: executableRows.map(() => ({ retailer_id: "11", operation_type: "verify_offer_no_change" })), source_rows: executableRows.map((row) => ({ normalized_source_row: { source_snapshot_sha256: sourceFingerprint, source_captured_at: capturedAt, target: { offer: { id: row.offer_id } } } })), blocked_rows: [] };
+  const baseline = { schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: "six-pack-supplements", snapshot: { captured_at: capturedAt, retailer_id: "11", retailer_name: "6 Pack Supplements", row_count: 504, rows: baselineRows }, evidence_hash: "5".repeat(64) };
   writeJson(path.join(directory, "production-preflight-report.json"), report);
   writeJson(path.join(directory, "production-preflight-artifact.json"), artifact);
   writeJson(path.join(directory, "production-db-baseline.json"), baseline);
@@ -1277,11 +1277,47 @@ test("6 Pack profile publishes 14 mixed rows as non-executable shared review car
   const source = verifyFitHouseSourceContract(options, new Date("2026-10-07T04:00:00Z"));
   const baseline = publicationBaseline(fixture, "11");
   const rows = buildFitHouseManifestRows(source, baseline, options);
-  assert.equal(contract.executable_plan_count, 492);
+  assert.equal(contract.executable_plan_count, 490);
   assert.equal(rows.length, 14);
   assert.deepEqual([...new Set(rows.map((row) => row.operation_type))].sort(), ["MANUAL_REVIEW", "MANUAL_REVIEW_IDENTITY"]);
   assert.equal(rows.every((row) => row.impact_summary.catalogue_writes === 0 && row.impact_summary.executable === false), true);
   assert.equal(buildFitHouseOutput(source, baseline, rows, options, env).expected.catalogue_writes, 0);
+});
+
+test("6 Pack identity conflicts retain evidence and create only deduplicated noncommercial cards", () => {
+  const fixture=writeSixPackFixture(),file=path.join(fixture.directory,"production-preflight-report.json");
+  const report=JSON.parse(fs.readFileSync(file,"utf8")),row=report.review_rows[2];
+  const evidence={offer_id:row.offer_id,mapping_id:row.mapping_id,product_id:row.external_product_id,
+    external_variant_id:row.external_variant_id,disposition:"SOURCE_IDENTITY_CONFLICT",
+    identity:{reason_code:"INVALID_APPROVED_GTIN",commercial_identity:"UNVERIFIED",authority:"MANUAL_REVIEW_ONLY"},
+    source_provenance:{http_status:200,body_complete:true,html_sha256:"a".repeat(64)}};
+  Object.assign(row,{reason:"IDENTITY_CONFLICT",proposed_offer:null,source_failure:evidence,
+    changed_fields:{price:false,stock:false,url:false,blocked:true}});
+  report.normalization_review_rows=[evidence];writeJson(file,report);
+  const env={GITHUB_ACTIONS:"true",GITHUB_EVENT_NAME:"schedule",GITHUB_REF:"refs/heads/main",
+    GITHUB_REPOSITORY:"SupplementScout/supplementscout",GITHUB_RUN_ID:"37448175548",GITHUB_RUN_ATTEMPT:"1",GITHUB_SHA:SOURCE.commit};
+  const contract=buildFitHouseSourceContract(fixture.directory,env,"six-pack-supplements");
+  writeJson(path.join(fixture.directory,"automation-review-source-contract.json"),contract);
+  const options={profile:"six-pack-supplements",sourceArtifactDir:fixture.directory,sourceRunId:env.GITHUB_RUN_ID,
+    sourceArtifactId:"11407901475",sourceCommitSha:env.GITHUB_SHA,sourceArtifactDigest:"b".repeat(64),
+    sourceContractSha256:fileSha(path.join(fixture.directory,"automation-review-source-contract.json")),output:path.join(fixture.directory,"output.json")};
+  const source=verifyFitHouseSourceContract(options,new Date("2026-10-07T04:00:00Z")),baseline=publicationBaseline(fixture,"11");
+  const rows=buildFitHouseManifestRows(source,baseline,options),card=rows.find(r=>String(r.offer_id)===row.offer_id);
+  assert.equal(contract.approved_mapping_count,504);assert.equal(contract.executable_plan_count,490);
+  assert.equal(card.review_kind,"IDENTITY_CONFLICT");assert.equal(card.operation_type,"MANUAL_REVIEW_IDENTITY");
+  assert.equal(card.reason_codes,"IDENTITY_CONFLICT");assert.equal(card.proposed_state.catalogue_action,"KEEP_UNCHANGED");
+  assert.equal(card.proposed_state.price,undefined);assert.equal(card.proposed_state.in_stock,undefined);
+  assert.equal(card.impact_summary.executable,false);
+  assert.equal(card.source_evidence.identity_check.identity.reason_code,"INVALID_APPROVED_GTIN");
+  baseline.activeRows=rows.map((r,i)=>({...r,id:String(50000+i)}));
+  const repeated=buildFitHouseOutput(source,baseline,rows,options,env);
+  assert.equal(repeated.operations.CREATE,0);assert.equal(repeated.operations.REFRESH,14);
+  for(const mutate of [r=>{r.review_rows[2].proposed_offer={price:"1.00",in_stock:false};},
+    r=>{r.normalization_review_rows=[];},r=>{r.review_rows[2].source_failure.identity.commercial_identity="VERIFIED";},
+    r=>{r.review_rows[2].source_failure.source_provenance.body_complete=false;},r=>{r.approved_mapping_count=506;}]){
+    const bad=structuredClone(report);mutate(bad);writeJson(file,bad);
+    assert.throws(()=>buildFitHouseSourceContract(fixture.directory,env,"six-pack-supplements"));
+  }
 });
 
 test("Jon's and 6 Pack workflows reuse the publisher but receive no execution adapter", () => {

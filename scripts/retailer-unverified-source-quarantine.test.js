@@ -195,24 +195,58 @@ test('Six parent-wide uncertainty excludes every variant of that parent', async 
   assert.ok(result.report.review_rows.every(r=>r.external_product_id==='31593'&&r.proposed_offer===null));
 });
 
-test('Six fatal dimensions stop sealing while retaining captured normalization inputs and review evidence', async () => {
+test('Six full504+2 isolates invalid approved GTIN and changed trade item without rewriting their identities', async () => {
+  // Injected full-scope contract fixture, not a reconstruction of unretained shop data.
+  const s=sixContract(),before=structuredClone(s.records);
+  const invalid=s.records.find(r=>r.mapping.external_product_id==='5091');
+  const conflict=s.records.find(r=>r.mapping.external_product_id==='4145');
+  invalid.mapping.external_gtin='500318691586';
+  const page=s.byProduct.get('4145');page.product_name='Unresolved different trade item';
+  page.canonical_url='https://6pack-supplements.co.uk/product/unresolved-trade-item/';
+  const input=structuredClone(s.records),out=s.paths();
+  const result=await six.run({target:'production',...out,isolateUnsafe:true},{state:{records:s.records},readLive:s.readLive});
+  assert.equal(result.report.approved_mapping_count,504);assert.equal(result.report.catalogue_scope.historical_withdrawn_mapping_count,2);
+  assert.equal(result.report.executable_plan_count,502);assert.equal(result.report.review_row_count,2);
+  assert.equal(result.report.blocked_row_count,0);assert.equal(result.report.database_writes,0);
+  const ids=[String(invalid.offer.id),String(conflict.offer.id)];
+  assert.deepEqual(result.report.review_rows.map(r=>r.offer_id).sort(),ids.sort());
+  for(const row of result.report.review_rows){
+    assert.equal(row.reason,'IDENTITY_CONFLICT');assert.equal(row.proposed_offer,null);
+    assert.equal(row.source_failure.identity.commercial_identity,'UNVERIFIED');
+    assert.equal(row.source_failure.identity.name_equivalence_verified,false);
+    assert.equal(row.source_failure.original_error.code,'SOURCE_IDENTITY_DRIFT');
+  }
+  const artifact=loadDryRunArtifact(out.artifact).artifact;
+  assert.doesNotThrow(()=>executor.validateArtifactScope(artifact,sixApproved.manifest));
+  assert.ok(artifact.plans.every(p=>!ids.includes(String(p.resolved_plan.offer.id))));
+  assert.ok(artifact.source_rows.every(p=>!['5091','4145'].includes(p.normalized_source_row.source.external_variant_id)));
+  assert.deepEqual(s.records,input);assert.equal(invalid.mapping.external_gtin,'500318691586');
+  assert.equal(conflict.mapping.external_url,before.find(r=>r.mapping.id===conflict.mapping.id).mapping.external_url);
+  const strict=s.paths();await assert.rejects(six.run({target:'production',...strict,isolateUnsafe:false},
+    {state:{records:s.records},readLive:s.readLive}),{code:'SOURCE_IDENTITY_DRIFT'});
+  assert.equal(fs.existsSync(strict.artifact),false);
+});
+
+test('Six separates documented dimensional conflicts without plans or freshness for either review', async () => {
   const s=sixContract(),out=s.paths();
   s.records.find(r=>r.mapping.id==='2235').mapping.external_name+=' 17 servings';
   const conflict=s.records.find(r=>r.mapping.external_product_id==='4566');
   conflict.mapping.external_name=conflict.mapping.external_name.replace('100g','200g');
-  await assert.rejects(six.run({target:'production',...out,isolateUnsafe:true},
-    {state:{records:s.records},readLive:s.readLive}),{code:'SOURCE_IDENTITY_DRIFT'});
-  assert.equal(fs.existsSync(out.artifact),false);
+  await six.run({target:'production',...out,isolateUnsafe:true},{state:{records:s.records},readLive:s.readLive});
+  assert.equal(fs.existsSync(out.artifact),true);
   const report=JSON.parse(fs.readFileSync(out.report,'utf8'));
-  assert.equal(report.normalization_review_rows.length,1);
-  assert.equal(report.normalization_inputs_retention,'COMPLETE_PARSED_INPUT');
-  assert.equal(report.normalization_inputs.length,277);
-  assert.ok(report.normalization_inputs.every(p=>p.technical_document_identity&&p.source_provenance));
-  assert.equal(report.executable_plan_count,0);assert.equal(report.database_writes,0);
-  assert.ok(report.post_capture_errors.some(e=>e.mapping_id===conflict.mapping.id));
+  assert.equal(report.normalization_review_rows.length,2);
+  assert.equal(report.executable_plan_count,502);assert.equal(report.database_writes,0);
+  assert.ok(report.review_rows.every(row=>row.reason==='IDENTITY_CONFLICT'&&row.proposed_offer===null));
+  const artifact=loadDryRunArtifact(out.artifact).artifact,ids=report.review_rows.map(row=>row.offer_id);
+  assert.ok(artifact.plans.every(plan=>!ids.includes(String(plan.resolved_plan.offer.id))));
+  assert.ok(report.normalization_review_rows.some(row=>row.mapping_id===conflict.mapping.id
+    && row.disposition==='SOURCE_IDENTITY_CONFLICT' && row.original_error.code==='SOURCE_IDENTITY_DRIFT'));
+  await assert.rejects(six.run({target:'production',...s.paths(),isolateUnsafe:false},
+    {state:{records:s.records},readLive:s.readLive}),{code:'SOURCE_IDENTITY_DRIFT'});
 });
 
-test('Six quarantine rejects real unit/identifier/price/provenance conflicts rather than approving equivalence', async () => {
+test('Six isolation never approves equivalence; invalid transport, source identity and commercial facts remain fatal', async () => {
   const s=sixContract(),record=s.records.find(r=>r.mapping.id==='2235');record.mapping.external_name+=' 17 servings';
   const capturedAt=new Date().toISOString(),page=await s.readLive('31593',{capturedAt});
   let error;try{six.liveSourceFor(record,page);}catch(e){error=e;}
@@ -233,8 +267,11 @@ test('Six quarantine rejects real unit/identifier/price/provenance conflicts rat
     (r,p)=>{p.variations.push(p.variations[0]);},
     (r,p)=>{p.captured_at='2020-01-01T00:00:00Z';},
   ];
-  for(const change of cases){const r=structuredClone(record),p=structuredClone(page);change(r,p);let failure;
+  for(const [index,change] of cases.entries()){const r=structuredClone(record),p=structuredClone(page);change(r,p);let failure;
     try{six.liveSourceFor(r,p);}catch(e){failure=e;}
-    assert.equal(six.normalizationReviewFor(failure||error,r,p,capturedAt),null);
+    const review=six.normalizationReviewFor(failure||error,r,p,capturedAt);
+    if(index<5){assert.equal(review.disposition,'SOURCE_IDENTITY_CONFLICT');
+      assert.equal(review.identity.commercial_identity,'UNVERIFIED');assert.equal(review.identity.authority,'MANUAL_REVIEW_ONLY');}
+    else assert.equal(review,null);
   }
 });

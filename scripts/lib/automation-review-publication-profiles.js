@@ -315,7 +315,22 @@ function validateSixPack(profile, context) {
     invariant(before && String(review.mapping_id) === String(before.mapping_id), `${label} baseline missing for review offer ${offerId}`);
     invariant(String(review.external_product_id) === String(before.external_product_id) && String(review.external_variant_id) === String(before.external_variant_id), `${label} source identity drift for offer ${offerId}`);
     invariant(review.current_offer && Number.isFinite(Number(review.current_offer.price)) && Number.isFinite(Number(before.price)) && Number(review.current_offer.price).toFixed(2) === Number(before.price).toFixed(2) && Boolean(review.current_offer.in_stock) === Boolean(before.in_stock), `${label} current state drift for offer ${offerId}`);
-    invariant(["SOURCE_VARIANT_MISSING", "HARD_PRICE_ANOMALY", "MASS_OOS"].includes(review.reason), `${label} review reason drifted for offer ${offerId}`);
+    invariant(["SOURCE_VARIANT_MISSING", "IDENTITY_CONFLICT", "HARD_PRICE_ANOMALY", "MASS_OOS"].includes(review.reason), `${label} review reason drifted for offer ${offerId}`);
+    if (review.reason === "IDENTITY_CONFLICT") {
+      const evidence = (report.normalization_review_rows || []).filter(row => row.offer_id === offerId);
+      invariant(review.proposed_offer === null && evidence.length === 1
+        && review.changed_fields?.price === false && review.changed_fields?.stock === false && review.changed_fields?.url === false
+        && JSON.stringify(evidence[0]) === JSON.stringify(review.source_failure)
+        && evidence[0].mapping_id === String(before.mapping_id)
+        && evidence[0].product_id === String(before.external_product_id)
+        && evidence[0].external_variant_id === String(before.external_variant_id)
+        && ["SOURCE_IDENTITY_CONFLICT", "SOURCE_IDENTITY_UNVERIFIED"].includes(evidence[0].disposition)
+        && evidence[0].identity?.commercial_identity === "UNVERIFIED"
+        && evidence[0].identity?.authority === "MANUAL_REVIEW_ONLY"
+        && evidence[0].source_provenance?.http_status === 200 && evidence[0].source_provenance?.body_complete === true
+        && /^[a-f0-9]{64}$/.test(evidence[0].source_provenance?.html_sha256 || ""),
+      `${label} noncommercial identity evidence drifted for offer ${offerId}`);
+    }
     const unresolvedCommercial = ["WILDCARD_COMMERCIAL_UNIT_UNRESOLVED", "UNBUYABLE_PARENT_VARIANTS_UNRESOLVED", "UNBUYABLE_SIMPLE_OFFER_UNRESOLVED"]
       .includes(review.source_failure?.disposition);
     if (unresolvedCommercial) {
@@ -338,8 +353,9 @@ function validateSixPack(profile, context) {
       new_price: String(proposed.price),
       old_stock: before.in_stock === true,
       new_stock: proposed.in_stock === true,
-      action: review.reason === "SOURCE_VARIANT_MISSING" ? "SOURCE_MISSING" : "MANUAL_REVIEW",
-      evidence_reason: unresolvedCommercial ? review.source_failure.disposition : review.reason,
+      action: review.reason === "SOURCE_VARIANT_MISSING" ? "SOURCE_MISSING" : review.reason === "IDENTITY_CONFLICT" ? "IDENTITY_REVIEW" : "MANUAL_REVIEW",
+      evidence_reason: unresolvedCommercial || review.reason === "IDENTITY_CONFLICT" ? review.source_failure.disposition : review.reason,
+      ...(review.reason === "IDENTITY_CONFLICT" ? { identity_evidence: review.source_failure } : {}),
       proposed_url: proposed.url || before.url || null,
     };
   }).sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
@@ -350,12 +366,17 @@ function validateSixPack(profile, context) {
 }
 
 function validateSixPackChangedRows(profile, changedRows, invariant) {
-  invariant(changedRows.every((row) => row.action === "SOURCE_MISSING"
+  invariant(changedRows.every((row) => ["SOURCE_MISSING", "IDENTITY_REVIEW"].includes(row.action)
     ? row.old_price === row.new_price && row.old_stock === row.new_stock
+      && (row.action !== "IDENTITY_REVIEW" || ["SOURCE_IDENTITY_CONFLICT", "SOURCE_IDENTITY_UNVERIFIED"].includes(row.evidence_reason))
     : row.action === "MANUAL_REVIEW" && ["HARD_PRICE_ANOMALY", "MASS_OOS"].includes(row.evidence_reason)), `${profile.retailer.name} review scope contains an unsafe catalogue change`);
 }
 
 function sixPackReviewCard(beforeState, changed) {
+  if (changed.action === "IDENTITY_REVIEW") return {
+    ...reviewCard({ reviewType: "source-missing" }, beforeState, changed), reasonCodes: "IDENTITY_CONFLICT",
+    evidenceReason: changed.evidence_reason, identityEvidence: changed.identity_evidence,
+  };
   if (changed.action === "SOURCE_MISSING") return {
     ...reviewCard({ reviewType: "source-missing" }, beforeState, changed), evidenceReason: changed.evidence_reason,
   };
@@ -367,7 +388,9 @@ function sixPackReviewCard(beforeState, changed) {
 }
 
 function sixPackMatchesActiveReview(row) {
-  return (row.review_kind === "IDENTITY_CONFLICT" && row.operation_type === "MANUAL_REVIEW_IDENTITY" && reasonList(row.reason_codes).includes("SOURCE_MISSING"))
+  return (row.review_kind === "IDENTITY_CONFLICT" && row.operation_type === "MANUAL_REVIEW_IDENTITY"
+    && (reasonList(row.reason_codes).includes("SOURCE_MISSING") || (reasonList(row.reason_codes).includes("IDENTITY_CONFLICT")
+      && ["SOURCE_IDENTITY_CONFLICT", "SOURCE_IDENTITY_UNVERIFIED"].includes(row.source_evidence?.reason))))
     || (row.review_kind === "POLICY_REVIEW" && row.operation_type === "MANUAL_REVIEW" && reasonList(row.reason_codes).includes("POLICY_REVIEW"));
 }
 
@@ -421,7 +444,7 @@ const PROFILES = Object.freeze({
   "10-reps": profile({ key: "10-reps", retailer: Object.freeze({ id: "14", name: "10 Reps", slug: "10-reps" }), approvedMappingCount: 950, sourceDirectory: "10reps-offer-refresh", artifactPrefix: "10reps-offer-refresh", reconciliationFile: "10reps-reconciliation-dry-run.json", contractName: "10-reps-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS"]) }),
   "whey-okay": profile({ key: "whey-okay", retailer: Object.freeze({ id: "3", name: "Whey Okay", slug: "whey-okay" }), approvedMappingCount: 589, sourceDirectory: "whey-okay-offer-refresh", artifactPrefix: "whey-okay-offer-refresh", reconciliationFile: "whey-okay-reconciliation-dry-run.json", contractName: "whey-okay-automation-review-source-v1", workflow: ".github/workflows/whey-okay-offer-refresh.yml", workflowName: "Whey Okay Offer Refresh", reviewType: "source-missing", captureFiles: WHEY_CAPTURE_FILES, sealedFiles: WHEY_SEALED_FILES, sourceFingerprint: (report) => report.source?.semantic_fingerprint, validate: validateWhey }),
   "jons-supplements": profile({ key: "jons-supplements", retailer: Object.freeze({ id: "10", name: "Jon's Supplements", slug: "jon-s-supplements" }), postflightProfile: "jons-supplements", approvedMappingCount: 506, sourceDirectory: "jons-offer-refresh", artifactPrefix: "jons-offer-refresh", reconciliationFile: "jons-reconciliation-dry-run.json", contractName: "jons-automation-review-source-v1", workflow: ".github/workflows/jons-offer-refresh.yml", workflowName: "Jon's Offer Refresh", reviewType: "source-missing", validateCapture: validateJonsCapture, validate: validateJons }),
-  "six-pack-supplements": profile({ key: "six-pack-supplements", retailer: Object.freeze({ id: "11", name: "6 Pack Supplements", slug: "6-pack-supplements" }), postflightProfile: "six-pack-supplements", approvedMappingCount: 506, sourceDirectory: "six-pack-offer-refresh", artifactPrefix: "six-pack-offer-refresh", reconciliationFile: "six-pack-reconciliation-dry-run.json", contractName: "six-pack-automation-review-source-v1", workflow: ".github/workflows/six-pack-offer-refresh.yml", workflowName: "6 Pack Supplements Offer Refresh", reviewType: "mixed-policy", captureFiles: SIX_PACK_CAPTURE_FILES, sealedFiles: SIX_PACK_SEALED_FILES, sourceFingerprint: (report) => report.source_snapshot_fingerprint, captureTimestamp: (source) => source.report.source_captured_at, validateCapture: validateSixPackCapture, validate: validateSixPack, validateChangedRows: validateSixPackChangedRows, reviewCard: sixPackReviewCard, matchesActiveReview: sixPackMatchesActiveReview }),
+  "six-pack-supplements": profile({ key: "six-pack-supplements", retailer: Object.freeze({ id: "11", name: "6 Pack Supplements", slug: "6-pack-supplements" }), postflightProfile: "six-pack-supplements", approvedMappingCount: 504, sourceDirectory: "six-pack-offer-refresh", artifactPrefix: "six-pack-offer-refresh", reconciliationFile: "six-pack-reconciliation-dry-run.json", contractName: "six-pack-automation-review-source-v1", workflow: ".github/workflows/six-pack-offer-refresh.yml", workflowName: "6 Pack Supplements Offer Refresh", reviewType: "mixed-policy", captureFiles: SIX_PACK_CAPTURE_FILES, sealedFiles: SIX_PACK_SEALED_FILES, sourceFingerprint: (report) => report.source_snapshot_fingerprint, captureTimestamp: (source) => source.report.source_captured_at, validateCapture: validateSixPackCapture, validate: validateSixPack, validateChangedRows: validateSixPackChangedRows, reviewCard: sixPackReviewCard, matchesActiveReview: sixPackMatchesActiveReview }),
 });
 
 function profileFor(value = "fit-house", invariant = (condition, message) => { if (!condition) throw new Error(message); }) {
