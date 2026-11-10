@@ -779,10 +779,12 @@ async function readState(manifest, dependencies = {}) {
 
 // Reuse existing checks for exact selected-pack evidence. Incomplete evidence
 // can enter only the existing classifier quarantine, without commercial identity.
-function normalizationIdentityEvidence(error, record, live, capturedAt) {
+function normalizationIdentityEvidence(error, record, live, capturedAt, isolateConflict = false) {
   const detail = error?.detail, p = live?.source_provenance;
   if (!(error instanceof WooCommerceSourceError) || error.code !== "SOURCE_IDENTITY_DRIFT"
-    || detail?.stage !== "SOURCE_NORMALIZATION" || detail.identity?.code !== "CSV_LIVE_IDENTITY_DRIFT"
+    || detail?.stage !== "SOURCE_NORMALIZATION"
+    || !(detail.identity?.code === "CSV_LIVE_IDENTITY_DRIFT"
+      || (isolateConflict && detail.reason_code === "INVALID_APPROVED_GTIN"))
     || detail.mapping_id !== String(record.mapping.id) || detail.offer_id !== String(record.offer.id)
     || detail.product_id !== String(record.mapping.external_product_id)
     || detail.external_variant_id !== String(record.mapping.external_variant_id)
@@ -800,13 +802,28 @@ function normalizationIdentityEvidence(error, record, live, capturedAt) {
   try { url = new URL(live.canonical_url); } catch { return null; }
   const request = new URL("/", config.retailer.website); request.searchParams.set("p", detail.product_id);
   if (url.origin !== config.retailer.website || url.username || url.password || url.search || url.hash
-    || !/^\/product\/[^/]+\/$/.test(url.pathname) || url.href !== record.mapping.external_url
+    || !/^\/product\/[^/]+\/$/.test(url.pathname) || (!isolateConflict && url.href !== record.mapping.external_url)
     || p.response_url !== url.href || ![request.href, url.href].includes(p.request_url)) return null;
   const candidates = detail.product_id === detail.external_variant_id ? [live.product_offer]
     : (live.variations || []).filter(v => String(v.external_variant_id) === detail.external_variant_id);
   const offer = candidates[0];
   if (candidates.length !== 1 || !offer || !Number.isFinite(Number(offer.price)) || Number(offer.price) <= 0
     || typeof offer.in_stock !== "boolean" || (offer.currency && offer.currency !== "GBP")) return null;
+  // The same verified document/tuple may prove a conflict without proving the
+  // trade item. Retain it only as noncommercial review; never fix identifiers,
+  // equate names, or pass a source row to the classifier/planner.
+  if (isolateConflict) return {
+    product_id: detail.product_id, external_variant_id: detail.external_variant_id,
+    mapping_id: detail.mapping_id, offer_id: detail.offer_id, disposition: "SOURCE_IDENTITY_CONFLICT",
+    identity: { ...detail.identity, reason_code: detail.reason_code || detail.identity.code,
+      expected_gtin: record.mapping.external_gtin || record.identity_evidence?.gtin || record.variant.gtin || null,
+      observed_gtin: offer.gtin || offer.gtin13 || null,
+      expected_name: record.mapping.external_name || record.product.name, observed_name: live.product_name,
+      commercial_identity: "UNVERIFIED", name_equivalence_verified: false, authority: "MANUAL_REVIEW_ONLY" },
+    original_error: { code: error.code, detail },
+    expected_url: record.mapping.external_url, observed_url: live.canonical_url,
+    source_provenance: p,
+  };
   const expectedGtin = record.mapping.external_gtin || record.identity_evidence?.gtin || record.variant.gtin;
   const observedGtin = offer.gtin || offer.gtin13;
   if ((expectedGtin && !isValidGtin(expectedGtin)) || (observedGtin && !isValidGtin(observedGtin))) return null;
@@ -860,7 +877,8 @@ function normalizationIdentityEvidence(error, record, live, capturedAt) {
 
 function normalizationReviewFor(error, record, live, capturedAt) {
   const evidence = normalizationIdentityEvidence(error, record, live, capturedAt);
-  return evidence?.identity.commercial_identity === "UNVERIFIED" ? evidence : null;
+  return evidence?.identity.commercial_identity === "UNVERIFIED" ? evidence
+    : normalizationIdentityEvidence(error, record, live, capturedAt, true);
 }
 
 function liveSourceFor(record, live) {
@@ -1496,7 +1514,7 @@ async function run(options, dependencies = {}) {
       mapping_id: String(row.retailer_product_id),
       external_product_id: String(row.external_product_id),
       external_variant_id: String(row.external_variant_id),
-      reason: row.reason,
+      reason: normalizationReviewByOffer.has(String(row.offer_id)) ? "IDENTITY_CONFLICT" : row.reason,
       source_failure: sourceFailure,
       original_action: row.original_action || null,
       changed_fields: row.changed_fields,

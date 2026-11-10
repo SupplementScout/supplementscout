@@ -1,5 +1,44 @@
 # Retailer Automation Consolidation Execution Plan
 
+**10 November final bounded closeout — RELEASE VERIFIED / SIX DRAFT:**
+Owner-approved PR519 merged unchanged as
+`fbc99f848129ea0753d6514b116b34cba5c53884` (tree equals approved
+`b7b506eb6ae8d50642fe18cbe4754e8d8ec5dc49`). Main Quality Gate
+[42788324900](https://github.com/SupplementScout/supplementscout/actions/runs/42788324900)
+passed3755/0/3 historical skips; main Guardian
+[42788324639](https://github.com/SupplementScout/supplementscout/actions/runs/42788324639)
+passed. Vercel bot Production deployment7677951252 completed for the same SHA;
+public homepage returned200. Fit retains284 ACTIVE+2 HISTORICAL, consumed261
+mode is disabled, completed receipts are preserved, and HOLD1938 cannot be
+released by an ordinary stock decision. Retained card replay remains7 stock,
+15 identity and1 HOLD;954 still requires a new owner decision. Fit is ready for
+a separately authorized fresh read-only dry-run, not a restoration claim.
+
+The09:12UTC TLS-verified read-only production snapshot reconfirmed CURRENT262,
+both exact lifecycle scopes (Six504+2), OOS104/OOS1859/EXECUTED1114 and no active
+parents, children, review execution requests or writer locks. No retailer source
+was fetched, no production dispatch, publication, approval or database write.
+
+One bounded Six draft on `fix/six-pack-normalization-conflict-isolation` reuses
+the existing normalization evidence gate and quarantine. A complete, fresh,
+technically product/variant-bound document may retain a typed identity conflict
+as UNVERIFIED/MANUAL_REVIEW_ONLY, without a commercial source row or proposed
+offer. Invalid approved GTIN and Gold/Black remain unresolved; no GTIN correction,
+rebind, identity equivalence or mapping change is authorized. Incomplete/stale,
+wrong-parent or untrusted source evidence remains fatal. The existing Queue
+profile uses504 active rows and preserves identity reasons in noncommercial
+cards; genuine absence remains separate. Shared classifier, executor, SQL,
+approval requirements, catalogue policy and source-health guards are unchanged.
+Retained15-incident replay gives4 selected CNP source candidates+11 review+0
+unisolated blocks; this is neither all504 source rows nor sealed executable
+plans/SQL validation. An injected full-scope fixture proves502 executable+2
+identity reviews with2 historical bindings untouched; these are contract counts,
+not current shop coverage. Both schedules stay PAUSED. Next owner boundary:
+review/merge this Six draft, then one fresh read-only dry-run per retailer.
+Publication, apply and schedule restoration require separate approvals and
+fresh evidence; stability requires three ordinary scheduled cycles after that.
+RA-001 unchanged; RA-004 remains suspended. Older entries below are historical.
+
 **10 November Fit House Automatic Review Queue restoration — DRAFT PREPARATION:**
 The same PR519 now enforces the versioned owner HOLD1938 before stock plan/card
 construction and registration, and reuses canonical Shopify options plus existing

@@ -1335,8 +1335,13 @@ for (const mode of ["wildcard", "variable", "simple"]) test(mode === "simple"
   assert.deepEqual(new Set(second.report.review_rows.map((row) => row.offer_id)), reviewedIds);
   assert.equal(second.report.database_writes, 0);
 
-  const profile = require("./lib/automation-review-publication-profiles").PROFILES["six-pack-supplements"];
+  const currentProfile = require("./lib/automation-review-publication-profiles").PROFILES["six-pack-supplements"];
+  // This regression intentionally replays the sealed pre-withdrawal506 scope.
+  // Production must reject it; only the explicit archived fixture uses506.
+  const profile = { ...currentProfile, approvedMappingCount: 506 };
   const captureContext = { report: result.report, diagnostic: null, files: { artifact: output.artifact }, invariant: assert.ok };
+  assert.equal(currentProfile.approvedMappingCount,504);
+  assert.throws(() => currentProfile.validateCapture(currentProfile,captureContext), /apply scope drifted/);
   profile.validateCapture(profile, captureContext);
   assert.throws(() => profile.validateCapture(profile, { ...captureContext,
     report: { ...result.report, source_snapshot_fingerprint: "f".repeat(64) } }), /source binding drifted/);
