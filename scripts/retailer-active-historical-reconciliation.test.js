@@ -138,7 +138,8 @@ test('other retailer profiles retain generic reconciliation without the Fit hist
   assert.equal((source.match(/:reconcileMissingMappedVariants\(targets,/g)||[]).length, 2);
 });
 
-test('Six unavailable parent retains unverified commercial identity in technical-scope manual review', async () => {
+test('Six unavailable parent retains unverified commercial identity in technical-scope manual review', async (t) => {
+  t.mock.method(Date,'now',()=>Date.parse(capturedAt)+1000);
   // Synthetic parser fixture reproduces the retained name conflict; it is not
   // additional merchant evidence for pack, composition or product identity.
   const url = 'https://6pack-supplements.co.uk/product/trec-nutrition-sleep-er/';

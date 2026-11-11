@@ -4,6 +4,7 @@ const { spawnSync } = require("node:child_process");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
+const returnPolicyCapture = require("./test-fixtures/six-pack-merchant-return-policy-captured-2026-11-11.json");
 const manifest = require("../config/retailers/six-pack-approved-offer-manifest.json");
 // Frozen pre-withdrawal source/approved-artifact regressions. The current v2
 // 504+2 scope and real withdrawal are exercised separately in PostgreSQL.
@@ -1961,4 +1962,44 @@ test("confirmed delivery is £4.99 below £99.99 and free at the threshold", () 
   assert.equal(shippingForPrice("99.98"), "4.99");
   assert.equal(shippingForPrice("99.99"), "0.00");
   assert.equal(shippingForPrice("120.00"), "0.00");
+});
+
+test("retained return-policy page preserves every existing unavailable-template rejection", async t => {
+  const doc = returnPolicyCapture.documents.find(row => row.product_id === "28570").source_document;
+  for (const [label, change] of unbuyableNegatives) await t.test(label, () => {
+    const html = label === "incomplete document" ? doc.html.replace(/<\/body\s*>\s*<\/html\s*>\s*$/i, "") : change(doc.html);
+    assert.notEqual(html, doc.html, `negative case must alter retained HTML: ${label}`);
+    assert.throws(() => parseSixPackProductPage(html, { productId: doc.product_id,
+      canonicalUrl: doc.canonical_url, capturedAt: doc.captured_at, sourceDocument: doc }), error =>
+      error instanceof WooCommerceSourceError && ![unbuyableReason, simpleReason].includes(error.detail?.reason_code));
+  });
+});
+
+test("return-policy content and placement cannot introduce commercial or unknown evidence", async t => {
+  const doc = returnPolicyCapture.documents.find(row => row.product_id === "28570").source_document;
+  const script = [...doc.html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
+    .find(row => /type=["']application\/ld\+json["']/i.test(row[1]));
+  for (const [label, change] of [
+    ["unknown policy type", graph => { graph[0].hasMerchantReturnPolicy["@type"] = "UnknownReturnPolicy"; }],
+    ["Product evidence", graph => { graph[0].hasMerchantReturnPolicy["@type"] = "Product"; }],
+    ["Offer evidence", graph => { graph[0].hasMerchantReturnPolicy["@type"] = "Offer"; }],
+    ["price", graph => { graph[0].hasMerchantReturnPolicy.price = "99.99"; }],
+    ["SKU", graph => { graph[0].hasMerchantReturnPolicy.sku = "99999"; }],
+    ["GTIN", graph => { graph[0].hasMerchantReturnPolicy.gtin13 = "5903111089467"; }],
+    ["stock", graph => { graph[0].hasMerchantReturnPolicy.availability = "https://schema.org/InStock"; }],
+    ["nested Offer", graph => { graph[0].hasMerchantReturnPolicy.returnMethod = [{ "@type": "Offer", price: "99.99" }]; }],
+    ["nested untyped identity", graph => { graph[0].hasMerchantReturnPolicy.itemCondition = [{ gtin13: "5903111089467" }]; }],
+    ["unsupported field", graph => { graph[0].hasMerchantReturnPolicy.other = "unverified"; }],
+    ["policy on ItemPage", graph => { graph[3].hasMerchantReturnPolicy = graph[0].hasMerchantReturnPolicy; delete graph[0].hasMerchantReturnPolicy; }],
+    ["policy on Store", graph => { graph[1].hasMerchantReturnPolicy = graph[0].hasMerchantReturnPolicy; delete graph[0].hasMerchantReturnPolicy; }],
+    ["policy in an array", graph => { graph[0].hasMerchantReturnPolicy = [graph[0].hasMerchantReturnPolicy]; }],
+    ["array of policy types", graph => { graph[0].hasMerchantReturnPolicy["@type"] = ["MerchantReturnPolicy"]; }],
+    ["invalid day count", graph => { graph[0].hasMerchantReturnPolicy.merchantReturnDays = -1; }],
+  ]) await t.test(label, () => {
+    const data = JSON.parse(script[2]); change(data["@graph"]);
+    const html = doc.html.replace(script[0], script[0].replace(script[2], JSON.stringify(data)));
+    assert.throws(() => parseSixPackProductPage(html, { productId: doc.product_id,
+      canonicalUrl: doc.canonical_url, capturedAt: doc.captured_at, sourceDocument: doc }), error =>
+      error instanceof WooCommerceSourceError && ![unbuyableReason, simpleReason].includes(error.detail?.reason_code));
+  });
 });

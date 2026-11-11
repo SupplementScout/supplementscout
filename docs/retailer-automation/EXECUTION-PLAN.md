@@ -1,5 +1,66 @@
 # Retailer Automation Consolidation Execution Plan
 
+**11 November Six Pack MerchantReturnPolicy compatibility — LOCAL VERIFIED / RELEASE NOT AUTHORIZED:**
+Base/main is `f6804e2c152d53fc23fdbbce53fc9b24ca8b5e15`. Failed dry-run
+[42993369560](https://github.com/SupplementScout/supplementscout/actions/runs/42993369560),
+artifact13843875553, retained complete HTTP200 documents for2819,28570 and7565.
+Their verified SHA-256/provenance and five immutable approved bindings are retained
+in `scripts/test-fixtures/six-pack-merchant-return-policy-captured-2026-11-11.json`.
+The existing `unbuyableParentName` changes only9 added/1 removed production lines:
+recognize MerchantReturnPolicy only directly under Organization.hasMerchantReturnPolicy,
+with the observed metadata fields and primitive/list shapes. Existing unknown-node,
+commercial-property, canonical, identity, source-health and freshness checks remain.
+No shared reader, GTIN guard, approval, executor, writer, scope or workflow changes.
+
+The three retained pages use existing UNBUYABLE_SIMPLE_OFFER_UNRESOLVED /
+UNBUYABLE_PARENT_VARIANTS_UNRESOLVED isolation. Mapping2241 and2613–2615/2674
+remain SOURCE_VARIANT_MISSING, proposed_offer=null, without price/stock/URL/freshness
+plans or approvals;7565 remains commercially UNVERIFIED. The full-scope local test
+combines these3 actual documents with274 existing synthetic pages:504 ACTIVE+2
+HISTORICAL,499 fixture plans+5 review, zero execution/writes and unchanged records.
+This is not a277-page production capture. Differential parser replay of the same
+three retained pages from10 and11November passes6/6; neither replay refreshes data.
+
+The previously verified +2/-1 correction in
+`scripts/retailer-active-historical-reconciliation.test.js` is reused byte-for-byte
+from `fix/six-pack-deterministic-test-20261110` (SHA-256
+`f98daa19a3c67e567b92ea72a88d0675c40533d8a2ac5decb59c97e5e6d60db4`).
+Only that test receives context and the established local Date.now mock; no fixture,
+capturedAt, assertion, production clock or freshness-policy changes. No branch merge.
+Its historical capture exceeded24h against wall time; the test-local correction
+restores deterministic replay without treating historical evidence as live.
+
+Current historical reconciliation:11/11 PASS; focused contracts:309/309 PASS.
+Existing freshness guard: capture+1s PRODUCT, exactly24h PRODUCT,24h+1ms RETAILER,
+future capture RETAILER, all four checked on unchanged retained provenance.
+Quick PASS:1119 PASS/0 FAIL/3 pre-existing SKIP. Full PASS:3823 PASS/0 FAIL/3
+pre-existing SKIP, all300 safe files through the normal quality gate. TypeScript,
+ESLint, isolated production build and baseline migration validation PASS.
+Project Guardian passes before/after the checkpoint; inventory remains361 files
+with its existing seal. No test files added/renamed or omitted.
+
+Read-only schedule evidence: natural run43006812285 was created11November10:49:24UTC
+on unchanged main, long after03:17UTC. It failed SOURCE_CAPTURE with the same three
+SOURCE_SCHEMA_MISMATCH products; artifact13849146931 confirms zero writes and
+executor/Queue publication were skipped. This is a delayed event, not a new dispatch
+by this task. The active schedule has an existing guarded apply path, its own
+six-pack-offer-refresh concurrency group, SQL validation, single-use fingerprint-bound
+approvals, replay/expected-state checks and postflight/idempotency. These safeguards
+do not require a manual dry-run before a valid scheduled apply. An event delivered
+after merge can use corrected main and write eligible offers automatically.
+
+No release/production-recovery claim: this task performs no commit,push,PR,merge,
+deployment,workflow dispatch,approval,Queue publication or shared database write.
+H&B and the original clock-fix worktree are untouched. The combined feature is ready
+for a controlled PR after owner authorization. Merge/release authorization must
+explicitly accept the existing automatic scheduled apply risk; the unchanged workflow
+cannot guarantee a manual dry-run precedes scheduled writes. No schedule is disabled
+or modified here. A separately authorized fresh dry-run on corrected main must cover
+all277 pages, including previously NOT_REACHED8628; retained/synthetic replay does not
+establish present production freshness. Any manual guarded apply needs separate owner
+authorization and its own new capture. Old/incomplete artifacts are never applied.
+RA-001 unchanged;RA-004 remains suspended; scheduled rollout stability is not advanced.
+
 **10 November final schedule restoration — OWNER-APPROVED RELEASE:**
 Starting main is `60470af1da8a8a88f2bf0611b60d634b863333f5`. The owner authorizes
 one minimal PR, standard squash merge after required checks, the existing normal
