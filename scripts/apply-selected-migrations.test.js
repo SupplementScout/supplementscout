@@ -35,7 +35,8 @@ const historicalSource = fs.mkdtempSync(path.join(os.tmpdir(), "migration-pre-pl
 for (const name of fs.readdirSync(SOURCE)) {
   if (name.endsWith(".sql") && name !== "20261107190000_extend_never_approved_planned_control_close.sql"
     && name !== "20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql"
-    && name !== "20261109120000_add_owner_withdrawal_terminal_preflight.sql")
+    && name !== "20261109120000_add_owner_withdrawal_terminal_preflight.sql"
+    && !PENDING_MIGRATIONS.PRODUCTION.some(entry => entry.filename === name))
     fs.copyFileSync(path.join(SOURCE, name), path.join(historicalSource, name));
 }
 test.after(() => fs.rmSync(historicalSource, { recursive: true, force: true }));
@@ -176,12 +177,19 @@ test("historical production pending migration deterministically derives ledger 2
     "17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e");
 });
 
-test("receipt closes CURRENT262 while the historical sealed selection still proves 261 to 262", () => {
+test("current production selection preserves CURRENT262 while historical withdrawal remains 261 to 262", () => {
   const current=derivePostApplyMigrationBinding("PRODUCTION");
-  assert.equal(current.status,"ALREADY_CLOSED");
-  assert.equal(current.pending_count,0);
+  assert.equal(current.status,"CLOSEOUT_REQUIRED");
+  assert.equal(current.pending_count,1);
+  assert.equal(current.pre_ledger_count,262);
+  assert.equal(current.post_ledger_count,263);
+  assertDerivationMatchesContract(current,CONTRACTS.PRODUCTION);
   assert.equal(CONTRACTS.PRODUCTION.ledgerCount,262);
-  const derivation = derivePostApplyMigrationBinding("PRODUCTION",{pendingMigrations:[WITHDRAWAL_PENDING]});
+  const derivation = derivePostApplyMigrationBinding("PRODUCTION",{
+    migrationFiles: fs.readdirSync(SOURCE).filter(name =>
+      !PENDING_MIGRATIONS.PRODUCTION.some(entry => entry.filename === name)),
+    pendingMigrations:[WITHDRAWAL_PENDING],
+  });
   assert.equal(derivation.status, "CLOSEOUT_REQUIRED");
   assert.equal(derivation.pending_count, 1);
   assert.deepEqual(derivation.consumed_pending.map(row=>row.filename), ["20261109120000_add_owner_withdrawal_terminal_preflight.sql"]);
@@ -381,7 +389,7 @@ test("owner withdrawal closeout preserves both SQL seals and consumes the review
   const { sha256File } = require("./lib/environment-migrations");
   assert.equal(sha256File(path.join(SOURCE,old)),original);
   assert.equal(CONTRACTS.PRODUCTION.excluded[old],original);
-  assert.equal(CONTRACTS.PRODUCTION.pending.length,0);
+  assert.ok(!CONTRACTS.PRODUCTION.pending.some(entry => entry.filename === WITHDRAWAL_PENDING.filename));
   assert.equal(WITHDRAWAL_PENDING.preflight_required,true);
   assert.equal(pendingConfirmation({pending:[WITHDRAWAL_PENDING]}),"79c7b8609789562c");
   assert.notEqual(pendingConfirmation(CONTRACTS.PRODUCTION),"527587a55780f61f");

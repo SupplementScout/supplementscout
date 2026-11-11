@@ -101,7 +101,12 @@ const PENDING_REFRESH_BINDING_MIGRATION_SHA256 = "015f0de7448c10fcca10174e74dfbf
 const PENDING_REFRESH_BINDING = Object.freeze({ filename: PENDING_REFRESH_BINDING_MIGRATION, sha256: PENDING_REFRESH_BINDING_MIGRATION_SHA256 });
 const PLANNED_CONTROL_CLOSE_PENDING = Object.freeze({ filename: "20261107190000_extend_never_approved_planned_control_close.sql", sha256: "0c6a7ef27021c0ba2dc5ef38eea3289b8238e4dc3220ede03de6210336263ddf" });
 const STAGING_PENDING = Object.freeze([...HARD_PRICE_ANOMALY_PENDING, PENDING_REFRESH_BINDING]);
-const PRODUCTION_PENDING = Object.freeze([]);
+const PRODUCTION_PENDING = Object.freeze([
+  Object.freeze({
+    filename: "20261110170000_align_reviewed_catalogue_affiliate_url_contract.sql",
+    sha256: "97940786dca72e5176b359a2d3811c8fb382320463b0f14664b126005f9af5d0",
+  }),
+]);
 const OWNER_WITHDRAWAL_MIGRATION = "20261109120000_add_owner_withdrawal_terminal_preflight.sql";
 
 test("production-only planned-close migration is applied in production and excluded from staging", () => {
@@ -919,8 +924,8 @@ test("production records ledger 262 with the planned-close migration applied", (
   assert.ok(migrationBinding("PRODUCTION").versions.includes(OWNER_WITHDRAWAL_MIGRATION.slice(0,-4)));
   assert.deepEqual(result.pending_files, PRODUCTION_PENDING.map(({ filename }) => filename));
   assert.deepEqual(result.pending_sha256s, Object.fromEntries(PRODUCTION_PENDING.map(({filename, sha256}) => [filename, sha256])));
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.equal(result.pending_file, PRODUCTION_PENDING[0].filename);
+  assert.equal(result.pending_sha256, PRODUCTION_PENDING[0].sha256);
   assert.ok(result.selected_files.includes(PENDING_REFRESH_BINDING_MIGRATION));
   assert.ok(result.selected_files.includes(PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION));
   assert.ok(result.excluded_files.includes(PRODUCT_PACK_CORRECTION_MIGRATION));
@@ -1125,7 +1130,7 @@ test("runtime staging artifacts bind the same migration ledger as the staging se
 
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(Object.keys(contract.excluded).length, 32);
+  assert.equal(Object.keys(contract.excluded).length, 31);
   assert.deepEqual(contract.pending, PRODUCTION_PENDING);
   assert.equal(
     contract.excluded["20261031120000_add_verified_automation_review_stock_transition_reader.sql"],
@@ -1812,8 +1817,8 @@ test("shared production binding includes hard-price and refresh-binding migratio
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.equal(result.pending_file, PRODUCTION_PENDING[0].filename);
+  assert.equal(result.pending_sha256, PRODUCTION_PENDING[0].sha256);
   assert.deepEqual(result.pending_files, PRODUCTION_PENDING.map(({ filename }) => filename));
   assert.deepEqual(result.pending_sha256s, Object.fromEntries(PRODUCTION_PENDING.map(({filename, sha256}) => [filename, sha256])));
   assert.ok(result.selected_files.includes(HARD_PRICE_ANOMALY_MIGRATION));
@@ -1958,7 +1963,7 @@ test("Group A identity migrations are production-bound and cannot change commerc
   assert.match(sql[2], /v_rows<>11/);
 });
 
-test("unverified reviewed URL proposal cannot enter either shared migration selection", () => {
+test("reviewed URL migration is the sole production pending and remains excluded from staging", () => {
   const filename = "20261110170000_align_reviewed_catalogue_affiliate_url_contract.sql";
   for (const environment of ["STAGING", "PRODUCTION"]) {
     const contract = CONTRACTS[environment];
@@ -1973,10 +1978,17 @@ test("unverified reviewed URL proposal cannot enter either shared migration sele
     });
     assert.equal(binding.versions.length, contract.ledgerCount);
     assert.equal(binding.fingerprint, contract.ledgerFingerprint);
-    assert.ok(result.excluded_files.includes(filename));
-    assert.ok(!result.selected_files.includes(filename));
-    assert.ok(!result.pending_files.includes(filename));
-    assert.equal(contract.excluded[filename], sha256File(path.join(SOURCE, filename)));
+    const production = environment === "PRODUCTION";
+    assert.equal(result.excluded_files.includes(filename), !production);
+    assert.equal(result.selected_files.includes(filename), production);
+    assert.equal(result.pending_files.includes(filename), production);
+    if (production) {
+      assert.deepEqual(contract.pending, PRODUCTION_PENDING);
+      assert.deepEqual(result.pending_files, [filename]);
+      assert.equal(result.pending_sha256, sha256File(path.join(SOURCE, filename)));
+    } else {
+      assert.equal(contract.excluded[filename], sha256File(path.join(SOURCE, filename)));
+    }
   }
 });
 
