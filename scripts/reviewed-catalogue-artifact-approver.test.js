@@ -162,6 +162,140 @@ test("reviewed catalogue v2 permits the backward-safe equal-URL case", () => {
   assert.doesNotThrow(() => load(v2Fixture({ directUrl: url, affiliateUrl: url })));
 });
 
+test("reviewed V2 accepts existing affiliate URL shapes without rewriting either destination", () => {
+  for (const affiliateUrl of [
+    "https://www.awin1.com/pclick.php?p=45010750732&a=2973875&m=5959",
+    "https://www.ebay.co.uk/itm/323304007010?var=515705810394&mkevt=1&campid=5339189922",
+    "https://shop.example/product/p-7?variant=v-short&sca_ref=tracked",
+    "https://prf.hn/click/camref:example/destination:https%3A%2F%2Fshop.example%2Fproduct%2Fp-7%3Fvariant%3Dv-short",
+  ]) {
+    const value = v2Fixture({ affiliateUrl });
+    try {
+      assert.equal(load(value).entry.resolved_plan.offer.values.url, affiliateUrl);
+    } finally { fs.rmSync(value.root, { recursive: true, force: true }); }
+  }
+});
+
+const reviewedDirectUrl = "https://shop.example/product/p-7?variant=v-short";
+const embeddedTrackingUrl = destination => `https://prf.hn/click/camref:example/destination:${encodeURIComponent(destination)}`;
+const reviewedDestinationNegatives = [
+  ["wrong merchant", embeddedTrackingUrl("https://wrong-merchant.example/phishing")],
+  ["wrong product", embeddedTrackingUrl("https://shop.example/product/other?variant=other")],
+  ["embedded http", embeddedTrackingUrl("http://shop.example/product/p-7?variant=v-short")],
+  ["embedded javascript", embeddedTrackingUrl("javascript:alert(1)")],
+  ["embedded credentials", embeddedTrackingUrl("https://user:password@shop.example/product/p-7")],
+  ["malformed percent escape", "https://prf.hn/click/destination:%ZZ"],
+  ["malformed UTF8", "https://prf.hn/click/destination:https%3A%2F%2Fshop.example%2F%FF"],
+  ["empty destination", "https://prf.hn/click/destination:"],
+  ["relative destination", embeddedTrackingUrl("/product/p-7")],
+  ["scheme relative destination", embeddedTrackingUrl("//shop.example/product/p-7")],
+  ["nested tracker", embeddedTrackingUrl(embeddedTrackingUrl(reviewedDirectUrl))],
+  ["duplicate query destinations", `https://affiliate.example/click?destination=${encodeURIComponent(reviewedDirectUrl)}&destination=${encodeURIComponent(reviewedDirectUrl)}`],
+  ["conflicting query destinations", `https://affiliate.example/click?url=${encodeURIComponent(reviewedDirectUrl)}&target=https%3A%2F%2Fevil.example`],
+  ["path plus query destination", `${embeddedTrackingUrl(reviewedDirectUrl)}?destination=${encodeURIComponent(reviewedDirectUrl)}`],
+  ["two path destinations", `${embeddedTrackingUrl(reviewedDirectUrl)}/destination:${encodeURIComponent(reviewedDirectUrl)}`],
+  ["encoded duplicate key", `https://affiliate.example/click?destination=${encodeURIComponent(reviewedDirectUrl)}&%64estination=${encodeURIComponent(reviewedDirectUrl)}`],
+  ["double encoded query key", `https://affiliate.example/click?%2564estination=${encodeURIComponent(reviewedDirectUrl)}`],
+  ["encoded path marker bad target", "https://prf.hn/click/destin%61tion:https%3A%2F%2Fevil.example"],
+  ["double encoded path marker", `https://prf.hn/click/%2564estination%253A${encodeURIComponent("https://evil.example")}`],
+  ["double encoded destination", embeddedTrackingUrl(encodeURIComponent(reviewedDirectUrl))],
+  ["triple encoded destination", embeddedTrackingUrl(encodeURIComponent(encodeURIComponent(reviewedDirectUrl)))],
+  ["deceptive suffix hostname", embeddedTrackingUrl("https://shop.example.evil.example/product/p-7?variant=v-short")],
+  ["different subdomain", embeddedTrackingUrl("https://other.shop.example/product/p-7?variant=v-short")],
+  ["different merchant port", embeddedTrackingUrl("https://shop.example:444/product/p-7?variant=v-short")],
+  ["encoded credentials", embeddedTrackingUrl("https://%75ser:password@shop.example/product/p-7")],
+  ["data scheme", embeddedTrackingUrl("data:text/html,unsafe")],
+  ["nested merchant query", embeddedTrackingUrl(`${reviewedDirectUrl}&url=https%3A%2F%2Fevil.example`)],
+  ["nested merchant path", embeddedTrackingUrl("https://shop.example/destination:https%3A%2F%2Fevil.example")],
+  ["encoded newline", embeddedTrackingUrl(`${reviewedDirectUrl}\n`)],
+  ["encoded backslash", embeddedTrackingUrl("https://shop.example\\@evil.example/product/p-7")],
+  ["changed variant query", embeddedTrackingUrl("https://shop.example/product/p-7?variant=other")],
+  ["encoded backslash in target path", embeddedTrackingUrl("https://shop.example/product%5Cp-7?variant=v-short")],
+];
+
+for (const [label, affiliateUrl] of reviewedDestinationNegatives) {
+  test(`reviewed embedded destination rejects ${label}`, () => {
+    const value = v2Fixture({ affiliateUrl });
+    const before = structuredClone(value.manifest.profiles[0].rows[0]);
+    try {
+      assert.throws(() => load(value), /destination|URLs invalid|encoding invalid|Invalid URL/);
+      assert.deepEqual(value.manifest.profiles[0].rows[0], before, "rejection must not rewrite canonical identity or URLs");
+    } finally { fs.rmSync(value.root, { recursive: true, force: true }); }
+  });
+}
+
+test("reviewed explicit destinations accept one decoded target and preserve tracking bytes", () => {
+  for (const affiliateUrl of [
+    `${embeddedTrackingUrl(reviewedDirectUrl)}?clickref=opaque%3Acampaign`,
+    `https://affiliate.example/click?destination=${encodeURIComponent(reviewedDirectUrl)}`,
+    `https://affiliate.example/click?%64estination=${encodeURIComponent(reviewedDirectUrl)}`,
+    `https://affiliate.example/click?redirect_uri=${encodeURIComponent(reviewedDirectUrl)}`,
+    `https://prf.hn/click/destin%61tion:${encodeURIComponent(reviewedDirectUrl)}`,
+    embeddedTrackingUrl("https://SHOP.EXAMPLE:443/product/p-7?variant=v-short"),
+    "https://affiliate.example/click?p=123&clickref=opaque%3Acampaign",
+  ]) {
+    const value = v2Fixture({ affiliateUrl });
+    try { assert.equal(load(value).entry.resolved_plan.offer.values.url, affiliateUrl); }
+    finally { fs.rmSync(value.root, { recursive: true, force: true }); }
+  }
+});
+
+test("reviewed URLs preserve the existing Simply, eBay and Gladiator affiliate pairs", () => {
+  for (const [directUrl, affiliateUrl] of [
+    ["https://www.simplysupplements.co.uk/products/vitamin-c-500mg?variant=64643277062493", "https://www.awin1.com/pclick.php?p=45010750732&a=2973875&m=5959"],
+    ["https://www.ebay.co.uk/itm/323304007010?var=515705810394", "https://www.ebay.co.uk/itm/323304007010?var=515705810394&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"],
+    ["https://gladiatornutrition.co.uk/products/lft-v2?variant=41306097385517", "https://gladiatornutrition.co.uk/products/lft-v2?variant=41306097385517&sca_ref=11968733.U3nlV04VwN4S"],
+  ]) {
+    const value = v2Fixture({ directUrl, affiliateUrl });
+    value.manifest.retailer.website = new URL(directUrl).origin;
+    try {
+      assert.doesNotThrow(() => validateManifest(value.manifest, "batch-1"));
+      assert.equal(value.manifest.profiles[0].rows[0].external_url, directUrl);
+      assert.equal(value.manifest.profiles[0].rows[0].affiliate_url, affiliateUrl);
+    } finally { fs.rmSync(value.root, { recursive: true, force: true }); }
+  }
+});
+
+test("reviewed H&B Partnerize sample validates its explicit product destination without a retailer branch", () => {
+  const directUrl = "https://www.hollandandbarrett.com/shop/product/applied-nutrition-creatine-monohydrate-cherry-apple-250g-6100002252";
+  const affiliateUrl = `https://prf.hn/click/camref:1101l6ynVX/creativeref:1011l138009/destination:${encodeURIComponent(directUrl)}`;
+  const value = v2Fixture({ directUrl, affiliateUrl });
+  value.manifest.retailer.website = "https://www.hollandandbarrett.com";
+  try {
+    assert.doesNotThrow(() => validateManifest(value.manifest, "batch-1"));
+    assert.equal(value.manifest.profiles[0].rows[0].affiliate_url, affiliateUrl);
+  } finally { fs.rmSync(value.root, { recursive: true, force: true }); }
+});
+
+test("reviewed V3 shares the explicit-destination check before its existing Shopify checks", () => {
+  const value = v3Fixture();
+  value.manifest.profiles[0].rows[0].affiliate_url = embeddedTrackingUrl("https://wrong-merchant.example/product");
+  try { assert.throws(() => validateManifest(value.manifest, "batch-1"), /destination mismatch/); }
+  finally { fs.rmSync(value.root, { recursive: true, force: true }); }
+});
+
+test("reviewed V2 rejects malformed or credential-bearing outbound URLs before approval", () => {
+  for (const affiliateUrl of [
+    null, "", "http://affiliate.example/click", "https://", "https://?destination=merchant",
+    "https://user:password@affiliate.example/click", "https://affiliate.example:65536/click",
+    "https://affiliate.example:0/click", "https://affiliate.example\\evil/click",
+    "https://affiliate.example/click\n", "https://affiliate.example/a b",
+    "https://affiliate.example:abc/click",
+  ]) {
+    const value = v2Fixture({ affiliateUrl });
+    try { assert.throws(() => validateManifest(value.manifest, "batch-1"), /URLs invalid|Invalid URL/); }
+    finally { fs.rmSync(value.root, { recursive: true, force: true }); }
+  }
+});
+
+test("reviewed V1 retains its single merchant URL without a separate affiliate field", () => {
+  const value = fixture();
+  try {
+    assert.equal(Object.hasOwn(value.manifest.profiles[0].rows[0], "affiliate_url"), false);
+    assert.equal(load(value).entry.resolved_plan.offer.values.url, value.plan.retailer_product.values.external_url);
+  } finally { fs.rmSync(value.root, { recursive: true, force: true }); }
+});
+
 test("reviewed catalogue v2 rejects URL drift, swaps, missing affiliate URL and wrong direct host", () => {
   for (const [label, mutate, expected] of [
     ["direct drift", value => { value.manifest.profiles[0].rows[0].external_url += "&changed=1"; }, /direct URL mismatch/],

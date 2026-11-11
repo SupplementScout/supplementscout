@@ -12,6 +12,8 @@ const {
 
 const HEX32 = /^[0-9a-f]{32}$/;
 const HEX64 = /^[0-9a-f]{64}$/;
+// Explicit redirect carriers supported by the reviewed package, not a network crawler.
+const DESTINATION_KEYS = new Set(["destination", "dest", "url", "redirect", "redirect_url", "redirect_uri", "target"]);
 const REVIEWED_ACTIONS = new Set([
   "map_existing_variant",
   "create_variant_on_existing_product",
@@ -128,8 +130,40 @@ function validateManifest(manifest, profileId) {
     }
     if (isV2 || isV3) {
       invariant(/^https:\/\//.test(row.external_url) && /^https:\/\//.test(row.affiliate_url), "Reviewed V2 URLs invalid");
+      const urls = [row.external_url, row.affiliate_url];
+      let direct;
+      for (const [index, value] of urls.entries()) {
+        invariant(/^https:\/\/[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?(?::[0-9]{1,5})?(?:[/?#]|$)/.test(value)
+          && !/[\s\\\u0000-\u001f\u007f]/.test(value), "Reviewed V2 URLs invalid");
+        let decoded;
+        try { decoded = decodeURI(value); } catch { fail("Reviewed URL encoding invalid"); }
+        invariant(!/[\\\u0000-\u001f\u007f]/.test(decoded), "Reviewed URL encoding invalid");
+        const parsed = new URL(value);
+        invariant(parsed.protocol === "https:" && !parsed.username && !parsed.password && parsed.port !== "0", "Reviewed V2 URLs invalid");
+        if (index === 0) { direct = parsed; continue; }
+
+        // Decode each carrier once. Do not recursively unwrap or choose among targets.
+        const decodedPath = decodeURIComponent(parsed.pathname);
+        const markers = [...decodedPath.matchAll(/(?:^|\/)([^/:]+):/g)]
+          .filter(match => DESTINATION_KEYS.has(match[1].toLowerCase()));
+        invariant(markers.length <= 1, "Reviewed affiliate destination ambiguous");
+        const prefix = markers.length ? decodedPath.slice(0, markers[0].index) : decodedPath;
+        invariant(!/%(?:25|3a|2f)/i.test(prefix) && !/(?:^|\/)[^/]*%[0-9a-f]{2}[^/]*:/i.test(prefix), "Reviewed affiliate destination encoding ambiguous");
+        const embedded = markers.map(match => decodedPath.slice(match.index + match[0].length));
+        for (const [key, destination] of parsed.searchParams) {
+          invariant(!key.includes("%"), "Reviewed affiliate destination encoding ambiguous");
+          if (DESTINATION_KEYS.has(key.toLowerCase())) embedded.push(destination);
+        }
+        invariant(embedded.length <= 1, "Reviewed affiliate destination ambiguous");
+        if (index === 1) {
+          if (embedded.length) urls.push(embedded[0]);
+        } else {
+          invariant(embedded.length === 0, "Reviewed affiliate destination nesting invalid");
+          invariant(parsed.origin === direct.origin && parsed.href === direct.href, "Reviewed affiliate destination mismatch");
+        }
+      }
       const retailerHost = new URL(manifest.retailer.website).hostname.replace(/^www\./, "");
-      const directHost = new URL(row.external_url).hostname.replace(/^www\./, "");
+      const directHost = direct.hostname.replace(/^www\./, "");
       invariant(directHost === retailerHost, "Reviewed direct URL host mismatch");
     } else {
       invariant(/^https:\/\//.test(row.source_url), "Reviewed source URL invalid");
