@@ -309,7 +309,16 @@ async function validatePlans(client, plans, context = null) {
       isV3 ? V3_VALIDATION_SQL : V2_VALIDATION_SQL,
       isV3 ? [plan, envelope] : [plan],
     )).rows;
-    invariant(rows.length === 1 && rows[0].result?.valid === true, "Reviewed atomic plan validation failed");
+    const result = rows[0]?.result;
+    // V2's existing RPC returns bound plan metadata; V3 returns an explicit validity flag.
+    const valid = isV3
+      ? result?.valid === true
+      : result && typeof result === "object" && !Array.isArray(result)
+        && Object.keys(result).length === 2
+        && result.plan_kind === plan.meta.plan_kind
+        && /^[1-9]\d*$/.test(String(result.retailer_id))
+        && String(result.retailer_id) === String(plan.retailer.id);
+    invariant(rows.length === 1 && valid, "Reviewed atomic plan validation failed");
   }
 }
 

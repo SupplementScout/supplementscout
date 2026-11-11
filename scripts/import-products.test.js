@@ -9258,6 +9258,39 @@ test("reviewed V2 keeps direct and affiliate URLs separate and hash-locks its ta
   assert.match(blocked.blockedRows[0].reason, /parent identity contract mismatch|URL/);
 });
 
+test("reviewed V2 reuses a persisted retailer slug instead of deriving it from the display name", async () => {
+  const row = baseCanonicalFeedRow({ retailer_name: "Registered & Nutrition", product_id: "742" });
+  const profile = reviewedV2Profile("PRODUCTION");
+  profile.manifest.retailer = { id: 16, name: row.retailer_name, slug: "registered-nutrition", website: row.retailer_website };
+  Object.assign(profile.profile.rows[0], {
+    action: "map_existing_variant", product_id: 742, product_variant_id: 795,
+    external_product_id: row.external_product_id, external_variant_id: row.external_variant_id,
+    external_url: row.external_url, affiliate_url: row.affiliate_url,
+  });
+  const product = { id: 742, name: row.product_name, slug: row.slug, brand: row.brand, category: row.category, gtin: null, product_format: "powder", is_active: true };
+  const variant = { id: 795, product_id: 742, variant_key: "unflavoured-500g", display_name: row.variant_name, flavour_label: "Unflavoured", size_value: 500, size_unit: "g", pack_count: 1, product_format: "powder", is_active: true, is_default: false };
+  const decoy = { id: 17, name: "Other registered identity", slug: "registered-and-nutrition", website: "https://other.test" };
+  for (const registered of [true, false]) {
+    const normalized = normalizeCanonicalRetailerFeedRows([row], { safeCreate: true, reviewedCatalogueProfile: profile });
+    setSupabaseForTests(createMockSupabase(reviewedSeed({
+      retailers: registered ? [profile.manifest.retailer, decoy] : [decoy],
+      products: [product], product_variants: [variant],
+    })));
+    const result = await runImportRowsRaw(normalized, { mode: "feed", dryRun: true, safeCreate: true, rowsAlreadyNormalized: true });
+    if (registered) {
+      assert.equal(result.planned, 1, JSON.stringify(result.blockedRows));
+      const plan = result.report.approvedRows[0].importPlan;
+      assert.equal(plan.retailer.action, "existing");
+      assert.equal(String(plan.retailer.id), "16");
+      assert.equal(String(plan.product_variant.id), "795");
+      assert.equal(plan.expected_state.retailer.name, row.retailer_name);
+    } else {
+      assert.equal(result.planned, 0);
+      assert.match(result.blockedRows[0].block_reason, /reviewed catalogue retailer not found/);
+    }
+  }
+});
+
 test("reviewed V2 keeps source size, flavour and format checks with separate outbound URLs", async () => {
   for (const incompatible of [{ size: "1000" }, { flavour: "chocolate" }, { product_format: "capsules" }]) {
     const source = baseCanonicalFeedRow({
