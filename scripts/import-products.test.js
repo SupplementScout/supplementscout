@@ -9258,6 +9258,22 @@ test("reviewed V2 keeps direct and affiliate URLs separate and hash-locks its ta
   assert.match(blocked.blockedRows[0].reason, /parent identity contract mismatch|URL/);
 });
 
+test("reviewed V2 keeps source size, flavour and format checks with separate outbound URLs", async () => {
+  for (const incompatible of [{ size: "1000" }, { flavour: "chocolate" }, { product_format: "capsules" }]) {
+    const source = baseCanonicalFeedRow({
+      external_product_id: "10000000000001", external_variant_id: "20000000000001",
+      external_url: "https://example.test/products/creatine?variant=20000000000001",
+      affiliate_url: "https://affiliate.example/click?variant=20000000000001",
+      ...incompatible,
+    });
+    const rows = normalizeCanonicalRetailerFeedRows([source], { safeCreate: true, reviewedCatalogueProfile: reviewedV2Profile() });
+    setSupabaseForTests(createMockSupabase(reviewedSeed({ retailers: [{ id: 12, name: "Example Nutrition", slug: "example-nutrition", website: "https://example.test" }] })));
+    const result = await runImportRowsRaw(rows, { mode: "feed", dryRun: true, safeCreate: true, rowsAlreadyNormalized: true });
+    assert.equal(result.report.approvedRows.length, 0, JSON.stringify(incompatible));
+    assert.ok(result.blockedRows.length > 0);
+  }
+});
+
 test("reviewed V2 CLI requires an explicit protected target while legacy arguments stay compatible", () => {
   const base = ["--mode=feed", "--safe-create", "--dry-run", "--csv=tmp/feed.csv", "--reviewed-manifest=config/retailers/example.json", `--reviewed-manifest-sha256=${"a".repeat(64)}`, "--reviewed-profile=batch-1"];
   assert.equal(parseArgs([...base, "--target=staging"]).reviewedTarget, "staging");

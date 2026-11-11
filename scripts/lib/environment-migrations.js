@@ -15,6 +15,8 @@ const PENDING_POLICY = Object.freeze({
 });
 const EXCLUSIONS = Object.freeze({
   STAGING: Object.freeze([
+    // Local URL correction proposal; shared-environment deployment remains unauthorized.
+    "20261110170000_align_reviewed_catalogue_affiliate_url_contract",
     "20261109120000_add_owner_withdrawal_terminal_preflight",
     "20261109100000_add_owner_catalogue_withdrawal_lifecycle",
     "20261107190000_extend_never_approved_planned_control_close",
@@ -185,6 +187,8 @@ const EXCLUSIONS = Object.freeze({
     "20261021190000_correct_ghost_lifestyle_energy_drink_metadata",
   ]),
   PRODUCTION: Object.freeze([
+    // Keep the local-only proposal outside the deployed ledger and selector.
+    "20261110170000_align_reviewed_catalogue_affiliate_url_contract",
     // Superseded, never applied: preserve the merged SQL and its seal.
     "20261109100000_add_owner_catalogue_withdrawal_lifecycle",
     "20261031120000_add_verified_automation_review_stock_transition_reader",

@@ -4,6 +4,30 @@ This is the common path for new retailer catalogue onboarding. New retailers
 must use this package contract instead of adding another retailer-specific
 approval or execution runner.
 
+## Reviewed URL validation
+
+V2/V3 packages keep the direct merchant URL and outbound affiliate URL separate.
+The existing `validateManifest()` checks HTTPS, URL encoding, credentials and
+the direct URL's retailer hostname. It validates one explicit destination in a
+tracking path (`/destination:...`) or query parameter. Supported carrier names
+are `destination`, `dest`, `url`, `redirect`, `redirect_url`, `redirect_uri` and
+`target`. A destination must equal the reviewed direct URL after standard URL
+parsing, including origin, port, product path and query. Tracking parameters on
+the outer URL remain unchanged. Duplicate carriers, nested redirects, malformed
+encoding and additional decoding layers fail closed; no alternative target is
+selected after rejection.
+
+An affiliate URL without an explicit carrier remains allowed by this contract,
+including opaque Awin links, eBay tracking parameters and `sca_ref`. These checks
+do not establish the final network redirect destination. Validation makes no
+network requests and never rewrites either stored URL. The package loader runs
+this check before the existing protected approval/apply calls. SQL independently
+binds the exact approved plan and both raw URL fields; it does not duplicate the
+embedded-carrier parser. The SQL correction passed the existing atomic/URL,
+bounded-state and V3 integration tests on disposable PostgreSQL 17 on 11 November
+2026. It remains excluded from both shared-environment migration selectors;
+deployment requires separate authorization and the existing prerequisite checks.
+
 ## Inputs
 
 A package consists of:

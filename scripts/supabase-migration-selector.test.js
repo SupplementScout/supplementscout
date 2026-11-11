@@ -1125,7 +1125,7 @@ test("runtime staging artifacts bind the same migration ledger as the staging se
 
 test("production exclusions are exact and the approved identity foundation is selected", () => {
   const contract = CONTRACTS.PRODUCTION;
-  assert.equal(Object.keys(contract.excluded).length, 31);
+  assert.equal(Object.keys(contract.excluded).length, 32);
   assert.deepEqual(contract.pending, PRODUCTION_PENDING);
   assert.equal(
     contract.excluded["20261031120000_add_verified_automation_review_stock_transition_reader.sql"],
@@ -1956,6 +1956,28 @@ test("Group A identity migrations are production-bound and cannot change commerc
   assert.match(sql[1], /id=2766[\s\S]*product_variant_id=2920/);
   assert.match(sql[1], /id=2581[\s\S]*product_variant_id=2920/);
   assert.match(sql[2], /v_rows<>11/);
+});
+
+test("unverified reviewed URL proposal cannot enter either shared migration selection", () => {
+  const filename = "20261110170000_align_reviewed_catalogue_affiliate_url_contract.sql";
+  for (const environment of ["STAGING", "PRODUCTION"]) {
+    const contract = CONTRACTS[environment];
+    const binding = migrationBinding(environment);
+    const result = validateSelection({
+      environment, projectRef: contract.projectRef, sourceDir: SOURCE,
+      databaseTarget: { target_environment: environment, project_ref: contract.projectRef, database_identity: contract.databaseIdentity },
+      remoteLedger: binding.versions.map(identifier => {
+        const split = identifier.indexOf("_");
+        return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
+      }),
+    });
+    assert.equal(binding.versions.length, contract.ledgerCount);
+    assert.equal(binding.fingerprint, contract.ledgerFingerprint);
+    assert.ok(result.excluded_files.includes(filename));
+    assert.ok(!result.selected_files.includes(filename));
+    assert.ok(!result.pending_files.includes(filename));
+    assert.equal(contract.excluded[filename], sha256File(path.join(SOURCE, filename)));
+  }
 });
 
 test("staging excludes the production-only exact-pack migrations byte-for-byte", () => {

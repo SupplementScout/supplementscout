@@ -83,7 +83,7 @@ function sqlLiteral(value) {
 }
 
 function psqlJson(container, database, sql) {
-  const args = ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1"];
+  const args = ["psql", "-X", "--no-psqlrc", "-q", "-v", "ON_ERROR_STOP=1"];
   args.push("-U", "postgres", "-d", database, "-tA", "-c", sql);
   const result = exec(container, args);
   requireSuccess(result, "execute Node/PostgreSQL RPC bridge");
@@ -146,6 +146,108 @@ function waitForPostgres(container) {
     Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250);
   }
   assert.fail("disposable PostgreSQL did not become ready");
+}
+
+function reviewedCatalogueUrlScenarios(container, database) {
+  const migration = "supabase/migrations/20261110170000_align_reviewed_catalogue_affiliate_url_contract.sql";
+  const query = statement => psqlJson(container, database, statement);
+  const execute = statement => requireSuccess(exec(container, [
+    "psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c", statement,
+  ]), "execute reviewed catalogue setup SQL");
+  const fail = (statement, expected) => {
+    const result = exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c", statement]);
+    assert.notEqual(result.status, 0, "unsafe reviewed plan unexpectedly accepted");
+    assert.match(output(result), expected);
+  };
+  execute(`do $$begin
+    create role retailer_catalogue_production_validator nologin;
+    create role retailer_catalogue_production_approver nologin;
+    create role retailer_catalogue_production_executor nologin;
+  end$$;`);
+  for (const name of [
+    "20260907100000_add_reviewed_catalogue_package_v1.sql",
+    "20260907210000_allow_reviewed_catalogue_count_identity.sql",
+    "20260908120000_allow_reviewed_count_sibling_variants.sql",
+    "20260908123000_fix_reviewed_count_sibling_normalization.sql",
+  ]) requireSuccess(psqlFile(container, database, path.join(root, "supabase/migrations", name)), `install deployed reviewed validator: ${name}`);
+  // Install the actual existing origin function, not a URL parser test double.
+  const originSql = fs.readFileSync(path.join(root, "supabase/migrations/20261017120000_add_retailer_identity_bootstrap.sql"), "utf8")
+    .match(/create function public\.retailer_identity_website_origin\(p_value text\)[\s\S]*?\$function\$;/)[0];
+  execute(originSql);
+  const definition = () => query("select to_jsonb(pg_get_functiondef('public.validate_reviewed_catalogue_import_plan(jsonb)'::regprocedure))");
+  assert.equal(crypto.createHash("sha256").update(definition()).digest("hex"), "9459d0032dcd1c9eaafe59e5a5cac2b128cd722e8e977388a497cad0ff1df2c4", "fixture must reproduce the deployed V2 validator exactly");
+  const bindingState = () => query(`select jsonb_agg(jsonb_build_object('oid',oid::text,'definition',pg_get_functiondef(oid),'acl',proacl::text,'owner',proowner::text,'security_definer',prosecdef) order by oid)
+    from pg_proc where oid in ('public.approve_reviewed_catalogue_import_plan(jsonb,text,text,text,text,timestamptz)'::regprocedure,
+      'public.atomic_import_reviewed_catalogue_plan_allowed(jsonb)'::regprocedure,
+      'public.apply_approved_product_import_plan(uuid,text,text,text,bigint,text,text)'::regprocedure)`);
+  const bindingsBefore = bindingState();
+  const validatorAcl = () => query("select to_jsonb(proacl::text) from pg_proc where oid='public.validate_reviewed_catalogue_import_plan(jsonb)'::regprocedure");
+  const aclBefore = validatorAcl();
+  execute(`insert into retailers(id,name,slug,website) values(981001,'URL Merchant One','url-merchant-one','https://merchant-one.test'),(981002,'URL Merchant Two','url-merchant-two','https://merchant-two.test');
+    insert into products(id,name,slug,brand,category,product_format,is_active) values(981001,'URL Contract Creatine 250g','url-contract-creatine-250g','Fixture','Creatine','powder',true),(981002,'Other Product','url-contract-other','Fixture','Creatine','powder',true);
+    insert into product_variants(id,product_id,variant_key,display_name,size_value,size_unit,pack_count,product_format,is_active,is_default)
+      values(981001,981001,'berry-250g','Berry 250g',250,'g',1,'powder',true,false),(981002,981002,'plain-250g','Plain 250g',250,'g',1,'powder',true,false),(981003,981001,'berry-500g','Berry 500g',500,'g',1,'powder',true,false);`);
+  const plan = (tag, retailer = 981001, affiliate = `https://affiliate.test/click/${tag}`, product = 981001, variant = 981001) => {
+    const value = query(`select public.atomic_test_existing_plan(${sqlLiteral(`url-${tag}`)},${sqlLiteral(`url-${tag}`)},${product},${variant})`);
+    value.retailer.id = String(retailer);
+    value.expected_state.retailer = query(`select jsonb_build_object('id',id::text,'name',name,'slug',slug,'website',website) from retailers where id=${retailer}`);
+    value.retailer_product.values.external_url = `${value.expected_state.retailer.website}/product/${tag}`;
+    value.retailer_product.values.external_gtin = null;
+    value.offer.values.url = affiliate ?? value.retailer_product.values.external_url;
+    return refreshPlanFingerprint(value);
+  };
+  const approvalSql = (value, tag) => `select public.approve_reviewed_catalogue_import_plan(${sqlLiteral(JSON.stringify(value))}::jsonb,${sqlLiteral(crypto.createHash("sha256").update(tag).digest("hex"))},${sqlLiteral(`url-${tag}`)},repeat('d',64),'url-contract')`;
+  const approve = (value, tag) => query(`set role retailer_catalogue_production_approver; ${approvalSql(value, tag)}; reset role`);
+  fail(approvalSql(plan("before-split"), "before-split"), /invalid reviewed catalogue source identity/);
+  assert.equal(approve(plan("before-equal", 981001, null), "before-equal").status, "approved");
+  requireSuccess(psqlFile(container, database, path.join(root, migration)), "apply URL correction");
+  const afterFirstApply = definition();
+  requireSuccess(psqlFile(container, database, path.join(root, migration)), "reapply URL correction idempotently");
+  assert.equal(definition(), afterFirstApply);
+  assert.deepEqual(bindingState(), bindingsBefore, "approval, exact plan binding and executor must remain unchanged");
+  assert.deepEqual(validatorAcl(), aclBefore, "migration must not alter validator privileges");
+
+  for (const [tag, affiliate] of [
+    ["awin", "https://www.awin1.com/pclick.php?p=123&a=456&m=789"],
+    ["ebay", "https://www.ebay.co.uk/itm/123?mkevt=1&campid=456"],
+    ["tracked", "https://merchant-one.test/product/tracked?sca_ref=example"],
+    ["partnerize", "https://prf.hn/click/camref:example/destination:https%3A%2F%2Fmerchant-one.test%2Fproduct%2Fpartnerize"],
+    ["equal", null],
+  ]) assert.equal(approve(plan(tag, 981001, affiliate), tag).status, "approved");
+  for (const [tag, url] of [["http", "http://affiliate.test/click"], ["empty", ""], ["hostless", "https://"], ["credentials", "https://user:password@affiliate.test/click"], ["whitespace", "https://affiliate.test/a b"], ["slash", "https://affiliate.test\\evil/click"], ["port", "https://affiliate.test:65536/click"]]) {
+    fail(approvalSql(plan(tag, 981001, url), tag), /source identity|URL destination/);
+  }
+  const missing = plan("missing"); missing.offer.values.url = null; refreshPlanFingerprint(missing);
+  fail(approvalSql(missing, "missing"), /source identity/);
+  const wrongHost = plan("wrong-host"); wrongHost.retailer_product.values.external_url = "https://other-merchant.test/product"; refreshPlanFingerprint(wrongHost);
+  fail(approvalSql(wrongHost, "wrong-host"), /direct URL host mismatch/);
+  const incompatible = plan("incompatible"); incompatible.expected_state.product_variant.size_value = "500"; refreshPlanFingerprint(incompatible);
+  fail(approvalSql(incompatible, "incompatible"), /stale or inactive reviewed catalogue variant/);
+
+  const exact = plan("exact", 981001, `https://prf.hn/click/camref:example/destination:${encodeURIComponent("https://merchant-one.test/product/exact")}`);
+  const approved = approve(exact, "exact");
+  const changed = structuredClone(exact); changed.offer.values.url += "?changed=1";
+  assert.equal(query(`select to_jsonb(public.atomic_import_reviewed_catalogue_plan_allowed(${sqlLiteral(JSON.stringify(changed))}::jsonb))`), false, "URL tampering must break exact approval binding");
+  fail(approvalSql(changed, "bad-fingerprint"), /live approval|metadata/);
+  const sourceChanged = structuredClone(exact); sourceChanged.meta.source_row_fingerprint = "f".repeat(64); refreshPlanFingerprint(sourceChanged);
+  assert.equal(query(`select to_jsonb(public.atomic_import_reviewed_catalogue_plan_allowed(${sqlLiteral(JSON.stringify(sourceChanged))}::jsonb))`), false);
+  execute(`grant execute on function public.apply_approved_product_import_plan(uuid,text,text,text,bigint,text,text) to retailer_catalogue_production_executor;`);
+  const applySql = (value, approval) => `select public.apply_approved_product_import_plan(${sqlLiteral(approval.approval_id)}::uuid,${sqlLiteral(approval.artifact_sha256)},${sqlLiteral(value.meta.plan_fingerprint)},${sqlLiteral(value.meta.source_row_fingerprint)},${value.retailer.id},'feed',${sqlLiteral(approval.run_id)})`;
+  query(`set role retailer_catalogue_production_executor; ${applySql(exact, approved)}; reset role`);
+  assert.deepEqual(query(`select jsonb_build_array(rp.external_url,o.url,(select count(*) from price_history where offer_id=o.id)) from retailer_products rp join offers o on o.retailer_product_id=rp.id where rp.external_variant_id='url-exact'`), [exact.retailer_product.values.external_url, exact.offer.values.url, 1]);
+  fail(applySql(exact, approved), /already consumed/);
+  fail(approvalSql(exact, "duplicate-identity"), /source mapping already exists/);
+  const second = plan("second-retailer", 981002); const secondApproval = approve(second, "second-retailer");
+  query(applySql(second, secondApproval));
+  assert.equal(query("select count(*) from retailer_products where product_id=981001 and product_variant_id=981001"), 2, "same canonical variant can be sold by two retailers without a GTIN override");
+  execute("update retailer_products set external_gtin='5056555202128' where external_variant_id='url-exact'");
+  const overlap = plan("same-target-gtin", 981002); overlap.retailer_product.values.external_gtin = "5056555202128"; refreshPlanFingerprint(overlap);
+  fail(approvalSql(overlap, "same-target-gtin"), /GTIN conflicts with another source row/);
+  for (const [tag, product, variant] of [["cross-variant-gtin", 981001, 981003], ["cross-product-gtin", 981002, 981002]]) {
+    const conflict = plan(tag, 981002, "https://affiliate.test/conflict", product, variant);
+    conflict.retailer_product.values.external_gtin = "5056555202128"; refreshPlanFingerprint(conflict);
+    fail(approvalSql(conflict, tag), /GTIN conflicts with another source row/);
+  }
 }
 
 test("atomic import execution and approval ledger expose only guarded service-role RPCs", () => {
@@ -1230,6 +1332,7 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
     ]);
     requireSuccess(counts, "check concurrent identity");
     assert.equal(counts.stdout.trim(), "1:1:1:1", "concurrent import was not serialized");
+    reviewedCatalogueUrlScenarios(container, database);
   } catch (error) {
     primaryError = primaryError || error;
   } finally {
