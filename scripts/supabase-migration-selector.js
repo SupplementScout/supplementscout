@@ -485,8 +485,6 @@ const CONTRACTS = Object.freeze({
       "209719c865f07c9e77006d01f7ae526aa47461b9a0bd5154071b4f29052c8333",
     appliedExcluded: APPLIED_EXCLUSIONS.PRODUCTION,
     excluded: Object.freeze({
-      "20261110170000_align_reviewed_catalogue_affiliate_url_contract.sql":
-        "97940786dca72e5176b359a2d3811c8fb382320463b0f14664b126005f9af5d0",
       "20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql":
         "a9cb6d18c60dda40dbc10322e23971f929e929a4344761e8f97328677b04e29b",
       "20261031120000_add_verified_automation_review_stock_transition_reader.sql":

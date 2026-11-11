@@ -187,8 +187,6 @@ const EXCLUSIONS = Object.freeze({
     "20261021190000_correct_ghost_lifestyle_energy_drink_metadata",
   ]),
   PRODUCTION: Object.freeze([
-    // Keep the local-only proposal outside the deployed ledger and selector.
-    "20261110170000_align_reviewed_catalogue_affiliate_url_contract",
     // Superseded, never applied: preserve the merged SQL and its seal.
     "20261109100000_add_owner_catalogue_withdrawal_lifecycle",
     "20261031120000_add_verified_automation_review_stock_transition_reader",
@@ -260,7 +258,12 @@ const PENDING_MIGRATIONS = Object.freeze({
       sha256: "015f0de7448c10fcca10174e74dfbf7ca9e3150951f49090d01cd6eee869024c",
     }),
   ]),
-  PRODUCTION: Object.freeze([]),
+  PRODUCTION: Object.freeze([
+    Object.freeze({
+      filename: "20261110170000_align_reviewed_catalogue_affiliate_url_contract.sql",
+      sha256: "97940786dca72e5176b359a2d3811c8fb382320463b0f14664b126005f9af5d0",
+    }),
+  ]),
 });
 
 function migrationIdentifier(filename) {
