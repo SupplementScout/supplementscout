@@ -6,6 +6,8 @@ const Module = require('node:module');
 const test = require('node:test');
 const ts = require('typescript');
 const evidence = require('./test-fixtures/retailer-quarantine-captured-evidence-2026-11-09.json');
+const returnPolicyCapture = require('./test-fixtures/six-pack-merchant-return-policy-captured-2026-11-11.json');
+const { readWooCommerceProductPage, WooCommerceSourceError } = require('./lib/woocommerce-product-page-reader');
 const six = require('./six-pack-offer-refresh');
 const fit = require('./fit-house-offer-refresh');
 const { commercialIdentity, liveIdentityDrift } = require('./six-pack-canary-builder');
@@ -168,6 +170,115 @@ function sixContract(){
   };
   return{records,byProduct,paths,readLive};
 }
+
+test('retained return-policy HTML and the five approved bindings keep their original integrity', () => {
+  assert.equal(hash(returnPolicyCapture), '9c81f9cf8399af2eb0d330a5746ff32c658bfaa5f0ee4f41175e058f1c758c24');
+  assert.equal(returnPolicyCapture.manifest_sha256, sixApproved.sha256);
+  assert.deepEqual(returnPolicyCapture.approved_bindings, sixApproved.manifest.rows.filter(row =>
+    returnPolicyCapture.documents.some(doc => doc.product_id === row.external_product_id)));
+  for (const { source_document: doc } of returnPolicyCapture.documents) {
+    assert.equal(crypto.createHash('sha256').update(doc.html).digest('hex'), doc.html_sha256);
+    assert.equal(Buffer.byteLength(doc.html), doc.html_bytes);
+    assert.equal(doc.captured_at, returnPolicyCapture.source_captured_at);
+    assert.equal(doc.http_status, 200);
+    assert.equal(doc.body_complete, true);
+  }
+});
+
+test('three retained return-policy pages reuse full504+2 isolation without five commercial plans', async t => {
+  // Only these three HTTP documents are retained evidence. The other 274 pages
+  // use the existing synthetic contract fixture, not a fresh/full source capture.
+  t.mock.timers.enable({ apis: ['Date'], now: Date.parse(returnPolicyCapture.source_captured_at) - 1000 });
+  const s = sixContract(), calls = [], reads = [], output = s.paths();
+  for (const record of s.records) {
+    const doc = returnPolicyCapture.documents.find(row => row.product_id === record.mapping.external_product_id)?.source_document;
+    if (doc) {
+      record.mapping.external_name = returnPolicyCapture.approved_names[doc.product_id];
+      record.mapping.external_url = doc.canonical_url;
+    }
+  }
+  const before = structuredClone(s.records);
+  t.mock.timers.tick(1000);
+  const result = await six.run({ target: 'production', ...output, isolateUnsafe: true }, {
+    state: { records: s.records }, readLive: async (id, ctx) => {
+      calls.push(id);
+      const doc = returnPolicyCapture.documents.find(row => row.product_id === id)?.source_document;
+      if (!doc) return s.readLive(id, ctx);
+      assert.equal(ctx.capturedAt, doc.captured_at);
+      return readWooCommerceProductPage({ storeUrl: 'https://6pack-supplements.co.uk', productId: id,
+        capturedAt: doc.captured_at, maximumAttempts: 1, parseProductPage: six.parseSixPackProductPage,
+        fetchImpl: async () => { reads.push(id); return { status: doc.http_status, url: doc.response_url,
+          headers: { get: () => doc.content_type }, text: async () => doc.html }; },
+      });
+    },
+  });
+  assert.equal(calls.length, 277); assert.equal(new Set(calls).size, 277);
+  assert.deepEqual(reads.sort(), ['2819', '28570', '7565']);
+  assert.equal(result.report.result, 'PASS_WITH_REVIEW');
+  assert.equal(result.report.catalogue_scope.historical_withdrawn_mapping_count, 2);
+  assert.equal(result.report.approved_mapping_count, 504);
+  assert.equal(result.report.executable_plan_count, 499);
+  assert.equal(result.report.executed_plan_count, 0);
+  assert.equal(result.report.review_row_count, 5);
+  assert.equal(result.report.blocked_row_count, 0);
+  assert.equal(result.report.source_snapshot_complete, true);
+  assert.equal(result.report.database_writes, 0);
+  const artifact = loadDryRunArtifact(output.artifact).artifact;
+  assert.doesNotThrow(() => executor.validateArtifactScope(artifact, sixApproved.manifest));
+  const excluded = new Set(returnPolicyCapture.approved_bindings.map(row => row.offer_id));
+  for (const entry of artifact.plans) {
+    assert.ok(!excluded.has(String(entry.resolved_plan.offer.id)));
+    assert.notEqual(entry.resolved_plan.approval?.approved, true);
+  }
+  assert.ok(artifact.source_rows.every(row => !returnPolicyCapture.approved_bindings.some(binding =>
+    row.normalized_source_row.source.external_variant_id === binding.external_variant_id)));
+  for (const { product_id: id } of returnPolicyCapture.documents) await t.test(`retained product ${id} remains review-only`, () => {
+    const failure = result.report.source_failures.find(row => row.product_id === id);
+    assert.equal(failure.disposition, id === '2819' ? 'UNBUYABLE_SIMPLE_OFFER_UNRESOLVED' : 'UNBUYABLE_PARENT_VARIANTS_UNRESOLVED');
+    const rows = result.report.review_rows.filter(row => row.external_product_id === id);
+    assert.deepEqual(rows.map(row => row.mapping_id).sort(), returnPolicyCapture.approved_bindings
+      .filter(row => row.external_product_id === id).map(row => row.mapping_id).sort());
+    for (const row of rows) {
+      assert.equal(row.reason, 'SOURCE_VARIANT_MISSING'); assert.equal(row.proposed_offer, null);
+      assert.deepEqual(row.changed_fields, { price: false, stock: false, url: false, blocked: true });
+    }
+    if (id === '7565') {
+      assert.equal(failure.identity.commercial_identity, 'UNVERIFIED');
+      assert.equal(failure.identity.name_equivalence_verified, false);
+    }
+  });
+  assert.deepEqual(s.records, before);
+});
+
+test('return-policy metadata never bypasses unavailable-parent provenance or approved child bindings', async t => {
+  t.mock.method(Date, 'now', () => Date.parse(returnPolicyCapture.source_captured_at) + 1000);
+  const doc = returnPolicyCapture.documents.find(row => row.product_id === '28570').source_document;
+  const s = sixContract();
+  for (const record of s.records.filter(row => row.mapping.external_product_id === doc.product_id)) {
+    record.mapping.external_name = returnPolicyCapture.approved_names[doc.product_id];
+    record.mapping.external_url = doc.canonical_url;
+  }
+  let failure;
+  try { await readWooCommerceProductPage({ storeUrl: 'https://6pack-supplements.co.uk', productId: doc.product_id,
+    capturedAt: doc.captured_at, maximumAttempts: 1, parseProductPage: six.parseSixPackProductPage,
+    fetchImpl: async () => ({ status: 200, url: doc.response_url, headers: { get: () => doc.content_type }, text: async () => doc.html }),
+  }); } catch (error) { failure = error; }
+  assert.equal(six.approvedSourceFailureDisposition(failure, doc.product_id, sixApproved, doc.captured_at, s.records).scope, 'PRODUCT');
+  for (const [label, change] of [
+    ['wrong approved child', (e, rows) => { rows.find(r => r.mapping.external_product_id === doc.product_id).mapping.external_variant_id = '99999'; }],
+    ['missing approved child', (e, rows) => { rows.splice(rows.findIndex(r => r.mapping.external_product_id === doc.product_id), 1); }],
+    ['wrong approved canonical', (e, rows) => { rows.find(r => r.mapping.external_product_id === doc.product_id).mapping.external_url += 'wrong/'; }],
+    ['stale provenance', e => { e.cause.detail.source_document.captured_at = '2020-01-01T00:00:00.000Z'; }],
+    ['corrupt HTML hash', e => { e.cause.detail.source_document.html_sha256 = '0'.repeat(64); }],
+    ['incomplete HTTP body', e => { e.cause.detail.source_document.body_complete = false; }],
+    ['non-200 provenance', e => { e.cause.detail.source_document.http_status = 503; }],
+  ]) await t.test(label, () => {
+    const error = new WooCommerceSourceError(failure.code, failure.message, structuredClone(failure.detail),
+      new WooCommerceSourceError(failure.cause.code, failure.cause.message, structuredClone(failure.cause.detail)));
+    const records = structuredClone(s.records); change(error, records);
+    assert.equal(six.approvedSourceFailureDisposition(error, doc.product_id, sixApproved, doc.captured_at, records).scope, 'RETAILER');
+  });
+});
 
 test('Six full504+2 reuses missing-source quarantine at variant granularity, with no commercial apply', async () => {
   const s=sixContract(),record=s.records.find(r=>r.mapping.id==='2235');record.mapping.external_name+=' 17 servings';

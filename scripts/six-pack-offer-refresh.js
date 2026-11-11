@@ -149,9 +149,17 @@ function unbuyableParentName(html, options) {
     const visit = (v) => { if (!v || typeof v !== "object") return; if (!Array.isArray(v)) nodes.push(v); Object.values(v).forEach(visit); };
     visit(graphs[0]);
     const nonCommercialTypes = ["Organization", "OnlineStore", "Store", "WebSite", "ItemPage", "BreadcrumbList",
-      "ImageObject", "PostalAddress", "PropertyValue", "GeoCoordinates", "OpeningHoursSpecification", "SearchAction", "EntryPoint", "ListItem"];
+      "ImageObject", "PostalAddress", "PropertyValue", "GeoCoordinates", "OpeningHoursSpecification", "SearchAction", "EntryPoint", "ListItem", "MerchantReturnPolicy"];
     if (nodes.some((n) => Object.keys(n).some((k) => /^(?:offers|hasVariant|sku|productId|price|priceCurrency|availability|variations?|variants?|variation_id|variant_id)$/i.test(k))
       || ([n["@type"]].flat().includes("PropertyValue") && n.propertyID !== "Companies House")
+      || ([n["@type"]].flat().includes("MerchantReturnPolicy") && (n["@type"] !== "MerchantReturnPolicy"
+        || n !== graphs[0]["@graph"].find((node) => [node["@type"]].flat().includes("Organization"))?.hasMerchantReturnPolicy
+        || Object.entries(n).some(([key, value]) => key === "merchantReturnDays"
+          ? !Number.isSafeInteger(value) || value < 0
+          : ["returnMethod", "returnFees", "refundType", "itemCondition"].includes(key)
+            ? !Array.isArray(value) || value.some((item) => typeof item !== "string")
+            : !["@type", "@id", "applicableCountry", "returnPolicyCountry", "returnPolicyCategory", "merchantReturnLink"].includes(key)
+              || typeof value !== "string")))
       || (n["@type"] !== undefined && [n["@type"]].flat().some((t) => !nonCommercialTypes.includes(t))))) return null;
     const graph = graphs[0]["@graph"], find = (type) => graph.filter((n) => [n["@type"]].flat().includes(type));
     if (["Organization", "Store", "WebSite", "ItemPage", "BreadcrumbList"].some((type) => find(type).length !== 1)) return null;
