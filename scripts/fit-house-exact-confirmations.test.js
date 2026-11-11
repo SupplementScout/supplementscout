@@ -35,7 +35,8 @@ function fixture(){
   return{offer_id:id,action:'VERIFY_NO_CHANGE',changed_fields:{price:false,stock:false,url:false,blocked:false},expected_deltas:structuredClone(delta),atomic_plan:plan};
  });
  const artifacts=engine.balancedExecutionBatches(rows).map(batch=>sealArtifact({rows:batch,expected_deltas:engine.sumDeltas(batch),source_snapshot_fingerprint:sourceHash,source_captured_at:capturedAt,state:'DRY_RUN_READY',block:null}));
- const run={target:'production',spec:{ref:evidence.target_project_ref,identity:evidence.target_database_identity},binding:migrationBinding('PRODUCTION'),
+ const run={target:'production',spec:{ref:evidence.target_project_ref,identity:evidence.target_database_identity},binding:migrationBinding('PRODUCTION',
+  fs.readdirSync(path.join(ROOT,'supabase/migrations')).filter(name=>name!=='20261110170000_align_reviewed_catalogue_affiliate_url_contract.sql')),
   capturedAt,snapshot:{source_diagnostic:{pagination_completed:true}},isolateUnsafe:true,reviewed:null,
   classification:{state:'DRY_RUN_READY_WITH_REVIEW',rows,quarantined_rows:evidence.review_offer_ids.map(offer_id=>({offer_id}))},artifacts,
   exactConfirmationState:{active:engine.confirmationStateFingerprint(state.records),historical:engine.confirmationStateFingerprint(state.historical_records),mapped_source:evidence.mapped_source_fingerprint}};
@@ -111,6 +112,9 @@ test('other retailer,target,migration or nonisolated context cannot use this app
  assert.throws(()=>check(fixture(),evidence,{...config,retailer_id:14,retailer_slug:'10reps'}));
  blocked(f=>{f.run.target='staging';});blocked(f=>{f.run.spec.ref='other';});blocked(f=>{f.run.reviewed={};});
  blocked(f=>{f.run.isolateUnsafe=false;});blocked(f=>{f.run.binding.fingerprint='0'.repeat(64);});
+ blocked(f=>{f.run.binding=migrationBinding('PRODUCTION');});
+ blocked(f=>{f.run.binding=migrationBinding('STAGING');});
+ blocked(f=>{f.run.binding=migrationBinding('PRODUCTION',fs.readdirSync(path.join(ROOT,'supabase/migrations')).filter(name=>name!=='20261109120000_add_owner_withdrawal_terminal_preflight.sql'));});
 });
 test('retired exact selector is absent from the active policy and catalogue',()=>{
  const f=fixture(),m=engine.loadApprovedManifest().manifest;

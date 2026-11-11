@@ -1,5 +1,34 @@
 # Retailer Automation Consolidation Execution Plan
 
+**11 November shared affiliate URL SQL — COMMITTED / REPOSITORY CLOSEOUT PREPARED:**
+Starting main is `730ac3876554162da85285333cc85720fde6189c`. The owner-authorized
+existing applicator ran exactly once at `2026-11-11T17:22:05Z` and returned
+`PASS / committed:true`. Production ledger advanced from 262 to 263 with actual
+readback fingerprint `f8526c3c082662124c678ab26208fc80c54705fd36fb5edee2f9441896fde19c`.
+Only `20261110170000_align_reviewed_catalogue_affiliate_url_contract.sql` ran,
+with unchanged SHA `97940786dca72e5176b359a2d3811c8fb382320463b0f14664b126005f9af5d0`.
+The [actual runner receipt](evidence/HB-AFFILIATE-URL-PRODUCTION-263-CLOSEOUT-2026-11-11.json)
+has normalized SHA `93844739a24642abc0f1c99136d7861cc4f9b48d5157e8c3d33fc85f9075cb76`.
+Existing postflight returned `POST_APPLY_VERIFIED / CLOSEOUT_REQUIRED`.
+
+Independent read-only postflight at `2026-11-11T17:22:22Z` proved validator SHA
+`40f59521fbaa2d062225ed1419e5a17ff11bc92feaece20765ab10632daf3a7c`; OID 70661,
+owner postgres, SECURITY DEFINER, postgres-only ACL, search_path and dependencies
+are preserved. The other 206 public function definitions/owners/ACLs are unchanged.
+Counts and complete row-content digests for products 1399, variants 4070,
+mappings 4361, offers 4361, price_history 51152 and retailers 13 match preflight.
+H&B retailer/mapping/offer counts remain 0/0/0. No import, approval, publication,
+retailer dispatch, STAGING change or Six Pack code/commercial change occurred.
+
+This receipt-driven closeout prepares only the existing repository transitions:
+PRODUCTION pending becomes empty; the frozen count/fingerprint becomes the actual
+receipt post_state. Historical migration proofs retain their original inventories.
+STAGING exclusions/pending and all SQL/runner/runtime/identity guards are unchanged.
+Until this closeout is merged and verified on main, main still expects 262 and
+normal refreshes can fail closed on ledger drift. This is not a claim that
+production repository controls are CURRENT or that automation is fully restored.
+RA-001, suspended RA-004 and the SEO priority order remain unchanged.
+
 **11 November Six Pack MerchantReturnPolicy compatibility — LOCAL VERIFIED / RELEASE NOT AUTHORIZED:**
 Base/main is `f6804e2c152d53fc23fdbbce53fc9b24ca8b5e15`. Failed dry-run
 [42993369560](https://github.com/SupplementScout/supplementscout/actions/runs/42993369560),

@@ -17,7 +17,7 @@ const { verifySelectedMigrationPreflight } = require("./lib/selected-migration-p
 const { CONTRACTS: CURRENT_CONTRACTS, ledgerRowsFingerprint } = require("./supabase-migration-selector");
 const { derivePostApplyMigrationBinding } = require("./lib/environment-migrations");
 const { unwrapTransaction, validatePostApplyReadback } = require("./apply-selected-migrations");
-// Replay the sealed pre-activation selection, independently of live CURRENT262.
+// Replay the sealed pre-activation selection, independently of live CURRENT263.
 // Only isolated localhost/container fixtures use this historical contract.
 const CONTRACTS = { PRODUCTION: Object.freeze({ ...CURRENT_CONTRACTS.PRODUCTION,
   ledgerCount:261, ledgerFingerprint:"755319fa4f9636e50cf8606e7a0b143945aa8bdd92c2183681e5285aecb4660a",
@@ -217,7 +217,11 @@ test("owner lifecycle and complete retailer partitions on isolated PostgreSQL", 
         ()=>reconcileApprovedCatalogueScope(manifest,records(base,retailer)),error=>error.code==="CATALOGUE_SCOPE_NOT_ACTIVATED");
     });
     const sourceDir = path.join(ROOT, "supabase/migrations");
-    const binding = derivePostApplyMigrationBinding("PRODUCTION",{pendingMigrations:CONTRACTS.PRODUCTION.pending});
+    const binding = derivePostApplyMigrationBinding("PRODUCTION",{
+      migrationFiles:fs.readdirSync(sourceDir).filter(name =>
+        name !== "20261110170000_align_reviewed_catalogue_affiliate_url_contract.sql"),
+      pendingMigrations:CONTRACTS.PRODUCTION.pending,
+    });
     ok(psql(base, "create schema supabase_migrations; create table supabase_migrations.schema_migrations(version text primary key,name text,statements text[]);"));
     const ledgerValues = binding.pre_identifiers.map(id => {
       const split=id.indexOf("_"); return `(${q(id.slice(0,split))},${q(id.slice(split+1))})`;
