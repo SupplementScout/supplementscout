@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "kind": "selected-migration-repository-closeout-v1",
+  "environment": "PRODUCTION",
+  "project_ref": "aftboxmrdgyhizicfsfu",
+  "pre_state": {
+    "ledger_count": 263,
+    "ledger_fingerprint": "f8526c3c082662124c678ab26208fc80c54705fd36fb5edee2f9441896fde19c"
+  },
+  "consumed_pending": {
+    "count": 1,
+    "ordered_filenames": [
+      "20261112130000_align_reviewed_catalogue_gtin_identity.sql"
+    ],
+    "ordered_identifiers": [
+      "20261112130000_align_reviewed_catalogue_gtin_identity"
+    ],
+    "ordered_sha256": [
+      "d5a9a19e34ea2bc78dc8bdc331b6c85680d5c1efd0ef40a1f022ea58979550cf"
+    ]
+  },
+  "post_state": {
+    "ledger_count": 264,
+    "ledger_fingerprint": "63b783c65666e95231ec613abf403fead03c474eaa8149cc89739c992c3e8cda"
+  },
+  "repository_updates": [
+    {
+      "file": "scripts/lib/environment-migrations.js",
+      "field": "PENDING_MIGRATIONS.PRODUCTION",
+      "from": [
+        {
+          "filename": "20261112130000_align_reviewed_catalogue_gtin_identity.sql",
+          "sha256": "d5a9a19e34ea2bc78dc8bdc331b6c85680d5c1efd0ef40a1f022ea58979550cf"
+        }
+      ],
+      "to": []
+    },
+    {
+      "file": "scripts/supabase-migration-selector.js",
+      "field": "CONTRACTS.PRODUCTION.ledgerCount",
+      "from": 263,
+      "to": 264
+    },
+    {
+      "file": "scripts/supabase-migration-selector.js",
+      "field": "CONTRACTS.PRODUCTION.ledgerFingerprint",
+      "from": "f8526c3c082662124c678ab26208fc80c54705fd36fb5edee2f9441896fde19c",
+      "to": "63b783c65666e95231ec613abf403fead03c474eaa8149cc89739c992c3e8cda"
+    }
+  ],
+  "status": "CLOSEOUT_REQUIRED",
+  "database_writes": {
+    "migration_apply_count": 1
+  }
+}

@@ -180,7 +180,7 @@ test("historical production pending migration deterministically derives ledger 2
     "17a00891dff4e0a4f53050a018594fd505aa0aabc02b5281580b42895d7fd61e");
 });
 
-test("actual URL receipt closes CURRENT263 while sealed URL and withdrawal histories remain exact", () => {
+test("historical URL receipt preserves CURRENT263 and sealed URL and withdrawal histories", () => {
   const current=derivePostApplyMigrationBinding("PRODUCTION", {
     migrationFiles: PRODUCTION_263_FILES, pendingMigrations: [],
   });
@@ -188,14 +188,14 @@ test("actual URL receipt closes CURRENT263 while sealed URL and withdrawal histo
   assert.equal(current.pending_count,0);
   assert.equal(current.pre_ledger_count,263);
   assert.equal(current.post_ledger_count,263);
-  assertDerivationMatchesContract(current,{ ...CONTRACTS.PRODUCTION, pending: [] });
+  assertDerivationMatchesContract(current,{ ...CONTRACTS.PRODUCTION, ledgerCount:263, ledgerFingerprint:"f8526c3c082662124c678ab26208fc80c54705fd36fb5edee2f9441896fde19c", pending: [] });
   const receipt = JSON.parse(fs.readFileSync(path.join(ROOT,
     "docs/retailer-automation/evidence/HB-AFFILIATE-URL-PRODUCTION-263-CLOSEOUT-2026-11-11.json"), "utf8"));
   assert.equal(receipt.kind,CLOSEOUT_KIND);
   assert.equal(receipt.project_ref,CONTRACTS.PRODUCTION.projectRef);
   assert.deepEqual(receipt.post_state,{
-    ledger_count:CONTRACTS.PRODUCTION.ledgerCount,
-    ledger_fingerprint:CONTRACTS.PRODUCTION.ledgerFingerprint,
+    ledger_count:263,
+    ledger_fingerprint:"f8526c3c082662124c678ab26208fc80c54705fd36fb5edee2f9441896fde19c",
   });
   assert.deepEqual(receipt.consumed_pending.ordered_filenames,[REVIEWED_URL_PENDING.filename]);
   assert.deepEqual(receipt.consumed_pending.ordered_sha256,[REVIEWED_URL_PENDING.sha256]);
@@ -456,4 +456,28 @@ test("required preflight rejects unsealed SQL and missing, duplicate or reordere
       assert.throws(()=>selectedMigrationPreflightSql({...pending,sha256},directory),/markers|one sealed SELECT/);
     }
   } finally { fs.rmSync(directory,{recursive:true,force:true}); }
+});
+
+test("actual GTIN receipt closes CURRENT264 and preserves the exact sealed 263-to-264 selection", () => {
+  const receipt = JSON.parse(fs.readFileSync(path.join(ROOT,
+    "docs/retailer-automation/evidence/REVIEWED-GTIN-PRODUCTION-264-CLOSEOUT-2026-11-12.json"), "utf8"));
+  const current = derivePostApplyMigrationBinding("PRODUCTION");
+  assert.equal(current.status, "ALREADY_CLOSED");
+  assert.equal(current.pending_count, 0);
+  assert.equal(current.pre_ledger_count, 264);
+  assertDerivationMatchesContract(current, CONTRACTS.PRODUCTION);
+  assert.deepEqual(receipt.post_state, {ledger_count:264, ledger_fingerprint:"63b783c65666e95231ec613abf403fead03c474eaa8149cc89739c992c3e8cda"});
+  const pending = [{filename:receipt.consumed_pending.ordered_filenames[0], sha256:receipt.consumed_pending.ordered_sha256[0]}];
+  const historical = derivePostApplyMigrationBinding("PRODUCTION", {pendingMigrations:pending});
+  assert.equal(historical.pre_ledger_count, receipt.pre_state.ledger_count);
+  assert.equal(historical.pre_ledger_fingerprint, receipt.pre_state.ledger_fingerprint);
+  assert.equal(historical.post_ledger_count, receipt.post_state.ledger_count);
+  assert.equal(historical.post_ledger_fingerprint, receipt.post_state.ledger_fingerprint);
+  assert.deepEqual(historical.consumed_pending.map(row=>row.filename), receipt.consumed_pending.ordered_filenames);
+  assert.equal(pendingConfirmation({pending}), "edb9bca49f59d030");
+  const closed = repositoryCloseoutForAttempt({mode:"apply",committed:true,derivation:current,
+    contract:CONTRACTS.PRODUCTION,projectRef:CONTRACTS.PRODUCTION.projectRef,
+    remoteLedger:ledgerRows(current.post_identifiers)});
+  assert.equal(closed.closeout_status, "ALREADY_CLOSED");
+  assert.equal(closed.evidence, null);
 });

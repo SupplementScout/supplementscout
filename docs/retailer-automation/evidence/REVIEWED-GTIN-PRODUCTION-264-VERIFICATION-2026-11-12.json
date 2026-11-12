@@ -1,0 +1,278 @@
+{
+  "kind": "reviewed-gtin-production-264-verification",
+  "status": "DATABASE_VERIFIED",
+  "baseline_main": "cf7ef1ba6f1310639331229f990d36b9c5fb45e8",
+  "rehearsal": {
+    "result": "PASS",
+    "mode": "rehearse",
+    "environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "pending": [
+      "20261112130000_align_reviewed_catalogue_gtin_identity"
+    ],
+    "confirmation": "edb9bca49f59d030",
+    "catalogue_counts_before": {
+      "products": "1399",
+      "product_variants": "4070",
+      "retailer_products": "4363",
+      "offers": "4363",
+      "price_history": "51913"
+    },
+    "catalogue_counts_expected": {
+      "products": "1399",
+      "product_variants": "4070",
+      "retailer_products": "4363",
+      "offers": "4363",
+      "price_history": "51913"
+    },
+    "catalogue_counts_after": {
+      "products": "1399",
+      "product_variants": "4070",
+      "retailer_products": "4363",
+      "offers": "4363",
+      "price_history": "51913"
+    },
+    "schema_checks": {
+      "queue_exists": true,
+      "duplicate_decision_exists": true,
+      "anon_cannot_read_queue": true,
+      "authenticated_cannot_read_queue": true
+    },
+    "committed": false,
+    "committed_state": null,
+    "closeout_status": "NOT_REQUIRED_REHEARSAL",
+    "closeout_evidence_path": null,
+    "post_ledger_count": null,
+    "post_ledger_fingerprint": null,
+    "consumed_pending_count": 0
+  },
+  "rollback_proof": {
+    "result": "PASS",
+    "mode": "rehearse",
+    "committed": false,
+    "rollback_completed_successfully": true,
+    "standard_runner_exit": 0,
+    "exact_migration": "20261112130000_align_reviewed_catalogue_gtin_identity.sql",
+    "exact_sha256": "d5a9a19e34ea2bc78dc8bdc331b6c85680d5c1efd0ef40a1f022ea58979550cf",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "ledger_count": 263,
+    "ledger_fingerprint": "f8526c3c082662124c678ab26208fc80c54705fd36fb5edee2f9441896fde19c",
+    "migration_recorded": false,
+    "all_207_function_definitions_owners_acls_unchanged": true,
+    "all_commercial_content_hashes_unchanged": true,
+    "control_tables_unchanged": true,
+    "observability_tables_with_concurrent_activity": [
+      "outbound_clicks"
+    ],
+    "hb": {
+      "retailers": 1,
+      "mappings": 2,
+      "offers": 2
+    },
+    "six_active_pending": 223,
+    "active_migration_transactions": 0,
+    "contract_and_negative_guard_tests": {
+      "scope": "Existing disposable local PostgreSQL V2 and both V3 lineages; exact approved SQL",
+      "passed": 5,
+      "failed": 0,
+      "skipped": 0,
+      "runner_guard_tests_passed": 86
+    },
+    "observer_used": false,
+    "expensive_approval_plan_counting": false,
+    "verified_at": "2026-11-12T18:17:37.569Z"
+  },
+  "apply": {
+    "result": "PASS",
+    "mode": "apply",
+    "environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "pending": [
+      "20261112130000_align_reviewed_catalogue_gtin_identity"
+    ],
+    "confirmation": "edb9bca49f59d030",
+    "catalogue_counts_before": {
+      "products": "1399",
+      "product_variants": "4070",
+      "retailer_products": "4363",
+      "offers": "4363",
+      "price_history": "51913"
+    },
+    "catalogue_counts_expected": {
+      "products": "1399",
+      "product_variants": "4070",
+      "retailer_products": "4363",
+      "offers": "4363",
+      "price_history": "51913"
+    },
+    "catalogue_counts_after": {
+      "products": "1399",
+      "product_variants": "4070",
+      "retailer_products": "4363",
+      "offers": "4363",
+      "price_history": "51913"
+    },
+    "schema_checks": {
+      "queue_exists": true,
+      "duplicate_decision_exists": true,
+      "anon_cannot_read_queue": true,
+      "authenticated_cannot_read_queue": true
+    },
+    "committed": true,
+    "committed_state": {
+      "ledger_count": 264,
+      "ledger_fingerprint": "63b783c65666e95231ec613abf403fead03c474eaa8149cc89739c992c3e8cda",
+      "applied": [
+        "20261112130000_align_reviewed_catalogue_gtin_identity"
+      ],
+      "catalogue_counts": {
+        "products": "1399",
+        "product_variants": "4070",
+        "retailer_products": "4363",
+        "offers": "4363",
+        "price_history": "51913"
+      }
+    },
+    "closeout_status": "CLOSEOUT_REQUIRED",
+    "closeout_evidence_path": "tmp/selected-migrations/production-63b783c65666e95231ec613abf403fead03c474eaa8149cc89739c992c3e8cda-repository-closeout.json",
+    "post_ledger_count": 264,
+    "post_ledger_fingerprint": "63b783c65666e95231ec613abf403fead03c474eaa8149cc89739c992c3e8cda",
+    "consumed_pending_count": 1
+  },
+  "independent_postflight": {
+    "result": "PASS",
+    "verified_at": "2026-11-12T18:19:08.531Z",
+    "committed": true,
+    "migration_applied_exactly_once": true,
+    "ledger_before": 263,
+    "ledger_after": 264,
+    "ledger_fingerprint": "63b783c65666e95231ec613abf403fead03c474eaa8149cc89739c992c3e8cda",
+    "ledger_sql_sha256": "d5a9a19e34ea2bc78dc8bdc331b6c85680d5c1efd0ef40a1f022ea58979550cf",
+    "changed_functions": [
+      "atomic_import_validate_reviewed_catalogue_v3_plan(jsonb,jsonb)",
+      "validate_reviewed_catalogue_gtin_identity(jsonb)",
+      "validate_reviewed_catalogue_import_identity(jsonb)",
+      "validate_reviewed_catalogue_import_plan_read_only(jsonb)",
+      "validate_reviewed_catalogue_import_plan(jsonb)"
+    ],
+    "unchanged_existing_functions": 205,
+    "unchanged_existing_owners_and_acls": true,
+    "all_commercial_content_hashes_unchanged": true,
+    "all_control_table_versions_unchanged": true,
+    "observability_tables_with_concurrent_activity": [],
+    "hb": {
+      "retailers": 1,
+      "mappings": 2,
+      "offers": 2
+    },
+    "six_active_pending": 223,
+    "no_active_migration_transaction": true,
+    "independent_postflight_writes": 0
+  },
+  "production_contracts": {
+    "result": "PASS",
+    "verified_at": "2026-11-12T18:20:40.157Z",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "tests": [
+      {
+        "name": "39 previously conditional H&B candidates pass the live complete V2 read-only identity contract",
+        "result": "PASS",
+        "count": 39
+      },
+      {
+        "name": "062468 remains a genuine GTIN conflict",
+        "result": "PASS",
+        "rejection": "reviewed catalogue GTIN conflicts with another source row"
+      },
+      {
+        "name": "V2 still requires a live owner approval",
+        "result": "PASS",
+        "rejection": "reviewed catalogue plan is not bound to a live approval"
+      },
+      {
+        "name": "V3 rejects missing authorization envelope",
+        "result": "PASS",
+        "rejection": "V3_ENVELOPE_SCHEMA_MISMATCH: invalid closed authorization envelope"
+      },
+      {
+        "name": "Different canonical variant is rejected",
+        "result": "PASS",
+        "rejection": "reviewed catalogue GTIN conflicts with another source row"
+      },
+      {
+        "name": "Same retailer source reuse is rejected",
+        "result": "PASS",
+        "rejection": "reviewed catalogue GTIN conflicts with another source row"
+      },
+      {
+        "name": "Invalid checksum is rejected",
+        "result": "PASS",
+        "rejection": "invalid reviewed catalogue external GTIN"
+      },
+      {
+        "name": "V3 rejects tampered plan fingerprint",
+        "result": "PASS",
+        "rejection": "V3_PLAN_SCHEMA_MISMATCH: invalid closed atomic plan"
+      },
+      {
+        "name": "Previously imported H&B SKU cannot be duplicated",
+        "result": "PASS",
+        "rejection": "reviewed catalogue source mapping already exists"
+      },
+      {
+        "name": "Anonymous role cannot invoke identity core",
+        "result": "PASS",
+        "rejection": "permission denied for function validate_reviewed_catalogue_import_identity"
+      }
+    ],
+    "acl": [
+      {
+        "rolname": "anon",
+        "gtin": false,
+        "identity": false,
+        "readonly": false
+      },
+      {
+        "rolname": "authenticated",
+        "gtin": false,
+        "identity": false,
+        "readonly": false
+      },
+      {
+        "rolname": "retailer_catalogue_production_approver",
+        "gtin": false,
+        "identity": false,
+        "readonly": false
+      },
+      {
+        "rolname": "retailer_catalogue_production_executor",
+        "gtin": false,
+        "identity": false,
+        "readonly": false
+      },
+      {
+        "rolname": "retailer_catalogue_production_validator",
+        "gtin": false,
+        "identity": false,
+        "readonly": true
+      },
+      {
+        "rolname": "service_role",
+        "gtin": false,
+        "identity": false,
+        "readonly": false
+      }
+    ],
+    "candidates_unblocked_for_fresh_commercial_preflight": 39,
+    "sku_062468_status": "REVIEW",
+    "sku_065569_status": "AWAITING_COMMERCIAL_APPROVAL",
+    "broader_review_candidates_preserved": 279,
+    "commercial_imports": 0,
+    "approvals_issued_or_consumed": 0,
+    "production_writes": 0
+  },
+  "staging_execution": false,
+  "commercial_imports": 0,
+  "automation_changes": 0,
+  "repository_release": "Database verification captured before the repository closeout release; the PR/main checks and matching production deployment provide release evidence."
+}
