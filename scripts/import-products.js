@@ -5223,9 +5223,13 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
     validationErrors.push(error?.message || String(error));
   }
   const retailerName = String(shippingNormalizedRow.retailer_name || "").trim();
+  const reviewedRetailerSlug = shippingNormalizedRow.__reviewed_catalogue_identity?.retailer_slug;
   const retailer = retailerName
-    ? await findRetailerBySlug(slugifyRetailerName(retailerName))
+    ? await findRetailerBySlug(reviewedRetailerSlug === undefined ? slugifyRetailerName(retailerName) : reviewedRetailerSlug)
     : null;
+  if (reviewedRetailerSlug !== undefined && !retailer) {
+    validationErrors.push("reviewed catalogue retailer not found");
+  }
   let mapping = null;
   let product = null;
   let plannedRetailer = null;

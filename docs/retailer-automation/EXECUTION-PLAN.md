@@ -1,5 +1,40 @@
 # Retailer Automation Consolidation Execution Plan
 
+**11 November H&B ID16 canary compatibility — LOCAL DRY-RUN PASS / NOT RELEASED:**
+Main remains `ff3a7c96b07fd52242de8845a95d7600e9556f48`. The earlier owner-approved
+identity-only bootstrap is complete: retailer16 is `Holland & Barrett`, persisted
+slug `holland-barrett`. This task neither repeats bootstrap nor changes that row.
+The existing reviewed importer now resolves its declared manifest slug instead
+of deriving another identity from the display name; undeclared legacy lookup is
+unchanged and an absent declared retailer fails closed. Existing package/state
+gates retain the exact retailer-ID binding. No identity or GTIN guard changes.
+
+The deployed V2 read-only RPC returns `{plan_kind:"feed",retailer_id:16}`;
+the shared JS consumer previously required V3's `valid:true` response instead.
+The same consumer now checks V2's exact two-field success shape against the plan,
+rejects missing/contradictory identities and propagates SQL errors. V3 retains its
+explicit validity flag and authorization-envelope RPC. SQL and privileges are
+unchanged; no compatibility wrapper or second validation path was introduced.
+
+Protected production READ ONLY validation at `2026-11-11T20:26:04Z` passed one
+existing V2 `map_existing_variant` plan: source SKU065972, product742, variant795,
+GTIN5056555202128, single250g Cherry & Apple, GBP14.40+3.49=17.89, in stock.
+Merchant and original Partnerize URLs remain separate and destination-bound.
+Actual H&B mappings/offers remain0/0. The feed4689-row snapshot retains SHA
+`cb20399b295d17d7d7db328deba8cbf0e73fd29bafa71747300de5c495750834`;
+its generation time is unknown. Capture/inspection time is not generation time.
+Focused existing suites pass339 tests, including three new regression cases.
+The existing importer whole-file test pin is resealed only for the reviewed
+lookup change; classifier, reader, executor and SQL pins are unchanged.
+
+The one-row manifest remains `DRAFT_AWAITING_OWNER_APPROVAL`; local CSV/plan/input
+hashes and read-only evidence are retained under
+`tmp/retailer-feeds/holland-barrett-canary-065972/blocker-resolution-20261111/`.
+Release review, owner manifest authorization and the existing guarded approval/
+execution gates remain required. No production/STAGING writes, commercial
+approval, mapping/offer creation, migration, dispatch or Six Pack change occurred
+in this task. RA-001, suspended RA-004 and SEO-20 priority remain unchanged.
+
 **11 November shared affiliate URL SQL — COMMITTED / REPOSITORY CLOSEOUT PREPARED:**
 Starting main is `730ac3876554162da85285333cc85720fde6189c`. The owner-authorized
 existing applicator ran exactly once at `2026-11-11T17:22:05Z` and returned

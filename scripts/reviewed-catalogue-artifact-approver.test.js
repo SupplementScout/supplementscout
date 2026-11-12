@@ -552,7 +552,7 @@ test("bounded reviewed state provider is read-only and validates every atomic pl
   const database = { async query(sql, params) {
     queries.push({ sql, params });
     if (sql.startsWith("select public.read_reviewed_catalogue_import_state")) return { rows: [{ state }] };
-    return { rows: [{ result: { valid: true } }] };
+    return { rows: [{ result: { plan_kind: "feed", retailer_id: value.manifest.retailer.id } }] };
   } };
   assert.deepEqual(await readState(database, request), state);
   const provider = createStateClient(state);
@@ -577,6 +577,42 @@ test("reviewed V3 validation sends the exact plan and authorization envelope to 
   assert.equal(queries[0].params[0], loaded.entry.resolved_plan);
   assert.equal(queries[0].params[1].kind, "reviewed-catalogue-authorization-v3");
   assert.equal(V2_VALIDATION_SQL, "select public.validate_product_import_plan_read_only($1::jsonb) result");
+  await assert.rejects(validatePlans({ async query() {
+    return { rows: [{ result: { plan_kind: "feed", retailer_id: loaded.manifest.retailer.id } }] };
+  } }, [{ importPlan: loaded.entry.resolved_plan }], {
+    manifest: loaded.manifest, profile: loaded.profile, artifact: loaded.artifact, manifestSha256: value.manifestSha256,
+  }), /Reviewed atomic plan validation failed/);
+});
+
+test("reviewed V2 validates the deployed SQL success metadata against the exact plan", async () => {
+  const value = v2Fixture();
+  try {
+    const plan = load(value).entry.resolved_plan;
+    for (const retailerId of [14, "14"]) {
+      await validatePlans({ async query(sql, params) {
+        assert.equal(sql, V2_VALIDATION_SQL);
+        assert.equal(params[0], plan);
+        return { rows: [{ result: { plan_kind: "feed", retailer_id: retailerId } }] };
+      } }, [{ importPlan: plan }]);
+    }
+  } finally { fs.rmSync(value.root, { recursive: true, force: true }); }
+});
+
+test("reviewed V2 rejects missing, contradictory or unrelated SQL validation results", async () => {
+  const value = v2Fixture();
+  try {
+    const plan = load(value).entry.resolved_plan;
+    for (const result of [null, {}, { valid: true }, { plan_kind: "manual", retailer_id: 14 },
+      { plan_kind: "feed", retailer_id: 999 }, { plan_kind: "feed" }, { retailer_id: 14 },
+      { plan_kind: "feed", retailer_id: 0 }, { plan_kind: "feed", retailer_id: "014" },
+      { plan_kind: "feed", retailer_id: 14, valid: false }]) {
+      await assert.rejects(validatePlans({ async query() { return { rows: [{ result }] }; } }, [{ importPlan: plan }]), /Reviewed atomic plan validation failed/);
+    }
+    for (const rows of [[], [{ result: { plan_kind: "feed", retailer_id: 14 } }, { result: { plan_kind: "feed", retailer_id: 14 } }]]) {
+      await assert.rejects(validatePlans({ async query() { return { rows }; } }, [{ importPlan: plan }]), /Reviewed atomic plan validation failed/);
+    }
+    await assert.rejects(validatePlans({ async query() { throw new Error("SQL identity guard rejected plan"); } }, [{ importPlan: plan }]), /SQL identity guard rejected plan/);
+  } finally { fs.rmSync(value.root, { recursive: true, force: true }); }
 });
 
 test("approval transaction uses only the approver role and approval RPC", async () => {
