@@ -8,7 +8,7 @@ const {
   CONTRACT_KIND: REVIEWED_V3_KIND,
   buildV3Envelope,
 } = require("./lib/reviewed-catalogue-v3");
-const { buildExecutionStateRequest, readState } = require("./lib/reviewed-catalogue-state");
+const { buildExecutionStateRequest, readState, validatePlans } = require("./lib/reviewed-catalogue-state");
 const {
   DEFAULT_POSTGRES_CONNECTION_TIMEOUT_MS,
   DEFAULT_POSTGRES_QUERY_TIMEOUT_MS,
@@ -330,6 +330,11 @@ async function run(options, dependencies = {}) {
       .filter(row => String(row.retailer_id) === String(loaded.manifest.retailer.id) && ids.has(String(row.external_variant_id)))
       .map(row => row.external_variant_id);
     invariant(existing.length === 0, "Reviewed package contains an already mapped source row; generate a fresh remaining package");
+    // Validate every sealed plan before creating even the first one-use approval.
+    // V2 uses the same private identity validator as approval; V3 keeps its envelope.
+    await roleTransactionImpl(clients.validator, options.target, "validator", client => validatePlans(
+      client, loaded.entries.map(entry => ({ importPlan: entry.resolved_plan })), loaded,
+    ), { readOnly: true });
     const baseline = initialState.counts;
     result.baseline = baseline;
     if (options.mode === "preflight") {

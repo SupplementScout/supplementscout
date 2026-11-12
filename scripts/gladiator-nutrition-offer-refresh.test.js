@@ -214,7 +214,8 @@ test("environment binding freezes the classifier, reader, executor and Phase-B g
   const immutable = {
     "scripts/lib/retailer-offer-sync/classifier.js": "475ed7dbe9fa73b2903e152466fbdf5085b238a69c067a9e3a0e3eea0ee613a0",
     "scripts/lib/shopify-snapshot-reader.js": "06d93e363ee95e4bbd73a17bd2292d9d258efb677634fa148685c42277811fce",
-    "scripts/reviewed-catalogue-package-executor.js": "3450d4ca82784c2494ed97b1fa96147c629d2ff4b6bc51dda58a7085d4c9fc88",
+    // All sealed plans now pass read-only identity validation before any approval.
+    "scripts/reviewed-catalogue-package-executor.js": "0fde4978ab74f479bb25ff2956d304ba2df4e0caabb7a5769e0afc558208db0f",
     // Reviewed lookup reuses the persisted retailer slug; legacy lookup, writer and approval paths are unchanged.
     "scripts/import-products.js": "28ea1dce053b90daa2637547dc2b8b725a4a6f36be116dbefa44cc53dac2be2a",
     "supabase/migrations/20260718170000_add_read_only_mixed_batch_validator.sql": "09ece7d68328ee7e383375f6d13f55933e7c18be88137fa0108046d69f121510",

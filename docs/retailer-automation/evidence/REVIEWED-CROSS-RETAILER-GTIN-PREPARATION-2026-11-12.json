@@ -1,0 +1,131 @@
+{
+  "kind": "reviewed-cross-retailer-gtin-correction-preparation",
+  "status": "LOCAL_VERIFIED_NOT_DEPLOYED",
+  "prepared_at": "2026-11-12T13:47:51.559Z",
+  "baseline_main": "eb4dd1b63adff40849f35af62e73dec1cd22524c",
+  "production": {
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "readback_at": "2026-11-12T13:44:50.304Z",
+    "migration_state": "CURRENT",
+    "ledger_count": 263,
+    "pending": [],
+    "retailer16_mappings": 2,
+    "retailer16_offers": 2,
+    "existing_offers_and_histories_unchanged": true,
+    "validators_unchanged": true,
+    "writes_by_task": 0
+  },
+  "root_cause": {
+    "v2_approval": "Any different retailer/source GTIN peer rejected, even same product and variant",
+    "v2_preflight": "Generic validator did not enforce the reviewed approval identity contract",
+    "v3": "Same cross-retailer GTIN rejection predicate"
+  },
+  "correction": {
+    "shared_gtin_function": "validate_reviewed_catalogue_gtin_identity(jsonb)",
+    "v2_identity_core": "validate_reviewed_catalogue_import_identity(jsonb)",
+    "v2_readonly_rpc": "validate_reviewed_catalogue_import_plan_read_only(jsonb)",
+    "executor": "All sealed plans validated READ ONLY before first approval",
+    "v3": "Same GTIN helper; existing authorization envelope, role separation and replay receipt retained",
+    "retained_guards": [
+      "same-retailer SKU/source collisions",
+      "different canonical product or variant",
+      "invalid and inconsistent GTIN",
+      "incompatible size/flavour/pack/format evidence",
+      "duplicate existing mappings",
+      "live single-use approval and immutable fingerprint binding",
+      "historical/unknown conflicting mappings"
+    ],
+    "no_retailer_specific_exception": true
+  },
+  "migration": {
+    "file": "20261112130000_align_reviewed_catalogue_gtin_identity.sql",
+    "sha256": "d5a9a19e34ea2bc78dc8bdc331b6c85680d5c1efd0ef40a1f022ea58979550cf",
+    "forward_only": true,
+    "production_status": "PREPARED_PENDING_SEPARATE_AUTHORIZATION",
+    "staging_status": "EXCLUDED_V2_RUNTIME_ABSENT",
+    "production_or_staging_apply": false
+  },
+  "tests": {
+    "quick": {
+      "result": "PASS",
+      "pass": 1167,
+      "skip": 3
+    },
+    "full": {
+      "result": "PASS",
+      "pass": 3874,
+      "skip": 3,
+      "typecheck": "PASS",
+      "eslint": "PASS",
+      "build": "PASS"
+    },
+    "v2_atomic_postgres": "PASS",
+    "v3_staging_postgres": "PASS",
+    "v3_production_postgres": "PASS",
+    "gladiator_registration_postgres": "PASS",
+    "test_inventory": {
+      "files": 361,
+      "safe": 300,
+      "integration": 57,
+      "artifact_bound": 4,
+      "unchanged": true
+    },
+    "all_new_postgres_regressions_executed_without_skips": true
+  },
+  "source": {
+    "captured_at": "2026-11-12T12:35:12.484Z",
+    "sha256": "c8025002e6b391c2d7f785fdd638d15462929c4d77307d6fa807f6dc05e89010",
+    "rows": 4685,
+    "supplier_generated_at": null
+  },
+  "remaining_40": {
+    "READY": 39,
+    "REVIEW": 1,
+    "REJECTED": 0,
+    "readiness": "CONDITIONAL_ON_AUTHORIZED_MIGRATION_NOT_LIVE_APPROVAL",
+    "previous12": {
+      "total": 12,
+      "ready": 12
+    },
+    "other28": {
+      "total": 28,
+      "ready": 27,
+      "review": 1
+    },
+    "changed_commercial_facts": 0,
+    "review_sku": "062468",
+    "review_reason": "0842595109078 equals UPC842595109078 already bound to27/1589, conflicting with reviewed1169/3415",
+    "ready_shipping_groups": {
+      "0.00": 7,
+      "3.49": 32
+    },
+    "no_imported_sku_replayed": true
+  },
+  "broader_feed": {
+    "rest_rows": 4643,
+    "EXACT_MATCH": 1,
+    "REVIEW": 279,
+    "NO_MATCH": 2016,
+    "EXCLUDED": 2347,
+    "additional_exact_skus": [
+      "065569"
+    ],
+    "manufacturer_evidence": "https://uk.usn.global/products/muscle-fuel-anabolic.json",
+    "owner_decisions_preserved": true,
+    "new_owner_or_commercial_approval": false
+  },
+  "local_artifacts": {
+    "tmp/hb-gtin-contract-20261112/remaining-40-reassessment.csv": "bc876bdbe45c259e9c023c8b85d3fe4ddf9b079c2eb46ddef91e60d617ecee72",
+    "tmp/hb-gtin-contract-20261112/remaining-40-final-local-sql-rehearsal.json": "24298cabee45cdb9d2475a4310c2df5b62a196f414c83f8d02e2ad4e83899900",
+    "tmp/hb-gtin-contract-20261112/broad-matching-inventory.csv": "a516299905a4421232fb18807e7207ae2085f9583156eec50d0ff524877c0188",
+    "tmp/hb-gtin-contract-20261112/batch-identity-review.csv": "96cc0d7297a2ecc2e7ab748b5964c50dbe17c70240f575ecec3d6a095cead9b8",
+    "tmp/hb-gtin-contract-20261112/matching-material-findings.json": "057a696d69be1c52659c261bfd7e1e88d934136289f5683678c1b356ce15e64b",
+    "tmp/hb-gtin-contract-20261112/production-final-readonly-proof.json": "69788427c968a4ddc41967b67021e0ef2eaceb679de2d8aff391d24b279270f2"
+  },
+  "next_step": [
+    "Separate owner authorization for exact prepared migration, existing guarded release and production readback.",
+    "Fresh source/state check, then a newly sealed remaining39 package using existing V2; exclude both imported SKUs and unresolved062468. Preserve prior commercial facts and approvals.",
+    "Review279 existing-catalogue candidates in bounded batches<=200, prioritizing exact GTIN, manufacturer and physical-unit evidence; preserve NO/UNSURE/conflict decisions.",
+    "No new canonical products/variants or refresh activation in this task."
+  ]
+}

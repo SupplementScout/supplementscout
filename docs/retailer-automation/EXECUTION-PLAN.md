@@ -1,5 +1,40 @@
 # Retailer Automation Consolidation Execution Plan
 
+**12 November reviewed cross-retailer GTIN contract — LOCAL VERIFIED / NOT DEPLOYED:**
+Production remains on main `eb4dd1b63adff40849f35af62e73dec1cd22524c`, CURRENT263,
+with H&B16 mappings/offers2/2. Read-only closeout confirms both prior offers and
+initial histories unchanged. No import, approval, migration, schedule or refresh
+was executed in this preparation task.
+
+The reviewed V2 approval validator rejected every other-retailer GTIN peer,
+including an identical product/variant binding. Its earlier generic read-only
+RPC did not run that reviewed identity contract. V3 had the same cross-retailer
+GTIN predicate. One private GTIN validator now permits only exact cross-retailer
+canonical identity, retains same-retailer/source and cross-target conflicts,
+checks existing GTIN consistency/checksum and compares zero-extended codes.
+V2 read-only preflight and its existing approval boundary share the complete
+identity validator; the package executor validates all sealed plans before any
+approval. V3 keeps its envelope, role, approval and idempotent replay contracts.
+
+Forward migration `20261112130000_align_reviewed_catalogue_gtin_identity.sql`
+is prepared, pinned and pending for separately authorized production execution;
+it is excluded from the staging lineage without the V2 runtime. Frozen ledgers,
+existing SQL approvals, importer, retailer workflows and search are unchanged.
+Quick/full Quality Gates pass; local PostgreSQL covers V2 and both V3 lineages,
+cross-retailer acceptance, genuine conflicts and rollback/replay protection.
+
+Fresh4685-row Partnerize evidence gives39 READY conditional on the unapplied
+correction,1 REVIEW (`062468`, UPC/EAN resolves to another canonical target),
+and0 REJECTED among the remaining40. All12 earlier cross-retailer cases pass;
+the other28 split27/1. The remaining feed4643 rows yields1 additional exact
+identity candidate,279 REVIEW,2016 NO_MATCH and2347 EXCLUDED. Existing owner
+decisions and source discrepancies are retained; no matching result is an
+approval. Reuse batches of at most200 and shipping-specific V2 manifests.
+Resolve the identity review and maximize existing-catalogue coverage before
+any separately scoped refresh activation. No refresh automation is built here.
+See [preparation evidence](evidence/REVIEWED-CROSS-RETAILER-GTIN-PREPARATION-2026-11-12.json).
+RA-001, suspended RA-004 and the SEO priority order are unchanged.
+
 **11 November H&B ID16 canary compatibility — LOCAL DRY-RUN PASS / NOT RELEASED:**
 Main remains `ff3a7c96b07fd52242de8845a95d7600e9556f48`. The earlier owner-approved
 identity-only bootstrap is complete: retailer16 is `Holland & Barrett`, persisted

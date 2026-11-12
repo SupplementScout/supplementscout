@@ -28,6 +28,8 @@ const WITHDRAWAL_PENDING = Object.freeze({ filename: "20261109120000_add_owner_w
 const REVIEWED_URL_PENDING = Object.freeze({ filename: "20261110170000_align_reviewed_catalogue_affiliate_url_contract.sql", sha256: "97940786dca72e5176b359a2d3811c8fb382320463b0f14664b126005f9af5d0" });
 const ROOT = path.resolve(__dirname, "..");
 const SOURCE = path.join(ROOT, "supabase", "migrations");
+// A new proposal must not rewrite the inventory behind an already sealed receipt.
+const PRODUCTION_263_FILES = fs.readdirSync(SOURCE).filter(name => name <= REVIEWED_URL_PENDING.filename);
 const HISTORICAL_PENDING = Object.freeze([Object.freeze({
   filename: "20261105100000_refresh_pending_review_execution_binding.sql",
   sha256: "015f0de7448c10fcca10174e74dfbf7ca9e3150951f49090d01cd6eee869024c",
@@ -37,7 +39,7 @@ for (const name of fs.readdirSync(SOURCE)) {
   if (name.endsWith(".sql") && name !== "20261107190000_extend_never_approved_planned_control_close.sql"
     && name !== "20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql"
     && name !== "20261109120000_add_owner_withdrawal_terminal_preflight.sql"
-    && name !== REVIEWED_URL_PENDING.filename)
+    && name !== REVIEWED_URL_PENDING.filename && name <= REVIEWED_URL_PENDING.filename)
     fs.copyFileSync(path.join(SOURCE, name), path.join(historicalSource, name));
 }
 test.after(() => fs.rmSync(historicalSource, { recursive: true, force: true }));
@@ -179,12 +181,14 @@ test("historical production pending migration deterministically derives ledger 2
 });
 
 test("actual URL receipt closes CURRENT263 while sealed URL and withdrawal histories remain exact", () => {
-  const current=derivePostApplyMigrationBinding("PRODUCTION");
+  const current=derivePostApplyMigrationBinding("PRODUCTION", {
+    migrationFiles: PRODUCTION_263_FILES, pendingMigrations: [],
+  });
   assert.equal(current.status,"ALREADY_CLOSED");
   assert.equal(current.pending_count,0);
   assert.equal(current.pre_ledger_count,263);
   assert.equal(current.post_ledger_count,263);
-  assertDerivationMatchesContract(current,CONTRACTS.PRODUCTION);
+  assertDerivationMatchesContract(current,{ ...CONTRACTS.PRODUCTION, pending: [] });
   const receipt = JSON.parse(fs.readFileSync(path.join(ROOT,
     "docs/retailer-automation/evidence/HB-AFFILIATE-URL-PRODUCTION-263-CLOSEOUT-2026-11-11.json"), "utf8"));
   assert.equal(receipt.kind,CLOSEOUT_KIND);
@@ -195,13 +199,15 @@ test("actual URL receipt closes CURRENT263 while sealed URL and withdrawal histo
   });
   assert.deepEqual(receipt.consumed_pending.ordered_filenames,[REVIEWED_URL_PENDING.filename]);
   assert.deepEqual(receipt.consumed_pending.ordered_sha256,[REVIEWED_URL_PENDING.sha256]);
-  const sealedUrl = derivePostApplyMigrationBinding("PRODUCTION",{pendingMigrations:[REVIEWED_URL_PENDING]});
+  const sealedUrl = derivePostApplyMigrationBinding("PRODUCTION",{
+    migrationFiles: PRODUCTION_263_FILES, pendingMigrations:[REVIEWED_URL_PENDING],
+  });
   assert.equal(sealedUrl.pre_ledger_count,receipt.pre_state.ledger_count);
   assert.equal(sealedUrl.pre_ledger_fingerprint,receipt.pre_state.ledger_fingerprint);
   assert.equal(sealedUrl.post_ledger_count,receipt.post_state.ledger_count);
   assert.equal(sealedUrl.post_ledger_fingerprint,receipt.post_state.ledger_fingerprint);
   const derivation = derivePostApplyMigrationBinding("PRODUCTION",{
-    migrationFiles: fs.readdirSync(SOURCE).filter(name =>
+    migrationFiles: PRODUCTION_263_FILES.filter(name =>
       name !== REVIEWED_URL_PENDING.filename),
     pendingMigrations:[WITHDRAWAL_PENDING],
   });

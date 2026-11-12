@@ -15,6 +15,8 @@ const PENDING_POLICY = Object.freeze({
 });
 const EXCLUSIONS = Object.freeze({
   STAGING: Object.freeze([
+    // The reviewed V2 runtime is absent on staging; deployment is not authorized.
+    "20261112130000_align_reviewed_catalogue_gtin_identity",
     // Local URL correction proposal; shared-environment deployment remains unauthorized.
     "20261110170000_align_reviewed_catalogue_affiliate_url_contract",
     "20261109120000_add_owner_withdrawal_terminal_preflight",
@@ -258,7 +260,12 @@ const PENDING_MIGRATIONS = Object.freeze({
       sha256: "015f0de7448c10fcca10174e74dfbf7ca9e3150951f49090d01cd6eee869024c",
     }),
   ]),
-  PRODUCTION: Object.freeze([]),
+  PRODUCTION: Object.freeze([
+    Object.freeze({
+      filename: "20261112130000_align_reviewed_catalogue_gtin_identity.sql",
+      sha256: "d5a9a19e34ea2bc78dc8bdc331b6c85680d5c1efd0ef40a1f022ea58979550cf",
+    }),
+  ]),
 });
 
 function migrationIdentifier(filename) {
