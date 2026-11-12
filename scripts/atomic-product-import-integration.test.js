@@ -187,6 +187,7 @@ function reviewedCatalogueUrlScenarios(container, database) {
     insert into products(id,name,slug,brand,category,product_format,is_active) values(981001,'URL Contract Creatine 250g','url-contract-creatine-250g','Fixture','Creatine','powder',true),(981002,'Other Product','url-contract-other','Fixture','Creatine','powder',true);
     insert into product_variants(id,product_id,variant_key,display_name,size_value,size_unit,pack_count,product_format,is_active,is_default)
       values(981001,981001,'berry-250g','Berry 250g',250,'g',1,'powder',true,false),(981002,981002,'plain-250g','Plain 250g',250,'g',1,'powder',true,false),(981003,981001,'berry-500g','Berry 500g',500,'g',1,'powder',true,false);`);
+  execute("update product_variants set flavour_code='berry',flavour_label='Berry' where id in (981001,981003)");
   const plan = (tag, retailer = 981001, affiliate = `https://affiliate.test/click/${tag}`, product = 981001, variant = 981001) => {
     const value = query(`select public.atomic_test_existing_plan(${sqlLiteral(`url-${tag}`)},${sqlLiteral(`url-${tag}`)},${product},${variant})`);
     value.retailer.id = String(retailer);
@@ -248,6 +249,91 @@ function reviewedCatalogueUrlScenarios(container, database) {
     conflict.retailer_product.values.external_gtin = "5056555202128"; refreshPlanFingerprint(conflict);
     fail(approvalSql(conflict, tag), /GTIN conflicts with another source row/);
   }
+
+  // Reproduce the production failure before installing the forward-only fix.
+  const gtinSql = fs.readFileSync(path.join(root, "supabase/migrations/20260813170000_add_guarded_gtin_promotion.sql"), "utf8")
+    .match(/create or replace function public\.gtin_promotion_is_valid_gtin\(p_value text\)[\s\S]*?\$valid_gtin\$;/)[0];
+  execute(gtinSql);
+  const counts = () => query(`select jsonb_build_array(
+    (select count(*) from products),(select count(*) from product_variants),
+    (select count(*) from retailer_products),(select count(*) from offers),
+    (select count(*) from price_history),(select count(*) from approved_import_plans))`);
+  const beforeMigration = counts();
+  const beforeBindings = bindingState();
+  requireSuccess(psqlFile(container, database, path.join(root,
+    "supabase/migrations/20261112130000_align_reviewed_catalogue_gtin_identity.sql")), "install shared GTIN/preflight correction");
+  assert.deepEqual(counts(), beforeMigration, "migration cannot change catalogue or approvals");
+  assert.deepEqual(bindingState(), beforeBindings, "approval, fingerprint binding and atomic executor remain identical");
+  assert.deepEqual(validatorAcl(), aclBefore, "existing approval validator ACL remains identical");
+  assert.equal(query("select to_jsonb(has_function_privilege('retailer_catalogue_production_validator','public.validate_reviewed_catalogue_import_identity(jsonb)','execute'))"), false);
+  assert.equal(query("select to_jsonb(has_function_privilege('service_role','public.validate_reviewed_catalogue_import_plan_read_only(jsonb)','execute'))"), false);
+  const readOnlySql = value => `begin read only; set local role retailer_catalogue_production_validator;
+    select public.validate_reviewed_catalogue_import_plan_read_only(${sqlLiteral(JSON.stringify(value))}::jsonb); rollback`;
+  const rejectsBoth = (value, tag, pattern) => {
+    const before = counts();
+    fail(readOnlySql(value), pattern);
+    fail(approvalSql(value, tag), pattern);
+    assert.deepEqual(counts(), before, `${tag}: rejected approval and all business writes roll back`);
+  };
+  fail(`select public.validate_reviewed_catalogue_import_plan_read_only(${sqlLiteral(JSON.stringify(overlap))}::jsonb)`, /read-only transaction/);
+  fail(`select public.validate_reviewed_catalogue_import_plan(${sqlLiteral(JSON.stringify(overlap))}::jsonb)`, /live approval/);
+  execute("insert into retailers(id,name,slug,website) values(981003,'Third Merchant','third-merchant','https://merchant-three.test')");
+  const shared = plan("shared-gtin", 981003);
+  shared.retailer_product.values.external_url = "https://merchant-three.test/product/shared-gtin";
+  shared.retailer_product.values.external_gtin = "5056555202128";
+  refreshPlanFingerprint(shared);
+  execute("update retailer_products set updated_at='2020-01-01T00:00:00Z' where external_variant_id='url-exact'");
+  assert.deepEqual(query(readOnlySql(shared)), { plan_kind: "feed", retailer_id: 981003 });
+  const sharedApproval = approve(shared, "shared-gtin");
+  query(applySql(shared, sharedApproval));
+  assert.equal(query("select count(*) from retailer_products where external_gtin='5056555202128' and product_variant_id=981001"), 2,
+    "two independent retailers may offer the same canonical variant with the same GTIN");
+  fail(applySql(shared, sharedApproval), /already consumed/);
+  rejectsBoth(shared, "shared-already-imported", /source mapping already exists/);
+  for (const [tag, product, variant] of [["different-variant", 981001, 981003], ["different-product", 981002, 981002]]) {
+    const conflict = plan(tag, 981002, "https://affiliate.test/conflict", product, variant);
+    conflict.retailer_product.values.external_gtin = "5056555202128";
+    refreshPlanFingerprint(conflict);
+    rejectsBoth(conflict, tag, /GTIN conflicts with another source row/);
+  }
+  const sameRetailer = plan("same-retailer-gtin");
+  sameRetailer.retailer_product.values.external_gtin = "5056555202128";
+  refreshPlanFingerprint(sameRetailer);
+  rejectsBoth(sameRetailer, "same-retailer-gtin", /GTIN conflicts with another source row/);
+  const skuCollision = plan("sku-collision", 981002);
+  skuCollision.retailer_product.values.external_sku = second.retailer_product.values.external_sku;
+  refreshPlanFingerprint(skuCollision);
+  rejectsBoth(skuCollision, "sku-collision", /source mapping already exists/);
+  const badGtin = plan("bad-gtin", 981002);
+  badGtin.retailer_product.values.external_gtin = "5056555202129";
+  refreshPlanFingerprint(badGtin);
+  rejectsBoth(badGtin, "bad-gtin", /invalid reviewed catalogue external GTIN/);
+  const paddedConflict = plan("padded-conflict", 981002, "https://affiliate.test/padded", 981002, 981002);
+  paddedConflict.retailer_product.values.external_gtin = "05056555202128";
+  refreshPlanFingerprint(paddedConflict);
+  rejectsBoth(paddedConflict, "padded-conflict", /GTIN conflicts with another source row/);
+  execute("update product_variants set gtin='5056555202142' where id=981001");
+  const canonicalConflict = plan("canonical-gtin-conflict", 981002);
+  canonicalConflict.retailer_product.values.external_gtin = "5056555202128";
+  refreshPlanFingerprint(canonicalConflict);
+  rejectsBoth(canonicalConflict, "canonical-gtin-conflict", /GTIN conflicts with another source row/);
+  execute("update product_variants set gtin=null where id=981001");
+  for (const [field, value] of [["size_value", "500"], ["pack_count", "2"], ["flavour", "Orange"], ["product_format", "capsule"]]) {
+    const incompatibleUnit = plan(`wrong-${field}`, 981002);
+    incompatibleUnit.retailer_product.values.external_gtin = "5056555202128";
+    incompatibleUnit.product_variant.evidence[field] = value;
+    refreshPlanFingerprint(incompatibleUnit);
+    rejectsBoth(incompatibleUnit, `wrong-${field}`, /sellable unit/);
+  }
+  // Stale/legacy mappings cannot be ignored to obtain a successful GTIN match.
+  // The current schema also retains its NOT NULL canonical variant constraint.
+  execute(`insert into retailers(id,name,slug,website) values(981004,'Historical Merchant','historical-merchant','https://historical.test');
+    insert into retailer_products(retailer_id,product_id,product_variant_id,external_product_id,external_variant_id,external_sku,external_name,external_slug,external_url,external_gtin,match_method,match_confidence,updated_at)
+    values(981004,981001,981003,'historical-product','historical-variant','historical-sku','Historical 500g','historical-500g','https://historical.test/product','5056555202128','gtin',100,'2020-01-01T00:00:00Z');`);
+  const missingBinding = plan("legacy-missing-binding", 981002);
+  missingBinding.retailer_product.values.external_gtin = "5056555202128";
+  refreshPlanFingerprint(missingBinding);
+  rejectsBoth(missingBinding, "legacy-missing-binding", /GTIN conflicts with another source row/);
 }
 
 test("atomic import execution and approval ledger expose only guarded service-role RPCs", () => {

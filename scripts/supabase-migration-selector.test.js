@@ -101,7 +101,10 @@ const PENDING_REFRESH_BINDING_MIGRATION_SHA256 = "015f0de7448c10fcca10174e74dfbf
 const PENDING_REFRESH_BINDING = Object.freeze({ filename: PENDING_REFRESH_BINDING_MIGRATION, sha256: PENDING_REFRESH_BINDING_MIGRATION_SHA256 });
 const PLANNED_CONTROL_CLOSE_PENDING = Object.freeze({ filename: "20261107190000_extend_never_approved_planned_control_close.sql", sha256: "0c6a7ef27021c0ba2dc5ef38eea3289b8238e4dc3220ede03de6210336263ddf" });
 const STAGING_PENDING = Object.freeze([...HARD_PRICE_ANOMALY_PENDING, PENDING_REFRESH_BINDING]);
-const PRODUCTION_PENDING = Object.freeze([]);
+const PRODUCTION_PENDING = Object.freeze([Object.freeze({
+  filename: "20261112130000_align_reviewed_catalogue_gtin_identity.sql",
+  sha256: "d5a9a19e34ea2bc78dc8bdc331b6c85680d5c1efd0ef40a1f022ea58979550cf",
+})]);
 const OWNER_WITHDRAWAL_MIGRATION = "20261109120000_add_owner_withdrawal_terminal_preflight.sql";
 const REVIEWED_URL_MIGRATION = "20261110170000_align_reviewed_catalogue_affiliate_url_contract.sql";
 
@@ -920,8 +923,8 @@ test("production records ledger 263 with the reviewed URL migration applied", ()
   assert.ok(migrationBinding("PRODUCTION").versions.includes(OWNER_WITHDRAWAL_MIGRATION.slice(0,-4)));
   assert.deepEqual(result.pending_files, PRODUCTION_PENDING.map(({ filename }) => filename));
   assert.deepEqual(result.pending_sha256s, Object.fromEntries(PRODUCTION_PENDING.map(({filename, sha256}) => [filename, sha256])));
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.equal(result.pending_file, PRODUCTION_PENDING[0].filename);
+  assert.equal(result.pending_sha256, PRODUCTION_PENDING[0].sha256);
   assert.ok(result.selected_files.includes(PENDING_REFRESH_BINDING_MIGRATION));
   assert.ok(result.selected_files.includes(PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION));
   assert.ok(result.excluded_files.includes(PRODUCT_PACK_CORRECTION_MIGRATION));
@@ -1813,8 +1816,8 @@ test("shared production binding includes hard-price and refresh-binding migratio
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.equal(result.pending_file, PRODUCTION_PENDING[0].filename);
+  assert.equal(result.pending_sha256, PRODUCTION_PENDING[0].sha256);
   assert.deepEqual(result.pending_files, PRODUCTION_PENDING.map(({ filename }) => filename));
   assert.deepEqual(result.pending_sha256s, Object.fromEntries(PRODUCTION_PENDING.map(({filename, sha256}) => [filename, sha256])));
   assert.ok(result.selected_files.includes(HARD_PRICE_ANOMALY_MIGRATION));
@@ -1983,8 +1986,8 @@ test("reviewed URL migration is applied once in production and remains excluded 
     assert.equal(binding.versions.filter(identifier => identifier === filename.slice(0, -4)).length, production ? 1 : 0);
     if (production) {
       assert.deepEqual(contract.pending, PRODUCTION_PENDING);
-      assert.deepEqual(result.pending_files, []);
-      assert.equal(result.pending_sha256, null);
+      assert.deepEqual(result.pending_files, PRODUCTION_PENDING.map(({ filename }) => filename));
+      assert.equal(result.pending_sha256, PRODUCTION_PENDING[0].sha256);
     } else {
       assert.equal(contract.excluded[filename], sha256File(path.join(SOURCE, filename)));
     }

@@ -559,7 +559,7 @@ test("bounded reviewed state provider is read-only and validates every atomic pl
   assert.deepEqual((await provider.from("retailers").select().eq("slug", value.manifest.retailer.slug).maybeSingle()).data, state.retailer);
   assert.throws(() => provider.from("products").insert({}), /read only/);
   await validatePlans(database, [{ importPlan: loaded.entry.resolved_plan }]);
-  assert.equal(queries.filter(query => query.sql.includes("validate_product_import_plan_read_only")).length, 1);
+  assert.equal(queries.filter(query => query.sql.includes("validate_reviewed_catalogue_import_plan_read_only")).length, 1);
 });
 
 test("reviewed V3 validation sends the exact plan and authorization envelope to its separate RPC", async () => {
@@ -576,7 +576,7 @@ test("reviewed V3 validation sends the exact plan and authorization envelope to 
   assert.equal(queries[0].sql, V3_VALIDATION_SQL);
   assert.equal(queries[0].params[0], loaded.entry.resolved_plan);
   assert.equal(queries[0].params[1].kind, "reviewed-catalogue-authorization-v3");
-  assert.equal(V2_VALIDATION_SQL, "select public.validate_product_import_plan_read_only($1::jsonb) result");
+  assert.equal(V2_VALIDATION_SQL, "select public.validate_reviewed_catalogue_import_plan_read_only($1::jsonb) result");
   await assert.rejects(validatePlans({ async query() {
     return { rows: [{ result: { plan_kind: "feed", retailer_id: loaded.manifest.retailer.id } }] };
   } }, [{ importPlan: loaded.entry.resolved_plan }], {
@@ -905,7 +905,7 @@ function executorScenario() {
   let written;
   let readCount = 0;
   let tick = 0;
-  const client = { async end() {} };
+  const client = { async end() {}, async query() { return { rows: [{ result: { plan_kind: "feed", retailer_id: loaded.manifest.retailer.id } }] }; } };
   const dependencies = {
     loadScope: () => loaded,
     assertCleanMain: () => "a".repeat(40),
@@ -924,6 +924,61 @@ function executorScenario() {
   };
   return { dependencies, getWritten: () => written, options };
 }
+
+test("package preflight rejects the same SQL identity conflicts before any approval or apply", async () => {
+  for (const mode of ["preflight", "apply"]) {
+    const scenario = executorScenario();
+    scenario.options.mode = mode;
+    const originalScope = scenario.dependencies.loadScope;
+    scenario.dependencies.loadScope = () => {
+      const loaded = originalScope();
+      const second = structuredClone(loaded.entries[0]);
+      second.resolved_plan.retailer_product.values.external_variant_id = "second-source";
+      second.resolved_plan.meta.plan_fingerprint = planFingerprint(second.resolved_plan);
+      loaded.entries.push(second);
+      return loaded;
+    };
+    let approvals = 0;
+    let applies = 0;
+    let validations = 0;
+    scenario.dependencies.connect = async () => ({
+      async end() {},
+      async query(sql) {
+        assert.equal(sql, V2_VALIDATION_SQL);
+        if (++validations === 1) return { rows: [{ result: { plan_kind: "feed", retailer_id: 14 } }] };
+        throw new Error("reviewed catalogue GTIN conflicts with another source row");
+      },
+    });
+    scenario.dependencies.approve = async () => { approvals++; };
+    scenario.dependencies.apply = async () => { applies++; };
+    await assert.rejects(runPackage(scenario.options, scenario.dependencies), /GTIN conflicts/);
+    assert.equal(approvals, 0);
+    assert.equal(applies, 0);
+    assert.equal(validations, 2);
+    assert.equal(scenario.getWritten().database_writes, 0);
+  }
+});
+
+test("previously imported H&B source identities stop package execution before approval", async () => {
+  for (const sku of ["065972", "078510"]) {
+    const scenario = executorScenario();
+    const originalScope = scenario.dependencies.loadScope;
+    scenario.dependencies.loadScope = () => {
+      const loaded = originalScope();
+      loaded.entries[0].resolved_plan.retailer_product.values.external_variant_id = sku;
+      return loaded;
+    };
+    scenario.dependencies.readState = async () => ({
+      retailer: originalScope().manifest.retailer,
+      retailer_products: [{ retailer_id: originalScope().manifest.retailer.id, external_variant_id: sku }],
+    });
+    let approvals = 0;
+    scenario.dependencies.approve = async () => { approvals++; };
+    await assert.rejects(runPackage(scenario.options, scenario.dependencies), /already mapped source row/);
+    assert.equal(approvals, 0);
+    assert.equal(scenario.getWritten().apply_count, 0);
+  }
+});
 
 test("package executor durably classifies an apply client timeout without retrying", async () => {
   const scenario = executorScenario();
@@ -1264,7 +1319,7 @@ test("existing workflows and scheduled retailer entry points do not opt into V3"
     .map(file => fs.readFileSync(path.join(workflowRoot, file), "utf8"))
     .join("\n");
   assert.doesNotMatch(workflowText, /reviewed-catalogue-package-v3|reviewed_catalogue_v3/i);
-  assert.equal(V2_VALIDATION_SQL, "select public.validate_product_import_plan_read_only($1::jsonb) result");
+  assert.equal(V2_VALIDATION_SQL, "select public.validate_reviewed_catalogue_import_plan_read_only($1::jsonb) result");
   assert.equal(APPROVAL_SQL, "select public.approve_reviewed_catalogue_import_plan($1::jsonb,$2,$3,$4,$5,now()+interval '15 minutes') result");
   assert.equal(PACKAGE_APPROVAL_SQL, APPROVAL_SQL);
 });

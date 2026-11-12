@@ -1347,6 +1347,60 @@ function exerciseTrustedParentRollbackTamperGuards(container, environment) {
   assertRestored(`${environment} restored trusted-parent search_path`);
 }
 
+function exerciseSharedGtinIdentity(container, environment) {
+  const signature = "public.atomic_import_validate_reviewed_catalogue_v3_plan(jsonb,jsonb)";
+  const beforeDefinition = functionDefinition(container, signature, "V3 before shared GTIN policy");
+  const beforeMetadata = functionMetadata(container, signature, "V3 GTIN metadata before");
+  const migration = fs.readFileSync(path.join(ROOT,
+    "supabase/migrations/20261112130000_align_reviewed_catalogue_gtin_identity.sql"), "utf8");
+  const hadChecksum = scalar(container,
+    "select to_regprocedure('public.gtin_promotion_is_valid_gtin(text)') is not null", "checksum function presence") === "t";
+  if (!hadChecksum) {
+    const checksum = fs.readFileSync(path.join(ROOT,
+      "supabase/migrations/20260813170000_add_guarded_gtin_promotion.sql"), "utf8")
+      .match(/create or replace function public\.gtin_promotion_is_valid_gtin\(p_value text\)[\s\S]*?\$valid_gtin\$;/)[0];
+    succeed(sql(container, checksum), "install actual shared checksum dependency");
+  }
+  succeed(sql(container, migration.match(/create function public\.validate_reviewed_catalogue_gtin_identity\(p_plan jsonb\)[\s\S]*?\$gtin_identity\$;/)[0]
+    + "revoke all on function public.validate_reviewed_catalogue_gtin_identity(jsonb) from public;"
+    + migration.match(/do \$v3_gtin\$[\s\S]*?\$v3_gtin\$;/)[0]), "install actual shared GTIN helper and V3 patch");
+  assert.deepEqual(functionMetadata(container, signature, "V3 GTIN metadata after"), beforeMetadata);
+  succeed(sql(container, `insert into retailers values(991001,'GTIN Peer','gtin-peer','https://peer.test');
+    insert into retailer_products(retailer_id,product_id,product_variant_id,external_product_id,external_variant_id,external_sku,external_gtin,external_url)
+      values(991001,100,200,'gtin-peer-product','gtin-peer-variant','gtin-peer-sku','5056555202128','https://peer.test/product');`), "create local cross-retailer GTIN peer");
+  const fixture = actionFixture(environment, "map_existing_variant", 90991);
+  fixture.plan.retailer_product.values.external_gtin = "5056555202128";
+  seal(container, fixture, "shared GTIN sealed V3 fixture");
+  const read = () => asRole(environment, "validator",
+    `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(fixture.plan)},${literal(fixture.envelope)})`, { readOnly: true });
+  const approve = () => asRole(environment, "approver",
+    `select public.approve_reviewed_catalogue_v3_plan(${literal(fixture.plan)},${literal(fixture.envelope)})`);
+  assert.equal(json(container, read(), "V3 cross-retailer exact GTIN read-only eligibility").valid, true);
+  for (const change of ["product_variant_id=201", "retailer_id=12"]) {
+    succeed(sql(container, `update retailer_products set ${change} where external_variant_id='gtin-peer-variant'`), "set local genuine GTIN conflict");
+    const before = counts(container, "V3 conflict before counts");
+    const approvals = scalar(container, "select count(*) from approved_import_plans", "V3 approval count before");
+    fails(sql(container, read()), "V3 read-only GTIN rejection", /V3_GTIN_COLLISION/);
+    fails(sql(container, approve()), "V3 approval GTIN rejection", /V3_GTIN_COLLISION/);
+    assert.deepEqual(counts(container, "V3 conflict after counts"), before);
+    assert.equal(scalar(container, "select count(*) from approved_import_plans", "V3 failed approval rollback"), approvals);
+    succeed(sql(container, "update retailer_products set retailer_id=991001,product_variant_id=200 where external_variant_id='gtin-peer-variant'"), "restore local independent retailer peer");
+  }
+  const approval = json(container, approve(), "V3 exact cross-retailer GTIN approval");
+  const apply = asRole(environment, "executor",
+    `select public.apply_approved_reviewed_catalogue_v3_plan('${approval.approval_id}',${literal(fixture.plan)},${literal(fixture.envelope)})`);
+  assert.equal(json(container, apply, "V3 exact GTIN atomic apply").approval_status, "consumed");
+  const afterApply = counts(container, "V3 shared GTIN counts after apply");
+  const replay = json(container, apply, "V3 shared GTIN replay returns its stored receipt");
+  assert.equal(replay.status, "ALREADY_APPLIED");
+  assert.equal(replay.already_applied, true);
+  assert.deepEqual(counts(container, "V3 shared GTIN replay creates no records"), afterApply);
+  fails(sql(container, read()), "V3 duplicate source remains blocked", /V3_MAPPING_COLLISION/);
+  succeed(sql(container, beforeDefinition + ";\n"
+    + "drop function public.validate_reviewed_catalogue_gtin_identity(jsonb);"
+    + (hadChecksum ? "" : "drop function public.gtin_promotion_is_valid_gtin(text);")), "restore V3 fixture lineage for existing rollback proofs");
+}
+
 function exerciseBaseline(environment) {
   const target = TARGETS[environment];
   const roles = roleNames(environment);
@@ -2970,6 +3024,7 @@ function exerciseBaseline(environment) {
       sealedPluralFixture.envelope.external_options,
     );
 
+    exerciseSharedGtinIdentity(container, environment);
     succeed(sql(container, "delete from public.approved_import_plans where source like 'reviewed-catalogue-package-v3:%'"), `${environment} remove disposable V3 fixture approvals`);
     succeedWithoutBusinessChange(container, V3_1_CONSOLIDATION_ROLLBACK, `${environment} rollback V3.1 consolidation`);
     for (const [signature, expectedSha] of Object.entries(V3_1_FUNCTION_SHAS)) {

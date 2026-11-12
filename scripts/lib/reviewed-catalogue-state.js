@@ -2,7 +2,7 @@ const MAX_REVIEWED_ROWS = 200;
 const { CONTRACT_KIND: REVIEWED_V3_KIND, buildV3Envelope } = require("./reviewed-catalogue-v3");
 const { canonicalJson } = require("./canonical-json");
 
-const V2_VALIDATION_SQL = "select public.validate_product_import_plan_read_only($1::jsonb) result";
+const V2_VALIDATION_SQL = "select public.validate_reviewed_catalogue_import_plan_read_only($1::jsonb) result";
 const V3_VALIDATION_SQL = "select public.validate_reviewed_catalogue_v3_plan_read_only($1::jsonb,$2::jsonb) result";
 const ROW_MANIFEST_OFFER_SYNC_KEYS = Object.freeze({
   retailer: Object.freeze(["id", "name", "slug", "website"]),
