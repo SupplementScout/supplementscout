@@ -1092,10 +1092,11 @@ function normalizeProduct(
   query: string,
   filters: SearchFilters,
   searchPlan?: SearchMetadata,
-  intentFilters: SearchIntentFilters = EMPTY_SEARCH_INTENT_FILTERS
+  intentFilters: SearchIntentFilters = EMPTY_SEARCH_INTENT_FILTERS,
+  prepared?: { validOffers: SearchOffer[]; relevanceScore?: number }
 ): ProductSearchResult | null {
   const rawOffers = product.offers || [];
-  const validOffers = normalizeSearchOffers(rawOffers);
+  const validOffers = prepared?.validOffers ?? normalizeSearchOffers(rawOffers);
   const effectiveIntentFilters = filters.caffeine === "free"
     ? { ...intentFilters, caffeineFree: true }
     : intentFilters;
@@ -1211,9 +1212,9 @@ function normalizeProduct(
       cheapestOffer.deliveredPrice,
       effectiveMetrics.serving_count_verified
     ) : null,
-    relevanceScore: searchPlan
+    relevanceScore: prepared?.relevanceScore ?? (searchPlan
       ? scoreProductForSearch(product, searchPlan)
-      : scoreProduct(product, query),
+      : scoreProduct(product, query)),
     selectedVariantId: hasOfferScopedIntent(effectiveIntentFilters)
       ? cheapestOffer?.product_variant_id || null
       : null,
@@ -1536,21 +1537,26 @@ export async function searchProducts(
   const enrichedProducts = await loadProductVariants(
     (data || []) as RawProduct[]
   );
-  const eligibleResults = enrichedProducts
-    .map((product) =>
-      normalizeProduct(
-        product,
-        sanitizedQuery,
-        {
-          category: "",
-          brand: "",
-          retailer: "",
-          caffeine: "",
-        },
-        searchMetadata,
-        intent.filters
-      )
-    )
+  const normalizeBaseProduct = (product: RawProduct, prepared?: { validOffers: SearchOffer[] }) =>
+    normalizeProduct(
+      product,
+      sanitizedQuery,
+      { category: "", brand: "", retailer: "", caffeine: "" },
+      searchMetadata,
+      intent.filters,
+      prepared
+    );
+  // Reuse only filter-independent work; each pass still selects its own eligible offers.
+  const preparedProducts = filters.retailer || filters.caffeine === "free"
+    ? enrichedProducts.map((product) => {
+        const validOffers = normalizeSearchOffers(product.offers || []);
+        const baseResult = normalizeBaseProduct(product, { validOffers });
+        return { product, validOffers, relevanceScore: baseResult?.relevanceScore, baseResult };
+      })
+    : null;
+  const eligibleResults = (preparedProducts
+    ? preparedProducts.map(({ baseResult }) => baseResult)
+    : enrichedProducts.map((product) => normalizeBaseProduct(product)))
     .filter((product): product is ProductSearchResult => product !== null);
   const limitValueIntentToIdentityMatches =
     intent.valueMetric !== null &&
@@ -1575,15 +1581,16 @@ export async function searchProducts(
       ? valueScopedEligibleResults
       : valueScopedEligibleResults.filter(isWithinBudget);
   const facets = buildFacets(baseResults);
-  const filteredResults = filters.retailer || filters.caffeine === "free"
-    ? enrichedProducts
-        .map((product) =>
+  const filteredResults = preparedProducts
+    ? preparedProducts
+        .map((prepared) =>
           normalizeProduct(
-            product,
+            prepared.product,
             sanitizedQuery,
             filters,
             searchMetadata,
-            intent.filters
+            intent.filters,
+            prepared
           )
         )
         .filter((product): product is ProductSearchResult => product !== null)
