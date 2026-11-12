@@ -291,7 +291,8 @@ test("search variant nutrition uses a bounded ID query, not the removed offer FK
 
 function loadProductsModule(
   mockSupabase = {},
-  mockAppliedFactsLoader = async () => new Map()
+  mockAppliedFactsLoader = async () => new Map(),
+  observers = {}
 ) {
   const filename = path.join(process.cwd(), "app", "lib", "products.ts");
   const source = fs.readFileSync(filename, "utf8");
@@ -309,6 +310,7 @@ function loadProductsModule(
     if (parent === mod && request === "./pricing") {
       return {
         getKnownProductPrice: (price) => {
+          observers.onKnownProductPrice?.();
           const value = Number(price);
           return price === null || price === "" || !Number.isFinite(value) || value <= 0
             ? null
@@ -403,6 +405,7 @@ function loadProductsModule(
           offers.map((offer) => classify(offer, now)).find((item) => item.state === "RECENT") ||
           { state: "UNVERIFIED", checkedAt: null, ageHours: null },
         isOfferFresh: (value, now = new Date()) => {
+          observers.onFreshnessCheck?.();
           const checked = Date.parse(value || "");
           const age = (now.getTime() - checked) / 3_600_000;
           return Number.isFinite(age) && age >= 0 && age <= 24;
@@ -604,7 +607,8 @@ function searchProductsWithRows(
   query,
   rows,
   sort = "relevance",
-  filters = { category: "", brand: "", retailer: "", caffeine: "" }
+  filters = { category: "", brand: "", retailer: "", caffeine: "" },
+  page = 1
 ) {
   const { searchProducts: searchProductsFromRows } = loadProductsModule({
     from: () => {
@@ -622,7 +626,7 @@ function searchProductsWithRows(
     },
   });
 
-  return searchProductsFromRows(query, sort, filters);
+  return searchProductsFromRows(query, sort, filters, page);
 }
 
 const suggestionProducts = [
@@ -1587,7 +1591,7 @@ test("confirmed caffeine-free search requires exact variant proof and a current 
   assert.equal(result.results[0].availableOfferCount, 1);
 });
 
-function exactVariantSearch(product, variants, facts = new Map()) {
+function exactVariantSearch(product, variants, facts = new Map(), observers = {}) {
   const mockSupabase = {
     from: (table) => {
       if (table === "product_variants") {
@@ -1609,7 +1613,7 @@ function exactVariantSearch(product, variants, facts = new Map()) {
       return query;
     },
   };
-  return loadProductsModule(mockSupabase, async () => facts).searchProducts;
+  return loadProductsModule(mockSupabase, async () => facts, observers).searchProducts;
 }
 
 function variantIntentProduct(name, overrides) {
@@ -2243,4 +2247,138 @@ test("search intent transparency stays SSR and preserves search noindex rules", 
   assert.match(filtersSource, /intentUpdates: \{ caffeineMaxMg: null \}/);
   assert.match(filtersSource, /Clear all filters/);
   assert.doesNotMatch(filtersSource, /label: "Intent"/);
+});
+
+test("retailer and caffeine passes keep independent offers, variants and base facets", async () => {
+  const { product, variants } = variantIntentProduct("Pre Workout", [{}, {}, {}, {}]);
+  const otherRetailer = { id: 21, name: "Other Retailer", slug: "other", logo: null };
+  product.offers[0].shipping_cost = 2;
+  product.offers[1].price = 8;
+  product.offers[2].price = 14;
+  product.offers[2].shipping_cost = null;
+  product.offers[3].price = 16;
+  product.offers[3].shipping_cost = 1;
+  for (const offer of product.offers.slice(1)) offer.retailer = otherRetailer;
+  const facts = new Map(variants.map((variant, index) => [String(variant.id), {
+    productId: String(product.id),
+    productVariantId: String(variant.id),
+    facts: [],
+    caffeineFreeConfirmed: index !== 1,
+  }]));
+  const search = exactVariantSearch(product, variants, facts);
+  for (const [retailer, caffeine, cheapestIndex, offerOrder] of [
+    ["", "", 1, [1, 0, 3, 2]],
+    ["other", "", 1, [1, 0, 3, 2]],
+    ["", "free", 0, [0, 3, 2]],
+    ["other", "free", 3, [0, 3, 2]],
+  ]) {
+    const result = await search("pre workout", "price_asc", {
+      category: "", brand: "", retailer, caffeine,
+    });
+    const row = result.results[0];
+    assert.equal(row.id, String(product.id));
+    assert.equal(row.cheapestOffer.id, String(product.offers[cheapestIndex].id));
+    assert.equal(row.cheapestOffer.product_variant_id, String(variants[cheapestIndex].id));
+    assert.equal(row.selectedVariantId, caffeine ? String(variants[cheapestIndex].id) : null);
+    assert.deepEqual(row.validOffers.map(({ id }) => id),
+      offerOrder.map((index) => String(product.offers[index].id)));
+    assert.equal(row.deliveryComparisonComplete, false);
+    assert.equal(row.availableOfferCount, retailer ? (caffeine ? 2 : 3) : offerOrder.length);
+    assert.deepEqual(result.facets.retailers.map(({ value }) => value).sort(),
+      ["example-retailer", "other"]);
+    assert.equal(result.facets.brands[0].count, 1);
+    assert.equal(result.totalCount, 1);
+    assert.equal(result.unfilteredCount, 1);
+  }
+});
+
+test("filtered searches prepare each offer once per request", async () => {
+  const { product, variants } = variantIntentProduct("Pre Workout", [{}, {}]);
+  const facts = new Map(variants.map((variant) => [String(variant.id), {
+    productId: String(product.id), productVariantId: String(variant.id),
+    facts: [], caffeineFreeConfirmed: true,
+  }]));
+  let freshnessChecks = 0;
+  let knownPriceCalculations = 0;
+  const search = exactVariantSearch(product, variants, facts, {
+    onFreshnessCheck: () => { freshnessChecks++; },
+    onKnownProductPrice: () => { knownPriceCalculations++; },
+  });
+  for (const [retailer, caffeine] of [
+    ["", ""], ["example-retailer", ""], ["", "free"],
+    ["example-retailer", "free"], ["missing-retailer", "free"],
+  ]) {
+    freshnessChecks = 0;
+    knownPriceCalculations = 0;
+    await search("pre workout", "relevance", { category: "", brand: "", retailer, caffeine });
+    assert.equal(freshnessChecks, 2);
+    assert.equal(knownPriceCalculations, 2);
+  }
+});
+
+test("search reevaluates freshness across requests at the exact 24-hour boundary", async (t) => {
+  const boundary = Date.parse("2026-11-12T12:00:00.000Z");
+  t.mock.timers.enable({ apis: ["Date"], now: boundary - 1 });
+  const product = searchProduct(8000, "Creatine", "Creatine");
+  product.offers[0].last_checked_at = "2026-11-11T12:00:00.000Z";
+  const search = exactVariantSearch(product, []);
+  const filters = { category: "", brand: "", retailer: "example-retailer", caffeine: "" };
+  for (const current of [true, true, false]) {
+    const result = await search("creatine", "price_asc", filters);
+    assert.equal(result.totalCount, 1);
+    assert.equal(result.results[0].cheapestOffer !== null, current);
+    assert.equal(result.results[0].validOffers.length, current ? 1 : 0);
+    assert.equal(result.results[0].presentationState, current ? "LIVE" : "RECENT");
+    const budget = await search("creatine under 20", "price_asc", filters);
+    assert.equal(budget.totalCount, current ? 1 : 0);
+    t.mock.timers.tick(1);
+  }
+});
+
+test("filtered pagination preserves all candidates, base facets and stable price ties", async () => {
+  const rows = Array.from({ length: 27 }, (_, index) =>
+    searchProduct(8100 + index, "Creatine", "Creatine"));
+  rows[26].offers[0].last_checked_at = "2020-01-01T00:00:00.000Z";
+  const filters = { category: "Creatine", brand: "Example Brand", retailer: "example-retailer", caffeine: "" };
+  for (const sort of ["price_asc", "price_desc", "relevance"]) {
+    const first = await searchProductsWithRows("creatine", rows, sort, filters);
+    const second = await searchProductsWithRows("creatine", rows, sort, filters, 2);
+    const outOfRange = await searchProductsWithRows("creatine", rows, sort, filters, 99);
+    assert.deepEqual([...first.results, ...second.results].map(({ id }) => id),
+      rows.map(({ id }) => String(id)));
+    assert.deepEqual(outOfRange, second);
+    assert.deepEqual(first.facets, second.facets);
+    // The stale product remains discoverable but contributes no current retailer offer.
+    assert.equal(first.facets.retailers[0].count, 26);
+    assert.equal(first.totalCount, 27);
+    assert.equal(first.unfilteredCount, 27);
+    assert.equal(first.endResult, 24);
+    assert.equal(second.startResult, 25);
+    assert.equal(second.results[2].cheapestOffer, null);
+  }
+});
+
+test("empty and malformed search inputs and database errors preserve their contracts", async () => {
+  const searchModule = loadProductsModule({ from() { throw new Error("Unexpected query"); } });
+  for (const query of ["", "   ", "%_,()"]) {
+    const result = await searchModule.searchProducts(query, "relevance");
+    assert.deepEqual(result.results, []);
+    assert.equal(result.totalCount, 0);
+    assert.equal(result.error, null);
+  }
+  assert.equal(searchModule.normalizeSearchQuery(["  creatine  ", "ignored"]), "creatine");
+  for (const page of [undefined, "-1", "0", "NaN", "1.5", "999999999999999999999"]) {
+    assert.equal(searchModule.normalizeSearchPage(page), 1);
+  }
+  assert.equal(searchModule.normalizeSearchSort("malformed"), "relevance");
+  const error = { message: "fixture database unavailable", code: "fixture_error" };
+  const builder = {
+    select: () => builder, eq: () => builder, is: () => builder,
+    or: () => builder, order: () => builder, range: () => ({ data: null, error }),
+  };
+  const failing = loadProductsModule({ from: () => builder });
+  const result = await failing.searchProducts("creatine", "relevance");
+  assert.equal(result.error, error);
+  assert.deepEqual(result.results, []);
+  assert.deepEqual(result.facets, { categories: [], brands: [], retailers: [], caffeine: [] });
 });
