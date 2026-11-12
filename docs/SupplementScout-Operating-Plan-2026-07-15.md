@@ -5,6 +5,13 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**12 November 2026 reviewed GTIN migration closeout checkpoint:** the exact
+owner-approved migration264 is committed and independently verified; H&B16
+remains2/2 and Six Pack223 PENDING cards are intact. The narrow production-ledger
+repository closeout records CURRENT264 with pending=[]; no commercial import
+or automation activation is included. See the [current execution evidence](retailer-automation/EXECUTION-PLAN.md).
+SEO-20 remains the sole active SEO task; RA-001 and suspended RA-004 are unchanged.
+
 **10 November 2026 retailer closeout checkpoint:** owner-approved PR519 is
 released on main `fbc99f848129ea0753d6514b116b34cba5c53884`, with main CI,
 Guardian and Vercel Production passed. Fit is prepared for a separately approved

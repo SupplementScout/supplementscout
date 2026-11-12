@@ -36,7 +36,7 @@ function fixture(){
  });
  const artifacts=engine.balancedExecutionBatches(rows).map(batch=>sealArtifact({rows:batch,expected_deltas:engine.sumDeltas(batch),source_snapshot_fingerprint:sourceHash,source_captured_at:capturedAt,state:'DRY_RUN_READY',block:null}));
  const run={target:'production',spec:{ref:evidence.target_project_ref,identity:evidence.target_database_identity},binding:migrationBinding('PRODUCTION',
-  fs.readdirSync(path.join(ROOT,'supabase/migrations')).filter(name=>name!=='20261110170000_align_reviewed_catalogue_affiliate_url_contract.sql')),
+  fs.readdirSync(path.join(ROOT,'supabase/migrations')).filter(name=>name<'20261110170000_align_reviewed_catalogue_affiliate_url_contract.sql')),
   capturedAt,snapshot:{source_diagnostic:{pagination_completed:true}},isolateUnsafe:true,reviewed:null,
   classification:{state:'DRY_RUN_READY_WITH_REVIEW',rows,quarantined_rows:evidence.review_offer_ids.map(offer_id=>({offer_id}))},artifacts,
   exactConfirmationState:{active:engine.confirmationStateFingerprint(state.records),historical:engine.confirmationStateFingerprint(state.historical_records),mapped_source:evidence.mapped_source_fingerprint}};
@@ -62,6 +62,13 @@ test('exact execution authority preserves the installed SQL business-policy fing
 });
 test('exact261 native verification plans PASS with14 read-only SQL batches',()=>{
  const f=fixture();assert.equal(f.run.artifacts.length,14);assert.equal(check(f).execution_count,261);
+});
+
+test('historical exact confirmation evidence cannot authorize the current migration binding',()=>{
+ const f=fixture();assert.equal(f.run.binding.versions.length,evidence.expected_migration_count);
+ assert.equal(f.run.binding.fingerprint,evidence.expected_migration_fingerprint);
+ f.run.binding=migrationBinding('PRODUCTION');
+ assert.throws(()=>check(f),/migration binding drift/);
 });
 test('260,262,replaced and duplicate execution IDs BLOCK',()=>{
  blocked(f=>f.run.artifacts[0].rows.pop());

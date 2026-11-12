@@ -1,5 +1,23 @@
 # Retailer Automation Consolidation Execution Plan
 
+**12 November reviewed GTIN migration264 — DATABASE VERIFIED / REPOSITORY CLOSEOUT PREPARED:**
+Owner-authorized standard runner rehearsal PASS (`committed:false`) rolled back;
+independent readback found all207 original functions, owners and ACL unchanged.
+One guarded apply PASS (`committed:true`) then advanced production263 to264,
+fingerprint `63b783c65666e95231ec613abf403fead03c474eaa8149cc89739c992c3e8cda`.
+Exact approved SQL SHA remains `d5a9a19e34ea2bc78dc8bdc331b6c85680d5c1efd0ef40a1f022ea58979550cf`.
+Only the five intended functions changed; commercial and control-table hashes
+remain unchanged. H&B16 remains2/2 and Six Pack retains223 PENDING cards;
+Discount is unchanged and deferred. Live READ ONLY V2 validation accepts39
+previously conditional candidates and retains062468 in REVIEW;065569 still
+requires commercial approval and the broader279 REVIEW decisions remain.
+No approvals, commercial imports, refresh/publication reruns or staging SQL.
+This repository closeout reconciles the production binding and fixtures to
+CURRENT264 with pending=[]. Its release is verified by the PR/main checks and
+matching production deployment metadata. Historical preparation records remain. See the [actual runner closeout receipt](evidence/REVIEWED-GTIN-PRODUCTION-264-CLOSEOUT-2026-11-12.json)
+and [rollback, apply and independent verification](evidence/REVIEWED-GTIN-PRODUCTION-264-VERIFICATION-2026-11-12.json).
+RA-001, suspended RA-004 and SEO priorities are unchanged.
+
 **12 November reviewed cross-retailer GTIN contract — LOCAL VERIFIED / NOT DEPLOYED:**
 Production remains on main `eb4dd1b63adff40849f35af62e73dec1cd22524c`, CURRENT263,
 with H&B16 mappings/offers2/2. Read-only closeout confirms both prior offers and
