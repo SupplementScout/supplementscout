@@ -107,6 +107,23 @@ test("buildProductSummary uses only neutral identity and verified facts", () => 
   );
 });
 
+test("carton key facts expose per-bar packaging and total mass without changing single/unknown packs", () => {
+  const base = product({ product_format: "bar", net_weight_g: 660 });
+  const variant = { size_value: 55, size_unit: "g", pack_count: 12, product_format: "bar" };
+  const facts = buildProductKeyFacts(base, variant);
+  assert.deepEqual(facts.find(f=>f.label === "Net weight"), { label: "Net weight", value: "660 g" });
+  assert.deepEqual(facts.find(f=>f.label === "Pack size"), { label: "Pack size", value: "12 × 55 g (660 g total)" });
+  for (const pack_count of [1, null, undefined, 0, -1, 1.5]) {
+    const single = buildProductKeyFacts(product({ product_format: "bar", net_weight_g: 55 }), { ...variant, pack_count });
+    assert.equal(single.find(f=>f.label === "Net weight").value, "55 g");
+    assert.equal(single.some(f=>f.label === "Pack size"), false);
+  }
+  assert.equal(buildProductKeyFacts(base, { ...variant, size_unit: "ml" }).some(f=>f.label === "Pack size"), false);
+  const page = fs.readFileSync("app/product/[id]/page.tsx", "utf8");
+  assert.match(page, /buildProductKeyFacts\(selectedPresentation, selectedVariant\)/);
+  assert.equal((page.match(/size_unit,\s*pack_count,/g) || []).length, 3);
+});
+
 test("summary falls back to category when format is unavailable", () => {
   assert.equal(
     buildProductSummary(
@@ -351,7 +368,7 @@ test("PDP derives facts and scoped offers from the requested selected variant", 
   assert.match(source, /const selectedVariant = requestedVariant \|\|/);
   assert.match(source, /getEffectiveNutritionMetrics\(\s*product,\s*selectedVariant\s*\)/);
   assert.match(source, /selectedVariantPresentation\(product, effectiveMetrics\)/);
-  assert.match(source, /buildProductKeyFacts\(selectedPresentation\)/);
+  assert.match(source, /buildProductKeyFacts\(selectedPresentation, selectedVariant\)/);
   assert.match(source, /"Protein per serving"/);
   assert.doesNotMatch(source, /buildProductKeyFacts\(product\)/);
 });

@@ -9,6 +9,7 @@ export type ProductOfferVariant = {
   flavour_label: string | null;
   size_value: OfferScalar;
   size_unit: string | null;
+  pack_count?: OfferScalar;
   product_format?: string | null;
   nutrition_override?: Record<string, unknown> | null;
   is_default: boolean | null;
@@ -76,7 +77,11 @@ function variantSize(variant: ProductOfferVariant | null) {
 
   const unit = trimmed(variant.size_unit);
 
-  return `${variant.size_value}${unit ? ` ${unit}` : ""}`;
+  const size = `${variant.size_value}${unit ? ` ${unit}` : ""}`;
+  const count = Number(variant.pack_count);
+  return variant.product_format === "bar" && Number.isInteger(count) && count > 1
+    ? `${count} x ${size}`
+    : size;
 }
 
 function offerSizeLabel(offer: ProductOffer) {

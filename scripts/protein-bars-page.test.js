@@ -20,6 +20,7 @@ function compileModule(filename, mocks = {}) {
     if (request.endsWith("/indexabilityLifecycle")) return compileModule(path.join(process.cwd(), "app/lib/indexabilityLifecycle.ts"));
     if (request.endsWith("/lifecycleDataCache")) return { createLifecycleDataLoader: (_path, _version, load) => load };
     if (request.endsWith("/categoryControls")) return compileModule(path.join(process.cwd(), "app/lib/categoryControls.ts"));
+    if (request.endsWith("/nutritionMetrics")) return compileModule(path.join(process.cwd(), "app/lib/nutritionMetrics.ts"));
     if (request.endsWith("/CategoryComparisonControls")) return () => null;
     return originalLoad.call(this, request, parent, isMain);
   };
@@ -103,6 +104,20 @@ test("exact-pack normalization excludes mismatches, unresolved variants and stal
   assert.equal(result.summary.freshOffers, 1);
   assert.equal(result.summary.productsWithMultipleFreshRetailers, 0);
   assert.equal(result.summary.staleOrUnusableOffersExcluded, 3);
+});
+
+test("bar comparison uses the exact carton total while retaining unverified-price and mixed-pack guards", () => {
+  const comparison = loadComparison();
+  const bar = { product_format: "bar", size_value: 55, size_unit: "g", pack_count: 12, is_active: true };
+  const item = rawProduct(1, "Example Protein Bar", [rawOffer(10, 1, 12, {
+    product_variant: { ...bar, nutrition_override: {} },
+  })], { product_format: "bar", net_weight_g: 55, product_variants: [variant(101, 12, bar)] });
+  const result = comparison.normalizeProteinBarsComparison([item], { now: FIXTURE_NOW });
+  assert.equal(result.rows[0].netWeightG, 660);
+  assert.equal(result.rows[0].pricePerKg, null);
+  assert.equal(result.rows[0].unitPricingVerified, false);
+  assert.equal(comparison.isProteinBarsProduct({ ...item,
+    product_variants: [variant(101, 12, bar), variant(102, 1, { ...bar, pack_count: 1 })] }), false);
 });
 
 test("indexability retains the unchanged 3-product, 2-retailer and 20-offer gate", () => {

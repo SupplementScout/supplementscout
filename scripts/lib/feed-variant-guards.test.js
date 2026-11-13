@@ -8,7 +8,68 @@ const {
   normalizeFlavour,
   parseVariantIdentity,
   rowIdentityKey,
+  productFamilyKey,
 } = require("./feed-variant-guards");
+
+test("compound bar flavours do not become families or erase meaningful non-bar words", () => {
+  for (const brand of ["Barebells", "Example"]) {
+    for (const flavour of ["Caramel Cashew", "Rocky Road"]) {
+      assert.equal(productFamilyKey(`${brand} Protein Bar ${flavour} 12 x 55g`),
+        productFamilyKey(`${brand} Protein Bar 55g`));
+    }
+  }
+  for (const family of ["Soft", "Vegan", "Milkshake", "Another Formula"]) {
+    assert.notEqual(productFamilyKey(`Example ${family} Protein Bar Rocky Road 55g`),
+      productFamilyKey("Example Protein Bar 55g"));
+  }
+  assert.match(productFamilyKey("Example Cashew Protein Powder 500g"), /cashew/);
+  assert.match(productFamilyKey("Example Rocky Road Protein Powder 500g"), /rocky road/);
+  assert.match(productFamilyKey("Example Unknown Flavour Protein Bar 55g"), /unknown flavour/);
+});
+
+test("bar flavour family matching retains exact flavour, pack, weight and unit identities", () => {
+  const base = { product_name: "Example Protein Bar Caramel Cashew 55g", brand: "Example",
+    flavour: "Caramel Cashew", size: "55g", product_format: "bar", pack_count: "1" };
+  const differentFlavour = { ...base, flavour: "Rocky Road" };
+  assert.notEqual(rowIdentityKey(base), rowIdentityKey(differentFlavour));
+  for (const [title, size, pack] of [["Example Protein Bar Caramel Cashew 60g", "60g", 1],
+    ["Example Protein Bar Caramel Cashew 12 x 55g", "12 x 55g", 12],
+    ["Example Protein Bar Caramel Cashew 55ml", "55ml", 1]]) {
+    const result = assessVariantCompatibility({ ...base, product_name: title, size, pack_count: String(pack) },
+      { name: "Example Protein Bar 55g", brand: "Example", product_format: "bar" },
+      { size_value: 55, size_unit: "g", pack_count: 1, product_format: "bar", is_default: false, is_active: true });
+    assert.equal(result.compatible, false, title);
+    assert(result.reasons.some(reason => /size|pack-count/.test(reason)), title);
+  }
+});
+
+test("bar dry-run retains exact existing variant and flavour protections", async () => {
+  const importer = require("../import-products");
+  const { createStateClient } = require("./reviewed-catalogue-state");
+  const row = { retailer_name: "Example Shop", retailer_website: "https://shop.example.test",
+    external_product_id: "bar-1", external_variant_id: "bar-1", external_sku: "bar-1",
+    external_gtin: "4006381333931", product_id: "101", product_variant_id: "202",
+    product_name: "Example Protein Bar Caramel Cashew 55g", brand: "Example", category: "Protein Bars",
+    slug: "example-bar", variant_name: "Caramel Cashew /55g", flavour: "Caramel Cashew",
+    size: "55", size_unit: "g", pack_count: "1", product_format: "bar", price: "2.95",
+    shipping_known: "true", shipping_cost: "3.49", in_stock: "true", is_for_sale: "true",
+    image: "https://shop.example.test/bar.png",
+    external_url: "https://shop.example.test/bar-1", affiliate_url: "https://shop.example.test/bar-1" };
+  const product = { id: "101", name: "Example Protein Bar 55g", brand: "Example", category: "Protein Bars",
+    slug: "example-bar", product_format: "bar", is_active: true, merged_into_product_id: null, gtin: null };
+  const variant = { id: "202", product_id: "101", variant_key: "caramel-cashew-55g",
+    display_name: row.variant_name, flavour_code: "caramel cashew", flavour_label: "Caramel Cashew",
+    size_value: "55", size_unit: "g", pack_count: 1, product_format: "bar", gtin: null, is_active: true, is_default: false };
+  for (const patch of [{}, { flavour_code: "rocky road", flavour_label: "Rocky Road" },
+    { size_value: "60" }, { size_unit: "ml" }, { pack_count: 12 }, { product_id: "999" }]) {
+    importer.setSupabaseForTests(createStateClient({ retailer: { id: "7", name: row.retailer_name,
+      slug: "example-shop", website: row.retailer_website }, products: [product],
+      product_variants: [{ ...variant, ...patch }], retailer_products: [], offers: [], price_history: [] }));
+    const result = await importer.runImportRows([row], { mode: "feed", safeCreate: true, dryRun: true });
+    assert.equal(result.report.approvedRows.length, Object.keys(patch).length === 0 ? 1 : 0,
+      `${JSON.stringify(patch)}: ${JSON.stringify(result.report.blockedRows)}`);
+  }
+});
 
 test("owner melatonin exclusion covers every dose and has no reviewed 1mg exception", () => {
   for (const name of ["7Nutrition Melatonin 1mg 60 Capsules", "Soma Melatonin 4 mg", "Melatonin 0.3mg",

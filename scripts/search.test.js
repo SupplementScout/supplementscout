@@ -286,6 +286,7 @@ test("search variant nutrition uses a bounded ID query, not the removed offer FK
     "utf8"
   );
   assert.match(source, /\.from\("product_variants"\)[\s\S]+\.in\("id", variantIds\)/);
+  assert.match(source, /\.from\("product_variants"\)\s*\.select\("[^"]*pack_count[^"]*"\)/);
   assert.doesNotMatch(source, /offers_product_variant_id_fkey/);
 });
 

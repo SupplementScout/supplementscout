@@ -179,6 +179,18 @@ const productAnalytics = {
   category: "Whey Protein",
 };
 
+test("offer fallback labels distinguish a single bar from its carton without a display name", () => {
+  for (const [pack_count, expected] of [[1, "Caramel Choco / 55 g"], [12, "Caramel Choco / 12 x 55 g"],
+    [null, "Caramel Choco / 55 g"], [undefined, "Caramel Choco / 55 g"]]) {
+    const item = offer({ product_variant: { id: "202", variant_key: "caramel-choco", display_name: null,
+      flavour_label: "Caramel Choco", size_value: 55, size_unit: "g", pack_count, product_format: "bar", is_default: false } });
+    assert.equal(getOfferVariantLabel(item), expected);
+  }
+  assert.equal(getOfferVariantLabel(offer({ product_variant: { id: "203", display_name: null,
+    flavour_label: "Berry", size_value: 330, size_unit: "ml", pack_count: 12,
+    product_format: "liquid", is_default: false } })), "Berry / 330 ml");
+});
+
 test("same retailer Chocolate and Vanilla become one shared-price group", () => {
   const groups = groupProductOffers([
     offer(),

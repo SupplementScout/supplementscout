@@ -11,6 +11,7 @@ import {
 } from "./categoryComparison";
 import { resolveCategoryComparisonVariants } from "./categoryComparisonVariants";
 import { isOfferFresh } from "./offerFreshness";
+import { getEffectiveNutritionMetrics } from "./nutritionMetrics";
 import { supabase } from "./supabase";
 
 const QUERY_LIMIT = 1000;
@@ -123,6 +124,7 @@ export function normalizeProteinBarsComparison(
     isOfferInScope: (product, offer) =>
       isExactProteinBarsPackOffer(product as RawProteinBarsProduct, offer),
     isOfferFresh: isProteinBarsOfferFresh,
+    resolveNutritionMetrics: getEffectiveNutritionMetrics,
     now: options.now,
   });
   const packCountByProductId = new Map(

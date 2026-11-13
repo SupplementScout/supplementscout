@@ -183,6 +183,7 @@ export type RawProductVariant = {
   flavour_label?: string | null;
   size_value: number | string | null;
   size_unit: string | null;
+  pack_count?: number | string | null;
   product_format: string | null;
   nutrition_override: Record<string, unknown> | null;
   applied_preworkout_facts?: AppliedPreWorkoutFacts | null;
@@ -250,7 +251,7 @@ async function loadProductVariants(products: RawProduct[]) {
 
   const { data, error } = await supabase
     .from("product_variants")
-    .select("id,product_id,display_name,flavour_label,size_value,size_unit,product_format,nutrition_override")
+    .select("id,product_id,display_name,flavour_label,size_value,size_unit,pack_count,product_format,nutrition_override")
     .eq("is_active", true)
     .in("id", variantIds);
 

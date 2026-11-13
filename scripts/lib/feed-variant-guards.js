@@ -299,7 +299,13 @@ function sizeKey(size) {
 }
 
 function productFamilyKey(value = "") {
-  return normalizeComparableText(value)
+  const text = normalizeComparableText(value);
+  // Compound bar flavours are not product families. Keep these complete phrases
+  // scoped to bar names: e.g. cashew in a powder/ingredient name is meaningful.
+  const family = /\bbars?\b/.test(text)
+    ? text.replace(/\b(caramel cashew|rocky road)\b/g, " ")
+    : text;
+  return family
     .replace(/\b\d+\s*x\s*\d+(?:[.,]\d+)?\s*(kg|g|mg|mcg|iu|l|ml)\b/g, " ")
     .replace(/\b\d+(?:[.,]\d+)?\s*(kg|g|mg|mcg|iu|l|ml)\b/g, " ")
     .replace(/\b(pack\s+of\s+\d+|\d+\s*(bars?|packs?|packets?|sachets?))\b/g, " ")

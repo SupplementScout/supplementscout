@@ -1,3 +1,5 @@
+import type { VariantNutritionMetrics } from "./nutritionMetrics";
+
 export type ProductPresentationInput = {
   id: string | number;
   name: string;
@@ -329,7 +331,10 @@ export function selectedVariantPresentation(
   };
 }
 
-export function buildProductKeyFacts(product: ProductPresentationInput) {
+export function buildProductKeyFacts(
+  product: ProductPresentationInput,
+  variant?: VariantNutritionMetrics
+) {
   const facts: ProductKeyFact[] = [];
   const brand = cleanBrand(product.brand);
   const category = cleanText(product.category);
@@ -345,6 +350,19 @@ export function buildProductKeyFacts(product: ProductPresentationInput) {
   if (category) facts.push({ label: "Category", value: category });
   if (format) facts.push({ label: "Product format", value: format });
   if (weight) facts.push({ label: "Net weight", value: weight });
+  const count = positiveNumber(variant?.pack_count);
+  const barWeight = positiveNumber(variant?.size_value);
+  if (
+    variant?.product_format === "bar" &&
+    variant.size_unit?.trim().toLowerCase() === "g" &&
+    count !== null && Number.isInteger(count) && count > 1 &&
+    barWeight !== null
+  ) {
+    facts.push({
+      label: "Pack size",
+      value: `${formatNumber(count)} × ${formatNumber(barWeight)} g (${formatWeight(barWeight * count)} total)`,
+    });
+  }
   if (volume) facts.push({ label: "Net volume", value: volume });
   if (servings !== null && Number.isInteger(servings)) {
     facts.push({

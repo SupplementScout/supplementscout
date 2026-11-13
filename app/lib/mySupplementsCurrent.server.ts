@@ -58,6 +58,7 @@ type VariantRow = {
   display_name: string | null;
   size_value: number | string | null;
   size_unit: string | null;
+  pack_count?: number | string | null;
   product_format: string | null;
   nutrition_override: Record<string, unknown> | null;
   is_active: boolean | null;
@@ -106,7 +107,7 @@ export async function loadMySupplementsCurrent(
       .in("id", productIds),
     supabaseAdmin
       .from("product_variants")
-      .select("id,product_id,display_name,size_value,size_unit,product_format,nutrition_override,is_active")
+      .select("id,product_id,display_name,size_value,size_unit,pack_count,product_format,nutrition_override,is_active")
       .in("id", variantIds),
     supabaseAdmin
       .from("offers")
