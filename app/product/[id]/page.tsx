@@ -252,14 +252,14 @@ export default async function ProductPage({
   const { data: productVariantData, error: productVariantError } = isPreWorkoutProduct
     ? await supabaseAdmin
         .from("product_variants")
-        .select("id,product_id,variant_key,display_name,flavour_label,size_value,size_unit,product_format,nutrition_override,is_default,is_active")
+        .select("id,product_id,variant_key,display_name,flavour_label,size_value,size_unit,pack_count,product_format,nutrition_override,is_default,is_active")
         .eq("product_id", product.id)
         .eq("is_active", true)
         .order("display_name")
     : requestedVariantId
       ? await supabaseAdmin
           .from("product_variants")
-          .select("id,product_id,variant_key,display_name,flavour_label,size_value,size_unit,product_format,nutrition_override,is_default,is_active")
+          .select("id,product_id,variant_key,display_name,flavour_label,size_value,size_unit,pack_count,product_format,nutrition_override,is_default,is_active")
           .eq("product_id", product.id)
           .eq("id", requestedVariantId)
           .eq("is_active", true)
@@ -299,6 +299,7 @@ export default async function ProductPage({
           flavour_label,
           size_value,
           size_unit,
+          pack_count,
           product_format,
           nutrition_override,
           is_default
@@ -515,7 +516,7 @@ export default async function ProductPage({
     offers: sortedOffers,
     product,
   });
-  const keyFacts = buildProductKeyFacts(selectedPresentation);
+  const keyFacts = buildProductKeyFacts(selectedPresentation, selectedVariant);
   const productAnalytics: ProductAnalyticsContext = {
     product_id: String(product.id),
     product_name: product.name,

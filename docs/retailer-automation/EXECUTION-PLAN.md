@@ -1,5 +1,39 @@
 # Retailer Automation Consolidation Execution Plan
 
+**13 November PR531 release preparation — OWNER AUTHORIZED / PRODUCTION VERIFICATION PENDING:**
+The owner authorized final cleanup, mandatory verification, exactly one squash
+merge and production verification of the existing shared correction. Commercial
+execution of Soft cartons037527/037563/037613 remains separately gated;
+Classic work does not block this shared correction. Compound flavour
+phrases Caramel Cashew/Rocky Road are removed from family keys only in explicit
+bar-name context. Exact flavour, unit, pack, canonical-target and GTIN contracts
+remain independent. Existing gram/bar variants derive total mass from per-bar
+size and pack_count; current read projections carry that field, PDP facts show
+12 ×55g (660g total), and bar comparison/offer labels retain exact packs.
+No stored sizes, verification flags, query count, indexing gate or runtime
+architecture is changed. Existing focused tests, quick/full gates, TypeScript,
+ESLint and isolated build pass. Real local V2 SQL scenarios remain explicitly
+SKIPPED because Docker/local PostgreSQL is unavailable; live full V2 SQL READ ONLY
+accepts all three combined variant+mapping+offer+history plans without writes.
+
+Authenticated Partnerize capture2026-11-13T14:12:24.237Z retains exact manufacturer
+carton GTINs, GBP32+0 and in-stock for all three. Supplier generation time remains
+unknown. One sealed three-row DRAFT requires a separately authorized code release,
+fresh production/source preflight and exact canonical/commercial owner approval.
+The owner additionally confirmed legacy151/145 as Caramel Cashew Single55g in
+the visual handoff. This is identity evidence only: review702 remains PENDING,
+canonical fields/mapping120/offer155 remain unchanged, and all four Classic rows
+stay REVIEW for their separate guarded follow-up. CURRENT264/pending=[] and
+H&B60/60/60 are the read-only baseline. No commercial or technical approval,
+import, workflow dispatch or migration is authorized by this code release.
+The original main has no Vercel configuration. Its temporary branch-only
+suppression file is removed entirely, restoring native preview/production
+deployment. Final-head CI, exact squash/deployment SHA and independent read-only
+postflight receipts are required before reporting release completion; preserve
+them under `tmp/retailer-feeds/pr531-release-20261113/`. RA-001, suspended RA-004
+and SEO priorities remain unchanged.
+See [bounded preparation evidence](evidence/BAREBELLS-SOFT-SHARED-PREPARATION-2026-11-13.json).
+
 **13 November PR530 release preparation — OWNER AUTHORIZED / PRODUCTION VERIFICATION PENDING:**
 The owner authorized cleanup, verification, squash merge and production postflight
 of this existing correction; commercial imports and approvals remain prohibited.

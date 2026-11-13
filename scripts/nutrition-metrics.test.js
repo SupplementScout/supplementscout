@@ -31,6 +31,8 @@ const {
 const {
   getVerifiedCostPer25gProtein,
   getVerifiedPricePerServing,
+  getVerifiedPricePerKg,
+  getDeliveredPrice,
 } = loadModule("app/lib/pricing.ts");
 const { hasCompleteAppliedPreWorkoutFacts, resolveAppliedPreWorkoutFacts } = loadModule(
   "app/lib/reviewedPreWorkoutFacts.ts"
@@ -49,6 +51,46 @@ function product(overrides = {}) {
     ...overrides,
   };
 }
+
+test("bar metrics use total carton mass without enabling unverified unit or nutrition metrics", () => {
+  const parent = product({ product_format: "bar", net_weight_g: 55,
+    unit_pricing_verified: false, nutrition_verified: false });
+  for (const [count, expected] of [[1, 55], [12, 660], [null, 55], [undefined, 55], [0, 55], [-1, 55], [1.5, 55]]) {
+    const result = getEffectiveNutritionMetrics(parent, { size_value: 55, size_unit: "g",
+      pack_count: count, product_format: "bar", nutrition_override: {} });
+    assert.equal(Number(result.net_weight_g), expected, String(count));
+    assert.equal(result.unit_pricing_verified, false);
+    assert.equal(result.nutrition_verified, false);
+    if (count === 12) assert.equal(result.serving_count_verified, null);
+  }
+  const totalParent = product({ product_format: "bar", net_weight_g: 744 });
+  assert.equal(getEffectiveNutritionMetrics(totalParent, { size_value: 62, size_unit: "g",
+    pack_count: 12, product_format: "bar" }).net_weight_g, 744);
+  assert.equal(getEffectiveNutritionMetrics(parent, { size_value: 55, size_unit: "g",
+    pack_count: 12, product_format: "bar", nutrition_override: { net_weight_g: 55 } }).net_weight_g, 660);
+});
+
+test("bar pack arithmetic preserves other formats and non-gram units", () => {
+  assert.equal(getEffectiveNutritionMetrics(product({ net_weight_g: 500 }), {
+    size_value: 500, size_unit: "g", pack_count: 12, product_format: "powder",
+  }).net_weight_g, 500);
+  const liquid = getEffectiveNutritionMetrics(product({ net_weight_g: null, product_format: "liquid" }), {
+    size_value: 330, size_unit: "ml", pack_count: 12, product_format: "liquid",
+  });
+  assert.equal(liquid.net_weight_g, null);
+});
+
+test("already verified carton unit pricing uses all bars without inheriting single-bar servings", () => {
+  const metrics = getEffectiveNutritionMetrics(product({ product_format: "bar", net_weight_g: 55 }), {
+    size_value: 55, size_unit: "g", pack_count: 12, product_format: "bar",
+  });
+  assert.equal(metrics.net_weight_g, 660);
+  assert.equal(metrics.serving_count_verified, null);
+  assert.equal(metrics.nutrition_verified, false);
+  assert.equal(metrics.unit_pricing_verified, true);
+  assert.equal(getVerifiedPricePerKg(getDeliveredPrice({ price: 32, shipping_cost: 0 }),
+    metrics.net_weight_g, metrics.product_format, metrics.unit_pricing_verified), 32 / 0.66);
+});
 
 function reviewedAlignedOverride(overrides = {}) {
   return {

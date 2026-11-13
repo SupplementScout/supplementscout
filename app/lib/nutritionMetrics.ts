@@ -14,6 +14,7 @@ export type ProductNutritionMetrics = {
 export type VariantNutritionMetrics = {
   size_value?: NutritionScalar;
   size_unit?: string | null;
+  pack_count?: NutritionScalar;
   product_format?: string | null;
   nutrition_override?: Record<string, unknown> | null;
 } | null;
@@ -52,7 +53,13 @@ function positiveNumber(value: unknown) {
 
 function variantWeightG(variant: VariantNutritionMetrics) {
   if (variant?.size_unit?.trim().toLowerCase() !== "g") return null;
-  return positiveNumber(variant.size_value);
+  const weight = positiveNumber(variant.size_value);
+  // Bar variants store the mass of one bar, not the total carton contents.
+  // Other formats retain their existing size semantics.
+  const count = positiveInteger(variant.pack_count);
+  return weight !== null && variant.product_format === "bar" && count !== null
+    ? positiveNumber(weight * count)
+    : weight;
 }
 
 function packWeightRoundingTolerance(packWeight: number) {
@@ -181,6 +188,8 @@ export function getEffectiveNutritionMetrics(
       : {};
   const structuralVariantWeight = variantWeightG(variant);
   const productWeight = positiveNumber(product.net_weight_g);
+  const hasStructuralBarPackWeight = structuralVariantWeight !== null &&
+    variant?.product_format === "bar" && (positiveInteger(variant.pack_count) ?? 0) > 1;
   const distinctPackWeight =
     structuralVariantWeight !== null &&
     productWeight !== null &&
@@ -219,7 +228,7 @@ export function getEffectiveNutritionMetrics(
 
   const effective = {
     net_weight_g: (
-      hasVariantAlignedOverride
+      hasVariantAlignedOverride || hasStructuralBarPackWeight
         ? structuralVariantWeight
         : overrideValue(
           override,
