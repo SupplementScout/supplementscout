@@ -1,8 +1,10 @@
 # Retailer Automation Consolidation Execution Plan
 
-**13 November shared bar/carton preparation — LOCAL VERIFIED / NOT RELEASED:**
-The owner separately authorized the three Soft cartons037527/037563/037613;
-unresolved Classic work does not block this shared correction. Compound flavour
+**13 November PR531 release preparation — OWNER AUTHORIZED / PRODUCTION VERIFICATION PENDING:**
+The owner authorized final cleanup, mandatory verification, exactly one squash
+merge and production verification of the existing shared correction. Commercial
+execution of Soft cartons037527/037563/037613 remains separately gated;
+Classic work does not block this shared correction. Compound flavour
 phrases Caramel Cashew/Rocky Road are removed from family keys only in explicit
 bar-name context. Exact flavour, unit, pack, canonical-target and GTIN contracts
 remain independent. Existing gram/bar variants derive total mass from per-bar
@@ -23,9 +25,13 @@ the visual handoff. This is identity evidence only: review702 remains PENDING,
 canonical fields/mapping120/offer155 remain unchanged, and all four Classic rows
 stay REVIEW for their separate guarded follow-up. CURRENT264/pending=[] and
 H&B60/60/60 are the read-only baseline. No commercial or technical approval,
-import, workflow dispatch, migration or deployment occurred. Native Vercel
-deployment suppression applies only to this Draft branch; main/other branches
-retain defaults. RA-001, suspended RA-004 and SEO priorities remain unchanged.
+import, workflow dispatch or migration is authorized by this code release.
+The original main has no Vercel configuration. Its temporary branch-only
+suppression file is removed entirely, restoring native preview/production
+deployment. Final-head CI, exact squash/deployment SHA and independent read-only
+postflight receipts are required before reporting release completion; preserve
+them under `tmp/retailer-feeds/pr531-release-20261113/`. RA-001, suspended RA-004
+and SEO priorities remain unchanged.
 See [bounded preparation evidence](evidence/BAREBELLS-SOFT-SHARED-PREPARATION-2026-11-13.json).
 
 **13 November PR530 release preparation — OWNER AUTHORIZED / PRODUCTION VERIFICATION PENDING:**

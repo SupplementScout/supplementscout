@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "task": "Owner-scoped generic bar flavour and multipack preparation",
-  "status": "LOCAL_VERIFIED_NOT_RELEASED",
+  "status": "OWNER_AUTHORIZED_RELEASE_PREPARATION_PENDING_PRODUCTION_VERIFICATION",
   "base_main": "bb75876aa2f9c2dfa44dd07cc579a8ec77c45e7b",
   "retailer_id": 16,
   "soft_parent_product_id": 958,
@@ -65,19 +65,21 @@
   },
   "production_baseline": {"captured_at": "2026-11-13T14:12:26.717Z", "ledger": 264, "pending": [], "hb_mappings": 60, "hb_offers": 60, "hb_history": 60},
   "preview_safety": {
-    "native_config": "vercel.json",
-    "only_disabled_branch": "fix/bar-flavours-multipack-20261113",
-    "other_branches_default_enabled": true,
+    "native_config": null,
+    "temporary_vercel_json_removed_entirely": true,
+    "original_main_has_no_vercel_config": true,
+    "native_preview_and_production_deployment_restored": true,
     "documentation": "https://vercel.com/docs/project-configuration/git-configuration#gitdeploymentenabled"
   },
   "local_evidence_directory": "tmp/retailer-feeds/barebells-soft-20261113/",
-  "release_gate": "One Draft PR only. Separate owner release authorization, matching final CI, production deployment verification and refreshed sealed V2 package are required before any commercial execution.",
+  "release_gate": "Owner authorized cleanup and exactly one PR531 squash release. Require final-head CI, native preview success, matching squash/production SHA and independent read-only postflight. Commercial execution still requires a refreshed sealed V2 package and separate exact owner authority.",
+  "release_evidence_directory": "tmp/retailer-feeds/pr531-release-20261113/",
   "production_writes": 0,
   "staging_writes": 0,
   "approvals_created_or_consumed": 0,
   "migrations": 0,
   "imports": 0,
-  "deployments": 0,
+  "deployments_during_original_preparation": 0,
   "workflow_dispatches": 0,
   "ra001_and_suspended_ra004_unchanged": true
 }
