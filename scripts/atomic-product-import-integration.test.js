@@ -334,6 +334,77 @@ function reviewedCatalogueUrlScenarios(container, database) {
   missingBinding.retailer_product.values.external_gtin = "5056555202128";
   refreshPlanFingerprint(missingBinding);
   rejectsBoth(missingBinding, "legacy-missing-binding", /GTIN conflicts with another source row/);
+
+  // Reproduce the exact Default145 contract gap on disposable PostgreSQL only.
+  execute(`insert into products(id,name,slug,brand,category,product_format,is_active)
+    values(151,'Example Classic Protein Bars','example-classic-bars','Example','Protein Bars','bar',true);
+    insert into product_variants(id,product_id,variant_key,display_name,is_active,is_default)
+    values(145,151,'default','Default',true,true);`);
+  const historical = plan("default-historical", 981003, null, 151, 145);
+  const historicalApproval = approve(historical, "default-historical");
+  query(applySql(historical, historicalApproval));
+  const historicalRows = () => query(`select jsonb_agg(to_jsonb(rp)||jsonb_build_object('offer',to_jsonb(o)))
+    from retailer_products rp join offers o on o.retailer_product_id=rp.id
+    where rp.external_variant_id='url-default-historical'`);
+  const historicalBefore = historicalRows();
+  execute(`insert into product_variants(id,product_id,variant_key,display_name,flavour_code,flavour_label,size_value,size_unit,pack_count,product_format,is_active,is_default)
+    values(4556,151,'cookies-and-cream-55g','Cookies & Cream /55g','cookies and cream','Cookies & Cream',55,'g',1,'bar',true,false);`);
+  const default145 = plan("default145-explicit", 981003, null, 151, 145);
+  Object.assign(default145.product_variant.evidence, { flavour: "caramel cashew", size_value: "55", size_unit: "g", pack_count: "1", product_format: "bar" });
+  refreshPlanFingerprint(default145);
+  assert.deepEqual(query(readOnlySql(default145)), { plan_kind: "feed", retailer_id: 981003 }, "old preflight falsely accepts145");
+  const failedApproval = approve(default145, "default145-explicit");
+  const beforeFailedApply = counts();
+  fail(applySql(default145, failedApproval), /variant evidence does not match default product variant/);
+  assert.deepEqual(counts(), beforeFailedApply, "failed execution must roll back all business writes");
+  assert.equal(query(`select to_jsonb(status) from approved_import_plans where id=${sqlLiteral(failedApproval.approval_id)}::uuid`), "approved");
+  const coreDefinitions = () => query(`select jsonb_agg(jsonb_build_object('definition',pg_get_functiondef(oid),'acl',proacl::text,'owner',proowner::text) order by oid)
+    from pg_proc where oid in ('public.atomic_import_validate_standard_plan_core(jsonb)'::regprocedure,
+      'public.atomic_import_apply_standard_plan_core(jsonb)'::regprocedure,
+      'public.apply_approved_product_import_plan(uuid,text,text,text,bigint,text,text)'::regprocedure)`);
+  const coresBefore = coreDefinitions(), approvalBindingsBefore = bindingState(), countsBeforeDefaultFix = counts();
+  const defaultFix = path.join(root, "docs/retailer-automation/proposals/20261113180000_align_reviewed_default_variant_preflight.sql");
+  requireSuccess(psqlFile(container, database, defaultFix), "harden shared V2 eligibility on isolated DB");
+  const hardened = query("select to_jsonb(pg_get_functiondef('public.validate_reviewed_catalogue_import_identity(jsonb)'::regprocedure))");
+  requireSuccess(psqlFile(container, database, defaultFix), "idempotent Default eligibility migration");
+  assert.equal(query("select to_jsonb(pg_get_functiondef('public.validate_reviewed_catalogue_import_identity(jsonb)'::regprocedure))"), hardened);
+  assert.deepEqual(coreDefinitions(), coresBefore, "executor and core security metadata must stay unchanged");
+  assert.deepEqual(bindingState(), approvalBindingsBefore); assert.deepEqual(counts(), countsBeforeDefaultFix);
+  assert.deepEqual(validatorAcl(), aclBefore); assert.deepEqual(historicalRows(), historicalBefore);
+  rejectsBoth(default145, "default145-after-fix", /variant evidence does not match default product variant/);
+  const unknownDefault = plan("default-unknown-siblings", 981003, null, 151, 145);
+  rejectsBoth(unknownDefault, "default-unknown-siblings", /variant evidence does not match default product variant/);
+  execute("update product_variants set is_active=false where id=4556");
+  const noSiblingDefault = plan("default-unknown-only", 981003, null, 151, 145);
+  assert.deepEqual(query(readOnlySql(noSiblingDefault)), { plan_kind: "feed", retailer_id: 981003 });
+  for (const [field, value] of [["flavour", "chocolate"], ["size_value", "55"]]) {
+    const invalid = structuredClone(noSiblingDefault); invalid.product_variant.evidence[field] = value; refreshPlanFingerprint(invalid);
+    rejectsBoth(invalid, `default-explicit-${field}`, /variant evidence does not match default product variant/);
+  }
+  execute("update product_variants set is_active=true where id=4556");
+  const exactSpecific = plan("default-fix-specific", 981003, null, 151, 4556);
+  assert.deepEqual(query(readOnlySql(exactSpecific)), { plan_kind: "feed", retailer_id: 981003 });
+  for (const [field, value] of [["flavour", "Caramel Cashew"], ["size_value", "60"], ["pack_count", "12"]]) {
+    const invalid = structuredClone(exactSpecific); invalid.product_variant.evidence[field] = value; refreshPlanFingerprint(invalid);
+    rejectsBoth(invalid, `specific-wrong-${field}`, /sellable unit/);
+  }
+  query(applySql(exactSpecific, approve(exactSpecific, "default-fix-specific")));
+  const carton = plan("default-fix-carton", 981003, null, 151, 4556);
+  carton.product_variant = { action: "create_variant", values: {
+    variant_key: "cookies-and-cream-55g-12-pack", display_name: "Cookies & Cream /12 x55g",
+    flavour_code: "cookies and cream", flavour_label: "Cookies & Cream", size_value: "55", size_unit: "g", pack_count: "12", product_format: "bar",
+  }, evidence: { ...carton.product_variant.evidence, pack_count: "12", external_options: null } };
+  carton.expected_state.product_variant = null; carton.retailer_product.values.product_variant_id = null;
+  carton.retailer_product.values.external_options = null; refreshPlanFingerprint(carton);
+  assert.deepEqual(query(readOnlySql(carton)), { plan_kind: "feed", retailer_id: 981003 });
+  query(applySql(carton, approve(carton, "default-fix-carton")));
+  const duplicate = structuredClone(carton);
+  Object.assign(duplicate.retailer_product.values, { external_product_id: "duplicate-carton", external_variant_id: "duplicate-carton", external_sku: "duplicate-carton", external_url: "https://third.test/duplicate-carton" });
+  // Keep the registered merchant host while giving the duplicate a fresh source identity.
+  duplicate.retailer_product.values.external_url = exactSpecific.expected_state.retailer.website + "/duplicate-carton";
+  duplicate.offer.values.url = duplicate.retailer_product.values.external_url; refreshPlanFingerprint(duplicate);
+  rejectsBoth(duplicate, "duplicate-carton", /equivalent reviewed catalogue variant already exists/);
+  assert.deepEqual(historicalRows(), historicalBefore, "historical Default mapping/offer remain unchanged");
 }
 
 test("atomic import execution and approval ledger expose only guarded service-role RPCs", () => {

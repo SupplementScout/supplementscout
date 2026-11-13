@@ -1,0 +1,8 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "fix/reviewed-default-preflight-20261113": false
+    }
+  }
+}

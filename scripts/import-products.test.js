@@ -9315,6 +9315,57 @@ test("reviewed V2 CLI requires an explicit protected target while legacy argumen
   assert.equal(legacy.reviewedTarget, null);
 });
 
+test("reviewed V2 mirrors Default execution eligibility before sealing a plan", async (t) => {
+  const cases = [
+    { name: "unknown Default without specific siblings", flavour: null, size: null, pass: true },
+    { name: "production151/145 Caramel Cashew55g with active4556", flavour: "Caramel Cashew", size: "55", sibling: true },
+    { name: "explicit contradictory Default flavour", flavour: "Chocolate", size: null },
+    { name: "explicit Default size", flavour: null, size: "55" },
+    { name: "unknown Default with a specific sibling", flavour: null, size: null, sibling: true },
+    { name: "valid exact non-default remains eligible", flavour: "Caramel Cashew", size: "55", specific: true, pass: true },
+  ];
+  for (const scenario of cases) await t.test(scenario.name, async () => {
+    const row = baseCanonicalFeedRow({
+      product_id: "151", product_variant_id: "145", product_name: "Example Protein Bars",
+      brand: "Example", category: "Protein Bars", slug: "example-protein-bars", product_format: "bar",
+      variant_name: scenario.specific ? "Caramel Cashew /55g" : "Default",
+      flavour: scenario.flavour || "", size: scenario.size || "", size_unit: scenario.size ? "g" : "",
+      external_gtin: "", external_options: "", pack_count: "1",
+      external_product_id: "classic-single", external_variant_id: "classic-single", external_sku: "CLASSIC-SINGLE",
+      external_url: "https://example.test/products/classic-single", affiliate_url: "https://affiliate.example/classic-single",
+    });
+    const profile = reviewedV2Profile();
+    Object.assign(profile.profile.rows[0], {
+      action: "map_existing_variant", product_id: 151, product_variant_id: 145,
+      external_product_id: row.external_product_id, external_variant_id: row.external_variant_id,
+      product_name: row.product_name, variant_name: row.variant_name, brand: row.brand, category: row.category,
+      flavour: scenario.flavour, size_value: scenario.size, size_unit: scenario.size ? "g" : null,
+      pack_count: "1", product_format: "bar", external_url: row.external_url, affiliate_url: row.affiliate_url,
+    });
+    const variant = { id: 145, product_id: 151, variant_key: scenario.specific ? "caramel-cashew-55g" : "default",
+      display_name: row.variant_name, flavour_code: scenario.specific ? "caramel cashew" : null,
+      flavour_label: scenario.specific ? "Caramel Cashew" : null, size_value: scenario.specific ? 55 : null,
+      size_unit: scenario.specific ? "g" : null, pack_count: scenario.specific ? 1 : null,
+      product_format: scenario.specific ? "bar" : null, is_active: true, is_default: !scenario.specific };
+    const variants = [variant];
+    if (scenario.sibling) variants.push({ id: 4556, product_id: 151, variant_key: "cookies-and-cream-55g",
+      display_name: "Cookies & Cream /55g", flavour_code: "cookies and cream", flavour_label: "Cookies & Cream",
+      size_value: 55, size_unit: "g", pack_count: 1, product_format: "bar", is_active: true, is_default: false });
+    const supabase = createMockSupabase(reviewedSeed({
+      retailers: [profile.manifest.retailer], products: [{ id: 151, name: row.product_name, slug: row.slug,
+        brand: row.brand, category: row.category, product_format: "bar", is_active: true, merged_into_product_id: null }],
+      product_variants: variants, retailer_products: [], offers: [], price_history: [],
+    }));
+    const before = JSON.stringify(variants); setSupabaseForTests(supabase);
+    const normalized = normalizeCanonicalRetailerFeedRows([row], { safeCreate: true, reviewedCatalogueProfile: profile });
+    const result = await runImportRowsRaw(normalized, { mode: "feed", safeCreate: true, dryRun: true, rowsAlreadyNormalized: true });
+    assert.equal(result.report.approvedRows.length, scenario.pass ? 1 : 0, JSON.stringify(result.blockedRows));
+    if (!scenario.pass) assert.match(JSON.stringify(result.blockedRows), /variant evidence does not match default product variant/);
+    assert.equal(result.report.productVariantsToCreate.length, 0, "never create an alternative duplicate");
+    assert.equal(JSON.stringify(variants), before); assert.equal(supabase.writes.length, 0);
+  });
+});
+
 test("reviewed V3 plans plural flavour with raw Size and Weight semantics without source rewriting", async () => {
   const externalOptions = { Flavours: "Grapefruit", Size: "35 Servings", Weight: "875g" };
   const row = baseCanonicalFeedRow({

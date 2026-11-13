@@ -1,0 +1,130 @@
+{
+  "kind": "reviewed-default-preflight-draft-preparation",
+  "status": "LOCAL_AND_REMOTE_VERIFIED_DRAFT_NOT_RELEASED",
+  "production_main": "225a8c9af0022ee48e79af9cb5469c5750a6f23d",
+  "production_ledger": 264,
+  "production_pending": [],
+  "production_hb_counts": [
+    64,
+    64,
+    64
+  ],
+  "committed065235": {
+    "variant": 4556,
+    "mapping": 4740,
+    "offer": 4553,
+    "history": 58362,
+    "unchanged": true
+  },
+  "legacy145": {
+    "status": "REVIEW",
+    "canonical_changes": 0,
+    "mapping120_changed": false,
+    "offer155_changed": false,
+    "review702": "PENDING"
+  },
+  "old_approval": {
+    "status": "approved",
+    "consumed_at": null,
+    "expires_at": "2026-11-13T17:45:38.737Z",
+    "expired_at_readback": true,
+    "reused_or_revoked": false
+  },
+  "fix": {
+    "planner": "Reject unsafe reviewed V2 Default and prevent fallback after exact-target rejection",
+    "executor": "UNCHANGED",
+    "sql": "Unregistered, unapplied proposal to harden the shared reviewed V2 identity validator",
+    "v3_security": "UNCHANGED"
+  },
+  "sql_proposal": "docs/retailer-automation/proposals/20261113180000_align_reviewed_default_variant_preflight.sql",
+  "source": {
+    "capture": "2026-11-13T17:47:46.796Z",
+    "sha256": "21c7b31a99fcb247daa7bcb7807fd0ec41f32d2be64177c3e152460c6c2435a1",
+    "supplier_generated_at": null,
+    "tls_verified": true
+  },
+  "independent_cartons": {
+    "skus": [
+      "037589",
+      "037605"
+    ],
+    "status": "READY_FOR_OWNER_APPROVAL",
+    "baseline": 64,
+    "new_variants": 2,
+    "new_products": 0,
+    "dry_run_pass": 2,
+    "sql_readonly_pass": 2,
+    "price_gbp": "32.00",
+    "shipping_gbp": "0.00",
+    "in_stock": true,
+    "projected_hb_count": 66,
+    "artifact_sha256": "e8c5c36ef5902d5c097dc755000437db486f65e361d3093181291cf08a865b9c",
+    "fresh_owner_business_approval_required": true
+  },
+  "focused_regressions": {
+    "pass": 458,
+    "fail": 0
+  },
+  "postgres_contracts": {
+    "local": {
+      "static_pass": 3,
+      "real_sql_skip": 3,
+      "reason": "Docker unavailable"
+    },
+    "github": {
+      "run_id": 43480353727,
+      "url": "https://github.com/SupplementScout/supplementscout/actions/runs/43480353727",
+      "head": "f120589002e8ea03cb44dca63887d8529441d150",
+      "attempt": 1,
+      "pass": 195,
+      "fail": 0,
+      "skip": 0,
+      "real_atomic_default_regression": "PASS",
+      "v2_bounded_state": "PASS",
+      "v3_protected_lineages": "PASS"
+    },
+    "runtime_proposal_verified_in_isolated_test": true,
+    "production_sql_proposal_applied": false
+  },
+  "test_inventory": {
+    "files": 362,
+    "changed_test_filenames": false,
+    "inventory_reseal": "Existing filename seal reviewed and verified unchanged"
+  },
+  "preserved": {
+    "six_pack_pending": 223,
+    "discount": "UNCHANGED",
+    "soft_variants": [
+      4553,
+      4554,
+      4555
+    ],
+    "seo_active": "SEO-20",
+    "ra004": "SUSPENDED"
+  },
+  "production_writes": 0,
+  "staging_writes": 0,
+  "new_approvals": 0,
+  "imports": 0,
+  "deployments": 0,
+  "local_quality": {
+    "quick": {
+      "pass": 1174,
+      "skip": 3,
+      "result": "PASS"
+    },
+    "full": {
+      "pass": 3899,
+      "skip": 3,
+      "result": "PASS"
+    },
+    "typescript": "PASS",
+    "eslint": "PASS",
+    "build": "PASS",
+    "project_guardian": "PASS"
+  },
+  "test_workflow_dispatches": 1,
+  "retailer_workflow_dispatches": 0,
+  "workflow_reruns": 0,
+  "sql_proposal_sha256": "241d63abfe824d85e8733961e4e1dfd9874de5c7efbaac4b9ad994b611574e15"
+}

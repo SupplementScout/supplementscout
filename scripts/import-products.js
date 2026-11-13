@@ -5520,13 +5520,37 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
       ) {
         throw new Error("reviewed catalogue variant target mismatch");
       }
+      if (
+        genericReviewedExistingVariant.contract === "reviewed-catalogue-package-v2" &&
+        reviewedVariant.is_default
+      ) {
+        const evidence = collectCanonicalVariantEvidence(shippingNormalizedRow);
+        // A reviewed target ID does not turn an unspecified Default into an
+        // exact flavour/size. Mirror the unchanged atomic execution boundary.
+        if (evidence.flavour || evidence.size) {
+          throw new Error("variant evidence does not match default product variant");
+        }
+        const { data: specificVariants, error: specificVariantError } = await getSupabase()
+          .from("product_variants")
+          .select("id")
+          .eq("product_id", product.id)
+          .eq("is_active", true)
+          .eq("is_default", false);
+        if (specificVariantError) throw specificVariantError;
+        if ((specificVariants || []).length > 0) {
+          throw new Error("variant evidence does not match default product variant");
+        }
+      }
       productVariant = reviewedVariant;
     } catch (error) {
       variantResolutionError = error?.message || String(error);
     }
   }
 
-  if (validationErrors.length === 0 && product?.id && !productVariant) {
+  if (
+    validationErrors.length === 0 && product?.id && !productVariant &&
+    !(genericReviewedExistingVariant?.contract === "reviewed-catalogue-package-v2" && variantResolutionError)
+  ) {
     try {
       productVariant = await resolveCanonicalProductVariant(
         shippingNormalizedRow,
