@@ -1,6 +1,20 @@
 # Retailer Automation Consolidation Execution Plan
 
-**13 November generic cream-flavour correction — LOCAL VERIFIED / NOT DEPLOYED:**
+**13 November PR530 release preparation — OWNER AUTHORIZED / PRODUCTION VERIFICATION PENDING:**
+The owner authorized cleanup, verification, squash merge and production postflight
+of this existing correction; commercial imports and approvals remain prohibited.
+The base has no Vercel configuration. The temporary branch-only deployment
+suppression is removed in full, restoring native preview/production deployment.
+Focused regressions additionally reject wrong explicit product and variant IDs.
+Independent production READ ONLY checks at `2026-11-13T07:09:31.822Z` accept both
+prepared V2 plans and reject invalid-checksum and conflicting-canonical GTINs
+through the deployed full SQL validator. The ordinary importer dry-run does not
+validate GTIN checksums; that existing mandatory V2 SQL boundary is unchanged.
+The release must retain the final-head CI, exact squash deployment and independent
+read-only postflight receipts before declaring production verification complete.
+No new SQL, workflow, importer or commercial authority is introduced.
+
+**13 November generic cream-flavour preparation — HISTORICAL LOCAL VERIFICATION:**
 The shared safe-create cream-word check incorrectly excluded an exact existing
 protein variant named Vanilla Ice Cream. The narrow generic correction removes
 only recognised flavour phrases from that one exclusion check in protein-powder
@@ -23,9 +37,9 @@ retains separate commercial approval requirements; no OWNER_APPROVED manifest,
 technical approval or apply was created.111790 remains conditional on a separately
 authorized code release and production verification, followed by fresh preflight.
 
-Native Vercel configuration disables automatic deployment only for this draft
-branch to honor the no-deployment boundary. Main and other branches keep the
-default deployment behavior. The72 human-review cases and all historical NO/UNSURE
+Temporary native Vercel configuration disabled automatic deployment only for the
+original draft branch to honor its no-deployment boundary; the owner-authorized
+release cleanup above removes it. The72 human-review cases and all historical NO/UNSURE
 decisions remain unchanged; the next focused evidence pass is the eight Applied
 Nutrition barcode/version cases. RA-001, suspended RA-004 and SEO priorities stay
 unchanged. See [preparation evidence](evidence/CREAM-FLAVOUR-TWO-CANDIDATE-PREPARATION-2026-11-13.json).

@@ -98,6 +98,8 @@ test("cream flavour mapping retains existing canonical identity protections in a
     { name: "exact existing identity", allow: true },
     { name: "missing product binding", row: { product_id: "" } },
     { name: "missing variant binding", row: { product_variant_id: "" } },
+    { name: "wrong canonical product binding", row: { product_id: "999" } },
+    { name: "wrong canonical variant binding", row: { product_variant_id: "999" } },
     { name: "inactive product", product: { is_active: false } },
     { name: "inactive variant", variant: { is_active: false } },
     { name: "foreign variant", variant: { product_id: "999" } },
