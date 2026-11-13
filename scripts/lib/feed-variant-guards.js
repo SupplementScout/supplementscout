@@ -816,6 +816,24 @@ function safeCreateEvidenceText(row) {
     .join(" ");
 }
 
+function safeCreateCreamEvidence(row, evidence) {
+  const names = [row.product_name, row.external_name, row.name, row.evidence_name]
+    .filter(Boolean).join(" ");
+  const proteinPowder = ["Whey Protein", "Protein Powder"].includes(String(row.category || "").trim()) &&
+    /\b(?:protein|whey|casein)\b/i.test(names) &&
+    (explicitProductFormat(row.product_format) || parseProductFormat(names)) === "powder";
+  if (!proteinPowder || /\b(?:face|facial|skin|skincare|cosmetic|cosmetics|moisturiser|moisturizer)\b/i.test(evidence)) {
+    return evidence;
+  }
+
+  // Remove only recognised flavour phrases from the cream check, not other exclusions.
+  // Any remaining cream word still represents unresolved product-type evidence.
+  return normalizeComparableText(evidence).replace(
+    /\b(?:ice|custard|(?:cookies?|strawberr(?:y|ies)|raspberr(?:y|ies)|peach(?:es)?|banana|chocolate)(?: (?:and|n))?) cream\b/g,
+    " ",
+  );
+}
+
 function cataloguePolicyDecision(row) {
   const identity = [row.product_name, row.external_name, row.name, row.evidence_name, row.category,
     row.raw_category, row.merchant_category].filter(Boolean).join(" ");
@@ -1001,7 +1019,9 @@ function getSafeCreateExclusionReasons(row, options = {}) {
       continue;
     }
 
-    if (pattern.test(text)) {
+    if (pattern.test(pattern === SAFE_CREATE_CREAM_EXCLUSION_PATTERN
+      ? safeCreateCreamEvidence(row, text)
+      : text)) {
       return ["excluded product type"];
     }
   }

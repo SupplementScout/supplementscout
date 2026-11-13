@@ -1,5 +1,35 @@
 # Retailer Automation Consolidation Execution Plan
 
+**13 November generic cream-flavour correction — LOCAL VERIFIED / NOT DEPLOYED:**
+The shared safe-create cream-word check incorrectly excluded an exact existing
+protein variant named Vanilla Ice Cream. The narrow generic correction removes
+only recognised flavour phrases from that one exclusion check in protein-powder
+evidence. Cosmetic evidence, remaining cream words, all other exclusions and the
+existing category/GTIN/variant guards are preserved. No retailer-specific rule,
+SQL change or new importer is introduced. Five regression tests cover flavours,
+cosmetics, exclusions and exact existing identity protections. Quick/full gates,
+TypeScript, ESLint and the isolated build pass; the new test file is registered
+and the complete 362-file test inventory is resealed.
+
+READ ONLY production evidence confirms CURRENT264, pending=[] and H&B16 at
+50 mappings/offers/initial histories, with existing commercial/control data,
+SQL functions, Six Pack223 PENDING cards and Discount unchanged. Authenticated
+Partnerize capture `2026-11-13T06:30:48.172Z` contains4691 rows; supplier generation
+time remains unknown. SKU065569 maps to296/790, GBP63.70+0, in stock, and passes
+the deployed classifier and full V2 read-only contract. SKU111790 maps to1371/4055,
+GBP48+0, in stock: deployed code still blocks it, while the prepared correction
+and full SQL read-only validation pass. One sealed two-row free-shipping DRAFT
+retains separate commercial approval requirements; no OWNER_APPROVED manifest,
+technical approval or apply was created.111790 remains conditional on a separately
+authorized code release and production verification, followed by fresh preflight.
+
+Native Vercel configuration disables automatic deployment only for this draft
+branch to honor the no-deployment boundary. Main and other branches keep the
+default deployment behavior. The72 human-review cases and all historical NO/UNSURE
+decisions remain unchanged; the next focused evidence pass is the eight Applied
+Nutrition barcode/version cases. RA-001, suspended RA-004 and SEO priorities stay
+unchanged. See [preparation evidence](evidence/CREAM-FLAVOUR-TWO-CANDIDATE-PREPARATION-2026-11-13.json).
+
 **12 November reviewed GTIN migration264 — DATABASE VERIFIED / REPOSITORY CLOSEOUT PREPARED:**
 Owner-authorized standard runner rehearsal PASS (`committed:false`) rolled back;
 independent readback found all207 original functions, owners and ACL unchanged.
