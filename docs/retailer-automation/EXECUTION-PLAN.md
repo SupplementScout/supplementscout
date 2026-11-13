@@ -1,5 +1,49 @@
 # Retailer Automation Consolidation Execution Plan
 
+**13 November PR530 release preparation — OWNER AUTHORIZED / PRODUCTION VERIFICATION PENDING:**
+The owner authorized cleanup, verification, squash merge and production postflight
+of this existing correction; commercial imports and approvals remain prohibited.
+The base has no Vercel configuration. The temporary branch-only deployment
+suppression is removed in full, restoring native preview/production deployment.
+Focused regressions additionally reject wrong explicit product and variant IDs.
+Independent production READ ONLY checks at `2026-11-13T07:09:31.822Z` accept both
+prepared V2 plans and reject invalid-checksum and conflicting-canonical GTINs
+through the deployed full SQL validator. The ordinary importer dry-run does not
+validate GTIN checksums; that existing mandatory V2 SQL boundary is unchanged.
+The release must retain the final-head CI, exact squash deployment and independent
+read-only postflight receipts before declaring production verification complete.
+No new SQL, workflow, importer or commercial authority is introduced.
+
+**13 November generic cream-flavour preparation — HISTORICAL LOCAL VERIFICATION:**
+The shared safe-create cream-word check incorrectly excluded an exact existing
+protein variant named Vanilla Ice Cream. The narrow generic correction removes
+only recognised flavour phrases from that one exclusion check in protein-powder
+evidence. Cosmetic evidence, remaining cream words, all other exclusions and the
+existing category/GTIN/variant guards are preserved. No retailer-specific rule,
+SQL change or new importer is introduced. Five regression tests cover flavours,
+cosmetics, exclusions and exact existing identity protections. Quick/full gates,
+TypeScript, ESLint and the isolated build pass; the new test file is registered
+and the complete 362-file test inventory is resealed.
+
+READ ONLY production evidence confirms CURRENT264, pending=[] and H&B16 at
+50 mappings/offers/initial histories, with existing commercial/control data,
+SQL functions, Six Pack223 PENDING cards and Discount unchanged. Authenticated
+Partnerize capture `2026-11-13T06:30:48.172Z` contains4691 rows; supplier generation
+time remains unknown. SKU065569 maps to296/790, GBP63.70+0, in stock, and passes
+the deployed classifier and full V2 read-only contract. SKU111790 maps to1371/4055,
+GBP48+0, in stock: deployed code still blocks it, while the prepared correction
+and full SQL read-only validation pass. One sealed two-row free-shipping DRAFT
+retains separate commercial approval requirements; no OWNER_APPROVED manifest,
+technical approval or apply was created.111790 remains conditional on a separately
+authorized code release and production verification, followed by fresh preflight.
+
+Temporary native Vercel configuration disabled automatic deployment only for the
+original draft branch to honor its no-deployment boundary; the owner-authorized
+release cleanup above removes it. The72 human-review cases and all historical NO/UNSURE
+decisions remain unchanged; the next focused evidence pass is the eight Applied
+Nutrition barcode/version cases. RA-001, suspended RA-004 and SEO priorities stay
+unchanged. See [preparation evidence](evidence/CREAM-FLAVOUR-TWO-CANDIDATE-PREPARATION-2026-11-13.json).
+
 **12 November reviewed GTIN migration264 — DATABASE VERIFIED / REPOSITORY CLOSEOUT PREPARED:**
 Owner-authorized standard runner rehearsal PASS (`committed:false`) rolled back;
 independent readback found all207 original functions, owners and ACL unchanged.

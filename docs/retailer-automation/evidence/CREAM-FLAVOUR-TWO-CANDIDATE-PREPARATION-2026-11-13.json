@@ -1,0 +1,192 @@
+{
+  "schema_version": 1,
+  "kind": "generic-cream-flavour-classification-preparation",
+  "state": "LOCAL_VERIFIED_NOT_DEPLOYED",
+  "baseline_main": "ff34a49136617adf0eb814137deda163928f15ae",
+  "production_project_ref": "aftboxmrdgyhizicfsfu",
+  "production_readback": {
+    "result": "PASS",
+    "before": "2026-11-13T06:27:33.689Z",
+    "after": "2026-11-13T06:44:00.755Z",
+    "hb": {
+      "mappings": 50,
+      "offers": 50,
+      "initial_history": 50
+    },
+    "migration_ledger": 264,
+    "pending": [],
+    "all_commercial_and_canonical_content_digests_unchanged": true,
+    "approval_rows_unchanged": true,
+    "sql_functions_and_permissions_unchanged": true,
+    "six_pending223_unchanged": true,
+    "discount_and_other_retailers_unchanged": true,
+    "only_concurrent_analytics_changes": [
+      {
+        "table": "outbound_clicks",
+        "before": "6200",
+        "after": "6207"
+      }
+    ],
+    "approval_rpc_calls": 0,
+    "apply_rpc_calls": 0,
+    "database_writes": 0
+  },
+  "root_cause": "The shared safe-create exclusion tests every cream word unless an existing reviewed-family flag allows it; a legitimate flavour on an exact existing protein variant is therefore excluded.",
+  "correction": "Recognise only known cream flavour phrases in Whey Protein/Protein Powder powder evidence. Cosmetic evidence and any remaining cream word remain blocked; every other exclusion and existing category/identity guard remains unchanged.",
+  "retailer_specific_exceptions_added": 0,
+  "quality": {
+    "regression_tests": 5,
+    "quick": {
+      "result": "PASS",
+      "passed": 1173,
+      "skipped": 3,
+      "failed": 0
+    },
+    "full": {
+      "result": "PASS",
+      "passed": 3882,
+      "skipped": 3,
+      "failed": 0
+    },
+    "skipped_reason": "Three pre-existing 10 Reps v8 cases require intentionally untracked immutable bootstrap artifacts; unchanged skip conditions.",
+    "typescript": "PASS",
+    "eslint": "PASS",
+    "baseline_migrations": "PASS_READ_ONLY_VALIDATION",
+    "next_build": "PASS_ISOLATED_LOOPBACK_SUPABASE",
+    "test_inventory": {
+      "files": 362,
+      "sha256": "1d6c0e4343097184171f040353c1d4545554b885b3e306779a88fd776fbcd177"
+    }
+  },
+  "source": {
+    "retrieved_at": "2026-11-13T06:30:48.172Z",
+    "http_status": 200,
+    "rows": 4691,
+    "sha256": "57ecc5e08ba4cd165b8e929a5f218aff4ed213e35cb831e0f5c1005f9dd7d0af",
+    "supplier_generated_at": null
+  },
+  "candidates": [
+    {
+      "sku": "111790",
+      "product_id": 1371,
+      "variant_id": 4055,
+      "gtin": "5060751998495",
+      "price_gbp": "48.00",
+      "shipping_gbp": "0.00",
+      "in_stock": true,
+      "readiness": "CONDITIONALLY_READY_AFTER_CODE_DEPLOYMENT_AND_VERIFICATION",
+      "owner_commercial_approval": false
+    },
+    {
+      "sku": "065569",
+      "product_id": 296,
+      "variant_id": 790,
+      "gtin": "6009544953586",
+      "price_gbp": "63.70",
+      "shipping_gbp": "0.00",
+      "in_stock": true,
+      "readiness": "READY_FOR_SEPARATE_OWNER_COMMERCIAL_APPROVAL",
+      "owner_commercial_approval": false
+    }
+  ],
+  "draft": {
+    "profile_id": "hb-next-two-free-20261113",
+    "manifest_status": "DRAFT_AWAITING_OWNER_APPROVAL",
+    "manifest_sha256": "8da4239356c1c576430ae62ef2108ddde98dd7eb99bdb9d27e11fe9b3ac5165e",
+    "artifact_sha256": "c8a5ad1dbc1ae95cdd26191edba4fae55a98c4581b126f343f112856fb5800a7",
+    "full_v2_sql_readonly": "PASS_2_OF_2",
+    "current_main_dry_run": {
+      "111790": "BLOCK_EXCLUDED_PRODUCT_TYPE",
+      "065569": "PASS"
+    },
+    "approval_eligibility": "PASS_TECHNICAL_ONLY_NO_OWNER_AUTHORIZATION",
+    "owner_approved_manifests_created": 0,
+    "technical_approvals_created": 0
+  },
+  "retained_human_review_count": 72,
+  "historical_no": 26,
+  "historical_unsure": 7,
+  "historical_decisions_changed": 0,
+  "next_narrow_review": [
+    {
+      "priority": 1,
+      "name": "Applied Nutrition: documented old/new barcode continuity",
+      "count": 8,
+      "skus": [
+        "068027",
+        "068053",
+        "068054",
+        "038458",
+        "038465",
+        "065970",
+        "068463",
+        "068464"
+      ],
+      "source_needed": "One official manufacturer barcode/version crosswalk linking each 0634158... and5056555... code to the exact flavour, formula, net weight and pack; not a visual packaging assumption."
+    },
+    {
+      "priority": 2,
+      "name": "Optimum Nutrition Serious Mass: net weight/formula versions",
+      "count": 10,
+      "skus": [
+        "005293",
+        "016901",
+        "019909",
+        "076745",
+        "099058",
+        "048553",
+        "048551",
+        "048550",
+        "099060",
+        "099059"
+      ],
+      "source_needed": "Manufacturer pack/barcode specification for2730/2700 and5450/5400g plus exact formulation/servings. Differences cannot be rounded or auto-corrected in canonical."
+    },
+    {
+      "priority": 3,
+      "name": "Barebells: legacy default flavour and single/case identity",
+      "count": 7,
+      "skus": [
+        "065235",
+        "065462",
+        "037527",
+        "037563",
+        "037589",
+        "037605",
+        "037613"
+      ],
+      "source_needed": "Official non-vegan GTIN-to-flavour and pack table, corroborated by exact original canonical supplier evidence for legacy default151/145. Do not use vegan12-pack or unspecified defaults."
+    },
+    {
+      "priority": 4,
+      "name": "Optimum Nutrition Gold Standard Whey: source/variant/parent weight reconciliation",
+      "count": 11,
+      "skus": [
+        "111796",
+        "111791",
+        "111793",
+        "048556",
+        "018181",
+        "048555",
+        "018200",
+        "018199",
+        "099158",
+        "099183",
+        "099157"
+      ],
+      "source_needed": "Authoritative flavour-specific GTIN/net-weight matrix and exact canonical supplier labels; source2000/2200/2270/2280g must remain explicit. A canonical correction would need its own authorization."
+    }
+  ],
+  "release_gate": "Separate authorized merge/deployment/production verification is required before111790 can use the correction. Then refresh source and regenerate/revalidate the two-row V2 package. Explicit commercial authorization is still required independently for both source identities.",
+  "preview_deployment_safety": {
+    "file": "vercel.json",
+    "only_disabled_branch": "fix/protein-cream-classification-20261113",
+    "main_and_other_branches_use_default_enabled": true,
+    "documentation": "https://vercel.com/docs/project-configuration/git-configuration#gitdeploymentenabled"
+  },
+  "local_evidence_directory": "tmp/retailer-feeds/holland-barrett-next-coverage-20261113/",
+  "production_writes": 0,
+  "staging_writes": 0,
+  "migrations_added": 0,
+  "refresh_automation_added": false
+}
