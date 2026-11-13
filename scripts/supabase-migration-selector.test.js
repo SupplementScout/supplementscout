@@ -2042,3 +2042,17 @@ test("GTIN closeout selects the applied migration exactly once without changing 
   assert.ok(!migrationBinding("STAGING").versions.includes(REVIEWED_GTIN_MIGRATION.slice(0, -4)));
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_GTIN_MIGRATION)), CONTRACTS.STAGING.excluded[REVIEWED_GTIN_MIGRATION]);
 });
+
+test("Default preflight proposal hardens shared V2 identity without changing executor or privileges", () => {
+  const proposal = "20261113180000_align_reviewed_default_variant_preflight.sql";
+  const sql = fs.readFileSync(path.join(ROOT, "docs/retailer-automation/proposals", proposal), "utf8");
+  assert.equal(fs.existsSync(path.join(SOURCE, proposal)), false, "unapproved proposal must not change migration inventory");
+  assert.match(sql, /^begin;[\s\S]*commit;\s*$/);
+  assert.match(sql, /799496fe9191ef7d7c8752f81421b78342ca805374eca17dd8df372505a256e3/);
+  assert.match(sql, /validate_reviewed_catalogue_import_identity\(jsonb\)/);
+  assert.match(sql, /definition drift/);
+  assert.match(sql, /variant evidence does not match default product variant/);
+  assert.doesNotMatch(sql, /\b(?:insert into|update|delete from|grant|revoke|create table)\b/i);
+  assert.doesNotMatch(sql, /function public\.(?:atomic_import_apply|apply_approved|approve_reviewed|atomic_import_validate_reviewed_catalogue_v3)/i);
+  assert.doesNotMatch(sql, /Barebells|Holland|retailer_id\s*=|product_id\s*=\s*151|variant_id\s*=\s*145/i);
+});

@@ -1,5 +1,40 @@
 # Retailer Automation Consolidation Execution Plan
 
+**13 November reviewed Default eligibility — DRAFT PREPARATION ONLY:**
+The partial Classic execution is authoritative:065235 committed once as
+variant4556/mapping4740/offer4553/history58362; H&B is64/64/64 and
+production main225a8c9 remains CURRENT264/pending=[]. Legacy145, mapping120,
+offer155 and review702 PENDING are unchanged. The unused065462 technical
+approval expired17:45:38.737Z without consumption; it is neither reused nor
+revoked. The standard executor rejects explicit flavour/size for Default and
+also rejects Default when active specific siblings exist. The V2 reviewed
+identity validator had accepted that plan because NULL canonical fields did
+not conflict, and approval used that same validator. Preserve the executor.
+
+The isolated draft adds the same conservative Default eligibility to the V2
+planner and prevents failed exact-target resolution from falling back to
+variant creation. A fingerprint-guarded SQL proposal hardens the shared V2
+identity validator used by READ ONLY and approval. It stays under `proposals/`,
+outside active migrations: no ledger, permissions, V3 boundary or production
+SQL changes are included. Actual isolated PostgreSQL execution remains
+unverified locally because Docker is unavailable; SKIP is not PASS. The SQL
+proposal requires separate release/apply authorization and runtime verification.
+Branch-only Vercel deployment suppression reuses the existing preparation
+mechanism and must be removed/reviewed before a separately authorized release.
+
+065462 remains REVIEW; owner-confirmed identity is retained without inventing
+the original Whey Okay SKU/GTIN, changing Default145 or creating its duplicate.
+The existing pack-correction tool only updates product net_weight_g and cannot
+perform this legacy identity correction. Independently, fresh authenticated
+Partnerize capture17:47:46.796Z confirms037589/037605 at GBP32+0, in stock.
+One new two-row carton DRAFT against64 passes deployed-main dry-run and full
+production SQL READ ONLY; cartons are READY_FOR_OWNER_APPROVAL for a new
+explicit two-item business decision, potentially increasing H&B to66. No old
+approval or partially exercised four-item authorization is reused. No import,
+canonical write, workflow dispatch or further commercial execution occurred.
+RA-001, suspended RA-004 and SEO-20 remain unchanged.
+See [bounded evidence](evidence/REVIEWED-DEFAULT-PREFLIGHT-2026-11-13.json).
+
 **13 November PR531 release preparation — OWNER AUTHORIZED / PRODUCTION VERIFICATION PENDING:**
 The owner authorized final cleanup, mandatory verification, exactly one squash
 merge and production verification of the existing shared correction. Commercial
