@@ -16,9 +16,12 @@ planner and prevents failed exact-target resolution from falling back to
 variant creation. A fingerprint-guarded SQL proposal hardens the shared V2
 identity validator used by READ ONLY and approval. It stays under `proposals/`,
 outside active migrations: no ledger, permissions, V3 boundary or production
-SQL changes are included. Actual isolated PostgreSQL execution remains
-unverified locally because Docker is unavailable; SKIP is not PASS. The SQL
-proposal requires separate release/apply authorization and runtime verification.
+SQL changes are included. The local PostgreSQL runner has3 SKIP because Docker
+is unavailable. First-attempt GitHub Quality Gate integration43480353727 then
+verified195 PASS/0 SKIP on headf1205890, including the real145 failure,
+preflight/approval rejection, valid reuse/creation, duplicates and V3 contracts.
+The SQL proposal remains unapplied and requires separate release/apply
+authorization, ledger preparation and production postflight.
 Branch-only Vercel deployment suppression reuses the existing preparation
 mechanism and must be removed/reviewed before a separately authorized release.
 
@@ -31,7 +34,9 @@ One new two-row carton DRAFT against64 passes deployed-main dry-run and full
 production SQL READ ONLY; cartons are READY_FOR_OWNER_APPROVAL for a new
 explicit two-item business decision, potentially increasing H&B to66. No old
 approval or partially exercised four-item authorization is reused. No import,
-canonical write, workflow dispatch or further commercial execution occurred.
+canonical write, retailer workflow dispatch or further commercial execution
+occurred. One initial test-only Quality Gate integration dispatch used isolated
+PostgreSQL without production credentials; no existing workflow was rerun.
 RA-001, suspended RA-004 and SEO-20 remain unchanged.
 See [bounded evidence](evidence/REVIEWED-DEFAULT-PREFLIGHT-2026-11-13.json).
 
