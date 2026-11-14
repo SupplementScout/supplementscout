@@ -364,7 +364,7 @@ function reviewedNewProductIdentityScenarios(container, database) {
     return refreshPlanFingerprint(p);
   };
   const readOnly = p => `begin read only; set local role retailer_catalogue_production_validator; select public.validate_reviewed_catalogue_import_plan_read_only(${literal(p)}); rollback`;
-  const approvalSql = (p, tag, expiry = "now()+interval '15 minutes'") => `select public.approve_reviewed_catalogue_import_plan(${literal(p)},repeat('a',64),${sqlLiteral(`new-parent-${tag}`)},repeat('b',64),'new-parent-contract',${expiry})`;
+  const approvalSql = (p, tag, expiry = "now()+interval '15 minutes'") => `select public.approve_reviewed_catalogue_import_plan(${literal(p)},repeat('a',64),${sqlLiteral(`new-parent-${tag.replace(/[^A-Za-z0-9._-]/g, "-")}`)},repeat('b',64),'new-parent-contract',${expiry})`;
   const approve = (p, tag) => query(`set role retailer_catalogue_production_approver; ${approvalSql(p, tag)}; reset role`);
   const applySql = (p, a) => `select public.apply_approved_product_import_plan(${sqlLiteral(a.approval_id)}::uuid,${sqlLiteral(a.artifact_sha256)},${sqlLiteral(p.meta.plan_fingerprint)},${sqlLiteral(p.meta.source_row_fingerprint)},${p.retailer.id},'feed',${sqlLiteral(a.run_id)})`;
   const apply = (p, a) => query(`set role retailer_catalogue_production_executor; ${applySql(p, a)}; reset role`);

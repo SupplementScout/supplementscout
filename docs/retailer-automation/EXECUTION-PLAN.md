@@ -1,5 +1,49 @@
 # Retailer Automation Consolidation Execution Plan
 
+**14 November reviewed V2 new-product identity correction — PROPOSED / NOT DEPLOYED:**
+The owner-scoped correction reuses the preserved Solgar collision evidence.
+Current main/Production is efbe06a1d8531cee9590133886c122a22265470a,
+CURRENT264 pending=[], with H&B91 mappings/91 offers/91 initial histories.
+The completed005662/005637/003518 imports are not repeated.
+
+A V2 NEW plan must create a genuinely absent parent. Any normalized-name or
+slug collision, including an identical existing parent, requires an explicit
+existing-product plan. The existing full private V2 identity validator gains
+an owner-only overload for checking the actual just-created parent; public
+preflight/approval cannot provide that ID. The existing executor uses INSERT's
+generated ID for V2 NEW plans and reuses the same complete identity checks
+after creation. A count variant must agree with its parent's dosage format.
+V3, legacy paths, approvals, sealed-plan bindings and commercial refresh remain
+under their existing contracts. No retailer or product-family exception is added.
+
+Exactly one forward-only migration20261114213000 is prepared, hash-bound as
+pending for production and excluded from staging's absent V2 lineage. Ledger
+values and historical migration bytes/receipts are unchanged. This branch is
+not deployed and does not declare migration265 applied. PostgreSQL evidence
+must pass in the existing isolated Quality Gate before the single Draft PR;
+the actual run and final head belong to its checks and sealed handoff.
+
+Local quick600/600 and full3912 PASS/0 FAIL/3 existing artifact-dependent SKIPs
+pass, including TypeScript, ESLint, production build with verified system CA,
+baseline validation and Project Guardian. The362-file test inventory seal is
+unchanged. Local PostgreSQL execution is SKIP because Docker is unavailable;
+static tests are not substituted for actual database evidence.
+
+Fresh authenticated Partnerize retrieval21:31:25.456Z preserves both selected
+Magnesium Citrate source rows.005646/60 tablets and001409/120 tablets remain
+PRODUCTION_SQL_NOT_DEPLOYED. One new parent and two count variants are the
+future intended structure. Only the first anchor can be sealed now; the
+second explicit-existing-parent plan requires the actual future generated ID,
+a fresh readback, a new sealed DRAFT and its own exact approval. No ID is
+invented and no implicit reuse or new dependency mechanism is introduced.
+
+The branch-only vercel.json prevents preview deployment during isolated CI;
+remove it and revalidate before a separately authorized release. No merge,
+deployment, production/staging SQL write, migration execution, approval or
+import occurs here. PR532, legacy145/review702, Six Pack, Discount, existing
+H&B91 offers, RA-001, suspended RA-004 and SEO priorities remain unchanged.
+See the [scoped contract evidence](evidence/REVIEWED-NEW-PRODUCT-IDENTITY-2026-11-14.json).
+
 **14 November Solgar shared V2 guard recovery — CODE COMPLETE / DRAFT ONLY:**
 The owner-scoped five-candidate task reuses the sealed manufacturer evidence;
 no new family audit is performed. Main/Production remains
