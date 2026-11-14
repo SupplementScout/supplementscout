@@ -299,20 +299,31 @@ function sizeKey(size) {
 }
 
 function productFamilyKey(value = "") {
-  const text = normalizeComparableText(value);
+  // Strip complete measures before punctuation normalization splits 2.27kg into
+  // "2 27kg". Exact variant size and pack checks remain separate below.
+  const text = normalizeComparableText(String(value)
+    .replace(/\b\d+\s*x\s*\d+(?:[.,]\d+)?\s*(kg|g|mg|mcg|iu|l|ml)\b/gi, " ")
+    .replace(/\b\d+(?:[.,]\d+)?\s*(kg|g|mg|mcg|iu|l|ml)\b/gi, " "));
   // Compound bar flavours are not product families. Keep these complete phrases
   // scoped to bar names: e.g. cashew in a powder/ingredient name is meaningful.
-  const family = /\bbars?\b/.test(text)
+  let family = /\bbars?\b/.test(text)
     ? text.replace(/\b(caramel cashew|rocky road)\b/g, " ")
     : text;
-  return family
-    .replace(/\b\d+\s*x\s*\d+(?:[.,]\d+)?\s*(kg|g|mg|mcg|iu|l|ml)\b/g, " ")
-    .replace(/\b\d+(?:[.,]\d+)?\s*(kg|g|mg|mcg|iu|l|ml)\b/g, " ")
+  const proteinPowder = parseProductFormat(value) === "powder" && /\b(whey|protein|casein)\b/.test(text);
+  if (proteinPowder) {
+    family = family
+      .replace(/\bwhey protein\b/g, "whey")
+      .replace(/\b(chocolate hazelnut|double rich chocolate|french vanilla (?:crème|creme|cream))\b/g, " ");
+  }
+  const key = family
     .replace(/\b(pack\s+of\s+\d+|\d+\s*(bars?|packs?|packets?|sachets?))\b/g, " ")
     .replace(/\b(chocolate|vanilla|strawberry|banana|cookies and cream|cookies cream|salted caramel|caramel|peanut|coconut|mango|berry|raspberry|orange|lemon|lime|cola|unflavoured)\b/g, " ")
     .replace(/\b(single|bars?|packs?|packets?|sachets?|capsules?|caps?|tablets?|tabs?|powder|liquid|ready to drink)\b/g, " ")
     .replace(/\s+/g, " ")
     .trim();
+  // Fold only the complete expanded line after flavour/size removal. Extra
+  // formula words must remain distinct; "isolate" is never removed globally.
+  return proteinPowder ? key.replace(/\biso xp whey isolate$/, "iso xp") : key;
 }
 
 function valuesConflict(left, right) {

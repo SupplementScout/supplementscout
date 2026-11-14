@@ -11,6 +11,98 @@ const {
   productFamilyKey,
 } = require("./feed-variant-guards");
 
+const POWDER_FAMILY_CASES = [
+  ["Optimum Nutrition Gold Standard 100% Whey Protein Chocolate Hazelnut 2.27kg", "Optimum Nutrition Gold Standard 100% Whey 2.27kg", "Chocolate Hazelnut", 2270],
+  ["Optimum Nutrition Gold Standard 100% Whey Protein Strawberry 450g", "Optimum Nutrition Gold Standard 100% Whey 2.27kg", "Delicious Strawberry", 450],
+  ["Optimum Nutrition Gold Standard 100% Whey Protein Double Rich Chocolate 465g", "Optimum Nutrition Gold Standard 100% Whey 2.27kg", "Double Rich Chocolate", 465],
+  ["Optimum Nutrition Gold Standard 100% Whey Powder French Vanilla Crème 2.28kg", "Optimum Nutrition Gold Standard 100% Whey 2.27kg", "French Vanilla Crème", 2280],
+  ["Applied Nutrition ISO XP Whey Protein Isolate Chocolate 450 g", "Applied Nutrition ISO-XP 1.8kg", "Chocolate Dessert", 450],
+  ["Applied Nutrition Critical Whey Protein Powder Vanilla 825g", "Applied Nutrition Critical Whey 2kg", "Vanilla Ice Cream", 825],
+];
+
+test("family keys remove complete decimal and multipack sizes before punctuation normalization", () => {
+  for (const size of ["2.27kg", "2,27 kg", "1.8kg", "0.45kg", "450g", "12 x 0.055kg"]) {
+    assert.equal(productFamilyKey(`Example Whey ${size}`), "example whey", size);
+  }
+  assert.notEqual(productFamilyKey("Example BCAA 2:1:1 500g"), productFamilyKey("Example BCAA 4:1:1 500g"));
+});
+
+test("the six expanded protein labels preserve their exact existing family keys", () => {
+  for (const [source, parent] of POWDER_FAMILY_CASES) {
+    assert.equal(productFamilyKey(source), productFamilyKey(parent), source);
+  }
+  assert.equal(productFamilyKey("Example Whey French Vanilla Creme 1kg"), productFamilyKey("Example Whey 500g"));
+  assert.equal(productFamilyKey("Example ISO-XP Whey Protein Isolate 450g"), productFamilyKey("Example ISO-XP 1.8kg"));
+});
+
+test("powder label normalization retains formula, line and unknown ingredient distinctions", () => {
+  for (const line of ["Isolate", "Concentrate", "Hydrolysed", "Plant", "Vegan", "Diet", "Clear", "Mass", "Casein", "Collagen"]) {
+    assert.notEqual(productFamilyKey(`Example ${line} Whey Protein Chocolate Hazelnut 500g`),
+      productFamilyKey("Example Whey 500g"), line);
+  }
+  for (const descriptor of ["Whey Protein Concentrate", "Plant Protein Isolate", "Whey Protein Isolate Hydrolysed", "Whey Protein Isolate with Creatine"]) {
+    assert.notEqual(productFamilyKey(`Example ISO-XP ${descriptor} 500g`), productFamilyKey("Example ISO-XP 500g"), descriptor);
+  }
+  for (const qualifier of ["Plant", "Casein Blend", "Diet", "Hydrolysed", "with Creatine", "Unknown Formula"]) {
+    assert.notEqual(productFamilyKey(`Example ISO-XP Whey Protein Isolate ${qualifier} 500g`),
+      productFamilyKey(`Example ISO-XP ${qualifier} 500g`), qualifier);
+  }
+  for (const word of ["Hazelnut", "French", "Double Rich", "Rocky Road", "Cashew", "Unknown Flavour"]) {
+    assert.notEqual(productFamilyKey(`Example ${word} Protein Powder 500g`), productFamilyKey("Example Protein Powder 500g"), word);
+  }
+  assert.notEqual(productFamilyKey("Example Chocolate Hazelnut Oil 500ml"), productFamilyKey("Example Oil 500ml"));
+  assert.notEqual(productFamilyKey("Example Chocolate Hazelnut Creatine Powder 500g"), productFamilyKey("Example Creatine Powder 500g"));
+  assert.notEqual(productFamilyKey("Example Whey Protein Chocolate Hazelnut 500ml"), productFamilyKey("Example Whey 500ml"));
+});
+
+test("family equality preserves distinct flavour identities and exact size, pack, brand and format checks", () => {
+  for (const [source, parentName, flavour, size] of POWDER_FAMILY_CASES) {
+    const brand = source.startsWith("Optimum") ? "Optimum Nutrition" : "Applied Nutrition";
+    const row = { product_name: source, brand, flavour, size: `${size}g`, variant: "pack of 1", pack_count: "1", product_format: "powder" };
+    const parent = { name: parentName, brand, product_format: "powder" };
+    const variant = { flavour_code: normalizeFlavour(flavour), flavour_label: flavour, size_value: size,
+      size_unit: "g", pack_count: 1, product_format: "powder", is_active: true, is_default: false };
+    assert.equal(assessVariantCompatibility(row, parent, variant).compatible, true, source);
+    for (const patch of [{ size_value: size + 1 }, { size_unit: "ml" }, { pack_count: 12 }]) {
+      assert.equal(assessVariantCompatibility(row, parent, { ...variant, ...patch }).compatible, false, JSON.stringify(patch));
+    }
+    assert.equal(assessVariantCompatibility(row, { ...parent, brand: "Another Brand" }, variant).compatible, false);
+    assert.equal(assessVariantCompatibility({ ...row, product_format: "capsule" }, parent, variant).compatible, false);
+    assert.notEqual(rowIdentityKey(row), rowIdentityKey({ ...row, flavour: "Salted Caramel" }));
+    assert.notEqual(rowIdentityKey(row), rowIdentityKey({ ...row,
+      product_name: source.replace(/\b\d+(?:[.,]\d+)?\s*(kg|g)\b/gi, `${size + 1}g`), size: `${size + 1}g` }));
+  }
+});
+
+test("expanded powder dry-run retains explicit target, flavour and inactive-variant guards", async () => {
+  const importer = require("../import-products");
+  const { createStateClient } = require("./reviewed-catalogue-state");
+  const row = { retailer_name: "Example Shop", retailer_website: "https://shop.example.test",
+    external_product_id: "powder-1", external_variant_id: "powder-1", external_sku: "powder-1",
+    external_gtin: "4006381333931", product_id: "101", product_variant_id: "202",
+    product_name: "Example Whey Protein Chocolate Hazelnut 500g", brand: "Example", category: "Whey Protein",
+    slug: "example-whey", variant_name: "Chocolate Hazelnut /500g", flavour: "Chocolate Hazelnut",
+    size: "500", size_unit: "g", pack_count: "1", product_format: "powder", price: "20.00",
+    shipping_known: "true", shipping_cost: "0.00", in_stock: "true", is_for_sale: "true",
+    image: "https://shop.example.test/powder.png", external_url: "https://shop.example.test/powder-1",
+    affiliate_url: "https://shop.example.test/powder-1" };
+  const product = { id: "101", name: "Example Whey 500g", brand: "Example", category: "Whey Protein",
+    slug: "example-whey", product_format: "powder", is_active: true, merged_into_product_id: null, gtin: null };
+  const variant = { id: "202", product_id: "101", variant_key: "chocolate-hazelnut-500g",
+    display_name: row.variant_name, flavour_code: "chocolate hazelnut", flavour_label: "Chocolate Hazelnut",
+    size_value: "500", size_unit: "g", pack_count: 1, product_format: "powder", gtin: null,
+    is_active: true, is_default: false };
+  for (const patch of [{}, { flavour_code: "salted caramel", flavour_label: "Salted Caramel" },
+    { size_value: "600" }, { size_unit: "ml" }, { pack_count: 12 }, { product_id: "999" }, { is_active: false }]) {
+    importer.setSupabaseForTests(createStateClient({ retailer: { id: "7", name: row.retailer_name,
+      slug: "example-shop", website: row.retailer_website }, products: [product],
+      product_variants: [{ ...variant, ...patch }], retailer_products: [], offers: [], price_history: [] }));
+    const result = await importer.runImportRows([row], { mode: "feed", safeCreate: true, dryRun: true });
+    assert.equal(result.report.approvedRows.length, Object.keys(patch).length === 0 ? 1 : 0,
+      `${JSON.stringify(patch)}: ${JSON.stringify(result.report.blockedRows)}`);
+  }
+});
+
 test("compound bar flavours do not become families or erase meaningful non-bar words", () => {
   for (const brand of ["Barebells", "Example"]) {
     for (const flavour of ["Caramel Cashew", "Rocky Road"]) {
