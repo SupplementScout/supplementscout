@@ -3255,6 +3255,32 @@ test("reviewed new-parent and existing-parent count plans reuse the registered r
   }
 });
 
+test("reviewed V2 NEW plans never silently reuse a parent found by slug", async () => {
+  for (const change of [
+    {}, { name: "Example Biotin 5000mcg Capsules" }, { brand: "Another Brand" },
+    { name: "Example Magnesium Oxide Tablets" }, { name: "Example Magnesium Citrate 200mg Tablets" },
+    { product_format: "tablet" }, { is_active: false }, { merged_into_product_id: 99 },
+  ]) {
+    const fixture = countedV2Fixture({ existing: false });
+    fixture.seed.products = [{ ...fixture.product, name: fixture.row.product_name, ...change }];
+    const result = await runCountedV2(fixture);
+    assert.equal(result.planned, 0, JSON.stringify(change));
+    assert.match(result.blockedRows[0].block_reason, /identity collision|inactive or merged/);
+  }
+});
+
+test("reviewed V2 explicit existing-parent plans keep the count variant path", async () => {
+  const fixture = countedV2Fixture({ count: 120, format: "tablet",
+    name: "Example Magnesium Citrate 120 Tablets", parentName: "Example Magnesium Citrate Tablets" });
+  const result = await runCountedV2(fixture);
+  assert.equal(result.planned, 1, JSON.stringify(result.blockedRows));
+  const plan = result.report.approvedRows[0].importPlan;
+  assert.equal(plan.product.action, "existing");
+  assert.equal(plan.product.id, "396");
+  assert.equal(plan.product_variant.action, "create_variant");
+  assert.equal(plan.product_variant.evidence.unit_count, "120");
+});
+
 test("reviewed count variants preserve exact unit identity and reject strength, family, format and duplicate drift", async () => {
   for (const options of [undefined, { count: 120, format: "tablet", name: "Example Magnesium Citrate 120 Tablets",
     parentName: "Example Magnesium Citrate 60 Tablets" }]) {

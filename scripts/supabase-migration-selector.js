@@ -135,6 +135,8 @@ const CONTRACTS = Object.freeze({
       "31dc3e6e90dab56dd00843bef441cfba400e1d9480d2940f41b46cfff6e32277",
     appliedExcluded: APPLIED_EXCLUSIONS.STAGING,
     excluded: Object.freeze({
+      "20261114213000_enforce_reviewed_new_product_identity.sql":
+        "b74e295aaf32ad13a7791c0c01051fe2e5d1cb04facd04e0ab1f6205d1fbb981",
       "20261112130000_align_reviewed_catalogue_gtin_identity.sql":
         "d5a9a19e34ea2bc78dc8bdc331b6c85680d5c1efd0ef40a1f022ea58979550cf",
       "20261110170000_align_reviewed_catalogue_affiliate_url_contract.sql":

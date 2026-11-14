@@ -1365,6 +1365,21 @@ function exerciseSharedGtinIdentity(container, environment) {
     + "revoke all on function public.validate_reviewed_catalogue_gtin_identity(jsonb) from public;"
     + migration.match(/do \$v3_gtin\$[\s\S]*?\$v3_gtin\$;/)[0]), "install actual shared GTIN helper and V3 patch");
   assert.deepEqual(functionMetadata(container, signature, "V3 GTIN metadata after"), beforeMetadata);
+  let originalParentExecutor = null;
+  if (environment === "PRODUCTION") {
+    const executorSignature = "public.atomic_import_apply_pre_source_metadata_plan_core(jsonb)";
+    originalParentExecutor = functionDefinition(container, executorSignature, "parent executor before V2 correction");
+    const metadata = functionMetadata(container, executorSignature, "parent executor metadata before V2 correction");
+    const correction = fs.readFileSync(path.join(ROOT, "supabase/migrations/20261114213000_enforce_reviewed_new_product_identity.sql"), "utf8");
+    succeed(sql(container, correction.match(/do \$executor\$[\s\S]*?\$executor\$;/)[0]), "install actual V2 executor correction into complete V3 lineage");
+    assert.deepEqual(functionMetadata(container, executorSignature, "parent executor metadata after V2 correction"), metadata);
+    const created = actionFixture(environment, "create_product_with_variant", 90992);
+    seal(container, created, "V3 new parent under corrected shared executor");
+    assert.equal(json(container, asRole(environment, "validator", `select public.validate_reviewed_catalogue_v3_plan_read_only(${literal(created.plan)},${literal(created.envelope)})`, { readOnly: true }), "V3 new-parent preflight unchanged").valid, true);
+    const approved = json(container, asRole(environment, "approver", `select public.approve_reviewed_catalogue_v3_plan(${literal(created.plan)},${literal(created.envelope)})`), "V3 new-parent approval unchanged");
+    assert.equal(json(container, asRole(environment, "executor", `select public.apply_approved_reviewed_catalogue_v3_plan('${approved.approval_id}',${literal(created.plan)},${literal(created.envelope)})`), "V3 new-parent apply unchanged").approval_status, "consumed");
+    console.log("REVIEWED_NEW_PARENT_CASE PASS genuine V3 new-parent preflight approval and execution remain compatible");
+  }
   succeed(sql(container, `insert into retailers values(991001,'GTIN Peer','gtin-peer','https://peer.test');
     insert into retailer_products(retailer_id,product_id,product_variant_id,external_product_id,external_variant_id,external_sku,external_gtin,external_url)
       values(991001,100,200,'gtin-peer-product','gtin-peer-variant','gtin-peer-sku','5056555202128','https://peer.test/product');`), "create local cross-retailer GTIN peer");
@@ -1396,6 +1411,7 @@ function exerciseSharedGtinIdentity(container, environment) {
   assert.equal(replay.already_applied, true);
   assert.deepEqual(counts(container, "V3 shared GTIN replay creates no records"), afterApply);
   fails(sql(container, read()), "V3 duplicate source remains blocked", /V3_MAPPING_COLLISION/);
+  if (originalParentExecutor) succeed(sql(container, originalParentExecutor), "restore shared executor for historical V3 rollback proofs");
   succeed(sql(container, beforeDefinition + ";\n"
     + "drop function public.validate_reviewed_catalogue_gtin_identity(jsonb);"
     + (hadChecksum ? "" : "drop function public.gtin_promotion_is_valid_gtin(text);")), "restore V3 fixture lineage for existing rollback proofs");
