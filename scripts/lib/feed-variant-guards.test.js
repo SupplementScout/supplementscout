@@ -20,6 +20,50 @@ const POWDER_FAMILY_CASES = [
   ["Applied Nutrition Critical Whey Protein Powder Vanilla 825g", "Applied Nutrition Critical Whey 2kg", "Vanilla Ice Cream", 825],
 ];
 
+test("counted tablet and capsule families ignore only the bottle count", () => {
+  for (const brand of ["Solgar", "Example"]) {
+    for (const [left, right] of [
+      [`${brand} Magnesium Citrate 60 Tablets`, `${brand} Magnesium Citrate 120 Tabs`],
+      [`${brand} Biotin 5000µg 50 Vegi Capsules`, `${brand} Biotin 5000 mcg 100 Vegetable Capsules`],
+      [`${brand} Gentle Iron 20 mg 90 Vege Capsules`, "Gentle Iron 20mg Vegetable 180 Capsules"],
+      [`${brand} Calcium Magnesium plus Zinc 100 Tablets`, `${brand} Calcium Magnesium plus Zinc 250 Tablets`],
+    ]) assert.equal(productFamilyKey(left, brand), productFamilyKey(right, brand), left);
+  }
+});
+
+test("count normalization preserves potency, mineral compound, release type and dosage form", () => {
+  const cases = [
+    ["Example Biotin 5000µg 100 Capsules", "Example Biotin 1000µg 100 Capsules"],
+    ["Example Iron 20mg 90 Capsules", "Example Iron 25mg 180 Capsules"],
+    ["Example D3 1000IU 60 Tablets", "Example D3 4000IU 120 Tablets"],
+    ["Example Magnesium Citrate 60 Tablets", "Example Magnesium Bisglycinate 120 Tablets"],
+    ["Example Magnesium Citrate 60 Tablets", "Example Calcium Magnesium plus Zinc 60 Tablets"],
+    ["Example Iron Slow Release 60 Tablets", "Example Iron 60 Tablets"],
+    ["Example Iron 60 Tablets", "Example Iron 60 Capsules"],
+    ["Example B-Complex 50 100 Capsules", "Example B-Complex 100 100 Capsules"],
+    ["Example Formula v1 60 Tablets", "Example Formula v2 120 Tablets"],
+    ["Example Iron 60 Vegetable Capsules", "Example Iron 60 Gelatin Capsules"],
+  ];
+  for (const [left, right] of cases) assert.notEqual(productFamilyKey(left), productFamilyKey(right), left);
+});
+
+test("equal counted families keep exact count, bottle pack, brand and format guards", () => {
+  const row = { product_name: "Example Magnesium Citrate 120 Tablets", brand: "Example",
+    product_format: "tablet", pack_count: "1", variant: "pack of 1" };
+  const product = { name: "Example Magnesium Citrate 60 Tablets", brand: "Example", product_format: "tablet" };
+  const variant = { display_name: "Unflavoured / 120 tablets", pack_count: 1,
+    product_format: "tablet", is_default: false, is_active: true };
+  assert.equal(assessVariantCompatibility(row, product, variant).compatible, true);
+  for (const patch of [{ display_name: "Unflavoured / 60 tablets" }, { display_name: "Unflavoured / 120 capsules" },
+    { display_name: "Unflavoured" }, { pack_count: 2 }, { product_format: "capsule" }]) {
+    assert.equal(assessVariantCompatibility(row, product, { ...variant, ...patch }).compatible, false, JSON.stringify(patch));
+  }
+  assert.equal(assessVariantCompatibility(row, { ...product, brand: "Another" }, variant).compatible, false);
+  assert.equal(assessVariantCompatibility(row, product, { ...variant, display_name: "Default", is_default: true }).compatible, false);
+  assert.notEqual(rowIdentityKey(row), rowIdentityKey({ ...row, product_name: "Example Magnesium Citrate 60 Tablets" }));
+  assert.notEqual(rowIdentityKey(row), rowIdentityKey({ ...row, variant: "pack of 2", pack_count: "2" }));
+});
+
 test("liquid meal descriptors match RTD families for single bottles and retail packs", () => {
   for (const brand of ["Huel", "Example"]) {
     for (const [line, flavour, pack] of [["Lite", "Strawberry", 1], ["Lite", "Chocolate", 6],

@@ -1,0 +1,265 @@
+{
+  "schema_version": 1,
+  "task": "Owner-authorized Solgar five-candidate shared V2 guard recovery",
+  "status": "CODE_COMPLETE_DRAFT_ONLY",
+  "base_main": "ba3d4590af441d84a46df977e2c6310b051c67c8",
+  "retailer_id": 16,
+  "retailer_slug": "holland-barrett",
+  "root_causes": [
+    "New-parent policy derived a display-name slug instead of reusing the reviewed registered slug already used by lookup.",
+    "Tablet/capsule counts stayed in family keys; counted strengths must not use powder mass stripping; legacy titles also differ by exact brand prefix and vegetable-capsule spelling."
+  ],
+  "changed_functions": {
+    "scripts/import-products.js": {
+      "changed_functions": [
+        "feedRetailerSlug",
+        "assertReviewedParentVariantPolicy",
+        "resolveFeedRow"
+      ],
+      "removed_functions": [],
+      "sha256": "73a4a5909f6f65af00387723a4d60cfcb5eeb65013f53db6b10784ede8e15222"
+    },
+    "scripts/lib/feed-variant-guards.js": {
+      "changed_functions": [
+        "countedUnitIdentity",
+        "productFamilyKey",
+        "assessVariantCompatibility",
+        "rowIdentityKey"
+      ],
+      "removed_functions": [],
+      "sha256": "ecd614a5b648d8e1042e15f462a4e70350477bfb675e61347d188896dcf79cc4"
+    }
+  },
+  "tests": {
+    "focused": {
+      "pass": 21,
+      "fail": 0,
+      "skip": 0
+    },
+    "related_contracts": {
+      "pass": 441,
+      "fail": 0,
+      "skip": 0
+    },
+    "quick": {
+      "pass": 1175,
+      "fail": 0,
+      "skip": 3
+    },
+    "full": {
+      "pass": 3909,
+      "fail": 0,
+      "skip": 3
+    },
+    "existing_skip_reason": "Artifact-dependent existing10Reps tests",
+    "typescript": "PASS",
+    "eslint": "PASS",
+    "production_build": "PASS_ISOLATED_TLS_SYSTEM_CA",
+    "guardian": "PASS",
+    "local_sql_integration": {
+      "static_pass": 3,
+      "fail": 0,
+      "postgres_skipped": 3,
+      "reason": "Docker unavailable; no actual local PostgreSQL execution"
+    },
+    "inventory": {
+      "count": 362,
+      "sha256": "1d6c0e4343097184171f040353c1d4545554b885b3e306779a88fd776fbcd177",
+      "reviewed": true,
+      "unchanged": true
+    },
+    "remote_ci": "VERIFY_ON_SINGLE_DRAFT_PR"
+  },
+  "source": {
+    "retrieved_at": "2026-11-14T19:05:04.083Z",
+    "expires_at": "2026-11-15T19:05:04.083Z",
+    "supplier_generated_at": null,
+    "sha256": "88bad9a3a54248c9132fd1e3a34e1684313e5888a1eddae55358a78c808e20ca",
+    "tls_verification_enabled": true,
+    "selected_rows": 5,
+    "changed_selected_rows": [],
+    "full_catalogue_remapping": false
+  },
+  "five_isolated_checks": {
+    "dry_run_pass": 5,
+    "full_production_sql_read_only_pass": 5,
+    "warning": "Technical validation only. Two new-parent probes are not eligible commercial plans."
+  },
+  "final_draft": {
+    "status": "DRAFT_AWAITING_OWNER_APPROVAL",
+    "classification": "CONDITIONALLY_READY_AFTER_RELEASE",
+    "skus": [
+      "005662",
+      "005637",
+      "003518"
+    ],
+    "profile": "solgar-three-existing-parents-draft",
+    "manifest_path": "tmp/retailer-feeds/hb-solgar-v2-recovery-20261114/solgar-three-existing-parents-draft.manifest.draft.json",
+    "manifest_sha256": "edeb8d3123b1a419b683780a39904a02dce75612da36c1f1c425e480e10bec42",
+    "csv_sha256": "3b796d36dcb44dd46e4092c96cd0b1db65d9ee465232aee2308e22dc1596e23a",
+    "artifact_sha256": "bf611a1fec8f86169bf784b453118aae65e4d4ddd9a1411534f314266c470a03",
+    "shipping_gbp": "3.49",
+    "sealed_replay": "PASS_EXACT_CANONICAL_JSON",
+    "source_fingerprints": "PASS3",
+    "selected_executor_route": "existing parent / create_variant / non-Default",
+    "expected_writes": {
+      "products": 0,
+      "product_variants": 3,
+      "retailer_products": 3,
+      "offers": 3,
+      "price_history": 3
+    },
+    "future_hb_count": 91,
+    "actual_approved_package_cli_preflight": "NOT_RUN_REQUIRES_REAL_OWNER_AUTHORIZATION",
+    "rows": [
+      {
+        "sku": "005662",
+        "dry_run": "PASS",
+        "full_sql": {
+          "status": "PASS_FULL_V2_READ_ONLY"
+        },
+        "plan_fingerprint": "723ef8d552851cc8e340a37cc581ea77",
+        "source_row_fingerprint": "29915f03ebe895ec760ca431d114987a91ad927fd16c4390f095c092a02d210c",
+        "product_action": "existing",
+        "variant_action": "create_variant",
+        "variant_values": {
+          "display_name": "Unflavoured / 100 capsules",
+          "flavour_code": "unflavoured",
+          "flavour_label": "Unflavoured",
+          "pack_count": "1",
+          "product_format": "capsule",
+          "size_unit": null,
+          "size_value": null,
+          "variant_key": "unflavoured-100-capsules"
+        },
+        "source_name": "Solgar Biotin 5000µg 100 Vegi Capsules",
+        "canonical_name": "Solgar Biotin 5000µg 100 Vegi Capsules",
+        "source_gtin": "0033984003149",
+        "price": "29.10",
+        "shipping": "3.49",
+        "stock": true,
+        "merchant_url": "https://www.hollandandbarrett.com/shop/product/solgar-biotin-5000g-vegi-capsules-6100126954",
+        "affiliate_url": "https://prf.hn/click/camref:1101l6ynVX/creativeref:1011l138009/destination:https%3A%2F%2Fwww.hollandandbarrett.com%2Fshop%2Fproduct%2Fsolgar-biotin-5000g-vegi-capsules-6100126954",
+        "diagnostic_only": false
+      },
+      {
+        "sku": "005637",
+        "dry_run": "PASS",
+        "full_sql": {
+          "status": "PASS_FULL_V2_READ_ONLY"
+        },
+        "plan_fingerprint": "600c94307effda5e89b31e23ce0519d0",
+        "source_row_fingerprint": "904e5a8fb7e0072594872a7a272d4f139950120b3a47f5673b776a31bf5dd4ef",
+        "product_action": "existing",
+        "variant_action": "create_variant",
+        "variant_values": {
+          "display_name": "Unflavoured / 250 tablets",
+          "flavour_code": "unflavoured",
+          "flavour_label": "Unflavoured",
+          "pack_count": "1",
+          "product_format": "tablet",
+          "size_unit": null,
+          "size_value": null,
+          "variant_key": "unflavoured-250-tablets"
+        },
+        "source_name": "Solgar Calcium Magnesium plus Zinc 250 Tablets",
+        "canonical_name": "Solgar Calcium Magnesium plus Zinc 250 Tablets",
+        "source_gtin": "0033984005211",
+        "price": "19.62",
+        "shipping": "3.49",
+        "stock": true,
+        "merchant_url": "https://www.hollandandbarrett.com/shop/product/solgar-calcium-magnesium-plus-zinc-tablets-6100155143",
+        "affiliate_url": "https://prf.hn/click/camref:1101l6ynVX/creativeref:1011l138009/destination:https%3A%2F%2Fwww.hollandandbarrett.com%2Fshop%2Fproduct%2Fsolgar-calcium-magnesium-plus-zinc-tablets-6100155143",
+        "diagnostic_only": false
+      },
+      {
+        "sku": "003518",
+        "dry_run": "PASS",
+        "full_sql": {
+          "status": "PASS_FULL_V2_READ_ONLY"
+        },
+        "plan_fingerprint": "bfd870cea1b74c47fd2c69944c696423",
+        "source_row_fingerprint": "01373af52599fa492bcae6e555905e8e0d30739c43789460c37679e7c21ec1b9",
+        "product_action": "existing",
+        "variant_action": "create_variant",
+        "variant_values": {
+          "display_name": "Unflavoured / 180 capsules",
+          "flavour_code": "unflavoured",
+          "flavour_label": "Unflavoured",
+          "pack_count": "1",
+          "product_format": "capsule",
+          "size_unit": null,
+          "size_value": null,
+          "variant_key": "unflavoured-180-capsules"
+        },
+        "source_name": "Solgar Gentle Iron (Iron Bisglycinate) 20mg Vegetable 180 Capsules",
+        "canonical_name": "Solgar Gentle Iron (Iron Bisglycinate) 20mg Vegetable 180 Capsules",
+        "source_gtin": "033984012509",
+        "price": "19.62",
+        "shipping": "3.49",
+        "stock": true,
+        "merchant_url": "https://www.hollandandbarrett.com/shop/product/solgar-gentle-iron-iron-bisglycinate-20mg-vegetable-180-capsules-6100007074",
+        "affiliate_url": "https://prf.hn/click/camref:1101l6ynVX/creativeref:1011l138009/destination:https%3A%2F%2Fwww.hollandandbarrett.com%2Fshop%2Fproduct%2Fsolgar-gentle-iron-iron-bisglycinate-20mg-vegetable-180-capsules-6100007074",
+        "diagnostic_only": false
+      }
+    ]
+  },
+  "new_product_contract": {
+    "classification": "NEW_PRODUCT_CONTRACT_BLOCKED",
+    "skus": [
+      "005646",
+      "001409"
+    ],
+    "nominal_existing_capability": "Parent + first explicit variant; later existing-parent sibling with actual ID, fresh baseline/fingerprints and approvals. No future production ID invented.",
+    "verified_gap": "READ ONLY validator accepts a proposed new-parent slug colliding with a different existing family; current executor selects by normalized name OR slug without exact V2 actual-parent identity validation before writes.",
+    "runtime_apply_executed": false,
+    "diagnostic_artifacts_not_approval_packages": [
+      "solgar-four-anchor-and-existing-draft",
+      "solgar-120-isolated-new-parent-probe"
+    ],
+    "smallest_followup": "Harden the existing locked new-parent collision/reuse and validation contract, preserve V3 and sequential behavior, add isolated PostgreSQL negative/replay tests; no new importer/approval system.",
+    "sql_migration_prepared": false,
+    "sql_migration_applied": false,
+    "reason_no_migration_in_this_PR": "The two confirmed JS corrections require no migration. Separate new-product contract hardening remains blocked per the owner phase3 boundary.",
+    "future_target_after_unblocking": {
+      "new_products": 1,
+      "total_new_variants": 5,
+      "hb_count": 93
+    }
+  },
+  "identity_review_required": 0,
+  "backlog": 233,
+  "production_readback": {
+    "at": "2026-11-14T19:04:44.063Z",
+    "ledger": 264,
+    "pending": [],
+    "holland_barrett": {
+      "mappings": 88,
+      "offers": 88,
+      "initial_histories": 88
+    },
+    "six_pack_pending": 223
+  },
+  "safety": {
+    "owner_approved_manifests_created": 0,
+    "technical_approvals_created": 0,
+    "apply_calls": 0,
+    "production_staging_writes": 0,
+    "sql_changes": 0,
+    "new_workflows": 0,
+    "merges": 0,
+    "deployments": 0,
+    "protected_scopes_untouched": [
+      "PR532",
+      "legacy145",
+      "mapping120",
+      "offer155",
+      "review702",
+      "HuelChocolate101393",
+      "completed Huel10",
+      "Six Pack",
+      "Discount"
+    ]
+  },
+  "release_boundary": "One Draft PR only. Branch-specific deployment suppression is temporary and must be removed/revalidated before later authorized release. Source freshness, full read-only preflight and separate owner commercial approval remain required."
+}

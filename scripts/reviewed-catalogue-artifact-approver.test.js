@@ -925,6 +925,25 @@ function executorScenario() {
   return { dependencies, getWritten: () => written, options };
 }
 
+test("registered retailer identity drift stops the package before any approval or execution", async () => {
+  for (const change of [{ id: 99 }, { slug: "display-name-derived-slug" }, { name: "Other Retailer" },
+    { website: "https://other.test" }]) {
+    const scenario = executorScenario();
+    const originalRead = scenario.dependencies.readState;
+    scenario.dependencies.readState = async () => {
+      const state = await originalRead();
+      return { ...state, retailer: { ...state.retailer, ...change } };
+    };
+    let approvals = 0, applies = 0;
+    scenario.dependencies.approve = async () => { approvals++; };
+    scenario.dependencies.apply = async () => { applies++; };
+    await assert.rejects(runPackage(scenario.options, scenario.dependencies), /Retailer identity mismatch/);
+    assert.equal(approvals, 0);
+    assert.equal(applies, 0);
+    assert.equal(scenario.getWritten().database_writes, 0);
+  }
+});
+
 test("package preflight rejects the same SQL identity conflicts before any approval or apply", async () => {
   for (const mode of ["preflight", "apply"]) {
     const scenario = executorScenario();

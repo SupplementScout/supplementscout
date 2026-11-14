@@ -299,7 +299,30 @@ function sizeKey(size) {
   return `${size.dimension}:${normalizeDecimalString(size.value, "size")}:${size.unit}:${unitScope}`;
 }
 
-function productFamilyKey(value = "") {
+function countedUnitIdentity(value = "") {
+  const matches = [...String(value).matchAll(/(?<![\w.,])([1-9]\d*)\s*(?:(?:vegetable|vege|vegi)\s+)?(tablets?|tabs?|capsules?|caps?)\b/gi)];
+  if (matches.length !== 1 || !Number.isSafeInteger(Number(matches[0][1]))) return null;
+  return { count: Number(matches[0][1]), type: /^tab/i.test(matches[0][2]) ? "tablets" : "capsules" };
+}
+
+function productFamilyKey(value = "", brand = "") {
+  const format = parseProductFormat(value);
+  if (["tablet", "capsule"].includes(format)) {
+    // Count is a variant axis; potency, formulation, release and dosage form
+    // remain family identity. Do not use the powder mass-stripping rules here.
+    let family = normalizeComparableText(String(value)
+      .replace(/(?<![\w.,])[1-9]\d*\s*(?=(?:(?:vegetable|vege|vegi)\s+)?(?:tablets?|tabs?|capsules?|caps?)\b)/gi, "")
+      .replace(/\b(\d+(?:[.,]\d+)?)\s*(mg|mcg|µg|μg|iu)\b/gi,
+        (_, amount, unit) => `${normalizeDecimalString(amount.replace(",", "."), "strength")}${/[µμ]/.test(unit) ? "mcg" : unit.toLowerCase()}`))
+      .replace(/\b(tabs?|tablets?)\b/g, "tablets")
+      .replace(/\b(caps?|capsules?)\b/g, "capsules")
+      .replace(/\b(vege|vegi)\b(?=\s+capsules\b)/g, "vegetable");
+    // Brand is checked independently against the canonical brand. Some legacy
+    // titles omit that prefix; strip only the exact supplied brand at the start.
+    const prefix = normalizeComparableText(brand);
+    if (prefix && family.startsWith(`${prefix} `)) family = family.slice(prefix.length + 1);
+    return family;
+  }
   // Strip complete measures before punctuation normalization splits 2.27kg into
   // "2 27kg". Exact variant size and pack checks remain separate below.
   const text = normalizeComparableText(String(value)
@@ -501,8 +524,9 @@ function assessVariantCompatibility(row, product, canonicalVariant = null) {
     reasons.push("brand conflict");
   }
 
-  const rowFamily = productFamilyKey(row.product_name || row.external_name || row.name || "");
-  const productFamily = productFamilyKey(product.name || "");
+  const rowName = row.product_name || row.external_name || row.name || "";
+  const rowFamily = productFamilyKey(rowName, row.brand);
+  const productFamily = productFamilyKey(product.name || "", product.brand);
 
   const genericReviewedExisting =
     row.__reviewed_catalogue_identity?.action === "map_existing_variant";
@@ -516,6 +540,17 @@ function assessVariantCompatibility(row, product, canonicalVariant = null) {
     reasons.push("ambiguous product family");
   } else if (rowFamily !== productFamily && !genericReviewedExisting) {
     reasons.push("product family conflict");
+  }
+
+  const rowUnits = countedUnitIdentity(rowName);
+  const targetUnits = countedUnitIdentity(exactCanonicalVariant
+    ? canonicalVariant.display_name || String(canonicalVariant.variant_key || "").replace(/[-_]/g, " ")
+    : product.name);
+  if (rowUnits && (!targetUnits || rowUnits.count !== targetUnits.count || rowUnits.type !== targetUnits.type)) {
+    reasons.push("unit-count conflict");
+  }
+  if (rowUnits && valuesConflict(rowExplicitFormat, exactCanonicalFormat)) {
+    reasons.push("format conflict");
   }
 
   if (valuesConflict(sizeKey(comparisonRowIdentity.size), sizeKey(productIdentity.size))) {
@@ -599,9 +634,11 @@ function rowIdentityKey(row) {
   }
 
   const identity = parseVariantIdentity(row);
+  const units = countedUnitIdentity(row.product_name || row.external_name || row.name || "");
 
   return [
     productFamilyKey(row.product_name || row.external_name || row.name || ""),
+    ...(units ? [`${units.count}-${units.type}`] : []),
     identity.flavour || "unknown-flavour",
     sizeKey(identity.size) || "unknown-size",
     identity.packCount === null ? "unknown-pack" : identity.packCount,
