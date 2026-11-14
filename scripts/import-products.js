@@ -2280,6 +2280,13 @@ function slugifyRetailerName(name) {
     .replace(/^-|-$/g, "");
 }
 
+function feedRetailerSlug(row) {
+  const reviewedSlug = row.__reviewed_catalogue_identity?.retailer_slug;
+  return reviewedSlug === undefined
+    ? slugifyRetailerName(String(row.retailer_name || "").trim())
+    : reviewedSlug;
+}
+
 function assignIfSupplied(target, fieldName, value) {
   if (value !== undefined) {
     target[fieldName] = value;
@@ -4329,9 +4336,8 @@ function assertReviewedParentVariantPolicy(row, rowNumber, evidence) {
   const externalProductId = optionalIdentifier(row.external_product_id);
   const externalVariantId = optionalIdentifier(row.external_variant_id);
   const externalOptions = parseExternalOptions(row.external_options);
-  const retailerSlug = slugifyRetailerName(
-    required(row.retailer_name, "retailer_name", rowNumber)
-  );
+  required(row.retailer_name, "retailer_name", rowNumber);
+  const retailerSlug = feedRetailerSlug(row);
   const reviewedTenReps = row.__reviewed_10reps_new_product_identity;
   const reviewedPredators = row.__reviewed_predators_new_product_identity;
   if (genericReviewed) {
@@ -5225,7 +5231,7 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
   const retailerName = String(shippingNormalizedRow.retailer_name || "").trim();
   const reviewedRetailerSlug = shippingNormalizedRow.__reviewed_catalogue_identity?.retailer_slug;
   const retailer = retailerName
-    ? await findRetailerBySlug(reviewedRetailerSlug === undefined ? slugifyRetailerName(retailerName) : reviewedRetailerSlug)
+    ? await findRetailerBySlug(feedRetailerSlug(shippingNormalizedRow))
     : null;
   if (reviewedRetailerSlug !== undefined && !retailer) {
     validationErrors.push("reviewed catalogue retailer not found");

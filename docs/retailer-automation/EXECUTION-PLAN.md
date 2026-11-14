@@ -1,5 +1,55 @@
 # Retailer Automation Consolidation Execution Plan
 
+**14 November Solgar shared V2 guard recovery — CODE COMPLETE / DRAFT ONLY:**
+The owner-scoped five-candidate task reuses the sealed manufacturer evidence;
+no new family audit is performed. Main/Production remains
+ba3d4590af441d84a46df977e2c6310b051c67c8, CURRENT264 pending=[], H&B88/88/88.
+Fresh authenticated Partnerize retrieval19:05:04.083Z has unchanged selected
+rows, TLS enabled and unknown supplier generation time; backlog remains233.
+
+The new-parent policy now reuses the same reviewed retailer-slug resolution as
+lookup, closing the remaining display-name derivation without an alias table.
+Tablet/capsule family comparison removes only explicit bottle counts, preserves
+potency/formulation/release/form, normalizes vegetable-capsule spelling and
+compares brand prefixes only against the separately checked canonical brand.
+Exact count/format checks and fallback row identities retain sellable-unit
+distinctions. No writer, approval, executor or SQL function is changed. The
+existing frozen importer hash is reviewed and resealed for this exact change;
+other frozen components remain unchanged.
+
+Focused21/21 and related441/441 pass. Quick1175 PASS/0 FAIL/3 existing SKIPs and
+full3909 PASS/0 FAIL/3 existing SKIPs pass, including TypeScript, ESLint, Guardian,
+baseline validation and an isolated production build with normal TLS/system CA.
+The362-file inventory was reviewed and its seal remains unchanged. Local SQL
+integration reports3 static PASS/3 Docker-dependent SKIPs; these are not local
+PostgreSQL execution evidence. Remote checks belong to the single Draft PR.
+
+All five isolated native dry-runs and full deployed V2 READ ONLY validations
+pass technically. Only005662→325,005637→374 and003518→396 form the final sealed
+three-row DRAFT, CONDITIONALLY_READY_AFTER_RELEASE. It proposes0 products,
+3 non-Default variants and3 mappings/offers/initial histories, H&B88→91.
+Actual approved-package CLI preflight and execution remain closed to release
+and a later real owner authorization; no fake approval is created.
+
+005646/001409 remain NEW_PRODUCT_CONTRACT_BLOCKED. Existing V2 can nominally
+create a parent/first variant and later add a sibling using a fresh actual ID,
+but a READ ONLY negative probe accepts a proposed new-parent slug colliding
+with a different existing family. The selected executor reuses a parent by
+normalized name OR slug without a matching V2 actual-parent identity check.
+No apply/rehearsal is executed. Both Magnesium Citrate candidates are excluded
+from the commercial DRAFT; their diagnostic plans must never be approved.
+The smallest follow-up is hardening the existing SQL collision/reuse contract
+with isolated PostgreSQL regressions, not adding another creation mechanism.
+No SQL migration is required for the two JS fixes, prepared or applied here.
+
+The branch-only temporary vercel.json suppresses deployment for this exact
+Draft branch; remove it and revalidate before any separately authorized merge.
+No merge/deploy, database write, approval, import, GTIN rewrite, canonical edit,
+retailer operation, workflow change or automatic H&B refresh occurs. PR532,
+legacy145/mapping120/offer155/review702, HuelChocolate101393, completed Huel,
+Six Pack, Discount, RA-001, suspended RA-004 and SEO priorities are unchanged.
+See the [scoped evidence and DRAFT hashes](evidence/HB-SOLGAR-V2-GUARD-RECOVERY-2026-11-14.json).
+
 **14 November Huel family guard recovery — CODE COMPLETE / DRAFT ONLY:**
 The owner-authorized follow-up reuses the preserved11-case investigation and
 243-SKU backlog. Current main/Production remains515bda7805cc4b78d2ab3fedb68c7346e9d591fd;

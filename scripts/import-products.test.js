@@ -3201,6 +3201,110 @@ test("generic reviewed catalogue permits an exact count sibling whose WooCommerc
   assert.equal(supabase.writes.length, 0);
 });
 
+function countedV2Fixture({ count = 180, format = "capsule", existing = true,
+  name = "Example Gentle Iron 20mg Vegetable 180 Capsules", parentName = "Gentle Iron 20 mg 90 Vege Capsules",
+  retailerName = "Registered & Nutrition", retailerSlug = "registered-nutrition" } = {}) {
+  const unit = format === "tablet" ? "tablets" : "capsules";
+  const row = baseCanonicalFeedRow({ retailer_name: retailerName, retailer_website: "https://example.test",
+    product_name: name, brand: "Example", category: "Health Supplements", slug: "example-counted-product",
+    external_product_id: "111001", external_variant_id: "111001", external_sku: "COUNT-" + count,
+    external_gtin: "4006381333931", external_options: JSON.stringify({ Size: `${count} ${unit}` }),
+    product_id: existing ? "396" : "", product_variant_id: "", variant_name: `Unflavoured / ${count} ${unit}`,
+    flavour: "Unflavoured", size: "", size_unit: "", product_format: format, shipping_known: "true", shipping_cost: "3.49" });
+  const profile = reviewedV2Profile("PRODUCTION");
+  profile.manifest.retailer = { id: 16, name: retailerName, slug: retailerSlug, website: row.retailer_website };
+  Object.assign(profile.profile.rows[0], { external_product_id: row.external_product_id, external_variant_id: row.external_variant_id,
+    product_name: row.product_name, brand: row.brand, category: row.category, variant_name: row.variant_name,
+    action: existing ? "create_variant_on_existing_product" : "create_product_with_variant", product_id: existing ? 396 : null,
+    flavour: "Unflavoured", size_value: null, size_unit: null, unit_count: count, unit_type: unit,
+    product_format: format, external_url: row.external_url, affiliate_url: row.affiliate_url });
+  const product = { id: 396, name: parentName, brand: "Example", slug: row.slug, category: row.category,
+    product_format: null, gtin: null, is_active: true, merged_into_product_id: null };
+  const seed = reviewedSeed({ retailers: [profile.manifest.retailer,
+    { id: 17, name: "Decoy", slug: "registered-and-nutrition", website: "https://decoy.test" }],
+    products: existing ? [product] : [], product_variants: existing
+      ? [{ id: 372, product_id: 396, variant_key: "default", display_name: "Default", is_active: true, is_default: true }] : [] });
+  return { row, profile, seed, product };
+}
+
+async function runCountedV2(fixture) {
+  const client = createMockSupabase(fixture.seed);
+  setSupabaseForTests(client);
+  const result = await runImportRowsRaw([fixture.row], { mode: "feed", safeCreate: true, dryRun: true,
+    reviewedCatalogueProfile: fixture.profile });
+  assert.equal(client.writes.length, 0);
+  return result;
+}
+
+test("reviewed new-parent and existing-parent count plans reuse the registered retailer slug generically", async () => {
+  for (const [retailerName, retailerSlug] of [["Registered & Nutrition", "registered-nutrition"],
+    ["Other Retailer Display Name", "stable-retailer-key"]]) {
+    for (const existing of [true, false]) {
+      const fixture = countedV2Fixture({ existing, retailerName, retailerSlug });
+      const result = await runCountedV2(fixture);
+      assert.equal(result.planned, 1, JSON.stringify(result.blockedRows));
+      const plan = result.report.approvedRows[0].importPlan;
+      assert.equal(String(plan.retailer.id), "16");
+      assert.equal(plan.expected_state.retailer.slug, retailerSlug);
+      assert.equal(plan.product_variant.action, existing ? "create_variant" : "create_reviewed_variant");
+      fixture.seed.retailers = [fixture.seed.retailers[1]];
+      const missing = await runCountedV2(fixture);
+      assert.equal(missing.planned, 0);
+      assert.match(missing.blockedRows[0].block_reason, /reviewed catalogue retailer not found/);
+    }
+  }
+});
+
+test("reviewed count variants preserve exact unit identity and reject strength, family, format and duplicate drift", async () => {
+  for (const options of [undefined, { count: 120, format: "tablet", name: "Example Magnesium Citrate 120 Tablets",
+    parentName: "Example Magnesium Citrate 60 Tablets" }]) {
+    const fixture = countedV2Fixture(options);
+    const result = await runCountedV2(fixture);
+    assert.equal(result.planned, 1, JSON.stringify(result.blockedRows));
+    const plan = result.report.approvedRows[0].importPlan;
+    assert.equal(plan.product_variant.values.size_value, null);
+    assert.equal(plan.product_variant.values.size_unit, null);
+    assert.equal(plan.product_variant.evidence.unit_count, String(fixture.profile.profile.rows[0].unit_count));
+    assert.equal(plan.product_variant.values.pack_count, "1");
+    assert.equal(plan.expected_state.product_variant, null);
+    for (const change of [
+      f => { f.row.product_name = f.row.product_name.replace(/20mg|Citrate/, "Different Formula"); },
+      f => { f.row.product_name = f.row.product_name.replace(/20mg|Citrate/, "25mg Different Formula"); },
+      f => { f.row.product_name = f.row.product_name.replace(/180|120/, "999"); },
+      f => { f.row.product_format = f.row.product_format === "tablet" ? "capsule" : "tablet"; },
+      f => { f.seed.product_variants.push({ id: 900, product_id: 396, ...plan.product_variant.values, is_default: false, is_active: true }); },
+      f => { f.seed.retailer_products.push({ id: 901, retailer_id: 16, product_id: 396, product_variant_id: 372,
+        external_variant_id: f.row.external_variant_id, external_product_id: f.row.external_product_id,
+        external_sku: f.row.external_sku, external_gtin: "5901234123457", external_url: f.row.external_url }); },
+    ]) {
+      const altered = structuredClone(fixture); change(altered);
+      const blocked = await runCountedV2(altered);
+      assert.equal(blocked.planned, 0, JSON.stringify(altered.row));
+    }
+  }
+});
+
+test("reviewed count sibling preparation uses an actual fresh parent and leaves the first count intact", async () => {
+  const first = countedV2Fixture({ count: 60, format: "tablet", existing: false, name: "Example Magnesium Citrate Tablets" });
+  const anchor = await runCountedV2(first);
+  assert.equal(anchor.planned, 1, JSON.stringify(anchor.blockedRows));
+  const firstPlan = anchor.report.approvedRows[0].importPlan;
+  assert.equal(firstPlan.product.values.unit_count, "60");
+  const sibling = countedV2Fixture({ count: 120, format: "tablet", name: "Example Magnesium Citrate 120 Tablets",
+    parentName: first.row.product_name });
+  sibling.seed.products = [{ ...sibling.product, ...firstPlan.product.values, id: 396 }];
+  sibling.seed.product_variants = [{ id: 800, product_id: 396, ...firstPlan.product_variant.values, is_active: true, is_default: false }];
+  const second = await runCountedV2(sibling);
+  assert.equal(second.planned, 1, JSON.stringify(second.blockedRows));
+  const secondPlan = second.report.approvedRows[0].importPlan;
+  assert.equal(secondPlan.product.action, "existing");
+  assert.equal(secondPlan.product.values, undefined);
+  assert.equal(sibling.seed.products[0].unit_count, "60");
+  assert.equal(secondPlan.expected_state.product.name, first.row.product_name);
+  assert.equal(secondPlan.product_variant.evidence.unit_count, "120");
+  assert.notEqual(firstPlan.meta.plan_fingerprint, secondPlan.meta.plan_fingerprint);
+});
+
 test("generic reviewed catalogue accepts an explicitly reviewed unflavoured variant with or without a source flavour option", async () => {
   const row = baseCanonicalFeedRow({
     retailer_name: "Example Shop", retailer_website: "https://shop.example/",
