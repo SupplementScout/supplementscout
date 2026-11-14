@@ -5,6 +5,19 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**14 November 2026 bounded H&B family-conflict preparation:** six exact historical
+failures are confirmed family-guard false positives using fresh manufacturer GTIN
+and authenticated Partnerize evidence. One shared correction is prepared on an
+isolated draft branch; current main still blocks all six. Corrected local V2
+dry-run and deployed complete SQL READ ONLY pass6/6, with no approvals or writes.
+CURRENT264/pending=[] and H&B72/72/72 are preserved. Two sealed DRAFT profiles are
+conditional on separately authorized release, fresh preflight and exact owner
+canonical/commercial approval. Backlog remains249, including these six;26 NO and7
+UNSURE decisions remain intact. Existing dependency security findings are recorded
+separately. No release, import, refresh or new scheduler is authorized. SEO-20,
+RA-001 and suspended RA-004 are unchanged. See the
+[execution evidence](retailer-automation/evidence/HB-SIX-FAMILY-PREPARATION-2026-11-14.json).
+
 **12 November 2026 reviewed GTIN migration closeout checkpoint:** the exact
 owner-approved migration264 is committed and independently verified; H&B16
 remains2/2 and Six Pack223 PENDING cards are intact. The narrow production-ledger

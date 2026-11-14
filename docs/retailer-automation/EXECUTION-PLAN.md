@@ -1,5 +1,45 @@
 # Retailer Automation Consolidation Execution Plan
 
+**14 November H&B six family conflicts — DRAFT CODE PREPARATION / NO RELEASE AUTHORITY:**
+The exact six historical failures were reproduced against deployed main
+`225a8c9af0022ee48e79af9cb5469c5750a6f23d`. Fresh authenticated Partnerize and
+manufacturer GTIN evidence establish six family-guard false positives, zero
+different-product mismatches and zero insufficient-identity cases. The shared
+correction strips decimal quantities before punctuation normalization, recognises
+complete whey flavour phrases, and removes redundant whey-protein wording while
+retaining formula qualifiers and the explicit ISO family marker. It extends the
+existing PR531 mechanism; source names, canonical data and SQL are unchanged.
+
+SKUs049731/030310/030311/048556 propose exact non-Default variants under product7;
+107861 under178;102790 under743. All six still fail on current main. The corrected
+local V2 dry-run and complete deployed V2 SQL READ ONLY pass6/6; six negative SQL
+cases retain GTIN, duplicate, Default and stale-parent rejection. Executor and
+approval-dispatch definitions are unchanged. Two sealed DRAFT profiles preserve
+five free-shipping offers and one GBP27+3.49 offer. There are zero owner-approved
+manifests or technical approvals. These are6 conditionally prepared candidates,
+not production-ready offers or permission to release/import.
+
+Independent baseline confirms CURRENT264/pending=[] and H&B72/72/72. Partnerize
+retrieval2026-11-14T08:36:57.525Z expires2026-11-15T08:36:57.525Z; supplier generation
+time remains unknown. Focused265, Quick599 and Full3897 tests pass, together with
+TypeScript, ESLint, the isolated production build and Guardian. Final independent
+readback at08:57:54.146Z confirms zero public-table deltas. The unchanged dependency
+graph has19 npm audit findings, including
+one critical; this is an explicit separate release concern, not a security PASS.
+The feature branch alone disables native Vercel deployment to preserve the
+no-deployment boundary. Final local/PR receipts belong with the private handoff.
+
+The frozen backlog reconciles to249, including these6; only a later authorized
+successful import would leave243 and78 H&B offers. Historical26 NO and7 UNSURE
+decisions remain intact. The next bounded evidence-preparation group is five
+Solgar missing-count candidates under existing parents; none is import-ready.
+Larger Huel/ON mass-version groups retain their identity conflicts;130 historical
+new-parent candidates are not promoted to variants. Legacy065462/145, completed
+variants4559–4564, Draft PR532, Six Pack and Discount remain untouched. No canonical
+or commercial writes, migration, approval, merge, deployment, refresh activation
+or scheduler was performed. RA-001, suspended RA-004 and SEO priorities are unchanged.
+See [bounded preparation evidence](evidence/HB-SIX-FAMILY-PREPARATION-2026-11-14.json).
+
 **13 November PR531 release preparation — OWNER AUTHORIZED / PRODUCTION VERIFICATION PENDING:**
 The owner authorized final cleanup, mandatory verification, exactly one squash
 merge and production verification of the existing shared correction. Commercial

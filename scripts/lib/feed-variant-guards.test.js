@@ -11,6 +11,62 @@ const {
   productFamilyKey,
 } = require("./feed-variant-guards");
 
+test("whey family keys retain named families across decimal sizes and complete flavours", () => {
+  const cases = [
+    ["Optimum Nutrition Gold Standard 100% Whey Protein Chocolate Hazelnut 2.27kg", "Optimum Nutrition Gold Standard 100% Whey 2.27kg"],
+    ["Optimum Nutrition Gold Standard 100% Whey Protein Strawberry 450g", "Optimum Nutrition Gold Standard 100% Whey 2.27kg"],
+    ["Optimum Nutrition Gold Standard 100% Whey Protein Double Rich Chocolate 465g", "Optimum Nutrition Gold Standard 100% Whey 2.27kg"],
+    ["Optimum Nutrition Gold Standard 100% Whey Powder French Vanilla Crème 2.28kg", "Optimum Nutrition Gold Standard 100% Whey 2.27kg"],
+    ["Applied Nutrition ISO XP Whey Protein Isolate Chocolate 450 g", "Applied Nutrition ISO-XP 1.8kg"],
+    ["Applied Nutrition Critical Whey Protein Powder Vanilla 825g", "Applied Nutrition Critical Whey 2kg"],
+    ["Example ISO Alpha Whey Protein Isolate Chocolate Dessert 0,45kg", "Example ISO Alpha 1.8kg"],
+  ];
+  for (const [source, canonical] of cases) {
+    assert.equal(productFamilyKey(source), productFamilyKey(canonical), source);
+  }
+  assert.equal(productFamilyKey("Example Whey 12 x 0.45kg"), "example whey");
+  assert.notEqual(productFamilyKey("Example Whey 80 1.8kg"), productFamilyKey("Example Whey 90 450g"));
+  assert.match(productFamilyKey(cases[0][0]), /100/);
+});
+
+test("whey normalization preserves formula, family and non-whey ingredient distinctions", () => {
+  for (const qualifier of ["Diet", "Clear", "Hydrolysed", "Vegan", "Casein", "Mass Gainer", "Professional", "Advanced"]) {
+    assert.notEqual(productFamilyKey(`Example ${qualifier} Whey Protein Chocolate Hazelnut 450g`),
+      productFamilyKey("Example Whey 2kg"), qualifier);
+    assert.notEqual(productFamilyKey(`Example ISO Alpha ${qualifier} Whey Protein Isolate 450g`),
+      productFamilyKey("Example ISO Alpha 1.8kg"), qualifier);
+  }
+  assert.notEqual(productFamilyKey("Example ISO Alpha Whey Protein Concentrate 450g"), productFamilyKey("Example ISO Alpha 1.8kg"));
+  assert.notEqual(productFamilyKey("Example Whey Protein Isolate 450g"), productFamilyKey("Example Whey 1.8kg"));
+  for (const word of ["Hazelnut", "French", "Rich", "Unknown Flavour"]) {
+    assert.match(productFamilyKey(`Example ${word} Whey 450g`), new RegExp(word.toLowerCase()));
+  }
+  assert.match(productFamilyKey("Example Chocolate Hazelnut Protein Powder 450g"), /hazelnut/);
+  assert.match(productFamilyKey("Example French Vanilla Protein Bar 55g"), /french/);
+});
+
+test("whey family normalization leaves flavour identity and brand, size, format and pack guards active", () => {
+  const product = { name: "Example Gold Whey 2.27kg", brand: "Example", product_format: "powder" };
+  const variant = { flavour_label: "Double Rich Chocolate", flavour_code: "double rich chocolate",
+    size_value: "465", size_unit: "g", pack_count: 1, product_format: "powder", is_active: true, is_default: false };
+  const row = { product_name: "Example Gold Whey Protein Double Rich Chocolate 465g", brand: "Example",
+    flavour: "Double Rich Chocolate", size: "465g", pack_count: "1", product_format: "powder" };
+  assert.equal(assessVariantCompatibility(row, product, variant).compatible, true);
+  assert.notEqual(rowIdentityKey(row), rowIdentityKey({ ...row, flavour: "French Vanilla Crème" }));
+  for (const [change, reason] of [
+    [{ brand: "Another Brand" }, "brand conflict"],
+    [{ size: "450g" }, "size conflict"],
+    [{ size: "465ml" }, "size conflict"],
+    [{ pack_count: "2", variant: "pack of 2" }, "pack-count conflict"],
+    [{ product_format: "bar" }, "format conflict"],
+    [{ product_name: "Example Gold Diet Whey Protein Double Rich Chocolate 465g" }, "product family conflict"],
+  ]) {
+    const result = assessVariantCompatibility({ ...row, ...change }, product, variant);
+    assert.equal(result.compatible, false, reason);
+    assert(result.reasons.includes(reason), JSON.stringify(result.reasons));
+  }
+});
+
 test("compound bar flavours do not become families or erase meaningful non-bar words", () => {
   for (const brand of ["Barebells", "Example"]) {
     for (const flavour of ["Caramel Cashew", "Rocky Road"]) {

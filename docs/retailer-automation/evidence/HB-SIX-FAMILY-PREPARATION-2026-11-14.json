@@ -1,0 +1,302 @@
+{
+  "kind": "bounded-hb-six-family-conflict-preparation",
+  "status": "LOCAL_VERIFIED_DRAFT_SECURITY_FINDINGS",
+  "prepared_at": "2026-11-14T08:54:49.083Z",
+  "baseline": {
+    "main": "225a8c9af0022ee48e79af9cb5469c5750a6f23d",
+    "production": "225a8c9af0022ee48e79af9cb5469c5750a6f23d",
+    "ledger": 264,
+    "pending": [],
+    "hb_mappings": 72,
+    "hb_offers": 72,
+    "hb_initial_histories": 72
+  },
+  "branch": "fix/reviewed-protein-family-20261114",
+  "original_blocker": "product family conflict",
+  "classification_counts": {
+    "FALSE_POSITIVE_FAMILY_GUARD": 6,
+    "GENUINE_DIFFERENT_PRODUCT": 0,
+    "INSUFFICIENT_IDENTITY_EVIDENCE": 0,
+    "OTHER_VALIDATION_BLOCKER": 0
+  },
+  "eligibility": {
+    "READY_ON_CURRENT_MAIN": 0,
+    "CONDITIONALLY_READY_AFTER_CODE_RELEASE": 6
+  },
+  "candidates": [
+    {
+      "sku": "049731",
+      "source_name": "Optimum Nutrition Gold Standard 100% Whey Protein Chocolate Hazelnut 2.27kg",
+      "gtin": "5060469986159",
+      "canonical_family": "Optimum Nutrition Gold Standard 100% Whey 2.27kg",
+      "product_id": 7,
+      "new_variant": {
+        "display_name": "Chocolate Hazelnut / 2270g",
+        "flavour_code": "chocolate hazelnut",
+        "flavour_label": "Chocolate Hazelnut",
+        "pack_count": "1",
+        "product_format": "powder",
+        "size_unit": "g",
+        "size_value": "2270",
+        "variant_key": "chocolate-hazelnut-2270g"
+      },
+      "root_causes": [
+        "decimal quantity normalized before stripping leaves token 2",
+        "partial flavour stripping leaves hazelnut",
+        "redundant protein after whey"
+      ],
+      "price": "98.00",
+      "shipping": "0.00",
+      "stock": "in stock"
+    },
+    {
+      "sku": "030310",
+      "source_name": "Optimum Nutrition Gold Standard 100% Whey Protein Strawberry 450g",
+      "gtin": "5060245600668",
+      "canonical_family": "Optimum Nutrition Gold Standard 100% Whey 2.27kg",
+      "product_id": 7,
+      "new_variant": {
+        "display_name": "Delicious Strawberry / 450g",
+        "flavour_code": "delicious strawberry",
+        "flavour_label": "Delicious Strawberry",
+        "pack_count": "1",
+        "product_format": "powder",
+        "size_unit": "g",
+        "size_value": "450",
+        "variant_key": "delicious-strawberry-450g"
+      },
+      "root_causes": [
+        "canonical decimal quantity leaves token 2",
+        "redundant protein after whey"
+      ],
+      "price": "32.00",
+      "shipping": "0.00",
+      "stock": "in stock"
+    },
+    {
+      "sku": "030311",
+      "source_name": "Optimum Nutrition Gold Standard 100% Whey Protein Double Rich Chocolate 465g",
+      "gtin": "5060245600507",
+      "canonical_family": "Optimum Nutrition Gold Standard 100% Whey 2.27kg",
+      "product_id": 7,
+      "new_variant": {
+        "display_name": "Double Rich Chocolate / 465g",
+        "flavour_code": "double rich chocolate",
+        "flavour_label": "Double Rich Chocolate",
+        "pack_count": "1",
+        "product_format": "powder",
+        "size_unit": "g",
+        "size_value": "465",
+        "variant_key": "double-rich-chocolate-465g"
+      },
+      "root_causes": [
+        "canonical decimal quantity leaves token 2",
+        "partial flavour stripping leaves double rich",
+        "redundant protein after whey"
+      ],
+      "price": "32.00",
+      "shipping": "0.00",
+      "stock": "in stock"
+    },
+    {
+      "sku": "048556",
+      "source_name": "Optimum Nutrition Gold Standard 100% Whey Powder French Vanilla Crème 2.28kg",
+      "gtin": "5060469988610",
+      "canonical_family": "Optimum Nutrition Gold Standard 100% Whey 2.27kg",
+      "product_id": 7,
+      "new_variant": {
+        "display_name": "French Vanilla Crème / 2280g",
+        "flavour_code": "french vanilla crème",
+        "flavour_label": "French Vanilla Crème",
+        "pack_count": "1",
+        "product_format": "powder",
+        "size_unit": "g",
+        "size_value": "2280",
+        "variant_key": "french-vanilla-cr-me-2280g"
+      },
+      "root_causes": [
+        "decimal quantities leave token 2",
+        "partial flavour stripping leaves french crème"
+      ],
+      "price": "98.00",
+      "shipping": "0.00",
+      "stock": "in stock"
+    },
+    {
+      "sku": "107861",
+      "source_name": "Applied Nutrition ISO XP Whey Protein Isolate Chocolate 450 g",
+      "gtin": "5056555214664",
+      "canonical_family": "Applied Nutrition ISO-XP 1.8kg",
+      "product_id": 178,
+      "new_variant": {
+        "display_name": "Chocolate Dessert / 450g",
+        "flavour_code": "chocolate dessert",
+        "flavour_label": "Chocolate Dessert",
+        "pack_count": "1",
+        "product_format": "powder",
+        "size_unit": "g",
+        "size_value": "450",
+        "variant_key": "chocolate-dessert-450g"
+      },
+      "root_causes": [
+        "canonical decimal quantity leaves token 1",
+        "source appends full whey protein isolate descriptor to explicit ISO family"
+      ],
+      "price": "30.00",
+      "shipping": "0.00",
+      "stock": "in stock"
+    },
+    {
+      "sku": "102790",
+      "source_name": "Applied Nutrition Critical Whey Protein Powder Vanilla 825g",
+      "gtin": "5056555211243",
+      "canonical_family": "Applied Nutrition Critical Whey 2kg",
+      "product_id": 743,
+      "new_variant": {
+        "display_name": "Vanilla Ice Cream / 825g",
+        "flavour_code": "vanilla ice cream",
+        "flavour_label": "Vanilla Ice Cream",
+        "pack_count": "1",
+        "product_format": "powder",
+        "size_unit": "g",
+        "size_value": "825",
+        "variant_key": "vanilla-ice-cream-825g"
+      },
+      "root_causes": [
+        "redundant protein after whey"
+      ],
+      "price": "27.00",
+      "shipping": "3.49",
+      "stock": "in stock"
+    }
+  ],
+  "source": {
+    "retrieved_at": "2026-11-14T08:36:57.525Z",
+    "expires_at": "2026-11-15T08:36:57.525Z",
+    "sha256": "21c7b31a99fcb247daa7bcb7807fd0ec41f32d2be64177c3e152460c6c2435a1",
+    "supplier_generated_at": null,
+    "tls_verified": true
+  },
+  "draft_packages": [
+    {
+      "id": "hb-family-six-free-20261114",
+      "row_count": 5,
+      "manifest_path": "tmp/retailer-feeds/hb-family-six-20261114/hb-family-six-free-20261114.manifest.draft.json",
+      "manifest_sha256": "833d336ef88add682a6e66ab5ac2f56c569fd5a17ff37e16573ab9245e6c4d52",
+      "artifact_path": "tmp/retailer-feeds/hb-family-six-20261114/hb-family-six-free-20261114-sealed.json",
+      "artifact_sha256": "fcd4ed7b4c17477a9b7df64584b87856871f9e3ca29031f740f76ae3389786ba",
+      "csv_path": "tmp/retailer-feeds/hb-family-six-20261114/hb-family-six-free-20261114.csv",
+      "csv_sha256": "583d9a08a381c755c471031eaaa065aa2592673bb1373f048f629c517cc1a754"
+    },
+    {
+      "id": "hb-family-six-standard-20261114",
+      "row_count": 1,
+      "manifest_path": "tmp/retailer-feeds/hb-family-six-20261114/hb-family-six-standard-20261114.manifest.draft.json",
+      "manifest_sha256": "1627911de2ad3a24d9b68e19b42943e914ac312dd64040113c8c86f6b60c2b31",
+      "artifact_path": "tmp/retailer-feeds/hb-family-six-20261114/hb-family-six-standard-20261114-sealed.json",
+      "artifact_sha256": "0816caee5e5729d41522989ed9a037974d3b3c89c0b89d7516d6c051ddf7c406",
+      "csv_path": "tmp/retailer-feeds/hb-family-six-20261114/hb-family-six-standard-20261114.csv",
+      "csv_sha256": "af4b9ccc8e7852b62870f92b79c1cba95df93d5fd030429ce4bb6e0f6942cdfb"
+    }
+  ],
+  "validation": {
+    "deployed_main_importer": "BLOCK_6_OF_6",
+    "local_corrected_importer": "PASS_6_OF_6",
+    "complete_deployed_v2_sql_read_only": "PASS_6_OF_6",
+    "negative_sql": "PASS_6_OF_6",
+    "executor_definitions_unchanged": true,
+    "focused_tests_pass": 265,
+    "quick_tests_pass": 599,
+    "full": "PASS_3897_TESTS",
+    "ci": "Retained on the eventual Draft PR and in the private handoff",
+    "security": {
+      "result": "BASELINE_SECURITY_FINDINGS",
+      "captured_at": "2026-11-14T08:53:50.719Z",
+      "dependency_graph_unchanged": true,
+      "new_dependencies": 0,
+      "package_json_changed": false,
+      "package_lock_changed": false,
+      "source_lock_sha256": "3eca48899e68733c201a693993d7798bd94178c9dccde544451ae5850ea093bc",
+      "vulnerabilities": {
+        "info": 0,
+        "low": 0,
+        "moderate": 10,
+        "high": 8,
+        "critical": 1,
+        "total": 19
+      },
+      "direct": [
+        {
+          "name": "@tailwindcss/postcss",
+          "severity": "moderate"
+        },
+        {
+          "name": "csv-parse",
+          "severity": "moderate"
+        },
+        {
+          "name": "next",
+          "severity": "critical"
+        },
+        {
+          "name": "sharp",
+          "severity": "high"
+        }
+      ],
+      "secret_scanning_open_alerts": 0,
+      "security_gate": "AUDIT_HAS_EXISTING_FINDINGS_NOT_A_PASS",
+      "tls_verified": true,
+      "system_ca_used": true,
+      "scope": "No dependency upgrades in the six-SKU family correction; findings remain a separate release concern"
+    },
+    "typescript": "PASS",
+    "eslint": "PASS",
+    "isolated_production_build": "PASS",
+    "guardian": "PASS"
+  },
+  "backlog": {
+    "remaining": 249,
+    "conditional_six_included": true,
+    "after_future_authorized_import": 243,
+    "historical_NO_preserved": 26,
+    "historical_UNSURE_preserved": 7,
+    "new_parent_candidates_historical": 130,
+    "next_existing_parent_evidence_group": [
+      "005662",
+      "005637",
+      "005648",
+      "003518",
+      "003511"
+    ],
+    "next_group_ready_for_import": 0
+  },
+  "evidence_directory": "tmp/retailer-feeds/hb-family-six-20261114/",
+  "canonical_writes": 0,
+  "commercial_imports": 0,
+  "owner_approved_manifests": 0,
+  "technical_approvals": 0,
+  "migrations": 0,
+  "merges": 0,
+  "deployments": 0,
+  "production_writes": 0,
+  "staging_writes": 0,
+  "protected_scope": {
+    "PR532": "UNTOUCHED",
+    "variant_145": "REVIEW_UNCHANGED",
+    "sku_065462": "REVIEW_NO_IMPORT",
+    "completed_variants_4559_to_4564": "UNTOUCHED",
+    "Six_Pack": "UNTOUCHED",
+    "Discount": "UNTOUCHED"
+  },
+  "release_authorized": false,
+  "final_readback": {
+    "captured_at": "2026-11-14T08:57:54.146Z",
+    "changed_public_tables": [],
+    "hb_counts": [
+      72,
+      72,
+      72
+    ],
+    "production_writes": 0
+  }
+}

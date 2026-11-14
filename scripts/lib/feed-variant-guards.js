@@ -299,15 +299,29 @@ function sizeKey(size) {
 }
 
 function productFamilyKey(value = "") {
-  const text = normalizeComparableText(value);
+  // Remove quantities before punctuation normalization splits 2.27kg into
+  // "2 27kg" and leaves a spurious family token. Exact size is checked separately.
+  const text = normalizeComparableText(String(value)
+    .replace(/\b\d+\s*x\s*\d+(?:[.,]\d+)?\s*(kg|g|mg|mcg|iu|l|ml)\b/gi, " ")
+    .replace(/\b\d+(?:[.,]\d+)?\s*(kg|g|mg|mcg|iu|l|ml)\b/gi, " "));
   // Compound bar flavours are not product families. Keep these complete phrases
   // scoped to bar names: e.g. cashew in a powder/ingredient name is meaningful.
-  const family = /\bbars?\b/.test(text)
+  let family = /\bbars?\b/.test(text)
     ? text.replace(/\b(caramel cashew|rocky road)\b/g, " ")
     : text;
+  if (/\bwhey\b/.test(family) && !/\bbars?\b/.test(family)) {
+    // Complete, recognised flavour phrases only; never erase individual family
+    // words such as "rich", "French", "hazelnut" or arbitrary supplied flavours.
+    family = family.replace(/\b(chocolate hazelnut|double rich chocolate|delicious strawberry|french vanilla cr[èe]me|french vanilla|vanilla ice cream|chocolate dessert)\b/g, " ");
+    // An explicit ISO family marker already retains the isolate identity. Only
+    // this complete redundant descriptor is removable; concentrate, clear,
+    // hydrolysed, diet, vegan and other formula qualifiers remain meaningful.
+    if (/\biso\b/.test(family)) {
+      family = family.replace(/\bwhey protein isolate\b/g, " ");
+    }
+    family = family.replace(/\bwhey protein\b/g, "whey");
+  }
   return family
-    .replace(/\b\d+\s*x\s*\d+(?:[.,]\d+)?\s*(kg|g|mg|mcg|iu|l|ml)\b/g, " ")
-    .replace(/\b\d+(?:[.,]\d+)?\s*(kg|g|mg|mcg|iu|l|ml)\b/g, " ")
     .replace(/\b(pack\s+of\s+\d+|\d+\s*(bars?|packs?|packets?|sachets?))\b/g, " ")
     .replace(/\b(chocolate|vanilla|strawberry|banana|cookies and cream|cookies cream|salted caramel|caramel|peanut|coconut|mango|berry|raspberry|orange|lemon|lime|cola|unflavoured)\b/g, " ")
     .replace(/\b(single|bars?|packs?|packets?|sachets?|capsules?|caps?|tablets?|tabs?|powder|liquid|ready to drink)\b/g, " ")
