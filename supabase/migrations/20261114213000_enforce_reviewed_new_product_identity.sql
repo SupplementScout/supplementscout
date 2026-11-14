@@ -13,6 +13,9 @@ declare
   v_anchor text := $anchor$      raise exception 'invalid reviewed catalogue product creation';
     end if;$anchor$;
   v_check text := $check$
+    if p_plan#>>'{approval,canonical_name}' is distinct from v_product_values->>'name' then
+      raise exception 'reviewed catalogue new product reviewed canonical name mismatch';
+    end if;
     if v_variant_action='create_reviewed_variant' and (
       v_variant_values->>'product_format' is distinct from v_product_values->>'product_format'
       or (p_plan#>>'{product_variant,evidence,unit_count}' is not null and

@@ -104,7 +104,7 @@ const STAGING_PENDING = Object.freeze([...HARD_PRICE_ANOMALY_PENDING, PENDING_RE
 const PRODUCTION_PENDING = Object.freeze([
   Object.freeze({
     filename: "20261114213000_enforce_reviewed_new_product_identity.sql",
-    sha256: "b74e295aaf32ad13a7791c0c01051fe2e5d1cb04facd04e0ab1f6205d1fbb981",
+    sha256: "19b8028a3835438156438eafa92c7af30cff36310d0bd55ee6c41aa8a04e7a6b",
   }),
 ]);
 const REVIEWED_GTIN_MIGRATION = "20261112130000_align_reviewed_catalogue_gtin_identity.sql";

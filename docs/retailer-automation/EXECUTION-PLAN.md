@@ -13,6 +13,11 @@ an owner-only overload for checking the actual just-created parent; public
 preflight/approval cannot provide that ID. The existing executor uses INSERT's
 generated ID for V2 NEW plans and reuses the same complete identity checks
 after creation. A count variant must agree with its parent's dosage format.
+An independent in-memory probe also reproduces a resealed plan whose new-parent
+identity differs from its reviewed manifest row. Existing V2 package validation
+now binds name, brand, category, format and canonical approval name exactly;
+the SQL boundary checks the declared canonical name as well. V1/V3 package
+contracts retain their existing behavior.
 V3, legacy paths, approvals, sealed-plan bindings and commercial refresh remain
 under their existing contracts. No retailer or product-family exception is added.
 

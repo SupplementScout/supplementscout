@@ -136,7 +136,7 @@ const CONTRACTS = Object.freeze({
     appliedExcluded: APPLIED_EXCLUSIONS.STAGING,
     excluded: Object.freeze({
       "20261114213000_enforce_reviewed_new_product_identity.sql":
-        "b74e295aaf32ad13a7791c0c01051fe2e5d1cb04facd04e0ab1f6205d1fbb981",
+        "19b8028a3835438156438eafa92c7af30cff36310d0bd55ee6c41aa8a04e7a6b",
       "20261112130000_align_reviewed_catalogue_gtin_identity.sql":
         "d5a9a19e34ea2bc78dc8bdc331b6c85680d5c1efd0ef40a1f022ea58979550cf",
       "20261110170000_align_reviewed_catalogue_affiliate_url_contract.sql":

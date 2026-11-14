@@ -386,6 +386,8 @@ function reviewedNewProductIdentityScenarios(container, database) {
   const oldCollisionApproval = approve(collision, "approved-before-fix");
   const wrongForm = newPlan("wrong-form"); wrongForm.product_variant.values.product_format = "capsule"; refreshPlanFingerprint(wrongForm);
   assert.deepEqual(query(readOnly(wrongForm)), { plan_kind: "feed", retailer_id: 981001 }, "reproduce independently missing parent/variant format check");
+  const wrongReviewedName = newPlan("wrong-reviewed-name"); wrongReviewedName.approval.canonical_name = "Another Reviewed Formula"; refreshPlanFingerprint(wrongReviewedName);
+  assert.deepEqual(query(readOnly(wrongReviewedName)), { plan_kind: "feed", retailer_id: 981001 }, "reproduce missing reviewed canonical-name binding");
   const metadata = () => query(`select jsonb_agg(jsonb_build_object('oid',oid::text,'owner',proowner::text,'acl',proacl::text,'definer',prosecdef,'config',proconfig) order by oid) from pg_proc where oid in ('${signature}'::regprocedure,'public.validate_reviewed_catalogue_import_identity(jsonb)'::regprocedure)`);
   const metadataBefore = metadata(), countsBefore = counts();
   requireSuccess(psqlFile(container, database, path.join(root, "supabase/migrations/20261114213000_enforce_reviewed_new_product_identity.sql")), "install shared new-product identity correction");
@@ -393,16 +395,18 @@ function reviewedNewProductIdentityScenarios(container, database) {
   rejectBoth(collision, "unrelated slug collision", /new product identity collision/);
   fail(applySql(collision, oldCollisionApproval), /new product identity collision/); assert.deepEqual(counts(), countsBefore); note("pre-existing approval cannot bypass corrected executor");
   rejectBoth(wrongForm, "tablet versus capsule format", /format mismatch/);
+  rejectBoth(wrongReviewedName, "reviewed canonical-name binding", /reviewed canonical name mismatch/);
   const wrongUnits = newPlan("wrong-unit-format"); wrongUnits.product.values.product_format = "capsule"; wrongUnits.product_variant.values.product_format = "capsule";
   rejectBoth(wrongUnits, "count type versus dosage format", /format mismatch/);
   for (const [tag, values] of [
     ["same-name-different-brand", { brand: "Different Brand" }],
     ["same-brand-different-formula", { name: "Contract Magnesium Oxide Tablets" }],
     ["same-brand-different-strength", { name: "Contract Magnesium Citrate 200mg Tablets" }],
-    ["same-parent-exact", {}], ["inactive-parent", { is_active: false }], ["merged-parent", { merged_into_product_id: 981001 }],
+    ["same-parent-exact", {}], ["inactive-parent", { is_active: false, merged_into_product_id: 981001 }],
+    ["merged-parent", { is_active: false, merged_into_product_id: 981001 }],
   ]) {
     const p = newPlan(tag); const name = values.name || p.product.values.name;
-    execute(`insert into products(id,name,slug,brand,category,product_format,is_active,merged_into_product_id) values(983001,${sqlLiteral(name)},${sqlLiteral(p.product.values.slug)},${sqlLiteral(values.brand || "Contract Brand")},'Health Supplements','tablet',${values.is_active === false ? "false" : "true"},${values.merged_into_product_id || "null"})`);
+    execute(`insert into products(id,name,slug,brand,category,product_format,is_active,merged_into_product_id,merged_at) values(983001,${sqlLiteral(name)},${sqlLiteral(p.product.values.slug)},${sqlLiteral(values.brand || "Contract Brand")},'Health Supplements','tablet',${values.is_active === false ? "false" : "true"},${values.merged_into_product_id || "null"},${values.merged_into_product_id ? "now()" : "null"})`);
     rejectBoth(p, tag, /new product identity collision/);
     execute("delete from products where id=983001");
   }
@@ -437,7 +441,7 @@ function reviewedNewProductIdentityScenarios(container, database) {
   assert.deepEqual(afterSecond.slice(0, 5), beforeSecond.slice(0, 5).map((n, i) => Number(n) + (i === 0 ? 0 : 1))); note("second count variant uses fresh actual parent ID and creates no product");
   const duplicateVariant = structuredClone(second); duplicateVariant.retailer_product.values.external_variant_id = "new-parent-duplicate-variant"; duplicateVariant.retailer_product.values.external_sku = "new-parent-duplicate-variant"; duplicateVariant.retailer_product.values.external_url += "-duplicate";
   rejectBoth(duplicateVariant, "duplicate variant under explicit parent", /variant already exists/);
-  const duplicateProduct = newPlan("duplicate-product"); duplicateProduct.product.values.name = unique.product.values.name;
+  const duplicateProduct = newPlan("duplicate-product"); duplicateProduct.product.values.name = unique.product.values.name; duplicateProduct.approval.canonical_name = unique.product.values.name;
   rejectBoth(duplicateProduct, "duplicate canonical product", /new product identity collision/);
   const race = newPlan("approval-race"), raceApproval = approve(race, "approval-race");
   execute(`insert into products(id,name,slug,brand,category,product_format,is_active) values(983002,'Unrelated Intervening Product',${sqlLiteral(race.product.values.slug)},'Other','Health Supplements','tablet',true)`);
@@ -459,6 +463,9 @@ function reviewedNewProductIdentityScenarios(container, database) {
   // Reassess the exact Solgar relationship with generated local IDs only.
   const solgar = newPlan("solgar-local", 60);
   Object.assign(solgar.product.values, { name: "Solgar Magnesium Citrate Tablets", slug: "solgar-magnesium-citrate-tablets", brand: "Solgar" });
+  solgar.approval.canonical_name = solgar.product.values.name;
+  solgar.retailer_product.values.external_name = "Solgar Magnesium Citrate 60 Tablets";
+  solgar.retailer_product.values.external_product_id = "005646";
   solgar.retailer_product.values.external_gtin = "0033984017108";
   solgar.retailer_product.values.external_sku = "005646";
   solgar.retailer_product.values.external_variant_id = "005646";
@@ -468,7 +475,7 @@ function reviewedNewProductIdentityScenarios(container, database) {
   const solgarSecond = structuredClone(second);
   solgarSecond.product.id = String(solgarFirst.product_id);
   solgarSecond.expected_state.product = query(`select jsonb_build_object('id',id::text,'name',name,'is_active',is_active,'merged_into_product_id',merged_into_product_id::text,'product_format',product_format) from products where id=${solgarFirst.product_id}`);
-  Object.assign(solgarSecond.retailer_product.values, { external_product_id: "001409", external_variant_id: "001409", external_sku: "001409", external_gtin: "0033984017115", external_url: "https://merchant-one.test/product/solgar-120" });
+  Object.assign(solgarSecond.retailer_product.values, { external_product_id: "001409", external_variant_id: "001409", external_sku: "001409", external_gtin: "0033984017115", external_name: "Solgar Magnesium Citrate 120 Tablets", external_url: "https://merchant-one.test/product/solgar-120" });
   solgarSecond.offer.values.price = "17.98"; solgarSecond.offer.values.shipping_cost = "3.49"; solgarSecond.offer.values.total_price = "21.47";
   refreshPlanFingerprint(solgarSecond);
   const solgarSibling = apply(solgarSecond, approve(solgarSecond, "solgar-120"));

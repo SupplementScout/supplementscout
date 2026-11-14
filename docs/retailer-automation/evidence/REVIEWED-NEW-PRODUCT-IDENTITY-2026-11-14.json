@@ -17,13 +17,15 @@
     "actual_parent_id": 325,
     "actual_parent_name": "Solgar Biotin 5000µg 50 Vegi Capsules",
     "failure": "V2 specialized validation omits actual parent collision checks, bypassing older exact-parent checks; legacy create_or_reuse_reviewed execution selects by normalized name OR slug and V2 post-validation only checks proposed fields.",
-    "additional_guard": "V2 new-parent and first count-variant dosage formats must agree."
+    "additional_guard": "V2 new-parent and first count-variant dosage formats must agree.",
+    "manifest_binding_probe": "Legacy validatePlan accepts a recomputed/resealed plan with a new-product name differing from its unchanged reviewed row. Reproduced in memory only; disk artifacts and production were untouched."
   },
   "correction": {
     "new_means_absent": true,
     "identical_existing_parent_requires_explicit_existing_plan": true,
     "no_silent_slug_change_or_existing_record_rename": true,
     "shared_complete_identity_validator": "public.validate_reviewed_catalogue_import_identity(jsonb,bigint)",
+    "manifest_identity_fields_bound": ["name", "brand", "category", "product_format", "canonical_approval_name"],
     "post_create_argument": "Owner-only function receives actual INSERT RETURNING ID, never caller-supplied ID from plan JSON",
     "existing_one_argument_entry": "Always supplies NULL; checks absence before approval/preflight",
     "v3_and_legacy_branches": "Preserved; genuine V3 PostgreSQL creation regression included",
@@ -32,7 +34,7 @@
   },
   "proposed_migration": {
     "file": "supabase/migrations/20261114213000_enforce_reviewed_new_product_identity.sql",
-    "sha256": "b74e295aaf32ad13a7791c0c01051fe2e5d1cb04facd04e0ab1f6205d1fbb981",
+    "sha256": "19b8028a3835438156438eafa92c7af30cff36310d0bd55ee6c41aa8a04e7a6b",
     "production": "HASH_BOUND_PENDING_ONLY; requires separate authorized rehearsal/apply/closeout",
     "staging": "EXCLUDED_V2_RUNTIME_ABSENT",
     "applied": false,
