@@ -41,7 +41,6 @@
         "variant_key": "chocolate-hazelnut-2270g"
       },
       "root_causes": [
-        "decimal quantity normalized before stripping leaves token 2",
         "partial flavour stripping leaves hazelnut",
         "redundant protein after whey"
       ],
@@ -115,7 +114,6 @@
         "variant_key": "french-vanilla-cr-me-2280g"
       },
       "root_causes": [
-        "decimal quantities leave token 2",
         "partial flavour stripping leaves french crème"
       ],
       "price": "98.00",
