@@ -1,0 +1,300 @@
+{
+  "kind": "targeted-shared-protein-family-guard-draft-evidence",
+  "status": "CODE_COMPLETE_DRAFT_ONLY_NOT_RELEASED",
+  "date": "2026-11-14",
+  "base_main_sha": "225a8c9af0022ee48e79af9cb5469c5750a6f23d",
+  "branch": "fix/shared-protein-family-20261114",
+  "production_readback_at": "2026-11-14T08:36:31.594Z",
+  "production_baseline": {
+    "hb_mappings": 72,
+    "hb_offers": 72,
+    "hb_histories": 72,
+    "ledger": 264,
+    "pending": []
+  },
+  "false_positive_family_guards": 6,
+  "genuine_identity_mismatches": 0,
+  "insufficient_identity_evidence": 0,
+  "ready_on_current_main": 0,
+  "conditionally_ready_after_code_release": 6,
+  "cases": [
+    {
+      "sku": "049731",
+      "source_name": "Optimum Nutrition Gold Standard 100% Whey Protein Chocolate Hazelnut 2.27kg",
+      "gtin": "5060469986159",
+      "parent_id": 7,
+      "parent_name": "Optimum Nutrition Gold Standard 100% Whey 2.27kg",
+      "manufacturer_url": "https://www.optimumnutrition.com/en-gb/products/gold-standard-100-whey-protein-powder-eu.js",
+      "manufacturer_product_id": 10677126660363,
+      "manufacturer_variant_title": "Chocolate Hazelnut / 2.27 kg (71 servings)",
+      "source_family_before": "optimum nutrition gold standard 100 whey protein hazelnut 2",
+      "parent_family_before": "optimum nutrition gold standard 100 whey 2",
+      "family_after": "optimum nutrition gold standard 100 whey",
+      "root_cause": [
+        "Redundant whey-protein descriptor and compound Chocolate Hazelnut flavour remain in the old family key. Both old keys also contain a spurious2 from2.27kg; it is not the differentiating token for this row."
+      ],
+      "classification": "FALSE_POSITIVE_FAMILY_GUARD",
+      "proposed_variant": {
+        "display_name": "Chocolate Hazelnut / 2270g",
+        "flavour_code": "chocolate hazelnut",
+        "flavour_label": "Chocolate Hazelnut",
+        "pack_count": "1",
+        "product_format": "powder",
+        "size_unit": "g",
+        "size_value": "2270",
+        "variant_key": "chocolate-hazelnut-2270g"
+      },
+      "readiness": "CONDITIONALLY_READY_AFTER_CODE_RELEASE",
+      "sql_readonly": "PASS_DEPLOYED_V2",
+      "default_reuse": false
+    },
+    {
+      "sku": "030310",
+      "source_name": "Optimum Nutrition Gold Standard 100% Whey Protein Strawberry 450g",
+      "gtin": "5060245600668",
+      "parent_id": 7,
+      "parent_name": "Optimum Nutrition Gold Standard 100% Whey 2.27kg",
+      "manufacturer_url": "https://www.optimumnutrition.com/en-gb/products/gold-standard-100-whey-protein-powder-eu.js",
+      "manufacturer_product_id": 10677126660363,
+      "manufacturer_variant_title": "Delicious Strawberry / 450 g (15 servings)",
+      "source_family_before": "optimum nutrition gold standard 100 whey protein",
+      "parent_family_before": "optimum nutrition gold standard 100 whey 2",
+      "family_after": "optimum nutrition gold standard 100 whey",
+      "root_cause": [
+        "Source retains redundant protein; parent retains a spurious2 from2.27kg whereas source450g leaves no digit."
+      ],
+      "classification": "FALSE_POSITIVE_FAMILY_GUARD",
+      "proposed_variant": {
+        "display_name": "Delicious Strawberry / 450g",
+        "flavour_code": "delicious strawberry",
+        "flavour_label": "Delicious Strawberry",
+        "pack_count": "1",
+        "product_format": "powder",
+        "size_unit": "g",
+        "size_value": "450",
+        "variant_key": "delicious-strawberry-450g"
+      },
+      "readiness": "CONDITIONALLY_READY_AFTER_CODE_RELEASE",
+      "sql_readonly": "PASS_DEPLOYED_V2",
+      "default_reuse": false
+    },
+    {
+      "sku": "030311",
+      "source_name": "Optimum Nutrition Gold Standard 100% Whey Protein Double Rich Chocolate 465g",
+      "gtin": "5060245600507",
+      "parent_id": 7,
+      "parent_name": "Optimum Nutrition Gold Standard 100% Whey 2.27kg",
+      "manufacturer_url": "https://www.optimumnutrition.com/en-gb/products/gold-standard-100-whey-protein-powder-eu.js",
+      "manufacturer_product_id": 10677126660363,
+      "manufacturer_variant_title": "Double Rich Chocolate / 465 g (15 servings)",
+      "source_family_before": "optimum nutrition gold standard 100 whey protein double rich",
+      "parent_family_before": "optimum nutrition gold standard 100 whey 2",
+      "family_after": "optimum nutrition gold standard 100 whey",
+      "root_cause": [
+        "Source retains redundant protein and the Double Rich portion of the flavour; parent retains a spurious2 from2.27kg."
+      ],
+      "classification": "FALSE_POSITIVE_FAMILY_GUARD",
+      "proposed_variant": {
+        "display_name": "Double Rich Chocolate / 465g",
+        "flavour_code": "double rich chocolate",
+        "flavour_label": "Double Rich Chocolate",
+        "pack_count": "1",
+        "product_format": "powder",
+        "size_unit": "g",
+        "size_value": "465",
+        "variant_key": "double-rich-chocolate-465g"
+      },
+      "readiness": "CONDITIONALLY_READY_AFTER_CODE_RELEASE",
+      "sql_readonly": "PASS_DEPLOYED_V2",
+      "default_reuse": false
+    },
+    {
+      "sku": "048556",
+      "source_name": "Optimum Nutrition Gold Standard 100% Whey Powder French Vanilla Crème 2.28kg",
+      "gtin": "5060469988610",
+      "parent_id": 7,
+      "parent_name": "Optimum Nutrition Gold Standard 100% Whey 2.27kg",
+      "manufacturer_url": "https://www.optimumnutrition.com/en-gb/products/gold-standard-100-whey-protein-powder-eu.js",
+      "manufacturer_product_id": 10677126660363,
+      "manufacturer_variant_title": "French Vanilla / 2.28 kg (76 servings)",
+      "source_family_before": "optimum nutrition gold standard 100 whey french crème 2",
+      "parent_family_before": "optimum nutrition gold standard 100 whey 2",
+      "family_after": "optimum nutrition gold standard 100 whey",
+      "root_cause": [
+        "The old flavour removal strips vanilla but leaves French and Crème. Both source2.28kg and parent2.27kg leave a spurious2. The exact2280g source is proposed as a NEW variant, never mapped to an old2000/2270g unit."
+      ],
+      "classification": "FALSE_POSITIVE_FAMILY_GUARD",
+      "proposed_variant": {
+        "display_name": "French Vanilla Crème / 2280g",
+        "flavour_code": "french vanilla crème",
+        "flavour_label": "French Vanilla Crème",
+        "pack_count": "1",
+        "product_format": "powder",
+        "size_unit": "g",
+        "size_value": "2280",
+        "variant_key": "french-vanilla-cr-me-2280g"
+      },
+      "readiness": "CONDITIONALLY_READY_AFTER_CODE_RELEASE",
+      "sql_readonly": "PASS_DEPLOYED_V2",
+      "default_reuse": false
+    },
+    {
+      "sku": "107861",
+      "source_name": "Applied Nutrition ISO XP Whey Protein Isolate Chocolate 450 g",
+      "gtin": "5056555214664",
+      "parent_id": 178,
+      "parent_name": "Applied Nutrition ISO-XP 1.8kg",
+      "manufacturer_url": "https://appliednutrition.uk/products/iso-xp.js",
+      "manufacturer_product_id": 6557379887271,
+      "manufacturer_variant_title": "Chocolate Dessert / 450g",
+      "source_family_before": "applied nutrition iso xp whey protein isolate",
+      "parent_family_before": "applied nutrition iso xp 1",
+      "family_after": "applied nutrition iso xp",
+      "root_cause": [
+        "Manufacturer confirms ISO-XP is the short name of the full ISO XP Whey Protein Isolate line. The old source key retains whey protein isolate while the parent also retains a spurious1 from1.8kg."
+      ],
+      "classification": "FALSE_POSITIVE_FAMILY_GUARD",
+      "proposed_variant": {
+        "display_name": "Chocolate Dessert / 450g",
+        "flavour_code": "chocolate dessert",
+        "flavour_label": "Chocolate Dessert",
+        "pack_count": "1",
+        "product_format": "powder",
+        "size_unit": "g",
+        "size_value": "450",
+        "variant_key": "chocolate-dessert-450g"
+      },
+      "readiness": "CONDITIONALLY_READY_AFTER_CODE_RELEASE",
+      "sql_readonly": "PASS_DEPLOYED_V2",
+      "default_reuse": false
+    },
+    {
+      "sku": "102790",
+      "source_name": "Applied Nutrition Critical Whey Protein Powder Vanilla 825g",
+      "gtin": "5056555211243",
+      "parent_id": 743,
+      "parent_name": "Applied Nutrition Critical Whey 2kg",
+      "manufacturer_url": "https://appliednutrition.uk/products/critical-whey.js",
+      "manufacturer_product_id": 6554617774247,
+      "manufacturer_variant_title": "Vanilla Ice Cream - Informed-Sport Tested / 825g",
+      "source_family_before": "applied nutrition critical whey protein",
+      "parent_family_before": "applied nutrition critical whey",
+      "family_after": "applied nutrition critical whey",
+      "root_cause": [
+        "The source adds the generic word protein after whey; the existing canonical parent omits that descriptor. Vanilla is already excluded from the old family key."
+      ],
+      "classification": "FALSE_POSITIVE_FAMILY_GUARD",
+      "proposed_variant": {
+        "display_name": "Vanilla Ice Cream / 825g",
+        "flavour_code": "vanilla ice cream",
+        "flavour_label": "Vanilla Ice Cream",
+        "pack_count": "1",
+        "product_format": "powder",
+        "size_unit": "g",
+        "size_value": "825",
+        "variant_key": "vanilla-ice-cream-825g"
+      },
+      "readiness": "CONDITIONALLY_READY_AFTER_CODE_RELEASE",
+      "sql_readonly": "PASS_DEPLOYED_V2",
+      "default_reuse": false
+    }
+  ],
+  "source": {
+    "capture": "2026-11-14T08:36:19.590Z",
+    "sha256": "21c7b31a99fcb247daa7bcb7807fd0ec41f32d2be64177c3e152460c6c2435a1",
+    "supplier_generated_at": null,
+    "expires_at": "2026-11-15T08:36:19.590Z",
+    "authenticated": true,
+    "tls_enabled": true,
+    "full_feed_rematching": false
+  },
+  "packages": [
+    {
+      "profile_id": "hb-family-sealed-draft-free-20261114",
+      "status": "DRAFT_AWAITING_OWNER_APPROVAL",
+      "shipping_gbp": "0.00",
+      "row_count": 5,
+      "manifest_path": "tmp/retailer-feeds/hb-family-guard-20261114/hb-family-sealed-draft-free-20261114.manifest.draft.json",
+      "manifest_sha256": "659b377bffab81e3a79ad899eaf47846596e646a37d9effc49443be9d2bb46df",
+      "csv_path": "tmp/retailer-feeds/hb-family-guard-20261114/hb-family-sealed-draft-free-20261114.csv",
+      "csv_sha256": "b9964b6367a3e9b32e2345bbd9381fc605374bef505836285dc6257105b618b0",
+      "artifact_path": "tmp/retailer-feeds/hb-family-guard-20261114/hb-family-sealed-draft-free-20261114-sealed.json",
+      "artifact_sha256": "4ed8e867e56c759ff2d1d340c0a25c8e7e28eba3efc4eeab58ebac7baf412e08"
+    },
+    {
+      "profile_id": "hb-family-sealed-draft-standard-20261114",
+      "status": "DRAFT_AWAITING_OWNER_APPROVAL",
+      "shipping_gbp": "3.49",
+      "row_count": 1,
+      "manifest_path": "tmp/retailer-feeds/hb-family-guard-20261114/hb-family-sealed-draft-standard-20261114.manifest.draft.json",
+      "manifest_sha256": "6cad63960062f25b971c96f90703ce7a639329962600f1b36b2bb3faa658bec5",
+      "csv_path": "tmp/retailer-feeds/hb-family-guard-20261114/hb-family-sealed-draft-standard-20261114.csv",
+      "csv_sha256": "abb296cbf3f98ec53edfbea961d38bec0bbe7e28ce4ee8c74d1d2b28a5ce1e6a",
+      "artifact_path": "tmp/retailer-feeds/hb-family-guard-20261114/hb-family-sealed-draft-standard-20261114-sealed.json",
+      "artifact_sha256": "7f1c7be068984596d00b97d38c3be66333e0684ba58c4cfbef93976d7529d6ce"
+    }
+  ],
+  "local_checks": {
+    "focused": {
+      "pass": 22,
+      "fail": 0,
+      "skip": 0
+    },
+    "quick": {
+      "pass": 599,
+      "fail": 0
+    },
+    "full": {
+      "pass": 3896,
+      "fail": 0,
+      "skip": 3
+    },
+    "typescript": "PASS",
+    "eslint": "PASS",
+    "baseline_migrations": "PASS",
+    "isolated_next_production_build": "PASS",
+    "project_guardian": "PASS",
+    "test_inventory": {
+      "files": 362,
+      "sha256": "1d6c0e4343097184171f040353c1d4545554b885b3e306779a88fd776fbcd177",
+      "existing_registered_test_extended": true,
+      "new_test_files": 0
+    }
+  },
+  "remote_ci": "Required checks will be verified on the final Draft PR head; no release claim",
+  "preview_deployments": "Disabled only for this isolated feature branch via the existing git.deploymentEnabled mechanism",
+  "remaining_backlog": {
+    "count": 249,
+    "categories": {
+      "C": 130,
+      "D": 113,
+      "B_CONDITIONAL_CODE_RELEASE": 6
+    },
+    "after_hypothetical_separately_approved_import": 243,
+    "new_parent_required": 130,
+    "historical_no_preserved": 26
+  },
+  "expected_future_writes": {
+    "new_products": 0,
+    "new_variants": 6,
+    "new_mappings": 6,
+    "new_offers": 6,
+    "new_histories": 6,
+    "expected_hb_total": 78
+  },
+  "owner_approved_manifests": 0,
+  "technical_approvals_created": 0,
+  "production_writes": 0,
+  "staging_writes": 0,
+  "new_migrations": 0,
+  "pr532_changed": false,
+  "legacy145_changed": false,
+  "six_pack_changed": false,
+  "discount_changed": false,
+  "limitations": [
+    "Corrected local dry-run and deployed V2 SQL acceptance do not make production main ready; code release and fresh post-release validation remain required.",
+    "Future commercial approval is separate from this code-only Draft PR.",
+    "No standard/Default applier is used; each proposed row is an explicit new variant.",
+    "Family keys do not establish product identity on their own. Existing flavour, format, size, pack, GTIN, canonical-target and duplicate guards remain mandatory."
+  ]
+}

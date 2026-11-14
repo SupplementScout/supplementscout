@@ -1,5 +1,35 @@
 # Retailer Automation Consolidation Execution Plan
 
+**14 November targeted protein-family correction — CODE COMPLETE / DRAFT ONLY:**
+The separately authorized six-SKU investigation reused the existing backlog and
+manufacturer evidence, then authenticated fresh Partnerize evidence and current
+production READ ONLY state. H&B remains72/72/72, CURRENT264 pending=[]. All six
+rejections reproduce on deployed main225a8c9a; official manufacturer GTIN/variant
+groupings establish the proposed units under existing parents7/178/743. No
+historical NO or UNSURE is overridden and no canonical target is replaced.
+
+The existing shared family key now removes complete decimal measures before
+punctuation normalization, folds the redundant whey-protein descriptor and
+three compound protein-flavour phrases, and recognizes only the complete
+trailing ISO-XP whey-isolate expansion. Other formulation qualifiers remain
+distinct; PR531 bar-flavour behavior and independent identity checks remain.
+Focused22/22 and quick599/599 pass; full reports3896 PASS,0 FAIL and3 existing
+10 Reps artifact-dependent SKIPs, including TypeScript, ESLint, baseline
+validation and an isolated production build. The existing362-file test
+inventory was reviewed and revalidated without adding or dropping a test file.
+
+The two minimum shipping DRAFT packages (five free-delivery rows and one3.49GBP
+row) pass corrected dry-run and deployed V2 SQL READ ONLY6/6. All six are
+CONDITIONALLY_READY_AFTER_CODE_RELEASE; none is READY_ON_CURRENT_MAIN. No owner
+approval, technical approval, import, migration or deployment is authorized by
+this checkpoint. The isolated feature branch suppresses its own preview through
+the existing Vercel branch setting. PR532, legacy145/065462/review702, the previous
+six completed variants, Six Pack and Discount remain untouched. RA-001/RA-004
+and SEO priorities are unchanged. See the [bounded evidence and exact DRAFT
+fingerprints](evidence/HB-FAMILY-GUARD-2026-11-14.json). Final remote CI/security
+results belong to the one Draft PR; production release and commercial execution
+remain separately gated.
+
 **13 November PR531 release preparation — OWNER AUTHORIZED / PRODUCTION VERIFICATION PENDING:**
 The owner authorized final cleanup, mandatory verification, exactly one squash
 merge and production verification of the existing shared correction. Commercial
