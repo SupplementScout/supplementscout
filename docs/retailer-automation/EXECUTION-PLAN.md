@@ -1,5 +1,49 @@
 # Retailer Automation Consolidation Execution Plan
 
+**14 November Huel family guard recovery — CODE COMPLETE / DRAFT ONLY:**
+The owner-authorized follow-up reuses the preserved11-case investigation and
+243-SKU backlog. Current main/Production remains515bda7805cc4b78d2ab3fedb68c7346e9d591fd;
+READ ONLY production verifies CURRENT264 pending=[] and H&B78/78/78.
+Fresh authenticated Partnerize retrieval15:32:41.153Z preserves all11 source
+rows; supplier generation time remains unknown. No full-feed rematching occurs.
+
+The existing shared family key now folds complete-meal descriptors only in
+liquid-meal contexts and removes the complete Vanilla Matcha flavour phrase
+there. The existing flavour parser recognizes Vanilla Matcha before Vanilla.
+Standalone matcha, Lite/Black/other formula lines, versions and unknown
+qualifiers remain meaningful. Brand, parent, format, flavour, volume, pack,
+GTIN, mapping, duplicate and Default guards remain independently enforced.
+No retailer/SKU exception, importer, approval mechanism or migration is added.
+
+Focused28/28, V2/V3-related contracts412/412, quick599/599 and full3902 PASS,
+0 FAIL,3 existing artifact-dependent SKIPs pass, including TypeScript, ESLint,
+Project Guardian and production build with normal TLS/system CA trust. The
+362-file inventory remains unchanged. Local PostgreSQL tests report3 SKIPs
+because Docker is unavailable; the2 other integration-file tests pass, which
+is not PostgreSQL execution evidence. Remote CI/security results belong to
+the single Draft PR; no remote integration PASS is inferred here.
+
+Corrected local dry-run and the complete deployed V2 SQL READ ONLY validator
+pass11/11 technically. Chocolate SKU101393 remains REVIEW: H&B sucralose and
+manufacturer-help stevia descriptions conflict. It is excluded from the one
+ten-row commercial DRAFT. That package passes10/10 SQL, exact sealed replay,
+fingerprint and selected create_variant executor-identity checks. It proposes
+ten missing non-Default variants under existing parents1313/1314, zero new
+products and ten mappings/offers/initial histories, conditionally H&B78→88.
+No candidate is READY_FOR_OWNER_APPROVAL on deployed code. Approved-package
+CLI preflight remains closed to the real owner approval; no fake approval,
+approver call or apply was used. Release must precede fresh final preflight
+and a separate commercial owner authorization. Chocolate does not block ten.
+
+The temporary vercel.json disables preview only for this feature branch;
+remove it before any future merge. No merge, deployment, production/staging
+write, approval or import occurs in this task. PR532, legacy145/065462/review702,
+Six Pack, Discount, prior NO/UNSURE decisions, RA-001, suspended RA-004 and SEO
+priorities remain unchanged. Solgar is not investigated. See the
+[bounded evidence and DRAFT fingerprints](evidence/HB-HUEL-FAMILY-GUARD-2026-11-14.json).
+Older checkpoints below remain historical; the six PR534 offers are already
+imported and are not repeated by this sprint.
+
 **14 November targeted protein-family correction — CODE COMPLETE / DRAFT ONLY:**
 The separately authorized six-SKU investigation reused the existing backlog and
 manufacturer evidence, then authenticated fresh Partnerize evidence and current

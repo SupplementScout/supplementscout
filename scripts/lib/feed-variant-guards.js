@@ -217,6 +217,7 @@ function parseProductFormat(value = "") {
 function parseFlavour(value = "") {
   const text = String(value).toLowerCase();
   const flavours = [
+    "vanilla matcha",
     "cookies and cream",
     "cookies & cream",
     "salted caramel",
@@ -314,6 +315,15 @@ function productFamilyKey(value = "") {
     family = family
       .replace(/\bwhey protein\b/g, "whey")
       .replace(/\b(chocolate hazelnut|double rich chocolate|french vanilla (?:crème|creme|cream))\b/g, " ");
+  }
+  // Complete-meal wording describes a liquid meal, not its formula line. Keep
+  // Lite, version numbers and other qualifiers; never strip matcha on its own.
+  const liquidMeal = parseProductFormat(value) === "liquid" &&
+    /\b(ready to drink|(?:nutritionally )?complete meals?)\b/.test(text);
+  if (liquidMeal) {
+    family = family
+      .replace(/\b(?:nutritionally )?complete meals?\b/g, " ")
+      .replace(/\bvanilla matcha\b/g, " ");
   }
   const key = family
     .replace(/\b(pack\s+of\s+\d+|\d+\s*(bars?|packs?|packets?|sachets?))\b/g, " ")
