@@ -20,6 +20,140 @@ const POWDER_FAMILY_CASES = [
   ["Applied Nutrition Critical Whey Protein Powder Vanilla 825g", "Applied Nutrition Critical Whey 2kg", "Vanilla Ice Cream", 825],
 ];
 
+test("liquid meal descriptors match RTD families for single bottles and retail packs", () => {
+  for (const brand of ["Huel", "Example"]) {
+    for (const [line, flavour, pack] of [["Lite", "Strawberry", 1], ["Lite", "Chocolate", 6],
+      ["Lite", "Vanilla Matcha", 1], ["Lite", "Mango", 6], ["", "Banana", 4]]) {
+      const source = `${brand} ${line} ${flavour} Nutritionally Complete Meals ${pack} x 500ml`;
+      assert.equal(productFamilyKey(source), productFamilyKey(`${brand} ${line} Ready-to-Drink 8 x 500ml`), source);
+      assert.equal(productFamilyKey(source.replace("Nutritionally Complete Meals", "Complete Meal")),
+        productFamilyKey(source));
+    }
+  }
+});
+
+test("Vanilla Matcha remains a distinct parsed flavour and variant identity", () => {
+  const matcha = { product_name: "Example Lite Vanilla Matcha Nutritionally Complete Meal 500ml" };
+  const vanilla = { product_name: "Example Lite Vanilla Nutritionally Complete Meal 500ml" };
+  assert.equal(parseVariantIdentity(matcha).flavour, "vanilla matcha");
+  assert.equal(parseVariantIdentity(vanilla).flavour, "vanilla");
+  assert.notEqual(rowIdentityKey(matcha), rowIdentityKey(vanilla));
+  assert.notEqual(rowIdentityKey({ ...matcha, flavour: "Mango" }), rowIdentityKey(vanilla));
+});
+
+test("liquid meal normalization preserves formula lines, versions and meaningful matcha", () => {
+  const regular = productFamilyKey("Example Ready-to-Drink 500ml");
+  const lite = productFamilyKey("Example Lite Ready-to-Drink 500ml");
+  for (const line of ["Lite", "Black Edition", "Essential", "Complete Protein", "Daily Greens",
+    "v1.0", "v2.0", "with Creatine", "Unknown Formula"]) {
+    assert.notEqual(productFamilyKey(`Example ${line} Complete Meal Vanilla 500ml`), regular, line);
+  }
+  assert.notEqual(lite, regular);
+  assert.notEqual(productFamilyKey("Example Lite Complete Meal v1.0 500ml"),
+    productFamilyKey("Example Lite Complete Meal v2.0 500ml"));
+  for (const name of ["Example Matcha Complete Meal 500ml", "Example Matcha Extract 500ml",
+    "Example Vanilla Matcha Protein Powder 500g", "Example Nutritionally Complete Meal Powder 500g"]) {
+    assert.match(productFamilyKey(name), /matcha|complete meal/, name);
+  }
+  assert.match(productFamilyKey("Example Lite Unknown Flavour Complete Meal 500ml"), /unknown flavour/);
+});
+
+function liquidMealFixture({ flavour = "Vanilla Matcha", pack = 1, line = "Lite" } = {}) {
+  const parent = { id: "101", name: `Example ${line} Ready-to-Drink 8 x 500ml`, brand: "Example",
+    category: "Weight Management", slug: "example-liquid-meal", product_format: "liquid",
+    is_active: true, merged_into_product_id: null, gtin: null };
+  const row = { retailer_name: "Example Shop", retailer_website: "https://shop.example.test",
+    external_product_id: "meal-1", external_variant_id: "meal-1", external_sku: "meal-1",
+    external_gtin: "4006381333931", product_id: "101", product_variant_id: "",
+    product_name: `Example ${line} ${flavour} Nutritionally Complete Meal ${pack > 1 ? `${pack} x ` : ""}500ml`,
+    brand: "Example", category: parent.category, slug: parent.slug,
+    variant_name: `${flavour} / ${pack > 1 ? `${pack} x ` : ""}500ml`, flavour, size: "500", size_unit: "ml",
+    pack_count: String(pack), product_format: "liquid", price: "3.50", shipping_known: "true",
+    shipping_cost: "3.49", in_stock: "true", is_for_sale: "true",
+    image: "https://shop.example.test/meal.png", external_url: "https://shop.example.test/meal-1",
+    affiliate_url: "https://shop.example.test/meal-1" };
+  const variant = { id: "202", product_id: "101", variant_key: "vanilla-matcha-500ml",
+    display_name: row.variant_name, flavour_code: normalizeFlavour(flavour), flavour_label: flavour,
+    size_value: "500", size_unit: "ml", pack_count: pack, product_format: "liquid", gtin: null,
+    is_active: true, is_default: false };
+  return { row, parent, variant };
+}
+
+async function liquidMealDryRun(rows, parent, variants = [], extraState = {}) {
+  const importer = require("../import-products");
+  const { createStateClient } = require("./reviewed-catalogue-state");
+  importer.setSupabaseForTests(createStateClient({
+    retailer: { id: "7", name: "Example Shop", slug: "example-shop", website: "https://shop.example.test" },
+    products: [parent], product_variants: variants, retailer_products: [], offers: [], price_history: [], ...extraState,
+  }));
+  const reviewedCatalogueProfile = rows.every(row => !row.product_variant_id) ? {
+    manifest: { retailer: { slug: "example-shop" } },
+    profile: { row_count: rows.length, rows: rows.map((row, index) => ({
+      review_row: index + 1, external_product_id: row.external_product_id,
+      external_variant_id: row.external_variant_id, external_sku: row.external_sku,
+      action: "create_variant_on_existing_product", product_id: Number(row.product_id),
+      product_variant_id: null, product_name: row.product_name, variant_name: row.variant_name,
+      brand: row.brand, category: row.category, flavour: row.flavour, size_value: row.size,
+      size_unit: row.size_unit, pack_count: row.pack_count, product_format: row.product_format,
+      external_url: row.external_url,
+    })) },
+  } : undefined;
+  return importer.runImportRows(rows, { mode: "feed", safeCreate: true, dryRun: true, reviewedCatalogueProfile });
+}
+
+test("liquid meal dry-run creates exact missing 1, 4 and 6 packs beneath the existing parent", async () => {
+  for (const options of [{ flavour: "Strawberry" }, { flavour: "Chocolate", pack: 6 },
+    { flavour: "Vanilla Matcha" }, { flavour: "Mango", pack: 6 }, { flavour: "Banana", pack: 4, line: "" }]) {
+    const { row, parent, variant } = liquidMealFixture(options);
+    const result = await liquidMealDryRun([row], parent, [{ ...variant, pack_count: 8,
+      display_name: `${options.flavour} / 8 x 500ml`, variant_key: "eight-bottles" }]);
+    assert.equal(result.report.approvedRows.length, 1, JSON.stringify(result.report.blockedRows));
+    const plan = result.report.approvedRows[0].importPlan;
+    assert.equal(plan.product.action, "existing");
+    assert.equal(plan.product.id, "101");
+    assert.equal(plan.product_variant.action, "create_variant");
+    assert.equal(plan.product_variant.values.pack_count, String(options.pack || 1));
+    assert.equal(plan.product_variant.values.size_value, "500");
+    assert.equal(plan.product_variant.values.size_unit, "ml");
+    assert.equal(plan.product_variant.values.flavour_code, normalizeFlavour(options.flavour));
+    assert.notEqual(plan.product_variant.values.variant_key, "default");
+    assert.notEqual(plan.product_variant.values.display_name, "Default");
+    assert.equal(plan.product_variant.values.gtin ?? null, null);
+    assert.equal(result.report.newProductsToCreate.length, 0);
+  }
+});
+
+test("liquid meal exact mapping rejects wrong flavour, pack, volume, format, brand and parent", async () => {
+  const { row, parent, variant } = liquidMealFixture();
+  const mapped = { ...row, product_variant_id: variant.id };
+  for (const patch of [{}, { flavour_code: "vanilla", flavour_label: "Vanilla" },
+    { flavour_code: "mango", flavour_label: "Mango" }, { pack_count: 8 }, { size_value: "250" },
+    { size_unit: "g" }, { product_format: "powder" }, { product_id: "999" }, { is_active: false },
+    { is_default: true, variant_key: "default", display_name: "Default", flavour_code: null,
+      flavour_label: null, size_value: null, size_unit: null, pack_count: null }]) {
+    const result = await liquidMealDryRun([mapped], parent, [{ ...variant, ...patch }]);
+    assert.equal(result.report.approvedRows.length, Object.keys(patch).length ? 0 : 1,
+      `${JSON.stringify(patch)}: ${JSON.stringify(result.report.blockedRows)}`);
+  }
+  for (const patch of [{ brand: "Different" }, { name: "Example Black Edition Ready-to-Drink 500ml" },
+    { product_format: "powder" }, { is_active: false }, { merged_into_product_id: "999" }]) {
+    const result = await liquidMealDryRun([mapped], { ...parent, ...patch }, [variant]);
+    assert.equal(result.report.approvedRows.length, 0, JSON.stringify(patch));
+  }
+});
+
+test("liquid meal create retains GTIN collision and duplicate-plan guards", async () => {
+  const { row, parent, variant } = liquidMealFixture();
+  const collision = await liquidMealDryRun([row], parent, [{ ...variant, id: "909", product_id: "999",
+    gtin: row.external_gtin }]);
+  assert.equal(collision.report.approvedRows.length, 0);
+  assert.match(JSON.stringify(collision.report), /GTIN conflict|collision/i);
+  const duplicate = await liquidMealDryRun([row, { ...row, external_product_id: "meal-2",
+    external_variant_id: "meal-2", external_sku: "meal-2", external_gtin: "" }], parent);
+  assert.equal(duplicate.report.approvedRows.length, 0);
+  assert.match(JSON.stringify(duplicate.report), /duplicate|collision/i);
+});
+
 test("family keys remove complete decimal and multipack sizes before punctuation normalization", () => {
   for (const size of ["2.27kg", "2,27 kg", "1.8kg", "0.45kg", "450g", "12 x 0.055kg"]) {
     assert.equal(productFamilyKey(`Example Whey ${size}`), "example whey", size);
