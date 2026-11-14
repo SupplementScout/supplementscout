@@ -1,8 +1,0 @@
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "git": {
-    "deploymentEnabled": {
-      "fix/shared-protein-family-20261114": false
-    }
-  }
-}
