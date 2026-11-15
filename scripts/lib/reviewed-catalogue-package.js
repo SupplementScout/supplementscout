@@ -237,6 +237,13 @@ function validatePlan(entry, reviewed, retailer, manifestKind = "reviewed-catalo
       ? "safe_create"
       : "reviewed_parent_variant_safe_create";
     invariant(plan.approval.approved === true && plan.approval.approval_type === approvalType, "Reviewed product-create identity approval invalid");
+    if (manifestKind === "reviewed-catalogue-package-v2") {
+      for (const field of ["name", "brand", "category", "product_format"]) {
+        const expected = field === "name" ? reviewed.product_name : reviewed[field];
+        invariant(plan.product.values?.[field] === expected, `Reviewed V2 new product ${field} mismatch`);
+      }
+      invariant(plan.approval.canonical_name === reviewed.product_name, "Reviewed V2 new product canonical approval name mismatch");
+    }
   } else {
     invariant(plan.approval.approved === false && plan.approval.approval_type === "none", "Reviewed dry-run approval state invalid");
   }

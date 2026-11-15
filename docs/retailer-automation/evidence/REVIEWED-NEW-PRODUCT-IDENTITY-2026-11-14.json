@@ -1,0 +1,127 @@
+{
+  "task": "Owner-scoped shared reviewed V2 new canonical product identity correction",
+  "status": "PROPOSED_NOT_DEPLOYED",
+  "branch": "fix/reviewed-new-parent-contract-20261114",
+  "baseline": {
+    "main_and_production_sha": "efbe06a1d8531cee9590133886c122a22265470a",
+    "ledger_count": 264,
+    "ledger_state": "CURRENT",
+    "pending_on_main": [],
+    "hb_mappings": 91,
+    "hb_offers": 91,
+    "hb_initial_histories": 91
+  },
+  "root_cause": {
+    "proposed_name": "Solgar Magnesium Citrate Tablets",
+    "conflicting_slug": "solgar-biotin-5000g-50-vegi-capsules",
+    "actual_parent_id": 325,
+    "actual_parent_name": "Solgar Biotin 5000µg 50 Vegi Capsules",
+    "failure": "V2 specialized validation omits actual parent collision checks, bypassing older exact-parent checks; legacy create_or_reuse_reviewed execution selects by normalized name OR slug and V2 post-validation only checks proposed fields.",
+    "additional_guard": "V2 new-parent and first count-variant dosage formats must agree.",
+    "manifest_binding_probe": "Legacy validatePlan accepts a recomputed/resealed plan with a new-product name differing from its unchanged reviewed row. Reproduced in memory only; disk artifacts and production were untouched."
+  },
+  "correction": {
+    "new_means_absent": true,
+    "identical_existing_parent_requires_explicit_existing_plan": true,
+    "no_silent_slug_change_or_existing_record_rename": true,
+    "shared_complete_identity_validator": "public.validate_reviewed_catalogue_import_identity(jsonb,bigint)",
+    "manifest_identity_fields_bound": [
+      "name",
+      "brand",
+      "category",
+      "product_format",
+      "canonical_approval_name"
+    ],
+    "post_create_argument": "Owner-only function receives actual INSERT RETURNING ID, never caller-supplied ID from plan JSON",
+    "existing_one_argument_entry": "Always supplies NULL; checks absence before approval/preflight",
+    "v3_and_legacy_branches": "Preserved; genuine V3 PostgreSQL creation regression included",
+    "approval_and_executor_entry_points": "Unchanged guarded procedures",
+    "retailer_specific_exceptions": 0
+  },
+  "proposed_migration": {
+    "file": "supabase/migrations/20261114213000_enforce_reviewed_new_product_identity.sql",
+    "sha256": "343425521c09d402e7dd59f4d49964ad3803630481864fcc02adccf0e118c590",
+    "production": "HASH_BOUND_PENDING_ONLY; requires separate authorized rehearsal/apply/closeout",
+    "staging": "EXCLUDED_V2_RUNTIME_ABSENT",
+    "applied": false,
+    "historical_receipts": "Preserved with exact historical source inventories"
+  },
+  "local_quality": {
+    "quick": {
+      "pass": 1177,
+      "fail": 0,
+      "skip": 3
+    },
+    "full": {
+      "pass": 3914,
+      "fail": 0,
+      "skip": 3
+    },
+    "typescript": "PASS",
+    "eslint": "PASS",
+    "production_build": "PASS_TLS_SYSTEM_CA_ENABLED",
+    "project_guardian": "PASS",
+    "test_inventory_count": 362,
+    "test_inventory_sha256": "1d6c0e4343097184171f040353c1d4545554b885b3e306779a88fd776fbcd177",
+    "local_postgres": "SKIP_DOCKER_UNAVAILABLE",
+    "remote_postgres": {
+      "status": "PASS",
+      "pass": 195,
+      "fail": 0,
+      "skip": 0,
+      "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/43686185910",
+      "tested_head": "9dbd2b93334e6dc6095cb7729005d3f06ba78989",
+      "production_credentials_available": false,
+      "solgar_shared_parent_and_two_variants": "PASS",
+      "genuine_v3_new_parent_approval_execution": "PASS",
+      "post_create_identity_conflict_atomic_rollback": "PASS"
+    },
+    "related_contracts": {
+      "pass": 460,
+      "fail": 0,
+      "skip": 0
+    }
+  },
+  "commercial_source": {
+    "retrieved_at": "2026-11-15T06:33:22.892Z",
+    "expires_at": "2026-11-16T06:33:22.892Z",
+    "supplier_generated_at": null,
+    "sha256": "88bad9a3a54248c9132fd1e3a34e1684313e5888a1eddae55358a78c808e20ca",
+    "tls_verification_enabled": true,
+    "selected_skus": [
+      "005646",
+      "001409"
+    ],
+    "changed_selected_fields": [],
+    "manufacturer_evidence": "Previously sealed official UK Solgar evidence reused; no new manufacturer research"
+  },
+  "future_structure": {
+    "products": 1,
+    "variants": 2,
+    "mappings": 2,
+    "offers": 2,
+    "initial_histories": 2,
+    "projected_hb_totals": [
+      93,
+      93,
+      93
+    ],
+    "production_ids": null,
+    "second_plan": "EXECUTION_DEPENDENCY_BLOCKED_UNTIL_ACTUAL_FIRST_RECEIPT_AND_FRESH_BASELINE",
+    "single_immutable_two_plan_package_supported_now": false,
+    "supported_path": "Existing sequential anchor creation, generated-ID readback, explicit existing-parent variant plan and separate exact approvals; no new executor"
+  },
+  "safety": {
+    "production_staging_writes": 0,
+    "technical_approvals_created": 0,
+    "owner_approved_manifests": 0,
+    "commercial_imports": 0,
+    "migrations_executed": 0,
+    "deployments": 0,
+    "new_workflows": 0,
+    "pr532_modified": false,
+    "legacy145_or_review702_modified": false,
+    "existing_hb_six_pack_discount_operations": 0
+  },
+  "temporary_config": "vercel.json suppresses only this feature branch; remove and revalidate before any future merge"
+}

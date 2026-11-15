@@ -15,6 +15,8 @@ const PENDING_POLICY = Object.freeze({
 });
 const EXCLUSIONS = Object.freeze({
   STAGING: Object.freeze([
+    // V2-only forward correction; the reviewed V2 runtime is absent on staging.
+    "20261114213000_enforce_reviewed_new_product_identity",
     // The reviewed V2 runtime is absent on staging; deployment is not authorized.
     "20261112130000_align_reviewed_catalogue_gtin_identity",
     // Local URL correction proposal; shared-environment deployment remains unauthorized.
@@ -260,7 +262,12 @@ const PENDING_MIGRATIONS = Object.freeze({
       sha256: "015f0de7448c10fcca10174e74dfbf7ca9e3150951f49090d01cd6eee869024c",
     }),
   ]),
-  PRODUCTION: Object.freeze([]),
+  PRODUCTION: Object.freeze([
+    Object.freeze({
+      filename: "20261114213000_enforce_reviewed_new_product_identity.sql",
+      sha256: "343425521c09d402e7dd59f4d49964ad3803630481864fcc02adccf0e118c590",
+    }),
+  ]),
 });
 
 function migrationIdentifier(filename) {

@@ -336,6 +336,169 @@ function reviewedCatalogueUrlScenarios(container, database) {
   rejectsBoth(missingBinding, "legacy-missing-binding", /GTIN conflicts with another source row/);
 }
 
+function reviewedNewProductIdentityScenarios(container, database) {
+  const query = statement => psqlJson(container, database, statement);
+  const execute = statement => requireSuccess(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c", statement]), "new parent fixture SQL");
+  const fail = (statement, pattern) => {
+    const result = exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c", statement]);
+    assert.notEqual(result.status, 0, "unsafe new-parent statement succeeded");
+    assert.match(output(result), pattern);
+  };
+  const counts = () => query("select jsonb_build_array((select count(*) from products),(select count(*) from product_variants),(select count(*) from retailer_products),(select count(*) from offers),(select count(*) from price_history),(select count(*) from approved_import_plans))");
+  const note = name => console.log(`REVIEWED_NEW_PARENT_CASE PASS ${name}`);
+  const literal = value => `${sqlLiteral(JSON.stringify(value))}::jsonb`;
+  const newPlan = (tag, count = 60) => {
+    const p = query(`select public.atomic_test_safe_plan(${sqlLiteral(`new-parent-${tag}`)},${sqlLiteral(`new-parent-${tag}`)})`);
+    p.product.action = "create_or_reuse_reviewed";
+    Object.assign(p.product.values, { name: `Contract Magnesium Citrate ${tag} Tablets`, brand: "Contract Brand", category: "Health Supplements", product_format: "tablet", unit_count: String(count), unit_type: "tablets" });
+    p.product_variant = { action: "create_reviewed_variant", values: {
+      variant_key: `unflavoured-${count}-tablets`, display_name: `Unflavoured / ${count} tablets`, flavour_code: "unflavoured", flavour_label: "Unflavoured", size_value: null, size_unit: null, pack_count: "1", product_format: "tablet",
+    }, evidence: { flavour: "unflavoured", size_value: null, size_unit: null, pack_count: "1", product_format: "tablet", unit_count: String(count), unit_type: "tablets", external_options: { Size: `${count} tablets` }, approved_mapping_id: null } };
+    p.retailer.id = "981001";
+    p.expected_state.retailer = query("select jsonb_build_object('id',id::text,'name',name,'slug',slug,'website',website) from retailers where id=981001");
+    Object.assign(p.retailer_product.values, { external_name: p.product.values.name, external_url: `https://merchant-one.test/product/new-parent-${tag}`, external_gtin: null, external_options: { Size: `${count} tablets` }, product_variant_id: null });
+    p.offer.values.url = `https://affiliate.test/new-parent-${tag}`;
+    p.approval.approval_type = "reviewed_parent_variant_safe_create";
+    p.approval.canonical_name = p.product.values.name;
+    p.approval.has_variant_evidence = true;
+    return refreshPlanFingerprint(p);
+  };
+  const readOnly = p => `begin read only; set local role retailer_catalogue_production_validator; select public.validate_reviewed_catalogue_import_plan_read_only(${literal(p)}); rollback`;
+  const approvalSql = (p, tag, expiry = "now()+interval '15 minutes'") => `select public.approve_reviewed_catalogue_import_plan(${literal(p)},repeat('a',64),${sqlLiteral(`new-parent-${tag.replace(/[^A-Za-z0-9._-]/g, "-")}`)},repeat('b',64),'new-parent-contract',${expiry})`;
+  const approve = (p, tag) => query(`set role retailer_catalogue_production_approver; ${approvalSql(p, tag)}; reset role`);
+  const applySql = (p, a) => `select public.apply_approved_product_import_plan(${sqlLiteral(a.approval_id)}::uuid,${sqlLiteral(a.artifact_sha256)},${sqlLiteral(p.meta.plan_fingerprint)},${sqlLiteral(p.meta.source_row_fingerprint)},${p.retailer.id},'feed',${sqlLiteral(a.run_id)})`;
+  const apply = (p, a) => query(`set role retailer_catalogue_production_executor; ${applySql(p, a)}; reset role`);
+  const rejectBoth = (p, tag, pattern) => {
+    refreshPlanFingerprint(p);
+    const before = counts();
+    fail(readOnly(p), pattern); fail(approvalSql(p, tag), pattern);
+    assert.deepEqual(counts(), before, "failed preflight/approval must not persist any business or approval write");
+    note(tag);
+  };
+  // Reproduce the exact released execution lineage; this is a test fixture,
+  // never a production definition installer or alternate execution path.
+  execute("create function public.atomic_import_reviewed_catalogue_v3_plan_allowed(p_plan jsonb) returns boolean language sql stable as $$select false$$");
+  const sourceBoundPredicate = fs.readFileSync(path.join(root, "supabase/migrations/20260722133000_align_retailer_sync_plan_metadata.sql"), "utf8")
+    .match(/create function public\.atomic_import_is_source_bound_offer_sync_plan\(p_plan jsonb\)[\s\S]*?\$function\$;/)[0];
+  execute(sourceBoundPredicate);
+  requireSuccess(psqlFile(container, database, path.join(root, "supabase/test/reviewed_catalogue_v3_live_apply_dispatch_fixture.sql")), "reuse existing standard_import dispatch and variant executor fixtures");
+  requireSuccess(psqlFile(container, database, path.join(root, "supabase/test/reviewed_new_product_identity_live_apply_fixture.sql")), "load exact released parent executor fixture");
+  const signature = "public.atomic_import_apply_pre_source_metadata_plan_core(jsonb)";
+  assert.equal(crypto.createHash("sha256").update(query(`select to_jsonb(pg_get_functiondef('${signature}'::regprocedure))`)).digest("hex"), "ffa595f3b12b62a0d78eaa57a8b92384d85047471dc0bc4bb0b1b76536dedc6a");
+  const collision = newPlan("collision-repro"); collision.product.values.slug = "url-contract-creatine-250g"; refreshPlanFingerprint(collision);
+  assert.deepEqual(query(readOnly(collision)), { plan_kind: "feed", retailer_id: 981001 }, "reproduce accepted unrelated slug collision before fix");
+  const oldCollisionApproval = approve(collision, "approved-before-fix");
+  const wrongForm = newPlan("wrong-form"); wrongForm.product_variant.values.product_format = "capsule"; refreshPlanFingerprint(wrongForm);
+  assert.deepEqual(query(readOnly(wrongForm)), { plan_kind: "feed", retailer_id: 981001 }, "reproduce independently missing parent/variant format check");
+  const wrongReviewedName = newPlan("wrong-reviewed-name"); wrongReviewedName.approval.canonical_name = "Another Reviewed Formula"; refreshPlanFingerprint(wrongReviewedName);
+  assert.deepEqual(query(readOnly(wrongReviewedName)), { plan_kind: "feed", retailer_id: 981001 }, "reproduce missing reviewed canonical-name binding");
+  const metadata = () => query(`select jsonb_agg(jsonb_build_object('oid',oid::text,'owner',proowner::text,'acl',proacl::text,'definer',prosecdef,'config',proconfig) order by oid) from pg_proc where oid in ('${signature}'::regprocedure,'public.validate_reviewed_catalogue_import_identity(jsonb)'::regprocedure)`);
+  const metadataBefore = metadata(), countsBefore = counts();
+  requireSuccess(psqlFile(container, database, path.join(root, "supabase/migrations/20261114213000_enforce_reviewed_new_product_identity.sql")), "install shared new-product identity correction");
+  assert.deepEqual(counts(), countsBefore); assert.deepEqual(metadata(), metadataBefore); note("schema-only migration preserves business data and original ACL/OID");
+  rejectBoth(collision, "unrelated slug collision", /new product identity collision/);
+  fail(applySql(collision, oldCollisionApproval), /new product identity collision/); assert.deepEqual(counts(), countsBefore); note("pre-existing approval cannot bypass corrected executor");
+  rejectBoth(wrongForm, "tablet versus capsule format", /format mismatch/);
+  rejectBoth(wrongReviewedName, "reviewed canonical-name binding", /reviewed canonical name mismatch/);
+  const wrongUnits = newPlan("wrong-unit-format"); wrongUnits.product.values.product_format = "capsule"; wrongUnits.product_variant.values.product_format = "capsule";
+  rejectBoth(wrongUnits, "count type versus dosage format", /format mismatch/);
+  for (const [tag, values] of [
+    ["same-name-different-brand", { brand: "Different Brand" }],
+    ["same-brand-different-formula", { name: "Contract Magnesium Oxide Tablets" }],
+    ["same-brand-different-strength", { name: "Contract Magnesium Citrate 200mg Tablets" }],
+    ["same-parent-exact", {}], ["inactive-parent", { is_active: false, merged_into_product_id: 981001 }],
+    ["merged-parent", { is_active: false, merged_into_product_id: 981001 }],
+  ]) {
+    const p = newPlan(tag); const name = values.name || p.product.values.name;
+    execute(`insert into products(id,name,slug,brand,category,product_format,is_active,merged_into_product_id,merged_at) values(983001,${sqlLiteral(name)},${sqlLiteral(p.product.values.slug)},${sqlLiteral(values.brand || "Contract Brand")},'Health Supplements','tablet',${values.is_active === false ? "false" : "true"},${values.merged_into_product_id || "null"},${values.merged_into_product_id ? "now()" : "null"})`);
+    rejectBoth(p, tag, /new product identity collision/);
+    execute("delete from products where id=983001");
+  }
+  const duplicateName = newPlan("normalized-name");
+  execute(`insert into products(id,name,slug,brand,category,product_format,is_active) values(983001,${sqlLiteral(duplicateName.product.values.name.toUpperCase())},'different-normalized-name-slug','Other Brand','Health Supplements','tablet',true)`);
+  rejectBoth(duplicateName, "normalized name collision with different slug and brand", /new product identity collision/); execute("delete from products where id=983001");
+  const badGtin = newPlan("bad-gtin"); badGtin.retailer_product.values.external_gtin = "0033984017109";
+  rejectBoth(badGtin, "wrong source GTIN checksum", /invalid reviewed catalogue external GTIN/);
+  const gtinCollision = newPlan("gtin-collision"); gtinCollision.retailer_product.values.external_gtin = "5056555202128";
+  rejectBoth(gtinCollision, "existing GTIN collision", /GTIN conflicts/);
+  const unique = newPlan("unique");
+  assert.deepEqual(query(readOnly(unique)), { plan_kind: "feed", retailer_id: 981001 });
+  const approval = approve(unique, "unique");
+  const tampered = structuredClone(unique); tampered.product.values.brand = "Tampered"; refreshPlanFingerprint(tampered);
+  assert.equal(query(`select to_jsonb(public.atomic_import_reviewed_catalogue_plan_allowed(${literal(tampered)}))`), false); note("sealed plan tampering breaks exact approval binding");
+  fail(applySql(unique, { ...approval, artifact_sha256: "f".repeat(64) }), /metadata mismatch/); note("approval token artifact integrity");
+  fail(approvalSql(newPlan("expired"), "expired", "now()-interval '1 minute'"), /identity or expiry/); note("expired approval rejected");
+  const beforeUnique = counts(), first = apply(unique, approval), afterUnique = counts();
+  assert.deepEqual(afterUnique.slice(0, 5), beforeUnique.slice(0, 5).map(n => Number(n) + 1));
+  assert.equal(first.product_action, "create");
+  assert.equal(query(`select count(*) from price_history where offer_id=${first.offer_id}`), 1); note("unique parent and first count variant create atomically");
+  const softgel = newPlan("softgel");
+  Object.assign(softgel.product.values, { name: "Contract Softgel Capsules", product_format: "softgel", unit_type: "capsules" });
+  softgel.approval.canonical_name = softgel.product.values.name;
+  Object.assign(softgel.product_variant.values, { product_format: "softgel", variant_key: "unflavoured-60-capsules", display_name: "Unflavoured / 60 capsules" });
+  Object.assign(softgel.product_variant.evidence, { product_format: "softgel", unit_type: "capsules", external_options: { Size: "60 capsules" } });
+  softgel.retailer_product.values.external_options = { Size: "60 capsules" };
+  refreshPlanFingerprint(softgel);
+  apply(softgel, approve(softgel, "softgel")); note("existing softgel capsule format remains supported");
+  const afterSoftgel = counts();
+  fail(applySql(unique, approval), /already consumed/); assert.deepEqual(counts(), afterSoftgel); note("single-use approval replay rejected without writes");
+  const second = newPlan("second", 120);
+  second.product = { action: "existing", id: String(first.product_id) };
+  second.expected_state.product = query(`select jsonb_build_object('id',id::text,'name',name,'is_active',is_active,'merged_into_product_id',merged_into_product_id::text,'product_format',product_format) from products where id=${first.product_id}`);
+  second.product_variant.action = "create_variant";
+  second.approval = { approved: false, approval_type: "none" };
+  refreshPlanFingerprint(second);
+  assert.deepEqual(query(readOnly(second)), { plan_kind: "feed", retailer_id: 981001 });
+  const secondApproval = approve(second, "second"), beforeSecond = counts(), secondResult = apply(second, secondApproval), afterSecond = counts();
+  assert.equal(String(secondResult.product_id), String(first.product_id));
+  assert.deepEqual(afterSecond.slice(0, 5), beforeSecond.slice(0, 5).map((n, i) => Number(n) + (i === 0 ? 0 : 1))); note("second count variant uses fresh actual parent ID and creates no product");
+  const duplicateVariant = structuredClone(second); duplicateVariant.retailer_product.values.external_variant_id = "new-parent-duplicate-variant"; duplicateVariant.retailer_product.values.external_sku = "new-parent-duplicate-variant"; duplicateVariant.retailer_product.values.external_url += "-duplicate";
+  rejectBoth(duplicateVariant, "duplicate variant under explicit parent", /variant already exists/);
+  const duplicateProduct = newPlan("duplicate-product"); duplicateProduct.product.values.name = unique.product.values.name; duplicateProduct.approval.canonical_name = unique.product.values.name;
+  rejectBoth(duplicateProduct, "duplicate canonical product", /new product identity collision/);
+  const race = newPlan("approval-race"), raceApproval = approve(race, "approval-race");
+  execute(`insert into products(id,name,slug,brand,category,product_format,is_active) values(983002,'Unrelated Intervening Product',${sqlLiteral(race.product.values.slug)},'Other','Health Supplements','tablet',true)`);
+  const raceCounts = counts(); fail(applySql(race, raceApproval), /new product identity collision/); assert.deepEqual(counts(), raceCounts); note("genuine conflict after approval rolls back apply");
+  execute("delete from products where id=983002");
+  const post = newPlan("post-create-conflict"), postApproval = approve(post, "post-create-conflict");
+  execute(`create function public.test_new_parent_conflict() returns trigger language plpgsql as $$begin update products set brand='Changed During Insert' where id=new.id; return new; end$$;
+    create trigger test_new_parent_conflict after insert on products for each row when (new.slug='new-parent-post-create-conflict') execute function public.test_new_parent_conflict()`);
+  const beforePost = counts(); fail(applySql(post, postApproval), /created product identity mismatch/); assert.deepEqual(counts(), beforePost); note("post-create exact identity conflict rolls back parent and all descendants");
+  execute("drop trigger test_new_parent_conflict on products; drop function public.test_new_parent_conflict()");
+  const privateSignature = "public.validate_reviewed_catalogue_import_identity(jsonb,bigint)";
+  for (const role of ["anon", "authenticated", "service_role", "retailer_catalogue_production_validator", "retailer_catalogue_production_approver", "retailer_catalogue_production_executor"]) {
+    assert.equal(query(`select to_jsonb(has_function_privilege('${role}','${privateSignature}','execute'))`), false);
+  }
+  note("post-create overload is private to owner and cannot bypass approval roles");
+  fail(`set role retailer_catalogue_production_validator; select public.validate_reviewed_catalogue_import_identity(${literal(unique)},${first.product_id})`, /permission denied/);
+  execute(`update approved_import_plans set created_at=now()-interval '2 minutes',expires_at=now()-interval '1 minute' where id=${sqlLiteral(raceApproval.approval_id)}::uuid`);
+  fail(applySql(race, raceApproval), /expired/); note("expired issued token cannot execute");
+  // Reassess the exact Solgar relationship with generated local IDs only.
+  const solgar = newPlan("solgar-local", 60);
+  Object.assign(solgar.product.values, { name: "Solgar Magnesium Citrate Tablets", slug: "solgar-magnesium-citrate-tablets", brand: "Solgar" });
+  solgar.approval.canonical_name = solgar.product.values.name;
+  solgar.retailer_product.values.external_name = "Solgar Magnesium Citrate 60 Tablets";
+  solgar.retailer_product.values.external_product_id = "005646";
+  solgar.retailer_product.values.external_gtin = "0033984017108";
+  solgar.retailer_product.values.external_sku = "005646";
+  solgar.retailer_product.values.external_variant_id = "005646";
+  solgar.offer.values.price = "11.7"; solgar.offer.values.shipping_cost = "3.49"; solgar.offer.values.total_price = "15.19";
+  refreshPlanFingerprint(solgar);
+  const solgarFirst = apply(solgar, approve(solgar, "solgar-60"));
+  const solgarSecond = structuredClone(second);
+  solgarSecond.product.id = String(solgarFirst.product_id);
+  solgarSecond.expected_state.product = query(`select jsonb_build_object('id',id::text,'name',name,'is_active',is_active,'merged_into_product_id',merged_into_product_id::text,'product_format',product_format) from products where id=${solgarFirst.product_id}`);
+  Object.assign(solgarSecond.retailer_product.values, { external_product_id: "001409", external_variant_id: "001409", external_sku: "001409", external_gtin: "0033984017115", external_name: "Solgar Magnesium Citrate 120 Tablets", external_url: "https://merchant-one.test/product/solgar-120" });
+  solgarSecond.offer.values.url = "https://affiliate.test/solgar-120";
+  solgarSecond.offer.values.price = "17.98"; solgarSecond.offer.values.shipping_cost = "3.49"; solgarSecond.offer.values.total_price = "21.47";
+  refreshPlanFingerprint(solgarSecond);
+  const solgarSibling = apply(solgarSecond, approve(solgarSecond, "solgar-120"));
+  assert.equal(String(solgarSibling.product_id), String(solgarFirst.product_id));
+  assert.notEqual(String(solgarSibling.product_variant_id), String(solgarFirst.product_variant_id));
+  assert.equal(query("select count(*) from products where slug='solgar-magnesium-citrate-tablets'"), 1);
+  note("Solgar 005646 and 001409 share exactly one generated local parent with two distinct variants");
+}
+
 test("atomic import execution and approval ledger expose only guarded service-role RPCs", () => {
   const sql = require("node:fs").readFileSync(atomicMigration, "utf8");
   const approvalSql = require("node:fs").readFileSync(approvalMigration, "utf8");
@@ -1419,6 +1582,7 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
     requireSuccess(counts, "check concurrent identity");
     assert.equal(counts.stdout.trim(), "1:1:1:1", "concurrent import was not serialized");
     reviewedCatalogueUrlScenarios(container, database);
+    reviewedNewProductIdentityScenarios(container, database);
   } catch (error) {
     primaryError = primaryError || error;
   } finally {

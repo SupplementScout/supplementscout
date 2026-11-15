@@ -98,6 +98,72 @@ function v2Fixture({ target = "staging", directUrl = "https://shop.example/produ
   return reseal(value);
 }
 
+function v2NewParentFixture() {
+  const value = v2Fixture();
+  const profile = value.manifest.profiles[0], reviewed = profile.rows[0];
+  Object.assign(reviewed, { action: "create_product_with_variant", product_id: null, product_variant_id: null,
+    product_name: "Example Formulation 400mg Powder", product_format: "powder" });
+  value.manifest.policy.allow_product_creation = true;
+  value.manifest.policy.allow_variant_creation = true;
+  profile.expected_actions.products_create = 1;
+  profile.expected_actions.product_variants_create = 1;
+  value.plan.meta.version = "2";
+  delete value.plan.meta.idempotency_key;
+  value.plan.product = { action: "create_or_reuse_reviewed", values: {
+    name: reviewed.product_name, brand: reviewed.brand, category: reviewed.category, product_format: reviewed.product_format, gtin: null,
+  } };
+  value.plan.product_variant = { action: "create_reviewed_variant", values: {
+    variant_key: "berry-420g", display_name: "Berry / 420g", flavour_code: "berry", flavour_label: "Berry", size_value: "420", size_unit: "g", pack_count: "1", product_format: "powder",
+  } };
+  value.plan.approval = { approved: true, approval_type: "reviewed_parent_variant_safe_create", canonical_name: reviewed.product_name };
+  value.plan.expected_state.product = null;
+  value.plan.expected_state.product_variant = null;
+  for (const item of [value.plan.retailer_product.values, value.plan.offer.values]) {
+    item.product_id = null; item.product_variant_id = null;
+  }
+  return resealNewParent(value);
+}
+
+function resealNewParent(value) {
+  const fingerprint = planFingerprint(value.plan);
+  value.plan.meta.plan_fingerprint = fingerprint;
+  value.manifest.profiles[0].rows[0].plan_fingerprint = fingerprint;
+  value.artifact.plans[0].plan_fingerprint = fingerprint;
+  value.artifact.source_rows[0].plan_fingerprint = fingerprint;
+  return reseal(value);
+}
+
+test("reviewed V2 new parent binds exact reviewed identity even in a newly resealed artifact", () => {
+  for (const [field, replacement] of [["name", "Example Formulation 200mg Powder"], ["name", "Example Different Formula"],
+    ["brand", "Another Brand"], ["category", "Creatine"], ["product_format", "capsule"]]) {
+    const value = v2NewParentFixture();
+    try {
+      assert.doesNotThrow(() => load(value));
+      value.plan.product.values[field] = replacement;
+      value.plan.approval.canonical_name = value.plan.product.values.name;
+      resealNewParent(value);
+      assert.throws(() => load(value), /Reviewed V2 new product .* mismatch/);
+    } finally {
+      assert.equal(path.dirname(value.root), path.resolve(os.tmpdir()));
+      assert.ok(path.basename(value.root).startsWith("reviewed-catalogue-"));
+      fs.rmSync(value.root, { recursive: true, force: true });
+    }
+  }
+});
+
+test("reviewed V2 new parent binds the canonical approval name to the reviewed row", () => {
+  const value = v2NewParentFixture();
+  try {
+    value.plan.approval.canonical_name = "Another Reviewed Formula";
+    resealNewParent(value);
+    assert.throws(() => load(value), /canonical approval name mismatch/);
+  } finally {
+    assert.equal(path.dirname(value.root), path.resolve(os.tmpdir()));
+    assert.ok(path.basename(value.root).startsWith("reviewed-catalogue-"));
+    fs.rmSync(value.root, { recursive: true, force: true });
+  }
+});
+
 function v3Fixture({ target = "staging", rawOptions = { Flavours: "Berry", Size: "35 Servings", Weight: "420g" } } = {}) {
   const value = v2Fixture({
     target,

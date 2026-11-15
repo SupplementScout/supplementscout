@@ -5295,6 +5295,13 @@ async function resolveFeedRow(row, rowNumber, options = {}) {
     if (product.is_active === false || product.merged_into_product_id != null) {
       validationErrors.push("canonical product is inactive or merged");
     }
+    const reviewed = shippingNormalizedRow.__reviewed_catalogue_identity;
+    if (
+      reviewed?.contract === "reviewed-catalogue-package-v2" &&
+      ["create_reviewed_product_variant", "create_product_with_default_variant"].includes(reviewed.action)
+    ) {
+      validationErrors.push("reviewed catalogue new product identity collision: use an explicit existing product plan");
+    }
   }
 
   if (
