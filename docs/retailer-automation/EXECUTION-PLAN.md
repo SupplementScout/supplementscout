@@ -24,9 +24,12 @@ under their existing contracts. No retailer or product-family exception is added
 Exactly one forward-only migration20261114213000 is prepared, hash-bound as
 pending for production and excluded from staging's absent V2 lineage. Ledger
 values and historical migration bytes/receipts are unchanged. This branch is
-not deployed and does not declare migration265 applied. PostgreSQL evidence
-must pass in the existing isolated Quality Gate before the single Draft PR;
-the actual run and final head belong to its checks and sealed handoff.
+not deployed and does not declare migration265 applied. The existing isolated
+PostgreSQL Quality Gate43686185910 passes195/195 with zero skips on
+9dbd2b93334e6dc6095cb7729005d3f06ba78989. It verifies the actual Solgar60/120
+pair, post-create conflict rollback, private-role boundaries and genuine V3
+new-parent approval/execution. Earlier failed fixture attempts are retained
+as diagnostic evidence; only this completed receipt proves the final contract.
 
 Local quick1177 PASS/0 FAIL/3 existing SKIPs and full3914 PASS/0 FAIL/3 existing artifact-dependent SKIPs
 pass, including TypeScript, ESLint, production build with verified system CA,
@@ -34,7 +37,7 @@ baseline validation and Project Guardian. The362-file test inventory seal is
 unchanged. Local PostgreSQL execution is SKIP because Docker is unavailable;
 static tests are not substituted for actual database evidence.
 
-Fresh authenticated Partnerize retrieval21:31:25.456Z preserves both selected
+Fresh authenticated Partnerize retrieval2026-11-15T06:33:22.892Z preserves both selected
 Magnesium Citrate source rows.005646/60 tablets and001409/120 tablets remain
 PRODUCTION_SQL_NOT_DEPLOYED. One new parent and two count variants are the
 future intended structure. Only the first anchor can be sealed now; the

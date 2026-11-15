@@ -64,7 +64,18 @@
     "test_inventory_count": 362,
     "test_inventory_sha256": "1d6c0e4343097184171f040353c1d4545554b885b3e306779a88fd776fbcd177",
     "local_postgres": "SKIP_DOCKER_UNAVAILABLE",
-    "remote_postgres_requirement": "Existing isolated integration Quality Gate must pass before Draft PR creation; real receipts are retained with the final handoff and GitHub checks",
+    "remote_postgres": {
+      "status": "PASS",
+      "pass": 195,
+      "fail": 0,
+      "skip": 0,
+      "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/43686185910",
+      "tested_head": "9dbd2b93334e6dc6095cb7729005d3f06ba78989",
+      "production_credentials_available": false,
+      "solgar_shared_parent_and_two_variants": "PASS",
+      "genuine_v3_new_parent_approval_execution": "PASS",
+      "post_create_identity_conflict_atomic_rollback": "PASS"
+    },
     "related_contracts": {
       "pass": 460,
       "fail": 0,
@@ -72,7 +83,8 @@
     }
   },
   "commercial_source": {
-    "retrieved_at": "2026-11-14T21:31:25.456Z",
+    "retrieved_at": "2026-11-15T06:33:22.892Z",
+    "expires_at": "2026-11-16T06:33:22.892Z",
     "supplier_generated_at": null,
     "sha256": "88bad9a3a54248c9132fd1e3a34e1684313e5888a1eddae55358a78c808e20ca",
     "tls_verification_enabled": true,
