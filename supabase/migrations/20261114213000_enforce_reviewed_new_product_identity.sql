@@ -18,11 +18,14 @@ declare
     end if;
     if v_variant_action='create_reviewed_variant' and (
       v_variant_values->>'product_format' is distinct from v_product_values->>'product_format'
-      or (p_plan#>>'{product_variant,evidence,unit_count}' is not null and
-        v_variant_values->>'product_format' is distinct from
-          case p_plan#>>'{product_variant,evidence,unit_type}'
-            when 'tablets' then 'tablet' when 'capsules' then 'capsule'
-            when 'gummies' then 'gummy' when 'chews' then 'chew' end)
+      or (p_plan#>>'{product_variant,evidence,unit_count}' is not null and (
+        (p_plan#>>'{product_variant,evidence,unit_type}'='tablets'
+          and v_variant_values->>'product_format' is distinct from 'tablet')
+        or (p_plan#>>'{product_variant,evidence,unit_type}'='capsules'
+          and v_variant_values->>'product_format' not in ('capsule','softgel'))
+        or (p_plan#>>'{product_variant,evidence,unit_type}'='gummies'
+          and v_variant_values->>'product_format' is distinct from 'gummy')
+      ))
     ) then
       raise exception 'reviewed catalogue new product and variant format mismatch';
     end if;

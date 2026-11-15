@@ -25,7 +25,13 @@
     "identical_existing_parent_requires_explicit_existing_plan": true,
     "no_silent_slug_change_or_existing_record_rename": true,
     "shared_complete_identity_validator": "public.validate_reviewed_catalogue_import_identity(jsonb,bigint)",
-    "manifest_identity_fields_bound": ["name", "brand", "category", "product_format", "canonical_approval_name"],
+    "manifest_identity_fields_bound": [
+      "name",
+      "brand",
+      "category",
+      "product_format",
+      "canonical_approval_name"
+    ],
     "post_create_argument": "Owner-only function receives actual INSERT RETURNING ID, never caller-supplied ID from plan JSON",
     "existing_one_argument_entry": "Always supplies NULL; checks absence before approval/preflight",
     "v3_and_legacy_branches": "Preserved; genuine V3 PostgreSQL creation regression included",
@@ -34,15 +40,23 @@
   },
   "proposed_migration": {
     "file": "supabase/migrations/20261114213000_enforce_reviewed_new_product_identity.sql",
-    "sha256": "19b8028a3835438156438eafa92c7af30cff36310d0bd55ee6c41aa8a04e7a6b",
+    "sha256": "343425521c09d402e7dd59f4d49964ad3803630481864fcc02adccf0e118c590",
     "production": "HASH_BOUND_PENDING_ONLY; requires separate authorized rehearsal/apply/closeout",
     "staging": "EXCLUDED_V2_RUNTIME_ABSENT",
     "applied": false,
     "historical_receipts": "Preserved with exact historical source inventories"
   },
   "local_quality": {
-    "quick": { "pass": 600, "fail": 0, "skip": 0 },
-    "full": { "pass": 3912, "fail": 0, "skip": 3 },
+    "quick": {
+      "pass": 1177,
+      "fail": 0,
+      "skip": 3
+    },
+    "full": {
+      "pass": 3914,
+      "fail": 0,
+      "skip": 3
+    },
     "typescript": "PASS",
     "eslint": "PASS",
     "production_build": "PASS_TLS_SYSTEM_CA_ENABLED",
@@ -50,14 +64,22 @@
     "test_inventory_count": 362,
     "test_inventory_sha256": "1d6c0e4343097184171f040353c1d4545554b885b3e306779a88fd776fbcd177",
     "local_postgres": "SKIP_DOCKER_UNAVAILABLE",
-    "remote_postgres_requirement": "Existing isolated integration Quality Gate must pass before Draft PR creation; real receipts are retained with the final handoff and GitHub checks"
+    "remote_postgres_requirement": "Existing isolated integration Quality Gate must pass before Draft PR creation; real receipts are retained with the final handoff and GitHub checks",
+    "related_contracts": {
+      "pass": 460,
+      "fail": 0,
+      "skip": 0
+    }
   },
   "commercial_source": {
     "retrieved_at": "2026-11-14T21:31:25.456Z",
     "supplier_generated_at": null,
     "sha256": "88bad9a3a54248c9132fd1e3a34e1684313e5888a1eddae55358a78c808e20ca",
     "tls_verification_enabled": true,
-    "selected_skus": ["005646", "001409"],
+    "selected_skus": [
+      "005646",
+      "001409"
+    ],
     "changed_selected_fields": [],
     "manufacturer_evidence": "Previously sealed official UK Solgar evidence reused; no new manufacturer research"
   },
@@ -67,7 +89,11 @@
     "mappings": 2,
     "offers": 2,
     "initial_histories": 2,
-    "projected_hb_totals": [93, 93, 93],
+    "projected_hb_totals": [
+      93,
+      93,
+      93
+    ],
     "production_ids": null,
     "second_plan": "EXECUTION_DEPENDENCY_BLOCKED_UNTIL_ACTUAL_FIRST_RECEIPT_AND_FRESH_BASELINE",
     "single_immutable_two_plan_package_supported_now": false,

@@ -378,6 +378,10 @@ function reviewedNewProductIdentityScenarios(container, database) {
   // Reproduce the exact released execution lineage; this is a test fixture,
   // never a production definition installer or alternate execution path.
   execute("create function public.atomic_import_reviewed_catalogue_v3_plan_allowed(p_plan jsonb) returns boolean language sql stable as $$select false$$");
+  const sourceBoundPredicate = fs.readFileSync(path.join(root, "supabase/migrations/20260722133000_align_retailer_sync_plan_metadata.sql"), "utf8")
+    .match(/create function public\.atomic_import_is_source_bound_offer_sync_plan\(p_plan jsonb\)[\s\S]*?\$function\$;/)[0];
+  execute(sourceBoundPredicate);
+  requireSuccess(psqlFile(container, database, path.join(root, "supabase/test/reviewed_catalogue_v3_live_apply_dispatch_fixture.sql")), "reuse existing standard_import dispatch and variant executor fixtures");
   requireSuccess(psqlFile(container, database, path.join(root, "supabase/test/reviewed_new_product_identity_live_apply_fixture.sql")), "load exact released parent executor fixture");
   const signature = "public.atomic_import_apply_pre_source_metadata_plan_core(jsonb)";
   assert.equal(crypto.createHash("sha256").update(query(`select to_jsonb(pg_get_functiondef('${signature}'::regprocedure))`)).digest("hex"), "ffa595f3b12b62a0d78eaa57a8b92384d85047471dc0bc4bb0b1b76536dedc6a");
@@ -428,7 +432,16 @@ function reviewedNewProductIdentityScenarios(container, database) {
   assert.deepEqual(afterUnique.slice(0, 5), beforeUnique.slice(0, 5).map(n => Number(n) + 1));
   assert.equal(first.product_action, "create");
   assert.equal(query(`select count(*) from price_history where offer_id=${first.offer_id}`), 1); note("unique parent and first count variant create atomically");
-  fail(applySql(unique, approval), /already consumed/); assert.deepEqual(counts(), afterUnique); note("single-use approval replay rejected without writes");
+  const softgel = newPlan("softgel");
+  Object.assign(softgel.product.values, { name: "Contract Softgel Capsules", product_format: "softgel", unit_type: "capsules" });
+  softgel.approval.canonical_name = softgel.product.values.name;
+  Object.assign(softgel.product_variant.values, { product_format: "softgel", variant_key: "unflavoured-60-capsules", display_name: "Unflavoured / 60 capsules" });
+  Object.assign(softgel.product_variant.evidence, { product_format: "softgel", unit_type: "capsules", external_options: { Size: "60 capsules" } });
+  softgel.retailer_product.values.external_options = { Size: "60 capsules" };
+  refreshPlanFingerprint(softgel);
+  apply(softgel, approve(softgel, "softgel")); note("existing softgel capsule format remains supported");
+  const afterSoftgel = counts();
+  fail(applySql(unique, approval), /already consumed/); assert.deepEqual(counts(), afterSoftgel); note("single-use approval replay rejected without writes");
   const second = newPlan("second", 120);
   second.product = { action: "existing", id: String(first.product_id) };
   second.expected_state.product = query(`select jsonb_build_object('id',id::text,'name',name,'is_active',is_active,'merged_into_product_id',merged_into_product_id::text,'product_format',product_format) from products where id=${first.product_id}`);

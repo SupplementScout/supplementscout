@@ -28,7 +28,7 @@ not deployed and does not declare migration265 applied. PostgreSQL evidence
 must pass in the existing isolated Quality Gate before the single Draft PR;
 the actual run and final head belong to its checks and sealed handoff.
 
-Local quick600/600 and full3912 PASS/0 FAIL/3 existing artifact-dependent SKIPs
+Local quick1177 PASS/0 FAIL/3 existing SKIPs and full3914 PASS/0 FAIL/3 existing artifact-dependent SKIPs
 pass, including TypeScript, ESLint, production build with verified system CA,
 baseline validation and Project Guardian. The362-file test inventory seal is
 unchanged. Local PostgreSQL execution is SKIP because Docker is unavailable;
