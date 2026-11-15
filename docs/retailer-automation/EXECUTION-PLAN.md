@@ -1,5 +1,48 @@
 # Retailer Automation Consolidation Execution Plan
 
+**15 November reviewed new-product identity — PRODUCTION SQL VERIFIED / REPOSITORY CLOSEOUT:**
+PR537 tested head3bd8862234125ed1654ddd78ed3a15ce2c737f55 merged once as
+a62c439cf46b9c5703d7bb163cd681be5a4a8c2b at07:30:18Z; exact Production
+deployment7800248296 succeeded at07:31:14Z. Temporary vercel.json was removed
+entirely; main had no settings in that file. Final quick1177/0/3 and
+full3914/0/3 pass (PASS/FAIL/SKIP); GitHub full, Guardian, baseline, GitGuardian
+and Preview pass. Real isolated PostgreSQL43689411828 passes195/0/0 on the
+exact final PR head, preserving V2/V3, genuine conflict rollback and replay.
+
+The owner authorized one standard rollback-only rehearsal and one guarded
+apply of20261114213000, SHA256
+343425521c09d402e7dd59f4d49964ad3803630481864fcc02adccf0e118c590.
+Rehearsal PASS/committed=false was independently verified against all210
+function hashes/owners/ACL, ledger264 and protected catalogue data. Apply
+PASS/committed=true recorded exactly one migration, ledger265 fingerprint
+cc72cabf7c6ec9c9b8b86ce0b3d8261e368cce62c638b8cc8f7b40fe745e98e6.
+Exactly the approved two functions changed and one owner-only overload was
+added; all other functions, existing metadata and catalogue contents remain
+unchanged. The production read-only validator accepts005646's intended new
+Magnesium Citrate parent, rejects the Biotin325 slug collision and denies a
+caller-supplied private created-parent ID. No commercial approval or import.
+
+This closeout consumes the pending binding using the runner's authoritative
+[repository receipt](evidence/REVIEWED-NEW-PRODUCT-IDENTITY-PRODUCTION-265-CLOSEOUT-2026-11-15.json).
+Historical264 and earlier fixtures/receipts are frozen explicitly. Staging
+configuration and SQL bytes are unchanged. SQL must not run again for closeout.
+H&B91/91/91, Six Pack223 PENDING, Discount, PR532, legacy145/mapping120/offer155/
+review702 and completed Solgar/Huel records are preserved. The new parent and
+variant IDs for005646/001409 remain unknown. The latter needs the first actual
+receipt, fresh baseline, new sealed DRAFT and separate exact commercial approval.
+
+Automation preflight inventories38 active GitHub registrations (37 files on
+main; one historical V3 proof registration),18 scheduled workflows including
+14 retailer/platform workflows, and all14 production retailers. Shared runtime
+bindings require only the standard CURRENT265 closeout, with no workflow,
+schedule, permissions or retailer-policy edits. Existing watchdog43684613262
+already failed before release for worker scheduling delay and retailer backlog;
+Discount43601564750's pre-existing identity failure is not repaired here.
+Normal scheduled post-migration runtime must be reported PENDING until observed;
+final compatibility evidence and actual outcomes belong to the release handoff.
+No commercial dispatch, Six Pack/Discount operation or new monitor is added.
+See the [database verification](evidence/REVIEWED-NEW-PRODUCT-IDENTITY-PRODUCTION-265-VERIFICATION-2026-11-15.json).
+
 **14 November reviewed V2 new-product identity correction — PROPOSED / NOT DEPLOYED:**
 The owner-scoped correction reuses the preserved Solgar collision evidence.
 Current main/Production is efbe06a1d8531cee9590133886c122a22265470a,
