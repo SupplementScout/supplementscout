@@ -489,6 +489,7 @@ function reviewedNewProductIdentityScenarios(container, database) {
   solgarSecond.product.id = String(solgarFirst.product_id);
   solgarSecond.expected_state.product = query(`select jsonb_build_object('id',id::text,'name',name,'is_active',is_active,'merged_into_product_id',merged_into_product_id::text,'product_format',product_format) from products where id=${solgarFirst.product_id}`);
   Object.assign(solgarSecond.retailer_product.values, { external_product_id: "001409", external_variant_id: "001409", external_sku: "001409", external_gtin: "0033984017115", external_name: "Solgar Magnesium Citrate 120 Tablets", external_url: "https://merchant-one.test/product/solgar-120" });
+  solgarSecond.offer.values.url = "https://affiliate.test/solgar-120";
   solgarSecond.offer.values.price = "17.98"; solgarSecond.offer.values.shipping_cost = "3.49"; solgarSecond.offer.values.total_price = "21.47";
   refreshPlanFingerprint(solgarSecond);
   const solgarSibling = apply(solgarSecond, approve(solgarSecond, "solgar-120"));
