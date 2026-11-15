@@ -462,7 +462,8 @@ test("historical GTIN receipt closes CURRENT264 and preserves the exact sealed 2
   const receipt = JSON.parse(fs.readFileSync(path.join(ROOT,
     "docs/retailer-automation/evidence/REVIEWED-GTIN-PRODUCTION-264-CLOSEOUT-2026-11-12.json"), "utf8"));
   const migrationFiles = fs.readdirSync(SOURCE).filter(name => name <= receipt.consumed_pending.ordered_filenames[0]);
-  const historicalContract = { ...CONTRACTS.PRODUCTION, pending: [] };
+  const historicalContract = { ...CONTRACTS.PRODUCTION, ledgerCount: 264,
+    ledgerFingerprint: "63b783c65666e95231ec613abf403fead03c474eaa8149cc89739c992c3e8cda", pending: [] };
   const current = derivePostApplyMigrationBinding("PRODUCTION", { migrationFiles, pendingMigrations: [] });
   assert.equal(current.status, "ALREADY_CLOSED");
   assert.equal(current.pending_count, 0);
@@ -479,6 +480,29 @@ test("historical GTIN receipt closes CURRENT264 and preserves the exact sealed 2
   assert.equal(pendingConfirmation({pending}), "edb9bca49f59d030");
   const closed = repositoryCloseoutForAttempt({mode:"apply",committed:true,derivation:current,
     contract:historicalContract,projectRef:CONTRACTS.PRODUCTION.projectRef,
+    remoteLedger:ledgerRows(current.post_identifiers)});
+  assert.equal(closed.closeout_status, "ALREADY_CLOSED");
+  assert.equal(closed.evidence, null);
+});
+
+test("authoritative identity migration receipt closes CURRENT265 and retains exact 264-to-265 selection", () => {
+  const receipt = JSON.parse(fs.readFileSync(path.join(ROOT,
+    "docs/retailer-automation/evidence/REVIEWED-NEW-PRODUCT-IDENTITY-PRODUCTION-265-CLOSEOUT-2026-11-15.json"), "utf8"));
+  const current = derivePostApplyMigrationBinding("PRODUCTION");
+  assert.equal(current.status, "ALREADY_CLOSED");
+  assert.equal(current.pending_count, 0);
+  assertDerivationMatchesContract(current, CONTRACTS.PRODUCTION);
+  assert.equal(current.post_ledger_count, receipt.post_state.ledger_count);
+  assert.equal(current.post_ledger_fingerprint, receipt.post_state.ledger_fingerprint);
+  const pending = [{filename:receipt.consumed_pending.ordered_filenames[0],sha256:receipt.consumed_pending.ordered_sha256[0]}];
+  const historical = derivePostApplyMigrationBinding("PRODUCTION", {pendingMigrations:pending});
+  assert.equal(historical.pre_ledger_count, receipt.pre_state.ledger_count);
+  assert.equal(historical.pre_ledger_fingerprint, receipt.pre_state.ledger_fingerprint);
+  assert.equal(historical.post_ledger_count, receipt.post_state.ledger_count);
+  assert.equal(historical.post_ledger_fingerprint, receipt.post_state.ledger_fingerprint);
+  assert.equal(pendingConfirmation({pending}), "aed99d7bb50f0e24");
+  const closed = repositoryCloseoutForAttempt({mode:"apply",committed:true,derivation:current,
+    contract:CONTRACTS.PRODUCTION,projectRef:CONTRACTS.PRODUCTION.projectRef,
     remoteLedger:ledgerRows(current.post_identifiers)});
   assert.equal(closed.closeout_status, "ALREADY_CLOSED");
   assert.equal(closed.evidence, null);

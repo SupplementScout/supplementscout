@@ -101,12 +101,9 @@ const PENDING_REFRESH_BINDING_MIGRATION_SHA256 = "015f0de7448c10fcca10174e74dfbf
 const PENDING_REFRESH_BINDING = Object.freeze({ filename: PENDING_REFRESH_BINDING_MIGRATION, sha256: PENDING_REFRESH_BINDING_MIGRATION_SHA256 });
 const PLANNED_CONTROL_CLOSE_PENDING = Object.freeze({ filename: "20261107190000_extend_never_approved_planned_control_close.sql", sha256: "0c6a7ef27021c0ba2dc5ef38eea3289b8238e4dc3220ede03de6210336263ddf" });
 const STAGING_PENDING = Object.freeze([...HARD_PRICE_ANOMALY_PENDING, PENDING_REFRESH_BINDING]);
-const PRODUCTION_PENDING = Object.freeze([
-  Object.freeze({
-    filename: "20261114213000_enforce_reviewed_new_product_identity.sql",
-    sha256: "343425521c09d402e7dd59f4d49964ad3803630481864fcc02adccf0e118c590",
-  }),
-]);
+const PRODUCTION_PENDING = Object.freeze([]);
+const NEW_PRODUCT_IDENTITY_MIGRATION = "20261114213000_enforce_reviewed_new_product_identity.sql";
+const NEW_PRODUCT_IDENTITY_SHA256 = "343425521c09d402e7dd59f4d49964ad3803630481864fcc02adccf0e118c590";
 const REVIEWED_GTIN_MIGRATION = "20261112130000_align_reviewed_catalogue_gtin_identity.sql";
 const OWNER_WITHDRAWAL_MIGRATION = "20261109120000_add_owner_withdrawal_terminal_preflight.sql";
 const REVIEWED_URL_MIGRATION = "20261110170000_align_reviewed_catalogue_affiliate_url_contract.sql";
@@ -595,10 +592,10 @@ test("production preserves deployed V3 and Ghost Lifestyle metadata correction b
     "20261009120000_add_compact_other_retailer_fingerprint.sql",
     SEALED_ARTIFACTS_REGISTRY_MIGRATION,
   ]);
-  assert.equal(contract.ledgerCount, 264);
+  assert.equal(contract.ledgerCount, 265);
   assert.equal(
     contract.ledgerFingerprint,
-    "63b783c65666e95231ec613abf403fead03c474eaa8149cc89739c992c3e8cda",
+    "cc72cabf7c6ec9c9b8b86ce0b3d8261e368cce62c638b8cc8f7b40fe745e98e6",
   );
   assert.equal(sha256File(path.join(SOURCE, GHOST_LIFESTYLE_METADATA_MIGRATION)), GHOST_LIFESTYLE_METADATA_SHA256);
   assert.equal(contract.excluded[REVIEWED_STATE_MIGRATION], REVIEWED_STATE_SHA256);
@@ -892,7 +889,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production records ledger 264 with the reviewed URL and GTIN migrations applied", () => {
+test("production records ledger 265 with reviewed identity, URL and GTIN migrations applied", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -919,15 +916,15 @@ test("production records ledger 264 with the reviewed URL and GTIN migrations ap
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 264);
+  assert.equal(result.ledger_count, 265);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 264 + PRODUCTION_PENDING.length);
+  assert.equal(result.selected_files.length, 265 + PRODUCTION_PENDING.length);
   assert.ok(result.selected_files.includes(OWNER_WITHDRAWAL_MIGRATION));
   assert.ok(migrationBinding("PRODUCTION").versions.includes(OWNER_WITHDRAWAL_MIGRATION.slice(0,-4)));
   assert.deepEqual(result.pending_files, PRODUCTION_PENDING.map(({ filename }) => filename));
   assert.deepEqual(result.pending_sha256s, Object.fromEntries(PRODUCTION_PENDING.map(({filename, sha256}) => [filename, sha256])));
-  assert.equal(result.pending_file, PRODUCTION_PENDING[0].filename);
-  assert.equal(result.pending_sha256, PRODUCTION_PENDING[0].sha256);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
   assert.ok(result.selected_files.includes(PENDING_REFRESH_BINDING_MIGRATION));
   assert.ok(result.selected_files.includes(PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION));
   assert.ok(result.excluded_files.includes(PRODUCT_PACK_CORRECTION_MIGRATION));
@@ -1819,8 +1816,8 @@ test("shared production binding includes hard-price and refresh-binding migratio
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.pending_file, PRODUCTION_PENDING[0].filename);
-  assert.equal(result.pending_sha256, PRODUCTION_PENDING[0].sha256);
+  assert.equal(result.pending_file, null);
+  assert.equal(result.pending_sha256, null);
   assert.deepEqual(result.pending_files, PRODUCTION_PENDING.map(({ filename }) => filename));
   assert.deepEqual(result.pending_sha256s, Object.fromEntries(PRODUCTION_PENDING.map(({filename, sha256}) => [filename, sha256])));
   assert.ok(result.selected_files.includes(HARD_PRICE_ANOMALY_MIGRATION));
@@ -1843,11 +1840,12 @@ test("shared production binding includes hard-price and refresh-binding migratio
   assert.ok(result.selected_files.includes(REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_1_CONSOLIDATION_MIGRATION));
   assert.deepEqual(CONTRACTS.PRODUCTION.pending, PRODUCTION_PENDING);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 264);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 265);
   assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint,
-    "63b783c65666e95231ec613abf403fead03c474eaa8149cc89739c992c3e8cda");
+    "cc72cabf7c6ec9c9b8b86ce0b3d8261e368cce62c638b8cc8f7b40fe745e98e6");
   const productionPrerequisiteIdentifiers = [
     ...migrationBinding("PRODUCTION").versions.filter(identifier =>
+      identifier !== NEW_PRODUCT_IDENTITY_MIGRATION.slice(0, -4) &&
       identifier !== REVIEWED_GTIN_MIGRATION.slice(0, -4) &&
       identifier !== REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION.slice(0, -4)
       && identifier !== REVIEWED_V3_1_CONSOLIDATION_MIGRATION.slice(0, -4)
@@ -1867,7 +1865,8 @@ test("shared production binding includes hard-price and refresh-binding migratio
     "3b833f177f113e8e7e8554806d26a563ac520129beb0567c1210dc00938d1912",
   );
   const productionPostIdentifiers = migrationBinding("PRODUCTION").versions.filter(identifier =>
-    identifier !== REVIEWED_GTIN_MIGRATION.slice(0, -4)
+    identifier !== NEW_PRODUCT_IDENTITY_MIGRATION.slice(0, -4)
+    && identifier !== REVIEWED_GTIN_MIGRATION.slice(0, -4)
     && identifier !== REVIEWED_V3_1_CONSOLIDATION_MIGRATION.slice(0, -4)
     && identifier !== GLADIATOR_REGISTRATION_MIGRATION.slice(0, -4)
     && identifier !== GLADIATOR_PARENT_APPROVAL_MIGRATION.slice(0, -4)
@@ -1893,10 +1892,10 @@ test("shared production binding includes hard-price and refresh-binding migratio
     const split = identifier.indexOf("_");
     return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
   });
-  assert.equal(productionCurrentRows.length, 264);
+  assert.equal(productionCurrentRows.length, 265);
   assert.equal(
     ledgerRowsFingerprint(productionCurrentRows, { targetEnvironment: "PRODUCTION" }),
-    "63b783c65666e95231ec613abf403fead03c474eaa8149cc89739c992c3e8cda",
+    "cc72cabf7c6ec9c9b8b86ce0b3d8261e368cce62c638b8cc8f7b40fe745e98e6",
   );
 });
 
@@ -1905,9 +1904,9 @@ test("Gladiator registration and parent approval migration are applied exactly o
   assert.deepEqual(CONTRACTS.STAGING.pending, STAGING_PENDING);
   assert.deepEqual(CONTRACTS.PRODUCTION.pending, PRODUCTION_PENDING);
   assert.equal(migrationBinding("STAGING").versions.length, 120);
-  assert.equal(migrationBinding("PRODUCTION").versions.length, 264);
+  assert.equal(migrationBinding("PRODUCTION").versions.length, 265);
   assert.equal(migrationBinding("STAGING").fingerprint, "31dc3e6e90dab56dd00843bef441cfba400e1d9480d2940f41b46cfff6e32277");
-  assert.equal(migrationBinding("PRODUCTION").fingerprint, "63b783c65666e95231ec613abf403fead03c474eaa8149cc89739c992c3e8cda");
+  assert.equal(migrationBinding("PRODUCTION").fingerprint, "cc72cabf7c6ec9c9b8b86ce0b3d8261e368cce62c638b8cc8f7b40fe745e98e6");
   assert.equal(sha256File(path.join(SOURCE, GLADIATOR_PARENT_APPROVAL_MIGRATION)), GLADIATOR_PARENT_APPROVAL_SHA256);
   assert.ok(migrationBinding("PRODUCTION").versions.includes(GLADIATOR_PARENT_APPROVAL_MIGRATION.slice(0, -4)));
 });
@@ -1992,7 +1991,7 @@ test("reviewed URL migration is applied once in production and remains excluded 
     if (production) {
       assert.deepEqual(contract.pending, PRODUCTION_PENDING);
       assert.deepEqual(result.pending_files, PRODUCTION_PENDING.map(({ filename }) => filename));
-      assert.equal(result.pending_sha256, PRODUCTION_PENDING[0].sha256);
+      assert.equal(result.pending_sha256, null);
     } else {
       assert.equal(contract.excluded[filename], sha256File(path.join(SOURCE, filename)));
     }
@@ -2048,11 +2047,24 @@ test("GTIN closeout selects the applied migration exactly once without changing 
   assert.equal(sha256File(path.join(SOURCE, REVIEWED_GTIN_MIGRATION)), CONTRACTS.STAGING.excluded[REVIEWED_GTIN_MIGRATION]);
 });
 
-test("new-parent identity correction is hash-bound pending only, never an applied ledger row", () => {
-  const pending = PRODUCTION_PENDING[0];
+test("historical new-parent pending selection retains its exact 264-to-265 binding", () => {
+  const pending = {filename:NEW_PRODUCT_IDENTITY_MIGRATION,sha256:NEW_PRODUCT_IDENTITY_SHA256};
   assert.equal(sha256File(path.join(SOURCE, pending.filename)), pending.sha256);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 264);
-  assert.ok(!migrationBinding("PRODUCTION").versions.includes(pending.filename.slice(0, -4)));
+  const historical = derivePostApplyMigrationBinding("PRODUCTION", {pendingMigrations:[pending]});
+  assert.equal(historical.pre_ledger_count, 264);
+  assert.equal(historical.pre_ledger_fingerprint, "63b783c65666e95231ec613abf403fead03c474eaa8149cc89739c992c3e8cda");
+  assert.ok(!historical.pre_identifiers.includes(pending.filename.slice(0, -4)));
+  assert.equal(historical.post_ledger_count, 265);
   assert.ok(!migrationBinding("STAGING").versions.includes(pending.filename.slice(0, -4)));
   assert.equal(CONTRACTS.STAGING.excluded[pending.filename], pending.sha256);
+});
+
+test("identity closeout selects migration exactly once and keeps staging unchanged", () => {
+  assert.deepEqual(CONTRACTS.PRODUCTION.pending, []);
+  assert.equal(migrationBinding("PRODUCTION").versions.filter(id=>id===NEW_PRODUCT_IDENTITY_MIGRATION.slice(0,-4)).length,1);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount,265);
+  assert.equal(migrationBinding("PRODUCTION").fingerprint,CONTRACTS.PRODUCTION.ledgerFingerprint);
+  assert.equal(CONTRACTS.STAGING.ledgerCount,120);
+  assert.equal(CONTRACTS.STAGING.ledgerFingerprint,"31dc3e6e90dab56dd00843bef441cfba400e1d9480d2940f41b46cfff6e32277");
+  assert.equal(CONTRACTS.STAGING.excluded[NEW_PRODUCT_IDENTITY_MIGRATION],NEW_PRODUCT_IDENTITY_SHA256);
 });

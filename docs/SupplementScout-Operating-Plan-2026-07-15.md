@@ -5,6 +5,19 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**15 November 2026 reviewed new-product identity migration closeout:** PR537
+released as a62c439cf46b9c5703d7bb163cd681be5a4a8c2b with Production SUCCESS.
+One authorized rollback-only rehearsal and one guarded committed apply of
+20261114213000 passed with independent SQL/ACL and catalogue readbacks. The
+production ledger is265; this narrow repository closeout binds CURRENT265
+pending=[] to its authoritative receipt. H&B remains91/91/91, Six Pack223
+PENDING and all existing commercial/canonical records are unchanged. Workflow
+and schedule fingerprints are preserved; pre-existing watchdog/Discount issues
+are not declared repaired and post-release scheduled runtime remains pending.
+No commercial import, approval, staging execution or automation change is
+included. SEO-20, RA-001 and suspended RA-004 remain unchanged. See the
+[current execution evidence](retailer-automation/EXECUTION-PLAN.md).
+
 **12 November 2026 reviewed GTIN migration closeout checkpoint:** the exact
 owner-approved migration264 is committed and independently verified; H&B16
 remains2/2 and Six Pack223 PENDING cards are intact. The narrow production-ledger

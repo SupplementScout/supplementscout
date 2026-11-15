@@ -1,0 +1,299 @@
+{
+  "kind": "reviewed-new-product-identity-production-265-verification",
+  "status": "DATABASE_VERIFIED_REPOSITORY_CLOSEOUT_PREPARED",
+  "baseline_main": "efbe06a1d8531cee9590133886c122a22265470a",
+  "release": {
+    "headRefOid": "3bd8862234125ed1654ddd78ed3a15ce2c737f55",
+    "isDraft": false,
+    "mergeCommit": {
+      "oid": "a62c439cf46b9c5703d7bb163cd681be5a4a8c2b"
+    },
+    "mergedAt": "2026-11-15T07:30:18Z",
+    "state": "MERGED",
+    "url": "https://github.com/SupplementScout/supplementscout/pull/537"
+  },
+  "release_production": {
+    "id": 7800248296,
+    "sha": "a62c439cf46b9c5703d7bb163cd681be5a4a8c2b",
+    "state": "success",
+    "at": "2026-11-15T07:31:14Z"
+  },
+  "tested_head": "3bd8862234125ed1654ddd78ed3a15ce2c737f55",
+  "rehearsal": {
+    "result": "PASS",
+    "mode": "rehearse",
+    "environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "pending": [
+      "20261114213000_enforce_reviewed_new_product_identity"
+    ],
+    "confirmation": "aed99d7bb50f0e24",
+    "catalogue_counts_before": {
+      "products": "1399",
+      "product_variants": "4101",
+      "retailer_products": "4452",
+      "offers": "4452",
+      "price_history": "53522"
+    },
+    "catalogue_counts_expected": {
+      "products": "1399",
+      "product_variants": "4101",
+      "retailer_products": "4452",
+      "offers": "4452",
+      "price_history": "53522"
+    },
+    "catalogue_counts_after": {
+      "products": "1399",
+      "product_variants": "4101",
+      "retailer_products": "4452",
+      "offers": "4452",
+      "price_history": "53522"
+    },
+    "schema_checks": {
+      "queue_exists": true,
+      "duplicate_decision_exists": true,
+      "anon_cannot_read_queue": true,
+      "authenticated_cannot_read_queue": true
+    },
+    "committed": false,
+    "committed_state": null,
+    "closeout_status": "NOT_REQUIRED_REHEARSAL",
+    "closeout_evidence_path": null,
+    "post_ledger_count": null,
+    "post_ledger_fingerprint": null,
+    "consumed_pending_count": 0
+  },
+  "rollback_proof": {
+    "at": "2026-11-15T07:36:41.555Z",
+    "result": "PASS",
+    "mode": "rehearse",
+    "committed": false,
+    "standard_runner_exit_code": 0,
+    "rollback_completed_successfully": true,
+    "exact_migration": {
+      "filename": "20261114213000_enforce_reviewed_new_product_identity.sql",
+      "sha256": "343425521c09d402e7dd59f4d49964ad3803630481864fcc02adccf0e118c590"
+    },
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "ledger_count": 264,
+    "ledger_fingerprint": "63b783c65666e95231ec613abf403fead03c474eaa8149cc89739c992c3e8cda",
+    "migration_recorded": false,
+    "all_210_function_definitions_owners_acls_unchanged": true,
+    "all_commercial_content_hashes_unchanged": true,
+    "protected_scope_unchanged": true,
+    "hb": {
+      "mappings": 91,
+      "offers": 91,
+      "initial_histories": 91
+    },
+    "six_pending": 223,
+    "active_migration_transactions": 0,
+    "negative_security_checks": {
+      "actual_isolated_pg_pass": 195,
+      "fail": 0,
+      "skip": 0,
+      "run": 43689411828
+    },
+    "observability_table_version_changes": [
+      "outbound_clicks",
+      "search_events"
+    ]
+  },
+  "apply": {
+    "result": "PASS",
+    "mode": "apply",
+    "environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "pending": [
+      "20261114213000_enforce_reviewed_new_product_identity"
+    ],
+    "confirmation": "aed99d7bb50f0e24",
+    "catalogue_counts_before": {
+      "products": "1399",
+      "product_variants": "4101",
+      "retailer_products": "4452",
+      "offers": "4452",
+      "price_history": "53522"
+    },
+    "catalogue_counts_expected": {
+      "products": "1399",
+      "product_variants": "4101",
+      "retailer_products": "4452",
+      "offers": "4452",
+      "price_history": "53522"
+    },
+    "catalogue_counts_after": {
+      "products": "1399",
+      "product_variants": "4101",
+      "retailer_products": "4452",
+      "offers": "4452",
+      "price_history": "53522"
+    },
+    "schema_checks": {
+      "queue_exists": true,
+      "duplicate_decision_exists": true,
+      "anon_cannot_read_queue": true,
+      "authenticated_cannot_read_queue": true
+    },
+    "committed": true,
+    "committed_state": {
+      "ledger_count": 265,
+      "ledger_fingerprint": "cc72cabf7c6ec9c9b8b86ce0b3d8261e368cce62c638b8cc8f7b40fe745e98e6",
+      "applied": [
+        "20261114213000_enforce_reviewed_new_product_identity"
+      ],
+      "catalogue_counts": {
+        "products": "1399",
+        "product_variants": "4101",
+        "retailer_products": "4452",
+        "offers": "4452",
+        "price_history": "53522"
+      }
+    },
+    "closeout_status": "CLOSEOUT_REQUIRED",
+    "closeout_evidence_path": "tmp/selected-migrations/production-cc72cabf7c6ec9c9b8b86ce0b3d8261e368cce62c638b8cc8f7b40fe745e98e6-repository-closeout.json",
+    "post_ledger_count": 265,
+    "post_ledger_fingerprint": "cc72cabf7c6ec9c9b8b86ce0b3d8261e368cce62c638b8cc8f7b40fe745e98e6",
+    "consumed_pending_count": 1
+  },
+  "postflight": {
+    "at": "2026-11-15T07:38:03.940Z",
+    "result": "PASS",
+    "ledger_count": 265,
+    "ledger_fingerprint": "cc72cabf7c6ec9c9b8b86ce0b3d8261e368cce62c638b8cc8f7b40fe745e98e6",
+    "migration_recorded_once": 1,
+    "functions": [
+      {
+        "signature": "atomic_import_apply_pre_source_metadata_plan_core(jsonb)",
+        "owner": "postgres",
+        "acl": "{postgres=X/postgres}",
+        "security_definer": true,
+        "config": [
+          "search_path=pg_catalog, public, pg_temp"
+        ],
+        "volatility": "v",
+        "sha256": "3aad6d9cb6e7cb7a25beca9b47a8e3b4d35fa83a7860cbdb4db20c0156dc9c58"
+      },
+      {
+        "signature": "validate_reviewed_catalogue_import_identity(jsonb,bigint)",
+        "owner": "postgres",
+        "acl": "{postgres=X/postgres}",
+        "security_definer": true,
+        "config": [
+          "search_path=pg_catalog, public, pg_temp"
+        ],
+        "volatility": "s",
+        "sha256": "4cc558e44bcd710d367967728835fe849db241197a8de58fae18ca275b0256f1"
+      },
+      {
+        "signature": "validate_reviewed_catalogue_import_identity(jsonb)",
+        "owner": "postgres",
+        "acl": "{postgres=X/postgres}",
+        "security_definer": true,
+        "config": [
+          "search_path=pg_catalog, public, pg_temp"
+        ],
+        "volatility": "s",
+        "sha256": "8d96961efc74edca571feb00bfd5182c715a54d56c8941391e27a81c6acc56df"
+      }
+    ],
+    "all_other_function_definitions_owners_acls_unchanged": true,
+    "existing_function_metadata_unchanged": true,
+    "private_role_checks": [
+      {
+        "role": "anon",
+        "can_execute": false
+      },
+      {
+        "role": "authenticated",
+        "can_execute": false
+      },
+      {
+        "role": "retailer_catalogue_production_approver",
+        "can_execute": false
+      },
+      {
+        "role": "retailer_catalogue_production_executor",
+        "can_execute": false
+      },
+      {
+        "role": "retailer_catalogue_production_validator",
+        "can_execute": false
+      },
+      {
+        "role": "service_role",
+        "can_execute": false
+      }
+    ],
+    "all_commercial_content_hashes_unchanged": true,
+    "hb": {
+      "mappings": 91,
+      "offers": 91,
+      "histories": 91
+    },
+    "six_pending": 223,
+    "legacy145_mapping120_offer155_review702_unchanged": true,
+    "production_commercial_approvals_created": 0,
+    "commercial_imports": 0,
+    "canonical_creations": 0
+  },
+  "solgar_read_only": {
+    "at": "2026-11-15T07:37:33.668Z",
+    "result": "PASS",
+    "original_handoff_sha256": "c8252bd5658baff010561a9533284f28dff4fb7467203e0854c6b099c5a75d06",
+    "source_retrieved_at": "2026-11-15T06:33:22.892Z",
+    "source_expires_at": "2026-11-16T06:33:22.892Z",
+    "source_current_at_validation": true,
+    "positive005646": "PASS_CORRECTED_DEPLOYED_SQL_READ_ONLY",
+    "intended_parent": {
+      "id": null,
+      "name": "Solgar Magnesium Citrate Tablets",
+      "slug": "solgar-magnesium-citrate-tablets"
+    },
+    "unrelated_slug_collision": {
+      "result": "REJECTED",
+      "wrong_parent_id": 325,
+      "slug": "solgar-biotin-5000g-50-vegi-capsules",
+      "error": "reviewed catalogue new product identity collision: use an explicit existing product plan"
+    },
+    "caller_supplied_private_id": {
+      "result": "DENIED",
+      "error": "permission denied for function validate_reviewed_catalogue_import_identity"
+    },
+    "candidate001409": "EXECUTION_DEPENDENCY_BLOCKED_ACTUAL_PARENT_ID_UNKNOWN",
+    "remaining_requirements": [
+      "Fresh authenticated evidence and full native preflight before future execution",
+      "Separate exact commercial owner approval for005646",
+      "Native guarded first creation and actual ID readback",
+      "Fresh baseline, newly sealed explicit-parent001409 plan and separate exact commercial approval"
+    ],
+    "production_writes": 0,
+    "technical_approvals": 0,
+    "commercial_imports": 0,
+    "original_draft_files_modified": 0
+  },
+  "staging_configuration_unchanged": true,
+  "historical_migration_bytes_unchanged": true,
+  "automation": {
+    "workflow_registrations": 38,
+    "tracked_main_files": 37,
+    "scheduled_workflows": 18,
+    "scheduled_retailer_platform_workflows": 14,
+    "production_retailers": 14,
+    "workflow_or_schedule_changes": 0,
+    "pre_existing_watchdog_failure": {
+      "run": 43684613262,
+      "global_code": "REVIEW_QUEUE_WORKER_SCHEDULE_BROKEN",
+      "retailer_backlog_failures": 5
+    },
+    "pre_existing_discount_failure": {
+      "run": 43601564750,
+      "offer": 762,
+      "mapping": 948
+    },
+    "post_closeout_read_only_compatibility": "REQUIRED_BEFORE_FINAL_HANDOFF",
+    "scheduled_runtime": "PENDING_NORMAL_SCHEDULE_NO_DISPATCH_AUTHORIZED"
+  },
+  "closeout_quality": "REQUIRED_ON_FINAL_PR_HEAD",
+  "migration_reexecute_authorized": false
+}
