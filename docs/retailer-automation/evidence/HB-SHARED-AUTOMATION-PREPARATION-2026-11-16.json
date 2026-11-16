@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "task": "H&B existing-offer shared automation",
-  "status": "PREPARATION_IN_PROGRESS_NOT_ACTIVATED",
+  "status": "PAUSED_BY_OWNER_NOT_ACTIVATED",
   "owner_scope": "Reuse the existing shared pipeline; defer catalogue expansion; prepare and verify before separate production authorization.",
   "baseline": {
     "main_and_production": "9ec8b2264fee6a453be46555dab0e500ff65feb1",
@@ -128,6 +128,21 @@
       ],
       "retailer16_authorized": false,
       "next": "Prepare registry-based scope extension within the same approval entry point; no bypass and no historical cleanup"
+    },
+    "native_read_only_current": {
+      "result": "PASS_READ_ONLY_PREPARATION_NOT_ACTIVATION",
+      "head": "cded284d99ae927b19c299c641cb38aa40215513",
+      "at": "2026-11-16T20:39:24.894Z",
+      "validator_batches": 11,
+      "validator_rows": 217,
+      "review_rows": 2,
+      "business_fingerprint": "b578023747ed6cb434df072b5145f4dd551dc32a99efe064177d173b7e715048",
+      "evidence_directory": "native-cded284d-20261116T203914469Z",
+      "all_sessions_read_only": true,
+      "database_writes": 0,
+      "control_writes": 0,
+      "approvals": 0,
+      "applies": 0
     }
   },
   "partnerize_preparation": {
@@ -175,7 +190,7 @@
         "4678"
       ],
       "oos_inferred": false,
-      "native_validator": "PASS exact515b102f11 batches/217 rows;2 missing-source reviews;0 writes",
+      "native_validator": "PASS exactcded284d20:39Z11 batches/217 rows;2 reviews;0 writes",
       "commercial_or_freshness_writes": 0
     },
     "endpoint_binding": {
@@ -221,5 +236,45 @@
     "url": "https://github.com/SupplementScout/supplementscout/pull/539",
     "state": "OPEN_DRAFT",
     "branch": "feat/hb-shared-automation-20261116"
+  },
+  "pause": {
+    "at": "2026-11-16T21:09:09.964Z",
+    "reason": "Owner ending work today; resume tomorrow when requested",
+    "goal_status": "PAUSED",
+    "verified_runtime_head": "cded284d99ae927b19c299c641cb38aa40215513",
+    "ci_full": 43951814405,
+    "ci_result": "PASS",
+    "wip_files": [
+      "supabase/proposals/20261116211000_register_shared_parent_approval_profiles.sql",
+      "supabase/rollbacks/20261116211000_register_shared_parent_approval_profiles_rollback.sql",
+      "scripts/gladiator-sequential-parent-approval-migration.integration.test.js"
+    ],
+    "wip_validation": "New SQL not yet executed on PostgreSQL; existing integration runner parses locally and skips Docker",
+    "production_activation_authorized": false
+  },
+  "parent_profile_proposal": {
+    "status": "WIP_UNVERIFIED_NOT_AUTHORIZED_NOT_SELECTED",
+    "current_manifest_sha256": "aeeb44897c8a43c5d52ffe7ac02d3f711b06736c8c9fa1727ea6df3141521e71",
+    "proposed_activated_manifest_sha256": "6c0ca5ee3bba035671ef587de2b9d08ae0a96402f1364e88e413b71f73cea3b8",
+    "current_parent_sha256": "36ec800fd0056c5d556138ef3fe75f5dda627cd6fc6d193f2dc08ce6c1f23309",
+    "proposed_parent_sha256": "ccd4e3b62e30ecb7b50ce067da3cece0ec104a603c9140afdfd337cd25bb0b70",
+    "registry_body_sha256": "42b956696586a4a478f6089f4a33a752563008b2732cdca7697f51ae424733c1",
+    "existing_profile_ids": [
+      4,
+      5,
+      7,
+      8,
+      9,
+      14,
+      15
+    ],
+    "new_profile_id": 16,
+    "forward": "supabase/proposals/20261116211000_register_shared_parent_approval_profiles.sql",
+    "forward_sha256": "842985652b164601169fb54dca81992acf7fcb0e16d7ef3a3cf6b6100eccd281",
+    "rollback": "supabase/rollbacks/20261116211000_register_shared_parent_approval_profiles_rollback.sql",
+    "rollback_sha256": "2e8a60af6f7180253b93be3e31094febcfefe1b828ce4f444398b8370774d837",
+    "runtime_files_changed": false,
+    "production_writes": 0,
+    "postgresql_execution": "NOT_RUN"
   }
 }

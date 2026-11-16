@@ -1,6 +1,24 @@
 # Retailer Automation Consolidation Execution Plan
 
-**16 November H&B existing-offer automation - PREPARATION IN PROGRESS / NOT ACTIVATED:**
+**16 November H&B existing-offer automation - PAUSED AT OWNER REQUEST / NOT ACTIVATED:**
+The owner is finishing for today and requested a safe pause until tomorrow.
+The goal is paused, not complete. Verified runtime headcded284d is saved in
+draft PR539: quick1202/0/3, full3947/0/3 and CI43951814405 PASS. Fresh native
+validator READ ONLY at20:39:24Z again passes11 batches/217 unchanged rows plus
+2 missing-source reviews, with the same unchanged business fingerprint and0
+writes. Its immutable evidence directory is native-cded284d-20261116T203914469Z.
+
+Resume from the unfinished parent-profile SQL proposal20261116211000 and its
+rollback/extended existing PostgreSQL runner. These are WIP: local JavaScript
+loads, but Docker is unavailable and the new SQL has not run on PostgreSQL.
+They remain outside automatic migration selection and have not been installed.
+The proposed activated-manifest SHA is a projected artifact, not owner approval.
+H&B control registration still needs implementation, followed by shared workflow/
+watchdog wiring and the complete activation pack. First refresh Git/CI, ledger,
+production metadata and source evidence; do not treat today's feed as tomorrow's
+fresh evidence or repeat completed imports. Publication, worker and profile
+execution stay disabled. No activation decision or permission was granted.
+
 The owner-designated goal reuses the current shared offer-sync engine and the
 completed Gladiator integration pattern; catalogue expansion is deferred. Fresh
 validator READ ONLY at19:11:49Z confirms H&B219 mappings/offers,219 histories and
