@@ -1,5 +1,44 @@
 # Retailer Automation Consolidation Execution Plan
 
+**16 November H&B existing-offer automation — PREPARATION IN PROGRESS / NOT ACTIVATED:**
+The owner-designated goal reuses the current shared offer-sync engine and the
+completed Gladiator integration pattern; catalogue expansion is deferred. The
+fresh validator READ ONLY observation at16:56:47Z gives H&B219 mappings/offers,
+not the historical91 recorded by the earlier migration closeout below. Main and
+Production remain9ec8b226. Existing owner decisions,24 OWNER_REVIEW and15 BLOCKED
+cases are preserved; no catalogue import or identity decision is part of this task.
+
+Retained run43846470049 reproduces a common publication contract mismatch:
+16 commercial REFRESH rows carry the shared engine's flat proposed offer while
+the SQL boundary reads only proposed_state.offer. The other22 REFRESH rows are
+noncommercial and correctly have no execution binding. Existing shared workers
+and verified stock-transition readers consume the flat shape, so changing stored
+evidence into an eBay-only shape would break downstream contracts. The proposal
+resolves either existing representation once inside the current publication RPC,
+rejects ambiguous hybrid values and retains each producer's stored representation.
+Identity, monetary, URL, before-state, PENDING-only, role/ACL, audit, atomicity and
+zero-catalogue-write protections remain in the same boundary.
+
+The forward SQL is a preparation-only file under supabase/proposals, outside both
+automatic migration selectors; the exact-function rollback is retained. A live
+validator READ ONLY metadata capture at18:15:59Z confirms the expected existing
+function SHA0a5b87716f638fbadeb6fdea9091c414db580a002c0dd2d7597e56d61db8fbf2,
+owner and ACL. Both SQL directions check the expected body/security contract.
+No SQL was applied, no historical publication retried and no schedule changed.
+Existing publication source tests pass; actual PostgreSQL regression remains a
+required gate. The existing isolated integration runner now covers the exact
+38/16/22 partition, both producer shapes, mutation rejection, owner immutability,
+whole-request rollback, replay and rollback of the function itself. Local Docker
+cannot start, so real PostgreSQL evidence must come from the existing CI job.
+
+Next: complete local quality gates and isolated PostgreSQL proof, then implement
+the missing Partnerize adapter and bounded H&B profile wiring through the current
+engine, publication/worker registries, postflight and watchdog. Production policy,
+registration/migration activation and scheduled apply require separate exact
+owner authorization after the complete reviewable preparation. RA-004 remains
+BLOCKED and the SEO priorities are unchanged. See the
+[bounded preparation evidence](evidence/HB-SHARED-AUTOMATION-PREPARATION-2026-11-16.json).
+
 **15 November reviewed new-product identity — PRODUCTION SQL VERIFIED / REPOSITORY CLOSEOUT:**
 PR537 tested head3bd8862234125ed1654ddd78ed3a15ce2c737f55 merged once as
 a62c439cf46b9c5703d7bb163cd681be5a4a8c2b at07:30:18Z; exact Production

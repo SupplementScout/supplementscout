@@ -19,6 +19,9 @@ const bindingForwardPath = path.join(process.cwd(), "supabase", "migrations", "2
 const bindingRollbackPath = path.join(process.cwd(), "supabase", "rollbacks", "20261105100000_refresh_pending_review_execution_binding_rollback.sql");
 const bindingForwardSql = fs.readFileSync(bindingForwardPath, "utf8");
 const bindingRollbackSql = fs.readFileSync(bindingRollbackPath, "utf8");
+const proposedStateProposalPath = path.join(process.cwd(), "supabase", "proposals", "20261116210000_align_review_refresh_proposed_state.sql");
+const proposedStateProposal = fs.readFileSync(proposedStateProposalPath, "utf8");
+const proposedStateRollback = fs.readFileSync(path.join(process.cwd(), "supabase", "rollbacks", "20261116210000_align_review_refresh_proposed_state_rollback.sql"), "utf8");
 const auditTriggerSql = fs.readFileSync(path.join(process.cwd(), "supabase", "migrations", "20260830151000_extend_automation_review_execution_evidence.sql"), "utf8");
 const reasonContract = require("../config/automation-review-reason-codes.json");
 
@@ -197,4 +200,38 @@ test("shared refresh rollback restores the immediately preceding hard-price-awar
   assert.equal(publicationReasonCodes(bindingRollbackSql).includes("HARD_PRICE_ANOMALY"), true);
   assert.match(bindingRollbackSql, /commit;\s*$/i);
   assert.doesNotMatch(bindingRollbackSql, /create table|alter table|create (?:unique )?index/i);
+});
+
+test("shared proposed-state proposal preserves publication guards and each producer's stored representation", () => {
+  assert.match(proposedStateProposal, /v_proposed_offer := v_row#>'\{execution_binding,proposed_state\}'/);
+  assert.match(proposedStateProposal, /v_proposed_offer := v_row#>'\{execution_binding,proposed_state,offer\}'/);
+  assert.match(proposedStateProposal, /proposed_state = v_row#>'\{execution_binding,proposed_state\}'/);
+  assert.match(proposedStateProposal, /jsonb_typeof\(v_proposed_offer\) is distinct from 'object'/);
+  assert.doesNotMatch(proposedStateProposal, /#>>'\{execution_binding,proposed_state,offer,/);
+  for (const marker of [
+    "AUTOMATION_REVIEW_PUBLICATION_SERVICE_ROLE_REQUIRED",
+    "AUTOMATION_REVIEW_PUBLICATION_REFRESH_IDENTITY_DRIFT",
+    "AUTOMATION_REVIEW_PUBLICATION_REFRESH_BINDING_REQUIRED",
+    "AUTOMATION_REVIEW_PUBLICATION_REFRESH_BINDING_INVALID",
+    "AUTOMATION_REVIEW_PUBLICATION_REFRESH_OPERATION_MISMATCH",
+    "AUTOMATION_REVIEW_PUBLICATION_CATALOGUE_WRITE_DETECTED",
+    "o.price is not distinct from", "o.shipping_cost is not distinct from", "o.total_price is not distinct from",
+    "rp.external_product_id is not distinct from", "rp.external_variant_id is not distinct from",
+    "v_existing_review.review_status <> 'PENDING'",
+  ]) assert.ok(proposedStateProposal.includes(marker), `Preserve ${marker}`);
+  assert.doesNotMatch(proposedStateProposal, /\b(?:insert into|update|delete from)\s+public\.(?:products|product_variants|retailer_products|offers|price_history)\b/i);
+  assert.deepEqual(publicationReasonCodes(proposedStateProposal).sort(), [...reasonContract.reason_codes].sort());
+  assert.equal(functionDefinition(proposedStateRollback), functionDefinition(bindingForwardSql));
+});
+
+test("proposed publication correction remains outside deployment selectors with a real PostgreSQL regression", () => {
+  const { migrationBinding } = require("./lib/environment-migrations");
+  for (const environment of ["STAGING", "PRODUCTION"]) {
+    assert.ok(!migrationBinding(environment).versions.some(name => name.includes("align_review_refresh_proposed_state")));
+  }
+  assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", path.basename(proposedStateProposalPath))), false);
+  const runner = fs.readFileSync(path.join(process.cwd(), "scripts/atomic-product-import-integration.test.js"), "utf8");
+  assert.match(runner, /reviewPublicationProposedStateScenarios\(container\)/);
+  const scenarios = fs.readFileSync(path.join(process.cwd(), "supabase/test/automation_review_proposed_state_scenarios.sql"), "utf8");
+  for (const marker of ["FULL_38_ROW_PARTITION_NOT_REFRESHED", "STORED_PROPOSAL_SHAPE_OR_VALUES_CHANGED", "NEGATIVE_CASE_PARTIAL_WRITE", "APPROVED_EVIDENCE_NOT_IMMUTABLE", "SERVICE_ROLE_BOUNDARY_WEAKENED", "CATALOGUE_CHANGED"]) assert.ok(scenarios.includes(marker));
 });

@@ -1,0 +1,99 @@
+{
+  "schema_version": 1,
+  "task": "H&B existing-offer shared automation",
+  "status": "PREPARATION_IN_PROGRESS_NOT_ACTIVATED",
+  "owner_scope": "Reuse the existing shared pipeline; defer catalogue expansion; prepare and verify before separate production authorization.",
+  "baseline": {
+    "main_and_production": "9ec8b2264fee6a453be46555dab0e500ff65feb1",
+    "retailer_id": 16,
+    "retailer_slug": "holland-barrett",
+    "read_only_observed_at": "2026-11-16T16:56:47.678Z",
+    "mappings": 219,
+    "offers": 219
+  },
+  "reuse": {
+    "engine": "scripts/fit-house-offer-refresh.js",
+    "workflow": ".github/workflows/fit-house-offer-refresh.yml",
+    "publisher_action": ".github/actions/publish-automation-review-queue/action.yml",
+    "executor": "execute_retailer_offer_sync_batch",
+    "historical_pattern": [
+      400,
+      406,
+      407,
+      409,
+      412
+    ],
+    "new_engine": false,
+    "new_executor": false,
+    "new_queue": false,
+    "RA004_reopened": false,
+    "durable_rollout_changed": false
+  },
+  "publication_incident": {
+    "run_id": 43846470049,
+    "error": "AUTOMATION_REVIEW_PUBLICATION_REFRESH_BINDING_INVALID",
+    "refresh_operations": 38,
+    "commercial_flat_bindings": 16,
+    "noncommercial_without_execution_binding": 22,
+    "cause": "Shared producers and their consumers use a flat proposed offer; the PENDING REFRESH SQL boundary requires only the nested proposed_state.offer representation.",
+    "proposal": "Resolve one unambiguous proposed-offer view at the existing SQL boundary, retain stored evidence exactly, and preserve every existing guard.",
+    "forward_sql": "supabase/proposals/20261116210000_align_review_refresh_proposed_state.sql",
+    "rollback_sql": "supabase/rollbacks/20261116210000_align_review_refresh_proposed_state_rollback.sql",
+    "automatic_selection_staging": false,
+    "automatic_selection_production": false,
+    "live_contract_read_only_at": "2026-11-16T18:15:59.214Z",
+    "live_function_sha256": "0a5b87716f638fbadeb6fdea9091c414db580a002c0dd2d7597e56d61db8fbf2",
+    "live_body_sha256": "8ad7a48fce62ccc2f09bd0f5fad5e50c85d112414c07c221604b86a31d4caf69",
+    "security_owner": "postgres",
+    "security_acl": "{postgres=X/postgres,service_role=X/postgres}",
+    "sql_applied": false,
+    "historical_publication_retried": false,
+    "proposal_sha256": "3816dbe28a277a79574b70688103745a4cf6dc6dc5a430a137020918d373375e",
+    "rollback_sha256": "57d2d1d7fc60913fd1254edc645f6de79bdf846c5c52b2c9e5a429856c9ab4b3"
+  },
+  "validation": {
+    "publication_source_tests": "PASS in required quality gates",
+    "proposed_source_regressions": "Covered by passed quick/full gates; real PostgreSQL remains pending",
+    "quick": {
+      "result": "PASS",
+      "pass": 1177,
+      "fail": 0,
+      "skip": 3,
+      "log": "tmp/hb-shared-automation-20261116/verify-quick.log"
+    },
+    "full": {
+      "result": "PASS",
+      "pass": 3918,
+      "fail": 0,
+      "skip": 3,
+      "log": "tmp/hb-shared-automation-20261116/verify-full.log"
+    },
+    "real_postgresql": "PENDING_EXISTING_CI_INTEGRATION_JOB",
+    "local_docker": "Desktop helper launched but daemon reports unable to start; no disposable database was run locally",
+    "integration_runner": "scripts/atomic-product-import-integration.test.js#reviewPublicationProposedStateScenarios",
+    "new_test_framework": false,
+    "test_inventory_changed": false
+  },
+  "outstanding": [
+    "Complete local quality gates and real PostgreSQL proof of the publication proposal",
+    "Partnerize adapter and source/identity/price/shipping/freshness regressions",
+    "Exact existing-offer manifest and H&B engine/publication/worker/postflight/watchdog wiring",
+    "Registration contract and least-privilege scope for retailer16",
+    "Fresh full-scope dry-run and independent evidence",
+    "Exact separately owner-approved production activation package",
+    "Controlled apply, postflight, idempotency and ordinary schedule observations"
+  ],
+  "invariants": {
+    "catalogue_expansion_deferred": true,
+    "owner_review_cases_preserved": 24,
+    "blocked_identity_cases_preserved": 15,
+    "prior_NO_UNSURE_preserved": true,
+    "production_business_writes": 0,
+    "production_control_writes": 0,
+    "production_approvals_created": 0,
+    "workflow_dispatches": 0,
+    "schedule_changes": 0,
+    "migrations_applied": 0,
+    "production_activation_authorized_by_goal": false
+  }
+}
