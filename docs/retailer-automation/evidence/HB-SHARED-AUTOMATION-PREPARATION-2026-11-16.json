@@ -68,7 +68,17 @@
       "skip": 3,
       "log": "tmp/hb-shared-automation-20261116/verify-full.log"
     },
-    "real_postgresql": "PENDING_EXISTING_CI_INTEGRATION_JOB",
+    "real_postgresql": {
+      "run_id": 43928599060,
+      "head": "37794d3a11c1498ea1bc3a15628e211a8ee5c00b",
+      "publication_regression": "PASS inside real atomic import runner on disposable PostgreSQL",
+      "overall_gate": "FAIL:61 PASS/1 FAIL in first batch; unchanged owner-withdrawal runner lost its local PostgreSQL socket during startup",
+      "unrelated_failed_test": "scripts/owner-catalogue-withdrawal.integration.test.js:195",
+      "failed_test_modified": false,
+      "preceding_main_integration": 43906992432,
+      "preceding_main_result": "PASS",
+      "followup": "Repeat the existing isolated gate after diagnosing the startup race; do not weaken or remove any test"
+    },
     "local_docker": "Desktop helper launched but daemon reports unable to start; no disposable database was run locally",
     "integration_runner": "scripts/atomic-product-import-integration.test.js#reviewPublicationProposedStateScenarios",
     "new_test_framework": false,
@@ -91,9 +101,16 @@
     "production_business_writes": 0,
     "production_control_writes": 0,
     "production_approvals_created": 0,
-    "workflow_dispatches": 0,
+    "workflow_dispatches": 1,
     "schedule_changes": 0,
     "migrations_applied": 0,
-    "production_activation_authorized_by_goal": false
+    "production_activation_authorized_by_goal": false,
+    "retailer_workflow_dispatches": 0
+  },
+  "review": {
+    "pr": 539,
+    "url": "https://github.com/SupplementScout/supplementscout/pull/539",
+    "state": "OPEN_DRAFT",
+    "branch": "feat/hb-shared-automation-20261116"
   }
 }

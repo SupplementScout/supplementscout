@@ -11,6 +11,8 @@
 /data/feeds/**/*.csv text eol=lf
 /supabase/migrations/**/*.sql text eol=lf
 /supabase/rollbacks/**/*.sql text eol=lf
+/supabase/proposals/**/*.sql text eol=lf
+/supabase/test/**/*.sql text eol=lf
 
 # Tracked sealed review fixtures under tmp must use LF.
 /tmp/**/*.json text eol=lf

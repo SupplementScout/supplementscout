@@ -182,6 +182,7 @@ function reviewPublicationProposedStateScenarios(container) {
     assert.match(output(result), /SHARED_PUBLICATION_PROPOSED_STATE_PASS: partition=38 commercial=16 noncommercial=22 negative_cases=36/);
     requireSuccess(psqlFile(container, database, rollback), "restore preceding publication contract");
     requireSuccess(psqlFile(container, database, scenarios, ["expect_flat_rejection=1"]), "verify rollback restores preceding behavior");
+    console.log("SHARED_PUBLICATION_POSTGRES_CASE PASS partition=38 commercial=16 noncommercial=22 shapes=flat,nested negative_cases=36 owner_immutable=true rollback=true");
   } finally {
     requireSuccess(exec(container, ["dropdb", "-U", "postgres", "--force", "--if-exists", database]), "drop isolated publication database");
   }

@@ -24,12 +24,19 @@ automatic migration selectors; the exact-function rollback is retained. A live
 validator READ ONLY metadata capture at18:15:59Z confirms the expected existing
 function SHA0a5b87716f638fbadeb6fdea9091c414db580a002c0dd2d7597e56d61db8fbf2,
 owner and ACL. Both SQL directions check the expected body/security contract.
-No SQL was applied, no historical publication retried and no schedule changed.
-Existing publication source tests pass; actual PostgreSQL regression remains a
-required gate. The existing isolated integration runner now covers the exact
+No production/staging SQL was applied, no historical publication retried and no
+schedule changed. Local quick1177/0/3 and full3918/0/3 pass. Draft PR539 records
+the bounded prerequisite. Isolated PostgreSQL run43928599060 passes the extended
+atomic-import runner, including this publication regression; its overall gate
+later fails in the unchanged owner-withdrawal runner when its initial successful
+startup probe is followed by an unavailable PostgreSQL socket. Main's preceding
+integration43906992432 passed. The full gate therefore remains unresolved; this
+is not claimed as a complete integration PASS or a production incident. The
+existing isolated integration runner covers the exact
 38/16/22 partition, both producer shapes, mutation rejection, owner immutability,
 whole-request rollback, replay and rollback of the function itself. Local Docker
-cannot start, so real PostgreSQL evidence must come from the existing CI job.
+cannot start; PostgreSQL evidence comes from the existing CI job. SQL proposal
+and fixture bytes use the repository's existing LF convention on every platform.
 
 Next: complete local quality gates and isolated PostgreSQL proof, then implement
 the missing Partnerize adapter and bounded H&B profile wiring through the current
