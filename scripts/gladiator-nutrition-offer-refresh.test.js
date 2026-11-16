@@ -214,7 +214,7 @@ test("environment binding freezes the classifier, reader, executor and Phase-B g
   const immutable = {
     // Source identity and delivery quarantine are explicit policy capabilities;
     // existing Shopify profiles retain their original classifier behavior.
-    "scripts/lib/retailer-offer-sync/classifier.js": "fbcef48bba861c781801587929f3e0bb5eb3c279b4dcb1867a3c0f0851bc0c3c",
+    "scripts/lib/retailer-offer-sync/classifier.js": "da86b96f0a22122a8ba22b422ebc122f5198816808f77e5fe6c78c6a0919f087",
     "scripts/lib/shopify-snapshot-reader.js": "06d93e363ee95e4bbd73a17bd2292d9d258efb677634fa148685c42277811fce",
     // All sealed plans now pass read-only identity validation before any approval.
     "scripts/reviewed-catalogue-package-executor.js": "0fde4978ab74f479bb25ff2956d304ba2df4e0caabb7a5769e0afc558208db0f",
@@ -329,7 +329,8 @@ test("Gladiator scheduled refresh reuses the shared guarded flow while manual ap
   assert.equal((runtime.match(/gladiator-nutrition/g) || []).length, 4);
   // Resealed for deny-only Fit stock identity/HOLD checks and active diagnostic counts.
   // Other profiles keep the shared pre-source owner-policy gate and generic path.
-  assert.equal(sha256Text(path.join(ROOT, "scripts/fit-house-offer-refresh.js")), "da16bd9104b609fb491c9191418fd41f374e82c7b47d30ad8ba9a5bff9c4ea6c");
+  // The source-kind adapter and preparation guard add no retailer condition to core.
+  assert.equal(sha256Text(path.join(ROOT, "scripts/fit-house-offer-refresh.js")), "dd25a5bd319db20a94ef2d9a35e5b0042ffb9efb4299332bad2e7a28f7a2c9c7");
   assert.doesNotMatch(runtime, /retailer_id\s*={2,3}\s*15|config\.retailer_id\s*={2,3}\s*15/);
   assert.match(gladiatorJob, /github\.event_name == 'workflow_dispatch'/);
   assert.match(gladiatorJob, /inputs\.operation == 'dry-run'[\s\S]*inputs\.operation == 'review-only'/);

@@ -45,7 +45,10 @@ function sourceReviewRow(target, source, reason, capturedAt) {
     action: identity ? "BLOCK_IDENTITY_DRIFT" : "BLOCK_SOURCE_ANOMALY", reason, changed_fields: changed,
     source_captured_at: capturedAt, source, target,
     source_record_evidence: { validation: source.source_validation || null, external_gtin: source.external_gtin ?? null,
-      expected_external_gtin: target.external_gtin ?? null, expected_identity_sha256: target.source_identity_sha256 || null },
+      expected_external_gtin: target.external_gtin ?? null, expected_identity_sha256: target.source_identity_sha256 || null,
+      expected_identity: target.source_identity || null, observed_identity: source.source_identity || null,
+      expected_offer: { price: target.price, shipping_cost: target.shipping_cost, total_price: target.total_price, in_stock: target.in_stock, url: target.external_url },
+      observed_offer: { price: source.price ?? null, shipping_cost: source.shipping_cost ?? null, total_price: source.total_price ?? null, in_stock: source.in_stock ?? null, url: source.url ?? null } },
     expected_deltas: deltasForChanges(changed, { shippingChanged: false, totalChanged: false }),
   };
 }

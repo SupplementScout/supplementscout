@@ -1,79 +1,73 @@
 # Retailer Automation Consolidation Execution Plan
 
-**16 November H&B existing-offer automation — PREPARATION IN PROGRESS / NOT ACTIVATED:**
+**16 November H&B existing-offer automation - PREPARATION IN PROGRESS / NOT ACTIVATED:**
 The owner-designated goal reuses the current shared offer-sync engine and the
-completed Gladiator integration pattern; catalogue expansion is deferred. The
-fresh validator READ ONLY observation at16:56:47Z gives H&B219 mappings/offers,
-not the historical91 recorded by the earlier migration closeout below. Main and
-Production remain9ec8b226. Existing owner decisions,24 OWNER_REVIEW and15 BLOCKED
-cases are preserved; no catalogue import or identity decision is part of this task.
+completed Gladiator integration pattern; catalogue expansion is deferred. Fresh
+validator READ ONLY at19:11:49Z confirms H&B219 mappings/offers,219 histories and
+0 daily confirmations. Main/Production remains9ec8b226. Existing owner decisions,
+24 OWNER_REVIEW,15 BLOCKED and prior NO/UNSURE are preserved; no import is repeated.
 
-Retained run43846470049 reproduces a common publication contract mismatch:
-16 commercial REFRESH rows carry the shared engine's flat proposed offer while
-the SQL boundary reads only proposed_state.offer. The other22 REFRESH rows are
-noncommercial and correctly have no execution binding. Existing shared workers
-and verified stock-transition readers consume the flat shape, so changing stored
-evidence into an eBay-only shape would break downstream contracts. The proposal
-resolves either existing representation once inside the current publication RPC,
-rejects ambiguous hybrid values and retains each producer's stored representation.
-Identity, monetary, URL, before-state, PENDING-only, role/ACL, audit, atomicity and
-zero-catalogue-write protections remain in the same boundary.
+Partnerize is connected as a source-kind adapter in the existing shared engine.
+The new H&B row manifest pins the exact219 existing IDs and219 source identity
+seals. It remains OWNER_APPROVAL_REQUIRED, production_apply=false, with the
+profile preparation_only=true. Every mutating role call fails before loading a
+credential; changing the profile flag alone cannot bypass manifest authority.
+No publisher/worker registration, watchdog policy or schedule is activated.
 
-The forward SQL is a preparation-only file under supabase/proposals, outside both
-automatic migration selectors; the exact-function rollback is retained. A live
-validator READ ONLY metadata capture at18:15:59Z confirms the expected existing
-function SHA0a5b87716f638fbadeb6fdea9091c414db580a002c0dd2d7597e56d61db8fbf2,
-owner and ACL. Both SQL directions check the expected body/security contract.
-No production/staging SQL was applied, no historical publication retried and no
-schedule changed. Local quick1177/0/3 and full3918/0/3 pass. Draft PR539 records
-the bounded prerequisite. Isolated PostgreSQL run43928599060 passes the extended
-atomic-import runner, including this publication regression; its overall gate
-later fails in the unchanged owner-withdrawal runner when its initial successful
-startup probe is followed by an unavailable PostgreSQL socket. Main's preceding
-integration43906992432 passed. The full gate therefore remains unresolved; this
-is not claimed as a complete integration PASS or a production incident. The
-existing isolated integration runner covers the exact
-38/16/22 partition, both producer shapes, mutation rejection, owner immutability,
-whole-request rollback, replay and rollback of the function itself. Local Docker
-cannot start; PostgreSQL evidence comes from the existing CI job. SQL proposal
-and fixture bytes use the repository's existing LF convention on every platform.
+The bounded reader preserves literal quotes, UTF-8, textual SKU/raw GTIN, exact
+GBP prices and known source delivery. Unknown currency/price/delivery/stock,
+identity drift and delivery-policy drift remain explicit read-only review rows;
+safe siblings use existing plan builders. Stored merchant and affiliate URLs,
+null external_options, catalogue identities, history semantics and approval=false
+remain intact. Source snapshots stay in the existing protected artifact path;
+no storage backend or executor is added. The URL fingerprint binds the valid
+HTTPS endpoint. Only the trailing NUL terminator in Windows download metadata
+was decoded offline; the runtime still rejects raw controls and never logs the
+authenticated address.
 
-Next: complete local quality gates and isolated PostgreSQL proof, then implement
-the missing Partnerize adapter and bounded H&B profile wiring through the current
-engine, publication/worker registries, postflight and watchdog. Production policy,
-registration/migration activation and scheduled apply require separate exact
-owner authorization after the complete reviewable preparation. RA-004 remains
-BLOCKED and the SEO priorities are unchanged. See the
+Retained rehearsal:4732 records,219 exact raw GTIN/merchant URL matches and
+219 VERIFY_NO_CHANGE, with4513 report-only discoveries. Fresh source retrieved
+at19:27:41Z has4711 records and217 unchanged verified mapped rows. SKUs009072
+(offer4661) and079395 (offer4678) are absent and remain SOURCE_VARIANT_MISSING
+review rows; no OOS transition is inferred. All219 are accounted for. Supplier
+generation/per-product update time remains unknown; HTTP file Last-Modified is
+17:15:46Z. The profile separately rejects files older than24 hours, unknown file
+age and future dates, so a new retrieval cannot disguise an old source file.
+This is a shared-classifier rehearsal, not native validation or execution.
+
+The prerequisite common publication incident43846470049 is reproduced exactly:
+16 commercial REFRESH bindings are flat;22 noncommercial rows have no binding.
+The preparation-only SQL proposal resolves flat/nested once at the existing
+publication boundary, rejects hybrids and retains the stored representation.
+Identity, money, URL, before-state, owner-decision, role/ACL, audit, atomicity and
+zero-catalogue-write checks remain intact. Forward SQL stays in supabase/proposals,
+outside both automatic selectors; the guarded exact-function rollback is retained.
+Live READ ONLY metadata at18:15:59Z confirms function SHA
+0a5b87716f638fbadeb6fdea9091c414db580a002c0dd2d7597e56d61db8fbf2.
+
+Isolated integration43937059837 on92e67034 passes196/0/0, including both publication
+representations,38/16/22 partition,36 negative cases, owner immutability, replay,
+whole-request rollback and function rollback. The preceding two runs passed that
+regression but failed in owner-withdrawal's temporary startup socket. That runner
+now reuses waitForStablePostgres with container-loopback TCP, excluding the image's
+temporary Unix-only initialization server; its lifecycle/business assertions all
+pass. No test was removed or weakened. Local Docker remains unavailable.
+
+Current local quick1199/0/3 and full3940/0/3 pass; Guardian passes before evidence.
+The reviewed inventory is364, including14 source/transport/classifier cases and
+8 H&B profile/builder cases in quick/full. Full219-row synthetic runs verify
+price, stock, compound changes, history,217/2 partitioning, unsafe sibling
+isolation, source-file freshness, collapse and the preparation authority boundary.
+Existing retailer configurations and SQL migration selection remain unchanged.
+
+Next: commit the tested profile and perform a fresh native validator READ ONLY
+dry-run on that exact head. Then finish existing publication/worker/postflight/
+watchdog/workflow wiring and the narrowly scoped registration proposal. Prepare
+the complete activation pack before requesting separate exact owner approval for
+production policy, registration/migration and scheduled apply. No production SQL,
+control registration, approval, retailer dispatch or business write occurred.
+RA-004 remains BLOCKED and SEO priorities are unchanged. See the
 [bounded preparation evidence](evidence/HB-SHARED-AUTOMATION-PREPARATION-2026-11-16.json).
-
-**19:12Z preparation checkpoint:** Partnerize now has a bounded source reader and
-projector, with literal-quote pipe parsing, strict UTF-8/header/identifier checks,
-exact GBP minor-unit arithmetic, explicit unknown delivery/availability outcomes,
-raw GTIN preservation and a hash-bound source identity comparison. The shared
-classifier consumes that validation before commercial coercion; required identity
-proof and delivery quarantine are explicit policy capabilities. Existing retailer
-profiles are unchanged. The reviewed classifier source pin is resealed alongside
-the regression coverage, with no production policy or stored approval changed.
-The adapter is not yet wired into an H&B runtime/profile, publisher or schedule.
-
-Quick1191/0/3 and full3932/0/3 pass after this code; the test inventory is reviewed
-and resealed at363 with one new safe/quick test file. A retained-source rehearsal
-reads4732 records, verifies all219 mapped raw GTINs and merchant URLs and resolves
-219 VERIFY_NO_CHANGE,4513 report-only discoveries and0 review rows. This uses the
-15 November capture, not a fresh source observation or owner-approved baseline.
-Fresh production validator READ ONLY evidence at19:11:49Z confirms219 joined
-records/offers,219 histories and0 daily confirmations, with0 writes.
-
-Second isolated run43930347033 on81cc18c3 again passes the publication PostgreSQL
-regression, including both shapes,36 negative cases, owner immutability and
-rollback. Its first batch again fails61/1 in the same owner-withdrawal startup
-race. That test now reuses the existing waitForStablePostgres helper and probes
-container loopback TCP; the initialization server accepts Unix-socket queries
-before shutting down but does not listen on TCP. A deterministic regression
-checks successful probe/shutdown/recovery and timeout. No business assertion is
-removed. The complete isolated gate must pass on the new head before this
-prerequisite is considered verified. Production remains9ec8b226; no SQL,
-registration, retailer dispatch, owner approval or schedule activation occurred.
 
 **15 November reviewed new-product identity — PRODUCTION SQL VERIFIED / REPOSITORY CLOSEOUT:**
 PR537 tested head3bd8862234125ed1654ddd78ed3a15ce2c737f55 merged once as

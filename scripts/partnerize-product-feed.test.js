@@ -117,7 +117,7 @@ const feedUrl = "https://feeds.performancehorizon.com/fixture/private-token?secr
 const response = (body = feed(), options = {}) => new Response(body, { headers: { "content-type": "text/plain; charset=UTF-8" }, ...options });
 
 test("Partnerize transport is confined to the source origin and never leaks its authenticated endpoint", async () => {
-  for (const endpoint of ["http://feeds.performancehorizon.com/feed", "https://evil.example/feed", "https://feeds.performancehorizon.com.evil.example/feed", "https://user:password@feeds.performancehorizon.com/feed", feedUrl + "#secret", feedUrl + "\t"]) {
+  for (const endpoint of ["http://feeds.performancehorizon.com/feed", "https://evil.example/feed", "https://feeds.performancehorizon.com.evil.example/feed", "https://user:password@feeds.performancehorizon.com/feed", feedUrl + "#secret", feedUrl + "\t", feedUrl + "\u0000"]) {
     assert.throws(() => safeFeedUrl(endpoint), { message: "PARTNERIZE_FEED_ENDPOINT_INVALID" });
   }
   let calls = 0;
@@ -138,7 +138,10 @@ test("Partnerize transport is confined to the source origin and never leaks its 
   assert.equal(result.source_diagnostic.http_last_modified, null);
   assert.equal(result.source_variants[0].source_validation.identity_status, "VERIFIED");
   assert.equal(result.raw_source_fingerprint, digest(feed()));
+  assert.equal(digest(Buffer.from(result.raw_source_utf8, "utf8")), result.raw_source_fingerprint);
   assert.ok(!JSON.stringify(result).includes("private-token"));
+  assert.throws(() => safeFeedUrl("https://feeds.performancehorizon.com/"), /PARTNERIZE_FEED_ENDPOINT_INVALID/);
+  await assert.rejects(readPartnerizeProductFeed({ feedUrl, feedUrlSha256: "0".repeat(64), storeUrl }), /PARTNERIZE_FEED_ENDPOINT_BINDING_INVALID/);
 });
 
 test("Partnerize transport rejects redirects, wrong content types, truncated and oversized streams", async () => {

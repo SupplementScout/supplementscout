@@ -1,4 +1,4 @@
-const { projectPartnerizeRows } = require("./partnerize-product-feed-projector");
+const { digest, projectPartnerizeRows } = require("./partnerize-product-feed-projector");
 
 const invariant = (condition, code) => { if (!condition) throw new Error(code); };
 const SAFE_CODES = new Set([
@@ -44,21 +44,22 @@ async function boundedBody(response, maximumBytes) {
 
 const httpDate = value => value && Number.isFinite(Date.parse(value)) ? new Date(value).toISOString() : null;
 
-async function readPartnerizeProductFeed({ feedUrl, storeUrl, reviewedIdentities = [], fetchImpl = globalThis.fetch,
+async function readPartnerizeProductFeed({ feedUrl, feedUrlSha256, storeUrl, reviewedIdentities = [], fetchImpl = globalThis.fetch,
   maximumBytes = 12_000_000, timeoutMs = 30_000, maximumAttempts = 3, retryBaseDelayMs = 500,
   sleepImpl = ms => new Promise(resolve => setTimeout(resolve, ms)), now = () => new Date() }) {
   const endpoint = safeFeedUrl(feedUrl);
+  invariant(feedUrlSha256 === undefined || (/^[0-9a-f]{64}$/.test(feedUrlSha256) && digest(feedUrl) === feedUrlSha256), "PARTNERIZE_FEED_ENDPOINT_BINDING_INVALID");
   invariant(Number.isSafeInteger(maximumBytes) && maximumBytes > 0 && maximumBytes <= 50_000_000
     && Number.isSafeInteger(timeoutMs) && timeoutMs > 0 && timeoutMs <= 60_000
     && Number.isSafeInteger(maximumAttempts) && maximumAttempts > 0 && maximumAttempts <= 3
     && Number.isSafeInteger(retryBaseDelayMs) && retryBaseDelayMs >= 0 && retryBaseDelayMs <= 5000, "PARTNERIZE_FETCH_POLICY_INVALID");
-  const headers = { accept: "text/csv, text/plain, application/octet-stream" };
+  const headers = { accept: "text/csv, text/plain, application/octet-stream", "cache-control": "no-cache" };
   for (let attempt = 1; attempt <= maximumAttempts; attempt += 1) {
     let retryable = false;
     let response;
     try {
       try {
-        response = await fetchImpl(endpoint, { headers, redirect: "error", signal: AbortSignal.timeout(timeoutMs) });
+        response = await fetchImpl(endpoint, { headers, redirect: "error", cache: "no-store", signal: AbortSignal.timeout(timeoutMs) });
       } catch { retryable = true; throw new Error("PARTNERIZE_FEED_TRANSPORT_FAILED"); }
       invariant(!response.redirected, "PARTNERIZE_FEED_REDIRECT_REJECTED");
       if (response.status !== 200) {
@@ -75,6 +76,7 @@ async function readPartnerizeProductFeed({ feedUrl, storeUrl, reviewedIdentities
         schema_version: 1, captured_at: now().toISOString(), products: projected.products,
         source_variants: projected.sourceVariants, issues: [], discovered_variant_ids: [],
         raw_source_fingerprint: projected.raw_source_fingerprint, semantic_source_fingerprint: projected.semantic_source_fingerprint,
+        raw_source_utf8: bytes.toString("utf8"),
         source_diagnostic: {
           final_http_status: 200, final_content_type: contentType, bytes_received: bytes.length,
           pages_fetched: 1, pagination_completed: true, retry_count: attempt - 1, request_headers: headers,

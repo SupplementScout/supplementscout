@@ -53,47 +53,53 @@
   },
   "validation": {
     "publication_source_tests": "PASS in required quality gates",
-    "proposed_source_regressions": "Real publication regression passes in both isolated runs; overall integration awaits verification of the test startup correction",
+    "proposed_source_regressions": "PASS real PostgreSQL publication prerequisite; H&B source/profile plan regressions pass local required gates",
     "quick": {
       "result": "PASS",
-      "pass": 1191,
+      "pass": 1199,
       "fail": 0,
       "skip": 3,
-      "log": "tmp/hb-shared-automation-20261116/verify-quick-source.log"
+      "log": "tmp/hb-shared-automation-20261116/verify-quick-profile.log"
     },
     "full": {
       "result": "PASS",
-      "pass": 3932,
+      "pass": 3940,
       "fail": 0,
       "skip": 3,
-      "log": "tmp/hb-shared-automation-20261116/verify-full-source.log"
+      "log": "tmp/hb-shared-automation-20261116/verify-full-profile.log"
     },
     "real_postgresql": {
-      "run_id": 43930347033,
-      "head": "81cc18c35d066facc76ffa824d43ae34f45c9b4c",
-      "preceding_same_outcome_run": 43928599060,
-      "publication_regression": "PASS inside real atomic import runner on disposable PostgreSQL",
-      "overall_gate": "FAIL:61 PASS/1 FAIL in first batch; unchanged owner-withdrawal runner lost its local PostgreSQL socket during startup",
-      "unrelated_failed_test": "scripts/owner-catalogue-withdrawal.integration.test.js:195",
-      "failed_test_modified": true,
-      "startup_correction": "Reuse waitForStablePostgres with container-loopback TCP, which excludes the temporary Unix-socket-only initialization server; retain all business assertions",
-      "startup_regression": "PASS successful probe/shutdown/recovery sequence and bounded failure",
-      "preceding_main_integration": 43906992432,
-      "preceding_main_result": "PASS",
-      "followup": "Run the existing complete isolated gate on the corrected new head; no further blind retry of the failed head"
+      "run_id": 43937059837,
+      "head": "92e67034805a2ad0733e019b523de30981f76aca",
+      "publication_regression": "PASS real PostgreSQL:38/16/22, both representations,36 negative cases, owner immutability, replay and both rollback proofs",
+      "overall_gate": "PASS",
+      "pass": 196,
+      "fail": 0,
+      "skip": 0,
+      "startup_correction": "Reuse existing waitForStablePostgres with container-loopback TCP; initialization server remains excluded and all business assertions pass",
+      "preceding_failed_runs": [
+        43928599060,
+        43930347033
+      ],
+      "preceding_failure": "Same temporary initialization Unix-socket race in owner-withdrawal; publication regression passed both runs",
+      "log": "tmp/hb-shared-automation-20261116/integration-43937059837.log",
+      "production_credentials_supplied": false
     },
     "local_docker": "Desktop helper launched but daemon reports unable to start; no disposable database was run locally",
     "integration_runner": "scripts/atomic-product-import-integration.test.js#reviewPublicationProposedStateScenarios",
     "new_test_framework": false,
     "test_inventory_changed": true,
-    "test_inventory_count": 363,
-    "new_test_file": "scripts/partnerize-product-feed.test.js"
+    "test_inventory_count": 364,
+    "new_test_files": [
+      "scripts/partnerize-product-feed.test.js",
+      "scripts/holland-barrett-offer-refresh.test.js"
+    ]
   },
   "partnerize_preparation": {
     "reader": "scripts/lib/partnerize-product-feed-reader.js",
     "projector": "scripts/lib/partnerize-product-feed-projector.js",
     "regression_cases": 14,
-    "source_scope": "Source reader/projector and generic opt-in classifier validation only; H&B runtime wiring remains outstanding",
+    "source_scope": "Connected to the existing shared source dispatcher, classifier and plan builders; H&B profile remains preparation-only",
     "retained_source_capture_at": "2026-11-15T20:12:46.991Z",
     "retained_source_sha256": "0ced141ba7cdf7d1fe5c08b313efc60b18e1156e5445d8a8b05b6a1396d5d9c8",
     "retained_source_rows": 4732,
@@ -101,21 +107,56 @@
     "mapped_merchant_url_matches": 219,
     "retained_rehearsal_no_change": 219,
     "unmapped_report_only": 4513,
-    "review_rows": 0,
-    "fresh_source_evidence": false,
+    "retained_rehearsal_review_rows": 0,
+    "fresh_source_evidence": true,
     "identity_baseline_owner_authorized": false,
     "shipping_only_action_created": false,
     "existing_profiles_changed": false,
-    "production_writes": 0
+    "production_writes": 0,
+    "profile": "config/retailers/holland-barrett-offer-sync.json",
+    "manifest": "config/retailers/holland-barrett-existing-offer-manifest.json",
+    "manifest_sha256": "aeeb44897c8a43c5d52ffe7ac02d3f711b06736c8c9fa1727ea6df3141521e71",
+    "profile_regression_cases": 8,
+    "raw_source_retained_in_existing_artifacts": true,
+    "mutating_calls_blocked_before_credentials": true,
+    "manifest_authority_required_even_if_profile_flag_changes": true,
+    "source_file_maximum_age_hours": 24,
+    "supplier_generated_at": null,
+    "fresh_source": {
+      "captured_at": "2026-11-16T19:27:41.521Z",
+      "http_last_modified": "2026-11-16T17:15:46.000Z",
+      "source_rows": 4711,
+      "unmapped_report_only": 4494,
+      "raw_source_sha256": "e17617575710a43c26ee3a59fbba963e0ca2aaebb0290189d50f05e24b3a5cbb",
+      "mapped_verified_unchanged": 217,
+      "review": 2,
+      "review_reason": "SOURCE_VARIANT_MISSING",
+      "missing_source_skus": [
+        "009072",
+        "079395"
+      ],
+      "missing_offer_ids": [
+        "4661",
+        "4678"
+      ],
+      "oos_inferred": false,
+      "native_validator": "PENDING exact committed profile read-only rehearsal",
+      "commercial_or_freshness_writes": 0
+    },
+    "endpoint_binding": {
+      "runtime_rejects_raw_controls": true,
+      "windows_download_metadata_trailing_nul_decoded_offline": true,
+      "actual_existing_network_endpoint_unchanged": true,
+      "canonical_url_sha256": "bf2a7191cef485c55e971fc7b0b5b2ef51fed071054bee57ed707fc062fe7beb",
+      "authenticated_endpoint_not_published": true
+    }
   },
   "outstanding": [
-    "Complete local quality gates and real PostgreSQL proof of the publication proposal",
-    "Partnerize adapter wiring into the shared engine and fresh source/identity evidence",
-    "Exact existing-offer manifest and H&B engine/publication/worker/postflight/watchdog wiring",
+    "Fresh native READ ONLY validation on the exact committed H&B profile",
+    "Existing publication/worker/postflight/watchdog/workflow wiring",
     "Registration contract and least-privilege scope for retailer16",
-    "Fresh full-scope dry-run and independent evidence",
-    "Exact separately owner-approved production activation package",
-    "Controlled apply, postflight, idempotency and ordinary schedule observations"
+    "Complete exact owner-reviewable production activation package",
+    "Separately approved controlled apply, postflight, idempotency and ordinary schedule observations"
   ],
   "invariants": {
     "catalogue_expansion_deferred": true,
@@ -125,7 +166,7 @@
     "production_business_writes": 0,
     "production_control_writes": 0,
     "production_approvals_created": 0,
-    "workflow_dispatches": 2,
+    "workflow_dispatches": 3,
     "schedule_changes": 0,
     "migrations_applied": 0,
     "production_activation_authorized_by_goal": false,
