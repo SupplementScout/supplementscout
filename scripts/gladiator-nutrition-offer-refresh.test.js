@@ -212,7 +212,9 @@ test("Gladiator OOS limits match the shared read-only validator policy", () => {
 
 test("environment binding freezes the classifier, reader, executor and Phase-B guarded atomic importer", () => {
   const immutable = {
-    "scripts/lib/retailer-offer-sync/classifier.js": "475ed7dbe9fa73b2903e152466fbdf5085b238a69c067a9e3a0e3eea0ee613a0",
+    // Source identity and delivery quarantine are explicit policy capabilities;
+    // existing Shopify profiles retain their original classifier behavior.
+    "scripts/lib/retailer-offer-sync/classifier.js": "fbcef48bba861c781801587929f3e0bb5eb3c279b4dcb1867a3c0f0851bc0c3c",
     "scripts/lib/shopify-snapshot-reader.js": "06d93e363ee95e4bbd73a17bd2292d9d258efb677634fa148685c42277811fce",
     // All sealed plans now pass read-only identity validation before any approval.
     "scripts/reviewed-catalogue-package-executor.js": "0fde4978ab74f479bb25ff2956d304ba2df4e0caabb7a5769e0afc558208db0f",

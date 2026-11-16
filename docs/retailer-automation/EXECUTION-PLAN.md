@@ -46,6 +46,35 @@ owner authorization after the complete reviewable preparation. RA-004 remains
 BLOCKED and the SEO priorities are unchanged. See the
 [bounded preparation evidence](evidence/HB-SHARED-AUTOMATION-PREPARATION-2026-11-16.json).
 
+**19:12Z preparation checkpoint:** Partnerize now has a bounded source reader and
+projector, with literal-quote pipe parsing, strict UTF-8/header/identifier checks,
+exact GBP minor-unit arithmetic, explicit unknown delivery/availability outcomes,
+raw GTIN preservation and a hash-bound source identity comparison. The shared
+classifier consumes that validation before commercial coercion; required identity
+proof and delivery quarantine are explicit policy capabilities. Existing retailer
+profiles are unchanged. The reviewed classifier source pin is resealed alongside
+the regression coverage, with no production policy or stored approval changed.
+The adapter is not yet wired into an H&B runtime/profile, publisher or schedule.
+
+Quick1191/0/3 and full3932/0/3 pass after this code; the test inventory is reviewed
+and resealed at363 with one new safe/quick test file. A retained-source rehearsal
+reads4732 records, verifies all219 mapped raw GTINs and merchant URLs and resolves
+219 VERIFY_NO_CHANGE,4513 report-only discoveries and0 review rows. This uses the
+15 November capture, not a fresh source observation or owner-approved baseline.
+Fresh production validator READ ONLY evidence at19:11:49Z confirms219 joined
+records/offers,219 histories and0 daily confirmations, with0 writes.
+
+Second isolated run43930347033 on81cc18c3 again passes the publication PostgreSQL
+regression, including both shapes,36 negative cases, owner immutability and
+rollback. Its first batch again fails61/1 in the same owner-withdrawal startup
+race. That test now reuses the existing waitForStablePostgres helper and probes
+container loopback TCP; the initialization server accepts Unix-socket queries
+before shutting down but does not listen on TCP. A deterministic regression
+checks successful probe/shutdown/recovery and timeout. No business assertion is
+removed. The complete isolated gate must pass on the new head before this
+prerequisite is considered verified. Production remains9ec8b226; no SQL,
+registration, retailer dispatch, owner approval or schedule activation occurred.
+
 **15 November reviewed new-product identity — PRODUCTION SQL VERIFIED / REPOSITORY CLOSEOUT:**
 PR537 tested head3bd8862234125ed1654ddd78ed3a15ce2c737f55 merged once as
 a62c439cf46b9c5703d7bb163cd681be5a4a8c2b at07:30:18Z; exact Production

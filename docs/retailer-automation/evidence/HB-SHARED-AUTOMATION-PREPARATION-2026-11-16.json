@@ -7,7 +7,7 @@
     "main_and_production": "9ec8b2264fee6a453be46555dab0e500ff65feb1",
     "retailer_id": 16,
     "retailer_slug": "holland-barrett",
-    "read_only_observed_at": "2026-11-16T16:56:47.678Z",
+    "read_only_observed_at": "2026-11-16T19:11:49.076Z",
     "mappings": 219,
     "offers": 219
   },
@@ -53,40 +53,64 @@
   },
   "validation": {
     "publication_source_tests": "PASS in required quality gates",
-    "proposed_source_regressions": "Covered by passed quick/full gates; real PostgreSQL remains pending",
+    "proposed_source_regressions": "Real publication regression passes in both isolated runs; overall integration awaits verification of the test startup correction",
     "quick": {
       "result": "PASS",
-      "pass": 1177,
+      "pass": 1191,
       "fail": 0,
       "skip": 3,
-      "log": "tmp/hb-shared-automation-20261116/verify-quick.log"
+      "log": "tmp/hb-shared-automation-20261116/verify-quick-source.log"
     },
     "full": {
       "result": "PASS",
-      "pass": 3918,
+      "pass": 3932,
       "fail": 0,
       "skip": 3,
-      "log": "tmp/hb-shared-automation-20261116/verify-full.log"
+      "log": "tmp/hb-shared-automation-20261116/verify-full-source.log"
     },
     "real_postgresql": {
-      "run_id": 43928599060,
-      "head": "37794d3a11c1498ea1bc3a15628e211a8ee5c00b",
+      "run_id": 43930347033,
+      "head": "81cc18c35d066facc76ffa824d43ae34f45c9b4c",
+      "preceding_same_outcome_run": 43928599060,
       "publication_regression": "PASS inside real atomic import runner on disposable PostgreSQL",
       "overall_gate": "FAIL:61 PASS/1 FAIL in first batch; unchanged owner-withdrawal runner lost its local PostgreSQL socket during startup",
       "unrelated_failed_test": "scripts/owner-catalogue-withdrawal.integration.test.js:195",
-      "failed_test_modified": false,
+      "failed_test_modified": true,
+      "startup_correction": "Reuse waitForStablePostgres with container-loopback TCP, which excludes the temporary Unix-socket-only initialization server; retain all business assertions",
+      "startup_regression": "PASS successful probe/shutdown/recovery sequence and bounded failure",
       "preceding_main_integration": 43906992432,
       "preceding_main_result": "PASS",
-      "followup": "Repeat the existing isolated gate after diagnosing the startup race; do not weaken or remove any test"
+      "followup": "Run the existing complete isolated gate on the corrected new head; no further blind retry of the failed head"
     },
     "local_docker": "Desktop helper launched but daemon reports unable to start; no disposable database was run locally",
     "integration_runner": "scripts/atomic-product-import-integration.test.js#reviewPublicationProposedStateScenarios",
     "new_test_framework": false,
-    "test_inventory_changed": false
+    "test_inventory_changed": true,
+    "test_inventory_count": 363,
+    "new_test_file": "scripts/partnerize-product-feed.test.js"
+  },
+  "partnerize_preparation": {
+    "reader": "scripts/lib/partnerize-product-feed-reader.js",
+    "projector": "scripts/lib/partnerize-product-feed-projector.js",
+    "regression_cases": 14,
+    "source_scope": "Source reader/projector and generic opt-in classifier validation only; H&B runtime wiring remains outstanding",
+    "retained_source_capture_at": "2026-11-15T20:12:46.991Z",
+    "retained_source_sha256": "0ced141ba7cdf7d1fe5c08b313efc60b18e1156e5445d8a8b05b6a1396d5d9c8",
+    "retained_source_rows": 4732,
+    "mapped_raw_gtin_matches": 219,
+    "mapped_merchant_url_matches": 219,
+    "retained_rehearsal_no_change": 219,
+    "unmapped_report_only": 4513,
+    "review_rows": 0,
+    "fresh_source_evidence": false,
+    "identity_baseline_owner_authorized": false,
+    "shipping_only_action_created": false,
+    "existing_profiles_changed": false,
+    "production_writes": 0
   },
   "outstanding": [
     "Complete local quality gates and real PostgreSQL proof of the publication proposal",
-    "Partnerize adapter and source/identity/price/shipping/freshness regressions",
+    "Partnerize adapter wiring into the shared engine and fresh source/identity evidence",
     "Exact existing-offer manifest and H&B engine/publication/worker/postflight/watchdog wiring",
     "Registration contract and least-privilege scope for retailer16",
     "Fresh full-scope dry-run and independent evidence",
@@ -101,7 +125,7 @@
     "production_business_writes": 0,
     "production_control_writes": 0,
     "production_approvals_created": 0,
-    "workflow_dispatches": 1,
+    "workflow_dispatches": 2,
     "schedule_changes": 0,
     "migrations_applied": 0,
     "production_activation_authorized_by_goal": false,

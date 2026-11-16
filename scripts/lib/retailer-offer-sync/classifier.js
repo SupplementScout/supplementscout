@@ -15,6 +15,41 @@ const identityValue = (value) => value == null || String(value).trim() === "" ? 
 function canonicalVariantUrl(baseUrl, productHandle, variantId) { const url = new URL(`/products/${productHandle}`, baseUrl); url.searchParams.set("variant", String(variantId)); return url.href; }
 function block(reason, detail = {}) { return { state: "BLOCKED", action: reason === "IDENTITY_DRIFT" ? "BLOCK_IDENTITY_DRIFT" : "BLOCK_SOURCE_ANOMALY", reason, detail }; }
 
+function sourceRecordFailure(source, target, policy) {
+  const validation = source.source_validation;
+  if (!policy.require_source_identity && validation === undefined) return null;
+  if (!validation || validation.status !== "VALID" || !Array.isArray(validation.errors) || validation.errors.length
+    || typeof source.in_stock !== "boolean"
+    || !/^\d+\.\d{2}$/.test(source.price || "") || Number(source.price) <= 0
+    || !/^\d+\.\d{2}$/.test(source.shipping_cost || "")
+    || !/^\d+\.\d{2}$/.test(source.total_price || "")
+    || ![source.price, source.shipping_cost, source.total_price].every(value => Number.isSafeInteger(money(value)))
+    || money(source.total_price) !== money(source.price) + money(source.shipping_cost)) return "SOURCE_RECORD_INVALID";
+  if (validation.identity_status === "DRIFT") return "SOURCE_IDENTITY_DRIFT";
+  if (policy.require_source_identity && (validation.identity_status !== "VERIFIED"
+    || !/^[0-9a-f]{64}$/.test(target.source_identity_sha256 || "")
+    || validation.expected_identity_sha256 !== target.source_identity_sha256
+    || validation.observed_identity_sha256 !== target.source_identity_sha256
+    || !source.source_identity || fingerprint(source.source_identity) !== target.source_identity_sha256
+    || !Array.isArray(validation.changed_identity_fields) || validation.changed_identity_fields.length
+    || identityValue(source.external_gtin) !== identityValue(target.external_gtin))) return "SOURCE_IDENTITY_DRIFT";
+  return null;
+}
+
+function sourceReviewRow(target, source, reason, capturedAt) {
+  const identity = reason === "SOURCE_IDENTITY_DRIFT";
+  const changed = { price: false, stock: false, url: false, blocked: true };
+  return {
+    offer_id: String(target.offer_id), retailer_product_id: String(target.retailer_product_id),
+    external_product_id: String(target.external_product_id), external_variant_id: String(target.external_variant_id),
+    action: identity ? "BLOCK_IDENTITY_DRIFT" : "BLOCK_SOURCE_ANOMALY", reason, changed_fields: changed,
+    source_captured_at: capturedAt, source, target,
+    source_record_evidence: { validation: source.source_validation || null, external_gtin: source.external_gtin ?? null,
+      expected_external_gtin: target.external_gtin ?? null, expected_identity_sha256: target.source_identity_sha256 || null },
+    expected_deltas: deltasForChanges(changed, { shippingChanged: false, totalChanged: false }),
+  };
+}
+
 function guardResult(guard, changed, total, threshold, comparison) {
   const ratio = total === 0 ? 0 : changed / total;
   const blocked = comparison === ">=" ? ratio >= threshold : ratio > threshold;
@@ -168,6 +203,12 @@ function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapture
     const source = candidates[0];
     if (String(source.external_product_id) !== String(target.external_product_id)) return block("IDENTITY_DRIFT", { offer_id: target.offer_id });
     if (!policy.ignore_source_sku && identityValue(source.external_sku) !== identityValue(target.external_sku)) return block("IDENTITY_DRIFT", { offer_id: target.offer_id, field: "external_sku" });
+    const invalidSource = sourceRecordFailure(source, target, policy);
+    if (invalidSource) {
+      if (!quarantineUnsafeRows) return block(invalidSource, { offer_id: target.offer_id });
+      quarantinedRows.push(sourceReviewRow(target, source, invalidSource, sourceCapturedAt));
+      continue;
+    }
     let sourceUrl;
     try {
       sourceUrl = policy.preserve_existing_urls
@@ -213,7 +254,11 @@ function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapture
     const totalChanged = source.total_price === undefined
       ? price
       : identityValue(source.total_price) !== identityValue(target.total_price);
-    if (shipping && !price) return block("SHIPPING_POLICY_DRIFT", { offer_id: target.offer_id });
+    if (shipping && (!price || policy.require_unchanged_shipping)) {
+      if (!quarantineUnsafeRows || !policy.quarantine_shipping_policy_drift) return block("SHIPPING_POLICY_DRIFT", { offer_id: target.offer_id });
+      quarantinedRows.push(sourceReviewRow(target, source, "SHIPPING_POLICY_DRIFT", sourceCapturedAt));
+      continue;
+    }
     const absolute = Math.abs(money(source.price) - money(target.price)) / 100;
     const ratio = Math.abs(money(source.price) - money(target.price)) / Math.max(1, money(target.price));
     if (price && (ratio >= policy.per_row_price_hard_block_ratio || absolute >= Number(policy.per_row_price_hard_block_absolute_gbp))) {

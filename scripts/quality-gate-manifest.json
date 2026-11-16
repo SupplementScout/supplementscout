@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 362,
-    "sha256": "1d6c0e4343097184171f040353c1d4545554b885b3e306779a88fd776fbcd177"
+    "count": 363,
+    "sha256": "f74d4a1749da9c6a4662f6899c52fe970eb92064ce54fe16b9a9f4b53b7a746c"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -141,6 +141,7 @@
     "scripts/retailer-owner-scope-selected-unit.test.js",
     "scripts/fit-house-exact-confirmations.test.js",
     "scripts/fit-house-review-restoration.test.js",
-    "scripts/feed-cream-flavour.test.js"
+    "scripts/feed-cream-flavour.test.js",
+    "scripts/partnerize-product-feed.test.js"
   ]
 }
