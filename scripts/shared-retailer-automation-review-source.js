@@ -313,7 +313,7 @@ function buildManifestRows(source, baseline, options) {
       before_state: beforeState,
       proposed_state: proposedState,
       impact_summary: { catalogue_writes: 0, executable: false, review_only: true },
-      source_evidence: { workflow_run_id: options.sourceRunId, artifact_id: options.sourceArtifactId, artifact_digest: options.sourceArtifactDigest, contract_sha256: options.sourceContractSha256, source_fingerprint: source.contract.source_fingerprint, review_scope_fingerprint: source.contract.review_scope_fingerprint, reason: card.evidenceReason, ...(card.identityEvidence ? { identity_check: card.identityEvidence } : {}) },
+      source_evidence: { workflow_run_id: options.sourceRunId, artifact_id: options.sourceArtifactId, artifact_digest: options.sourceArtifactDigest, contract_sha256: options.sourceContractSha256, source_fingerprint: source.contract.source_fingerprint, review_scope_fingerprint: source.contract.review_scope_fingerprint, reason: card.evidenceReason, ...(card.identityEvidence ? { identity_check: card.identityEvidence } : {}), ...(card.sourceRecordEvidence ? { source_record_check: card.sourceRecordEvidence } : {}) },
       source_captured_at: source.contract.created_at,
       expires_at: expiresAt,
       workflow_run_url: `https://github.com/${REPOSITORY}/actions/runs/${options.sourceRunId}`,

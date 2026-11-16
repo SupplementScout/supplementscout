@@ -782,28 +782,31 @@ test("Fit House adapter builds one shared-publisher request with 14 review cards
   assert.equal(output.direct_rest_writes, 0);
 });
 
-function writeTenRepsFixture() {
+function writeTenRepsFixture({ profileKey = "10-reps", scopeRows = null, reviewIds = null } = {}) {
+  const selectedProfile = profileFor(profileKey), retailer = selectedProfile.retailer;
+  const approvedCount = selectedProfile.approvedMappingCount;
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "ten-reps-review-source-"));
   const sourceFingerprint = "9".repeat(64);
-  const reviewOfferIds = new Set(["2853", "2854", "2855", "2856", "2857", "2858", "2859", "2896", "2897", "2898", "2913", "2914", "3384", "3388", "3496", "3627"]);
-  const offerIds = [
+  const reviewOfferIds = new Set(reviewIds || ["2853", "2854", "2855", "2856", "2857", "2858", "2859", "2896", "2897", "2898", "2913", "2914", "3384", "3388", "3496", "3627"]);
+  const executableCount = approvedCount - reviewOfferIds.size;
+  const offerIds = scopeRows ? scopeRows.map(row => String(row.offer_id)) : [
     ...reviewOfferIds,
-    ...Array.from({ length: 934 }, (_, index) => String(4000 + index)),
+    ...Array.from({ length: executableCount }, (_, index) => String(4000 + index)),
   ];
   const baselineRows = offerIds.map((offerId, index) => ({
-    mapping_id: String(5001 + index),
-    retailer_id: "14",
-    mapping_product_id: String(6001 + index),
-    mapping_variant_id: String(7001 + index),
-    external_product_id: `ten-product-${index + 1}`,
-    external_variant_id: `ten-variant-${index + 1}`,
+    mapping_id: String(scopeRows?.[index].mapping_id || 5001 + index),
+    retailer_id: retailer.id,
+    mapping_product_id: String(scopeRows?.[index].canonical_product_id || 6001 + index),
+    mapping_variant_id: String(scopeRows?.[index].canonical_variant_id || 7001 + index),
+    external_product_id: scopeRows?.[index].external_product_id || `ten-product-${index + 1}`,
+    external_variant_id: scopeRows?.[index].external_variant_id || `ten-variant-${index + 1}`,
     external_sku: null,
     external_gtin: null,
     external_options: null,
     external_url: `https://www.10reps.co.uk/product-${index + 1}`,
     offer_id: offerId,
-    offer_product_id: String(6001 + index),
-    offer_variant_id: String(7001 + index),
+    offer_product_id: String(scopeRows?.[index].canonical_product_id || 6001 + index),
+    offer_variant_id: String(scopeRows?.[index].canonical_variant_id || 7001 + index),
     price: "10.00",
     shipping_cost: "3.99",
     total_price: "13.99",
@@ -821,19 +824,19 @@ function writeTenRepsFixture() {
   const executionOfferIds = baselineRows.filter((row) => !reviewOfferIds.has(row.offer_id)).map((row) => row.offer_id);
   const report = {
     result: "PASS_WITH_REVIEW", mode: "dry-run", target: "production",
-    source: { fingerprint: sourceFingerprint }, approved_mapping_count: 950,
+    source: { fingerprint: sourceFingerprint }, approved_mapping_count: approvedCount,
     deferred_changed_offer_ids: [], execution_offer_ids: executionOfferIds,
-    verification_offer_ids: executionOfferIds, stock_change_offer_ids: [], executable_plan_count: 934,
-    executed_plan_count: 0, review_row_count: 16, blocked_row_count: 0,
-    classification: { VERIFY_NO_CHANGE: 934 },
+    verification_offer_ids: executionOfferIds, stock_change_offer_ids: [], executable_plan_count: executableCount,
+    executed_plan_count: 0, review_row_count: reviewOfferIds.size, blocked_row_count: 0,
+    classification: { VERIFY_NO_CHANGE: executableCount },
     review_rows: reviewRows,
   };
   const diagnostic = {
     result: "PASS", timestamp: "2026-10-05T17:01:00.000Z", failure_stage: null,
-    approved_mapping_count: 950, source: { fingerprint: sourceFingerprint }, database_writes_attempted: 0, database_writes_completed: 0, business_writes_completed: 0, control_writes_completed: 0, approvals_created: 0, approvals_consumed: 0, recovery_calls: 0,
-    classifier_summary: { scope: { scope_row_ids: executionOfferIds, blocked_rows: 0, reconciled: true, reconciled_total: 934 }, action_counts: report.classification, changed_row_ids: [], changed_rows: [] },
+    approved_mapping_count: approvedCount, source: { fingerprint: sourceFingerprint }, database_writes_attempted: 0, database_writes_completed: 0, business_writes_completed: 0, control_writes_completed: 0, approvals_created: 0, approvals_consumed: 0, recovery_calls: 0,
+    classifier_summary: { scope: { scope_row_ids: executionOfferIds, blocked_rows: 0, reconciled: true, reconciled_total: executableCount }, action_counts: report.classification, changed_row_ids: [], changed_rows: [] },
   };
-  const baseline = { schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: "10-reps", snapshot: { captured_at: "2026-10-05T17:00:59.000Z", retailer_id: "14", retailer_name: "10 Reps", row_count: 950, rows: baselineRows }, evidence_hash: "e".repeat(64) };
+  const baseline = { schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: selectedProfile.postflightProfile, snapshot: { captured_at: "2026-10-05T17:00:59.000Z", retailer_id: retailer.id, retailer_name: retailer.name, row_count: approvedCount, rows: baselineRows }, evidence_hash: "e".repeat(64) };
   writeJson(path.join(directory, "production-dry-run.json"), report);
   writeJson(path.join(directory, "production-preflight-diagnostic.json"), diagnostic);
   writeJson(path.join(directory, "production-db-baseline.json"), baseline);
@@ -1068,6 +1071,76 @@ test("10 Reps review evidence survives a later partial execution failure", () =>
   assert.equal(source.contract.evidence_stage, "pre-execution-review-classification");
   assert.equal(source.contract.review_row_count, 16);
   assert.equal(source.contract.executable_plan_count, 934);
+});
+
+function hollandBarrettPublication(fixture) {
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "43943093822", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
+  const contract = buildFitHouseSourceContract(fixture.directory, env, "holland-barrett");
+  writeJson(path.join(fixture.directory, "automation-review-source-contract.json"), contract);
+  const options = { profile: "holland-barrett", sourceArtifactDir: fixture.directory, sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "121513913371", sourceCommitSha: env.GITHUB_SHA, sourceArtifactDigest: "c".repeat(64), sourceContractSha256: fileSha(path.join(fixture.directory, "automation-review-source-contract.json")), output: path.join(fixture.directory, "output.json") };
+  const source = verifyFitHouseSourceContract(options, new Date("2026-10-05T18:00:00Z"));
+  const baseline = publicationBaseline(fixture, "16");
+  const rows = buildFitHouseManifestRows(source, baseline, options);
+  return { contract, source, rows, output: buildFitHouseOutput(source, baseline, rows, options, env) };
+}
+
+test("H&B reuses the complete shared publication contract for 217 safe and two missing-source rows", () => {
+  const scope = require("../config/retailers/holland-barrett-existing-offer-manifest.json");
+  const fixture = writeTenRepsFixture({ profileKey: "holland-barrett", scopeRows: scope.rows, reviewIds: ["4661", "4678"] });
+  const { contract, rows, output } = hollandBarrettPublication(fixture);
+  assert.equal(contract.approved_mapping_count, 219);
+  assert.equal(contract.executable_plan_count, 217);
+  assert.equal(contract.review_row_count, 2);
+  assert.equal(rows.length, 2);
+  assert.equal(output.request.retailer.id, "16");
+  assert.equal(output.expected.catalogue_writes, 0);
+  assert.ok(rows.every(row => row.review_kind === "IDENTITY_CONFLICT" && row.operation_type === "MANUAL_REVIEW_IDENTITY" && row.proposed_state.catalogue_action === "KEEP_UNCHANGED"));
+  assert.ok(output.request.operations.every(operation => !operation.execution_binding));
+});
+
+test("H&B source, identity and price/delivery policy reviews retain evidence without executable offers", () => {
+  const scope = require("../config/retailers/holland-barrett-existing-offer-manifest.json");
+  const expected = { SOURCE_RECORD_INVALID: "SOURCE_FAILURE", SOURCE_IDENTITY_DRIFT: "IDENTITY_CONFLICT", SHIPPING_POLICY_DRIFT: "POLICY_REVIEW", HARD_PRICE_ANOMALY: "POLICY_REVIEW", MASS_PRICE: "POLICY_REVIEW", MASS_CHANGE: "POLICY_REVIEW" };
+  for (const [reason, kind] of Object.entries(expected)) {
+    const reviewId = String(scope.rows[0].offer_id);
+    const fixture = writeTenRepsFixture({ profileKey: "holland-barrett", scopeRows: scope.rows, reviewIds: [reviewId] });
+    const reportPath = path.join(fixture.directory, "production-dry-run.json"), diagnosticPath = path.join(fixture.directory, "production-preflight-diagnostic.json");
+    const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
+    const evidence = { validation: { status: reason === "SOURCE_RECORD_INVALID" ? "INVALID" : "VALID", identity_status: reason === "SOURCE_IDENTITY_DRIFT" ? "DRIFT" : "VERIFIED" }, expected_offer: { price: "10.00", in_stock: true }, observed_offer: { price: "20.00", shipping_cost: null, in_stock: null } };
+    Object.assign(report.review_rows[0], { reason, action: "BLOCK_SOURCE_ANOMALY", old_price: "10.00", new_price: null, old_stock: true, new_stock: null, source_record_evidence: evidence });
+    writeJson(reportPath, report);
+    if (["MASS_PRICE", "MASS_CHANGE"].includes(reason)) {
+      const diagnostic = JSON.parse(fs.readFileSync(diagnosticPath, "utf8"));
+      diagnostic.classifier_summary.scope.scope_row_ids = scope.rows.map(row => String(row.offer_id));
+      diagnostic.classifier_summary.scope.reconciled_total = 219;
+      writeJson(diagnosticPath, diagnostic);
+    }
+    const { rows, output } = hollandBarrettPublication(fixture);
+    assert.equal(rows.length, 1, reason);
+    const card = rows[0];
+    assert.equal(card.review_kind, kind, reason);
+    assert.equal(card.review_status, "PENDING", reason);
+    assert.equal(card.proposed_state.catalogue_action, "KEEP_UNCHANGED", reason);
+    assert.equal(card.proposed_state.automatic_action, false, reason);
+    assert.equal(card.source_price, null, reason);
+    assert.equal(card.proposed_state.price, undefined, reason);
+    assert.equal(card.proposed_state.in_stock, undefined, reason);
+    assert.equal(card.proposed_state.offer, undefined, reason);
+    assert.deepEqual(card.source_evidence.source_record_check, evidence, reason);
+    assert.ok(output.request.operations.every(operation => !operation.execution_binding), reason);
+    assert.equal(profileFor("holland-barrett").matchesActiveReview(card), true, reason);
+  }
+});
+
+test("preparation-only H&B blocks both publication modes before any database or credential access", async t => {
+  const { run } = require("./automation-review-reconciliation-apply");
+  const file = path.join(process.cwd(), "tmp", `hb-publication-disabled-${process.pid}.json`);
+  fs.mkdirSync(path.dirname(file), { recursive: true });
+  fs.writeFileSync(file, JSON.stringify({ request: { retailer: { id: "16" } } }), { flag: "wx" });
+  t.after(() => fs.unlinkSync(file));
+  for (const mode of ["same-run", "authorized-artifact-retry"]) {
+    await assert.rejects(run({ input: file, output: file + ".output", mode }, { client: new Proxy({}, { get() { assert.fail("Database access before preparation guard"); } }) }), /REVIEW_PUBLICATION_PROFILE_NOT_ACTIVATED/);
+  }
 });
 
 function writeWheyOkayFixture() {

@@ -1,5 +1,14 @@
 const { reasonList } = require("./automation-review-publisher");
 const stockIdentity = require("./fit-house-stock-identity");
+const sourceProfile = require("../../config/retailers/holland-barrett-offer-sync.json");
+const SOURCE_REVIEW_POLICIES = Object.freeze({
+  SOURCE_RECORD_INVALID: Object.freeze({ reasonCode: "SOURCE_FAILURE", reviewKind: "SOURCE_FAILURE", operation: "MANUAL_REVIEW" }),
+  SOURCE_IDENTITY_DRIFT: Object.freeze({ reasonCode: "IDENTITY_CONFLICT", reviewKind: "IDENTITY_CONFLICT", operation: "MANUAL_REVIEW_IDENTITY" }),
+  SHIPPING_POLICY_DRIFT: Object.freeze({ reasonCode: "POLICY_REVIEW", reviewKind: "POLICY_REVIEW", operation: "MANUAL_REVIEW" }),
+  HARD_PRICE_ANOMALY: Object.freeze({ reasonCode: "HARD_PRICE_ANOMALY", reviewKind: "POLICY_REVIEW", operation: "MANUAL_REVIEW" }),
+  MASS_PRICE: Object.freeze({ reasonCode: "POLICY_REVIEW", reviewKind: "POLICY_REVIEW", operation: "MANUAL_REVIEW" }),
+  MASS_CHANGE: Object.freeze({ reasonCode: "POLICY_REVIEW", reviewKind: "POLICY_REVIEW", operation: "MANUAL_REVIEW" }),
+});
 
 const STANDARD_CAPTURE_FILES = Object.freeze({
   report: "production-dry-run.json",
@@ -77,6 +86,8 @@ function validateStandardChangedRows(profile, changedRows, invariant) {
     : profile.reviewType === "mixed"
       ? changedRows.every((row) => row.action === "SOURCE_MISSING"
         ? row.old_price === row.new_price && row.old_stock === row.new_stock
+        : row.action === "READ_ONLY_REVIEW" && profile.readOnlyReviewPolicies?.[row.evidence_reason]
+          ? row.old_price === row.new_price && row.old_stock === row.new_stock
         : row.action === "IDENTITY_REVIEW" && profile.identityReviewReasons?.includes(row.evidence_reason)
           ? row.old_price === row.new_price && row.old_stock === row.new_stock
           : validStockChange(row) || validCompoundChange(row))
@@ -84,7 +95,7 @@ function validateStandardChangedRows(profile, changedRows, invariant) {
   invariant(valid, `${profile.retailer.name} review scope contains an unsafe catalogue change`);
 }
 
-function normalizeMissingRows(report, baselineByOffer, label, invariant, reasons = ["SOURCE_VARIANT_MISSING"]) {
+function normalizeMissingRows(report, baselineByOffer, label, invariant, reasons = ["SOURCE_VARIANT_MISSING"], readOnlyPolicies = {}) {
   invariant(Array.isArray(report.review_rows), `${label} review rows are missing`);
   return [...report.review_rows].map((review) => {
     const offerId = String(review.offer_id);
@@ -101,9 +112,11 @@ function normalizeMissingRows(report, baselineByOffer, label, invariant, reasons
       new_price: String(before.price),
       old_stock: before.in_stock === true,
       new_stock: before.in_stock === true,
-      action: review.reason === "SOURCE_VARIANT_MISSING" ? "SOURCE_MISSING" : "IDENTITY_REVIEW",
+      action: review.reason === "SOURCE_VARIANT_MISSING" ? "SOURCE_MISSING" : readOnlyPolicies[review.reason] ? "READ_ONLY_REVIEW" : "IDENTITY_REVIEW",
       reason: review.reason,
+      ...(readOnlyPolicies[review.reason] ? { evidence_reason: review.reason } : {}),
       ...(review.identity_evidence ? { evidence_reason: review.reason, identity_evidence: review.identity_evidence } : {}),
+      ...(review.source_record_evidence ? { source_record_evidence: review.source_record_evidence } : {}),
     };
   }).sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
 }
@@ -153,11 +166,11 @@ function normalizeStockReviewRows(report, baselineByOffer, label, invariant) {
   return normalizeCommercialReviewRows(report, baselineByOffer, label, invariant, ["UPDATE_STOCK"]);
 }
 
-function normalizeMixedReviewRows(report, baselineByOffer, label, invariant, stockOnly = false, identityReasons = []) {
-  const readOnlyReasons = ["SOURCE_VARIANT_MISSING", ...identityReasons];
+function normalizeMixedReviewRows(report, baselineByOffer, label, invariant, stockOnly = false, identityReasons = [], readOnlyPolicies = {}) {
+  const readOnlyReasons = ["SOURCE_VARIANT_MISSING", ...identityReasons, ...Object.keys(readOnlyPolicies)];
   const missingRows = report.review_rows.filter((row) => readOnlyReasons.includes(row.reason));
   const stockRows = report.review_rows.filter((row) => !readOnlyReasons.includes(row.reason));
-  const normalizedMissing = normalizeMissingRows({ review_rows: missingRows }, baselineByOffer, label, invariant, readOnlyReasons);
+  const normalizedMissing = normalizeMissingRows({ review_rows: missingRows }, baselineByOffer, label, invariant, readOnlyReasons, readOnlyPolicies);
   const normalizedStock = normalizeCommercialReviewRows(
     { review_rows: stockRows }, baselineByOffer, label, invariant,
     stockOnly ? ["UPDATE_STOCK"] : ["UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"],
@@ -230,7 +243,7 @@ function validateStandard(profile, context) {
   const changedRows = profile.reviewType === "stock"
     ? normalizeStockReviewRows(report, baselineByOffer, label, invariant)
     : profile.reviewType === "mixed"
-      ? normalizeMixedReviewRows(report, baselineByOffer, label, invariant, profile.stockOnlyCommercialChanges, profile.identityReviewReasons)
+      ? normalizeMixedReviewRows(report, baselineByOffer, label, invariant, profile.stockOnlyCommercialChanges, profile.identityReviewReasons, profile.readOnlyReviewPolicies)
       : normalizeMissingRows(report, baselineByOffer, label, invariant);
   if (profile.reviewType === "stock" || profile.stockOnlyCommercialChanges) {
     const deferredReviewIds = sortedIds(report.review_rows
@@ -395,6 +408,13 @@ function sixPackMatchesActiveReview(row) {
 }
 
 function reviewCard(profile, beforeState, changed) {
+  const policy = profile.readOnlyReviewPolicies?.[changed.evidence_reason];
+  if (policy) return {
+    proposedState: { catalogue_action: "KEEP_UNCHANGED", review_only: true, automatic_action: false },
+    reasonCodes: policy.reasonCode, reviewKind: policy.reviewKind, operationType: policy.operation,
+    confidence: "LOW", sourcePrice: null, evidenceReason: changed.evidence_reason,
+    sourceRecordEvidence: changed.source_record_evidence || null,
+  };
   if (profile.reviewType === "stock" || (profile.reviewType === "mixed" && changed.action === "UPDATE_STOCK")) return {
     proposedState: { ...beforeState, in_stock: changed.new_stock },
     reasonCodes: "STOCK_CHANGE", confidence: "HIGH", sourcePrice: changed.new_price,
@@ -413,6 +433,8 @@ function reviewCard(profile, beforeState, changed) {
 }
 
 function matchesActiveReview(profile, row) {
+  const policy = profile.readOnlyReviewPolicies?.[row.source_evidence?.reason];
+  if (policy) return row.review_kind === policy.reviewKind && row.operation_type === policy.operation && reasonList(row.reason_codes).includes(policy.reasonCode);
   if (profile.reviewType === "mixed") return (row.review_kind === "COMMERCIAL_CHANGE" && row.operation_type === "UPDATE_STOCK" && reasonList(row.reason_codes).includes("STOCK_CHANGE"))
     || (row.review_kind === "COMMERCIAL_CHANGE" && row.operation_type === "UPDATE_PRICE_AND_STOCK" && reasonList(row.reason_codes).includes("PRICE_AND_STOCK_CHANGE"))
     || (row.review_kind === "IDENTITY_CONFLICT" && row.operation_type === "MANUAL_REVIEW_IDENTITY" && reasonList(row.reason_codes).some(reason => reason === "SOURCE_MISSING" || (profile.identityReviewReasons?.includes(row.source_evidence?.reason) && reason === "IDENTITY_CONFLICT")))
@@ -439,6 +461,10 @@ function profile(values) {
 }
 
 const PROFILES = Object.freeze({
+  "holland-barrett": profile({ key: "holland-barrett", retailer: Object.freeze({ id: String(sourceProfile.retailer_id), name: sourceProfile.retailer_name, slug: sourceProfile.retailer_slug }), approvedMappingCount: sourceProfile.approved_mapping_count,
+    sourceDirectory: sourceProfile.output_directory, artifactPrefix: sourceProfile.output_directory, reconciliationFile: "holland-barrett-reconciliation-dry-run.json", contractName: "holland-barrett-automation-review-source-v1",
+    workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition",
+    classifierReviewReasons: Object.freeze(["MASS_OOS", "MASS_PRICE", "MASS_CHANGE"]), readOnlyReviewPolicies: SOURCE_REVIEW_POLICIES, publicationEnabled: sourceProfile.preparation_only !== true }),
   "fit-house": profile({ key: "fit-house", retailer: Object.freeze({ id: "9", name: "Fit House", slug: "fit-house" }), approvedMappingCount: 284, sourceDirectory: "fit-house-offer-refresh", artifactPrefix: "fit-house-offer-refresh", reconciliationFile: "fit-house-reconciliation-dry-run.json", contractName: "fit-house-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", stockOnlyCommercialChanges: true, identityReviewReasons: stockIdentity.IDENTITY_REASONS, reviewCard: stockIdentity.reviewCard, classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS", "OWNER_DEFERRED_STOCK_REVIEW", ...stockIdentity.IDENTITY_REASONS]) }),
   "gladiator-nutrition": profile({ key: "gladiator-nutrition", retailer: Object.freeze({ id: "15", name: "Gladiator Nutrition", slug: "gladiator-nutrition" }), approvedMappingCount: 603, sourceDirectory: "gladiator-nutrition-offer-refresh", artifactPrefix: "gladiator-nutrition-offer-refresh", reconciliationFile: "gladiator-nutrition-reconciliation-dry-run.json", contractName: "gladiator-nutrition-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS"]) }),
   "10-reps": profile({ key: "10-reps", retailer: Object.freeze({ id: "14", name: "10 Reps", slug: "10-reps" }), approvedMappingCount: 950, sourceDirectory: "10reps-offer-refresh", artifactPrefix: "10reps-offer-refresh", reconciliationFile: "10reps-reconciliation-dry-run.json", contractName: "10-reps-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS"]) }),
@@ -453,4 +479,8 @@ function profileFor(value = "fit-house", invariant = (condition, message) => { i
   return selected;
 }
 
-module.exports = { PROFILES, profileFor };
+function profileForRetailerId(value) {
+  return Object.values(PROFILES).find(profile => profile.retailer.id === String(value)) || null;
+}
+
+module.exports = { PROFILES, profileFor, profileForRetailerId };

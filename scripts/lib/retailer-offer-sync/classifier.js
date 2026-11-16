@@ -267,6 +267,10 @@ function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapture
     if (price && (ratio >= policy.per_row_price_hard_block_ratio || absolute >= Number(policy.per_row_price_hard_block_absolute_gbp))) {
       if (!reviewedPriceIds.has(String(target.offer_id))) {
         if (!quarantineUnsafeRows) return block("HARD_PRICE_ANOMALY", { offer_id: target.offer_id });
+        if (policy.require_source_identity) {
+          quarantinedRows.push(sourceReviewRow(target, source, "HARD_PRICE_ANOMALY", sourceCapturedAt));
+          continue;
+        }
         quarantinedRows.push({
           offer_id: String(target.offer_id),
           retailer_product_id: String(target.retailer_product_id),

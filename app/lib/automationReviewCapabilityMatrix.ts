@@ -34,9 +34,23 @@ const defaultOperations = {
   REBIND_EXISTING_VARIANT: UNSUPPORTED("Rebinds require explicit owner evidence and a retailer-specific protected path."),
   SOURCE_MISSING: REVIEW_ONLY("Missing source evidence must remain isolated for owner review; no automatic catalogue change is allowed."),
   UNAVAILABLE_DECISION: REVIEW_ONLY("Unavailable decisions require explicit owner confirmation and must not be inferred from a missing source."),
+  POLICY_REVIEW: REVIEW_ONLY("Policy exceptions require owner review and cannot execute a catalogue change from this card."),
 };
 
 export const AUTOMATION_REVIEW_CAPABILITY_MATRIX: readonly RetailerCapabilityRow[] = Object.freeze([
+  {
+    retailer: "Holland & Barrett",
+    retailerId: "16",
+    operations: {
+      ...defaultOperations,
+      VERIFY_NO_CHANGE: REVIEW_ONLY("H&B automation is being prepared and requires a separate production activation decision."),
+      UPDATE_PRICE: REVIEW_ONLY("Price exceptions require owner review; this card does not authorize a price change."),
+      UPDATE_STOCK: registeredExecution("16", "UPDATE_STOCK", "One owner-approved stock decision requires fresh source and database verification within the existing protected workflow."),
+      UPDATE_PRICE_AND_STOCK: REVIEW_ONLY("Combined exceptions require a separate reviewed commercial decision."),
+      IDENTITY_PROMOTION: REVIEW_ONLY("H&B identity changes remain owner-reviewed; automation cannot create or match products."),
+      REBIND_EXISTING_VARIANT: REVIEW_ONLY("H&B mapping changes require explicit owner evidence and approval."),
+    },
+  },
   {
     retailer: "eBay UK",
     retailerId: "12",
@@ -191,6 +205,7 @@ export function decisionGroupForReview(operationType: string | null, reviewKind?
   const reasons = String(reasonCodes || "");
   if (operation === "VERIFY_NO_CHANGE") return "Freshness-only";
   if (["UPDATE_PRICE", "UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"].includes(operation)) return "Stock and price";
+  if (operation === "POLICY_REVIEW") return "Stock and price";
   if (["IDENTITY_PROMOTION", "REBIND_EXISTING_VARIANT"].includes(operation) || ["IDENTITY_CONFLICT", "MAPPING_DRIFT"].includes(String(reviewKind || ""))) return "Identity";
   if (["SOURCE_MISSING", "UNAVAILABLE_DECISION"].includes(operation) || String(reviewKind || "") === "SOURCE_FAILURE" || /SOURCE|UNAVAILABLE|MISSING/.test(reasons)) return "Source problems";
   return "Identity";
@@ -206,6 +221,8 @@ function normalizeOperation(operationType: string | null, reviewKind?: string | 
   if (operation === "VERIFY_OFFER_NO_CHANGE") return "VERIFY_NO_CHANGE";
   if (operation === "MANUAL_REVIEW_IDENTITY") return "IDENTITY_PROMOTION";
   if (operation === "MANUAL_REVIEW" && reviewKind === "MAPPING_DRIFT") return "REBIND_EXISTING_VARIANT";
+  if (operation === "MANUAL_REVIEW" && reviewKind === "SOURCE_FAILURE") return "SOURCE_MISSING";
+  if (operation === "MANUAL_REVIEW" && reviewKind === "POLICY_REVIEW") return "POLICY_REVIEW";
   if (operation) return operation;
   if (reviewKind === "SOURCE_FAILURE") return "SOURCE_MISSING";
   if (reviewKind === "MAPPING_DRIFT") return "REBIND_EXISTING_VARIANT";

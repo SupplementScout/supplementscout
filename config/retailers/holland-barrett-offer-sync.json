@@ -38,6 +38,7 @@
     ],
     "source_url_mode": "provided",
     "require_source_identity": true,
+    "allow_two_capture_price_confirmation": false,
     "require_unchanged_shipping": true,
     "quarantine_shipping_policy_drift": true,
     "required_matched_offers": 219,

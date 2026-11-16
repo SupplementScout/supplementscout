@@ -6,11 +6,19 @@ const { canonicalJson, normalizeDecimalString } = require("./lib/canonical-json"
 const { canonicalizeTimestamps, timestampEpochNanoseconds } = require("./lib/canonical-timestamp");
 const { reconcileApprovedCatalogueScope } = require("./lib/feed-variant-guards");
 const { normalizeConnectionString, withPostgresRoleSession } = require("./lib/retailer-offer-sync/production-role-session");
+const sourceProfile = require("../config/retailers/holland-barrett-offer-sync.json");
 
 const ROOT = path.resolve(__dirname, "..");
 const VALIDATOR_LOGIN = "supplementscout_production_validator_login";
 const VALIDATOR_ROLE = "retailer_catalogue_production_validator";
 const PROFILES = Object.freeze({
+  "holland-barrett": {
+    retailerId: String(sourceProfile.retailer_id),
+    retailerName: sourceProfile.retailer_name,
+    credential: `${sourceProfile.environment_prefix}_VALIDATOR_DATABASE_URL`,
+    manifestPath: sourceProfile.manifest_path,
+    approvedMappingCount: sourceProfile.approved_mapping_count,
+  },
   "10-reps": {
     retailerId: "14",
     retailerName: "10 Reps",

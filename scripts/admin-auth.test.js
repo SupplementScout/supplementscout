@@ -894,8 +894,9 @@ test("automation review capability matrix exposes only registered execution path
   assert.match(matrixSource, /confidenceForReview/);
   assert.match(matrixSource, /registeredExecution/);
   assert.match(adapterSource, /automation-review-execution-adapters\.json/);
-  assert.deepEqual(registry.adapters.map((adapter) => adapter.retailer_slug), ["ebay-uk", "fit-house", "10-reps", "whey-okay", "gladiator-nutrition"]);
-  assert.equal(registry.adapters.filter((adapter) => adapter.operations.includes("UPDATE_STOCK")).length, 5);
+  assert.deepEqual(registry.adapters.map((adapter) => adapter.retailer_slug), ["ebay-uk", "fit-house", "10-reps", "whey-okay", "gladiator-nutrition", "holland-barrett"]);
+  assert.equal(registry.adapters.filter((adapter) => adapter.enabled !== false && adapter.operations.includes("UPDATE_STOCK")).length, 5);
+  assert.equal(registry.adapters.find((adapter) => adapter.retailer_id === "16").enabled, false);
   assert.equal(registry.adapters.some((adapter) => adapter.operations.some((operation) => /REBIN|MARK_OOS/.test(operation))), false);
   const { capabilityForReview } = loadTsModule("app/lib/automationReviewCapabilityMatrix.ts");
   assert.equal(capabilityForReview("14", "UPDATE_STOCK", "COMMERCIAL_CHANGE").capability, "REVIEW_EXECUTABLE");
@@ -1120,7 +1121,19 @@ test("automation review adapter registry is exact, single-row and default-deny",
   assert.equal(resolveReviewAdapter("15", "UPDATE_STOCK", "STOCK_CHANGE").adapter?.retailerSlug, "gladiator-nutrition");
   assert.equal(resolveReviewAdapter("15", "UPDATE_PRICE", "STOCK_CHANGE").adapter, null);
   assert.equal(resolveReviewAdapter("15", "UPDATE_STOCK", "PRICE_CHANGE").adapter, null);
+  assert.equal(resolveReviewAdapter("16", "UPDATE_STOCK", "STOCK_CHANGE").adapter, null);
   assert.equal(resolveReviewAdapter("14", "MANUAL_REVIEW_IDENTITY", "SOURCE_MISSING").adapter, null);
+});
+
+test("H&B prepared review capabilities show source/identity/policy evidence while stock execution stays unavailable", () => {
+  const { capabilityForReview, decisionGroupForReview } = loadTsModule("app/lib/automationReviewCapabilityMatrix.ts");
+  assert.equal(capabilityForReview("16", "UPDATE_STOCK", "COMMERCIAL_CHANGE").capability, "UNSUPPORTED");
+  assert.equal(capabilityForReview("16", "MANUAL_REVIEW_IDENTITY", "IDENTITY_CONFLICT").capability, "REVIEW_ONLY");
+  assert.equal(capabilityForReview("16", "MANUAL_REVIEW", "SOURCE_FAILURE").capability, "REVIEW_ONLY");
+  assert.equal(capabilityForReview("16", "MANUAL_REVIEW", "POLICY_REVIEW").capability, "REVIEW_ONLY");
+  assert.equal(decisionGroupForReview("MANUAL_REVIEW", "SOURCE_FAILURE"), "Source problems");
+  assert.equal(decisionGroupForReview("MANUAL_REVIEW", "POLICY_REVIEW"), "Stock and price");
+  assert.equal(capabilityForReview("15", "UPDATE_STOCK", "COMMERCIAL_CHANGE").capability, "REVIEW_EXECUTABLE");
 });
 
 test("automation review UI exposes executable versus review drift scope", () => {

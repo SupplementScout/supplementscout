@@ -33,7 +33,8 @@ review rows; no OOS transition is inferred. All219 are accounted for. Supplier
 generation/per-product update time remains unknown; HTTP file Last-Modified is
 17:15:46Z. The profile separately rejects files older than24 hours, unknown file
 age and future dates, so a new retrieval cannot disguise an old source file.
-This is a shared-classifier rehearsal, not native validation or execution.
+The first rehearsal used the shared classifier; the subsequent native validation
+below proves the complete current builder/validator path without execution.
 
 The prerequisite common publication incident43846470049 is reproduced exactly:
 16 commercial REFRESH bindings are flat;22 noncommercial rows have no binding.
@@ -53,16 +54,46 @@ now reuses waitForStablePostgres with container-loopback TCP, excluding the imag
 temporary Unix-only initialization server; its lifecycle/business assertions all
 pass. No test was removed or weakened. Local Docker remains unavailable.
 
-Current local quick1199/0/3 and full3940/0/3 pass; Guardian passes before evidence.
+Profile-stage local quick1199/0/3 and full3940/0/3 pass; Guardian passes before evidence.
 The reviewed inventory is364, including14 source/transport/classifier cases and
 8 H&B profile/builder cases in quick/full. Full219-row synthetic runs verify
 price, stock, compound changes, history,217/2 partitioning, unsafe sibling
 isolation, source-file freshness, collapse and the preparation authority boundary.
 Existing retailer configurations and SQL migration selection remain unchanged.
 
-Next: commit the tested profile and perform a fresh native validator READ ONLY
-dry-run on that exact head. Then finish existing publication/worker/postflight/
-watchdog/workflow wiring and the narrowly scoped registration proposal. Prepare
+Fresh native READ ONLY dry-run on exact515b102f at19:48:20Z passes11 validator
+batches/217 rows; all217 are VERIFY_NO_CHANGE, with the same2 missing-source
+review rows. All validator sessions prove the dedicated login/role,ro=on and
+SAFE_UPDATE=null. Independent before/after H&B business fingerprint is unchanged:
+b578023747ed6cb434df072b5145f4dd551dc32a99efe064177d173b7e715048.
+No control row, approval, apply or business write occurred. Fresh catalogue
+metadata confirms no installed H&B/Partnerize registration function. Native
+success proves structural readiness of this bounded path, not owner authorization.
+
+The current bounded code stage connects the existing publisher/profile, disabled
+stock worker registration, admin capabilities and read-only postflight scope.
+Source, identity, delivery, hard-price and aggregate-policy exceptions produce
+KEEP_UNCHANGED review cards with retained evidence and no executable offer.
+Publication in both ordinary/retry modes stops before credentials while the
+profile is in preparation; active worker adapters remain the same five. H&B's
+two-capture hard-price authorization is explicitly disabled, and its confirmation
+fingerprint also binds GTIN, delivery, validation and raw unknown stock. Existing
+retailer behavior remains under its prior settings. Quick1202/0/3 and
+full3947/0/3 pass, including the complete new publication round-trip; no test
+inventory file was added or removed at this stage.
+
+Live shared-contract READ ONLY at20:28:12Z identifies the remaining SQL gate:
+prepare_sequential_retailer_offer_sync_parent_approval still has the exact closed
+retailer list4,5,7,8,9,14,15 and its matching slug CASE;16 is not authorized.
+Current function SHA36ec800fd0056c5d556138ef3fe75f5dda627cd6fc6d193f2dc08ce6c1f23309
+is retained with the original owner/ACL/security definition. Batch approval and
+execution already delegate to the existing shared internal functions. Do not
+bypass the parent approval or repeat Gladiator's historical failed-parent cleanup.
+
+Next: prepare the exact H&B control-registration boundary and a registry-based
+extension of the existing parent approval, preserving existing eligibility and
+every role/workflow/expiry/state guard; finish watchdog/shared-workflow wiring.
+Then repeat the fresh native read-only proof on the final prepared head. Prepare
 the complete activation pack before requesting separate exact owner approval for
 production policy, registration/migration and scheduled apply. No production SQL,
 control registration, approval, retailer dispatch or business write occurred.

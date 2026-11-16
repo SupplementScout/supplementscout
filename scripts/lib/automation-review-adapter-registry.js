@@ -14,6 +14,7 @@ function invariant(condition, code) {
 }
 
 function freezeAdapter(raw) {
+  invariant(raw.enabled === undefined || typeof raw.enabled === "boolean", "REVIEW_ADAPTER_ENABLED_INVALID");
   invariant(/^[1-9]\d*$/.test(raw.retailer_id), "REVIEW_ADAPTER_RETAILER_ID_INVALID");
   invariant(/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(raw.retailer_slug), "REVIEW_ADAPTER_RETAILER_SLUG_INVALID");
   invariant(WORKER_KINDS.has(raw.worker_kind), "REVIEW_ADAPTER_WORKER_KIND_INVALID");
@@ -70,9 +71,10 @@ invariant(source.schema_version === 1, "REVIEW_ADAPTER_SCHEMA_INVALID");
 invariant(source.workflow === "automation-review-queue-worker.yml" && source.environment === "production-readonly", "REVIEW_ADAPTER_RUNTIME_BINDING_INVALID");
 invariant(Array.isArray(source.adapters) && source.adapters.length > 0, "REVIEW_ADAPTER_REGISTRY_EMPTY");
 
-const REVIEW_EXECUTION_ADAPTERS = Object.freeze(source.adapters.map(freezeAdapter));
-invariant(new Set(REVIEW_EXECUTION_ADAPTERS.map((adapter) => adapter.retailerId)).size === REVIEW_EXECUTION_ADAPTERS.length, "REVIEW_ADAPTER_RETAILER_ID_DUPLICATE");
-invariant(new Set(REVIEW_EXECUTION_ADAPTERS.map((adapter) => adapter.retailerSlug)).size === REVIEW_EXECUTION_ADAPTERS.length, "REVIEW_ADAPTER_RETAILER_SLUG_DUPLICATE");
+const registeredAdapters = source.adapters.map(freezeAdapter);
+invariant(new Set(registeredAdapters.map((adapter) => adapter.retailerId)).size === registeredAdapters.length, "REVIEW_ADAPTER_RETAILER_ID_DUPLICATE");
+invariant(new Set(registeredAdapters.map((adapter) => adapter.retailerSlug)).size === registeredAdapters.length, "REVIEW_ADAPTER_RETAILER_SLUG_DUPLICATE");
+const REVIEW_EXECUTION_ADAPTERS = Object.freeze(registeredAdapters.filter((adapter, index) => source.adapters[index].enabled !== false));
 
 function adaptersForWorkerKind(workerKind) {
   return REVIEW_EXECUTION_ADAPTERS.filter((adapter) => adapter.workerKind === workerKind);

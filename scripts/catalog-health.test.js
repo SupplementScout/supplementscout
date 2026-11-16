@@ -1816,6 +1816,7 @@ test("shared DB postflight covers exact retailer scopes", () => {
     "ebay-uk": [237, 237],
     "fit-house": [284, 284],
     "gladiator-nutrition": [603, 603],
+    "holland-barrett": [219, 219],
     "jons-supplements": [506, null],
     "kior-health": [11, 11],
     "simply-supplements": [120, null],

@@ -44,8 +44,10 @@ function loadEngine(source) {
   const filename = path.join(ROOT, "scripts/fit-house-offer-refresh.js");
   const localRequire = createRequire(filename);
   const fixtureModule = { exports: {} };
+  let readerCalls = 0;
   const context = { module: fixtureModule, exports: fixtureModule.exports, __dirname: path.dirname(filename), __filename: filename,
     require(name) { return name === "./lib/partnerize-product-feed-reader" ? { async readPartnerizeProductFeed(options) {
+      readerCalls += 1;
       assert.equal(options.feedUrlSha256, config.source_url_sha256);
       assert.equal(options.reviewedIdentities.length, 219);
       assert.equal(options.maximumBytes, 12000000);
@@ -54,7 +56,7 @@ function loadEngine(source) {
     process: { ...process, env: { ...process.env, RETAILER_REFRESH_PROFILE: "holland-barrett", HOLLAND_BARRETT_PARTNERIZE_FEED_URL: "https://feeds.performancehorizon.com/fixture" } },
     URL, Date, Buffer, console, setTimeout, clearTimeout, AbortController };
   vm.runInNewContext(fs.readFileSync(filename, "utf8"), context, { filename });
-  return fixtureModule.exports;
+  return { ...fixtureModule.exports, fixtureReaderCalls: () => readerCalls };
 }
 
 async function build(source = snapshot()) {
@@ -167,6 +169,30 @@ test("H&B full source collapse blocks before any offer plan is available", async
   await assert.rejects(build(source), error => error.code === "GENUINE_SOURCE_COLLAPSE");
 });
 
+test("H&B hard price anomalies remain read-only reviews and cannot authorize themselves by repeated capture", async () => {
+  const source = snapshot(); source.source_variants[0].price = "20.00"; source.source_variants[0].total_price = "23.49";
+  const { run, engine } = await build(source);
+  assert.equal(config.guardrails.allow_two_capture_price_confirmation, false);
+  assert.equal(run.classification.quarantined_rows[0].reason, "HARD_PRICE_ANOMALY");
+  assert.equal(run.classification.quarantined_rows[0].source_record_evidence.observed_offer.price, "20.00");
+  assert.equal(run.artifacts.flatMap(artifact => artifact.rows).length, 218);
+  assert.equal(run.automaticPriceConfirmation, null);
+  assert.equal(engine.fixtureReaderCalls(), 1);
+});
+
+test("shared confirmation fingerprint binds mapped GTIN, source validation, delivery and unknown stock", () => {
+  const current = snapshot(), engine = loadEngine(current), scope = records();
+  const before = engine.mappedOfferSourceFingerprint(scope, current.source_variants);
+  for (const change of [row => { row.external_gtin = "changed"; }, row => { row.shipping_cost = "0.00"; },
+    row => { row.in_stock = null; }, row => { row.source_validation.status = "INVALID"; },
+    row => { row.source_validation.observed_identity_sha256 = "a".repeat(64); }]) {
+    const next = structuredClone(current); change(next.source_variants[0]);
+    assert.notEqual(engine.mappedOfferSourceFingerprint(scope, next.source_variants), before);
+  }
+  current.source_variants.at(-1).price = "99.00";
+  assert.equal(engine.mappedOfferSourceFingerprint(scope, current.source_variants), before);
+});
+
 test("retrieval cannot make an old, unknown or future-dated Partnerize file fresh", async () => {
   for (const [modified, code] of [
     [null, "SOURCE_FILE_FRESHNESS_UNKNOWN"], ["unknown", "SOURCE_FILE_FRESHNESS_UNKNOWN"],
@@ -188,4 +214,25 @@ test("H&B preparation blocks control writes before credentials and still require
   config.preparation_only = false;
   try { await assert.rejects(engine.register({ target: "production" }, {}), /REFRESH_SOURCE_SCOPE_NOT_AUTHORIZED/); }
   finally { config.preparation_only = true; }
+});
+
+test("H&B worker is prepared in the existing registry while active adapters and the postflight contract stay exact", () => {
+  const registry = require("../config/automation-review-execution-adapters.json");
+  const { REVIEW_EXECUTION_ADAPTERS, adaptersForWorkerKind } = require("./lib/automation-review-adapter-registry");
+  const publication = require("./lib/automation-review-publication-profiles").PROFILES["holland-barrett"];
+  const postflight = require("./retailer-offer-refresh-postflight").PROFILES["holland-barrett"];
+  const prepared = registry.adapters.find(row => row.retailer_id === "16");
+  assert.equal(prepared.enabled, false);
+  assert.deepEqual(prepared.operations, ["UPDATE_STOCK"]);
+  assert.deepEqual(prepared.reason_codes, ["STOCK_CHANGE"]);
+  assert.equal(prepared.shared_engine.engine_module, "scripts/fit-house-offer-refresh.js");
+  assert.equal(prepared.shared_engine.profile, "holland-barrett");
+  assert.equal(prepared.shared_engine.expected_commercial_changes, 1);
+  assert.equal(prepared.shared_engine.freshness_confirmation_count, 19);
+  assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.map(row => row.retailerId), ["12", "9", "14", "3", "15"]);
+  assert.ok(!adaptersForWorkerKind("shared-retailer").some(row => row.retailerId === "16"));
+  assert.equal(publication.publicationEnabled, false);
+  assert.equal(publication.approvedMappingCount, config.approved_mapping_count);
+  assert.equal(postflight.approvedMappingCount, config.approved_mapping_count);
+  assert.equal(postflight.manifestPath, config.manifest_path);
 });

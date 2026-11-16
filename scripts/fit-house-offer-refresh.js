@@ -199,7 +199,7 @@ function mappedOfferSourceFingerprint(records,sourceVariants){
   return canonicalHash(records.map(record=>{
     const source=byVariant.get(String(record.mapping.external_variant_id));
     if(!source)return{offer_id:String(record.offer.id),external_product_id:String(record.mapping.external_product_id),external_variant_id:String(record.mapping.external_variant_id),source_absent:true};
-    return{offer_id:String(record.offer.id),external_product_id:String(source.external_product_id),external_variant_id:String(source.external_variant_id),product_handle:source.product_handle||null,price:money(source.price),in_stock:Boolean(source.in_stock)};
+    return{offer_id:String(record.offer.id),external_product_id:String(source.external_product_id),external_variant_id:String(source.external_variant_id),product_handle:source.product_handle||null,price:money(source.price),in_stock:Boolean(source.in_stock),...(config.guardrails.require_source_identity?{external_gtin:source.external_gtin??null,shipping_cost:source.shipping_cost??null,total_price:source.total_price??null,validated_in_stock:source.in_stock??null,source_validation:source.source_validation??null}:{})};
   }).sort((left,right)=>Number(left.offer_id)-Number(right.offer_id)));
 }
 function diagnosticName(argv,env=process.env){
@@ -793,7 +793,8 @@ async function buildRun(target,state,diagnostic=null,reviewed=null,isolateUnsafe
     const accepted=classification.state==="DRY_RUN_READY"||classification.state==="DRY_RUN_READY_WITH_REVIEW"||aggregateReasons.has(classification.reason);
     if(!accepted||!Array.isArray(classification.rows))throw new RefreshError(classification.reason||"CLASSIFIER_BLOCKED",`isolated ${config.retailer_name} classifier blocked`,"CLASSIFIER",{...(classification.detail||{}),guard_evidence:classification.guard_evidence||null});
     const hardPriceOfferIds=(classification.quarantined_rows||[]).filter(row=>row.reason==="HARD_PRICE_ANOMALY").map(row=>String(row.offer_id)).sort((a,b)=>Number(a)-Number(b));
-    if(aggregateReasons.has(classification.reason)||hardPriceOfferIds.length){
+    const confirmPriceAnomalies=config.guardrails.allow_two_capture_price_confirmation!==false;
+    if(aggregateReasons.has(classification.reason)||(confirmPriceAnomalies&&hardPriceOfferIds.length)){
       const firstMappedFingerprint=mappedOfferSourceFingerprint(state.records,reconciled.sourceVariants),secondCapturedAt=freshCapturedAt();
       const secondSnapshot=await readSourceSnapshot(secondCapturedAt),secondRaw=projectSourceVariants(secondSnapshot),secondHealth=sourceHealth(secondSnapshot,secondRaw);
       invariant(secondHealth.result==="PASS",`second ${config.retailer_name} source capture failed health checks`);
@@ -804,12 +805,12 @@ async function buildRun(target,state,diagnostic=null,reviewed=null,isolateUnsafe
       const secondMappedFingerprint=mappedOfferSourceFingerprint(state.records,secondReconciled.sourceVariants);
       invariant(secondMappedFingerprint===firstMappedFingerprint,`${config.retailer_name} mapped offers changed between confirmation captures`);
       if(diagnostic)diagnostic.aggregate_confirmation={result:"PASS",first_mapped_fingerprint:firstMappedFingerprint,second_mapped_fingerprint:secondMappedFingerprint,second_source_fingerprint:secondSnapshot.semantic_source_fingerprint,second_captured_at:secondCapturedAt};
-      if(hardPriceOfferIds.length){
+      if(confirmPriceAnomalies&&hardPriceOfferIds.length){
         classification=classifyExistingOffers({targets,sourceVariants:secondReconciled.sourceVariants,policy,guardScope:{name:config.guard_scope_name,retailer:config.retailer_name},sourceCapturedAt:capturedAt,now:new Date(capturedAt),sourceProductCount:secondSnapshot.products.length,previousSourceProductCount:config.source_baseline.product_count,reviewedPriceAnomalyOfferIds:hardPriceOfferIds,quarantineUnsafeRows:true});
         const confirmedObserved=new Set((classification.rows||[]).filter(row=>row.changed_fields.price&&hardPriceOfferIds.includes(String(row.offer_id))).map(row=>String(row.offer_id)));
         invariant(confirmedObserved.size===hardPriceOfferIds.length,`confirmed ${config.retailer_name} price scope changed during reclassification`);
       }
-      const confirmedPriceOfferIds=(config.retailer_id===7?(classification.rows||[]).filter(row=>Boolean(row.changed_fields?.price)).map(row=>String(row.offer_id)):hardPriceOfferIds).sort((a,b)=>Number(a)-Number(b));
+      const confirmedPriceOfferIds=(config.retailer_id===7?(classification.rows||[]).filter(row=>Boolean(row.changed_fields?.price)).map(row=>String(row.offer_id)):confirmPriceAnomalies?hardPriceOfferIds:[]).sort((a,b)=>Number(a)-Number(b));
       if(confirmedPriceOfferIds.length)automaticPriceConfirmation={kind:config.retailer_id===7?"retailer-two-capture-price-confirmation-v2":"retailer-two-capture-price-confirmation-v1",retailer_id:String(config.retailer_id),retailer_slug:config.retailer_slug,first_source_fingerprint:snapshot.semantic_source_fingerprint,second_source_fingerprint:secondSnapshot.semantic_source_fingerprint,first_mapped_fingerprint:firstMappedFingerprint,second_mapped_fingerprint:secondMappedFingerprint,second_captured_at:secondCapturedAt,confirmed_offer_ids:confirmedPriceOfferIds};
       if(aggregateReasons.has(classification.reason))classification=isolateAggregateRiskRows(classification);
     }
