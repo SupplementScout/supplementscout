@@ -1,0 +1,1248 @@
+{
+  "capturedAt": "2026-11-17T17:07:38.029Z",
+  "environment": "local Next production build with guarded actual production-source reads",
+  "base": "http://127.0.0.1:3118",
+  "syntheticOffers": false,
+  "results": [
+    {
+      "route": "/guides/protein-powder-under-30",
+      "width": 1440,
+      "mobileTouchEmulation": false,
+      "result": "PASS",
+      "title": "Protein Powder Under £30 UK: Compare Delivered Prices | SupplementScout",
+      "h1": "Which protein powders cost £30 or less including delivery?",
+      "viewport": 1440,
+      "visualWidth": 1425,
+      "scale": 1,
+      "documentWidth": 1425,
+      "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-under-30",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "BioTech USA 100% Pure Whey 454g, Hazelnut / 454g",
+          "href": "/product/biotech-usa-100-pure-whey-454g?variant=949"
+        },
+        {
+          "text": "Optimum Nutrition 100% Plant Protein 684g, Vanilla / 684g",
+          "href": "/product/optimum-nutrition-100-plant-protein-684g?variant=1623"
+        },
+        {
+          "text": "CNP Premium Whey 900g, Chocolate Peanut Butter / 900g",
+          "href": "/product/cnp-premium-whey-900g?variant=1318"
+        },
+        {
+          "text": "BioTech USA 100% Pure Whey 454g",
+          "href": "/product/biotech-usa-100-pure-whey-454g?variant=949"
+        },
+        {
+          "text": "Optimum Nutrition 100% Plant Protein 684g",
+          "href": "/product/optimum-nutrition-100-plant-protein-684g?variant=1623"
+        },
+        {
+          "text": "CNP Premium Whey 900g",
+          "href": "/product/cnp-premium-whey-900g?variant=1318"
+        },
+        {
+          "text": "the verified cost-per-25g method",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "how delivery changes a price comparison",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "whey protein comparisons",
+          "href": "/whey-protein"
+        },
+        {
+          "text": "vegan protein comparisons",
+          "href": "/vegan-protein"
+        },
+        {
+          "text": "Help Me Choose",
+          "href": "/help-me-choose"
+        },
+        {
+          "text": "comparison method",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "freshness rules",
+          "href": "/data-freshness"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "BioTech USA 100% Pure Whey 454gVariant: Hazelnut / 454g. Pack: 454g.Fit HouseProduct price£15.99Delivery£3.99Delivered total£19.98Offer checked 17 Nov 2026, 11:112026-11-17T11:11:52.1+00:00Lowest cash total in this selection. This is one 454g pack; a different size or flavour is a separate purchase.Fresh tracked retailers for this exact variant: 1. Coverage is limited to the retailers we track.Cost per 25 g protein: not yet verified for this exact flavour. The delivered price is usable for the budget, but no protein amount is borrowed from another flavour.",
+          "x": 288.5,
+          "y": 792,
+          "w": 269.328125,
+          "h": 596
+        },
+        {
+          "text": "Optimum Nutrition 100% Plant Protein 684gVariant: Vanilla / 684g. Pack: 684g.Dolphin FitnessProduct price£21.95Delivery£3.95Delivered total£25.90Offer checked 17 Nov 2026, 14:422026-11-17T14:42:16.754+00:00Budget fit confirmed for this pack. This is one 684g pack; a different size or flavour is a separate purchase.Fresh tracked retailers for this exact variant: 2. Coverage is limited to the retailers we track.Cost per 25 g protein: not yet verified for this exact flavour. The delivered price is usable for the budget, but no protein amount is borrowed from another flavour.",
+          "x": 577.828125,
+          "y": 792,
+          "w": 269.328125,
+          "h": 596
+        },
+        {
+          "text": "CNP Premium Whey 900gVariant: Chocolate Peanut Butter / 900g. Pack: 900g.Jon's SupplementsProduct price£25.99Delivery£3.99Delivered total£29.98Offer checked 17 Nov 2026, 13:542026-11-17T13:54:47.083+00:00Budget fit confirmed for this pack. This is one 900g pack; a different size or flavour is a separate purchase.Fresh tracked retailers for this exact variant: 1. Coverage is limited to the retailers we track.Cost per 25 g protein: not yet verified for this exact flavour. The delivered price is usable for the budget, but no protein amount is borrowed from another flavour.",
+          "x": 867.15625,
+          "y": 792,
+          "w": 269.34375,
+          "h": 596
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 452,
+      "navigation": {
+        "name": "http://127.0.0.1:3118/guides/protein-powder-under-30?qa=1440",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 551.1000000089407,
+        "navigationId": 5523,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 2.1000000089406967,
+        "domainLookupStart": 2.1000000089406967,
+        "domainLookupEnd": 2.1000000089406967,
+        "connectStart": 2.1000000089406967,
+        "secureConnectionStart": 0,
+        "connectEnd": 2.1000000089406967,
+        "requestStart": 4.600000008940697,
+        "responseStart": 38.5,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 38.5,
+        "responseEnd": 78.6000000089407,
+        "transferSize": 12730,
+        "encodedBodySize": 12430,
+        "decodedBodySize": 40244,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 0,
+        "unloadEventEnd": 0,
+        "domInteractive": 157.30000001192093,
+        "domContentLoadedEventStart": 157.40000000596046,
+        "domContentLoadedEventEnd": 157.6000000089407,
+        "domComplete": 551.1000000089407,
+        "loadEventStart": 551.1000000089407,
+        "loadEventEnd": 551.1000000089407,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2cbkh-q68zkh4.css",
+          "bytes": 81234,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/0smtisn6leb7i.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2xq9ny22rbutp.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/turbopack-3rybcsmjxfknj.js",
+          "bytes": 10580,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2xduqwcnfr5vo.js",
+          "bytes": 26872,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/14mrh2-p_w84d.js",
+          "bytes": 54646,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/0rvs5l5976x8_.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3-9v5llyj1vf9.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/favicon.ico?favicon.32r4ylec7nel_.ico",
+          "bytes": 2774,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=v472sn7hiqdiL7De",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/cnp-premium-whey-900g?variant=1318&_rsc=v472sn7hiqdiL7De",
+          "bytes": 254,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/optimum-nutrition-100-plant-protein-684g?variant=1623&_rsc=v472sn7hiqdiL7De",
+          "bytes": 273,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/biotech-usa-100-pure-whey-454g?variant=949&_rsc=v472sn7hiqdiL7De",
+          "bytes": 262,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=v472sn7hiqdiL7De",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=v472sn7hiqdiL7De",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=v472sn7hiqdiL7De",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/cnp-premium-whey-900g?variant=1318&_rsc=vZcDmrf1tSxI8cx6",
+          "bytes": 3010,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/optimum-nutrition-100-plant-protein-684g?variant=1623&_rsc=vZcDmrf1tSxI8cx6",
+          "bytes": 3113,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/biotech-usa-100-pure-whey-454g?variant=949&_rsc=vZcDmrf1tSxI8cx6",
+          "bytes": 3091,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=DXvHKzT9tx63tUON",
+          "bytes": 2565,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=L3wkgqXrALXT2YQe",
+          "bytes": 2383,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=tpTFvr42p8yB7FXS",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=I2TEqWKFFQ3Do3aw",
+          "bytes": 1656,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/0zk48-iztqod0.js",
+          "bytes": 13701,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=vZcDmrf1tSxI8cx6",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=DXvHKzT9tx63tUON",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=YXx3Ge6azHObF49B",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=DPkRGiiBKJGSb1l4",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=vZcDmrf1tSxI8cx6",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/cnp-premium-whey-900g?_rsc=v472sn7hiqdiL7De",
+          "bytes": 241,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/optimum-nutrition-100-plant-protein-684g?_rsc=v472sn7hiqdiL7De",
+          "bytes": 260,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/biotech-usa-100-pure-whey-454g?_rsc=v472sn7hiqdiL7De",
+          "bytes": 250,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/protein-powder-under-30",
+      "width": 390,
+      "mobileTouchEmulation": true,
+      "result": "PASS",
+      "title": "Protein Powder Under £30 UK: Compare Delivered Prices | SupplementScout",
+      "h1": "Which protein powders cost £30 or less including delivery?",
+      "viewport": 390,
+      "visualWidth": 390,
+      "scale": 1,
+      "documentWidth": 390,
+      "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-under-30",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "BioTech USA 100% Pure Whey 454g, Hazelnut / 454g",
+          "href": "/product/biotech-usa-100-pure-whey-454g?variant=949"
+        },
+        {
+          "text": "Optimum Nutrition 100% Plant Protein 684g, Vanilla / 684g",
+          "href": "/product/optimum-nutrition-100-plant-protein-684g?variant=1623"
+        },
+        {
+          "text": "CNP Premium Whey 900g, Chocolate Peanut Butter / 900g",
+          "href": "/product/cnp-premium-whey-900g?variant=1318"
+        },
+        {
+          "text": "BioTech USA 100% Pure Whey 454g",
+          "href": "/product/biotech-usa-100-pure-whey-454g?variant=949"
+        },
+        {
+          "text": "Optimum Nutrition 100% Plant Protein 684g",
+          "href": "/product/optimum-nutrition-100-plant-protein-684g?variant=1623"
+        },
+        {
+          "text": "CNP Premium Whey 900g",
+          "href": "/product/cnp-premium-whey-900g?variant=1318"
+        },
+        {
+          "text": "the verified cost-per-25g method",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "how delivery changes a price comparison",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "whey protein comparisons",
+          "href": "/whey-protein"
+        },
+        {
+          "text": "vegan protein comparisons",
+          "href": "/vegan-protein"
+        },
+        {
+          "text": "Help Me Choose",
+          "href": "/help-me-choose"
+        },
+        {
+          "text": "comparison method",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "freshness rules",
+          "href": "/data-freshness"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "BioTech USA 100% Pure Whey 454gVariant: Hazelnut / 454g. Pack: 454g.Fit HouseProduct price£15.99Delivery£3.99Delivered total£19.98Offer checked 17 Nov 2026, 11:112026-11-17T11:11:52.1+00:00Lowest cash total in this selection. This is one 454g pack; a different size or flavour is a separate purchase.Fresh tracked retailers for this exact variant: 1. Coverage is limited to the retailers we track.Cost per 25 g protein: not yet verified for this exact flavour. The delivered price is usable for the budget, but no protein amount is borrowed from another flavour.",
+          "x": 16,
+          "y": 1132.5,
+          "w": 358,
+          "h": 488
+        },
+        {
+          "text": "Optimum Nutrition 100% Plant Protein 684gVariant: Vanilla / 684g. Pack: 684g.Dolphin FitnessProduct price£21.95Delivery£3.95Delivered total£25.90Offer checked 17 Nov 2026, 14:422026-11-17T14:42:16.754+00:00Budget fit confirmed for this pack. This is one 684g pack; a different size or flavour is a separate purchase.Fresh tracked retailers for this exact variant: 2. Coverage is limited to the retailers we track.Cost per 25 g protein: not yet verified for this exact flavour. The delivered price is usable for the budget, but no protein amount is borrowed from another flavour.",
+          "x": 16,
+          "y": 1640.5,
+          "w": 358,
+          "h": 516
+        },
+        {
+          "text": "CNP Premium Whey 900gVariant: Chocolate Peanut Butter / 900g. Pack: 900g.Jon's SupplementsProduct price£25.99Delivery£3.99Delivered total£29.98Offer checked 17 Nov 2026, 13:542026-11-17T13:54:47.083+00:00Budget fit confirmed for this pack. This is one 900g pack; a different size or flavour is a separate purchase.Fresh tracked retailers for this exact variant: 1. Coverage is limited to the retailers we track.Cost per 25 g protein: not yet verified for this exact flavour. The delivered price is usable for the budget, but no protein amount is borrowed from another flavour.",
+          "x": 16,
+          "y": 2176.5,
+          "w": 358,
+          "h": 508
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 264,
+      "navigation": {
+        "name": "http://127.0.0.1:3118/guides/protein-powder-under-30?qa=390",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 231.20000000298023,
+        "navigationId": 9236,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 1.4000000059604645,
+        "domainLookupStart": 1.4000000059604645,
+        "domainLookupEnd": 1.4000000059604645,
+        "connectStart": 1.4000000059604645,
+        "secureConnectionStart": 0,
+        "connectEnd": 1.4000000059604645,
+        "requestStart": 3.5,
+        "responseStart": 35.5,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 35.5,
+        "responseEnd": 54.80000001192093,
+        "transferSize": 12729,
+        "encodedBodySize": 12429,
+        "decodedBodySize": 40241,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 69.70000000298023,
+        "unloadEventEnd": 69.70000000298023,
+        "domInteractive": 230.40000000596046,
+        "domContentLoadedEventStart": 230.40000000596046,
+        "domContentLoadedEventEnd": 230.70000000298023,
+        "domComplete": 231.1000000089407,
+        "loadEventStart": 231.20000000298023,
+        "loadEventEnd": 231.20000000298023,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2cbkh-q68zkh4.css",
+          "bytes": 81234,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/0smtisn6leb7i.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2xq9ny22rbutp.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/turbopack-3rybcsmjxfknj.js",
+          "bytes": 10580,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2xduqwcnfr5vo.js",
+          "bytes": 26872,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/14mrh2-p_w84d.js",
+          "bytes": 54646,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/0rvs5l5976x8_.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3-9v5llyj1vf9.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/biotech-usa-100-pure-whey-454g?variant=949&_rsc=v472sn7hiqdiL7De",
+          "bytes": 262,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/cnp-premium-whey-900g?variant=1318&_rsc=v472sn7hiqdiL7De",
+          "bytes": 254,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/optimum-nutrition-100-plant-protein-684g?variant=1623&_rsc=v472sn7hiqdiL7De",
+          "bytes": 273,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=v472sn7hiqdiL7De",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=v472sn7hiqdiL7De",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=v472sn7hiqdiL7De",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/biotech-usa-100-pure-whey-454g?variant=949&_rsc=vZcDmrf1tSxI8cx6",
+          "bytes": 3091,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/cnp-premium-whey-900g?variant=1318&_rsc=vZcDmrf1tSxI8cx6",
+          "bytes": 3010,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/optimum-nutrition-100-plant-protein-684g?variant=1623&_rsc=vZcDmrf1tSxI8cx6",
+          "bytes": 3113,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=vZcDmrf1tSxI8cx6",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=DXvHKzT9tx63tUON",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=L3wkgqXrALXT2YQe",
+          "bytes": 2383,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=YXx3Ge6azHObF49B",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=DPkRGiiBKJGSb1l4",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=vZcDmrf1tSxI8cx6",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/biotech-usa-100-pure-whey-454g?_rsc=v472sn7hiqdiL7De",
+          "bytes": 250,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/cnp-premium-whey-900g?_rsc=v472sn7hiqdiL7De",
+          "bytes": 241,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/optimum-nutrition-100-plant-protein-684g?_rsc=v472sn7hiqdiL7De",
+          "bytes": 260,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/caffeine-free-pre-workout",
+      "width": 1440,
+      "mobileTouchEmulation": false,
+      "result": "PASS",
+      "title": "Caffeine-Free Pre-Workout UK: How to Check and Compare | SupplementScout",
+      "h1": "How can I find and compare a pre-workout without caffeine?",
+      "viewport": 1440,
+      "visualWidth": 1425,
+      "scale": 1,
+      "documentWidth": 1425,
+      "canonical": "https://www.supplementscout.co.uk/guides/caffeine-free-pre-workout",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "Nutrend  Pump Pre-Workout",
+          "href": "/product/nutrend--pump-pre-workout?variant=1848"
+        },
+        {
+          "text": "Applied Nutrition ABE Pump 500g",
+          "href": "/product/applied-nutrition-abe-pump-500g?variant=763"
+        },
+        {
+          "text": "the confirmed caffeine-free search filter",
+          "href": "/search?q=pre%20workout&caffeine=free"
+        },
+        {
+          "text": "the pre-workout comparison",
+          "href": "/pre-workout"
+        },
+        {
+          "text": "Help Me Choose",
+          "href": "/help-me-choose"
+        },
+        {
+          "text": "how we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "our freshness rules",
+          "href": "/data-freshness"
+        },
+        {
+          "text": "why delivery changes the total",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Nutrend  Pump Pre-WorkoutVariant: Bubble Gum / 225g. Pack: 225g.Caffeine: confirmed absentReviewed source: Manufacturer source.This fact is bound to this exact variant; it does not verify the entire formulation.eBay UKProduct price£18.50Delivery£0.00Delivered total£18.50Offer checked 17 Nov 2026, 14:572026-11-17T14:57:16.159+00:00Use the product page to check the recorded ingredient facts and retailer options. Another pack or flavour needs its own evidence and price.",
+          "x": 288.5,
+          "y": 760,
+          "w": 414,
+          "h": 498
+        },
+        {
+          "text": "Applied Nutrition ABE Pump 500gVariant: Tigers Blood / 500g. Pack: 500g.Caffeine: confirmed absentReviewed source: Manufacturer source.This fact is bound to this exact variant; it does not verify the entire formulation.eBay UKProduct price£29.95Delivery£0.00Delivered total£29.95Offer checked 17 Nov 2026, 14:572026-11-17T14:57:29.871+00:00Use the product page to check the recorded ingredient facts and retailer options. Another pack or flavour needs its own evidence and price.",
+          "x": 722.5,
+          "y": 760,
+          "w": 414,
+          "h": 498
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 172,
+      "navigation": {
+        "name": "http://127.0.0.1:3118/guides/caffeine-free-pre-workout?qa=1440",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 171.70000000298023,
+        "navigationId": 1444,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 1.5,
+        "domainLookupStart": 1.5,
+        "domainLookupEnd": 1.5,
+        "connectStart": 1.5,
+        "secureConnectionStart": 0,
+        "connectEnd": 1.5,
+        "requestStart": 3.7999999970197678,
+        "responseStart": 37.900000005960464,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 37.900000005960464,
+        "responseEnd": 117,
+        "transferSize": 11121,
+        "encodedBodySize": 10821,
+        "decodedBodySize": 35210,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 48.70000000298023,
+        "unloadEventEnd": 48.70000000298023,
+        "domInteractive": 164.20000000298023,
+        "domContentLoadedEventStart": 164.40000000596046,
+        "domContentLoadedEventEnd": 164.5,
+        "domComplete": 171.70000000298023,
+        "loadEventStart": 171.70000000298023,
+        "loadEventEnd": 171.70000000298023,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2cbkh-q68zkh4.css",
+          "bytes": 81234,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/0smtisn6leb7i.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2xq9ny22rbutp.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/turbopack-3rybcsmjxfknj.js",
+          "bytes": 10580,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2xduqwcnfr5vo.js",
+          "bytes": 26872,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/14mrh2-p_w84d.js",
+          "bytes": 54646,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3sq-x9zyz5yg4.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3-9v5llyj1vf9.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=eU7YkEpUVvtprz3J",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-abe-pump-500g?variant=763&_rsc=eU7YkEpUVvtprz3J",
+          "bytes": 263,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/nutrend--pump-pre-workout?variant=1848&_rsc=eU7YkEpUVvtprz3J",
+          "bytes": 258,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=eU7YkEpUVvtprz3J",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=eU7YkEpUVvtprz3J",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=eU7YkEpUVvtprz3J",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=KUItr1hJ4FUMg_Eq",
+          "bytes": 2565,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=oznfqbqe2GAwAcv7",
+          "bytes": 2383,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=PKV0k-mCNRrg1TSw",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=CrGatSTYozFn9BaI",
+          "bytes": 1656,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-abe-pump-500g?variant=763&_rsc=VEv19fB8DixJCeKb",
+          "bytes": 2884,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/nutrend--pump-pre-workout?variant=1848&_rsc=VEv19fB8DixJCeKb",
+          "bytes": 2811,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=VEv19fB8DixJCeKb",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/0zk48-iztqod0.js",
+          "bytes": 13701,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=KUItr1hJ4FUMg_Eq",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=6m8RGnIZFYnk0mLD",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=HbGo0QaG_0-uodLR",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=VEv19fB8DixJCeKb",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-abe-pump-500g?_rsc=eU7YkEpUVvtprz3J",
+          "bytes": 251,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/nutrend--pump-pre-workout?_rsc=eU7YkEpUVvtprz3J",
+          "bytes": 245,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/caffeine-free-pre-workout",
+      "width": 390,
+      "mobileTouchEmulation": true,
+      "result": "PASS",
+      "title": "Caffeine-Free Pre-Workout UK: How to Check and Compare | SupplementScout",
+      "h1": "How can I find and compare a pre-workout without caffeine?",
+      "viewport": 390,
+      "visualWidth": 390,
+      "scale": 1,
+      "documentWidth": 390,
+      "canonical": "https://www.supplementscout.co.uk/guides/caffeine-free-pre-workout",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "Nutrend  Pump Pre-Workout",
+          "href": "/product/nutrend--pump-pre-workout?variant=1848"
+        },
+        {
+          "text": "Applied Nutrition ABE Pump 500g",
+          "href": "/product/applied-nutrition-abe-pump-500g?variant=763"
+        },
+        {
+          "text": "the confirmed caffeine-free search filter",
+          "href": "/search?q=pre%20workout&caffeine=free"
+        },
+        {
+          "text": "the pre-workout comparison",
+          "href": "/pre-workout"
+        },
+        {
+          "text": "Help Me Choose",
+          "href": "/help-me-choose"
+        },
+        {
+          "text": "how we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "our freshness rules",
+          "href": "/data-freshness"
+        },
+        {
+          "text": "why delivery changes the total",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Nutrend  Pump Pre-WorkoutVariant: Bubble Gum / 225g. Pack: 225g.Caffeine: confirmed absentReviewed source: Manufacturer source.This fact is bound to this exact variant; it does not verify the entire formulation.eBay UKProduct price£18.50Delivery£0.00Delivered total£18.50Offer checked 17 Nov 2026, 14:572026-11-17T14:57:16.159+00:00Use the product page to check the recorded ingredient facts and retailer options. Another pack or flavour needs its own evidence and price.",
+          "x": 16,
+          "y": 1128.5,
+          "w": 358,
+          "h": 490
+        },
+        {
+          "text": "Applied Nutrition ABE Pump 500gVariant: Tigers Blood / 500g. Pack: 500g.Caffeine: confirmed absentReviewed source: Manufacturer source.This fact is bound to this exact variant; it does not verify the entire formulation.eBay UKProduct price£29.95Delivery£0.00Delivered total£29.95Offer checked 17 Nov 2026, 14:572026-11-17T14:57:29.871+00:00Use the product page to check the recorded ingredient facts and retailer options. Another pack or flavour needs its own evidence and price.",
+          "x": 16,
+          "y": 1638.5,
+          "w": 358,
+          "h": 518
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 148,
+      "navigation": {
+        "name": "http://127.0.0.1:3118/guides/caffeine-free-pre-workout?qa=390",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 108,
+        "navigationId": 9875,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 2.5,
+        "domainLookupStart": 2.5,
+        "domainLookupEnd": 2.5,
+        "connectStart": 2.5,
+        "secureConnectionStart": 0,
+        "connectEnd": 2.5,
+        "requestStart": 5.200000002980232,
+        "responseStart": 39.29999999701977,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 39.29999999701977,
+        "responseEnd": 61.29999999701977,
+        "transferSize": 11119,
+        "encodedBodySize": 10819,
+        "decodedBodySize": 35207,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 50.29999999701977,
+        "unloadEventEnd": 50.29999999701977,
+        "domInteractive": 97.29999999701977,
+        "domContentLoadedEventStart": 97.3999999910593,
+        "domContentLoadedEventEnd": 97.59999999403954,
+        "domComplete": 107.8999999910593,
+        "loadEventStart": 108,
+        "loadEventEnd": 108,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2cbkh-q68zkh4.css",
+          "bytes": 81234,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/0smtisn6leb7i.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2xq9ny22rbutp.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/turbopack-3rybcsmjxfknj.js",
+          "bytes": 10580,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2xduqwcnfr5vo.js",
+          "bytes": 26872,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/14mrh2-p_w84d.js",
+          "bytes": 54646,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3sq-x9zyz5yg4.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3-9v5llyj1vf9.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/nutrend--pump-pre-workout?variant=1848&_rsc=eU7YkEpUVvtprz3J",
+          "bytes": 258,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=eU7YkEpUVvtprz3J",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=eU7YkEpUVvtprz3J",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=eU7YkEpUVvtprz3J",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/nutrend--pump-pre-workout?variant=1848&_rsc=VEv19fB8DixJCeKb",
+          "bytes": 2811,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=VEv19fB8DixJCeKb",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=VEv19fB8DixJCeKb",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=KUItr1hJ4FUMg_Eq",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=oznfqbqe2GAwAcv7",
+          "bytes": 2383,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=6m8RGnIZFYnk0mLD",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=HbGo0QaG_0-uodLR",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/nutrend--pump-pre-workout?_rsc=eU7YkEpUVvtprz3J",
+          "bytes": 245,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    }
+  ]
+}

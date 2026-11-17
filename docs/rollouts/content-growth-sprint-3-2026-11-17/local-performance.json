@@ -1,0 +1,226 @@
+{
+  "capturedAt": "2026-11-17T17:07:30.629Z",
+  "environment": "local Next production build with guarded actual production-source reads; loopback lab sample, not field CWV or old-version guide baseline",
+  "results": [
+    {
+      "route": "/how-we-compare",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 245.8,
+        "totalMs": 257.7,
+        "decodedBytes": 27940
+      },
+      "coldDatabaseReads": 0,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 22.8,
+          "totalMs": 33.9,
+          "decodedBytes": 27940
+        },
+        {
+          "status": 200,
+          "ttfbMs": 26.3,
+          "totalMs": 36.8,
+          "decodedBytes": 27940
+        },
+        {
+          "status": 200,
+          "ttfbMs": 33.9,
+          "totalMs": 47.5,
+          "decodedBytes": 27940
+        },
+        {
+          "status": 200,
+          "ttfbMs": 35.6,
+          "totalMs": 47.9,
+          "decodedBytes": 27940
+        },
+        {
+          "status": 200,
+          "ttfbMs": 18.5,
+          "totalMs": 30.3,
+          "decodedBytes": 27940
+        }
+      ],
+      "warmMedianTTFBms": 26.3,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/protein-powder-under-30",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 1358,
+        "totalMs": 1383.1,
+        "decodedBytes": 40245
+      },
+      "coldDatabaseReads": 2,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 61.1,
+          "totalMs": 79.9,
+          "decodedBytes": 40202
+        },
+        {
+          "status": 200,
+          "ttfbMs": 53.3,
+          "totalMs": 81,
+          "decodedBytes": 40202
+        },
+        {
+          "status": 200,
+          "ttfbMs": 61.6,
+          "totalMs": 89,
+          "decodedBytes": 40202
+        },
+        {
+          "status": 200,
+          "ttfbMs": 57.7,
+          "totalMs": 81.3,
+          "decodedBytes": 40202
+        },
+        {
+          "status": 200,
+          "ttfbMs": 45.1,
+          "totalMs": 68,
+          "decodedBytes": 40202
+        }
+      ],
+      "warmMedianTTFBms": 57.7,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/caffeine-free-pre-workout",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 586.3,
+        "totalMs": 598.5,
+        "decodedBytes": 35211
+      },
+      "coldDatabaseReads": 3,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 27.4,
+          "totalMs": 42.6,
+          "decodedBytes": 35168
+        },
+        {
+          "status": 200,
+          "ttfbMs": 35.7,
+          "totalMs": 50.9,
+          "decodedBytes": 35168
+        },
+        {
+          "status": 200,
+          "ttfbMs": 31.8,
+          "totalMs": 48,
+          "decodedBytes": 35168
+        },
+        {
+          "status": 200,
+          "ttfbMs": 28.8,
+          "totalMs": 47.5,
+          "decodedBytes": 35168
+        },
+        {
+          "status": 200,
+          "ttfbMs": 49.8,
+          "totalMs": 73,
+          "decodedBytes": 35168
+        }
+      ],
+      "warmMedianTTFBms": 31.8,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/supplement-prices-including-delivery",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 468.3,
+        "totalMs": 481,
+        "decodedBytes": 32984
+      },
+      "coldDatabaseReads": 2,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 35,
+          "totalMs": 52.5,
+          "decodedBytes": 32941
+        },
+        {
+          "status": 200,
+          "ttfbMs": 28.8,
+          "totalMs": 50.8,
+          "decodedBytes": 32941
+        },
+        {
+          "status": 200,
+          "ttfbMs": 35.6,
+          "totalMs": 56.9,
+          "decodedBytes": 32941
+        },
+        {
+          "status": 200,
+          "ttfbMs": 35.1,
+          "totalMs": 54.8,
+          "decodedBytes": 32941
+        },
+        {
+          "status": 200,
+          "ttfbMs": 33.4,
+          "totalMs": 53.3,
+          "decodedBytes": 32941
+        }
+      ],
+      "warmMedianTTFBms": 35,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/cost-per-25g-protein",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 475.1,
+        "totalMs": 486.7,
+        "decodedBytes": 37449
+      },
+      "coldDatabaseReads": 2,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 30.7,
+          "totalMs": 44,
+          "decodedBytes": 37363
+        },
+        {
+          "status": 200,
+          "ttfbMs": 36.7,
+          "totalMs": 51.6,
+          "decodedBytes": 37363
+        },
+        {
+          "status": 200,
+          "ttfbMs": 31.4,
+          "totalMs": 46.2,
+          "decodedBytes": 37363
+        },
+        {
+          "status": 200,
+          "ttfbMs": 27.4,
+          "totalMs": 44.3,
+          "decodedBytes": 37363
+        },
+        {
+          "status": 200,
+          "ttfbMs": 42.4,
+          "totalMs": 63.1,
+          "decodedBytes": 37363
+        }
+      ],
+      "warmMedianTTFBms": 31.4,
+      "warmDatabaseReads": 0
+    }
+  ]
+}

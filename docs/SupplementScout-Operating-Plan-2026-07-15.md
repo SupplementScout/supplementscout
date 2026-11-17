@@ -5,6 +5,28 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**17 November 2026 SEO-23 production-release approval:** the owner explicitly
+authorizes PR #543, reviewed head `1c0fe408da4ab687c78805da99f649f0d7c773bb`,
+only its two guide lifecycle transitions to `launch_approved`, necessary
+tests/docs, guarded squash merge and automatic Vercel release. SEO-23 remains
+`CODE COMPLETE` pending public readback and closeout. This supersedes the
+earlier Draft-only restrictions for this release. SEO-20 stays frozen/binding;
+SEO-21/22 stay live verified, Stage3 off. No catalogue/nutrition/mapping write,
+Google submission or next sprint is authorized.
+
+**17 November 2026 Content Growth Sprint 3 checkpoint:** the owner approves
+one SEO-23 bundle and Draft PR for protein powder under £30 delivered and
+confirmed caffeine-free pre-workout guides. Bounded existing-catalogue reads
+qualify both topics; no alternative is needed. Reuse the existing guide,
+pricing, variant, approved-fact and cache mechanisms. SEO-20 stays frozen and
+binding; SEO-21/SEO-22 remain live verified. New routes stay planned/noindex.
+No production write, nutrition approval, merge, publication or GSC submission.
+SEO-23 is now `CODE COMPLETE` after real-source examples, quick/full gates,
+production-build cache/HTTP checks and 1440/390px browser QA. One Draft PR is
+prepared for review; both routes stay planned/noindex. The exact future owner
+launch decision and supporting evidence are in the
+[Sprint 3 record](rollouts/content-growth-sprint-3-2026-11-17.md).
+
 **17 November 2026 SEO-22 live closeout:** owner-approved PR #542 merged as
 `53d933f1bb0d263ad27b0ea4f92edaa639adf8b6` with approved-tree parity.
 Vercel Production `dpl_9ebt6YoHyPz8Arhi1tzkqeMZbgpA` is READY. Both public
@@ -5138,6 +5160,13 @@ Target experience:
 ## 13. Immediate active plan
 
 ### Current active task
+
+SEO-20 remains the binding frozen experiment. For the owner-approved Sprint 3
+bundle only:
+Content Growth exception: SEO-23 beside frozen SEO-20; Draft PR only.
+SEO-23 contains exactly the two guide URLs in the SEO ledger. SEO-21/SEO-22
+stay live verified and their active-pair exceptions are retired. No release,
+data write, GSC submission or next sprint is authorized.
 
 SEO-20 remains the binding active experiment. For the separately approved
 Sprint 2 bundle only:

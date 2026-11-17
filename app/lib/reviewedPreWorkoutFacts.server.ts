@@ -42,7 +42,8 @@ const PRODUCT_ID_BATCH_SIZE = 500;
 const CANDIDATE_PAGE_SIZE = 1000;
 
 export async function loadAppliedPreWorkoutFacts(
-  variants: NutritionProofVariant[]
+  variants: NutritionProofVariant[],
+  options: { failOnError?: boolean } = {}
 ): Promise<Map<string, AppliedPreWorkoutFacts>> {
   const uniqueVariants = new Map(
     variants.map((variant) => [String(variant.id), variant])
@@ -67,6 +68,7 @@ export async function loadAppliedPreWorkoutFacts(
         .range(from, from + CANDIDATE_PAGE_SIZE - 1);
 
       if (error) {
+        if (options.failOnError) throw new Error("Unable to verify applied pre-workout facts.");
         console.error("Unable to verify applied pre-workout facts.");
         return new Map();
       }
