@@ -1,0 +1,566 @@
+{
+  "capturedAt": "2026-11-17T15:45:08.264Z",
+  "kind": "production-release-readback",
+  "deployment": {
+    "id": "dpl_9ebt6YoHyPz8Arhi1tzkqeMZbgpA",
+    "sha": "53d933f1bb0d263ad27b0ea4f92edaa639adf8b6",
+    "target": "production",
+    "state": "READY",
+    "url": "supplementscout-bx0j8dlre-supplement-scout.vercel.app"
+  },
+  "pages": [
+    {
+      "path": "/guides/supplement-prices-including-delivery",
+      "status": 200,
+      "ttfbMs": 450.4,
+      "totalMs": 458.3,
+      "bytes": 33998,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "Supplement Prices Including Delivery: A UK Comparison | SupplementScout",
+        "h1": "Can a higher product price be cheaper after delivery?",
+        "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "parameter": {
+        "path": "/guides/supplement-prices-including-delivery?sort=price",
+        "status": 200,
+        "ttfbMs": 163.7,
+        "totalMs": 169.8,
+        "bytes": 34053,
+        "xRobotsTag": null,
+        "metadata": {
+          "title": "Supplement Prices Including Delivery: A UK Comparison | SupplementScout",
+          "h1": "Can a higher product price be cheaper after delivery?",
+          "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+          "robots": "noindex, follow",
+          "schema": [
+            "BreadcrumbList",
+            "WebPage"
+          ]
+        }
+      },
+      "googlebot": {
+        "path": "/guides/supplement-prices-including-delivery",
+        "status": 200,
+        "ttfbMs": 609.2,
+        "totalMs": 610.2,
+        "bytes": 33998,
+        "xRobotsTag": null,
+        "metadata": {
+          "title": "Supplement Prices Including Delivery: A UK Comparison | SupplementScout",
+          "h1": "Can a higher product price be cheaper after delivery?",
+          "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+          "robots": "index, follow",
+          "schema": [
+            "BreadcrumbList",
+            "WebPage"
+          ]
+        }
+      },
+      "sourceCapturedAt": "2026-11-17T15:43:25.235Z",
+      "sourceBoundContentEquality": true,
+      "sitemapOccurrences": 1
+    },
+    {
+      "path": "/guides/cost-per-25g-protein",
+      "status": 200,
+      "ttfbMs": 183.1,
+      "totalMs": 195.4,
+      "bytes": 38463,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout",
+        "h1": "How to compare protein powders by cost per 25g of protein",
+        "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "parameter": {
+        "path": "/guides/cost-per-25g-protein?sort=price",
+        "status": 200,
+        "ttfbMs": 466.6,
+        "totalMs": 476.3,
+        "bytes": 38518,
+        "xRobotsTag": null,
+        "metadata": {
+          "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout",
+          "h1": "How to compare protein powders by cost per 25g of protein",
+          "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+          "robots": "noindex, follow",
+          "schema": [
+            "BreadcrumbList",
+            "WebPage"
+          ]
+        }
+      },
+      "googlebot": {
+        "path": "/guides/cost-per-25g-protein",
+        "status": 200,
+        "ttfbMs": 155.2,
+        "totalMs": 161.2,
+        "bytes": 38463,
+        "xRobotsTag": null,
+        "metadata": {
+          "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout",
+          "h1": "How to compare protein powders by cost per 25g of protein",
+          "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+          "robots": "index, follow",
+          "schema": [
+            "BreadcrumbList",
+            "WebPage"
+          ]
+        }
+      },
+      "sourceCapturedAt": "2026-11-17T15:43:25.235Z",
+      "sourceBoundContentEquality": true,
+      "sitemapOccurrences": 1
+    }
+  ],
+  "existingSamples": [
+    {
+      "path": "/how-we-compare",
+      "status": 200,
+      "ttfbMs": 219.4,
+      "totalMs": 233.4,
+      "bytes": 28954,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "How We Compare Supplement Prices | SupplementScout",
+        "h1": "How SupplementScout compares supplement prices",
+        "canonical": "https://www.supplementscout.co.uk/how-we-compare",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      }
+    },
+    {
+      "path": "/creatine",
+      "status": 200,
+      "ttfbMs": 266.9,
+      "totalMs": 606.3,
+      "bytes": 524329,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "Compare Creatine Supplements & Prices UK | SupplementScout",
+        "h1": "Compare Creatine Supplements UK",
+        "canonical": "https://www.supplementscout.co.uk/creatine",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      }
+    },
+    {
+      "path": "/whey-protein",
+      "status": 200,
+      "ttfbMs": 334.2,
+      "totalMs": 357.2,
+      "bytes": 599272,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "Compare Whey Protein Prices UK | SupplementScout",
+        "h1": "Compare Whey Protein Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/whey-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      }
+    },
+    {
+      "path": "/brands/per4m",
+      "status": 200,
+      "ttfbMs": 187.2,
+      "totalMs": 283.3,
+      "bytes": 248931,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "Compare PER4M Prices Across UK Retailers | SupplementScout",
+        "h1": "Per4m Products & Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      }
+    },
+    {
+      "path": "/how-we-compare",
+      "status": 200,
+      "ttfbMs": 119.2,
+      "totalMs": 140.7,
+      "bytes": 28954,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "How We Compare Supplement Prices | SupplementScout",
+        "h1": "How SupplementScout compares supplement prices",
+        "canonical": "https://www.supplementscout.co.uk/how-we-compare",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      }
+    },
+    {
+      "path": "/creatine",
+      "status": 200,
+      "ttfbMs": 235.9,
+      "totalMs": 343.4,
+      "bytes": 524329,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "Compare Creatine Supplements & Prices UK | SupplementScout",
+        "h1": "Compare Creatine Supplements UK",
+        "canonical": "https://www.supplementscout.co.uk/creatine",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      }
+    },
+    {
+      "path": "/whey-protein",
+      "status": 200,
+      "ttfbMs": 270,
+      "totalMs": 442.9,
+      "bytes": 599272,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "Compare Whey Protein Prices UK | SupplementScout",
+        "h1": "Compare Whey Protein Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/whey-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      }
+    },
+    {
+      "path": "/brands/per4m",
+      "status": 200,
+      "ttfbMs": 190.8,
+      "totalMs": 286.3,
+      "bytes": 248931,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "Compare PER4M Prices Across UK Retailers | SupplementScout",
+        "h1": "Per4m Products & Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      }
+    },
+    {
+      "path": "/how-we-compare",
+      "status": 200,
+      "ttfbMs": 184.2,
+      "totalMs": 203.9,
+      "bytes": 28954,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "How We Compare Supplement Prices | SupplementScout",
+        "h1": "How SupplementScout compares supplement prices",
+        "canonical": "https://www.supplementscout.co.uk/how-we-compare",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      }
+    },
+    {
+      "path": "/creatine",
+      "status": 200,
+      "ttfbMs": 296.7,
+      "totalMs": 480.6,
+      "bytes": 524329,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "Compare Creatine Supplements & Prices UK | SupplementScout",
+        "h1": "Compare Creatine Supplements UK",
+        "canonical": "https://www.supplementscout.co.uk/creatine",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      }
+    },
+    {
+      "path": "/whey-protein",
+      "status": 200,
+      "ttfbMs": 517.3,
+      "totalMs": 667.7,
+      "bytes": 599272,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "Compare Whey Protein Prices UK | SupplementScout",
+        "h1": "Compare Whey Protein Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/whey-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      }
+    },
+    {
+      "path": "/brands/per4m",
+      "status": 200,
+      "ttfbMs": 463,
+      "totalMs": 551.9,
+      "bytes": 248931,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "Compare PER4M Prices Across UK Retailers | SupplementScout",
+        "h1": "Per4m Products & Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      }
+    },
+    {
+      "path": "/how-we-compare",
+      "status": 200,
+      "ttfbMs": 249.7,
+      "totalMs": 255.4,
+      "bytes": 28954,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "How We Compare Supplement Prices | SupplementScout",
+        "h1": "How SupplementScout compares supplement prices",
+        "canonical": "https://www.supplementscout.co.uk/how-we-compare",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      }
+    },
+    {
+      "path": "/creatine",
+      "status": 200,
+      "ttfbMs": 253.6,
+      "totalMs": 433.8,
+      "bytes": 524329,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "Compare Creatine Supplements & Prices UK | SupplementScout",
+        "h1": "Compare Creatine Supplements UK",
+        "canonical": "https://www.supplementscout.co.uk/creatine",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      }
+    },
+    {
+      "path": "/whey-protein",
+      "status": 200,
+      "ttfbMs": 286,
+      "totalMs": 381.3,
+      "bytes": 599272,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "Compare Whey Protein Prices UK | SupplementScout",
+        "h1": "Compare Whey Protein Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/whey-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      }
+    },
+    {
+      "path": "/brands/per4m",
+      "status": 200,
+      "ttfbMs": 197.2,
+      "totalMs": 300.3,
+      "bytes": 248931,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "Compare PER4M Prices Across UK Retailers | SupplementScout",
+        "h1": "Per4m Products & Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      }
+    },
+    {
+      "path": "/how-we-compare",
+      "status": 200,
+      "ttfbMs": 71.2,
+      "totalMs": 86.1,
+      "bytes": 28954,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "How We Compare Supplement Prices | SupplementScout",
+        "h1": "How SupplementScout compares supplement prices",
+        "canonical": "https://www.supplementscout.co.uk/how-we-compare",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      }
+    },
+    {
+      "path": "/creatine",
+      "status": 200,
+      "ttfbMs": 235.4,
+      "totalMs": 416.6,
+      "bytes": 524329,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "Compare Creatine Supplements & Prices UK | SupplementScout",
+        "h1": "Compare Creatine Supplements UK",
+        "canonical": "https://www.supplementscout.co.uk/creatine",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      }
+    },
+    {
+      "path": "/whey-protein",
+      "status": 200,
+      "ttfbMs": 237.6,
+      "totalMs": 416.3,
+      "bytes": 599272,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "Compare Whey Protein Prices UK | SupplementScout",
+        "h1": "Compare Whey Protein Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/whey-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      }
+    },
+    {
+      "path": "/brands/per4m",
+      "status": 200,
+      "ttfbMs": 188.5,
+      "totalMs": 218.2,
+      "bytes": 248931,
+      "xRobotsTag": null,
+      "metadata": {
+        "title": "Compare PER4M Prices Across UK Retailers | SupplementScout",
+        "h1": "Per4m Products & Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      }
+    }
+  ],
+  "performanceSummary": [
+    {
+      "route": "/how-we-compare",
+      "warmMedianTTFBms": 184.2,
+      "decodedBytes": 28954
+    },
+    {
+      "route": "/creatine",
+      "warmMedianTTFBms": 253.6,
+      "decodedBytes": 524329
+    },
+    {
+      "route": "/whey-protein",
+      "warmMedianTTFBms": 286,
+      "decodedBytes": 599272
+    },
+    {
+      "route": "/brands/per4m",
+      "warmMedianTTFBms": 197.2,
+      "decodedBytes": 248931
+    }
+  ],
+  "robots": {
+    "status": 200,
+    "text": "User-Agent: SERankingBacklinksBot\nDisallow: /\n\nUser-Agent: *\nAllow: /\nDisallow: /admin\nDisallow: /go\n\nSitemap: https://www.supplementscout.co.uk/sitemap.xml\n"
+  },
+  "sitemap": {
+    "status": 200,
+    "guideOccurrences": [
+      {
+        "path": "/guides/supplement-prices-including-delivery",
+        "count": 1
+      },
+      {
+        "path": "/guides/cost-per-25g-protein",
+        "count": 1
+      }
+    ]
+  },
+  "productionDataWrites": 0,
+  "performanceComparison": [
+    {
+      "route": "/how-we-compare",
+      "beforeWarmMs": 307.3,
+      "afterWarmMs": 184.2
+    },
+    {
+      "route": "/creatine",
+      "beforeWarmMs": 234.6,
+      "afterWarmMs": 253.6
+    },
+    {
+      "route": "/whey-protein",
+      "beforeWarmMs": 252.8,
+      "afterWarmMs": 286
+    },
+    {
+      "route": "/brands/per4m",
+      "beforeWarmMs": 389.3,
+      "afterWarmMs": 197.2
+    }
+  ]
+}

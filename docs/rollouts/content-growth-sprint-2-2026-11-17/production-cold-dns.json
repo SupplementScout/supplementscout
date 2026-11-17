@@ -1,0 +1,1070 @@
+{
+  "capturedAt": "2026-11-17T15:45:31.167Z",
+  "environment": "actual public production Chrome QA; not field CWV; non-essential consent rejected if shown",
+  "base": "https://www.supplementscout.co.uk",
+  "syntheticOffers": false,
+  "results": [
+    {
+      "route": "/guides/supplement-prices-including-delivery",
+      "width": 1440,
+      "mobileTouchEmulation": false,
+      "result": "PASS",
+      "title": "Supplement Prices Including Delivery: A UK Comparison | SupplementScout",
+      "h1": "Can a higher product price be cheaper after delivery?",
+      "viewport": 1440,
+      "visualWidth": 1425,
+      "scale": 1,
+      "documentWidth": 1425,
+      "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "CNP Creatine Monohydrate 250g",
+          "href": "/product/cnp-creatine-monohydrate-250g?variant=2015"
+        },
+        {
+          "text": "how we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "our freshness rules",
+          "href": "/data-freshness"
+        },
+        {
+          "text": "current supplement deals",
+          "href": "/deals"
+        },
+        {
+          "text": "creatine under £20",
+          "href": "/creatine#under-20"
+        },
+        {
+          "text": "cost per 25 g of protein",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "Help Me Choose",
+          "href": "/help-me-choose"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Jon's SupplementsProduct price£12.99Delivery£3.99Delivered total£16.98Offer checked 17 Nov 2026, 13:542026-11-17T13:54:47.083+00:00",
+          "x": 313.5,
+          "y": 737,
+          "w": 391,
+          "h": 186
+        },
+        {
+          "text": "6 Pack SupplementsProduct price£15.00Delivery£4.99Delivered total£19.99Offer checked 17 Nov 2026, 11:452026-11-17T11:45:40.735+00:00",
+          "x": 720.5,
+          "y": 737,
+          "w": 391,
+          "h": 186
+        }
+      ],
+      "cls": 0.0017015735610957216,
+      "lcpMs": 16228,
+      "navigation": {
+        "name": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery?qa=1440",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 16912.20000000298,
+        "navigationId": 3724,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "h2",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "br",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 1.0999999940395355,
+        "domainLookupStart": 2.2000000029802322,
+        "domainLookupEnd": 15256.09999999404,
+        "connectStart": 15256.09999999404,
+        "secureConnectionStart": 15318.79999999702,
+        "connectEnd": 15413.20000000298,
+        "requestStart": 15413.29999999702,
+        "responseStart": 15484.20000000298,
+        "firstInterimResponseStart": 15484.20000000298,
+        "finalResponseHeadersStart": 15616.79999999702,
+        "responseEnd": 15734.20000000298,
+        "transferSize": 7787,
+        "encodedBodySize": 7487,
+        "decodedBodySize": 34044,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 0,
+        "unloadEventEnd": 0,
+        "domInteractive": 16206.59999999404,
+        "domContentLoadedEventStart": 16206.70000000298,
+        "domContentLoadedEventEnd": 16206.70000000298,
+        "domComplete": 16912.20000000298,
+        "loadEventStart": 16912.20000000298,
+        "loadEventEnd": 16912.20000000298,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1m4jsc1dh3h5_.css",
+          "bytes": 81236,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3j9pm5otqxm82.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/turbopack-05o9g6l_1hb89.js",
+          "bytes": 11041,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3ixnum3-fm047.js",
+          "bytes": 54645,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2qss5m6h08xun.js",
+          "bytes": 26871,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2uj5ax2ixobu6.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1w9lotakwc4_z.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/favicon.ico?favicon.32r4ylec7nel_.ico",
+          "bytes": 2774,
+          "type": "other"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/cnp-creatine-monohydrate-250g?variant=2015&_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 262,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=Pqg9bDeHVrqIm076",
+          "bytes": 2565,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=Ueksyfd5jUklAD31",
+          "bytes": 2908,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/supplement-prices-including-delivery",
+      "width": 390,
+      "mobileTouchEmulation": true,
+      "result": "PASS",
+      "title": "Supplement Prices Including Delivery: A UK Comparison | SupplementScout",
+      "h1": "Can a higher product price be cheaper after delivery?",
+      "viewport": 390,
+      "visualWidth": 390,
+      "scale": 1,
+      "documentWidth": 390,
+      "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "CNP Creatine Monohydrate 250g",
+          "href": "/product/cnp-creatine-monohydrate-250g?variant=2015"
+        },
+        {
+          "text": "how we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "our freshness rules",
+          "href": "/data-freshness"
+        },
+        {
+          "text": "current supplement deals",
+          "href": "/deals"
+        },
+        {
+          "text": "creatine under £20",
+          "href": "/creatine#under-20"
+        },
+        {
+          "text": "cost per 25 g of protein",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "Help Me Choose",
+          "href": "/help-me-choose"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Jon's SupplementsProduct price£12.99Delivery£3.99Delivered total£16.98Offer checked 17 Nov 2026, 13:542026-11-17T13:54:47.083+00:00",
+          "x": 37,
+          "y": 957.5,
+          "w": 316,
+          "h": 186
+        },
+        {
+          "text": "6 Pack SupplementsProduct price£15.00Delivery£4.99Delivered total£19.99Offer checked 17 Nov 2026, 11:452026-11-17T11:45:40.735+00:00",
+          "x": 37,
+          "y": 1159.5,
+          "w": 316,
+          "h": 186
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 316,
+      "navigation": {
+        "name": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery?qa=390",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 299.40000000596046,
+        "navigationId": 7567,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "h2",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "br",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 1.4000000059604645,
+        "domainLookupStart": 1.4000000059604645,
+        "domainLookupEnd": 1.4000000059604645,
+        "connectStart": 1.4000000059604645,
+        "secureConnectionStart": 1.4000000059604645,
+        "connectEnd": 1.4000000059604645,
+        "requestStart": 3.1000000089406967,
+        "responseStart": 70.1000000089407,
+        "firstInterimResponseStart": 70.1000000089407,
+        "finalResponseHeadersStart": 257.90000000596046,
+        "responseEnd": 266,
+        "transferSize": 7774,
+        "encodedBodySize": 7474,
+        "decodedBodySize": 34041,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 270.70000000298023,
+        "unloadEventEnd": 270.70000000298023,
+        "domInteractive": 295.6000000089407,
+        "domContentLoadedEventStart": 295.6000000089407,
+        "domContentLoadedEventEnd": 295.6000000089407,
+        "domComplete": 299.30000001192093,
+        "loadEventStart": 299.30000001192093,
+        "loadEventEnd": 299.40000000596046,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1m4jsc1dh3h5_.css",
+          "bytes": 81236,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3j9pm5otqxm82.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/turbopack-05o9g6l_1hb89.js",
+          "bytes": 11041,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2qss5m6h08xun.js",
+          "bytes": 26871,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3ixnum3-fm047.js",
+          "bytes": 54645,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2uj5ax2ixobu6.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1w9lotakwc4_z.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/cnp-creatine-monohydrate-250g?variant=2015&_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 262,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=Pqg9bDeHVrqIm076",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=Ueksyfd5jUklAD31",
+          "bytes": 2908,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/cnp-creatine-monohydrate-250g?variant=2015&_rsc=UuvagXt-zI-ynsW0",
+          "bytes": 2976,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=UuvagXt-zI-ynsW0",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=m4c6iJdCrlVrTGLS",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=fIbKdfwE6l8O9xI1",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=UuvagXt-zI-ynsW0",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/cnp-creatine-monohydrate-250g?_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 249,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/cost-per-25g-protein",
+      "width": 1440,
+      "mobileTouchEmulation": false,
+      "result": "PASS",
+      "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout",
+      "h1": "How to compare protein powders by cost per 25g of protein",
+      "viewport": 1440,
+      "visualWidth": 1425,
+      "scale": 1,
+      "documentWidth": 1425,
+      "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "Applied Nutrition ISO-XP 1.8kg",
+          "href": "/product/applied-nutrition-iso-xp-18kg?variant=732"
+        },
+        {
+          "text": "Nutrition source for this flavour",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "Applied Nutrition ISO-XP 1.8kg",
+          "href": "/product/applied-nutrition-iso-xp-18kg?variant=735"
+        },
+        {
+          "text": "Nutrition source for this flavour",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "current whey protein offers",
+          "href": "/whey-protein"
+        },
+        {
+          "text": "the whey isolate comparison",
+          "href": "/whey-isolate"
+        },
+        {
+          "text": "compare two products",
+          "href": "/compare"
+        },
+        {
+          "text": "how we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "data freshness",
+          "href": "/data-freshness"
+        },
+        {
+          "text": "why delivery changes a price comparison",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "Help Me Choose",
+          "href": "/help-me-choose"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Applied Nutrition ISO-XP 1.8kgVariant: Banana / 1.8kg. Pack: 1,800g.Whey OkayProduct price£81.53Delivery£3.99Delivered total£85.52Offer checked 17 Nov 2026, 10:482026-11-17T10:48:03.114+00:00Verified servings72Serving size25 gProtein per serving22 gTotal verified protein1,584 gCost per 25 g protein£1.35£85.52 ÷ 1,584 g × 25 g = £1.35 per 25 g protein, rounded to the nearest penny.Nutrition source for this flavour",
+          "x": 288.5,
+          "y": 1034,
+          "w": 848,
+          "h": 541
+        },
+        {
+          "text": "Applied Nutrition ISO-XP 1.8kgVariant: Vanilla / 1.8kg. Pack: 1,800g.Whey OkayProduct price£81.53Delivery£3.99Delivered total£85.52Offer checked 17 Nov 2026, 10:482026-11-17T10:48:03.114+00:00Verified servings72Serving size25 gProtein per serving22 gTotal verified protein1,584 gCost per 25 g protein£1.35£85.52 ÷ 1,584 g × 25 g = £1.35 per 25 g protein, rounded to the nearest penny.Nutrition source for this flavour",
+          "x": 288.5,
+          "y": 1595,
+          "w": 848,
+          "h": 541
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 376,
+      "navigation": {
+        "name": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein?qa=1440",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 494.90000000596046,
+        "navigationId": 5326,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "h2",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "br",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.9000000059604645,
+        "domainLookupStart": 0.9000000059604645,
+        "domainLookupEnd": 0.9000000059604645,
+        "connectStart": 0.9000000059604645,
+        "secureConnectionStart": 0.9000000059604645,
+        "connectEnd": 0.9000000059604645,
+        "requestStart": 2.300000011920929,
+        "responseStart": 177.5,
+        "firstInterimResponseStart": 177.5,
+        "finalResponseHeadersStart": 316.80000001192093,
+        "responseEnd": 323.80000001192093,
+        "transferSize": 8183,
+        "encodedBodySize": 7883,
+        "decodedBodySize": 38509,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 322.6000000089407,
+        "unloadEventEnd": 322.6000000089407,
+        "domInteractive": 336.20000000298023,
+        "domContentLoadedEventStart": 336.20000000298023,
+        "domContentLoadedEventEnd": 336.20000000298023,
+        "domComplete": 494.90000000596046,
+        "loadEventStart": 494.90000000596046,
+        "loadEventEnd": 494.90000000596046,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1m4jsc1dh3h5_.css",
+          "bytes": 81236,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3j9pm5otqxm82.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/turbopack-05o9g6l_1hb89.js",
+          "bytes": 11041,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2qss5m6h08xun.js",
+          "bytes": 26871,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3ixnum3-fm047.js",
+          "bytes": 54645,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2wa5y9ulg87tc.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1w9lotakwc4_z.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=UPLq0mPBu4Wn0pEa",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-iso-xp-18kg?variant=732&_rsc=UPLq0mPBu4Wn0pEa",
+          "bytes": 261,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=UPLq0mPBu4Wn0pEa",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=UPLq0mPBu4Wn0pEa",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=UPLq0mPBu4Wn0pEa",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=HmZAvK-CQBnO3P2h",
+          "bytes": 2565,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=X8D6Lv0oUjYWDxHy",
+          "bytes": 2908,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=8W57oU13P-i9zA8z",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=7J9ykZHM6ZH98_8k",
+          "bytes": 1655,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-iso-xp-18kg?variant=732&_rsc=7jz3otRN5Udan0DF",
+          "bytes": 3054,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=7jz3otRN5Udan0DF",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/308ujrdr5rv1m.js",
+          "bytes": 13700,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=HmZAvK-CQBnO3P2h",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=jQ2-OUtN0-nRRtUO",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=bfJ2Zm-CufhXL5DK",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=7jz3otRN5Udan0DF",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-iso-xp-18kg?_rsc=UPLq0mPBu4Wn0pEa",
+          "bytes": 249,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/cost-per-25g-protein",
+      "width": 390,
+      "mobileTouchEmulation": true,
+      "result": "PASS",
+      "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout",
+      "h1": "How to compare protein powders by cost per 25g of protein",
+      "viewport": 390,
+      "visualWidth": 390,
+      "scale": 1,
+      "documentWidth": 390,
+      "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "Applied Nutrition ISO-XP 1.8kg",
+          "href": "/product/applied-nutrition-iso-xp-18kg?variant=732"
+        },
+        {
+          "text": "Nutrition source for this flavour",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "Applied Nutrition ISO-XP 1.8kg",
+          "href": "/product/applied-nutrition-iso-xp-18kg?variant=735"
+        },
+        {
+          "text": "Nutrition source for this flavour",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "current whey protein offers",
+          "href": "/whey-protein"
+        },
+        {
+          "text": "the whey isolate comparison",
+          "href": "/whey-isolate"
+        },
+        {
+          "text": "compare two products",
+          "href": "/compare"
+        },
+        {
+          "text": "how we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "data freshness",
+          "href": "/data-freshness"
+        },
+        {
+          "text": "why delivery changes a price comparison",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "Help Me Choose",
+          "href": "/help-me-choose"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Applied Nutrition ISO-XP 1.8kgVariant: Banana / 1.8kg. Pack: 1,800g.Whey OkayProduct price£81.53Delivery£3.99Delivered total£85.52Offer checked 17 Nov 2026, 10:482026-11-17T10:48:03.114+00:00Verified servings72Serving size25 gProtein per serving22 gTotal verified protein1,584 gCost per 25 g protein£1.35£85.52 ÷ 1,584 g × 25 g = £1.35 per 25 g protein, rounded to the nearest penny.Nutrition source for this flavour",
+          "x": 16,
+          "y": 1506.5,
+          "w": 358,
+          "h": 553
+        },
+        {
+          "text": "Applied Nutrition ISO-XP 1.8kgVariant: Vanilla / 1.8kg. Pack: 1,800g.Whey OkayProduct price£81.53Delivery£3.99Delivered total£85.52Offer checked 17 Nov 2026, 10:482026-11-17T10:48:03.114+00:00Verified servings72Serving size25 gProtein per serving22 gTotal verified protein1,584 gCost per 25 g protein£1.35£85.52 ÷ 1,584 g × 25 g = £1.35 per 25 g protein, rounded to the nearest penny.Nutrition source for this flavour",
+          "x": 16,
+          "y": 2079.5,
+          "w": 358,
+          "h": 553
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 272,
+      "navigation": {
+        "name": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein?qa=390",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 256.5,
+        "navigationId": 5149,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "h2",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "br",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.8999999910593033,
+        "domainLookupStart": 0.8999999910593033,
+        "domainLookupEnd": 0.8999999910593033,
+        "connectStart": 0.8999999910593033,
+        "secureConnectionStart": 0.8999999910593033,
+        "connectEnd": 0.8999999910593033,
+        "requestStart": 2.0999999940395355,
+        "responseStart": 67.79999999701977,
+        "firstInterimResponseStart": 67.79999999701977,
+        "finalResponseHeadersStart": 216.69999998807907,
+        "responseEnd": 239.09999999403954,
+        "transferSize": 8179,
+        "encodedBodySize": 7879,
+        "decodedBodySize": 38506,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 229.79999999701977,
+        "unloadEventEnd": 229.79999999701977,
+        "domInteractive": 242.8999999910593,
+        "domContentLoadedEventStart": 242.8999999910593,
+        "domContentLoadedEventEnd": 242.8999999910593,
+        "domComplete": 256.5,
+        "loadEventStart": 256.5,
+        "loadEventEnd": 256.5,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1m4jsc1dh3h5_.css",
+          "bytes": 81236,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3j9pm5otqxm82.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/turbopack-05o9g6l_1hb89.js",
+          "bytes": 11041,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2qss5m6h08xun.js",
+          "bytes": 26871,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3ixnum3-fm047.js",
+          "bytes": 54645,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2wa5y9ulg87tc.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1w9lotakwc4_z.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=UPLq0mPBu4Wn0pEa",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=UPLq0mPBu4Wn0pEa",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=UPLq0mPBu4Wn0pEa",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=HmZAvK-CQBnO3P2h",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=X8D6Lv0oUjYWDxHy",
+          "bytes": 2908,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=jQ2-OUtN0-nRRtUO",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=bfJ2Zm-CufhXL5DK",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=7jz3otRN5Udan0DF",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=7jz3otRN5Udan0DF",
+          "bytes": 2635,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    }
+  ]
+}

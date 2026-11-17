@@ -1,0 +1,288 @@
+{
+  "capturedAt": "2026-11-17T15:43:25.235Z",
+  "environment": "local server rendering of actual source components using GET/HEAD-only production catalogue reads; no synthetic rows",
+  "databaseWrites": 0,
+  "pages": [
+    {
+      "route": "/guides/supplement-prices-including-delivery",
+      "metadata": {
+        "title": "Supplement Prices Including Delivery: A UK Comparison",
+        "description": "Compare checked UK supplement offers for the same variant and pack, with product price, delivery and the final delivered total shown apart.",
+        "alternates": {
+          "canonical": "/guides/supplement-prices-including-delivery"
+        },
+        "robots": {
+          "index": true,
+          "follow": true
+        },
+        "openGraph": {
+          "title": "Supplement Prices Including Delivery: A UK Comparison",
+          "description": "Compare checked UK supplement offers for the same variant and pack, with product price, delivery and the final delivered total shown apart.",
+          "url": "/guides/supplement-prices-including-delivery",
+          "type": "website"
+        },
+        "twitter": {
+          "card": "summary",
+          "title": "Supplement Prices Including Delivery: A UK Comparison",
+          "description": "Compare checked UK supplement offers for the same variant and pack, with product price, delivery and the final delivered total shown apart."
+        }
+      },
+      "sourceReadMs": 860,
+      "renderMs": 56,
+      "htmlBytes": 8319,
+      "reads": [
+        {
+          "table": "products",
+          "method": "GET",
+          "status": 200,
+          "ms": 630,
+          "bytes": 1821
+        },
+        {
+          "table": "retailer_products",
+          "method": "GET",
+          "status": 200,
+          "ms": 224,
+          "bytes": 1004
+        }
+      ],
+      "links": [
+        "/",
+        "/search",
+        "/how-we-compare",
+        "/product/cnp-creatine-monohydrate-250g?variant=2015",
+        "/data-freshness",
+        "/deals",
+        "/creatine#under-20",
+        "/guides/cost-per-25g-protein",
+        "/help-me-choose"
+      ],
+      "examples": [
+        {
+          "productId": "407",
+          "product": "CNP Creatine Monohydrate 250g",
+          "variantId": 2015,
+          "variant": "Unflavoured / 250g",
+          "pack": "250g",
+          "productUrl": "/product/cnp-creatine-monohydrate-250g?variant=2015",
+          "nutritionApproved": false,
+          "totalProteinG": null,
+          "currentDeliveredOffers": [
+            {
+              "retailer": "Jon's Supplements",
+              "price": 12.99,
+              "shipping": 3.99,
+              "total": 16.98,
+              "checkedAt": "2026-11-17T13:54:47.083+00:00"
+            },
+            {
+              "retailer": "6 Pack Supplements",
+              "price": 15,
+              "shipping": 4.99,
+              "total": 19.99,
+              "checkedAt": "2026-11-17T11:45:40.735+00:00"
+            }
+          ],
+          "sourceOffers": [
+            {
+              "id": 2086,
+              "retailer": "6 Pack Supplements",
+              "price": 15,
+              "shipping": 4.99,
+              "inStock": true,
+              "checkedAt": "2026-11-17T11:45:40.735+00:00"
+            },
+            {
+              "id": 1018,
+              "retailer": "Jon's Supplements",
+              "price": 12.99,
+              "shipping": 3.99,
+              "inStock": true,
+              "checkedAt": "2026-11-17T13:54:47.083+00:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "route": "/guides/cost-per-25g-protein",
+      "metadata": {
+        "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly",
+        "description": "Understand delivered cost per 25 g of protein with checked whey examples, verified serving data and clear limits on missing information.",
+        "alternates": {
+          "canonical": "/guides/cost-per-25g-protein"
+        },
+        "robots": {
+          "index": true,
+          "follow": true
+        },
+        "openGraph": {
+          "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly",
+          "description": "Understand delivered cost per 25 g of protein with checked whey examples, verified serving data and clear limits on missing information.",
+          "url": "/guides/cost-per-25g-protein",
+          "type": "website"
+        },
+        "twitter": {
+          "card": "summary",
+          "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly",
+          "description": "Understand delivered cost per 25 g of protein with checked whey examples, verified serving data and clear limits on missing information."
+        }
+      },
+      "sourceReadMs": 373,
+      "renderMs": 11,
+      "htmlBytes": 9935,
+      "reads": [
+        {
+          "table": "products",
+          "method": "GET",
+          "status": 200,
+          "ms": 190,
+          "bytes": 4734
+        },
+        {
+          "table": "retailer_products",
+          "method": "GET",
+          "status": 200,
+          "ms": 182,
+          "bytes": 7475
+        }
+      ],
+      "links": [
+        "/",
+        "/search",
+        "/how-we-compare",
+        "/product/applied-nutrition-iso-xp-18kg?variant=732",
+        "https://appliednutrition.uk/products/iso-xp",
+        "/product/applied-nutrition-iso-xp-18kg?variant=735",
+        "/whey-protein",
+        "/whey-isolate",
+        "/compare",
+        "/data-freshness",
+        "/guides/supplement-prices-including-delivery",
+        "/help-me-choose"
+      ],
+      "examples": [
+        {
+          "productId": "178",
+          "product": "Applied Nutrition ISO-XP 1.8kg",
+          "variantId": 732,
+          "variant": "Banana / 1.8kg",
+          "pack": "1,800g",
+          "productUrl": "/product/applied-nutrition-iso-xp-18kg?variant=732",
+          "nutritionApproved": true,
+          "totalProteinG": 1584,
+          "currentDeliveredOffers": [
+            {
+              "retailer": "Whey Okay",
+              "price": 81.53,
+              "shipping": 3.99,
+              "total": 85.52,
+              "checkedAt": "2026-11-17T10:48:03.114+00:00"
+            }
+          ],
+          "sourceOffers": [
+            {
+              "id": 767,
+              "retailer": "Discount Supplements",
+              "price": 69.99,
+              "shipping": 4.99,
+              "inStock": true,
+              "checkedAt": "2026-07-19T19:46:46.459+00:00"
+            },
+            {
+              "id": 1534,
+              "retailer": "Whey Okay",
+              "price": 81.53,
+              "shipping": 3.99,
+              "inStock": true,
+              "checkedAt": "2026-11-17T10:48:03.114+00:00"
+            }
+          ],
+          "nutrition": {
+            "servings": 72,
+            "servingG": 25,
+            "proteinG": 22,
+            "unroundedCostPer25g": 1.3497474747474747,
+            "approvedOverride": {
+              "evidence": "Manufacturer declares 1.8kg, 72 servings, one 25g scoop and approximately 22g protein per serving.",
+              "source_url": "https://appliednutrition.uk/products/iso-xp",
+              "source_type": "manufacturer_product_page",
+              "net_weight_g": 1800,
+              "product_format": "powder",
+              "serving_size_g": 25,
+              "nutrition_verified": true,
+              "protein_per_serving_g": 22,
+              "unit_pricing_verified": true,
+              "creatine_per_serving_g": null,
+              "serving_count_verified": 72
+            },
+            "reviewedManifest": "data/verified/variant-nutrition-reviewed-batch-1-v2.json",
+            "reviewedScopeHash": "c2198812faa5a2cdaeb26e7ad80c154a3c4c85cdef23c9f579a5b5c3bd4c4844",
+            "manifestSha256": "447048be2ca789210ad71f8d144471d8cd3b2ef75b5e81c3b4f6cd6169656fa7",
+            "sourceMatchesExistingApproval": true
+          }
+        },
+        {
+          "productId": "178",
+          "product": "Applied Nutrition ISO-XP 1.8kg",
+          "variantId": 735,
+          "variant": "Vanilla / 1.8kg",
+          "pack": "1,800g",
+          "productUrl": "/product/applied-nutrition-iso-xp-18kg?variant=735",
+          "nutritionApproved": true,
+          "totalProteinG": 1584,
+          "currentDeliveredOffers": [
+            {
+              "retailer": "Whey Okay",
+              "price": 81.53,
+              "shipping": 3.99,
+              "total": 85.52,
+              "checkedAt": "2026-11-17T10:48:03.114+00:00"
+            }
+          ],
+          "sourceOffers": [
+            {
+              "id": 1536,
+              "retailer": "Whey Okay",
+              "price": 81.53,
+              "shipping": 3.99,
+              "inStock": true,
+              "checkedAt": "2026-11-17T10:48:03.114+00:00"
+            },
+            {
+              "id": 770,
+              "retailer": "Discount Supplements",
+              "price": 69.99,
+              "shipping": 4.99,
+              "inStock": true,
+              "checkedAt": "2026-07-19T19:46:46.459+00:00"
+            }
+          ],
+          "nutrition": {
+            "servings": 72,
+            "servingG": 25,
+            "proteinG": 22,
+            "unroundedCostPer25g": 1.3497474747474747,
+            "approvedOverride": {
+              "evidence": "Manufacturer declares 1.8kg, 72 servings, one 25g scoop and approximately 22g protein per serving.",
+              "source_url": "https://appliednutrition.uk/products/iso-xp",
+              "source_type": "manufacturer_product_page",
+              "net_weight_g": 1800,
+              "product_format": "powder",
+              "serving_size_g": 25,
+              "nutrition_verified": true,
+              "protein_per_serving_g": 22,
+              "unit_pricing_verified": true,
+              "creatine_per_serving_g": null,
+              "serving_count_verified": 72
+            },
+            "reviewedManifest": "data/verified/variant-nutrition-reviewed-batch-1-v2.json",
+            "reviewedScopeHash": "c2198812faa5a2cdaeb26e7ad80c154a3c4c85cdef23c9f579a5b5c3bd4c4844",
+            "manifestSha256": "447048be2ca789210ad71f8d144471d8cd3b2ef75b5e81c3b4f6cd6169656fa7",
+            "sourceMatchesExistingApproval": true
+          }
+        }
+      ]
+    }
+  ]
+}

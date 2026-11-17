@@ -258,7 +258,7 @@ test("both approved routes are sitemap eligible exactly once and retain isolated
   const registry = load("app/lib/indexabilityLifecycle.ts");
   const sitemap = fs.readFileSync(path.join(root, "app/sitemap.ts"), "utf8");
   for (const route of [guides.DELIVERY_GUIDE_PATH, guides.PROTEIN_GUIDE_PATH]) {
-    assert.equal(registry.getLifecycleStatus(route), "launch_approved");
+    assert.equal(registry.getLifecycleStatus(route), "live_verified");
     assert.equal(registry.isLifecycleSitemapEligible(route), true);
     assert.equal(sitemap.split(route).length - 1, 1);
   }

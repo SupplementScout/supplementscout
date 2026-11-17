@@ -6,6 +6,98 @@ sole task ledger. The owner authorizes one bundled Draft PR, code, tests and
 necessary documentation. Merge, production publication and indexability
 launch require a separate owner decision.
 
+## Production release and closeout: LIVE VERIFIED
+
+The later explicit owner approval has now been executed. PR #542 head
+`504d854c42d23aeb3750f404944c864353d6679d` passed all checks and became ready
+for review, then squash merged at `2026-11-17T15:41:49Z` as
+`53d933f1bb0d263ad27b0ea4f92edaa639adf8b6`. Approved and merged trees both
+equal `cb023f097d158e51d9c9f9eb94b88baa7aa12eb8`. No protection or failed
+check was bypassed. Vercel production `dpl_9ebt6YoHyPz8Arhi1tzkqeMZbgpA`
+is READY and the public domain resolves to this commit. Main
+[Guardian](https://github.com/SupplementScout/supplementscout/actions/runs/44117288971)
+and [Quality Gate](https://github.com/SupplementScout/supplementscout/actions/runs/44117288561)
+pass, as did the exact-head PR checks.
+
+Public release evidence:
+
+- [HTTP, metadata, sitemap, Googlebot and performance](content-growth-sprint-2-2026-11-17/production-readback.json)
+- [Actual GET-only source and approved nutrition](content-growth-sprint-2-2026-11-17/production-source-readback.json)
+- [Chrome desktop1440/mobile390 checks](content-growth-sprint-2-2026-11-17/production-browser.json)
+- [Public links and selected variants](content-growth-sprint-2-2026-11-17/production-links.json)
+- [Contextual incoming links](content-growth-sprint-2-2026-11-17/production-incoming-links.json)
+- [Delivery desktop](content-growth-sprint-2-2026-11-17/production-delivery-1440.png),
+  [delivery mobile](content-growth-sprint-2-2026-11-17/production-delivery-390.png),
+  [protein desktop](content-growth-sprint-2-2026-11-17/production-protein-1440.png),
+  [protein mobile](content-growth-sprint-2-2026-11-17/production-protein-390.png).
+
+Both public guides return200, index/follow, self-canonical and exactly one
+clean sitemap entry. Parameter states remain noindex/follow with clean
+canonicals. Googlebot requests return200. Schema contains only factual
+WebPage/BreadcrumbList. The entire visible main content matches an independent
+contemporaneous catalogue render after removing React serialization comments
+and whitespace. This proves actual products, exact variants, stock, checked
+times, shipping, totals and the existing verified protein calculation; no
+synthetic data is used as production evidence. Links to all16 existing public
+destinations, three selected variants and the manufacturer source pass.
+
+CNP Unflavoured250g/2015 remains £12.99 +£3.99 =£16.98 at Jon's and
+£15.00 +£4.99 =£19.99 at6 Pack. ISO-XP1.8kg Banana732 and Vanilla735 each
+has its own approved72×22g record,1,584g total protein and fresh £85.52
+delivered offer: £1.35 per25g after display rounding. These are dated release
+observations, not hardcoded future prices. No production data was changed.
+
+Public1440px and390px touch-emulated checks pass card fit, no horizontal
+clipping/card overlap, keyboard order and runtime/HTTP checks. Repeated CLS
+is0; browser LCP is236-620ms in the warm sample. Screenshots retain the existing
+fixed Cookie Settings utility at the viewport edge; its component is unchanged
+from baseline and scrolling keeps the guide content accessible. No shared
+consent behavior was changed. The initial Chrome request took16.23s to LCP,
+of which15.25s was DNS; request-to-first-byte was only70.9ms. The
+[cold diagnostic](content-growth-sprint-2-2026-11-17/production-cold-dns.json)
+and successful repeat distinguish this local DNS outlier from application
+latency. These lab observations do not establish field CWV or INP.
+
+Existing-page warm TTFB medians before/after are: methodology307/184ms,
+creatine235/254ms, whey253/286ms and PER4M389/197ms. These small network
+samples show no material persistent regression. SEO-20 title/H1/canonical/
+robots and frozen source/experiment are unchanged; SEO-21 remains live and
+the existing budget section is present. Stage3 remains disabled.
+
+### Search Console: publication versus Google inclusion
+
+The existing protected read-only workflow
+[run44117994242](https://github.com/SupplementScout/supplementscout/actions/runs/44117994242)
+successfully inspected exactly the two canonical guide URLs. Its
+[minimal public-safe evidence](content-growth-sprint-2-2026-11-17/google-index-inspection.json)
+records2 successful inspections, zero API errors, verdict NEUTRAL and coverage
+"URL is unknown to Google" for both, with no last crawl or Google canonical.
+
+- Published: YES, proven on the expected production SHA.
+- Technically indexable: YES, proven by public headers/meta, canonical,
+  robots.txt, sitemap and Googlebot200.
+- Google indexed: PENDING; not confirmed by Search Console.
+
+The existing sitemap registration has zero errors/warnings. Its last recorded
+download predates this launch. No new sitemap registration is needed and no
+submission/indexing write was performed with the read-only account. Google
+Indexing API was not used. The default report, OAuth scopes, property settings
+and both existing schedules are unchanged; normal discovery/crawling is pending.
+
+SEO-22 closes as LIVE VERIFIED on publication and technical verification,
+without claiming Google inclusion. The two released lifecycle entries record
+live_verified only after this evidence, retaining the same public behavior.
+The closeout changes only those two status values, their existing state tests
+and required documentation/evidence. Required gates are rerun before the
+closeout commit and the final production commit is read back again. No next
+sprint or new production-write authority follows.
+
+Closeout validation passes62 focused checks, Project Guardian, quick/full
+(3,987 tests), TypeScript, ESLint and production build. The existing inventory
+seal is revalidated; only the two released route status values change and
+public robots/canonical/sitemap behavior remains identical. See
+[closeout quality](content-growth-sprint-2-2026-11-17/closeout-quality.json).
+
 ## Approved production launch
 
 The owner's subsequent SEO-22 instruction explicitly approves publication and

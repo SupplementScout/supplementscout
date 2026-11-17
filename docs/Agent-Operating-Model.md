@@ -159,6 +159,8 @@ guides' indexability transition, tests/documentation, existing read-only GSC
 inspection, squash merge and automatic production deployment. Record live
 completion only after public verification. Earlier Draft-only wording below
 is historical for this release; SEO-20 and all data-write boundaries remain.
+SEO-22 has now passed production verification and is closed; only SEO-20
+remains active. Its earlier implementation exception grants no next task.
 
 - One SEO implementation may be in progress.
 - **17 November 2026 Sprint 2 approval:**

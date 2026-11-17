@@ -1,0 +1,55 @@
+{
+  "capturedAt": "2026-11-17T15:51:23.151Z",
+  "workflowRun": 44117994242,
+  "workflowUrl": "https://github.com/SupplementScout/supplementscout/actions/runs/44117994242",
+  "headSha": "53d933f1bb0d263ad27b0ea4f92edaa639adf8b6",
+  "access": "existing production-readonly identity; unchanged read-only OAuth scopes",
+  "inspectionProfile": "seo22-guides",
+  "indexing": {
+    "inspectionTargets": [
+      "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+      "https://www.supplementscout.co.uk/guides/cost-per-25g-protein"
+    ],
+    "inspectedCount": 2,
+    "okCount": 2,
+    "errorCount": 0,
+    "inspections": [
+      {
+        "inspectionUrl": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+        "state": "ok",
+        "verdict": "NEUTRAL",
+        "coverageState": "URL is unknown to Google",
+        "indexingState": "INDEXING_STATE_UNSPECIFIED",
+        "robotsTxtState": "ROBOTS_TXT_STATE_UNSPECIFIED",
+        "googleCanonical": null,
+        "userCanonical": null,
+        "lastCrawlTime": null
+      },
+      {
+        "inspectionUrl": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+        "state": "ok",
+        "verdict": "NEUTRAL",
+        "coverageState": "URL is unknown to Google",
+        "indexingState": "INDEXING_STATE_UNSPECIFIED",
+        "robotsTxtState": "ROBOTS_TXT_STATE_UNSPECIFIED",
+        "googleCanonical": null,
+        "userCanonical": null,
+        "lastCrawlTime": null
+      }
+    ]
+  },
+  "sitemaps": [
+    {
+      "path": "https://www.supplementscout.co.uk/sitemap.xml",
+      "lastSubmitted": "2026-07-08T15:05:03.550Z",
+      "lastDownloaded": "2026-11-16T19:06:09.331Z",
+      "isPending": false,
+      "warnings": 0,
+      "errors": 0
+    }
+  ],
+  "publication": "PASS: public pages200 on expected production commit",
+  "technicalIndexability": "YES: public base robots index/follow, self-canonical, robots.txt allows crawl, sitemap contains both; Googlebot GET200",
+  "googleIndexed": "PENDING: successful inspections say URL is unknown to Google; no crawl/canonical recorded",
+  "submission": "No indexing or sitemap write performed: account remains read-only, existing sitemap already registered with zero errors/warnings; no Google Indexing API used"
+}

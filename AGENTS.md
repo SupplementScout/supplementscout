@@ -53,6 +53,9 @@ merge, automatic Vercel production deployment and closeout only after public
 verification. This supersedes the earlier Draft-only restriction for SEO-22.
 It does not authorize catalogue/nutrition/mapping writes, SEO-20 changes or a
 next sprint. Existing Google read-only scopes and report schedules stay fixed.
+That release is now production verified and SEO-22 is closed. Its two routes
+are live verified; Google indexing is separately pending. The earlier Draft
+exception is historical and grants no further implementation authority.
 
 For nutrition work, also read `docs/Nutrition-Execution-Plan.md` (the canonical
 nutrition ledger) and `docs/nutrition-candidate-extractor.md` (the existing

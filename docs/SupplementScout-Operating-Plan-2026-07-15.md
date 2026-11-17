@@ -5,6 +5,17 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**17 November 2026 SEO-22 live closeout:** owner-approved PR #542 merged as
+`53d933f1bb0d263ad27b0ea4f92edaa639adf8b6` with approved-tree parity.
+Vercel Production `dpl_9ebt6YoHyPz8Arhi1tzkqeMZbgpA` is READY. Both public
+guides pass HTTP, index/follow/canonical/sitemap/schema, real-source arithmetic,
+links,1440/390px layout and performance checks. SEO-22 and its two route entries
+are `LIVE VERIFIED`. GSC successfully inspected both but reports unknown URLs:
+Google indexing is PENDING, not confirmed. See the
+[production evidence](rollouts/content-growth-sprint-2-2026-11-17.md).
+Only frozen SEO-20 remains active and binding; SEO-21 stays live. No next
+implementation, Stage3 activation or product/nutrition/mapping write follows.
+
 **17 November 2026 SEO-22 production-launch approval:** PR #542's two prepared
 guide routes may become `launch_approved`, with required tests/docs, guarded
 squash merge, automatic Vercel production deployment and read-only GSC checks.
@@ -5133,7 +5144,8 @@ Sprint 2 bundle only:
 Content Growth exception: SEO-22 beside frozen SEO-20; Draft PR only.
 SEO-22 contains exactly the two guide URLs in the existing SEO ledger.
 The SEO-21 active-pair exception is retired; SEO-21 stays live verified.
-No next sprint, production data write, merge or publication is authorized.
+The later owner approval authorized SEO-22's release, now live verified.
+No next sprint, additional release or production data write is authorized.
 
 `SEO-20` is the next executable SEO task and remains `IN PROGRESS`. Its
 bounded title-only experiment is live in production from

@@ -6,6 +6,17 @@
 pages, structured data, measurement and authority building.  
 **Parent authority:** `docs/SupplementScout-Operating-Plan-2026-07-15.md`
 
+**17 November 2026 SEO-22 production closeout:** PR #542 squash merge
+`53d933f1bb0d263ad27b0ea4f92edaa639adf8b6` preserves approved release head
+`504d854c42d23aeb3750f404944c864353d6679d`'s tree. Vercel Production is READY;
+public HTTP, indexability, sitemap, actual-source calculations, links and
+desktop/mobile checks pass. SEO-22 is `LIVE VERIFIED`; both route lifecycle
+entries record verified state with unchanged public indexability. Google
+indexing is `PENDING`: GSC successfully inspected both and reports unknown
+URLs. Publication/indexability are proven; Google inclusion is not claimed.
+SEO-20 remains frozen and binding; SEO-21 remains live. No next implementation
+or production-data write follows.
+
 **17 November 2026 SEO-22 production-launch approval:** the owner explicitly
 authorizes PR #542, reviewed head `375c3da84eb55ceafd8d3dccfbd902e71578e7ae`,
 the two guide lifecycle transitions to `launch_approved`, necessary tests/docs,
@@ -319,7 +330,7 @@ Console evidence and user value.
 | SEO-19 | P1 | Add reciprocal Vitamins and Multivitamins contextual links. | `LIVE VERIFIED` | PR `#439` merged as production `4bb719091cc762e806e96c097a49251ff756212d`; tree equivalence, main Project Guardian `41623541134`, Quality Gate `41623540890`, Vercel deployment and public HTTP, link-placement, anchor, canonical, robots, metadata and schema checks passed. No loader, pagination, indexability, data or generic link-system regression occurred. |
 | SEO-20 | P1 | Run the PER4M title-only CTR experiment. | `IN PROGRESS` | PR `#441` deployed production `4930dd541629ef06a919abe78992e52db5c8e97e`; public smoke at `2026-11-03T11:54:34Z` proved the exact browser title `Compare PER4M Prices Across UK Retailers | SupplementScout` and frozen-field parity. Freeze the deployed title, meta, H1, body, schema, direct anchors and data presentation during measurement except for a production regression; observe at least 28 settled days, 500 page impressions and 300 brand-navigational query impressions; primary success is CTR improvement without material ranking deterioration. |
 | SEO-21 | P1 | Content Growth: expand `/creatine#under-20` using exact-variant delivered prices. | `LIVE VERIFIED` | Owner-authorized PR #541 squash merge `e1d9a6d34ad41351822b8907cac045bac7f3cb52` preserves the approved tree. Main Guardian and Quality Gate pass; Vercel production `dpl_2ZHgzALoSDsz9Yu1YfMQeVSEuriB` is READY. Public HTTP/data and metadata contracts, real exact-variant links, desktop/390px responsive layout and warm-response performance checks pass. SEO-20 is untouched. Two guide drafts and seven briefs remain review material only. |
-| SEO-22 | P1 | Content Growth Sprint 2: /guides/supplement-prices-including-delivery and /guides/cost-per-25g-protein. | `CODE COMPLETE` | Owner approved PR #542 production launch and indexing. The two routes are launch_approved;62 focused tests, quick/full (3,987 tests), real-source and1440/390px local checks pass. Await guarded merge, Vercel READY, public readback and read-only GSC inspection before live closeout. No product/nutrition/mapping write; SEO-20 frozen and SEO-21 live verified. |
+| SEO-22 | P1 | Content Growth Sprint 2: /guides/supplement-prices-including-delivery and /guides/cost-per-25g-protein. | `LIVE VERIFIED` | PR #542 released as53d933f1 with tree parity; Vercel Production READY. Public200, base index/follow, parameter noindex/follow, canonicals, one sitemap URL each, schema, actual-source arithmetic, links and1440/390px QA pass. GSC inspections succeed but both URLs remain unknown to Google: indexing PENDING. No data writes; SEO-20 frozen and SEO-21 live verified. |
 
 ## 6. Current active task
 
@@ -330,9 +341,11 @@ and `/guides/cost-per-25g-protein`, with necessary tests and documentation.
 SEO-21 remains `LIVE VERIFIED`; its earlier active-pair exception is retired.
 SEO-20 remains frozen and the binding next task. Guardian permits no different
 active pair, missing authorization, reopened SEO-21 or additional implementation.
-Both new routes start `planned`; indexing/sitemap launch, merge and production
-publication require separate owner approval. No nutrition, offer, mapping,
-history, retailer automation, Stage 3 or GYM HIGH change is authorized.
+The later owner approval authorized launch and release; SEO-22 and its two
+routes are now live verified. The earlier Draft-only marker is historical,
+not authority for reopening work or starting another implementation. No
+nutrition, offer, mapping, history, retailer automation, Stage 3 or GYM HIGH
+change follows from closeout.
 
 **Next executable task:** SEO-20 is `IN PROGRESS`. SEO-19 and SEO-18 are
 complete and `LIVE VERIFIED`. The
@@ -546,6 +559,40 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 17 November 2026 - SEO-22 production release LIVE VERIFIED
+
+- Owner-authorized PR #542 released approved head
+  `504d854c42d23aeb3750f404944c864353d6679d` by guarded squash merge at
+  `2026-11-17T15:41:49Z`: `53d933f1bb0d263ad27b0ea4f92edaa639adf8b6`.
+  Both trees equal `cb023f097d158e51d9c9f9eb94b88baa7aa12eb8`. Required PR
+  checks and main Guardian/Quality Gate pass. Vercel production
+  `dpl_9ebt6YoHyPz8Arhi1tzkqeMZbgpA` is READY for this exact merge.
+- Public readback at15:45:08UTC passes both200, base index/follow, self-canonical,
+  parameter noindex/follow, one clean sitemap entry each, factual WebPage and
+  BreadcrumbList, Googlebot200, working variant/source/internal links and no
+  server error. Entire visible guide content matches a contemporaneous
+  authorized GET-only catalogue render after removing React comments.
+- Actual CNP250g/2015 totals are £16.98/£19.99; ISO-XP Banana732/Vanilla735 each
+  uses its own approved72×22g record and £85.52 delivered offer for £1.35 per25g.
+  No prices were hardcoded, facts borrowed or production data written.
+- Public1440/390px browser checks pass two-card fit, no horizontal clipping or
+  card overlap, keyboard order and runtime/HTTP checks. Repeated CLS0; existing
+  consent UI is unchanged. Initial Chrome DNS took15.25s; subsequent browser
+  LCP236-620ms confirms no persistent application delay. Existing-page warm
+  TTFB changes are small local-network samples, not field CWV.
+- Read-only GSC run44117994242 inspected both canonical URLs with2 successes,
+  zero errors. Both say "URL is unknown to Google", without a last crawl or
+  Google canonical: `GOOGLE INDEXED = PENDING`. Existing sitemap registration
+  has zero errors/warnings. No indexing/sitemap write or unsupported Indexing
+  API was used; normal Google discovery and crawling are still pending.
+- 62 focused tests, quick/full (3,987 tests), TypeScript, ESLint and production
+  build pass. Local and public evidence plus GSC results are in the
+  [existing Sprint 2 record](rollouts/content-growth-sprint-2-2026-11-17.md).
+  Only the two released routes move from launch-approved to live-verified for
+  closeout, retaining identical index/follow/sitemap behavior. SEO-20's frozen
+  fields, clock, thresholds and schedule are untouched; SEO-21 remains live,
+  Stage3 remains disabled and no next sprint is authorized.
 
 ### 17 November 2026 - SEO-22 final content-quality revision CODE COMPLETE
 
