@@ -1,5 +1,24 @@
 # SupplementScout SEO Execution Plan
 
+**Sprint6 checkpoint:** SEO-26 is CODE COMPLETE after166 focused tests,
+quick1,330/full4,054, actual-source production-build HTTP/cache and1440/390px
+QA. One Draft PR is publication-review material only. Both routes remain
+planned/noindex. SEO-20 stays frozen/binding and SEO-21/22/23/24/25 live.
+See `docs/rollouts/content-growth-sprint-6-2026-11-17.md`.
+
+**17 November 2026 Content Growth Sprint6 owner approval:**
+Content Growth exception: SEO-26 beside frozen SEO-20; Draft PR only.
+The single bounded implementation covers `/guides/pre-workout-under-30`
+and `/guides/mass-gainer-under-40`, necessary existing mechanisms/tests/docs
+and one natural incoming category link per guide. SEO-21/22/23/24/25 remain
+LIVE VERIFIED; older Content Growth active-pair exceptions are retired.
+SEO-20 remains frozen and binding. New routes stay planned/noindex. No merge,
+production deployment/indexing, data/nutrition/mapping/history/importer or
+workflow change, Google submission, GYM HIGH hub or Sprint7 is authorized.
+This latest owner decision supersedes earlier no-next-sprint wording only
+for this Sprint6 Draft scope.
+
+
 **17 November 2026 SEO-25 LIVE VERIFIED closeout:** owner-approved PR #545
 squash merged release head `f6ef6f44759da7546bda22daffac2c0cc4328043` as
 `65983f24aadee1ec7e0f5f700800f6a10661ccb7` with identical tree. Main Quality Gate and Guardian pass.
@@ -449,7 +468,22 @@ Console evidence and user value.
 
 | SEO-25 | P1 | Content Growth Sprint5: /guides/mass-gainer-vs-whey-protein and /guides/creatine-pack-size-value. | `LIVE VERIFIED` | Owner-approved PR #545 squash 65983f24aadee1ec7e0f5f700800f6a10661ccb7 preserves the reviewed tree. Main Quality Gate/Guardian and exact GitHub Production/Vercel commit statuses pass; changed public build 9_WVqN0zBGLZhUxucMStg proves domain promotion without bypassing API403/SSO. Public HTTP200, indexability/canonical/sitemap/schema, actual-source initial HTML, six exact variants, delivered/kg/protein arithmetic, links,1440/390px QA and unchanged warm-response guard pass. Missing nutrition stays withheld. Google inclusion UNKNOWN; no data/GSC write. SEO-20 frozen; SEO-21/22/23/24 live. |
 
+| SEO-26 | P1 | Content Growth Sprint6: /guides/pre-workout-under-30 and /guides/mass-gainer-under-40. | `CODE COMPLETE` | Latest verified complete GSC artifacts reused; fresh16Nov availability check remains incomplete and excluded. Three exact current products/brands per guide; delivered budgets, real shipping reversal and verified powder unit prices.166 focused, quick1,330/full4,054, actual-source initial HTML/cache, public exact links and1440/390px QA pass. One Draft PR; planned/noindex. No merge/production/data/nutrition or Google write. SEO-20 frozen; SEO-21/22/23/24/25 live. |
+
 ## 6. Current active task
+
+**17 November 2026 Content Growth Sprint6 owner approval:**
+Content Growth exception: SEO-26 beside frozen SEO-20; Draft PR only.
+The single bounded implementation covers `/guides/pre-workout-under-30`
+and `/guides/mass-gainer-under-40`, necessary existing mechanisms/tests/docs
+and one natural incoming category link per guide. SEO-21/22/23/24/25 remain
+LIVE VERIFIED; older Content Growth active-pair exceptions are retired.
+SEO-20 remains frozen and binding. New routes stay planned/noindex. No merge,
+production deployment/indexing, data/nutrition/mapping/history/importer or
+workflow change, Google submission, GYM HIGH hub or Sprint7 is authorized.
+This latest owner decision supersedes earlier no-next-sprint wording only
+for this Sprint6 Draft scope.
+
 
 **Sprint5 owner decision (17 November 2026):**
 Content Growth exception: SEO-25 beside frozen SEO-20; Draft PR only.
@@ -705,6 +739,36 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 17 November 2026 - SEO-26 Content Growth Sprint6 CODE COMPLETE
+
+- Current origin/main971527c3 and open Draft PR532/33 have no overlapping
+  guide scope. Eight live guides, frozen PER4M and SEO-25 release evidence
+  were checked; no earlier sprint is reopened.
+- Existing latest authenticated Growth Analytics artifacts cover28 complete
+  days19Oct-15Nov (9,661 impressions/74 clicks) and9-15Nov (2,496/21).
+  The16Nov final/all discrepancy remains excluded; no historical report rerun.
+  Pre-workout104/1 and Mass Gainer821/0 are site page visibility, not market
+  search volume. Cheap mass gainer has18/0 across all4 returned weeks;
+  affordable pre workout has7 observed impressions across3 weeks. Missing
+  capped query/page rows remain unknown. No new-guide growth is attributed.
+- Fresh GET-only reading of11 candidate product slugs uses two existing
+  catalogue/resolver batches, not a catalogue census. Six selected exact
+  variants qualify: pre-workout1006/1672/4610 and gainer2009/1973/1803.
+  Current examples have known delivery, stock and fresh check times. Existing
+  ingredient facts are not serving-count or nutrition approval. No unverified
+  serving/protein/calorie/caffeine value is published.
+- Both planned guides pass166 focused tests, quick1,330/full4,054 safe tests,
+  TypeScript, ESLint, Next build, actual-source initial HTML/SEO/cache and
+  desktop1440/mobile390 checks. Two cold batches, zero warm DB reads;
+  TTFB19.1/14.8ms warm. Empty/error and unverified serving/caffeine contracts
+  fail closed. One incoming category link each; old eight guides unchanged.
+- Fresh report44186080465 confirms16Nov still lacks final activity; its
+  overlapping partial week is excluded, with no historical report reruns.
+- [Existing Sprint6 evidence](rollouts/content-growth-sprint-6-2026-11-17.md).
+  CODE COMPLETE in one Draft PR; both routes stay planned/noindex. No merge,
+  production publication, database or Google write. Frozen SEO-20 and live
+  SEO-21/22/23/24/25 remain intact; Stage3 off and no next sprint.
 
 ### 17 November 2026 - SEO-25 production release LIVE VERIFIED
 

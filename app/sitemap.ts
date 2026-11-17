@@ -76,6 +76,8 @@ async function loadActiveProducts() {
 }
 
 const staticPages: MetadataRoute.Sitemap = [
+  { url: `${siteUrl}/guides/pre-workout-under-30`, changeFrequency: "weekly", priority: 0.6 },
+  { url: `${siteUrl}/guides/mass-gainer-under-40`, changeFrequency: "weekly", priority: 0.6 },
   { url: `${siteUrl}/guides/whey-isolate-vs-concentrate`, changeFrequency: "weekly", priority: 0.6 },
   { url: `${siteUrl}/guides/protein-powder-pack-size-value`, changeFrequency: "weekly", priority: 0.6 },
   { url: `${siteUrl}/guides/mass-gainer-vs-whey-protein`, changeFrequency: "weekly", priority: 0.6 },

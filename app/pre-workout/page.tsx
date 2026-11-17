@@ -436,6 +436,7 @@ export function PreWorkoutPageContent({
 
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 sm:py-14">
         <h2 className="text-2xl font-bold">Pre Workout comparison questions</h2>
+        <p className="mt-4 leading-7 text-zinc-700">Shopping to a cash budget? Check <Link href="/guides/pre-workout-under-30" className="font-semibold underline">pre-workout under £30 including delivery</Link> for selected exact packs and the full purchase cost.</p>
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           <div>
             <h3 className="font-bold">What is included?</h3>

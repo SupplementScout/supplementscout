@@ -1,0 +1,378 @@
+{
+  "capturedAt": "2026-11-17T21:50:34.733Z",
+  "scope": "Fresh bounded read of selected historical candidate slugs only; not a category or catalogue census",
+  "requestedSlugs": [
+    "warrior-rage-unleash-hell-pre-workout-392g",
+    "applied-nutrition-abe-ultimate-pre-workout-315g",
+    "cellucor-c4-sport-pre-workout-powder",
+    "7nutrition-bodybuilder-15kg",
+    "mutant-mass-mass-gainer-227kg",
+    "applied-nutrition-critical-mass-lean-mass-gainz-24kg",
+    "applied-nutrition-millions-clear-protein-isolate-powder",
+    "myprotein-clear-whey-protein-isolate",
+    "biotech-usa-iso-whey-zero-500g",
+    "7nutrition-whey-isolate-90-500g",
+    "optimum-nutrition-100-plant-protein-684g"
+  ],
+  "reads": [
+    {
+      "table": "products",
+      "method": "GET",
+      "status": 200,
+      "ms": 588,
+      "bytes": 49787
+    },
+    {
+      "table": "retailer_products",
+      "method": "GET",
+      "status": 200,
+      "ms": 223,
+      "bytes": 109667
+    }
+  ],
+  "databaseWrites": 0,
+  "options": [
+    {
+      "candidate": "preWorkout",
+      "target": {
+        "id": "56",
+        "slug": "warrior-rage-unleash-hell-pre-workout-392g",
+        "variantId": "1006",
+        "flavour": "Blazin Berry",
+        "grams": 392
+      },
+      "name": "Warrior Rage Unleash Hell Pre Workout 392g",
+      "brand": "Warrior",
+      "category": "Pre Workout",
+      "qualified": true,
+      "variant": "Blazin Berry / 392g",
+      "format": "powder",
+      "pack": "392g",
+      "offer": {
+        "retailer": "eBay UK",
+        "item": 13.99,
+        "shipping": 0,
+        "total": 13.99,
+        "checkedAt": "2026-11-17T14:56:56.868+00:00"
+      },
+      "unitPricingVerified": false,
+      "pricePerKg": null,
+      "nutritionApproved": false,
+      "url": "/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006",
+      "ownNutritionFields": [
+        "caffeine",
+        "creatine",
+        "citrulline",
+        "beta_alanine",
+        "serving_size_g"
+      ],
+      "scope": "Exact mapped offer sample; candidate taxonomy/budget/intent assessed separately. This is not a catalogue census or new nutrition approval."
+    },
+    {
+      "candidate": "preWorkout",
+      "target": {
+        "id": "215",
+        "slug": "applied-nutrition-abe-ultimate-pre-workout-315g",
+        "variantId": "1672",
+        "flavour": "Baddy Berry",
+        "grams": 315
+      },
+      "name": "Applied Nutrition ABE Ultimate Pre-Workout 315g",
+      "brand": "Applied Nutrition",
+      "category": "Pre Workout",
+      "qualified": true,
+      "variant": "Baddy Berry / 315g",
+      "format": "powder",
+      "pack": "315g",
+      "offer": {
+        "retailer": "eBay UK",
+        "item": 21.95,
+        "shipping": 0,
+        "total": 21.95,
+        "checkedAt": "2026-11-17T14:57:48.215+00:00"
+      },
+      "unitPricingVerified": false,
+      "pricePerKg": null,
+      "nutritionApproved": false,
+      "url": "/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1672",
+      "ownNutritionFields": [
+        "caffeine",
+        "creatine",
+        "citrulline",
+        "beta_alanine",
+        "serving_size_g"
+      ],
+      "scope": "Exact mapped offer sample; candidate taxonomy/budget/intent assessed separately. This is not a catalogue census or new nutrition approval."
+    },
+    {
+      "candidate": "preWorkout",
+      "target": {
+        "id": "1457",
+        "slug": "cellucor-c4-sport-pre-workout-powder",
+        "variantId": "4610",
+        "flavour": "Icy Blue Raspberry",
+        "grams": 270
+      },
+      "name": "Cellucor C4 Sport Pre-Workout Powder",
+      "brand": "Cellucor",
+      "category": "Pre Workout",
+      "qualified": true,
+      "variant": "Icy Blue Raspberry / 270 g",
+      "format": "powder",
+      "pack": "270g",
+      "offer": {
+        "retailer": "Holland & Barrett",
+        "item": 19.99,
+        "shipping": 3.49,
+        "total": 23.48,
+        "checkedAt": "2026-11-17T17:48:48.656+00:00"
+      },
+      "unitPricingVerified": false,
+      "pricePerKg": null,
+      "nutritionApproved": false,
+      "url": "/product/cellucor-c4-sport-pre-workout-powder?variant=4610",
+      "ownNutritionFields": [],
+      "scope": "Exact mapped offer sample; candidate taxonomy/budget/intent assessed separately. This is not a catalogue census or new nutrition approval."
+    },
+    {
+      "candidate": "massGainer",
+      "target": {
+        "id": "128",
+        "slug": "7nutrition-bodybuilder-15kg",
+        "variantId": "2009",
+        "flavour": "Cookies & Cream",
+        "grams": 1500
+      },
+      "name": "7Nutrition Bodybuilder 1.5kg",
+      "brand": "7Nutrition",
+      "category": "Mass Gainer",
+      "qualified": true,
+      "variant": "Cookies & Cream / 1.5kg",
+      "format": "powder",
+      "pack": "1,500g",
+      "offer": {
+        "retailer": "6 Pack Supplements",
+        "item": 19.99,
+        "shipping": 4.99,
+        "total": 24.98,
+        "checkedAt": "2026-11-17T11:45:40.735+00:00"
+      },
+      "unitPricingVerified": true,
+      "pricePerKg": 16.653333333333332,
+      "nutritionApproved": false,
+      "url": "/product/7nutrition-bodybuilder-15kg?variant=2009",
+      "ownNutritionFields": [],
+      "scope": "Exact mapped offer sample; candidate taxonomy/budget/intent assessed separately. This is not a catalogue census or new nutrition approval."
+    },
+    {
+      "candidate": "massGainer",
+      "target": {
+        "id": "517",
+        "slug": "mutant-mass-mass-gainer-227kg",
+        "variantId": "1973",
+        "flavour": "Vanilla Ice Cream",
+        "grams": 2270
+      },
+      "name": "Mutant Mass (Mass Gainer) 2.27kg",
+      "brand": "Mutant",
+      "category": "Mass Gainer",
+      "qualified": true,
+      "variant": "Vanilla Ice Cream / 2270g",
+      "format": "powder",
+      "pack": "2,270g",
+      "offer": {
+        "retailer": "Fit House",
+        "item": 31.99,
+        "shipping": 3.99,
+        "total": 35.98,
+        "checkedAt": "2026-11-17T11:11:52.1+00:00"
+      },
+      "unitPricingVerified": true,
+      "pricePerKg": 15.85022026431718,
+      "nutritionApproved": false,
+      "url": "/product/mutant-mass-mass-gainer-227kg?variant=1973",
+      "ownNutritionFields": [],
+      "scope": "Exact mapped offer sample; candidate taxonomy/budget/intent assessed separately. This is not a catalogue census or new nutrition approval."
+    },
+    {
+      "candidate": "massGainer",
+      "target": {
+        "id": "132",
+        "slug": "applied-nutrition-critical-mass-lean-mass-gainz-24kg",
+        "variantId": "1803",
+        "flavour": "Chocolate",
+        "grams": 2400
+      },
+      "name": "Applied Nutrition Critical Mass Lean Mass Gainz 2.4kg",
+      "brand": "Applied Nutrition",
+      "category": "Mass Gainer",
+      "qualified": true,
+      "variant": "Chocolate / 2400g",
+      "format": "powder",
+      "pack": "2,400g",
+      "offer": {
+        "retailer": "Whey Okay",
+        "item": 33.57,
+        "shipping": 3.99,
+        "total": 37.56,
+        "checkedAt": "2026-11-17T10:48:03.114+00:00"
+      },
+      "unitPricingVerified": true,
+      "pricePerKg": 15.650000000000002,
+      "nutritionApproved": false,
+      "url": "/product/applied-nutrition-critical-mass-lean-mass-gainz-24kg?variant=1803",
+      "ownNutritionFields": [],
+      "scope": "Exact mapped offer sample; candidate taxonomy/budget/intent assessed separately. This is not a catalogue census or new nutrition approval."
+    },
+    {
+      "candidate": "isolate",
+      "target": {
+        "id": "1468",
+        "slug": "applied-nutrition-millions-clear-protein-isolate-powder",
+        "variantId": "4647",
+        "flavour": "Millions Pineapple",
+        "grams": 150
+      },
+      "name": "Applied Nutrition Millions Clear Protein Isolate Powder",
+      "brand": "Applied Nutrition",
+      "category": "Whey Protein",
+      "qualified": true,
+      "variant": "Millions Pineapple / 150 g",
+      "format": "powder",
+      "pack": "150g",
+      "offer": {
+        "retailer": "Holland & Barrett",
+        "item": 6.4,
+        "shipping": 3.49,
+        "total": 9.89,
+        "checkedAt": "2026-11-17T17:48:48.656+00:00"
+      },
+      "unitPricingVerified": false,
+      "pricePerKg": null,
+      "nutritionApproved": false,
+      "url": "/product/applied-nutrition-millions-clear-protein-isolate-powder?variant=4647",
+      "ownNutritionFields": [],
+      "scope": "Exact mapped offer sample; candidate taxonomy/budget/intent assessed separately. This is not a catalogue census or new nutrition approval."
+    },
+    {
+      "candidate": "isolate",
+      "target": {
+        "id": "1470",
+        "slug": "myprotein-clear-whey-protein-isolate",
+        "variantId": "4649",
+        "flavour": "Peach Tea",
+        "grams": 244
+      },
+      "name": "Myprotein Clear Whey Protein Isolate",
+      "brand": "Myprotein",
+      "category": "Whey Protein",
+      "qualified": true,
+      "variant": "Peach Tea / 244 g",
+      "format": "powder",
+      "pack": "244g",
+      "offer": {
+        "retailer": "Holland & Barrett",
+        "item": 17,
+        "shipping": 3.49,
+        "total": 20.49,
+        "checkedAt": "2026-11-17T17:48:48.656+00:00"
+      },
+      "unitPricingVerified": false,
+      "pricePerKg": null,
+      "nutritionApproved": false,
+      "url": "/product/myprotein-clear-whey-protein-isolate?variant=4649",
+      "ownNutritionFields": [],
+      "scope": "Exact mapped offer sample; candidate taxonomy/budget/intent assessed separately. This is not a catalogue census or new nutrition approval."
+    },
+    {
+      "candidate": "isolate",
+      "target": {
+        "id": "1018",
+        "slug": "biotech-usa-iso-whey-zero-500g",
+        "variantId": "2130",
+        "flavour": "Cookies & Cream",
+        "grams": 500
+      },
+      "name": "BioTech USA Iso Whey Zero 500g",
+      "brand": "BioTech USA",
+      "category": "Whey Protein",
+      "qualified": true,
+      "variant": "Cookies & Cream / 500g",
+      "format": "powder",
+      "pack": "500g",
+      "offer": {
+        "retailer": "6 Pack Supplements",
+        "item": 19.99,
+        "shipping": 4.99,
+        "total": 24.98,
+        "checkedAt": "2026-11-17T11:45:40.735+00:00"
+      },
+      "unitPricingVerified": true,
+      "pricePerKg": 49.96,
+      "nutritionApproved": false,
+      "url": "/product/biotech-usa-iso-whey-zero-500g?variant=2130",
+      "ownNutritionFields": [],
+      "scope": "Exact mapped offer sample; candidate taxonomy/budget/intent assessed separately. This is not a catalogue census or new nutrition approval."
+    },
+    {
+      "candidate": "isolate",
+      "target": {
+        "id": "954",
+        "slug": "7nutrition-whey-isolate-90-500g",
+        "variantId": "1861",
+        "flavour": "White Chocolate",
+        "grams": 500
+      },
+      "name": "7Nutrition Whey Isolate 90 500g",
+      "brand": "7Nutrition",
+      "category": "Whey Protein",
+      "qualified": true,
+      "variant": "White Chocolate / 500g",
+      "format": "powder",
+      "pack": "500g",
+      "offer": {
+        "retailer": "6 Pack Supplements",
+        "item": 23.99,
+        "shipping": 4.99,
+        "total": 28.98,
+        "checkedAt": "2026-11-17T11:45:40.735+00:00"
+      },
+      "unitPricingVerified": true,
+      "pricePerKg": 57.96,
+      "nutritionApproved": false,
+      "url": "/product/7nutrition-whey-isolate-90-500g?variant=1861",
+      "ownNutritionFields": [],
+      "scope": "Exact mapped offer sample; candidate taxonomy/budget/intent assessed separately. This is not a catalogue census or new nutrition approval."
+    },
+    {
+      "candidate": "vegan",
+      "target": {
+        "id": "70",
+        "slug": "optimum-nutrition-100-plant-protein-684g",
+        "variantId": "1623",
+        "flavour": "Vanilla",
+        "grams": 684
+      },
+      "name": "Optimum Nutrition 100% Plant Protein 684g",
+      "brand": "Optimum Nutrition",
+      "category": "Whey Protein",
+      "qualified": true,
+      "variant": "Vanilla / 684g",
+      "format": "powder",
+      "pack": "684g",
+      "offer": {
+        "retailer": "Dolphin Fitness",
+        "item": 21.95,
+        "shipping": 3.95,
+        "total": 25.9,
+        "checkedAt": "2026-11-17T14:42:16.754+00:00"
+      },
+      "unitPricingVerified": true,
+      "pricePerKg": 37.86549707602339,
+      "nutritionApproved": false,
+      "url": "/product/optimum-nutrition-100-plant-protein-684g?variant=1623",
+      "ownNutritionFields": [],
+      "scope": "Exact mapped offer sample; candidate taxonomy/budget/intent assessed separately. This is not a catalogue census or new nutrition approval."
+    }
+  ]
+}

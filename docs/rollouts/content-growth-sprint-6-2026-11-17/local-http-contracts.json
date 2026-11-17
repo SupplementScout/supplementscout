@@ -1,0 +1,75 @@
+{
+  "capturedAt": "2026-11-17T22:09:11.295Z",
+  "environment": "local actual Next production build with GET/HEAD-only real catalogue; not public deployment",
+  "pages": [
+    {
+      "sourceBoundContentEquality": true,
+      "route": "/guides/pre-workout-under-30",
+      "status": 200,
+      "robots": "noindex, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/pre-workout-under-30",
+      "h1Count": 1,
+      "schema": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "actualExamplesInInitialHTML": 3
+    },
+    {
+      "sourceBoundContentEquality": true,
+      "route": "/guides/pre-workout-under-30?sort=price&utm_source=qa",
+      "status": 200,
+      "robots": "noindex, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/pre-workout-under-30",
+      "h1Count": 1,
+      "schema": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "actualExamplesInInitialHTML": 3
+    },
+    {
+      "sourceBoundContentEquality": true,
+      "route": "/guides/mass-gainer-under-40",
+      "status": 200,
+      "robots": "noindex, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-under-40",
+      "h1Count": 1,
+      "schema": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "actualExamplesInInitialHTML": 3
+    },
+    {
+      "sourceBoundContentEquality": true,
+      "route": "/guides/mass-gainer-under-40?sort=price&utm_source=qa",
+      "status": 200,
+      "robots": "noindex, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-under-40",
+      "h1Count": 1,
+      "schema": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "actualExamplesInInitialHTML": 3
+    }
+  ],
+  "incoming": [
+    {
+      "from": "/pre-workout",
+      "to": "/guides/pre-workout-under-30",
+      "crawlableContextualLinks": 1,
+      "status": 200
+    },
+    {
+      "from": "/mass-gainer",
+      "to": "/guides/mass-gainer-under-40",
+      "crawlableContextualLinks": 1,
+      "status": 200
+    }
+  ],
+  "newGuidesInSitemap": 0,
+  "existingProtectedRoutesInSitemap": "one each",
+  "writes": 0
+}

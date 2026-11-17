@@ -1,0 +1,29 @@
+{
+  "capturedAt": "2026-11-17T22:13:06.825Z",
+  "baseMain": "971527c3d6cc6062a823867b083465512ade3bdc",
+  "focusedTests": 166,
+  "projectGuardian": "PASS",
+  "verifyInventory": "PASS",
+  "quick": {
+    "result": "PASS",
+    "tests": 1330
+  },
+  "full": {
+    "result": "PASS",
+    "tests": 4054
+  },
+  "typeScript": "PASS",
+  "eslint": "PASS",
+  "productionBuild": "PASS",
+  "inventory": {
+    "count": 369,
+    "sha256": "2bfb325c9c18f95e45a4d596f7bd7c80a33199cbcef3dbc91c29d8518b0e27b8"
+  },
+  "actualSourceHtmlEquality": "PASS",
+  "responsive": "PASS desktop1440/mobile390; screenshots visually reviewed",
+  "productionPublication": false,
+  "productionDataWrites": 0,
+  "googleSubmissions": 0,
+  "newDependencies": 0,
+  "fieldCoreWebVitalsClaim": false
+}

@@ -154,6 +154,25 @@ production write.
 
 ## Concurrency rule
 
+**Sprint6 checkpoint:** SEO-26 is CODE COMPLETE after166 focused tests,
+quick1,330/full4,054, actual-source production-build HTTP/cache and1440/390px
+QA. One Draft PR is publication-review material only. Both routes remain
+planned/noindex. SEO-20 stays frozen/binding and SEO-21/22/23/24/25 live.
+See `docs/rollouts/content-growth-sprint-6-2026-11-17.md`.
+
+**17 November 2026 Content Growth Sprint6 owner approval:**
+Content Growth exception: SEO-26 beside frozen SEO-20; Draft PR only.
+The single bounded implementation covers `/guides/pre-workout-under-30`
+and `/guides/mass-gainer-under-40`, necessary existing mechanisms/tests/docs
+and one natural incoming category link per guide. SEO-21/22/23/24/25 remain
+LIVE VERIFIED; older Content Growth active-pair exceptions are retired.
+SEO-20 remains frozen and binding. New routes stay planned/noindex. No merge,
+production deployment/indexing, data/nutrition/mapping/history/importer or
+workflow change, Google submission, GYM HIGH hub or Sprint7 is authorized.
+This latest owner decision supersedes earlier no-next-sprint wording only
+for this Sprint6 Draft scope.
+
+
 **17 November 2026 SEO-25 LIVE VERIFIED closeout:** owner-approved PR #545
 squash merged release head `f6ef6f44759da7546bda22daffac2c0cc4328043` as
 `65983f24aadee1ec7e0f5f700800f6a10661ccb7` with identical tree. Main Quality Gate and Guardian pass.

@@ -1,0 +1,263 @@
+{
+  "capturedAt": "2026-11-17T22:02:48.239Z",
+  "environment": "actual-source server components with authorized GET/HEAD-only production catalogue reads; local/source proof, not public deployment; no synthetic offers",
+  "databaseWrites": 0,
+  "pages": [
+    {
+      "route": "/guides/pre-workout-under-30",
+      "metadata": {
+        "title": "Pre-Workout Under £30 UK: Compare Prices Including Delivery",
+        "description": "Check selected UK pre-workouts against a £30 delivered budget: exact flavours, packs, stock, shipping and check dates, with serving costs only when verified.",
+        "alternates": {
+          "canonical": "/guides/pre-workout-under-30"
+        },
+        "robots": {
+          "index": false,
+          "follow": true
+        },
+        "openGraph": {
+          "title": "Pre-Workout Under £30 UK: Compare Prices Including Delivery",
+          "description": "Check selected UK pre-workouts against a £30 delivered budget: exact flavours, packs, stock, shipping and check dates, with serving costs only when verified.",
+          "url": "/guides/pre-workout-under-30",
+          "type": "website"
+        },
+        "twitter": {
+          "card": "summary",
+          "title": "Pre-Workout Under £30 UK: Compare Prices Including Delivery",
+          "description": "Check selected UK pre-workouts against a £30 delivered budget: exact flavours, packs, stock, shipping and check dates, with serving costs only when verified."
+        }
+      },
+      "sourceReadMs": 884,
+      "reads": [
+        {
+          "table": "products",
+          "method": "GET",
+          "status": 200,
+          "ms": 518,
+          "bytes": 22693
+        },
+        {
+          "table": "retailer_products",
+          "method": "GET",
+          "status": 200,
+          "ms": 166,
+          "bytes": 92089
+        }
+      ],
+      "htmlBytes": 10363,
+      "links": [
+        "/",
+        "/search",
+        "/how-we-compare",
+        "/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006",
+        "/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1672",
+        "/product/cellucor-c4-sport-pre-workout-powder?variant=4610",
+        "/guides/supplement-prices-including-delivery",
+        "/guides/caffeine-free-pre-workout",
+        "/pre-workout",
+        "/compare",
+        "/data-freshness"
+      ],
+      "examples": [
+        {
+          "product": "Warrior Rage Unleash Hell",
+          "productId": "56",
+          "brand": "Warrior",
+          "variant": "Blazin Berry / 392g",
+          "variantId": 1006,
+          "pack": "392g",
+          "productUrl": "/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006",
+          "retailer": "eBay UK",
+          "item": 13.99,
+          "shipping": 0,
+          "total": 13.99,
+          "checkedAt": "2026-11-17T14:56:56.868+00:00",
+          "weightG": 392,
+          "unitPricingVerified": false,
+          "pricePerKg": null,
+          "nutritionApproved": false,
+          "verifiedServings": null,
+          "costPerServing": null,
+          "caffeineAmountShown": false,
+          "proteinOrCalorieCostShown": false
+        },
+        {
+          "product": "Applied Nutrition ABE Ultimate Pre-Workout",
+          "productId": "215",
+          "brand": "Applied Nutrition",
+          "variant": "Baddy Berry / 315g",
+          "variantId": 1672,
+          "pack": "315g",
+          "productUrl": "/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1672",
+          "retailer": "eBay UK",
+          "item": 21.95,
+          "shipping": 0,
+          "total": 21.95,
+          "checkedAt": "2026-11-17T14:57:48.215+00:00",
+          "weightG": 315,
+          "unitPricingVerified": false,
+          "pricePerKg": null,
+          "nutritionApproved": false,
+          "verifiedServings": null,
+          "costPerServing": null,
+          "caffeineAmountShown": false,
+          "proteinOrCalorieCostShown": false
+        },
+        {
+          "product": "Cellucor C4 Sport Pre-Workout",
+          "productId": "1457",
+          "brand": "Cellucor",
+          "variant": "Icy Blue Raspberry / 270 g",
+          "variantId": 4610,
+          "pack": "270g",
+          "productUrl": "/product/cellucor-c4-sport-pre-workout-powder?variant=4610",
+          "retailer": "Holland & Barrett",
+          "item": 19.99,
+          "shipping": 3.49,
+          "total": 23.48,
+          "checkedAt": "2026-11-17T17:48:48.656+00:00",
+          "weightG": 270,
+          "unitPricingVerified": false,
+          "pricePerKg": null,
+          "nutritionApproved": false,
+          "verifiedServings": null,
+          "costPerServing": null,
+          "caffeineAmountShown": false,
+          "proteinOrCalorieCostShown": false
+        }
+      ],
+      "deliveryReversal": {
+        "lowerItemVariant": 4610,
+        "higherItemVariant": 1672
+      },
+      "lowestVerifiedPowderUnitVariant": null
+    },
+    {
+      "route": "/guides/mass-gainer-under-40",
+      "metadata": {
+        "title": "Mass Gainer Under £40 UK: Compare Prices Including Delivery",
+        "description": "Compare selected UK mass gainer packs within a £40 delivered budget, with exact flavours, shipping, check dates and powder cost per kilogram only when verified.",
+        "alternates": {
+          "canonical": "/guides/mass-gainer-under-40"
+        },
+        "robots": {
+          "index": false,
+          "follow": true
+        },
+        "openGraph": {
+          "title": "Mass Gainer Under £40 UK: Compare Prices Including Delivery",
+          "description": "Compare selected UK mass gainer packs within a £40 delivered budget, with exact flavours, shipping, check dates and powder cost per kilogram only when verified.",
+          "url": "/guides/mass-gainer-under-40",
+          "type": "website"
+        },
+        "twitter": {
+          "card": "summary",
+          "title": "Mass Gainer Under £40 UK: Compare Prices Including Delivery",
+          "description": "Compare selected UK mass gainer packs within a £40 delivered budget, with exact flavours, shipping, check dates and powder cost per kilogram only when verified."
+        }
+      },
+      "sourceReadMs": 395,
+      "reads": [
+        {
+          "table": "products",
+          "method": "GET",
+          "status": 200,
+          "ms": 150,
+          "bytes": 14968
+        },
+        {
+          "table": "retailer_products",
+          "method": "GET",
+          "status": 200,
+          "ms": 120,
+          "bytes": 10496
+        }
+      ],
+      "htmlBytes": 10161,
+      "links": [
+        "/",
+        "/search",
+        "/how-we-compare",
+        "/product/7nutrition-bodybuilder-15kg?variant=2009",
+        "/product/mutant-mass-mass-gainer-227kg?variant=1973",
+        "/product/applied-nutrition-critical-mass-lean-mass-gainz-24kg?variant=1803",
+        "/guides/supplement-prices-including-delivery",
+        "/guides/mass-gainer-vs-whey-protein",
+        "/mass-gainer",
+        "/compare",
+        "/guides/cost-per-25g-protein",
+        "/data-freshness"
+      ],
+      "examples": [
+        {
+          "product": "7Nutrition Bodybuilder",
+          "productId": "128",
+          "brand": "7Nutrition",
+          "variant": "Cookies & Cream / 1.5kg",
+          "variantId": 2009,
+          "pack": "1,500g",
+          "productUrl": "/product/7nutrition-bodybuilder-15kg?variant=2009",
+          "retailer": "6 Pack Supplements",
+          "item": 19.99,
+          "shipping": 4.99,
+          "total": 24.98,
+          "checkedAt": "2026-11-17T11:45:40.735+00:00",
+          "weightG": 1500,
+          "unitPricingVerified": true,
+          "pricePerKg": 16.653333333333332,
+          "nutritionApproved": false,
+          "verifiedServings": null,
+          "costPerServing": null,
+          "caffeineAmountShown": false,
+          "proteinOrCalorieCostShown": false
+        },
+        {
+          "product": "Mutant Mass",
+          "productId": "517",
+          "brand": "Mutant",
+          "variant": "Vanilla Ice Cream / 2270g",
+          "variantId": 1973,
+          "pack": "2,270g",
+          "productUrl": "/product/mutant-mass-mass-gainer-227kg?variant=1973",
+          "retailer": "Fit House",
+          "item": 31.99,
+          "shipping": 3.99,
+          "total": 35.98,
+          "checkedAt": "2026-11-17T11:11:52.1+00:00",
+          "weightG": 2270,
+          "unitPricingVerified": true,
+          "pricePerKg": 15.85022026431718,
+          "nutritionApproved": false,
+          "verifiedServings": null,
+          "costPerServing": null,
+          "caffeineAmountShown": false,
+          "proteinOrCalorieCostShown": false
+        },
+        {
+          "product": "Applied Nutrition Critical Mass Lean Mass Gainz",
+          "productId": "132",
+          "brand": "Applied Nutrition",
+          "variant": "Chocolate / 2400g",
+          "variantId": 1803,
+          "pack": "2,400g",
+          "productUrl": "/product/applied-nutrition-critical-mass-lean-mass-gainz-24kg?variant=1803",
+          "retailer": "Whey Okay",
+          "item": 33.57,
+          "shipping": 3.99,
+          "total": 37.56,
+          "checkedAt": "2026-11-17T10:48:03.114+00:00",
+          "weightG": 2400,
+          "unitPricingVerified": true,
+          "pricePerKg": 15.650000000000002,
+          "nutritionApproved": false,
+          "verifiedServings": null,
+          "costPerServing": null,
+          "caffeineAmountShown": false,
+          "proteinOrCalorieCostShown": false
+        }
+      ],
+      "deliveryReversal": null,
+      "lowestVerifiedPowderUnitVariant": 1803
+    }
+  ]
+}
