@@ -148,6 +148,46 @@ function waitForPostgres(container) {
   assert.fail("disposable PostgreSQL did not become ready");
 }
 
+function reviewPublicationProposedStateScenarios(container) {
+  const database = "supplementscout_stage2_test_atomic_import_publication";
+  const fixture = path.join(root, "supabase/test/automation_review_proposed_state_fixture.sql");
+  const scenarios = path.join(root, "supabase/test/automation_review_proposed_state_scenarios.sql");
+  const proposal = path.join(root, "supabase/proposals/20261116210000_align_review_refresh_proposed_state.sql");
+  const rollback = path.join(root, "supabase/rollbacks/20261116210000_align_review_refresh_proposed_state_rollback.sql");
+  const exactFunction = (file, name) => {
+    const source = fs.readFileSync(file, "utf8");
+    const definition = source.match(new RegExp(`create or replace function public\\.${name}\\b[\\s\\S]*?as (\\$[a-z_]*\\$)[\\s\\S]*?\\1;`, "i"))?.[0];
+    assert.ok(definition, `Missing real helper ${name}`);
+    return definition;
+  };
+  requireSuccess(exec(container, ["createdb", "-U", "postgres", database]), "create isolated publication database");
+  try {
+    requireSuccess(psqlFile(container, database, fixture), "create isolated publication dependencies");
+    for (const [file, name] of [
+      [atomicMigration, "atomic_import_has_exact_keys"],
+      [atomicMigration, "atomic_import_canonical_json"],
+      [path.join(root, "supabase/migrations/20260717140000_add_staging_retailer_catalogue_executor.sql"), "retailer_catalogue_sha256_json"],
+    ]) requireSuccess(exec(container, ["psql", "-X", "--no-psqlrc", "-v", "ON_ERROR_STOP=1", "-U", "postgres", "-d", database, "-c", exactFunction(file, name)]), `load production helper ${name}`);
+    for (const filename of [
+      "20260728110000_create_product_match_review_queue.sql",
+      "20260830140000_extend_product_match_review_queue_for_automation.sql",
+      "20260830151000_extend_automation_review_execution_evidence.sql",
+      "20260831110000_create_automation_review_queue_publication_rpc.sql",
+      "20261105100000_refresh_pending_review_execution_binding.sql",
+    ]) requireSuccess(psqlFile(container, database, path.join(root, "supabase/migrations", filename)), `load real publication migration ${filename}`);
+    requireSuccess(psqlFile(container, database, scenarios, ["expect_flat_rejection=1"]), "reproduce retained flat-proposal rejection before correction");
+    requireSuccess(psqlFile(container, database, proposal), "apply isolated proposed-state contract correction");
+    const result = psqlFile(container, database, scenarios);
+    requireSuccess(result, "exercise flat/nested refresh, mutation rejection, owner immutability and atomic rollback");
+    assert.match(output(result), /SHARED_PUBLICATION_PROPOSED_STATE_PASS: partition=38 commercial=16 noncommercial=22 negative_cases=36/);
+    requireSuccess(psqlFile(container, database, rollback), "restore preceding publication contract");
+    requireSuccess(psqlFile(container, database, scenarios, ["expect_flat_rejection=1"]), "verify rollback restores preceding behavior");
+    console.log("SHARED_PUBLICATION_POSTGRES_CASE PASS partition=38 commercial=16 noncommercial=22 shapes=flat,nested negative_cases=36 owner_immutable=true rollback=true");
+  } finally {
+    requireSuccess(exec(container, ["dropdb", "-U", "postgres", "--force", "--if-exists", database]), "drop isolated publication database");
+  }
+}
+
 function reviewedCatalogueUrlScenarios(container, database) {
   const migration = "supabase/migrations/20261110170000_align_reviewed_catalogue_affiliate_url_contract.sql";
   const query = statement => psqlJson(container, database, statement);
@@ -1581,6 +1621,7 @@ test("real atomic import RPC scenarios on disposable PostgreSQL", { skip: !docke
     ]);
     requireSuccess(counts, "check concurrent identity");
     assert.equal(counts.stdout.trim(), "1:1:1:1", "concurrent import was not serialized");
+    reviewPublicationProposedStateScenarios(container);
     reviewedCatalogueUrlScenarios(container, database);
     reviewedNewProductIdentityScenarios(container, database);
   } catch (error) {

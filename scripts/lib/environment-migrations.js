@@ -15,6 +15,10 @@ const PENDING_POLICY = Object.freeze({
 });
 const EXCLUSIONS = Object.freeze({
   STAGING: Object.freeze([
+    // Production-only H&B proposals; never selected on staging.
+    "20261116210000_align_review_refresh_proposed_state",
+    "20261116211000_register_shared_parent_approval_profiles",
+    "20261117212000_register_holland_barrett_existing_offer_sync",
     // V2-only forward correction; the reviewed V2 runtime is absent on staging.
     "20261114213000_enforce_reviewed_new_product_identity",
     // The reviewed V2 runtime is absent on staging; deployment is not authorized.

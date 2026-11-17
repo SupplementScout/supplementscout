@@ -2,6 +2,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
+const { waitForStablePostgres } = require("./lib/docker-postgres-readiness");
 const test = require("node:test");
 const crypto = require("node:crypto");
 const vm = require("node:vm");
@@ -37,6 +38,15 @@ const q = value => "'" + String(value).replaceAll("'", "''") + "'";
 const ident = value => { assert.match(value, /^[a-z0-9_]+$/); return '"' + value + '"'; };
 function ok(result) { assert.ifError(result.error); assert.equal(result.status, 0, result.stdout + result.stderr); return result.stdout.trim(); }
 function denied(result, pattern) { assert.notEqual(result.status, 0, result.stdout); assert.match(result.stderr, pattern); }
+
+test("database readiness does not accept a successful probe followed by initialization shutdown", () => {
+  const probes = [{ status: 0, stdout: "1" }, { status: 2, stdout: "" },
+    { status: 0, stdout: "1" }, { status: 0, stdout: "1" }, { status: 0, stdout: "1" }];
+  let calls = 0;
+  waitForStablePostgres(() => probes[calls++], { attempts: 5, intervalMs: 0 });
+  assert.equal(calls, 5);
+  assert.throws(() => waitForStablePostgres(() => ({ status: 2 }), { attempts: 2, intervalMs: 0 }), /stable ready state/);
+});
 
 function fixtureSql() {
   const parts = ["do $$declare n text; begin foreach n in array array['anon','authenticated','service_role','owner_withdrawal_local_writer'] loop if not exists(select 1 from pg_roles where rolname=n) then execute format('create role %I login',n); end if; end loop; end $$;"];
@@ -190,7 +200,9 @@ test("owner lifecycle and complete retailer partitions on isolated PostgreSQL", 
   try {
     if (!native) {
       ok(run("docker", ["run", "--detach", "--rm", "--name", container, "--network", "none", "-e", "POSTGRES_HOST_AUTH_METHOD=trust", "postgres:17-alpine"]));
-      for (let i = 0; i < 80; i++) { if (psql("postgres", "select 1;").status === 0) break; Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 250); }
+      // The image's temporary initialization server accepts Unix-socket queries
+      // before shutting down. Only the final server listens on container loopback.
+      waitForStablePostgres(() => run("docker", ["exec", container, "psql", "-X", "--no-psqlrc", "-h", "127.0.0.1", "-U", "postgres", "-d", "postgres", "-tAc", "select 1"]));
     }
     const proof = json("postgres", "select host(inet_server_addr()) address,inet_server_port() port,version() version")[0];
     assert.ok(proof.address === null || proof.address === "127.0.0.1"); assert.match(proof.version, /PostgreSQL 17\./);

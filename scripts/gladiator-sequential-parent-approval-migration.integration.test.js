@@ -13,6 +13,10 @@ const OLD_FUNCTION_SHA = "d0972f334b5a7852a76cc14f877b40ff1a4c5c2b29c2b72382fce5
 const NEW_FUNCTION_SHA = "36ec800fd0056c5d556138ef3fe75f5dda627cd6fc6d193f2dc08ce6c1f23309";
 const PARENT_ID = "6560bd60-bc36-4c52-8f13-32ac3ee84aa2";
 const CHILD_ID = "16a6ed2d-931f-4081-969c-bd9340094eff";
+const PROFILE_FORWARD = path.join(ROOT, "supabase/proposals/20261116211000_register_shared_parent_approval_profiles.sql");
+const PROFILE_ROLLBACK = path.join(ROOT, "supabase/rollbacks/20261116211000_register_shared_parent_approval_profiles_rollback.sql");
+const PROFILE_FUNCTION_SHA = "ccd4e3b62e30ecb7b50ce067da3cece0ec104a603c9140afdfd337cd25bb0b70";
+const PROFILE_MANIFEST_SHA = "6c0ca5ee3bba035671ef587de2b9d08ae0a96402f1364e88e413b71f73cea3b8";
 
 function run(command, args, options = {}) { return spawnSync(command, args, { cwd: ROOT, encoding: "utf8", timeout: options.timeout || 180000, input: options.input }); }
 function output(result) { return `${result.stdout || ""}\n${result.stderr || ""}`; }
@@ -170,6 +174,60 @@ function unknownApprovalRequest() {
   }).replaceAll("'", "''");
 }
 
+function sharedParentProfilesScenario(container) {
+  const database = "parent_profiles";
+  ok(exec(container, ["createdb", "-U", "postgres", database]), "create parent profile fixture");
+  ok(psqlText(container, database, fixtureSql()), "parent profile fixture");
+  ok(psqlText(container, database, oldFunctionSql()), "parent profile original ACL");
+  const currentDefinition = fs.readFileSync(PROFILE_ROLLBACK, "utf8").replaceAll("\r\n", "\n")
+    .match(/CREATE OR REPLACE FUNCTION public\.prepare_sequential_retailer_offer_sync_parent_approval[\s\S]*?\$function\$\n;/)?.[0];
+  assert.ok(currentDefinition);
+  ok(psqlText(container, database, currentDefinition), "install exact current parent function");
+  assert.equal(functionSha(container, database), NEW_FUNCTION_SHA);
+  const controlState = () => ok(psql(container, database, "select jsonb_build_object('parents',(select jsonb_agg(to_jsonb(p) order by id) from retailer_catalogue_parent_plans p),'children',(select jsonb_agg(to_jsonb(c) order by id) from retailer_catalogue_child_plans c),'reviews',(select jsonb_agg(to_jsonb(q) order by id) from product_match_review_queue q),'requests',(select jsonb_agg(to_jsonb(r) order by id) from automation_review_execution_requests r))::text"), "profile control state").stdout.trim();
+  const beforeControl = controlState();
+  const beforeBusiness = ok(psql(container, database, "select public.retailer_catalogue_business_counts()::text"), "profile business before").stdout.trim();
+  ok(psqlFile(container, database, PROFILE_FORWARD), "parent profile proposal");
+  assert.equal(functionSha(container, database), PROFILE_FUNCTION_SHA);
+  assert.equal(controlState(), beforeControl, "proposal must not perform historical cleanup or approval");
+  assert.equal(ok(psql(container, database, "select public.retailer_catalogue_business_counts()::text"), "profile business after").stdout.trim(), beforeBusiness);
+  const profiles = JSON.parse(ok(psql(container, database, "select jsonb_agg(to_jsonb(p) order by retailer_id) from public.retailer_offer_sync_parent_profiles() p"), "closed parent profiles").stdout.trim());
+  assert.deepEqual(profiles.map(row => row.retailer_id), [4, 5, 7, 8, 9, 14, 15, 16]);
+  assert.ok(profiles.slice(0, 7).every(row => row.required_manifest_sha256 === null));
+  assert.equal(profiles.at(-1).required_manifest_sha256, PROFILE_MANIFEST_SHA);
+  for (const role of ["anon", "authenticated", "service_role"]) fails(psqlText(container, database, `set role ${role}; select * from public.retailer_offer_sync_parent_profiles();`), `private profile registry ${role}`, /permission denied/);
+
+  const parentId = id => `00000000-0000-4000-8000-${String(id).padStart(12, "0")}`;
+  const seed = (id, manifestSha = null) => ok(psqlText(container, database, `insert into retailer_catalogue_parent_plans(id,parent_plan_fingerprint,retailer_id,target_environment,status,created_by,plan_json)
+    values('${parentId(id)}','${"a".repeat(64)}',${id},'PRODUCTION','PLANNED','github:SupplementScout/supplementscout:profile-test:1','${JSON.stringify(manifestSha ? { approved_manifest_sha256: manifestSha } : {})}');
+    insert into retailer_catalogue_child_plans(id,parent_plan_id,retailer_id,status) values(gen_random_uuid(),'${parentId(id)}',${id},'PLANNED');`), `seed profile ${id}`);
+  const request = (id, slug) => ({ schema_version: 1, parent_plan_id: parentId(id), parent_plan_fingerprint: "a".repeat(64), retailer_id: String(id), approved_by: `github-${slug}-sync:profile-test`, expires_at: new Date(Date.now() + 35 * 60000).toISOString(), workflow: { repository: "SupplementScout/supplementscout", run_id: "profile-test", run_attempt: "1", actor: "integration" }, production_project_ref: "aftboxmrdgyhizicfsfu", production_database_identity: "supplementscout-production:aftboxmrdgyhizicfsfu" });
+  const approve = value => psqlText(container, database, `set role retailer_catalogue_production_approver; select public.prepare_sequential_retailer_offer_sync_parent_approval('${JSON.stringify(value).replaceAll("'", "''")}'::jsonb);`, "supplementscout_production_approver_login");
+  for (const profile of profiles.slice(0, 7)) {
+    seed(profile.retailer_id);
+    assert.match(ok(approve(request(profile.retailer_id, profile.retailer_slug)), `legacy profile ${profile.retailer_id}`).stdout, /APPROVED/);
+  }
+  seed(16, "0".repeat(64));
+  fails(approve(request(16, "holland-barrett")), "wrong owner manifest", /RSBI_EXPECTED_STATE_MISMATCH/);
+  ok(psql(container, database, `update retailer_catalogue_parent_plans set plan_json='{"approved_manifest_sha256":"${PROFILE_MANIFEST_SHA}"}' where id='${parentId(16)}'`), "bind exact proposed owner manifest");
+  const hb = request(16, "holland-barrett");
+  fails(approve({ ...hb, approved_by: "wrong-actor" }), "profile workflow actor", /RSBI_APPROVAL_MISMATCH/);
+  fails(approve({ ...hb, expires_at: new Date(Date.now() + 5 * 60000).toISOString() }), "profile expiry", /RSBI_APPROVAL_EXPIRED/);
+  fails(psqlText(container, database, `set role retailer_catalogue_production_approver; select public.prepare_sequential_retailer_offer_sync_parent_approval('${JSON.stringify(hb)}'::jsonb);`), "profile wrong login", /RSBI_ENVIRONMENT_BLOCKED/);
+  assert.match(ok(approve(hb), "exact H&B owner scope").stdout, /APPROVED/);
+  fails(approve(hb), "profile approval replay", /RSBI_EXPECTED_STATE_MISMATCH/);
+  for (const id of [1, 3, 6, 11, 12, 13, 17, 901]) { seed(id); fails(approve(request(id, "not-approved")), `unregistered profile ${id}`, /RSBI_EXPECTED_STATE_MISMATCH/); }
+  assert.equal(ok(psql(container, database, "select public.retailer_catalogue_business_counts()::text"), "profile business unchanged after approvals").stdout.trim(), beforeBusiness);
+  const approvedControl = controlState();
+  fails(psqlFile(container, database, PROFILE_FORWARD), "profile proposal replay", /LINEAGE_MISMATCH/);
+  assert.equal(controlState(), approvedControl);
+  ok(psqlFile(container, database, PROFILE_ROLLBACK), "parent profile exact rollback");
+  assert.equal(functionSha(container, database), NEW_FUNCTION_SHA);
+  assert.equal(ok(psql(container, database, "select to_regprocedure('public.retailer_offer_sync_parent_profiles()') is null"), "registry rollback").stdout.trim(), "t");
+  assert.equal(controlState(), approvedControl, "rollback must preserve every existing owner decision");
+  console.log("SHARED_PARENT_PROFILE_POSTGRES_CASE PASS legacy=7 proposed=16 unknown_denied=8 exact_manifest=true guards=true rollback=true business_writes=0");
+}
+
 test("migration is a narrow production-only shared allowlist extension with terminal exact-plan cleanup", () => {
   const forward = fs.readFileSync(FORWARD, "utf8");
   const rollback = fs.readFileSync(ROLLBACK, "utf8");
@@ -246,6 +304,7 @@ test("disposable PostgreSQL proves array-shaped live evidence, unchanged busines
     fails(psqlFile(container, "object_shape", FORWARD), "object-shaped audit log migration", /parent precondition mismatch/);
     assert.equal(functionSha(container, "object_shape"), OLD_FUNCTION_SHA);
     assert.equal(ok(psql(container, "object_shape", `select jsonb_typeof(audit_log)||':'||status from retailer_catalogue_parent_plans where id='${PARENT_ID}'`), "object-shaped parent remains untouched").stdout.trim(), "object:PLANNED");
+    sharedParentProfilesScenario(container);
   } catch (error) { primaryError = error; throw error; } finally {
     const cleanup = run("docker", ["rm", "-f", container], { timeout: 30000 });
     if (!primaryError && cleanup.status !== 0) assert.fail(output(cleanup));

@@ -33,7 +33,12 @@ const VALIDATOR_LOGIN = "supplementscout_production_validator_login";
 const VALIDATOR_ROLE = "retailer_catalogue_production_validator";
 const WORKFLOW_RUNS_PER_PAGE = 25;
 const MAX_WORKFLOW_RUN_PAGES = 4;
-const EXPECTED_RETAILER_COUNT = 13;
+const EXPECTED_RETAILER_COUNT = 14;
+const DEFAULT_ARTIFACT_PREFIXES = new Map(require("../config/automation-reliability-watchdog.json").retailers.map(profile => [String(profile.id), profile.artifact_name_prefix]));
+
+function activeRetailerProfiles(config) {
+  return config.retailers.filter(profile => profile.enabled !== false);
+}
 const PLATFORM_CHECK_TYPES = Object.freeze(["workflow_liveness"]);
 const WORKFLOW_STAGE_NAMES = Object.freeze([
   "capture",
@@ -117,6 +122,8 @@ function loadConfig(file = CONFIG_PATH) {
     "Watchdog closeout queue counts do not reconcile",
   );
   for (const profile of config.retailers) {
+    invariant(profile.enabled === undefined || typeof profile.enabled === "boolean", `Watchdog enabled flag is invalid for retailer ${profile.id}`);
+    invariant(profile.artifact_name_prefix === undefined || (typeof profile.artifact_name_prefix === "string" && /^[a-z0-9-]+-$/.test(profile.artifact_name_prefix)), `Watchdog artifact prefix is invalid for retailer ${profile.id}`);
     invariant(
       profile.stages &&
         typeof profile.stages === "object" &&
@@ -1357,11 +1364,7 @@ async function contractFromArtifacts(repository, runId, token, options = {}) {
 }
 
 function artifactBelongsToProfile(profile, artifact) {
-  const sharedWorkflowPrefixes = {
-    "9": "fit-house-offer-refresh-",
-    "14": "10reps-offer-refresh-",
-  };
-  const prefix = sharedWorkflowPrefixes[String(profile?.id)];
+  const prefix = profile?.artifact_name_prefix || DEFAULT_ARTIFACT_PREFIXES.get(String(profile?.id));
   return !prefix || String(artifact?.name || "").startsWith(prefix);
 }
 
@@ -1381,7 +1384,7 @@ async function databaseEvidence(config, env, dependencies = {}) {
       kind: "validator",
     },
     async (client) => {
-      const ids = config.retailers.map((row) => String(row.id));
+      const ids = activeRetailerProfiles(config).map((row) => String(row.id));
       const result = await client.query(
         OFFER_FRESHNESS_SQL,
         [ids],
@@ -1447,7 +1450,7 @@ async function run(options, dependencies = {}) {
   const historyFreshnessCutoff = new Date(
     now.getTime() - config.maximum_success_age_hours * 60 * 60 * 1000,
   ).toISOString();
-  for (const profile of config.retailers) {
+  for (const profile of activeRetailerProfiles(config)) {
     let stages = { capture: null, apply: null, db_postflight: null };
     let contract = null;
     let monitoringError = null;
@@ -1518,6 +1521,8 @@ async function run(options, dependencies = {}) {
     maximum_success_age_hours: config.maximum_success_age_hours,
     generated_at: now.toISOString(),
     retailer_count: retailers.length,
+    registered_retailer_count: config.retailers.length,
+    inactive_retailer_ids: config.retailers.filter(profile => profile.enabled === false).map(profile => String(profile.id)),
     failed_retailer_count: retailers.filter((row) => row.result === "FAIL").length,
     monitored_retailer_count: retailers.filter(
       (row) => row.result === "PASS_WITH_MONITORED_BACKLOG",
@@ -1558,6 +1563,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  activeRetailerProfiles,
   OFFER_FRESHNESS_SQL,
   CONFIG_PATH,
   VALIDATOR_LOGIN,

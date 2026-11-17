@@ -1,5 +1,6 @@
 const assert = require("node:assert/strict");
 const crypto = require("node:crypto");
+const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
@@ -42,8 +43,9 @@ function waitForPostgres(container) {
   assert.fail("PostgreSQL did not start");
 }
 
-function fixtureSql() {
+function fixtureSql(includeHollandBarrett = false) {
   const manifests = [[12, STAGING_MANIFEST], [15, PRODUCTION_MANIFEST]];
+  if (includeHollandBarrett) manifests.push([16, require("../config/retailers/holland-barrett-existing-offer-manifest.json")]);
   const products = new Map();
   const variants = new Map();
   const mappings = [];
@@ -75,14 +77,14 @@ create table public.retailers(id bigint primary key,name text,slug text,website 
 create table public.products(id bigint primary key,is_active boolean not null,merged_into_product_id bigint,merged_at timestamptz);
 create table public.product_variants(id bigint primary key,product_id bigint not null,is_active boolean not null);
 create table public.retailer_products(id bigint primary key,retailer_id bigint not null,product_id bigint not null,product_variant_id bigint not null,external_product_id text,external_variant_id text);
-create table public.offers(id bigint primary key,retailer_id bigint not null,product_id bigint not null,product_variant_id bigint not null,retailer_product_id bigint not null);
+create table public.offers(id bigint primary key,retailer_id bigint not null,product_id bigint not null,product_variant_id bigint not null,retailer_product_id bigint not null,price numeric default 10,shipping_cost numeric default 3.49,total_price numeric default 13.49,in_stock boolean default true,url text default 'https://prf.hn/frozen');
 create table public.retailer_catalogue_parent_plans(id uuid primary key,parent_plan_fingerprint text,retailer_id bigint,target_environment text,source_snapshot_fingerprint text,canonical_snapshot_fingerprint text,adapter_fingerprint text,policy_fingerprint text,code_commit text,expected_state_fingerprint text,status text,expected_deltas jsonb,plan_json jsonb,child_manifest jsonb,rollback_manifest jsonb,source_captured_at timestamptz,canonical_snapshot_at timestamptz,created_by text,audit_log jsonb);
 create table public.retailer_catalogue_child_plans(id uuid primary key,parent_plan_id uuid,retailer_id bigint,target_environment text,child_plan_fingerprint text,parent_plan_fingerprint text,source_snapshot_fingerprint text,canonical_snapshot_fingerprint text,adapter_fingerprint text,policy_fingerprint text,code_commit text,expected_state_fingerprint text,batch_index integer,batch_count integer,dependency_group text,rollback_group text,record_ids jsonb,status text,expected_deltas jsonb,plan_json jsonb,rollback_manifest jsonb,audit_log jsonb);
 insert into public.retailers values(12,'Gladiator Nutrition','gladiator-nutrition','https://gladiatornutrition.co.uk'),(15,'Gladiator Nutrition','gladiator-nutrition','https://gladiatornutrition.co.uk');
 insert into public.products values ${[...products.values()].map((id) => `(${id},true,null,null)`).join(",")};
 insert into public.product_variants values ${[...variants.values()].map((row) => `(${row.id},${row.productId},true)`).join(",")};
 insert into public.retailer_products values ${mappings.join(",")};
-insert into public.offers values ${offers.join(",")};
+insert into public.offers(id,retailer_id,product_id,product_variant_id,retailer_product_id) values ${offers.join(",")};
 create function public.atomic_import_has_exact_keys(p_value jsonb,p_keys text[]) returns boolean language sql immutable as $$select jsonb_typeof(p_value)='object' and (select array_agg(key order by key) from jsonb_object_keys(p_value) key)=(select array_agg(key order by key) from unnest(p_keys) key)$$;
 create function public.atomic_import_canonical_json(p_value jsonb) returns text language plpgsql immutable strict set search_path=pg_catalog as $canonical$ declare v_result text; begin case jsonb_typeof(p_value) when 'object' then select '{'||coalesce(string_agg(to_jsonb(entry.key)::text||':'||public.atomic_import_canonical_json(entry.value),',' order by entry.key),'')||'}' into v_result from jsonb_each(p_value) entry; when 'array' then select '['||coalesce(string_agg(public.atomic_import_canonical_json(entry.value),',' order by entry.ordinality),'')||']' into v_result from jsonb_array_elements(p_value) with ordinality entry(value,ordinality); else v_result:=p_value::text; end case; return v_result; end $canonical$;
 create function public.retailer_catalogue_sha256_json(p_value jsonb) returns text language sql immutable strict set search_path=pg_catalog,public as $$select encode(digest(convert_to(public.atomic_import_canonical_json(p_value),'UTF8'),'sha256'),'hex')$$;
@@ -119,6 +121,134 @@ function call(container, database, environment, value, login = TARGETS[environme
   return psqlTextAs(container, database, `set role ${role}; select public.register_gladiator_nutrition_offer_sync_control_plan(${quote(JSON.stringify(value))}::jsonb)::text;`, login);
 }
 
+// Exercise the additional frozen registration boundary in the same disposable
+// harness. Manifest/executor contracts have their own real SQL integration suite;
+// the small dependency fixture here isolates registration and rollback guards.
+function hollandBarrettRegistrationScenario(container) {
+  const database = "hb_registration";
+  const forward = path.join(ROOT, "supabase/proposals/20261117212000_register_holland_barrett_existing_offer_sync.sql");
+  const rollback = path.join(ROOT, "supabase/rollbacks/20261117212000_register_holland_barrett_existing_offer_sync_rollback.sql");
+  const profileForward = path.join(ROOT, "supabase/proposals/20261116211000_register_shared_parent_approval_profiles.sql");
+  const profileRollback = path.join(ROOT, "supabase/rollbacks/20261116211000_register_shared_parent_approval_profiles_rollback.sql");
+  const functionName = "public.register_holland_barrett_offer_sync_control_plan(jsonb)";
+  const manifestSha = "6c0ca5ee3bba035671ef587de2b9d08ae0a96402f1364e88e413b71f73cea3b8";
+  const manifest = normalizedRows(require("../config/retailers/holland-barrett-existing-offer-manifest.json"));
+  const q = sql => ok(psql(container, database, sql), "H&B fixture query").stdout.trim();
+  const sql = statement => ok(psqlText(container, database, statement), "H&B fixture setup");
+  ok(exec(container, ["createdb", "-U", "postgres", database]), "create H&B registration fixture");
+  sql(fixtureSql(true));
+  sql(`insert into retailers values(16,'Holland & Barrett','holland-barrett','https://www.hollandandbarrett.com');
+    alter table retailer_catalogue_parent_plans add column approval_id uuid;
+    alter table retailer_catalogue_parent_plans add column approved_by text;
+    alter table retailer_catalogue_parent_plans add column approved_at timestamptz;
+    alter table retailer_catalogue_parent_plans add column approval_expires_at timestamptz;
+    create function public.retailer_catalogue_actual_database_target() returns jsonb language sql as $$select '{"target_environment":"PRODUCTION","project_ref":"aftboxmrdgyhizicfsfu","database_identity":"supplementscout-production:aftboxmrdgyhizicfsfu"}'::jsonb$$;`);
+  const precedingParent = fs.readFileSync(profileRollback, "utf8").replaceAll("\r\n", "\n")
+    .match(/CREATE OR REPLACE FUNCTION public\.prepare_sequential_retailer_offer_sync_parent_approval[\s\S]*?\$function\$\n;/)?.[0];
+  assert.ok(precedingParent);
+  sql(precedingParent + `
+    alter function public.prepare_sequential_retailer_offer_sync_parent_approval(jsonb) owner to postgres;
+    revoke all on function public.prepare_sequential_retailer_offer_sync_parent_approval(jsonb) from public,anon,authenticated,service_role;
+    grant execute on function public.prepare_sequential_retailer_offer_sync_parent_approval(jsonb) to retailer_catalogue_production_approver;`);
+  const business = () => q("select jsonb_build_object('products',(select jsonb_agg(to_jsonb(p) order by id) from products p),'variants',(select jsonb_agg(to_jsonb(v) order by id) from product_variants v),'mappings',(select jsonb_agg(to_jsonb(m) order by id) from retailer_products m),'offers',(select jsonb_agg(to_jsonb(o) order by id) from offers o))::text");
+  const control = () => q("select jsonb_build_object('parents',(select jsonb_agg(to_jsonb(p) order by id) from retailer_catalogue_parent_plans p),'children',(select jsonb_agg(to_jsonb(c) order by id) from retailer_catalogue_child_plans c))::text");
+  const beforeBusiness = business(), beforeControl = control();
+  fails(psqlFile(container, database, forward), "registration before parent readiness", /HB_PARENT_PROFILE_REQUIRED/);
+  assert.equal(q(`select to_regprocedure('${functionName}') is null`), "t");
+  ok(psqlFile(container, database, profileForward), "install existing parent entry-point profile proposal");
+  ok(psqlFile(container, database, forward), "install frozen H&B registration proposal");
+  assert.equal(business(), beforeBusiness);
+  assert.equal(control(), beforeControl);
+  for (const role of ["anon", "authenticated", "service_role", "retailer_catalogue_production_approver", "retailer_catalogue_production_executor", "retailer_catalogue_staging_validator"]) {
+    assert.equal(q(`select has_function_privilege('${role}','${functionName}','EXECUTE')`), "f");
+  }
+  const seal = value => {
+    const parent = { schema_version: 1, kind: "retailer-existing-offer-sync-parent", parent_plan_id: value.parent_plan_id, target_environment: value.target_environment, target_project_ref: value.target_project_ref, target_database_identity: value.target_database_identity, retailer_id: value.retailer_id, source_country: "GB", source_snapshot_fingerprint: value.source_snapshot_fingerprint, source_captured_at: value.source_captured_at, manifest_fingerprint: value.manifest_fingerprint, approved_manifest_sha256: value.approved_manifest_sha256, child_plan_ids: value.children.map(c => c.child_plan_id), child_fingerprints: value.children.map(c => c.artifact.artifact_fingerprint), code_commit: value.code_commit, expires_at: value.expires_at, workflow: value.workflow };
+    value.parent_plan_fingerprint = sha(parent);
+    value.request_fingerprint = null;
+    value.request_fingerprint = sha(value);
+    return value;
+  };
+  const fresh = () => {
+    const value = request("PRODUCTION");
+    Object.assign(value, { retailer_id: "16", retailer_slug: "holland-barrett", source_platform: "PARTNERIZE_PRODUCT_FEED", source_domain: "hollandandbarrett.com", approved_manifest_sha256: manifestSha.toUpperCase(), manifest, parent_plan_id: crypto.randomUUID() });
+    value.manifest_fingerprint = sha({ approved_manifest_sha256: value.approved_manifest_sha256, environment: "PRODUCTION", rows: manifest });
+    const rows = manifest.filter(row => !["009072", "079395"].includes(row.external_variant_id)).map(row => ({ retailer_product_id: row.mapping_id, offer_id: row.offer_id, external_product_id: row.external_product_id, external_variant_id: row.external_variant_id, action: "VERIFY_NO_CHANGE", atomic_plan: { product: { action: "existing" }, product_variant: { action: "existing" }, retailer: { action: "existing", id: "16" }, retailer_product: { action: "noop", id: row.mapping_id }, offer: { action: "verify_no_change", id: row.offer_id, values: { price: "10", shipping_cost: "3.49", total_price: "13.49", in_stock: true, url: "https://prf.hn/frozen" } }, approval: { approved: false } } }));
+    const template = value.children[0].artifact;
+    value.children = [];
+    for (let index = 0; index < rows.length; index += 20) {
+      const artifact = { ...structuredClone(template), retailer_id: "16", retailer_slug: "holland-barrett", rows: rows.slice(index, index + 20) };
+      artifact.artifact_fingerprint = sha(artifact);
+      value.children.push({ child_plan_id: crypto.randomUUID(), artifact });
+    }
+    return seal(value);
+  };
+  const invoke = (value, login = TARGETS.PRODUCTION.login, role = TARGETS.PRODUCTION.role) => psqlTextAs(container, database, `set role ${role}; select public.register_holland_barrett_offer_sync_control_plan(${quote(JSON.stringify(value))}::jsonb)::text;`, login);
+  let rejected = 0;
+  const reject = (label, change, pattern = /RSBI_/) => {
+    const value = fresh(); change(value); seal(value);
+    fails(invoke(value), label, pattern);
+    assert.equal(control(), beforeControl, label + " must leave no parent or child");
+    assert.equal(business(), beforeBusiness, label + " must leave all business fields intact");
+    rejected += 1;
+  };
+  reject("wrong retailer", v => { v.retailer_id = "15"; });
+  reject("wrong manifest authorization", v => { v.approved_manifest_sha256 = "0".repeat(64); });
+  reject("manifest omission", v => { v.manifest = v.manifest.slice(1); });
+  reject("manifest identity drift", v => { v.manifest = structuredClone(v.manifest); v.manifest[0].external_variant_id = "000000"; });
+  reject("staging target", v => { v.target_environment = "STAGING"; });
+  reject("wrong project", v => { v.target_project_ref = TARGETS.STAGING.projectRef; });
+  reject("wrong source kind", v => { v.source_platform = "SHOPIFY"; });
+  reject("wrong merchant domain", v => { v.source_domain = "feeds.performancehorizon.com"; });
+  reject("stale source", v => { v.source_captured_at = new Date(Date.now() - 25 * 3600000).toISOString(); });
+  reject("missing source timestamp", v => { v.source_captured_at = null; });
+  reject("missing expiry", v => { v.expires_at = null; });
+  reject("wrong workflow", v => { v.workflow.repository = "another/repository"; });
+  reject("empty children", v => { v.children = []; });
+  reject("too many children", v => { v.children = Array(51).fill(v.children[0]); });
+  reject("overlapping children", v => { v.children.push(structuredClone(v.children[0])); });
+  reject("unmapped child", v => { v.children[0].artifact.rows[0].offer_id = "999999"; });
+  reject("child binding drift", v => { v.children[0].artifact.source_snapshot_fingerprint = "0".repeat(64); });
+  reject("shipping change", v => { v.children[0].artifact.rows[0].atomic_plan.offer.values.shipping_cost = "0"; });
+  reject("affiliate URL change", v => { v.children[0].artifact.rows[0].atomic_plan.offer.values.url = "https://example.com"; });
+  reject("catalogue mutation", v => { v.children[0].artifact.rows[0].atomic_plan.product.action = "create"; });
+  reject("mapping mutation", v => { v.children[0].artifact.rows[0].atomic_plan.retailer_product.action = "update"; });
+  reject("unknown stock", v => { v.children[0].artifact.rows[0].atomic_plan.offer.values.in_stock = null; });
+  reject("hard price threshold", v => { Object.assign(v.children[0].artifact.rows[0].atomic_plan.offer.values, { price: "12.5", total_price: "15.99" }); });
+  reject("unknown money", v => { v.children[0].artifact.rows[0].atomic_plan.offer.values.price = null; });
+  fails(invoke(fresh(), "postgres"), "wrong login with validator role", /RSBI_ENVIRONMENT_BLOCKED/);
+  sql("alter function public.prepare_sequential_retailer_offer_sync_parent_approval(jsonb) set search_path=public;");
+  reject("parent approval lineage changed", () => {}, /RSBI_ENVIRONMENT_BLOCKED/);
+  sql("alter function public.prepare_sequential_retailer_offer_sync_parent_approval(jsonb) set search_path=pg_catalog,public,pg_temp;");
+
+  const value = fresh();
+  // Accept an ordinary bounded price/stock change as well as unchanged siblings.
+  const changed = value.children[0].artifact.rows[0];
+  changed.action = "UPDATE_PRICE_AND_STOCK";
+  changed.atomic_plan.offer.action = "update";
+  Object.assign(changed.atomic_plan.offer.values, { price: "10.1", total_price: "13.59", in_stock: false });
+  seal(value);
+  const registered = resultJson(ok(invoke(value), "register H&B safe siblings"));
+  assert.equal(registered.mapping_count, 219);
+  assert.equal(registered.child_count, 11);
+  assert.equal(registered.business_writes, 0);
+  assert.equal(registered.control_writes, 12);
+  assert.equal(q("select sum(jsonb_array_length(plan_json->'rows')) from retailer_catalogue_child_plans"), "217");
+  const registeredControl = control();
+  fails(invoke(value), "registration replay", /RSBI_REPLAY_BLOCKED/);
+  fails(invoke(fresh()), "second active parent", /RSBI_REPLAY_BLOCKED/);
+  assert.equal(control(), registeredControl);
+  fails(psqlFile(container, database, forward), "installation replay", /HB_REGISTRATION_ALREADY_EXISTS/);
+  sql("alter function public.register_holland_barrett_offer_sync_control_plan(jsonb) security invoker;");
+  fails(psqlFile(container, database, rollback), "rollback drift guard", /HB_REGISTRATION_PROPOSAL_LINEAGE_MISMATCH/);
+  sql("alter function public.register_holland_barrett_offer_sync_control_plan(jsonb) security definer;");
+  ok(psqlFile(container, database, rollback), "rollback exact H&B boundary");
+  assert.equal(q(`select to_regprocedure('${functionName}') is null`), "t");
+  assert.equal(control(), registeredControl, "rollback preserves every control plan");
+  assert.equal(business(), beforeBusiness);
+  console.log(`HB_REGISTRATION_POSTGRES_CASE PASS scope=219 isolated_rows=217 children=11 negative_cases=${rejected} replay=true parent_readiness=true rollback=true business_writes=0`);
+}
+
 test("Gladiator registration binds disposable STAGING 12 and PRODUCTION 15 and rejects cross-environment identities", { skip: !dockerAvailable() && "Docker daemon unavailable" }, () => {
   const container = `supplementscout-gladiator-binding-${crypto.randomBytes(5).toString("hex")}`;
   let primaryError;
@@ -151,6 +281,7 @@ test("Gladiator registration binds disposable STAGING 12 and PRODUCTION 15 and r
     assert.equal(businessAfter, businessBefore);
     ok(psqlFile(container, database, ROLLBACK), "rollback exact environment-safe registration");
     assert.equal(ok(psql(container, database, "select to_regprocedure('public.register_gladiator_nutrition_offer_sync_control_plan(jsonb)') is null"), "rollback readback").stdout.trim(), "t");
+    hollandBarrettRegistrationScenario(container);
   } catch (error) { primaryError = error; throw error; } finally {
     const cleanup = run("docker", ["rm", "-f", container], { timeout: 30000 });
     if (!primaryError && cleanup.status !== 0) assert.fail(output(cleanup));

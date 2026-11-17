@@ -212,7 +212,9 @@ test("Gladiator OOS limits match the shared read-only validator policy", () => {
 
 test("environment binding freezes the classifier, reader, executor and Phase-B guarded atomic importer", () => {
   const immutable = {
-    "scripts/lib/retailer-offer-sync/classifier.js": "475ed7dbe9fa73b2903e152466fbdf5085b238a69c067a9e3a0e3eea0ee613a0",
+    // Source identity and delivery quarantine are explicit policy capabilities;
+    // existing Shopify profiles retain their original classifier behavior.
+    "scripts/lib/retailer-offer-sync/classifier.js": "02bb818e6ed08f81e853832f74f64a21bdb675444fe3758679103c0f389c7ff2",
     "scripts/lib/shopify-snapshot-reader.js": "06d93e363ee95e4bbd73a17bd2292d9d258efb677634fa148685c42277811fce",
     // All sealed plans now pass read-only identity validation before any approval.
     "scripts/reviewed-catalogue-package-executor.js": "0fde4978ab74f479bb25ff2956d304ba2df4e0caabb7a5769e0afc558208db0f",
@@ -323,11 +325,18 @@ test("shared workflow retains declared cron routing and unaffected retailer runt
 test("Gladiator scheduled refresh reuses the shared guarded flow while manual apply stays unavailable", () => {
   const runtime = fs.readFileSync(path.join(ROOT, "scripts/fit-house-offer-refresh.js"), "utf8");
   const workflow = fs.readFileSync(path.join(ROOT, ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
-  const gladiatorJob = workflow.match(/  gladiator-nutrition-offer-refresh:[\s\S]*?(?=\n  refresh-review-queue:)/)?.[0] || "";
+  const parsedJob = require("js-yaml").load(workflow).jobs["gladiator-nutrition-offer-refresh"];
+  const gladiatorJob = (workflow.match(/  gladiator-nutrition-offer-refresh:[\s\S]*?(?=\n  holland-barrett-offer-refresh:)/)?.[0] || "")
+    .replaceAll("${{ env.RETAILER_DISPLAY_NAME }}", parsedJob.env.RETAILER_DISPLAY_NAME)
+    .replaceAll("${{ env.RETAILER_REFRESH_PROFILE }}", parsedJob.env.RETAILER_REFRESH_PROFILE)
+    .replaceAll("$RETAILER_REFRESH_PROFILE", parsedJob.env.RETAILER_REFRESH_PROFILE)
+    .replaceAll("env.RETAILER_REFRESH_CRON", `'${parsedJob.env.RETAILER_REFRESH_CRON}'`);
   assert.equal((runtime.match(/gladiator-nutrition/g) || []).length, 4);
   // Resealed for deny-only Fit stock identity/HOLD checks and active diagnostic counts.
   // Other profiles keep the shared pre-source owner-policy gate and generic path.
-  assert.equal(sha256Text(path.join(ROOT, "scripts/fit-house-offer-refresh.js")), "da16bd9104b609fb491c9191418fd41f374e82c7b47d30ad8ba9a5bff9c4ea6c");
+  // The source-kind adapter and preparation guard add no retailer condition to core.
+  // Generic environment aliases retain precedence of every existing profile value.
+  assert.equal(sha256Text(path.join(ROOT, "scripts/fit-house-offer-refresh.js")), "22a08b5f6a6ea66cf7909f94244310cb75cc88cf4cdfcd6c79f6cd597917e82b");
   assert.doesNotMatch(runtime, /retailer_id\s*={2,3}\s*15|config\.retailer_id\s*={2,3}\s*15/);
   assert.match(gladiatorJob, /github\.event_name == 'workflow_dispatch'/);
   assert.match(gladiatorJob, /inputs\.operation == 'dry-run'[\s\S]*inputs\.operation == 'review-only'/);
@@ -337,10 +346,10 @@ test("Gladiator scheduled refresh reuses the shared guarded flow while manual ap
   assert.equal((gladiatorJob.match(/--mode=dry-run --isolate-unsafe=true/g) || []).length, 2);
   assert.equal((gladiatorJob.match(/--mode=apply --isolate-unsafe=true/g) || []).length, 1);
   assert.match(gladiatorJob, /--mode=baseline/);
-  assert.match(gladiatorJob, /--mode=bind --profile=gladiator-nutrition/);
+  assert.match(gladiatorJob, /--mode=bind --profile="gladiator-nutrition"/);
   assert.match(gladiatorJob, /Apply safe Gladiator Nutrition offer refresh rows[\s\S]*github\.event_name == 'schedule' && github\.event\.schedule == '17 8 \* \* \*'/);
   for (const credential of ["VALIDATOR", "APPROVER", "EXECUTOR"])
-    assert.match(gladiatorJob, new RegExp(`GLADIATOR_NUTRITION_REFRESH_${credential}_DATABASE_URL: \\$\\{\\{ secrets\\.JONS_SYNC_${credential}_DATABASE_URL \\}\\}`));
+    assert.match(gladiatorJob, new RegExp(`RETAILER_REFRESH_${credential}_DATABASE_URL: \\$\\{\\{ secrets\\.JONS_SYNC_${credential}_DATABASE_URL \\}\\}`));
   const orderedSteps = [
     "Dry-run exact approved Gladiator Nutrition offers",
     "Capture Gladiator Nutrition DB baseline read-only",
@@ -366,7 +375,8 @@ test("Gladiator scheduled and manual review evidence use the existing shared que
   assert.match(queueJob, /uses: \.\/\.github\/actions\/publish-automation-review-queue/);
   assert.doesNotMatch(queueJob, /--mode=apply|register_gladiator|APPROVER_DATABASE_URL|EXECUTOR_DATABASE_URL/);
   assert.doesNotMatch(queueJob, /approve_automation_review|PENDING\s*(?:->|→)\s*APPROVED/);
-  assert.equal(sha256Text(path.join(ROOT, ".github/workflows/automation-review-queue-worker.yml")), "ab4c4417818364fc385011f0eb3a953b4f79be2a1a4130d2b10518cc9da7d573");
+  // Only disabled H&B credential bindings were added to the existing worker steps.
+  assert.equal(sha256Text(path.join(ROOT, ".github/workflows/automation-review-queue-worker.yml")), "f641bf9792ab6c61326fcb38bd52872de9ee5e8234d2194ca1e014e140dedfd1");
 });
 
 test("registration migration is a thin exact-scope boundary and rollback is lineage-guarded", () => {
@@ -399,8 +409,8 @@ const pauseStarts = [...pauseWorkflow.matchAll(/^  ([a-z0-9-]+):\n/gm)];
 const pauseJobs = Object.fromEntries(pauseStarts.map((match, index) => [match[1], pauseWorkflow.slice(match.index, pauseStarts[index+1]?.index || pauseWorkflow.length)]));
 const pauseEmptyOutputs = () => ({artifact_id:"",artifact_digest:"",source_contract_sha256:"",review_scope_fingerprint:""});
 function pauseContext(event, cron="47 2 * * *", retailer="fit-house", operation="dry-run", ref="refs/heads/main") {
-  return { github:{ref,event_name:event,event:{schedule:cron}}, inputs:{retailer,operation}, always:()=>true, success:()=>true,
-    needs:Object.fromEntries(["fit-house-offer-refresh","ten-reps-offer-refresh","gladiator-nutrition-offer-refresh"].map(name=>[name,{outputs:pauseEmptyOutputs()}])) };
+  return { github:{ref,event_name:event,event:{schedule:cron}}, inputs:{retailer,operation}, vars:{}, always:()=>true, success:()=>true,
+    needs:Object.fromEntries(["fit-house-offer-refresh","ten-reps-offer-refresh","gladiator-nutrition-offer-refresh","holland-barrett-offer-refresh"].map(name=>[name,{outputs:pauseEmptyOutputs()}])) };
 }
 function pauseEvaluate(expression, ctx) { return Boolean(vm.runInNewContext(expression.replace(/needs\.([a-z0-9-]+)/g, (_, key) => "needs[" + JSON.stringify(key) + "]"),ctx,{timeout:1000})); }
 function pauseEligible(job, ctx) {
@@ -463,8 +473,8 @@ test("shared scheduled queue publication cannot publish missing Fit outputs whil
   const fitStep=pauseJobs["refresh-review-queue"].match(/- name: Reconcile and publish fresh Fit House Review Queue source\n        if: \$\{\{ (.*) \}\}/);
   assert.ok(fitStep);assert.equal(pauseEvaluate(fitStep[1],ctx),false);
 });
-test("the restored shared workflow equals the previously sealed version with only the deliberate Fit pause removed",()=>{
-  assert.equal(crypto.createHash("sha256").update(pauseWorkflow).digest("hex"),"b9f94af1a03f2952fa76ba237357883816122cdd5bbbdf066be657d153b83935");
+test("the reviewed H&B shared workflow retains the separately pinned Fit House and 10 Reps runtimes",()=>{
+  assert.equal(crypto.createHash("sha256").update(pauseWorkflow).digest("hex"),"cfa2846c5cc725a63d5b651b1fd1ea461a850e64199baf4eb72c0a35dcab83ad");
 });
 
 test("existing independent queue worker performs zero writes with an empty QUEUED inventory, a separate rollout precondition",async()=>{

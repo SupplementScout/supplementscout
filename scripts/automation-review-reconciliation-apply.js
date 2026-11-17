@@ -3,6 +3,7 @@ const path = require("node:path");
 const dotenv = require("dotenv");
 const { createClient } = require("@supabase/supabase-js");
 const { sha256, validateRpcResult } = require("./lib/automation-review-publisher");
+const { profileForRetailerId } = require("./lib/automation-review-publication-profiles");
 const {
   createSealedArtifactsService,
   createSupabaseSealedArtifactAdapters,
@@ -396,6 +397,8 @@ async function run(options, dependencies = {}) {
   const parsed = Array.isArray(options) ? parseArgs(options) : { mode: "same-run", ...options };
   const exactBytes = fs.readFileSync(parsed.input);
   const report = JSON.parse(exactBytes.toString("utf8"));
+  const publicationProfile = profileForRetailerId(report.request?.retailer?.id);
+  if (publicationProfile?.publicationEnabled === false) fail("REVIEW_PUBLICATION_PROFILE_NOT_ACTIVATED");
   const env = dependencies.env || process.env;
   return parsed.mode === RETRY_MODE
     ? runAuthorizedRetry(parsed, report, exactBytes, env, dependencies)

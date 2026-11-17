@@ -485,22 +485,22 @@ test("historical GTIN receipt closes CURRENT264 and preserves the exact sealed 2
   assert.equal(closed.evidence, null);
 });
 
-test("authoritative identity migration receipt closes CURRENT265 and retains exact 264-to-265 selection", () => {
+test("authoritative H&B migration receipt closes CURRENT268 and retains exact 265-to-268 selection", () => {
   const receipt = JSON.parse(fs.readFileSync(path.join(ROOT,
-    "docs/retailer-automation/evidence/REVIEWED-NEW-PRODUCT-IDENTITY-PRODUCTION-265-CLOSEOUT-2026-11-15.json"), "utf8"));
+    "docs/retailer-automation/evidence/HB-SHARED-AUTOMATION-PRODUCTION-268-CLOSEOUT-2026-11-17.json"), "utf8"));
   const current = derivePostApplyMigrationBinding("PRODUCTION");
   assert.equal(current.status, "ALREADY_CLOSED");
   assert.equal(current.pending_count, 0);
   assertDerivationMatchesContract(current, CONTRACTS.PRODUCTION);
   assert.equal(current.post_ledger_count, receipt.post_state.ledger_count);
   assert.equal(current.post_ledger_fingerprint, receipt.post_state.ledger_fingerprint);
-  const pending = [{filename:receipt.consumed_pending.ordered_filenames[0],sha256:receipt.consumed_pending.ordered_sha256[0]}];
+  const pending = receipt.consumed_pending.ordered_filenames.map((filename,index) => ({filename,sha256:receipt.consumed_pending.ordered_sha256[index]}));
   const historical = derivePostApplyMigrationBinding("PRODUCTION", {pendingMigrations:pending});
   assert.equal(historical.pre_ledger_count, receipt.pre_state.ledger_count);
   assert.equal(historical.pre_ledger_fingerprint, receipt.pre_state.ledger_fingerprint);
   assert.equal(historical.post_ledger_count, receipt.post_state.ledger_count);
   assert.equal(historical.post_ledger_fingerprint, receipt.post_state.ledger_fingerprint);
-  assert.equal(pendingConfirmation({pending}), "aed99d7bb50f0e24");
+  assert.equal(pendingConfirmation({pending}), "ed9d98dc585147eb");
   const closed = repositoryCloseoutForAttempt({mode:"apply",committed:true,derivation:current,
     contract:CONTRACTS.PRODUCTION,projectRef:CONTRACTS.PRODUCTION.projectRef,
     remoteLedger:ledgerRows(current.post_identifiers)});

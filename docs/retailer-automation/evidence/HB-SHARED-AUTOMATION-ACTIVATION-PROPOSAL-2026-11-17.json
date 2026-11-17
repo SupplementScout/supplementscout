@@ -1,0 +1,442 @@
+{
+  "schema_version": 1,
+  "kind": "HOLLAND_BARRETT_SHARED_AUTOMATION_ACTIVATION_PROPOSAL",
+  "status": "READY_FOR_OWNER_REVIEW_NOT_ACTIVATED",
+  "not_authorization": true,
+  "retailer_id": 16,
+  "retailer_slug": "holland-barrett",
+  "existing_offer_count": 219,
+  "catalogue_expansion": "DEFERRED",
+  "proposed_policy": {
+    "schema_version": 1,
+    "retailer_id": 16,
+    "retailer_name": "Holland & Barrett",
+    "retailer_slug": "holland-barrett",
+    "store_url": "https://www.hollandandbarrett.com",
+    "source_platform": "PARTNERIZE_PRODUCT_FEED",
+    "preparation_only": false,
+    "manifest_mode": "row_manifest",
+    "manifest_path": "config/retailers/holland-barrett-existing-offer-manifest.json",
+    "manifest_sha256": "6c0ca5ee3bba035671ef587de2b9d08ae0a96402f1364e88e413b71f73cea3b8",
+    "approved_mapping_count": 219,
+    "registration_rpc": "register_holland_barrett_offer_sync_control_plan",
+    "environment_prefix": "HOLLAND_BARRETT_REFRESH",
+    "phase_prefix": "HOLLAND_BARRETT_REFRESH",
+    "output_directory": "holland-barrett-offer-refresh",
+    "guard_scope_name": "HOLLAND_BARRETT_EXISTING_219",
+    "source_url_env": "HOLLAND_BARRETT_PARTNERIZE_FEED_URL",
+    "source_url_sha256": "bf2a7191cef485c55e971fc7b0b5b2ef51fed071054bee57ed707fc062fe7beb",
+    "source_baseline": {
+      "product_count": 4732,
+      "variant_count": 4732,
+      "maximum_file_age_hours": 24,
+      "minimum_count_ratio": 0.9,
+      "genuine_collapse_ratio": 0.75
+    },
+    "source_fetch": {
+      "maximum_attempts": 3,
+      "retry_base_delay_ms": 500,
+      "timeout_ms": 30000,
+      "maximum_bytes": 12000000,
+      "retain_snapshot": true
+    },
+    "guardrails": {
+      "preserve_existing_urls": true,
+      "allowed_existing_offer_hosts": [
+        "prf.hn"
+      ],
+      "source_url_mode": "provided",
+      "require_source_identity": true,
+      "allow_two_capture_price_confirmation": false,
+      "require_unchanged_shipping": true,
+      "quarantine_shipping_policy_drift": true,
+      "required_matched_offers": 219,
+      "source_freshness_hours": 24,
+      "future_clock_skew_minutes": 5,
+      "full_snapshot_minimum_source_count_ratio": 0.9,
+      "maximum_total_oos_ratio": 0.35,
+      "maximum_oos_increase_percentage_points": 0.05,
+      "maximum_changed_record_ratio": 0.25,
+      "mass_price_change_block_ratio": 0.2,
+      "per_row_price_hard_block_ratio": 0.25,
+      "per_row_price_hard_block_absolute_gbp": "20.00",
+      "mass_oos_block_count": 4
+    },
+    "shipping_policy": {
+      "mode": "source"
+    },
+    "discovery_policy": {
+      "mode": "report_only",
+      "catalogue_creates": false,
+      "missing_mapped_variant_mode": "BLOCK",
+      "maximum_missing_mapped_variants": 0,
+      "maximum_missing_mapped_variant_ratio": 0
+    },
+    "reviewed_mass_oos_enabled": false,
+    "preserve_existing_urls": true,
+    "policy": {
+      "existing_identity_only": true,
+      "catalogue_creates": false,
+      "mapping_creates": false,
+      "allowed_fields": [
+        "price",
+        "in_stock",
+        "last_checked_at"
+      ],
+      "maximum_price_change_ratio": 0.25,
+      "maximum_price_change_absolute_gbp": "20.00"
+    }
+  },
+  "proposed_identity_manifest_sha256_lf": "6c0ca5ee3bba035671ef587de2b9d08ae0a96402f1364e88e413b71f73cea3b8",
+  "current_manifest_authority": "OWNER_APPROVAL_REQUIRED / production_apply=false",
+  "changes": [
+    {
+      "file": "config/retailers/holland-barrett-existing-offer-manifest.json",
+      "before_sha256_lf": "aeeb44897c8a43c5d52ffe7ac02d3f711b06736c8c9fa1727ea6df3141521e71",
+      "proposed_after_sha256_lf": "6c0ca5ee3bba035671ef587de2b9d08ae0a96402f1364e88e413b71f73cea3b8",
+      "json_updates": [
+        {
+          "path": [
+            "authorization",
+            "status"
+          ],
+          "before": "OWNER_APPROVAL_REQUIRED",
+          "after": "OWNER_APPROVED"
+        },
+        {
+          "path": [
+            "authorization",
+            "production_apply"
+          ],
+          "before": false,
+          "after": true
+        }
+      ]
+    },
+    {
+      "file": "config/retailers/holland-barrett-offer-sync.json",
+      "before_sha256_lf": "ef9ffd3091c77dacb960412d79e78afbdbce4cfbc8a0b92cf52101bc33ca3891",
+      "proposed_after_sha256_lf": "3330a1b4f156ab29878ef25d32f717d5b5e93bf7611a87a71b39b67ad5403624",
+      "json_updates": [
+        {
+          "path": [
+            "preparation_only"
+          ],
+          "before": true,
+          "after": false
+        },
+        {
+          "path": [
+            "manifest_sha256"
+          ],
+          "before": "aeeb44897c8a43c5d52ffe7ac02d3f711b06736c8c9fa1727ea6df3141521e71",
+          "after": "6c0ca5ee3bba035671ef587de2b9d08ae0a96402f1364e88e413b71f73cea3b8"
+        }
+      ]
+    },
+    {
+      "file": "config/automation-review-execution-adapters.json",
+      "before_sha256_lf": "238df82ace8484bb1288504907addb770b0e71503bab12d39e4987cd58e52443",
+      "proposed_after_sha256_lf": "b0f76db6d02bcb488df1489d1c223da7a4f908e550b4a0a5ed791a4dc28b58ea",
+      "json_updates": [
+        {
+          "path": [
+            "adapters",
+            5,
+            "enabled"
+          ],
+          "before": false,
+          "after": true
+        }
+      ]
+    },
+    {
+      "file": "config/automation-reliability-watchdog.json",
+      "before_sha256_lf": "f16842b66f2262bf38f3065df405f698a9a6fbacd4be2b3ff38d643b1de5ab17",
+      "proposed_after_sha256_lf": "069acfcfb3277a85809f6f02c38d3d27f9bc50f30b7a8ec2a0afb311ac6fdbae",
+      "json_updates": [
+        {
+          "path": [
+            "retailers",
+            13,
+            "enabled"
+          ],
+          "before": false,
+          "after": true
+        }
+      ]
+    }
+  ],
+  "local_proposed_patch": {
+    "path": "tmp/hb-shared-automation-20261116/owner-activation.proposed.patch.txt",
+    "sha256": "d54c41870fadd92344df32f38da034c741b76a1163d4a1b9f41f7a21ded7c0c1",
+    "applied": false
+  },
+  "sql_in_required_forward_order": [
+    {
+      "forward": "supabase/proposals/20261116210000_align_review_refresh_proposed_state.sql",
+      "forward_sha256_lf": "3816dbe28a277a79574b70688103745a4cf6dc6dc5a430a137020918d373375e",
+      "rollback": "supabase/rollbacks/20261116210000_align_review_refresh_proposed_state_rollback.sql",
+      "rollback_sha256_lf": "57d2d1d7fc60913fd1254edc645f6de79bdf846c5c52b2c9e5a429856c9ab4b3"
+    },
+    {
+      "forward": "supabase/proposals/20261116211000_register_shared_parent_approval_profiles.sql",
+      "forward_sha256_lf": "842985652b164601169fb54dca81992acf7fcb0e16d7ef3a3cf6b6100eccd281",
+      "rollback": "supabase/rollbacks/20261116211000_register_shared_parent_approval_profiles_rollback.sql",
+      "rollback_sha256_lf": "2e8a60af6f7180253b93be3e31094febcfefe1b828ce4f444398b8370774d837"
+    },
+    {
+      "forward": "supabase/proposals/20261117212000_register_holland_barrett_existing_offer_sync.sql",
+      "forward_sha256_lf": "ee834460a1c9829e49781f4d5b755e646c696a3f3cc6f3226956be00780e396c",
+      "rollback": "supabase/rollbacks/20261117212000_register_holland_barrett_existing_offer_sync_rollback.sql",
+      "rollback_sha256_lf": "dee646e918220245e7e0be98df7371930faac9ea7ca0f04e76d82d8ef5e3d52f"
+    }
+  ],
+  "rollback_order": "Stop H&B scheduling and worker intake; assess in-flight control state; reverse SQL order. No business/control cleanup or decision replay is included.",
+  "required_owner_decisions": {
+    "policy_scope": "PENDING_EXPLICIT_OWNER_APPROVAL",
+    "production_sql": "PENDING_SEPARATE_EXPLICIT_OWNER_APPROVAL",
+    "scheduled_execution": "PENDING_SEPARATE_EXPLICIT_OWNER_APPROVAL"
+  },
+  "external_configuration": {
+    "secret": {
+      "name": "HOLLAND_BARRETT_PARTNERIZE_FEED_URL",
+      "scope": "production-readonly environment",
+      "value": "PROTECTED_NEVER_INCLUDED",
+      "provisioned": false
+    },
+    "enable_variable": {
+      "name": "HOLLAND_BARRETT_REFRESH_ENABLED",
+      "scope": "repository",
+      "proposed_value": "true",
+      "set": false,
+      "apply_last": true
+    },
+    "cron": "17 8 * * *",
+    "job": "holland-barrett-offer-refresh",
+    "after_job": "gladiator-nutrition-offer-refresh",
+    "manual_apply_available": false,
+    "new_scheduler": false
+  },
+  "proposed_monitored_exceptions": {
+    "authorized": false,
+    "offer_ids": [
+      "4661",
+      "4678"
+    ],
+    "maximum_review_rows": 2,
+    "maximum_stale_offers": 2,
+    "allowed_failure_codes": [],
+    "missing_source_is_out_of_stock": false
+  },
+  "preactivation_checks": [
+    "Refresh repository, production function lineage/ACL and complete source/native validator proof",
+    "Verify no unexpected active H&B parent or queued/in-flight H&B execution; never close/recover automatically",
+    "Confirm separate owner decisions for exact policy/scope, SQL hashes and schedule",
+    "Use the existing selected-migration applicator: privileged read-only preflight, rollback-only rehearsal, exact approved apply, then independent metadata and zero business/control delta verification",
+    "Use applicator receipts to reconcile CURRENT268/pending=[] before enabling runtime; staging selection remains unchanged",
+    "Apply the reviewed activation diff only after SQL readiness; provision the protected source secret",
+    "Require release/quality checks and production readback; set the repository enable variable last"
+  ],
+  "completion_requires": [
+    "Controlled existing-path run with independent baseline/postflight and fresh idempotency",
+    "Successful ordinary scheduled runtime evidence without regressions",
+    "Owner-approved ledger closeout; never infer LIVE VERIFIED from tests alone"
+  ],
+  "future_catalogue_additions": {
+    "allowed_process": "Fresh identity evidence and owner decisions through the existing reviewed importer; retain receipts; extend frozen219+N manifest, identity seals/counts and matching SQL scope binding through the same registration/approval path",
+    "new_importer_or_engine": false,
+    "repeat_completed_61_imports": false
+  },
+  "production_mutations_performed": 0,
+  "validation": {
+    "quick": {
+      "result": "PASS",
+      "pass": 1204,
+      "fail": 0,
+      "skip": 3,
+      "code_commit": "d5ab176f4eaede3b473a5d72065b0a6d45cbb620",
+      "log": "tmp/hb-shared-automation-20261116/verify-quick-d5ab176f.log"
+    },
+    "full": {
+      "result": "PASS",
+      "pass": 3951,
+      "fail": 0,
+      "skip": 3,
+      "code_commit": "d5ab176f4eaede3b473a5d72065b0a6d45cbb620",
+      "log": "tmp/hb-shared-automation-20261116/verify-full-d5ab176f.log"
+    },
+    "ci_full": "https://github.com/SupplementScout/supplementscout/actions/runs/44038147843/job/133885939718",
+    "ci_security": "PASS",
+    "real_postgresql": {
+      "run_id": 44037623333,
+      "head": "6329ab420082bab256ca21c90a0f95c322e34531",
+      "pass": 196,
+      "fail": 0,
+      "skip": 0,
+      "registration_negative_cases": 25,
+      "legacy_profiles": 7,
+      "unknown_profiles_denied": 8,
+      "sql_and_integration_runners_unchanged_on_runtime_head": true,
+      "exact_file_bindings": [
+        {
+          "file": "scripts/gladiator-nutrition-registration.integration.test.js",
+          "sha256_lf": "527f7e940db1ce4bc4f417ef0f3a3e02f570ed21ec040eeae982f9b7d6f54539",
+          "unchanged_on_runtime_head": true
+        },
+        {
+          "file": "scripts/gladiator-sequential-parent-approval-migration.integration.test.js",
+          "sha256_lf": "2b8d2d5337d541593b8e7d076f95be375e4073ce3a51d21735c0ca5722a1d903",
+          "unchanged_on_runtime_head": true
+        },
+        {
+          "file": "supabase/proposals/20261116210000_align_review_refresh_proposed_state.sql",
+          "sha256_lf": "3816dbe28a277a79574b70688103745a4cf6dc6dc5a430a137020918d373375e",
+          "unchanged_on_runtime_head": true
+        },
+        {
+          "file": "supabase/proposals/20261116211000_register_shared_parent_approval_profiles.sql",
+          "sha256_lf": "842985652b164601169fb54dca81992acf7fcb0e16d7ef3a3cf6b6100eccd281",
+          "unchanged_on_runtime_head": true
+        },
+        {
+          "file": "supabase/proposals/20261117212000_register_holland_barrett_existing_offer_sync.sql",
+          "sha256_lf": "ee834460a1c9829e49781f4d5b755e646c696a3f3cc6f3226956be00780e396c",
+          "unchanged_on_runtime_head": true
+        }
+      ],
+      "log": "tmp/hb-shared-automation-20261116/integration-44037623333.log",
+      "production_credentials_supplied": false,
+      "registration_test_scope": "Real PostgreSQL registration/ACL/scope/parent-readiness/replay/rollback with isolated dependency fixtures; no production apply or complete H&B executor E2E is claimed"
+    },
+    "native_read_only": {
+      "at": "2026-11-17T07:25:57.318Z",
+      "code_commit": "d5ab176f4eaede3b473a5d72065b0a6d45cbb620",
+      "evidence_directory": "native-d5ab176f-20261117T072547128Z",
+      "scope_count": 219,
+      "validator_batches": 11,
+      "validator_rows": 217,
+      "classification": {
+        "VERIFY_NO_CHANGE": 217
+      },
+      "review_reasons": {
+        "SOURCE_VARIANT_MISSING": 2
+      },
+      "raw_source_fingerprint": "e17617575710a43c26ee3a59fbba963e0ca2aaebb0290189d50f05e24b3a5cbb",
+      "semantic_source_fingerprint": "7fc669cc6db0455b651bfdd13f2615d2a4a42f8d43ca7deb9fa3c3a8f965f9c6",
+      "source_file_last_modified_at": "2026-11-16T17:15:46.000Z",
+      "supplier_generated_at": null,
+      "unchanged_business_fingerprint": "b578023747ed6cb434df072b5145f4dd551dc32a99efe064177d173b7e715048",
+      "database_writes": 0,
+      "control_writes": 0,
+      "approvals": 0,
+      "applies": 0
+    },
+    "workflow_lint": {
+      "tool": "actionlint1.7.12",
+      "result": "PASS_COMPATIBLE_STDIN_VIEW",
+      "limitation": "The tool does not recognize pre-existing queue:max. Only that key was omitted from its temporary stdin view; repository queue:max is unchanged.",
+      "yaml_alias_and_expression_checks": "PASS"
+    },
+    "security_fixture_correction": {
+      "incident_id": 40181500,
+      "result": "RESOLVED_CURRENT_PR_CHECK_PASS",
+      "cause": "Synthetic test-only PostgreSQL URI; no actual credential was used or disclosed",
+      "correction": "Passwordless .invalid fixture with explicit trusted CA and a non-networking client mock",
+      "production_implementation_changed": false
+    }
+  },
+  "migration_selection_proposal": {
+    "status": "OFFLINE_VERIFIED_NOT_APPLIED_NOT_AUTHORIZED",
+    "existing_applicator": "scripts/apply-selected-migrations.js",
+    "proposal_patch": {
+      "path": "tmp/hb-shared-automation-20261116/owner-sql-selection.proposed.patch.txt",
+      "sha256": "00255439625b572611e20d061f9e3f7771c0c34b83e87651adc48e2af2139ce1",
+      "applied": false
+    },
+    "files": [
+      {
+        "path": "supabase/migrations/20261116210000_align_review_refresh_proposed_state.sql",
+        "sha256_lf": "3816dbe28a277a79574b70688103745a4cf6dc6dc5a430a137020918d373375e"
+      },
+      {
+        "path": "supabase/migrations/20261116211000_register_shared_parent_approval_profiles.sql",
+        "sha256_lf": "842985652b164601169fb54dca81992acf7fcb0e16d7ef3a3cf6b6100eccd281"
+      },
+      {
+        "path": "supabase/migrations/20261117212000_register_holland_barrett_existing_offer_sync.sql",
+        "sha256_lf": "ee834460a1c9829e49781f4d5b755e646c696a3f3cc6f3226956be00780e396c"
+      },
+      {
+        "path": "scripts/lib/environment-migrations.js",
+        "before_sha256_lf": "fa549878c9d0fb88ff4f3477739fb88bd1d48368836f9270bfdc7fb4ae20f5d4",
+        "proposed_after_sha256_lf": "7b5096439242b399405c86543ae984387c19aaeecfe8b7d3c618cb4abd566594"
+      },
+      {
+        "path": "scripts/supabase-migration-selector.js",
+        "before_sha256_lf": "b8ba1c159e212eb4e1b0c87205f0510f6643384a070795916a7e1e642f073ee8",
+        "proposed_after_sha256_lf": "7908ee8345278ab18fe505d264f850d3d02af9cef83d42dcc149cd0a837cddb6"
+      }
+    ],
+    "pre_ledger_count": 265,
+    "post_ledger_count": 268,
+    "pre_ledger_fingerprint": "cc72cabf7c6ec9c9b8b86ce0b3d8261e368cce62c638b8cc8f7b40fe745e98e6",
+    "proposed_post_ledger_fingerprint": "4da87e64288e023969f69149f28e31090c8bccd840ee668d63b0dab35b38482a",
+    "staging_binding_and_pending_unchanged": true,
+    "production_pending_count": 3,
+    "transaction_wrappers_accepted": true,
+    "no_credentials_loaded": true,
+    "proposed_commands_after_owner_approval": {
+      "rehearse": "node scripts/apply-selected-migrations.js --environment=PRODUCTION --project-ref=aftboxmrdgyhizicfsfu --mode=rehearse",
+      "apply": "node scripts/apply-selected-migrations.js --environment=PRODUCTION --project-ref=aftboxmrdgyhizicfsfu --mode=apply --confirm=ed9d98dc585147eb"
+    },
+    "repository_closeout": "Reuse the applicator-generated selected-migration repository closeout proof; reconcile CURRENT268 and pending=[] before runtime activation. Do not reactivate RA-004.",
+    "production_writes": 0
+  },
+  "environment_readback": {
+    "at": "2026-11-17T07:19:57.436Z",
+    "read_only": true,
+    "repository_secrets": {
+      "JONS_SYNC_VALIDATOR_DATABASE_URL": false,
+      "JONS_SYNC_APPROVER_DATABASE_URL": false,
+      "JONS_SYNC_EXECUTOR_DATABASE_URL": false,
+      "HOLLAND_BARRETT_PARTNERIZE_FEED_URL": false
+    },
+    "environment_secrets": {
+      "JONS_SYNC_VALIDATOR_DATABASE_URL": true,
+      "JONS_SYNC_APPROVER_DATABASE_URL": true,
+      "JONS_SYNC_EXECUTOR_DATABASE_URL": true,
+      "HOLLAND_BARRETT_PARTNERIZE_FEED_URL": false
+    },
+    "repository_variables": {
+      "HOLLAND_BARRETT_REFRESH_ENABLED": "ABSENT",
+      "DURABLE_SEALED_ARTIFACTS_ENFORCEMENT": "ABSENT"
+    },
+    "environment_variables": {
+      "HOLLAND_BARRETT_REFRESH_ENABLED": "ABSENT",
+      "DURABLE_SEALED_ARTIFACTS_ENFORCEMENT": "ABSENT"
+    }
+  },
+  "production_preconditions": {
+    "at": "2026-11-17T07:35:09.228Z",
+    "read_only": true,
+    "identity": {
+      "session_user": "supplementscout_production_validator_login",
+      "current_user": "retailer_catalogue_production_validator",
+      "transaction_read_only": "on"
+    },
+    "access": {
+      "ledger": false,
+      "parents": false,
+      "requests": false
+    },
+    "active_hb_parents": [],
+    "active_parent_inventory_rpc": "read_active_retailer_parent_inventory_v1",
+    "database_writes": 0,
+    "privileged_read_required_before_activation": [
+      "Full H&B FAILED/active control inventory",
+      "Queued/in-flight H&B execution requests",
+      "Exact production migration ledger readback"
+    ]
+  }
+}

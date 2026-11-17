@@ -13,6 +13,7 @@ on:
           - fit-house
           - 10reps
           - gladiator-nutrition
+          - holland-barrett
       confirmations_only:
         description: "Require the complete Fit House scope to contain unchanged confirmations only"
         required: true
@@ -309,16 +310,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: production-readonly
-    outputs:
-      artifact_id: ${{ steps.gladiator_artifact.outputs.artifact-id }}
-      artifact_digest: ${{ steps.gladiator_artifact.outputs.artifact-digest }}
-      source_contract_sha256: ${{ steps.gladiator_review_source.outputs.contract_sha256 }}
-      review_scope_fingerprint: ${{ steps.gladiator_review_source.outputs.review_scope_fingerprint }}
+    outputs: &shared_existing_offer_refresh_outputs
+      artifact_id: ${{ steps.refresh_artifact.outputs.artifact-id }}
+      artifact_digest: ${{ steps.refresh_artifact.outputs.artifact-digest }}
+      source_contract_sha256: ${{ steps.review_source.outputs.contract_sha256 }}
+      review_scope_fingerprint: ${{ steps.review_source.outputs.review_scope_fingerprint }}
     env:
       RETAILER_REFRESH_PROFILE: gladiator-nutrition
+      RETAILER_DISPLAY_NAME: Gladiator Nutrition
+      RETAILER_REFRESH_OUTPUT_DIRECTORY: tmp/gladiator-nutrition-offer-refresh
+      RETAILER_REFRESH_CRON: "17 8 * * *"
+      RETAILER_CONTRACT_TEST: scripts/gladiator-nutrition-offer-refresh.test.js
+      RETAILER_SOURCE_SECRET: ""
 
-    steps:
-      - name: Validate protected Gladiator Nutrition execution context
+    steps: &shared_existing_offer_refresh_steps
+      - name: Validate protected ${{ env.RETAILER_DISPLAY_NAME }} execution context
         env:
           EXPECTED_REPOSITORY: SupplementScout/supplementscout
           SCHEDULE_EXPRESSION: ${{ github.event.schedule }}
@@ -328,10 +334,10 @@ jobs:
           test "$GITHUB_REF" = "refs/heads/main"
           test "$GITHUB_REPOSITORY" = "$EXPECTED_REPOSITORY"
           if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then
-            test "$SCHEDULE_EXPRESSION" = "17 8 * * *"
+            test "$SCHEDULE_EXPRESSION" = "$RETAILER_REFRESH_CRON"
           else
             test "$GITHUB_EVENT_NAME" = "workflow_dispatch"
-            test "$SELECTED_RETAILER" = "gladiator-nutrition"
+            test "$SELECTED_RETAILER" = "$RETAILER_REFRESH_PROFILE"
             case "$SELECTED_OPERATION" in
               dry-run|review-only) ;;
               *) exit 1 ;;
@@ -351,66 +357,90 @@ jobs:
         run: npm ci
 
       - name: Test Gladiator shared adoption contracts
-        run: node --test scripts/gladiator-nutrition-offer-refresh.test.js scripts/retailer-offer-sync.test.js scripts/automation-review-reconciliation-dry-run.test.js
+        run: node --test "$RETAILER_CONTRACT_TEST" scripts/retailer-offer-sync.test.js scripts/automation-review-reconciliation-dry-run.test.js
 
-      - name: Initialize Gladiator Nutrition refresh evidence path
-        run: mkdir -p tmp/gladiator-nutrition-offer-refresh
+      - name: Initialize ${{ env.RETAILER_DISPLAY_NAME }} refresh evidence path
+        run: mkdir -p "$RETAILER_REFRESH_OUTPUT_DIRECTORY"
 
-      - name: Dry-run exact approved Gladiator Nutrition offers
+      - name: Dry-run exact approved ${{ env.RETAILER_DISPLAY_NAME }} offers
         env:
-          GLADIATOR_NUTRITION_REFRESH_PHASE: preflight
-          GLADIATOR_NUTRITION_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || 'workflow_dispatch' }}
-          GLADIATOR_NUTRITION_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          RETAILER_REFRESH_PHASE: preflight
+          RETAILER_REFRESH_TRIGGER_TYPE: ${{ github.event_name == 'schedule' && 'schedule' || 'workflow_dispatch' }}
+          RETAILER_REFRESH_SOURCE_URL: ${{ secrets[env.RETAILER_SOURCE_SECRET] }}
+          RETAILER_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
         run: node scripts/fit-house-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
 
-      - name: Capture Gladiator Nutrition DB baseline read-only
+      - name: Capture ${{ env.RETAILER_DISPLAY_NAME }} DB baseline read-only
         env:
-          GLADIATOR_NUTRITION_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
-        run: node scripts/retailer-offer-refresh-postflight.js --profile=gladiator-nutrition --mode=baseline --output=tmp/gladiator-nutrition-offer-refresh/production-db-baseline.json
+          RETAILER_REFRESH_SOURCE_URL: ${{ secrets[env.RETAILER_SOURCE_SECRET] }}
+          RETAILER_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/retailer-offer-refresh-postflight.js --profile="$RETAILER_REFRESH_PROFILE" --mode=baseline --output="$RETAILER_REFRESH_OUTPUT_DIRECTORY"/production-db-baseline.json
 
-      - name: Validate fresh Gladiator Nutrition Review Queue binding
-        id: gladiator_review_source
-        run: node scripts/shared-retailer-automation-review-source.js --mode=bind --profile=gladiator-nutrition --source-artifact-dir=tmp/gladiator-nutrition-offer-refresh
+      - name: Validate fresh ${{ env.RETAILER_DISPLAY_NAME }} Review Queue binding
+        id: review_source
+        run: node scripts/shared-retailer-automation-review-source.js --mode=bind --profile="$RETAILER_REFRESH_PROFILE" --source-artifact-dir="$RETAILER_REFRESH_OUTPUT_DIRECTORY"
 
-      - name: Apply safe Gladiator Nutrition offer refresh rows
-        if: ${{ github.event_name == 'schedule' && github.event.schedule == '17 8 * * *' }}
+      - name: Apply safe ${{ env.RETAILER_DISPLAY_NAME }} offer refresh rows
+        if: ${{ github.event_name == 'schedule' && github.event.schedule == env.RETAILER_REFRESH_CRON }}
         env:
-          GLADIATOR_NUTRITION_REFRESH_PHASE: apply
-          GLADIATOR_NUTRITION_REFRESH_TRIGGER_TYPE: schedule
-          GLADIATOR_NUTRITION_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
-          GLADIATOR_NUTRITION_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
-          GLADIATOR_NUTRITION_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+          RETAILER_REFRESH_PHASE: apply
+          RETAILER_REFRESH_TRIGGER_TYPE: schedule
+          RETAILER_REFRESH_SOURCE_URL: ${{ secrets[env.RETAILER_SOURCE_SECRET] }}
+          RETAILER_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          RETAILER_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          RETAILER_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/fit-house-offer-refresh.js --target=production --mode=apply --isolate-unsafe=true
 
-      - name: Verify Gladiator Nutrition DB postflight read-only
-        if: ${{ github.event_name == 'schedule' && github.event.schedule == '17 8 * * *' }}
+      - name: Verify ${{ env.RETAILER_DISPLAY_NAME }} DB postflight read-only
+        if: ${{ github.event_name == 'schedule' && github.event.schedule == env.RETAILER_REFRESH_CRON }}
         env:
-          GLADIATOR_NUTRITION_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
-        run: node scripts/retailer-offer-refresh-postflight.js --profile=gladiator-nutrition --mode=postflight --baseline=tmp/gladiator-nutrition-offer-refresh/production-db-baseline.json --execution=tmp/gladiator-nutrition-offer-refresh/production-apply.json --output=tmp/gladiator-nutrition-offer-refresh/production-db-postflight.json
+          RETAILER_REFRESH_SOURCE_URL: ${{ secrets[env.RETAILER_SOURCE_SECRET] }}
+          RETAILER_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+        run: node scripts/retailer-offer-refresh-postflight.js --profile="$RETAILER_REFRESH_PROFILE" --mode=postflight --baseline="$RETAILER_REFRESH_OUTPUT_DIRECTORY"/production-db-baseline.json --execution="$RETAILER_REFRESH_OUTPUT_DIRECTORY"/production-apply.json --output="$RETAILER_REFRESH_OUTPUT_DIRECTORY"/production-db-postflight.json
 
-      - name: Verify Gladiator Nutrition idempotency with a fresh source capture
-        if: ${{ github.event_name == 'schedule' && github.event.schedule == '17 8 * * *' }}
+      - name: Verify ${{ env.RETAILER_DISPLAY_NAME }} idempotency with a fresh source capture
+        if: ${{ github.event_name == 'schedule' && github.event.schedule == env.RETAILER_REFRESH_CRON }}
         env:
-          GLADIATOR_NUTRITION_REFRESH_PHASE: idempotency
-          GLADIATOR_NUTRITION_REFRESH_TRIGGER_TYPE: schedule
-          GLADIATOR_NUTRITION_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
-          GLADIATOR_NUTRITION_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
-          GLADIATOR_NUTRITION_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+          RETAILER_REFRESH_PHASE: idempotency
+          RETAILER_REFRESH_TRIGGER_TYPE: schedule
+          RETAILER_REFRESH_SOURCE_URL: ${{ secrets[env.RETAILER_SOURCE_SECRET] }}
+          RETAILER_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          RETAILER_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          RETAILER_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
         run: node scripts/fit-house-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
 
-      - name: Upload Gladiator Nutrition refresh evidence
-        id: gladiator_artifact
+      - name: Upload ${{ env.RETAILER_DISPLAY_NAME }} refresh evidence
+        id: refresh_artifact
         if: always()
         uses: actions/upload-artifact@v7
         with:
-          name: gladiator-nutrition-offer-refresh-${{ github.run_id }}-${{ github.run_attempt }}
+          name: ${{ env.RETAILER_REFRESH_PROFILE }}-offer-refresh-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 14
           if-no-files-found: warn
-          path: tmp/gladiator-nutrition-offer-refresh/*.json
+          path: ${{ env.RETAILER_REFRESH_OUTPUT_DIRECTORY }}/*.json
+
+  holland-barrett-offer-refresh:
+    name: holland-barrett-offer-refresh
+    # The owner-approved activation change must also authorize the manifest/profile,
+    # SQL registration, publication and monitoring. This variable alone grants nothing.
+    needs: [gladiator-nutrition-offer-refresh]
+    if: ${{ always() && vars.HOLLAND_BARRETT_REFRESH_ENABLED == 'true' && github.ref == 'refs/heads/main' && ((github.event_name == 'schedule' && github.event.schedule == '17 8 * * *') || (github.event_name == 'workflow_dispatch' && inputs.retailer == 'holland-barrett' && (inputs.operation == 'dry-run' || inputs.operation == 'review-only'))) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: production-readonly
+    outputs: *shared_existing_offer_refresh_outputs
+    env:
+      RETAILER_REFRESH_PROFILE: holland-barrett
+      RETAILER_DISPLAY_NAME: Holland & Barrett
+      RETAILER_REFRESH_OUTPUT_DIRECTORY: tmp/holland-barrett-offer-refresh
+      RETAILER_REFRESH_CRON: "17 8 * * *"
+      RETAILER_CONTRACT_TEST: scripts/holland-barrett-offer-refresh.test.js
+      RETAILER_SOURCE_SECRET: HOLLAND_BARRETT_PARTNERIZE_FEED_URL
+    steps: *shared_existing_offer_refresh_steps
 
   refresh-review-queue:
-    needs: [fit-house-offer-refresh, ten-reps-offer-refresh, gladiator-nutrition-offer-refresh]
-    if: ${{ always() && github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (inputs.operation == 'apply' || inputs.operation == 'review-only'))) && ((needs.fit-house-offer-refresh.outputs.artifact_id != '' && needs.fit-house-offer-refresh.outputs.artifact_digest != '' && needs.fit-house-offer-refresh.outputs.source_contract_sha256 != '' && needs.fit-house-offer-refresh.outputs.review_scope_fingerprint != '') || (needs.ten-reps-offer-refresh.outputs.artifact_id != '' && needs.ten-reps-offer-refresh.outputs.artifact_digest != '' && needs.ten-reps-offer-refresh.outputs.source_contract_sha256 != '' && needs.ten-reps-offer-refresh.outputs.review_scope_fingerprint != '') || (((github.event_name == 'workflow_dispatch' && inputs.retailer == 'gladiator-nutrition' && inputs.operation == 'review-only') || (github.event_name == 'schedule' && github.event.schedule == '17 8 * * *')) && needs.gladiator-nutrition-offer-refresh.outputs.artifact_id != '' && needs.gladiator-nutrition-offer-refresh.outputs.artifact_digest != '' && needs.gladiator-nutrition-offer-refresh.outputs.source_contract_sha256 != '' && needs.gladiator-nutrition-offer-refresh.outputs.review_scope_fingerprint != '')) }}
+    needs: [fit-house-offer-refresh, ten-reps-offer-refresh, gladiator-nutrition-offer-refresh, holland-barrett-offer-refresh]
+    if: ${{ always() && github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (inputs.operation == 'apply' || inputs.operation == 'review-only'))) && ((needs.fit-house-offer-refresh.outputs.artifact_id != '' && needs.fit-house-offer-refresh.outputs.artifact_digest != '' && needs.fit-house-offer-refresh.outputs.source_contract_sha256 != '' && needs.fit-house-offer-refresh.outputs.review_scope_fingerprint != '') || (needs.ten-reps-offer-refresh.outputs.artifact_id != '' && needs.ten-reps-offer-refresh.outputs.artifact_digest != '' && needs.ten-reps-offer-refresh.outputs.source_contract_sha256 != '' && needs.ten-reps-offer-refresh.outputs.review_scope_fingerprint != '') || (((github.event_name == 'workflow_dispatch' && inputs.retailer == 'gladiator-nutrition' && inputs.operation == 'review-only') || (github.event_name == 'schedule' && github.event.schedule == '17 8 * * *')) && needs.gladiator-nutrition-offer-refresh.outputs.artifact_id != '' && needs.gladiator-nutrition-offer-refresh.outputs.artifact_digest != '' && needs.gladiator-nutrition-offer-refresh.outputs.source_contract_sha256 != '' && needs.gladiator-nutrition-offer-refresh.outputs.review_scope_fingerprint != '')) || (always() && github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.retailer == 'holland-barrett' && inputs.operation == 'review-only')) && needs.holland-barrett-offer-refresh.outputs.artifact_id != '' && needs.holland-barrett-offer-refresh.outputs.artifact_digest != '' && needs.holland-barrett-offer-refresh.outputs.source_contract_sha256 != '' && needs.holland-barrett-offer-refresh.outputs.review_scope_fingerprint != '') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: production-readonly
@@ -468,6 +498,23 @@ jobs:
           source-contract-sha256: ${{ needs.gladiator-nutrition-offer-refresh.outputs.source_contract_sha256 }}
           source-directory: tmp/automation-review-reconciliation/gladiator-nutrition-source
           evidence-prefix: gladiator-nutrition
+          source-run-id: ${{ github.run_id }}
+          source-commit-sha: ${{ github.sha }}
+          github-token: ${{ github.token }}
+          supabase-url: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          service-role-key: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          durable-sealed-artifacts-enforcement: ${{ vars.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT }}
+      - name: Reconcile and publish fresh Holland & Barrett Review Queue source
+        if: ${{ ((github.event_name == 'workflow_dispatch' && inputs.retailer == 'holland-barrett' && inputs.operation == 'review-only') || (github.event_name == 'schedule' && github.event.schedule == '17 8 * * *')) && needs.holland-barrett-offer-refresh.outputs.source_contract_sha256 != '' }}
+        uses: ./.github/actions/publish-automation-review-queue
+        with:
+          display-name: Holland & Barrett
+          profile: holland-barrett
+          artifact-id: ${{ needs.holland-barrett-offer-refresh.outputs.artifact_id }}
+          artifact-digest: ${{ needs.holland-barrett-offer-refresh.outputs.artifact_digest }}
+          source-contract-sha256: ${{ needs.holland-barrett-offer-refresh.outputs.source_contract_sha256 }}
+          source-directory: tmp/automation-review-reconciliation/holland-barrett-source
+          evidence-prefix: holland-barrett
           source-run-id: ${{ github.run_id }}
           source-commit-sha: ${{ github.sha }}
           github-token: ${{ github.token }}

@@ -135,6 +135,9 @@ const CONTRACTS = Object.freeze({
       "31dc3e6e90dab56dd00843bef441cfba400e1d9480d2940f41b46cfff6e32277",
     appliedExcluded: APPLIED_EXCLUSIONS.STAGING,
     excluded: Object.freeze({
+      "20261116210000_align_review_refresh_proposed_state.sql": "3816dbe28a277a79574b70688103745a4cf6dc6dc5a430a137020918d373375e",
+      "20261116211000_register_shared_parent_approval_profiles.sql": "842985652b164601169fb54dca81992acf7fcb0e16d7ef3a3cf6b6100eccd281",
+      "20261117212000_register_holland_barrett_existing_offer_sync.sql": "ee834460a1c9829e49781f4d5b755e646c696a3f3cc6f3226956be00780e396c",
       "20261114213000_enforce_reviewed_new_product_identity.sql":
         "343425521c09d402e7dd59f4d49964ad3803630481864fcc02adccf0e118c590",
       "20261112130000_align_reviewed_catalogue_gtin_identity.sql":
@@ -484,9 +487,9 @@ const CONTRACTS = Object.freeze({
     projectRefEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_PROJECT_REF",
     databaseUrlEnvironmentKey: "SUPPLEMENTSCOUT_PRODUCTION_OWNER_DATABASE_URL",
     requiredDatabaseUser: "postgres",
-    ledgerCount: 265,
+    ledgerCount: 268,
     ledgerFingerprint:
-      "cc72cabf7c6ec9c9b8b86ce0b3d8261e368cce62c638b8cc8f7b40fe745e98e6",
+      "4da87e64288e023969f69149f28e31090c8bccd840ee668d63b0dab35b38482a",
     appliedExcluded: APPLIED_EXCLUSIONS.PRODUCTION,
     excluded: Object.freeze({
       "20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql":

@@ -28,7 +28,7 @@ export type ReviewAdapter = {
 
 const REQUIRED_EVIDENCE = Object.freeze(["execution_request_id", "review_item_id", "review_fingerprint", "review_plan_fingerprint", "execution_idempotency_key"]);
 
-export const REVIEW_ADAPTERS: readonly ReviewAdapter[] = Object.freeze(registry.adapters.map((adapter) => Object.freeze({
+export const REVIEW_ADAPTERS: readonly ReviewAdapter[] = Object.freeze(registry.adapters.filter((adapter) => adapter.enabled !== false).map((adapter) => Object.freeze({
   retailerId: adapter.retailer_id,
   retailerSlug: adapter.retailer_slug,
   operations: Object.freeze([...adapter.operations]),
