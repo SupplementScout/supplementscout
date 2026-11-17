@@ -10,6 +10,9 @@ import {
   type OfferPresentationState,
 } from "./offerFreshness";
 import { supabase } from "./supabase";
+import type { RawCategoryComparisonProduct, RawComparisonOffer } from "./categoryComparison";
+import { resolveCategoryComparisonVariants } from "./categoryComparisonVariants";
+import { getEffectiveNutritionMetrics } from "./nutritionMetrics";
 
 const CREATINE_QUERY_LIMIT = 1000;
 
@@ -42,7 +45,14 @@ type RawCreatineProduct = {
   product_format: string | null;
   nutrition_verified: boolean | null;
   unit_pricing_verified: boolean | null;
-  offers?: RawCreatineOffer[] | null;
+  offers?: (RawCreatineOffer & Partial<RawComparisonOffer>)[] | null;
+};
+
+export type CreatineBudgetOffer = CreatineComparisonOffer & {
+  variantId: string;
+  variantLabel: string;
+  packLabel: string;
+  verifiedCostPer5g: number | null;
 };
 
 export type CreatineComparisonOffer = {
@@ -77,6 +87,7 @@ export type CreatineComparisonRow = {
   presentationState: OfferPresentationState;
   verifiedCostPer5g: number | null;
   lastCheckedAt: string | null;
+  budgetOffers?: CreatineBudgetOffer[];
 };
 
 export type CreatineComparisonSummary = {
@@ -197,6 +208,59 @@ function offerSort(
   return left.productPrice - right.productPrice || left.id.localeCompare(right.id);
 }
 
+function normalizeBudgetOffer(
+  product: RawCreatineProduct,
+  raw: RawCreatineOffer & Partial<RawComparisonOffer>,
+  now: Date
+): CreatineBudgetOffer | null {
+  const offer = normalizeOffer(raw, now);
+  const variant = relationOne(raw.product_variant);
+  const size = positiveNumber(variant?.size_value ?? null);
+  const packCount = positiveInteger(variant?.pack_count ?? null);
+  const unit = variant?.size_unit?.trim();
+  const label = variant?.display_name?.trim() || variant?.flavour_label?.trim();
+  if (
+    !offer?.deliveredPrice || !offer.retailer?.name?.trim() ||
+    raw.retailer_product_id == null || raw.variant_resolution !== "resolved" ||
+    !variant?.id || variant.is_active !== true ||
+    String(variant.product_id) !== String(product.id) ||
+    size === null || packCount === null || !unit || !label
+  ) return null;
+
+  const nutrition = getEffectiveNutritionMetrics(
+    { ...product, protein_per_serving_g: null },
+    variant
+  );
+  return {
+    ...offer,
+    variantId: String(variant.id),
+    variantLabel: label,
+    packLabel: `${packCount > 1 ? `${packCount} × ` : ""}${size.toLocaleString("en-GB")} ${unit}`,
+    // Structural weight alignment is established by the shared g-pack contract.
+    // Do not inherit another capsule count or assume multipack nutrition totals.
+    verifiedCostPer5g: packCount !== 1 || unit.toLowerCase() !== "g" ? null : getVerifiedCostPer5gCreatine(
+      offer.deliveredPrice, nutrition.serving_count_verified,
+      nutrition.creatine_per_serving_g, nutrition.unit_pricing_verified,
+      nutrition.nutrition_verified, nutrition.net_weight_g,
+      nutrition.serving_size_g, nutrition.product_format
+    ),
+  };
+}
+
+export function selectCreatineUnder20(
+  rows: CreatineComparisonRow[],
+  now = new Date()
+) {
+  return rows.flatMap((row) => {
+    const offer = (row.budgetOffers || []).filter((candidate) =>
+      candidate.deliveredPrice !== null &&
+      candidate.deliveredPrice.totalPrice <= 20 &&
+      isCreatineOfferFresh(candidate.lastCheckedAt, now)
+    ).sort(offerSort)[0];
+    return offer ? [{ row, offer }] : [];
+  }).sort((left, right) => offerSort(left.offer, right.offer)).slice(0, 3);
+}
+
 export function creatineComparisonRowSort(
   left: CreatineComparisonRow,
   right: CreatineComparisonRow
@@ -290,6 +354,9 @@ export function normalizeCreatineComparison(
         product.product_format
       ),
       lastCheckedAt: presentation.checkedAt,
+      budgetOffers: rawOffers
+        .map((offer) => normalizeBudgetOffer(product, offer, now))
+        .filter((offer): offer is CreatineBudgetOffer => offer !== null),
     };
   });
 
@@ -362,6 +429,8 @@ export async function getCreatineComparison(): Promise<CreatineComparisonResult>
         unit_pricing_verified,
         offers (
           id,
+          retailer_product_id,
+          url,
           price,
           shipping_cost,
           in_stock,
@@ -397,8 +466,11 @@ export async function getCreatineComparison(): Promise<CreatineComparisonResult>
     };
   }
 
+  const products = await resolveCategoryComparisonVariants(
+    (data || []) as RawCategoryComparisonProduct[]
+  );
   return {
-    ...normalizeCreatineComparison((data || []) as RawCreatineProduct[]),
+    ...normalizeCreatineComparison(products as RawCreatineProduct[]),
     error: false,
   };
 }

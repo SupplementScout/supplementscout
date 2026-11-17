@@ -57,6 +57,7 @@ const pricing = compileModule(pricingPath);
 const categoryDecision = compileModule(path.join(process.cwd(), "app", "lib", "categoryDecision.ts"));
 const offerFreshness = compileModule(offerFreshnessPath);
 const launch = compileModule(launchPath, { mocks: { "./offerFreshness": offerFreshness } });
+const nutritionMetrics = compileModule(path.join(process.cwd(), "app/lib/nutritionMetrics.ts"));
 const FIXTURE_NOW = new Date("2026-07-16T21:00:00.000Z");
 
 function queryMock(result) {
@@ -132,13 +133,15 @@ function rawProduct(overrides = {}) {
   };
 }
 
-function loadComparison(mockSupabase) {
+function loadComparison(mockSupabase, resolveVariants = async (products) => products) {
   return compileModule(comparisonPath, {
     mocks: {
       "./creatineLaunch": launch,
       "./offerFreshness": offerFreshness,
       "./pricing": pricing,
       "./supabase": { supabase: mockSupabase },
+      "./nutritionMetrics": nutritionMetrics,
+      "./categoryComparisonVariants": { resolveCategoryComparisonVariants: resolveVariants },
     },
   });
 }
@@ -199,6 +202,7 @@ function loadPage(result = comparisonFixture()) {
         default: () => null,
       },
       "../lib/creatineComparison": {
+        selectCreatineUnder20: loadComparison({}).selectCreatineUnder20,
         getCreatineComparison: async () => {
           loaderCalls += 1;
           return result;
@@ -231,8 +235,8 @@ test("the /creatine route exists and is a Server Component", () => {
   assert.match(source, /await getCachedCreatineComparison\(\)/);
   assert.match(
     source,
-    /createLifecycleDataLoader\(\s*pagePath,\s*"creatine-comparison-v2"/,
-    "the expanded creatine row shape must not reuse the v1 production cache"
+    /createLifecycleDataLoader\(\s*pagePath,\s*"creatine-comparison-v3"/,
+    "the exact-variant row shape must not reuse the previous production cache"
   );
 });
 
@@ -368,6 +372,158 @@ test("unknown shipping never becomes free delivery or a verified cost", () => {
   assert.equal(unknown.bestOffer.shippingCost, null);
   assert.equal(unknown.bestOffer.deliveredPrice, null);
   assert.equal(unknown.verifiedCostPer5g, null);
+});
+
+function budgetProduct(overrides = {}, offerOverrides = {}, variantOverrides = {}) {
+  const product = rawProduct(overrides);
+  product.offers = [{
+    ...rawProduct().offers[0],
+    retailer_product_id: 101,
+    url: "https://retailer.example/creatine",
+    price: 16.01,
+    shipping_cost: 3.99,
+    variant_resolution: "resolved",
+    ...offerOverrides,
+    product_variant: {
+      id: 201, product_id: product.id, display_name: "Unflavoured",
+      size_value: 250, size_unit: "g", pack_count: 1,
+      product_format: "powder", is_active: true,
+      ...variantOverrides,
+    },
+  }];
+  return product;
+}
+
+function budgetRows(products) {
+  return loadComparison({}).normalizeCreatineComparison(products, { now: FIXTURE_NOW }).rows;
+}
+
+test("under-20 examples include the exact £20 delivered boundary and free shipping", () => {
+  const { selectCreatineUnder20 } = loadComparison({});
+  const rows = budgetRows([
+    budgetProduct(),
+    budgetProduct({ id: 2 }, { price: 19, shipping_cost: 0 }),
+    budgetProduct({ id: 3 }, { price: 16.02 }),
+    budgetProduct({ id: 4 }, { price: 1, shipping_cost: null }),
+    budgetProduct({ id: 5 }, { in_stock: false }),
+    budgetProduct({ id: 6 }, { last_checked_at: "2026-07-14T20:00:00Z" }),
+  ]);
+  const examples = selectCreatineUnder20(rows, FIXTURE_NOW);
+  assert.deepEqual(examples.map(({ row }) => row.id), ["2", "1"]);
+  assert.equal(examples[1].offer.deliveredPrice.totalPrice, 20);
+  assert.equal(examples[1].offer.verifiedCostPer5g, 0.4);
+  assert.equal(examples[1].offer.packLabel, "250 g");
+});
+
+test("budget examples require resolved active variants belonging to the exact product and known packs", () => {
+  const products = [
+    budgetProduct({ id: 1 }, { variant_resolution: "unresolved" }),
+    budgetProduct({ id: 2 }, { retailer_product_id: null }),
+    budgetProduct({ id: 3 }, {}, { product_id: 999 }),
+    budgetProduct({ id: 4 }, {}, { is_active: false }),
+    budgetProduct({ id: 5 }, {}, { size_value: null }),
+    budgetProduct({ id: 6 }, {}, { size_unit: null }),
+    budgetProduct({ id: 7 }, {}, { pack_count: null }),
+    budgetProduct({ id: 8 }, {}, { display_name: "", flavour_label: null }),
+    budgetProduct({ id: 9 }, { retailer: null }),
+  ];
+  assert.deepEqual(loadComparison({}).selectCreatineUnder20(budgetRows(products), FIXTURE_NOW), []);
+});
+
+test("cached budget offers age out at render time without affecting route indexability", async () => {
+  const { selectCreatineUnder20 } = loadComparison({});
+  const rows = budgetRows([budgetProduct()]);
+  assert.equal(selectCreatineUnder20(rows, FIXTURE_NOW).length, 1);
+  assert.deepEqual(selectCreatineUnder20(rows, new Date("2026-07-18T00:00:00Z")), []);
+  const { page } = loadPage();
+  assert.deepEqual((await page.generateMetadata()).robots, { index: true, follow: true });
+});
+
+test("variant nutrition cannot inherit another pack's verified unit price", () => {
+  const rows = budgetRows([
+    budgetProduct({ id: 1 }, {}, { size_value: 500 }),
+    budgetProduct({ id: 2 }, {}, {
+      size_value: 500,
+      nutrition_override: {
+        serving_count_verified: 100, serving_size_g: 5, creatine_per_serving_g: 5,
+        nutrition_verified: true, unit_pricing_verified: true,
+      },
+    }),
+    budgetProduct({ id: 3 }, {}, { pack_count: 2 }),
+    budgetProduct({ id: 4, nutrition_verified: false }),
+    budgetProduct({ id: 5, serving_count_verified: null, unit_pricing_verified: false }),
+    budgetProduct({ id: 6 }, {}, { size_unit: "capsules", size_value: 120 }),
+    budgetProduct({ id: 7, unit_pricing_verified: false }),
+  ]);
+  const offers = new Map(rows.map((row) => [row.id, row.budgetOffers[0]]));
+  assert.equal(offers.get("1").verifiedCostPer5g, null);
+  assert.equal(offers.get("2").verifiedCostPer5g, 0.2);
+  assert.equal(offers.get("3").verifiedCostPer5g, null);
+  assert.equal(offers.get("4").verifiedCostPer5g, null);
+  assert.equal(offers.get("5").verifiedCostPer5g, null);
+  assert.equal(offers.get("6").verifiedCostPer5g, null);
+  // The shared helper can use explicitly verified servings without a weight fallback.
+  assert.equal(offers.get("7").verifiedCostPer5g, 0.4);
+});
+
+test("budget examples keep at most three products and select each product's cheapest eligible variant", () => {
+  const products = Array.from({ length: 5 }, (_, index) => budgetProduct({ id: index + 1 }, { price: 10 + index }));
+  products[0].offers.push(budgetProduct({}, { id: 99, price: 9 }).offers[0]);
+  const examples = loadComparison({}).selectCreatineUnder20(budgetRows(products), FIXTURE_NOW);
+  assert.deepEqual(examples.map(({ row }) => row.id), ["1", "2", "3"]);
+  assert.equal(examples[0].offer.id, "99");
+});
+
+test("budget SSR contains exact variant links, delivered breakdown, checked time and honest zero state", () => {
+  const { page } = loadPage();
+  const rows = budgetRows([budgetProduct(), budgetProduct({ id: 2 }, {}, { size_value: 500 })]);
+  const html = renderToStaticMarkup(React.createElement(page.CreatineBudgetSection, { rows, now: FIXTURE_NOW }));
+  assert.match(html, /id="under-20"/);
+  assert.match(html, /Variant: Unflavoured\. Pack: 250 g/);
+  assert.match(html, /href="\/product\/verified-creatine\?variant=201"/);
+  assert.match(html, /Delivered total/);
+  assert.match(html, /£20\.00/);
+  assert.match(html, /£3\.99/);
+  assert.match(html, /Not yet verified/);
+  assert.match(html, /<time dateTime="2026-07-16T20:48:02.382Z">/);
+  assert.match(html, /priority=lowest_delivered_price/);
+  assert.match(html, /not a serving recommendation or an effectiveness score/);
+  const empty = renderToStaticMarkup(React.createElement(page.CreatineBudgetSection, { rows, now: new Date("2026-07-18T00:00:00Z") }));
+  assert.match(empty, /cannot currently show an exact-variant/);
+  assert.doesNotMatch(empty, /£20\.00|£3\.99|<dl/);
+});
+
+test("the shared variant resolver is called once for the existing category batch", async () => {
+  const mock = queryMock({ data: [budgetProduct({}, { last_checked_at: new Date().toISOString() })], error: null });
+  let batches = 0;
+  const { getCreatineComparison } = loadComparison({ from: () => mock.query }, async (products) => {
+    batches += 1;
+    assert.equal(products.length, 1);
+    assert.equal(products[0].offers[0].retailer_product_id, 101);
+    return products;
+  });
+  const result = await getCreatineComparison();
+  assert.equal(batches, 1);
+  assert.equal(result.rows[0].budgetOffers.length, 1);
+  assert.match(mock.calls.find((call) => call[0] === "select")[1], /retailer_product_id/);
+});
+
+test("a variant read error preserves the comparison but never produces inferred budget examples", async () => {
+  const resolve = compileModule(path.join(process.cwd(), "app/lib/categoryComparisonVariants.ts"), {
+    mocks: {
+      "server-only": {},
+      "./supabaseAdmin": { supabaseAdmin: {
+        from: () => ({ select: () => ({ in: async () => ({ data: null, error: { message: "read failed" } }) }) }),
+      } },
+    },
+  });
+  const mock = queryMock({ data: [budgetProduct({}, { last_checked_at: new Date().toISOString() })], error: null });
+  const comparison = loadComparison({ from: () => mock.query }, resolve.resolveCategoryComparisonVariants);
+  const result = await comparison.getCreatineComparison();
+  assert.equal(result.error, false);
+  assert.equal(result.rows.length, 1);
+  assert.ok(result.rows[0].bestOffer);
+  assert.deepEqual(result.rows[0].budgetOffers, []);
 });
 
 test("exact category matching excludes broader category strings and keeps no-offer products", () => {

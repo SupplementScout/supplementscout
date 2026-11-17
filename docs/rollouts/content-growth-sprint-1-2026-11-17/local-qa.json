@@ -1,0 +1,117 @@
+{
+  "date": "2026-11-17T12:20:42.896Z",
+  "base": "b9c44b3959fe857e49b8bb03a109a3d88e16f2b5",
+  "environment": "Local synthetic SSR UI fixtures with production-built CSS; not a deployed-page or field-CWV result.",
+  "protectedSourceParitySha256": {
+    "app/brands/per4m/page.tsx": "9b80e8c6299a6f8c51f9a56271093178123d7a84ee3cc80498b703a190445a9b",
+    "docs/rollouts/seo20-per4m-title-experiment-2026-11-03.md": "8e5d8c0ec7ea06f8bcbc75a5608937b28c695c35d250c9812db43caac0689451",
+    "app/sitemap.ts": "23a70935b652b37f8e7fa40b6131d78e6e708f9593f3bd8de38ccb659ad507a1",
+    "app/lib/indexabilityLifecycle.ts": "5f9cb561d317b84444ba53806f19080f55866c7309ea1af26c522098fe7f279c",
+    "creatine:generateMetadata": "335da7fa9958eb0475179f783a14ff073ec1f49b1c401de08e0b8d6bcb9beaf4",
+    "creatine:buildCreatineStructuredData": "2475cdd2e2a1f0aba3bb02529f69d81b53e2dbc67f995aff203264fd313c0b73"
+  },
+  "browser": [
+    {
+      "requestedWidth": 1440,
+      "state": "baseline",
+      "sectionWidth": null,
+      "exampleCards": 0,
+      "clippedSectionElements": [],
+      "observedCls": [
+        0,
+        0,
+        0
+      ],
+      "htmlBytes": 13338,
+      "scriptCountIncludingExistingJsonLd": 1,
+      "medianDomContentLoadedMs": 26,
+      "keyboardLinkTraversal": null
+    },
+    {
+      "requestedWidth": 1440,
+      "state": "changed",
+      "sectionWidth": 1280,
+      "exampleCards": 3,
+      "clippedSectionElements": [],
+      "observedCls": [
+        0,
+        0,
+        0
+      ],
+      "htmlBytes": 17316,
+      "scriptCountIncludingExistingJsonLd": 1,
+      "medianDomContentLoadedMs": 23.4,
+      "keyboardLinkTraversal": true
+    },
+    {
+      "requestedWidth": 1440,
+      "state": "empty",
+      "sectionWidth": 1280,
+      "exampleCards": 0,
+      "clippedSectionElements": [],
+      "observedCls": [
+        0,
+        0,
+        0
+      ],
+      "htmlBytes": 8617,
+      "scriptCountIncludingExistingJsonLd": 1,
+      "medianDomContentLoadedMs": 24.5,
+      "keyboardLinkTraversal": true
+    },
+    {
+      "requestedWidth": 390,
+      "state": "baseline",
+      "sectionWidth": null,
+      "exampleCards": 0,
+      "clippedSectionElements": [],
+      "observedCls": [
+        0,
+        0,
+        0
+      ],
+      "htmlBytes": 13338,
+      "scriptCountIncludingExistingJsonLd": 1,
+      "medianDomContentLoadedMs": 23.2,
+      "keyboardLinkTraversal": null
+    },
+    {
+      "requestedWidth": 390,
+      "state": "changed",
+      "sectionWidth": 390,
+      "exampleCards": 3,
+      "clippedSectionElements": [],
+      "observedCls": [
+        0,
+        0,
+        0
+      ],
+      "htmlBytes": 17316,
+      "scriptCountIncludingExistingJsonLd": 1,
+      "medianDomContentLoadedMs": 26.3,
+      "keyboardLinkTraversal": true
+    },
+    {
+      "requestedWidth": 390,
+      "state": "empty",
+      "sectionWidth": 390,
+      "exampleCards": 0,
+      "clippedSectionElements": [],
+      "observedCls": [
+        0,
+        0,
+        0
+      ],
+      "htmlBytes": 8617,
+      "scriptCountIncludingExistingJsonLd": 1,
+      "medianDomContentLoadedMs": 23.2,
+      "keyboardLinkTraversal": true
+    }
+  ],
+  "limitations": [
+    "Existing table mobile overflow behavior is unchanged in baseline and changed fixtures; no whole-page overflow improvement is claimed.",
+    "A public-anon read returned 86 category products but no readable exact variant bindings. This does not establish zero eligible offers.",
+    "Actual server-side bindings, cache-miss query latency, public new-section readback and field CWV require separately authorized release verification.",
+    "No quality gate or UI fixture received production-write credentials."
+  ]
+}

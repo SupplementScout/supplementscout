@@ -93,6 +93,7 @@
     "scripts/category-search-intent.test.js",
     "scripts/category-decision.test.js",
     "scripts/category-landing-relevance.test.js",
+    "scripts/creatine-page.test.js",
     "scripts/deals-page.test.js",
     "scripts/decision-engine.test.js",
     "scripts/durable-sealed-artifacts-phase-b.test.js",

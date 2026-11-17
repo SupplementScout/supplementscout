@@ -12,8 +12,8 @@ For SEO, catalogue, retailer, automation or roadmap work:
    `docs/SupplementScout-Operating-Plan-2026-07-15.md`.
 2. Read the relevant execution ledger, especially
    `docs/SEO-Execution-Plan.md` for SEO work.
-3. Follow `docs/Agent-Operating-Model.md`; keep one active SEO implementation
-   and reuse existing mechanisms before creating a new one.
+3. Follow `docs/Agent-Operating-Model.md`; keep one active SEO implementation,
+   subject only to the dated owner exception below, and reuse existing mechanisms.
 4. Before proposing or starting the next step, verify the current repository
    state, the latest execution evidence and the relevant production readback.
    Treat older plans and conversation summaries as context, not proof that work
@@ -23,6 +23,12 @@ For SEO, catalogue, retailer, automation or roadmap work:
 6. Do not mark work complete without the required local and live evidence.
 7. Never give an agent autonomous product-identity or production-write
    authority; retain existing owner approvals and guarded data paths.
+
+**17 November 2026 owner decision:** Content Growth exception: SEO-21 beside frozen SEO-20; Draft PR only.
+The exception covers only `/creatine#under-20` and supporting tests/documentation.
+Preserve all SEO-20 frozen fields, measurement gates and schedule. No merge,
+deployment, production writes, new guide routes or publication is authorized.
+Use the existing SEO ledger; no further parallel implementation is implied.
 
 For nutrition work, also read `docs/Nutrition-Execution-Plan.md` (the canonical
 nutrition ledger) and `docs/nutrition-candidate-extractor.md` (the existing

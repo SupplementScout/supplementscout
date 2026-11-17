@@ -1,6 +1,6 @@
 # SupplementScout Agent Operating Model
 
-**Status date:** 1 August 2026<br>
+**Status date:** 17 November 2026<br>
 **Authority:** Supporting operating model. The SupplementScout Operating Plan
 remains the project authority and the SEO Execution Plan remains the SEO task
 ledger.
@@ -134,7 +134,7 @@ npm run verify:project
 It checks:
 
 - SEO task IDs and allowed statuses;
-- no more than one SEO task is `IN PROGRESS`;
+- no more than one SEO task is `IN PROGRESS`, except the exact dated pair below;
 - the SEO next task, Operating Plan active task, binding growth sequence and
   WheyWise response sequence agree;
 - a `LIVE VERIFIED` task has matching execution evidence;
@@ -155,6 +155,13 @@ production write.
 ## Concurrency rule
 
 - One SEO implementation may be in progress.
+- **17 November 2026 owner decision:** Content Growth exception: SEO-21 beside frozen SEO-20; Draft PR only.
+  This permits one bounded `/creatine#under-20` implementation while SEO-20
+  remains frozen and `IN PROGRESS`. The existing SEO ledger records both;
+  SEO-20 remains the binding next task. The exception confers no merge,
+  deployment, publication or production-write authority and no permission for
+  another concurrent implementation. The Guardian accepts only this exact pair
+  with matching authorization in AGENTS.md and both authoritative plans.
 - One separately scoped retailer/data task may run only when it does not touch
   the same files, data or release boundary.
 - Analysis and independent verification may run in parallel when read-only.

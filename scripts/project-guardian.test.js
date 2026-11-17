@@ -20,7 +20,8 @@ test("current authoritative project documents pass structural guardian checks", 
   const result = guardian.validateDocuments(currentDocs(), new Date("2026-08-01T12:00:00Z"));
   assert.equal(result.ok, true, result.errors.join("\n"));
   assert.match(result.nextTask, /^SEO-\d+[A-Z]?$/);
-  assert.ok(result.inProgress.length <= 1);
+  assert.ok(result.inProgress.length <= 2);
+  if (result.inProgress.length === 2) assert.deepEqual(result.inProgress, ["SEO-20", "SEO-21"]);
   assert.ok(result.checkedTasks >= 18);
 });
 
@@ -33,6 +34,54 @@ test("guardian blocks multiple active SEO implementations", () => {
   const result = guardian.validateDocuments(docs, new Date("2026-08-01T12:00:00Z"));
   assert.equal(result.ok, false);
   assert.match(result.errors.join("\n"), /More than one SEO task is IN PROGRESS/);
+});
+
+function approvedPair() {
+  const docs = currentDocs();
+  docs.seo = setLedgerStatus(docs.seo, "SEO-20", "IN PROGRESS");
+  docs.seo = setLedgerStatus(docs.seo, "SEO-21", "IN PROGRESS");
+  return docs;
+}
+
+test("guardian permits only the dated owner-approved Content Growth pair", () => {
+  const result = guardian.validateDocuments(approvedPair());
+  assert.equal(result.ok, true, result.errors.join("\n"));
+  assert.equal(result.nextTask, "SEO-20");
+  assert.deepEqual(result.inProgress, ["SEO-20", "SEO-21"]);
+});
+
+test("guardian rejects the active pair when any authority omits the owner decision", () => {
+  for (const key of ["agents", "operating", "seo", "agentModel"]) {
+    const docs = approvedPair();
+    docs[key] = docs[key].replaceAll(
+      "Content Growth exception: SEO-21 beside frozen SEO-20; Draft PR only.", ""
+    );
+    const result = guardian.validateDocuments(docs);
+    assert.equal(result.ok, false, key);
+    assert.match(result.errors.join("\n"), /More than one SEO task is IN PROGRESS/);
+  }
+});
+
+test("guardian rejects an unrelated third task, changed scope or changed binding next task", () => {
+  const third = approvedPair();
+  third.seo = setLedgerStatus(third.seo, "SEO-17", "IN PROGRESS");
+  assert.match(guardian.validateDocuments(third).errors.join("\n"), /More than one SEO task/);
+  const scope = approvedPair();
+  scope.seo = scope.seo.replace(
+    /^(\| SEO-21 \|[^\n]*)$/m, (row) => row.replace("/creatine#under-20", "/another-page")
+  );
+  assert.match(guardian.validateDocuments(scope).errors.join("\n"), /More than one SEO task/);
+  const next = approvedPair();
+  next.seo = next.seo.replace("**Next executable task:** SEO-20", "**Next executable task:** SEO-21");
+  assert.match(guardian.validateDocuments(next).errors.join("\n"), /must preserve SEO-20/);
+});
+
+test("Content Growth authorization does not replace or close the frozen experiment", () => {
+  const docs = approvedPair();
+  docs.seo = setLedgerStatus(docs.seo, "SEO-20", "PLANNED");
+  const result = guardian.validateDocuments(docs);
+  assert.equal(result.ok, false);
+  assert.match(result.errors.join("\n"), /IN PROGRESS task SEO-21 does not match/);
 });
 
 test("guardian blocks disagreement between the two authoritative plans", () => {
@@ -83,6 +132,7 @@ test("guardian blocks unsupported completion without live evidence", () => {
 
 test("guardian permits the binding next roadmap task to remain explicitly blocked", () => {
   const docs = currentDocs();
+  docs.seo = setLedgerStatus(docs.seo, "SEO-21", "PLANNED");
   const baseline = guardian.validateDocuments(docs, new Date("2026-08-01T12:00:00Z"));
   docs.seo = setLedgerStatus(docs.seo, baseline.nextTask, "BLOCKED");
   docs.seo = docs.seo.replace(
