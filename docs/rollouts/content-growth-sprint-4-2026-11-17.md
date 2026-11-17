@@ -203,3 +203,72 @@ the same real delivered/unit-cost calculations. Protected route sources and
 the frozen SEO-20 experiment have byte parity with main. The saved public
 prelaunch baseline confirms both new URLs404, absent from sitemap, and eight
 existing routes200 on Production READY main5ac0e802.
+
+## Production closeout: LIVE VERIFIED
+
+PR #544 release HEAD `b8bfcf7bc167edb7529c02bcda8fe3e61de3e275` squash
+merged as `cd9a9d312c03db71c07e99f8c2a7b1cbaf4b5636`, with identical
+reviewed tree. [Merge proof](content-growth-sprint-4-2026-11-17/release-merge.json)
+and [release/CI checks](content-growth-sprint-4-2026-11-17/release-quality.json)
+record green PR and main Quality Gate/Guardian,54 focused tests, quick/full
+4,021, TypeScript, ESLint and production build. Vercel automatic Production
+`dpl_Ch1Hdj63RwBgzVVeQ4xWHyeyjwWx` is READY on the public alias.
+
+[Actual production readback](content-growth-sprint-4-2026-11-17/production-readback.json)
+confirms both200, index/follow, clean self-canonicals, factual WebPage/
+BreadcrumbList schema, one sitemap URL each, zero duplicates and no guide
+query URLs in sitemap. Parameter URLs stay noindex/follow; Googlebot sees
+the same indexable base. Public initial main HTML equals
+[independent current source rendering](content-growth-sprint-4-2026-11-17/production-source-readback.json),
+using authorized GET-only catalogue reads, not synthetic prices. Real
+7Nutrition Vanilla500g/2026 remains19.99+4.99=24.98,49.96/kg; ISO-XP
+Vanilla450g/4613 is30+0=30,66.67/kg; Vanilla1.8kg/735 is81.53+3.99=85.52,
+47.51/kg. Larger pack is55.52 more upfront and19.16 less/kg. Only735 supports
+the standalone1.35/25g figure in the type guide; the size pair withholds both
+protein-unit metrics. Prices remain dynamic, not hardcoded.
+
+[Public exact variant/outgoing links](content-growth-sprint-4-2026-11-17/production-links.json)
+and [incoming links/arithmetic/freshness](content-growth-sprint-4-2026-11-17/production-incoming.json)
+pass. [Public Chrome QA](content-growth-sprint-4-2026-11-17/production-browser.json)
+passes1440desktop/390touch, no horizontal overflow, clipped article text or
+overlapping cards, correct keyboard order, zero runtime exceptions/HTTP errors.
+All four screenshots were visually inspected:
+[type1440](content-growth-sprint-4-2026-11-17/production-whey-types-1440.png),
+[type390](content-growth-sprint-4-2026-11-17/production-whey-types-390.png),
+[pack1440](content-growth-sprint-4-2026-11-17/production-pack-value-1440.png),
+[pack390](content-growth-sprint-4-2026-11-17/production-pack-value-390.png).
+Existing global cookie/My Supplements controls remain present.
+
+[Prelaunch baseline](content-growth-sprint-4-2026-11-17/production-baseline.json)
+and [performance comparison](content-growth-sprint-4-2026-11-17/performance-followup.json):
+new warm HTTP medians147.0/135.7ms; all eight existing pages pass the unchanged
+after<before*1.5+100ms guard. Warm browser LCP196-364ms and CLS0.
+[First browser navigation](content-growth-sprint-4-2026-11-17/production-cold-dns.json)
+is retained separately: DNS1.8ms, request-to-first-byte14ms, LCP1280ms.
+The first Chrome navigation had no DNS failure. These small lab samples establish no
+field CWV/INP gain. Existing cache behavior and two bounded cold reads per
+guide remain unchanged; no architecture/performance repair was needed.
+
+[Supplementary network checks](content-growth-sprint-4-2026-11-17/production-network-followup.json)
+retain a later external limitation: the initially200 manufacturer7nutrition.eu
+URL subsequently timed out connecting from Node/curl; Chrome also received no
+document within30s. DNS resolved in47.3ms; no HTTP response was received.
+The first uninstrumented repeat did not retain its endpoint/cause. These
+connection failures are separate from the application's warm-response samples.
+[Post-error owned links](content-growth-sprint-4-2026-11-17/production-internal-links.json)
+still pass200, all three exact variants and sitemap1483URLs/zero duplicates/
+zero parameterized guide URLs. Original external200 proof is retained without
+claiming continuous manufacturer availability. No source URL, production data,
+DNS/security configuration or performance threshold was changed.
+
+SEO-24 is LIVE VERIFIED. Both central entries record live_verified, which
+preserves the approved public indexing behavior. Frozen SEO-20 and public
+SEO-21/22/23 checks pass; protected sources and experiment record retain byte
+parity with prelaunch main. Stage3 stays disabled. No catalogue/nutrition/
+mapping/history/importer/workflow or production-data write was performed.
+Google indexed: UNKNOWN; no Search Console inspection/submission or Indexing
+API call. The owner handles Google submission. No next sprint starts.
+
+The closeout commit contains only verified lifecycle state, corresponding test
+expectations and existing documentation/evidence. Its automatic deployment and
+final public readback must match final main before handoff.

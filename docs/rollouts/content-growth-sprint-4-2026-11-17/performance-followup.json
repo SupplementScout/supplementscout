@@ -1,0 +1,98 @@
+{
+  "capturedAt": "2026-11-17T19:40:25.782Z",
+  "threshold": "Existing-page after warm median < before warm median * 1.5 + 100ms; retained unchanged",
+  "comparison": [
+    {
+      "route": "/how-we-compare",
+      "beforeWarmMs": 35.8,
+      "afterWarmMs": 35.5
+    },
+    {
+      "route": "/creatine",
+      "beforeWarmMs": 199.9,
+      "afterWarmMs": 262.3
+    },
+    {
+      "route": "/whey-protein",
+      "beforeWarmMs": 279.3,
+      "afterWarmMs": 294.5
+    },
+    {
+      "route": "/brands/per4m",
+      "beforeWarmMs": 157.5,
+      "afterWarmMs": 195.5
+    },
+    {
+      "route": "/guides/supplement-prices-including-delivery",
+      "beforeWarmMs": 136,
+      "afterWarmMs": 162.2
+    },
+    {
+      "route": "/guides/cost-per-25g-protein",
+      "beforeWarmMs": 143.2,
+      "afterWarmMs": 158.3
+    },
+    {
+      "route": "/guides/protein-powder-under-30",
+      "beforeWarmMs": 152.7,
+      "afterWarmMs": 180.4
+    },
+    {
+      "route": "/guides/caffeine-free-pre-workout",
+      "beforeWarmMs": 135.9,
+      "afterWarmMs": 188.2
+    }
+  ],
+  "newGuides": [
+    {
+      "path": "/guides/whey-isolate-vs-concentrate",
+      "warmMedianTTFBms": 147
+    },
+    {
+      "path": "/guides/protein-powder-pack-size-value",
+      "warmMedianTTFBms": 135.7
+    }
+  ],
+  "firstBrowserNavigation": {
+    "lcpMs": 1280,
+    "dnsMs": 1.7999999970197678,
+    "connectMs": 29.700000002980232,
+    "requestToFirstByteMs": 14
+  },
+  "warmedBrowser": [
+    {
+      "route": "/guides/whey-isolate-vs-concentrate",
+      "width": 1440,
+      "lcpMs": 364,
+      "cls": 0,
+      "dnsMs": 0,
+      "requestToFirstByteMs": 15
+    },
+    {
+      "route": "/guides/whey-isolate-vs-concentrate",
+      "width": 390,
+      "lcpMs": 320,
+      "cls": 0,
+      "dnsMs": 0,
+      "requestToFirstByteMs": 88
+    },
+    {
+      "route": "/guides/protein-powder-pack-size-value",
+      "width": 1440,
+      "lcpMs": 196,
+      "cls": 0,
+      "dnsMs": 0,
+      "requestToFirstByteMs": 14
+    },
+    {
+      "route": "/guides/protein-powder-pack-size-value",
+      "width": 390,
+      "lcpMs": 240,
+      "cls": 0,
+      "dnsMs": 0,
+      "requestToFirstByteMs": 39.3999999910593
+    }
+  ],
+  "conclusion": "Warm response guard and responsive checks passed; first-navigation network phases retained separately. These are lab samples, not field CWV.",
+  "externalNetworkFollowup": "production-network-followup.json: manufacturer7nutrition.eu connection timeout on supplementary checks; initial external200 retained, owned application links/variants/sitemap pass afterward. Separate from app timing and browser DNS sample."
+}

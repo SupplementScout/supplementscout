@@ -1,0 +1,194 @@
+{
+  "capturedAt": "2026-11-17T19:48:31.250Z",
+  "environment": "actual public production; all Sprint 4 URLs published; no synthetic price proof",
+  "results": [
+    {
+      "path": "/",
+      "status": 200,
+      "ms": 2231,
+      "title": "SupplementScout | Compare UK Supplement Prices",
+      "h1": "Find the rightsupplement atthe right price.",
+      "canonical": "https://www.supplementscout.co.uk"
+    },
+    {
+      "path": "/search",
+      "status": 200,
+      "ms": 303,
+      "title": "Search Supplements | SupplementScout",
+      "h1": "Search supplement deals",
+      "canonical": "https://www.supplementscout.co.uk/search",
+      "robots": "noindex, nofollow"
+    },
+    {
+      "path": "/how-we-compare",
+      "status": 200,
+      "ms": 197,
+      "title": "How We Compare Supplement Prices | SupplementScout",
+      "h1": "How SupplementScout compares supplement prices",
+      "canonical": "https://www.supplementscout.co.uk/how-we-compare",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/product/7nutrition-whey-protein-80-500g?variant=2026",
+      "status": 200,
+      "ms": 1224,
+      "title": "7Nutrition Whey Protein 80 500g | SupplementScout",
+      "h1": "7Nutrition Whey Protein 80 500g",
+      "canonical": "https://www.supplementscout.co.uk/product/7nutrition-whey-protein-80-500g"
+    },
+    {
+      "path": "/product/applied-nutrition-iso-xp-18kg?variant=735",
+      "status": 200,
+      "ms": 1616,
+      "title": "Applied Nutrition ISO-XP 1.8kg | SupplementScout",
+      "h1": "Applied Nutrition ISO-XP 1.8kg",
+      "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-iso-xp-18kg"
+    },
+    {
+      "path": "/guides/cost-per-25g-protein",
+      "status": 200,
+      "ms": 242,
+      "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout",
+      "h1": "How to compare protein powders by cost per 25g of protein",
+      "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/whey-protein",
+      "status": 200,
+      "ms": 317,
+      "title": "Compare Whey Protein Prices UK | SupplementScout",
+      "h1": "Compare Whey Protein Prices UK",
+      "canonical": "https://www.supplementscout.co.uk/whey-protein",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/whey-isolate",
+      "status": 200,
+      "ms": 199,
+      "title": "Whey Isolate Prices UK – Delivered Cost | SupplementScout",
+      "h1": "Whey Isolate Prices UK – Compare Delivered Cost",
+      "canonical": "https://www.supplementscout.co.uk/whey-isolate",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/compare",
+      "status": 200,
+      "ms": 393,
+      "title": "Compare Two Supplements Side by Side | SupplementScout",
+      "h1": "Compare two supplements side by side",
+      "canonical": "https://www.supplementscout.co.uk/compare",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/help-me-choose",
+      "status": 200,
+      "ms": 185,
+      "title": "Help Me Choose a Supplement | SupplementScout",
+      "h1": "Help me choose",
+      "canonical": "https://www.supplementscout.co.uk/help-me-choose",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/data-freshness",
+      "status": 200,
+      "ms": 101,
+      "title": "Supplement Price Data Freshness | SupplementScout",
+      "h1": "What our price-check timestamps mean",
+      "canonical": "https://www.supplementscout.co.uk/data-freshness",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/product/applied-nutrition-iso-xp-18kg?variant=4613",
+      "status": 200,
+      "ms": 1730,
+      "title": "Applied Nutrition ISO-XP 1.8kg | SupplementScout",
+      "h1": "Applied Nutrition ISO-XP 1.8kg",
+      "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-iso-xp-18kg"
+    },
+    {
+      "path": "/guides/supplement-prices-including-delivery",
+      "status": 200,
+      "ms": 153,
+      "title": "Supplement Prices Including Delivery: A UK Comparison | SupplementScout",
+      "h1": "Can a higher product price be cheaper after delivery?",
+      "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/guides/protein-powder-under-30",
+      "status": 200,
+      "ms": 216,
+      "title": "Protein Powder Under £30 UK: Compare Delivered Prices | SupplementScout",
+      "h1": "Which protein powders cost £30 or less including delivery?",
+      "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-under-30",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/brands/per4m",
+      "status": 200,
+      "ms": 224,
+      "title": "Compare PER4M Prices Across UK Retailers | SupplementScout",
+      "h1": "Per4m Products &amp; Prices UK",
+      "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/creatine",
+      "status": 200,
+      "ms": 252,
+      "title": "Compare Creatine Supplements &amp; Prices UK | SupplementScout",
+      "h1": "Compare Creatine Supplements UK",
+      "canonical": "https://www.supplementscout.co.uk/creatine",
+      "robots": "index, follow",
+      "under20": true
+    },
+    {
+      "path": "/guides/caffeine-free-pre-workout",
+      "status": 200,
+      "ms": 147,
+      "title": "Caffeine-Free Pre-Workout UK: How to Check and Compare | SupplementScout",
+      "h1": "How can I find and compare a pre-workout without caffeine?",
+      "canonical": "https://www.supplementscout.co.uk/guides/caffeine-free-pre-workout",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200,
+      "ms": 41
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 200,
+      "ms": 2237
+    }
+  ],
+  "variants": [
+    {
+      "url": "/product/7nutrition-whey-protein-80-500g?variant=2026",
+      "expected": "Vanilla / 500g",
+      "actual": "Vanilla / 500g",
+      "result": "PASS"
+    },
+    {
+      "url": "/product/applied-nutrition-iso-xp-18kg?variant=735",
+      "expected": "Vanilla / 1.8kg",
+      "actual": "Vanilla / 1.8kg",
+      "result": "PASS"
+    },
+    {
+      "url": "/product/applied-nutrition-iso-xp-18kg?variant=4613",
+      "expected": "Vanilla / 450 g",
+      "actual": "Vanilla / 450 g",
+      "result": "PASS"
+    }
+  ],
+  "external": [],
+  "externalChecks": "Not repeated in this internal-only followup; original full production proof and subsequent external TCP failures retained separately",
+  "newRoutesInSitemap": 2,
+  "sitemapSummary": {
+    "urls": 1483,
+    "duplicates": 0,
+    "parameterGuideUrls": 0
+  }
+}

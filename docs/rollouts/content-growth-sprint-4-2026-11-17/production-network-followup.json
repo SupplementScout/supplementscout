@@ -1,0 +1,55 @@
+{
+  "capturedAt": "2026-11-17T19:49:13.466Z",
+  "initialFullPublicLinks": {
+    "capturedAt": "2026-11-17T19:37:31.913Z",
+    "external": [
+      {
+        "url": "https://www.adpi.org/wp-content/uploads/2022/07/Whey-and-Whey-Products_Human-Food-Definitions.pdf",
+        "status": 200
+      },
+      {
+        "url": "https://7nutrition.eu/en/products/7nutrition-whey-protein-80-500g-598.html",
+        "status": 200
+      },
+      {
+        "url": "https://appliednutrition.uk/products/iso-xp",
+        "status": 200
+      }
+    ]
+  },
+  "supplementaryUninstrumentedRepeat": {
+    "result": "fetch failed; original endpoint/cause not captured",
+    "log": "node : TypeError: fetch failed\r\nAt line:2 char:1\r\n+ node --use-system-ca tmp/seo24-production-links.cjs > tmp/seo24-produ ...\r\n+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (TypeError: fetch failed:String) [], RemoteException\r\n    + FullyQualifiedErrorId : NativeCommandError"
+  },
+  "instrumentedExternalRepeat": [
+    {
+      "at": "2026-11-17T19:44:29.679Z",
+      "url": "https://7nutrition.eu/en/products/7nutrition-whey-protein-80-500g-598.html",
+      "error": "fetch failed",
+      "cause": "Connect Timeout Error (attempted address: 7nutrition.eu:443, timeout: 10000ms)",
+      "code": "UND_ERR_CONNECT_TIMEOUT"
+    }
+  ],
+  "independentCurl": {
+    "result": "connection timeout, no HTTP response",
+    "log": "curl.exe : curl: (28) Connection timed out after 15002 milliseconds\r\nAt line:2 char:1\r\n+ curl.exe --location --output NUL --silent --show-error --connect-time ...\r\n+ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\r\n    + CategoryInfo          : NotSpecified: (curl: (28) Conn...02 milliseconds:String) [], RemoteException\r\n    + FullyQualifiedErrorId : NativeCommandError\r\n \r\nhttp=000 dns=0.047318 connect=0.000000 ttfb=15.003034 total=15.003041 remote=",
+    "dnsResolvedMs": 47.318,
+    "httpStatus": null
+  },
+  "independentChrome": {
+    "at": "2026-11-17T19:47:10.262Z",
+    "url": "https://7nutrition.eu/en/products/7nutrition-whey-protein-80-500g-598.html",
+    "error": "Manufacturer browser document response timeout after30s"
+  },
+  "afterErrorOwnedApplicationLinks": {
+    "capturedAt": "2026-11-17T19:48:31.250Z",
+    "result": "PASS",
+    "exactVariantLinks": 3,
+    "sitemap": {
+      "urls": 1483,
+      "duplicates": 0,
+      "parameterGuideUrls": 0
+    }
+  },
+  "conclusion": "Subsequent TCP/document-response timeout to external manufacturer7nutrition.eu, not a SupplementScout server response or application regression. Initial live external200 proof is retained; no claim of continuous external availability. DNS resolved; network failures are excluded from application warm-response samples. No retry altered production data or source URLs."
+}

@@ -1,0 +1,61 @@
+{
+  "capturedAt": "2026-11-17T19:40:25.774Z",
+  "mergedSha": "cd9a9d312c03db71c07e99f8c2a7b1cbaf4b5636",
+  "releaseHead": "b8bfcf7bc167edb7529c02bcda8fe3e61de3e275",
+  "releaseChecks": {
+    "focused": 54,
+    "quick": "PASS",
+    "quickTests": 1297,
+    "full": "PASS",
+    "fullSafeTests": 4021,
+    "typeScript": "PASS",
+    "eslint": "PASS",
+    "productionBuild": "PASS",
+    "projectGuardian": "PASS"
+  },
+  "ci": {
+    "pr": [
+      {
+        "conclusion": "success",
+        "databaseId": 44159637725,
+        "headSha": "b8bfcf7bc167edb7529c02bcda8fe3e61de3e275",
+        "name": "Quality Gate",
+        "status": "completed",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44159637725"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 44159637729,
+        "headSha": "b8bfcf7bc167edb7529c02bcda8fe3e61de3e275",
+        "name": "Project Guardian",
+        "status": "completed",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44159637729"
+      }
+    ],
+    "main": [
+      {
+        "conclusion": "success",
+        "databaseId": 44160283053,
+        "headSha": "cd9a9d312c03db71c07e99f8c2a7b1cbaf4b5636",
+        "name": "Project Guardian",
+        "status": "completed",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44160283053"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 44160283161,
+        "headSha": "cd9a9d312c03db71c07e99f8c2a7b1cbaf4b5636",
+        "name": "Quality Gate",
+        "status": "completed",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44160283161"
+      }
+    ]
+  },
+  "productionVerification": "PASS: public content equals independent current GET-only source rendering; SEO, exact variants, arithmetic, missing nutrition, links and responsive QA pass",
+  "googleIndexed": "UNKNOWN: no Search Console inspection or submission performed",
+  "googleActions": 0,
+  "indexingApiCalls": 0,
+  "productionDataWrites": 0,
+  "fieldCwvClaim": false,
+  "nextSprintStarted": false
+}

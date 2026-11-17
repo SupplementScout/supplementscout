@@ -153,9 +153,9 @@ test("read errors fail closed; both loaders batch through existing catalogue/res
     await assert.rejects(page.default(),/temporarily unavailable/);assert.equal(reads,1);assert.equal(keys[0].path,route);
   }
 });
-test("sitemap includes the two approved candidates exactly once and existing live routes stay verified",()=>{
+test("sitemap includes the two verified guides exactly once and existing live routes stay verified",()=>{
   const lifecycle=load("app/lib/indexabilityLifecycle.ts"),sitemap=fs.readFileSync(path.join(root,"app/sitemap.ts"),"utf8");
-  for(const route of [model.WHEY_TYPE_GUIDE_PATH,model.PACK_VALUE_GUIDE_PATH]){assert.equal(lifecycle.getLifecycleStatus(route),"launch_approved");assert.equal(lifecycle.isLifecycleSitemapEligible(route),true);assert.equal(sitemap.split(route).length-1,1);}
+  for(const route of [model.WHEY_TYPE_GUIDE_PATH,model.PACK_VALUE_GUIDE_PATH]){assert.equal(lifecycle.getLifecycleStatus(route),"live_verified");assert.equal(lifecycle.isLifecycleSitemapEligible(route),true);assert.equal(sitemap.split(route).length-1,1);}
   for(const route of ["/brands/per4m","/creatine","/guides/cost-per-25g-protein","/guides/supplement-prices-including-delivery","/guides/protein-powder-under-30","/guides/caffeine-free-pre-workout"])assert.equal(lifecycle.getLifecycleStatus(route),"live_verified");
 });
 test("required outgoing links and one contextual incoming link per guide are crawlable",()=>{

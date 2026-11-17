@@ -1,5 +1,18 @@
 # SupplementScout SEO Execution Plan
 
+**17 November 2026 SEO-24 LIVE VERIFIED closeout:** owner-approved PR #544
+squash merged release head `b8bfcf7bc167edb7529c02bcda8fe3e61de3e275` as
+`cd9a9d312c03db71c07e99f8c2a7b1cbaf4b5636` with identical tree.
+Main Quality Gate/Guardian pass. Vercel Production
+`dpl_Ch1Hdj63RwBgzVVeQ4xWHyeyjwWx` is READY on the public domain.
+Both guides pass public HTTP, actual-source HTML/variant/arithmetic equality,
+indexability/sitemap/schema, links and1440/390px QA. Both lifecycle entries
+now record `live_verified` with unchanged public indexability. Earlier Draft/
+CODE COMPLETE checkpoints below are historical. This closes the bounded
+SEO-24 exception; only frozen SEO-20 remains active/binding. SEO-21/22/23
+stay LIVE VERIFIED; Stage3 stays disabled. Google inclusion is UNKNOWN;
+no GSC action or next sprint was performed.
+
 **17 November 2026 SEO-24 production-release approval:** the owner explicitly
 authorizes PR #544's two prepared guide lifecycle transitions to
 `launch_approved`, necessary existing tests/docs, quality gates, Ready for
@@ -386,9 +399,14 @@ Console evidence and user value.
 | SEO-22 | P1 | Content Growth Sprint 2: /guides/supplement-prices-including-delivery and /guides/cost-per-25g-protein. | `LIVE VERIFIED` | PR #542 released as53d933f1 with tree parity; Vercel Production READY. Public200, base index/follow, parameter noindex/follow, canonicals, one sitemap URL each, schema, actual-source arithmetic, links and1440/390px QA pass. GSC inspections succeed but both URLs remain unknown to Google: indexing PENDING. No data writes; SEO-20 frozen and SEO-21 live verified. |
 | SEO-23 | P1 | Content Growth Sprint 3: /guides/protein-powder-under-30 and /guides/caffeine-free-pre-workout. | `LIVE VERIFIED` | Owner-approved PR #543 squash9fe3d000 preserves the reviewed tree; main CI and Vercel Production READY. Public200, base index/follow, parameter noindex/follow, canonicals, one sitemap URL each, factual schema, actual-source HTML/calculations/applied caffeine facts, links and1440/390px QA pass. Performance follow-up passes unchanged guard; cold DNS traces retained. Google inclusion UNKNOWN; no GSC/data writes. SEO-20 frozen; SEO-21/22 live. |
 
-| SEO-24 | P1 | Content Growth Sprint 4: /guides/whey-isolate-vs-concentrate and /guides/protein-powder-pack-size-value. | `CODE COMPLETE` | Both topics qualify with two reviewed exact variants each, fresh known delivered offers and one approved nutrition record per selection. Real cash/kg comparisons; missing protein comparisons withheld. Owner-approved PR #544 release is in progress: only these two lifecycle entries become launch_approved; required gates, guarded squash merge, automatic deployment and public readback precede LIVE VERIFIED. No production-data, nutrition, workflow or Google write. SEO-20 frozen; SEO-21/22/23 live. |
+| SEO-24 | P1 | Content Growth Sprint 4: /guides/whey-isolate-vs-concentrate and /guides/protein-powder-pack-size-value. | `LIVE VERIFIED` | Owner-approved PR #544 squash cd9a9d312c03db71c07e99f8c2a7b1cbaf4b5636 preserves the reviewed tree. Main Quality Gate/Guardian pass; Vercel Production dpl_Ch1Hdj63RwBgzVVeQ4xWHyeyjwWx READY. Public HTTP/source-bound exact variants, delivered arithmetic, indexability/canonical/sitemap/schema, links and1440/390px QA pass; warm response guard passes. Missing nutrition remains withheld. No production-data or Google write. SEO-20 frozen; SEO-21/22/23 live. |
 
 ## 6. Current active task
+
+SEO-20 alone remains active/binding and frozen. SEO-24 is LIVE VERIFIED after
+PR #544 production/readback; its bounded implementation exception is retired.
+SEO-21/22/23 stay LIVE VERIFIED. No next implementation follows.
+Earlier Draft-only approvals below are historical.
 
 **Sprint 4 owner approval (17 November 2026):**
 Content Growth exception: SEO-24 beside frozen SEO-20; Draft PR only.
@@ -631,6 +649,32 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 17 November 2026 - SEO-24 production release LIVE VERIFIED
+
+- PR #544 release head `b8bfcf7bc167edb7529c02bcda8fe3e61de3e275`
+  squash merged as `cd9a9d312c03db71c07e99f8c2a7b1cbaf4b5636`;
+  exact tree parity. Required PR/main checks pass; main Quality Gate44160283161
+  and Project Guardian44160283053. Local54 focused tests, quick/full4,021,
+  TypeScript, ESLint, baseline checks and production build pass.
+- Automatic Vercel Production `dpl_Ch1Hdj63RwBgzVVeQ4xWHyeyjwWx` is READY;
+  public alias matches the merge. Both URLs200, index/follow, self-canonical,
+  exactly one sitemap URL each, no duplicates. Parameters remain noindex/follow;
+  Googlebot sees200/index. WebPage/BreadcrumbList schema is factual.
+- Public initial HTML equals independent current GET-only source rendering.
+  Three exact variants have current known-delivery prices and correct/kg
+  arithmetic. Only735 has approved nutrition; no record is copied across packs.
+  Variant links and contextual incoming links pass. Desktop1440/mobile390,
+  keyboard order and runtime/HTTP checks pass; screenshots visually reviewed.
+- New guide warm median TTFB147.0/135.7ms; eight existing routes pass the
+  unchanged before*1.5+100ms guard. Warm browser LCP196-364ms, CLS0. First
+  browser DNS1.8ms and request-to-first-byte14ms are separately retained.
+  These lab samples make no field CWV claim. Frozen PER4M, Creatine and all
+  SEO-22/23 public contracts and protected source parity pass.
+- [Existing Sprint4 release evidence](rollouts/content-growth-sprint-4-2026-11-17.md).
+  Both central statuses now live_verified with unchanged public indexability.
+  Google inclusion UNKNOWN; no GSC/Indexing API action, production-data write
+  or next sprint. SEO-20 stays frozen/binding; SEO-21/22/23 live; Stage3 off.
 
 ### 17 November 2026 - SEO-24 Content Growth Sprint 4 CODE COMPLETE
 

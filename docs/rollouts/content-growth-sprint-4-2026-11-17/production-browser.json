@@ -1,0 +1,1235 @@
+{
+  "capturedAt": "2026-11-17T19:37:53.505Z",
+  "environment": "actual public production Chrome QA; not field CWV; non-essential consent rejected if shown",
+  "base": "https://www.supplementscout.co.uk",
+  "syntheticOffers": false,
+  "warmup": {
+    "url": "https://www.supplementscout.co.uk/how-we-compare?qa=seo24-baseline",
+    "navigation": {
+      "name": "https://www.supplementscout.co.uk/how-we-compare?qa=seo24-baseline",
+      "entryType": "navigation",
+      "startTime": 0,
+      "duration": 140.79999999701977,
+      "navigationId": 1660,
+      "initiatorType": "navigation",
+      "deliveryType": "",
+      "nextHopProtocol": "h2",
+      "renderBlockingStatus": "non-blocking",
+      "contentType": "text/html",
+      "contentEncoding": "br",
+      "workerStart": 0,
+      "workerRouterEvaluationStart": 0,
+      "workerCacheLookupStart": 0,
+      "workerMatchedSourceType": "",
+      "workerFinalSourceType": "",
+      "redirectStart": 0,
+      "redirectEnd": 0,
+      "fetchStart": 1.2000000029802322,
+      "domainLookupStart": 1.2000000029802322,
+      "domainLookupEnd": 1.2000000029802322,
+      "connectStart": 1.2000000029802322,
+      "secureConnectionStart": 1.2000000029802322,
+      "connectEnd": 1.2000000029802322,
+      "requestStart": 2.7999999970197678,
+      "responseStart": 17.600000008940697,
+      "firstInterimResponseStart": 17.600000008940697,
+      "finalResponseHeadersStart": 90.5,
+      "responseEnd": 92,
+      "transferSize": 6944,
+      "encodedBodySize": 6644,
+      "decodedBodySize": 28954,
+      "responseStatus": 200,
+      "serverTiming": [],
+      "unloadEventStart": 97.40000000596046,
+      "unloadEventEnd": 97.40000000596046,
+      "domInteractive": 136.1000000089407,
+      "domContentLoadedEventStart": 136.20000000298023,
+      "domContentLoadedEventEnd": 136.20000000298023,
+      "domComplete": 140.70000000298023,
+      "loadEventStart": 140.79999999701977,
+      "loadEventEnd": 140.79999999701977,
+      "type": "navigate",
+      "redirectCount": 0,
+      "activationStart": 0,
+      "criticalCHRestart": 0,
+      "notRestoredReasons": null,
+      "confidence": {}
+    },
+    "lcpMs": 204,
+    "cls": 0
+  },
+  "results": [
+    {
+      "route": "/guides/whey-isolate-vs-concentrate",
+      "width": 1440,
+      "mobileTouchEmulation": false,
+      "result": "PASS",
+      "title": "Whey Isolate vs Concentrate: Which Is Better Value in the UK? | SupplementScout",
+      "h1": "Should I buy whey isolate or whey concentrate?",
+      "viewport": 1440,
+      "visualWidth": 1425,
+      "scale": 1,
+      "documentWidth": 1425,
+      "canonical": "https://www.supplementscout.co.uk/guides/whey-isolate-vs-concentrate",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "American Dairy Products Institute's ingredient definitions",
+          "href": "https://www.adpi.org/wp-content/uploads/2022/07/Whey-and-Whey-Products_Human-Food-Definitions.pdf"
+        },
+        {
+          "text": "7Nutrition Whey Protein 80",
+          "href": "/product/7nutrition-whey-protein-80-500g?variant=2026"
+        },
+        {
+          "text": "Manufacturer ingredient and identity source",
+          "href": "https://7nutrition.eu/en/products/7nutrition-whey-protein-80-500g-598.html"
+        },
+        {
+          "text": "Applied Nutrition ISO-XP",
+          "href": "/product/applied-nutrition-iso-xp-18kg?variant=735"
+        },
+        {
+          "text": "Manufacturer ingredient and identity source",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "the cost-per-25g method",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "Whey Protein comparison",
+          "href": "/whey-protein"
+        },
+        {
+          "text": "Whey Isolate comparison",
+          "href": "/whey-isolate"
+        },
+        {
+          "text": "two-product comparison",
+          "href": "/compare"
+        },
+        {
+          "text": "Help Me Choose",
+          "href": "/help-me-choose"
+        },
+        {
+          "text": "method",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "freshness rules",
+          "href": "/data-freshness"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "7Nutrition Whey Protein 80Whey concentrate. Variant: Vanilla / 500g. Exact pack: 500g, one pack.6 Pack SupplementsProduct price£19.99Delivery£4.99Delivered total£24.98Offer checked 17 Nov 2026, 11:452026-11-17T11:45:40.735+00:00Delivered cost per kilogram: £49.96/kg.Protein per serving, verified servings and cost per 25 g are not yet supported by approved nutrition for this exact variant. The recorded pack price remains usable; we do not fill the nutrition gap from another flavour or pack.Manufacturer ingredient and identity source. Classification evidence is separate from our approved nutrition records.",
+          "x": 288.5,
+          "y": 936,
+          "w": 414,
+          "h": 504
+        },
+        {
+          "text": "Applied Nutrition ISO-XPWhey isolate. Variant: Vanilla / 1.8kg. Exact pack: 1,800g, one pack.Whey OkayProduct price£81.53Delivery£3.99Delivered total£85.52Offer checked 17 Nov 2026, 10:482026-11-17T10:48:03.114+00:00Delivered cost per kilogram: £47.51/kg.Protein per serving22 gVerified servings72Cost per 25 g protein£1.35Manufacturer ingredient and identity source. Classification evidence is separate from our approved nutrition records.",
+          "x": 722.5,
+          "y": 936,
+          "w": 414,
+          "h": 504
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 364,
+      "navigation": {
+        "name": "https://www.supplementscout.co.uk/guides/whey-isolate-vs-concentrate?qa=1440",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 349.09999999403954,
+        "navigationId": 792,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "h2",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "br",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.8999999910593033,
+        "domainLookupStart": 0.8999999910593033,
+        "domainLookupEnd": 0.8999999910593033,
+        "connectStart": 0.8999999910593033,
+        "secureConnectionStart": 0.8999999910593033,
+        "connectEnd": 0.8999999910593033,
+        "requestStart": 2.3999999910593033,
+        "responseStart": 17.399999991059303,
+        "firstInterimResponseStart": 17.399999991059303,
+        "finalResponseHeadersStart": 206.69999998807907,
+        "responseEnd": 285.19999998807907,
+        "transferSize": 8961,
+        "encodedBodySize": 8661,
+        "decodedBodySize": 39709,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 0,
+        "unloadEventEnd": 0,
+        "domInteractive": 293.3999999910593,
+        "domContentLoadedEventStart": 293.3999999910593,
+        "domContentLoadedEventEnd": 293.3999999910593,
+        "domComplete": 349,
+        "loadEventStart": 349.09999999403954,
+        "loadEventEnd": 349.09999999403954,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1m4jsc1dh3h5_.css",
+          "bytes": 81236,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3j9pm5otqxm82.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/turbopack-05o9g6l_1hb89.js",
+          "bytes": 11041,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2qss5m6h08xun.js",
+          "bytes": 26871,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3ixnum3-fm047.js",
+          "bytes": 54645,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/41y3m2lt96mnm.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1w9lotakwc4_z.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=Tm-69x4GW730fyc_",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-iso-xp-18kg?variant=735&_rsc=Tm-69x4GW730fyc_",
+          "bytes": 261,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/7nutrition-whey-protein-80-500g?variant=2026&_rsc=Tm-69x4GW730fyc_",
+          "bytes": 264,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=Tm-69x4GW730fyc_",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=Tm-69x4GW730fyc_",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=Tm-69x4GW730fyc_",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=snVoHyYK7vz2rL3V",
+          "bytes": 2565,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=kdJAT3bLarjFkg5E",
+          "bytes": 2908,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=Wk4_yMZ5X9fd-2xE",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=RFNg2ZRZwxk6R5Kg",
+          "bytes": 1655,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-iso-xp-18kg?variant=735&_rsc=7HZtX8KJoEw1ih64",
+          "bytes": 3054,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/7nutrition-whey-protein-80-500g?variant=2026&_rsc=7HZtX8KJoEw1ih64",
+          "bytes": 3062,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/308ujrdr5rv1m.js",
+          "bytes": 13700,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=7HZtX8KJoEw1ih64",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=snVoHyYK7vz2rL3V",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=X0H0og1UUufqG-76",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=Uh47InetJhHc2zr1",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=7HZtX8KJoEw1ih64",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-iso-xp-18kg?_rsc=Tm-69x4GW730fyc_",
+          "bytes": 249,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/7nutrition-whey-protein-80-500g?_rsc=Tm-69x4GW730fyc_",
+          "bytes": 251,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/whey-isolate-vs-concentrate",
+      "width": 390,
+      "mobileTouchEmulation": true,
+      "result": "PASS",
+      "title": "Whey Isolate vs Concentrate: Which Is Better Value in the UK? | SupplementScout",
+      "h1": "Should I buy whey isolate or whey concentrate?",
+      "viewport": 390,
+      "visualWidth": 390,
+      "scale": 1,
+      "documentWidth": 390,
+      "canonical": "https://www.supplementscout.co.uk/guides/whey-isolate-vs-concentrate",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "American Dairy Products Institute's ingredient definitions",
+          "href": "https://www.adpi.org/wp-content/uploads/2022/07/Whey-and-Whey-Products_Human-Food-Definitions.pdf"
+        },
+        {
+          "text": "7Nutrition Whey Protein 80",
+          "href": "/product/7nutrition-whey-protein-80-500g?variant=2026"
+        },
+        {
+          "text": "Manufacturer ingredient and identity source",
+          "href": "https://7nutrition.eu/en/products/7nutrition-whey-protein-80-500g-598.html"
+        },
+        {
+          "text": "Applied Nutrition ISO-XP",
+          "href": "/product/applied-nutrition-iso-xp-18kg?variant=735"
+        },
+        {
+          "text": "Manufacturer ingredient and identity source",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "the cost-per-25g method",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "Whey Protein comparison",
+          "href": "/whey-protein"
+        },
+        {
+          "text": "Whey Isolate comparison",
+          "href": "/whey-isolate"
+        },
+        {
+          "text": "two-product comparison",
+          "href": "/compare"
+        },
+        {
+          "text": "Help Me Choose",
+          "href": "/help-me-choose"
+        },
+        {
+          "text": "method",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "freshness rules",
+          "href": "/data-freshness"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "7Nutrition Whey Protein 80Whey concentrate. Variant: Vanilla / 500g. Exact pack: 500g, one pack.6 Pack SupplementsProduct price£19.99Delivery£4.99Delivered total£24.98Offer checked 17 Nov 2026, 11:452026-11-17T11:45:40.735+00:00Delivered cost per kilogram: £49.96/kg.Protein per serving, verified servings and cost per 25 g are not yet supported by approved nutrition for this exact variant. The recorded pack price remains usable; we do not fill the nutrition gap from another flavour or pack.Manufacturer ingredient and identity source. Classification evidence is separate from our approved nutrition records.",
+          "x": 16,
+          "y": 1411,
+          "w": 358,
+          "h": 516
+        },
+        {
+          "text": "Applied Nutrition ISO-XPWhey isolate. Variant: Vanilla / 1.8kg. Exact pack: 1,800g, one pack.Whey OkayProduct price£81.53Delivery£3.99Delivered total£85.52Offer checked 17 Nov 2026, 10:482026-11-17T10:48:03.114+00:00Delivered cost per kilogram: £47.51/kg.Protein per serving22 gVerified servings72Cost per 25 g protein£1.35Manufacturer ingredient and identity source. Classification evidence is separate from our approved nutrition records.",
+          "x": 16,
+          "y": 1947,
+          "w": 358,
+          "h": 492
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 320,
+      "navigation": {
+        "name": "https://www.supplementscout.co.uk/guides/whey-isolate-vs-concentrate?qa=390",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 311.29999999701977,
+        "navigationId": 4803,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "h2",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "br",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.7999999970197678,
+        "domainLookupStart": 0.7999999970197678,
+        "domainLookupEnd": 0.7999999970197678,
+        "connectStart": 0.7999999970197678,
+        "secureConnectionStart": 0.7999999970197678,
+        "connectEnd": 0.7999999970197678,
+        "requestStart": 2,
+        "responseStart": 90,
+        "firstInterimResponseStart": 90,
+        "finalResponseHeadersStart": 199,
+        "responseEnd": 279.70000000298023,
+        "transferSize": 8982,
+        "encodedBodySize": 8682,
+        "decodedBodySize": 39706,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 215.20000000298023,
+        "unloadEventEnd": 215.20000000298023,
+        "domInteractive": 285.40000000596046,
+        "domContentLoadedEventStart": 285.5,
+        "domContentLoadedEventEnd": 285.5,
+        "domComplete": 311.20000000298023,
+        "loadEventStart": 311.29999999701977,
+        "loadEventEnd": 311.29999999701977,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1m4jsc1dh3h5_.css",
+          "bytes": 81236,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3j9pm5otqxm82.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/turbopack-05o9g6l_1hb89.js",
+          "bytes": 11041,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2qss5m6h08xun.js",
+          "bytes": 26871,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3ixnum3-fm047.js",
+          "bytes": 54645,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/41y3m2lt96mnm.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1w9lotakwc4_z.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=Tm-69x4GW730fyc_",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=Tm-69x4GW730fyc_",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=Tm-69x4GW730fyc_",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=snVoHyYK7vz2rL3V",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=kdJAT3bLarjFkg5E",
+          "bytes": 2908,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=X0H0og1UUufqG-76",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=Uh47InetJhHc2zr1",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=7HZtX8KJoEw1ih64",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=7HZtX8KJoEw1ih64",
+          "bytes": 2444,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/protein-powder-pack-size-value",
+      "width": 1440,
+      "mobileTouchEmulation": false,
+      "result": "PASS",
+      "title": "Does Buying a Bigger Protein Bag Actually Save Money? | SupplementScout",
+      "h1": "Is a bigger protein pack better value after delivery?",
+      "viewport": 1440,
+      "visualWidth": 1425,
+      "scale": 1,
+      "documentWidth": 1425,
+      "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-pack-size-value",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "manufacturer lists both sizes and the Vanilla ingredient formula",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "Applied Nutrition ISO-XP",
+          "href": "/product/applied-nutrition-iso-xp-18kg?variant=4613"
+        },
+        {
+          "text": "Manufacturer ingredient and identity source",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "Applied Nutrition ISO-XP",
+          "href": "/product/applied-nutrition-iso-xp-18kg?variant=735"
+        },
+        {
+          "text": "Manufacturer ingredient and identity source",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "how the verified protein calculation works",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "our delivered-price guide",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "protein powders under £30 including delivery",
+          "href": "/guides/protein-powder-under-30"
+        },
+        {
+          "text": "Whey Protein comparison",
+          "href": "/whey-protein"
+        },
+        {
+          "text": "comparison method",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "freshness rules",
+          "href": "/data-freshness"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Applied Nutrition ISO-XPWhey isolate. Variant: Vanilla / 450 g. Exact pack: 450g, one pack.Holland & BarrettProduct price£30.00Delivery£0.00Delivered total£30.00Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00Delivered cost per kilogram: £66.67/kg.Cost per 25 g protein is withheld for this size comparison: both exact packs need approved nutrition. A verified record for the larger pack is not copied into the smaller one.Manufacturer ingredient and identity source. Classification evidence is separate from our approved nutrition records.",
+          "x": 288.5,
+          "y": 636,
+          "w": 414,
+          "h": 504
+        },
+        {
+          "text": "Applied Nutrition ISO-XPWhey isolate. Variant: Vanilla / 1.8kg. Exact pack: 1,800g, one pack.Whey OkayProduct price£81.53Delivery£3.99Delivered total£85.52Offer checked 17 Nov 2026, 10:482026-11-17T10:48:03.114+00:00Delivered cost per kilogram: £47.51/kg.Cost per 25 g protein is withheld for this size comparison: both exact packs need approved nutrition. A verified record for the larger pack is not copied into the smaller one.Manufacturer ingredient and identity source. Classification evidence is separate from our approved nutrition records.",
+          "x": 722.5,
+          "y": 636,
+          "w": 414,
+          "h": 504
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 196,
+      "navigation": {
+        "name": "https://www.supplementscout.co.uk/guides/protein-powder-pack-size-value?qa=1440",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 169,
+        "navigationId": 6332,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "h2",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "br",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.800000011920929,
+        "domainLookupStart": 0.800000011920929,
+        "domainLookupEnd": 0.800000011920929,
+        "connectStart": 0.800000011920929,
+        "secureConnectionStart": 0.800000011920929,
+        "connectEnd": 0.800000011920929,
+        "requestStart": 2.1000000089406967,
+        "responseStart": 16.100000008940697,
+        "firstInterimResponseStart": 16.100000008940697,
+        "finalResponseHeadersStart": 136.6000000089407,
+        "responseEnd": 143.90000000596046,
+        "transferSize": 8531,
+        "encodedBodySize": 8231,
+        "decodedBodySize": 38239,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 141.90000000596046,
+        "unloadEventEnd": 141.90000000596046,
+        "domInteractive": 156.6000000089407,
+        "domContentLoadedEventStart": 156.6000000089407,
+        "domContentLoadedEventEnd": 156.70000000298023,
+        "domComplete": 168.90000000596046,
+        "loadEventStart": 169,
+        "loadEventEnd": 169,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1m4jsc1dh3h5_.css",
+          "bytes": 81236,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3j9pm5otqxm82.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/turbopack-05o9g6l_1hb89.js",
+          "bytes": 11041,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2qss5m6h08xun.js",
+          "bytes": 26871,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3ixnum3-fm047.js",
+          "bytes": 54645,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2d693r74n1sdk.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1w9lotakwc4_z.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-iso-xp-18kg?variant=735&_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 261,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-iso-xp-18kg?variant=4613&_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 262,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=cIj_sOd7cQdp-x0H",
+          "bytes": 2565,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=YRzLJfJDGxchjNic",
+          "bytes": 2908,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=d40UC_tM0_Ho1VBd",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=cbN2uTBgJIjWo4fb",
+          "bytes": 1655,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-iso-xp-18kg?variant=735&_rsc=cdEudNqPNlgWbdKz",
+          "bytes": 3054,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-iso-xp-18kg?variant=4613&_rsc=cdEudNqPNlgWbdKz",
+          "bytes": 3056,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=cdEudNqPNlgWbdKz",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/308ujrdr5rv1m.js",
+          "bytes": 13700,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=cIj_sOd7cQdp-x0H",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=75J5vWEgzFmI-gJZ",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=ljMFy-IQRD1_70Tu",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=cdEudNqPNlgWbdKz",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-iso-xp-18kg?_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 249,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/protein-powder-pack-size-value",
+      "width": 390,
+      "mobileTouchEmulation": true,
+      "result": "PASS",
+      "title": "Does Buying a Bigger Protein Bag Actually Save Money? | SupplementScout",
+      "h1": "Is a bigger protein pack better value after delivery?",
+      "viewport": 390,
+      "visualWidth": 390,
+      "scale": 1,
+      "documentWidth": 390,
+      "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-pack-size-value",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "manufacturer lists both sizes and the Vanilla ingredient formula",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "Applied Nutrition ISO-XP",
+          "href": "/product/applied-nutrition-iso-xp-18kg?variant=4613"
+        },
+        {
+          "text": "Manufacturer ingredient and identity source",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "Applied Nutrition ISO-XP",
+          "href": "/product/applied-nutrition-iso-xp-18kg?variant=735"
+        },
+        {
+          "text": "Manufacturer ingredient and identity source",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "how the verified protein calculation works",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "our delivered-price guide",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "protein powders under £30 including delivery",
+          "href": "/guides/protein-powder-under-30"
+        },
+        {
+          "text": "Whey Protein comparison",
+          "href": "/whey-protein"
+        },
+        {
+          "text": "comparison method",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "freshness rules",
+          "href": "/data-freshness"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Applied Nutrition ISO-XPWhey isolate. Variant: Vanilla / 450 g. Exact pack: 450g, one pack.Holland & BarrettProduct price£30.00Delivery£0.00Delivered total£30.00Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00Delivered cost per kilogram: £66.67/kg.Cost per 25 g protein is withheld for this size comparison: both exact packs need approved nutrition. A verified record for the larger pack is not copied into the smaller one.Manufacturer ingredient and identity source. Classification evidence is separate from our approved nutrition records.",
+          "x": 16,
+          "y": 888.5,
+          "w": 358,
+          "h": 496
+        },
+        {
+          "text": "Applied Nutrition ISO-XPWhey isolate. Variant: Vanilla / 1.8kg. Exact pack: 1,800g, one pack.Whey OkayProduct price£81.53Delivery£3.99Delivered total£85.52Offer checked 17 Nov 2026, 10:482026-11-17T10:48:03.114+00:00Delivered cost per kilogram: £47.51/kg.Cost per 25 g protein is withheld for this size comparison: both exact packs need approved nutrition. A verified record for the larger pack is not copied into the smaller one.Manufacturer ingredient and identity source. Classification evidence is separate from our approved nutrition records.",
+          "x": 16,
+          "y": 1404.5,
+          "w": 358,
+          "h": 496
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 240,
+      "navigation": {
+        "name": "https://www.supplementscout.co.uk/guides/protein-powder-pack-size-value?qa=390",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 210.79999999701977,
+        "navigationId": 7762,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "h2",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "br",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 1,
+        "domainLookupStart": 1,
+        "domainLookupEnd": 1,
+        "connectStart": 1,
+        "secureConnectionStart": 1,
+        "connectEnd": 1,
+        "requestStart": 2.7000000029802322,
+        "responseStart": 42.099999994039536,
+        "firstInterimResponseStart": 42.099999994039536,
+        "finalResponseHeadersStart": 174.59999999403954,
+        "responseEnd": 182.59999999403954,
+        "transferSize": 8513,
+        "encodedBodySize": 8213,
+        "decodedBodySize": 38236,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 189.79999999701977,
+        "unloadEventEnd": 189.79999999701977,
+        "domInteractive": 207.09999999403954,
+        "domContentLoadedEventStart": 207.20000000298023,
+        "domContentLoadedEventEnd": 207.20000000298023,
+        "domComplete": 210.70000000298023,
+        "loadEventStart": 210.79999999701977,
+        "loadEventEnd": 210.79999999701977,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1m4jsc1dh3h5_.css",
+          "bytes": 81236,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3j9pm5otqxm82.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/turbopack-05o9g6l_1hb89.js",
+          "bytes": 11041,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2qss5m6h08xun.js",
+          "bytes": 26871,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3ixnum3-fm047.js",
+          "bytes": 54645,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2d693r74n1sdk.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1w9lotakwc4_z.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-iso-xp-18kg?variant=4613&_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 262,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=cIj_sOd7cQdp-x0H",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=YRzLJfJDGxchjNic",
+          "bytes": 2908,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=75J5vWEgzFmI-gJZ",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=ljMFy-IQRD1_70Tu",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-iso-xp-18kg?variant=4613&_rsc=cdEudNqPNlgWbdKz",
+          "bytes": 3056,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-iso-xp-18kg?_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 249,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=cdEudNqPNlgWbdKz",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=cdEudNqPNlgWbdKz",
+          "bytes": 2635,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    }
+  ]
+}

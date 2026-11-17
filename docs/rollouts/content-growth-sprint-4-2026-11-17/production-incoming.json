@@ -1,0 +1,69 @@
+{
+  "capturedAt": "2026-11-17T19:37:32.898Z",
+  "environment": "actual public incoming links and independent current GET-only source arithmetic; public main HTML equality verified separately",
+  "incoming": [
+    {
+      "from": "/whey-isolate",
+      "to": "/guides/whey-isolate-vs-concentrate",
+      "status": 200,
+      "contextualCrawlableLinks": 1
+    },
+    {
+      "from": "/whey-protein",
+      "to": "/guides/protein-powder-pack-size-value",
+      "status": 200,
+      "contextualCrawlableLinks": 1
+    }
+  ],
+  "checks": [
+    {
+      "route": "/guides/whey-isolate-vs-concentrate",
+      "variantId": 2026,
+      "variant": "Vanilla / 500g",
+      "checkedAt": "2026-11-17T11:45:40.735+00:00",
+      "deliveredTotal": 24.98,
+      "pricePerKg": 49.96,
+      "approvedNutrition": false,
+      "proteinMetricShown": false,
+      "result": "PASS"
+    },
+    {
+      "route": "/guides/whey-isolate-vs-concentrate",
+      "variantId": 735,
+      "variant": "Vanilla / 1.8kg",
+      "checkedAt": "2026-11-17T10:48:03.114+00:00",
+      "deliveredTotal": 85.52,
+      "pricePerKg": 47.511111111111106,
+      "approvedNutrition": true,
+      "proteinMetricShown": true,
+      "result": "PASS"
+    },
+    {
+      "route": "/guides/protein-powder-pack-size-value",
+      "variantId": 4613,
+      "variant": "Vanilla / 450 g",
+      "checkedAt": "2026-11-17T17:48:48.656+00:00",
+      "deliveredTotal": 30,
+      "pricePerKg": 66.66666666666667,
+      "approvedNutrition": false,
+      "proteinMetricShown": false,
+      "result": "PASS"
+    },
+    {
+      "route": "/guides/protein-powder-pack-size-value",
+      "variantId": 735,
+      "variant": "Vanilla / 1.8kg",
+      "checkedAt": "2026-11-17T10:48:03.114+00:00",
+      "deliveredTotal": 85.52,
+      "pricePerKg": 47.511111111111106,
+      "approvedNutrition": true,
+      "proteinMetricShown": false,
+      "result": "PASS"
+    }
+  ],
+  "uniqueVariants": 3,
+  "exactReviewedFormulaAndPackPins": true,
+  "pairedUnapprovedProteinMetricsWithheld": true,
+  "googleActions": 0,
+  "databaseWrites": 0
+}

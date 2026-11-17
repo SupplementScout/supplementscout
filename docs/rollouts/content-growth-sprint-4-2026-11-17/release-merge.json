@@ -1,0 +1,14 @@
+{
+  "capturedAt": "2026-11-17T19:35:52.068Z",
+  "headRefOid": "b8bfcf7bc167edb7529c02bcda8fe3e61de3e275",
+  "isDraft": false,
+  "mergeCommit": {
+    "oid": "cd9a9d312c03db71c07e99f8c2a7b1cbaf4b5636"
+  },
+  "mergedAt": "2026-11-17T19:35:48Z",
+  "state": "MERGED",
+  "url": "https://github.com/SupplementScout/supplementscout/pull/544",
+  "approvedReleaseHead": "b8bfcf7bc167edb7529c02bcda8fe3e61de3e275",
+  "tree": "1e7610f660242047687a5c140f89d64b5e713799",
+  "mergedTreeParity": true
+}
