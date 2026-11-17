@@ -1,0 +1,39 @@
+{
+  "capturedAt": "2026-11-17T20:49:27.828Z",
+  "preflightMain": "be42854a0d72de4e4ec481951e1d13bb97c37b14",
+  "localChecks": {
+    "focused": 140,
+    "projectGuardian": "PASS",
+    "quick": "PASS",
+    "quickTests": 1315,
+    "full": "PASS",
+    "safeTests": 4039,
+    "typeScript": "PASS",
+    "eslint": "PASS",
+    "baselineValidation": "PASS",
+    "productionBuild": "PASS"
+  },
+  "inventory": {
+    "count": 368,
+    "sha256": "172d762d52924241c554442b0306b2722dbc34b360018435e46f516c06ca2810",
+    "safe": 307,
+    "integration": 57,
+    "artifact": 4,
+    "quick": 67
+  },
+  "artifactsSha256": {
+    "creatine-packs-1440.png": "b801f398bed09dc5603ae737f31485c5248f5b896a87247171417c00f7e51063",
+    "creatine-packs-390.png": "6979bb3bfef5398959743c88d14ccc2f9879630ade0094a1b524fc672d9be98b",
+    "mass-vs-whey-1440.png": "d33eac7cf75c9bf2e9d12fc8c8832fb879ba81ff544da1fd0992f9e9fa8d73d8",
+    "mass-vs-whey-390.png": "6bf7693f2c17fcdca210ba04606e0d8c0c30226d42a1446ec59e44e6cd9015f8"
+  },
+  "localProof": "Next production build with guarded authorized GET/HEAD-only real source; not public deployment",
+  "unpublished": true,
+  "productionDataWrites": 0,
+  "newDependencies": 0,
+  "workflowChanges": 0,
+  "googleSubmissions": 0,
+  "nextSprintStarted": false,
+  "fieldCwvClaim": false,
+  "prCi": "Exact-head checks to run on the single Draft PR; no claim of CI completion from local evidence."
+}

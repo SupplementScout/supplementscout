@@ -1,0 +1,306 @@
+{
+  "capturedAt": "2026-11-17T20:38:19.342Z",
+  "environment": "actual-source components with authorized GET/HEAD-only production catalogue reads; local/source proof, not production deployment; no synthetic offers",
+  "databaseWrites": 0,
+  "pages": [
+    {
+      "route": "/guides/mass-gainer-vs-whey-protein",
+      "metadata": {
+        "title": "Mass Gainer vs Whey Protein: Compare UK Buying Costs",
+        "description": "Compare a carbohydrate-and-protein blend with whey using exact UK packs, checked delivery costs and protein pricing only where verified nutrition supports it.",
+        "alternates": {
+          "canonical": "/guides/mass-gainer-vs-whey-protein"
+        },
+        "robots": {
+          "index": false,
+          "follow": true
+        },
+        "openGraph": {
+          "title": "Mass Gainer vs Whey Protein: Compare UK Buying Costs",
+          "description": "Compare a carbohydrate-and-protein blend with whey using exact UK packs, checked delivery costs and protein pricing only where verified nutrition supports it.",
+          "url": "/guides/mass-gainer-vs-whey-protein",
+          "type": "website"
+        },
+        "twitter": {
+          "card": "summary",
+          "title": "Mass Gainer vs Whey Protein: Compare UK Buying Costs",
+          "description": "Compare a carbohydrate-and-protein blend with whey using exact UK packs, checked delivery costs and protein pricing only where verified nutrition supports it."
+        }
+      },
+      "sourceReadMs": 835,
+      "reads": [
+        {
+          "table": "products",
+          "method": "GET",
+          "status": 200,
+          "ms": 461,
+          "bytes": 4350
+        },
+        {
+          "table": "retailer_products",
+          "method": "GET",
+          "status": 200,
+          "ms": 185,
+          "bytes": 5286
+        }
+      ],
+      "htmlBytes": 9077,
+      "links": [
+        "/",
+        "/search",
+        "/how-we-compare",
+        "/product/biotech-usa-hyper-mass-4kg?variant=2223",
+        "https://shop.biotechusa.com/products/hyper-mass-4000-g",
+        "/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg?variant=1196",
+        "https://efectivnutrition.com/products/efectiv-grass-fed-whey-protein-isolate-2kg",
+        "/mass-gainer",
+        "/whey-protein",
+        "/compare",
+        "/guides/cost-per-25g-protein",
+        "/guides/supplement-prices-including-delivery",
+        "/guides/whey-isolate-vs-concentrate",
+        "/data-freshness"
+      ],
+      "examples": [
+        {
+          "product": "BioTech USA Hyper Mass",
+          "productId": "1058",
+          "variant": "Strawberry / 4kg",
+          "variantId": 2223,
+          "pack": "4,000g",
+          "productUrl": "/product/biotech-usa-hyper-mass-4kg?variant=2223",
+          "kind": "Carbohydrate-and-protein blend",
+          "source": "https://shop.biotechusa.com/products/hyper-mass-4000-g",
+          "retailer": "6 Pack Supplements",
+          "item": 39.99,
+          "shipping": 4.99,
+          "total": 44.98,
+          "checkedAt": "2026-11-17T11:45:40.735+00:00",
+          "weightG": 4000,
+          "unitPricingVerified": true,
+          "pricePerKg": 11.245,
+          "nutritionApproved": false,
+          "protein": null,
+          "servings": null,
+          "costPer25g": null,
+          "proteinMetricShown": false,
+          "creatineDoseMetricShown": false
+        },
+        {
+          "product": "Efectiv Grass-Fed Whey Protein Isolate",
+          "productId": "746",
+          "variant": "Strawberry Milkshake / 2000g",
+          "variantId": 1196,
+          "pack": "2,000g",
+          "productUrl": "/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg?variant=1196",
+          "kind": "Whey isolate powder",
+          "source": "https://efectivnutrition.com/products/efectiv-grass-fed-whey-protein-isolate-2kg",
+          "retailer": "eBay UK",
+          "item": 64.99,
+          "shipping": 0,
+          "total": 64.99,
+          "checkedAt": "2026-11-17T14:57:33.364+00:00",
+          "weightG": 2000,
+          "unitPricingVerified": true,
+          "pricePerKg": 32.495,
+          "nutritionApproved": true,
+          "protein": 27,
+          "servings": 66,
+          "costPer25g": 0.9117564534231201,
+          "proteinMetricShown": true,
+          "creatineDoseMetricShown": false
+        }
+      ],
+      "pairs": [],
+      "readiness": {
+        "qualifiedExamples": 2,
+        "distinctProducts": 2,
+        "brands": 2,
+        "matchedPairs": 0,
+        "approvedProteinRecords": 1
+      }
+    },
+    {
+      "route": "/guides/creatine-pack-size-value",
+      "metadata": {
+        "title": "Creatine Pack Sizes: Is a Bigger Tub Better Value?",
+        "description": "Compare matched unflavoured creatine pack sizes using current UK delivered prices, verified cost per kilogram and the extra upfront spend.",
+        "alternates": {
+          "canonical": "/guides/creatine-pack-size-value"
+        },
+        "robots": {
+          "index": false,
+          "follow": true
+        },
+        "openGraph": {
+          "title": "Creatine Pack Sizes: Is a Bigger Tub Better Value?",
+          "description": "Compare matched unflavoured creatine pack sizes using current UK delivered prices, verified cost per kilogram and the extra upfront spend.",
+          "url": "/guides/creatine-pack-size-value",
+          "type": "website"
+        },
+        "twitter": {
+          "card": "summary",
+          "title": "Creatine Pack Sizes: Is a Bigger Tub Better Value?",
+          "description": "Compare matched unflavoured creatine pack sizes using current UK delivered prices, verified cost per kilogram and the extra upfront spend."
+        }
+      },
+      "sourceReadMs": 348,
+      "reads": [
+        {
+          "table": "products",
+          "method": "GET",
+          "status": 200,
+          "ms": 126,
+          "bytes": 6668
+        },
+        {
+          "table": "retailer_products",
+          "method": "GET",
+          "status": 200,
+          "ms": 104,
+          "bytes": 3717
+        }
+      ],
+      "htmlBytes": 12044,
+      "links": [
+        "/",
+        "/search",
+        "/how-we-compare",
+        "https://appliednutrition.uk/products/creatine-monohydrate",
+        "/product/applied-nutrition-creatine-monohydrate-250g?variant=799",
+        "/product/applied-nutrition-creatine-monohydrate-250g?variant=4559",
+        "https://www.optimumnutrition.com/en-gb/products/micronised-creatine-powder",
+        "/product/optimum-nutrition-micronised-creatine-317g?variant=783",
+        "/product/optimum-nutrition-micronised-creatine-317g?variant=4614",
+        "/creatine",
+        "/creatine#under-20",
+        "/guides/supplement-prices-including-delivery",
+        "/compare",
+        "/data-freshness"
+      ],
+      "examples": [
+        {
+          "product": "Applied Nutrition Creatine Monohydrate",
+          "productId": "742",
+          "variant": "Unflavoured / 250g",
+          "variantId": 799,
+          "pack": "250g",
+          "productUrl": "/product/applied-nutrition-creatine-monohydrate-250g?variant=799",
+          "kind": "Unflavoured creatine powder",
+          "source": "https://appliednutrition.uk/products/creatine-monohydrate",
+          "retailer": "Holland & Barrett",
+          "item": 14.4,
+          "shipping": 3.49,
+          "total": 17.89,
+          "checkedAt": "2026-11-17T17:48:48.656+00:00",
+          "weightG": 250,
+          "unitPricingVerified": true,
+          "pricePerKg": 71.56,
+          "nutritionApproved": false,
+          "protein": null,
+          "servings": null,
+          "costPer25g": null,
+          "proteinMetricShown": false,
+          "creatineDoseMetricShown": false
+        },
+        {
+          "product": "Applied Nutrition Creatine Monohydrate",
+          "productId": "742",
+          "variant": "Unflavoured / 500g",
+          "variantId": 4559,
+          "pack": "500g",
+          "productUrl": "/product/applied-nutrition-creatine-monohydrate-250g?variant=4559",
+          "kind": "Unflavoured creatine powder",
+          "source": "https://appliednutrition.uk/products/creatine-monohydrate",
+          "retailer": "Holland & Barrett",
+          "item": 30,
+          "shipping": 0,
+          "total": 30,
+          "checkedAt": "2026-11-17T17:48:48.656+00:00",
+          "weightG": 500,
+          "unitPricingVerified": true,
+          "pricePerKg": 60,
+          "nutritionApproved": false,
+          "protein": null,
+          "servings": null,
+          "costPer25g": null,
+          "proteinMetricShown": false,
+          "creatineDoseMetricShown": false
+        },
+        {
+          "product": "Optimum Nutrition Micronised Creatine",
+          "productId": "231",
+          "variant": "Unflavoured / 317g",
+          "variantId": 783,
+          "pack": "317g",
+          "productUrl": "/product/optimum-nutrition-micronised-creatine-317g?variant=783",
+          "kind": "Unflavoured creatine powder",
+          "source": "https://www.optimumnutrition.com/en-gb/products/micronised-creatine-powder",
+          "retailer": "Holland & Barrett",
+          "item": 16.5,
+          "shipping": 3.49,
+          "total": 19.99,
+          "checkedAt": "2026-11-17T17:48:48.656+00:00",
+          "weightG": 317,
+          "unitPricingVerified": true,
+          "pricePerKg": 63.059936908517344,
+          "nutritionApproved": false,
+          "protein": null,
+          "servings": null,
+          "costPer25g": null,
+          "proteinMetricShown": false,
+          "creatineDoseMetricShown": false
+        },
+        {
+          "product": "Optimum Nutrition Micronised Creatine",
+          "productId": "231",
+          "variant": "Unflavoured / 634 g",
+          "variantId": 4614,
+          "pack": "634g",
+          "productUrl": "/product/optimum-nutrition-micronised-creatine-317g?variant=4614",
+          "kind": "Unflavoured creatine powder",
+          "source": "https://www.optimumnutrition.com/en-gb/products/micronised-creatine-powder",
+          "retailer": "Holland & Barrett",
+          "item": 40,
+          "shipping": 0,
+          "total": 40,
+          "checkedAt": "2026-11-17T17:48:48.656+00:00",
+          "weightG": 634,
+          "unitPricingVerified": true,
+          "pricePerKg": 63.09148264984227,
+          "nutritionApproved": false,
+          "protein": null,
+          "servings": null,
+          "costPer25g": null,
+          "proteinMetricShown": false,
+          "creatineDoseMetricShown": false
+        }
+      ],
+      "pairs": [
+        {
+          "key": "applied",
+          "smallVariantId": 799,
+          "largeVariantId": 4559,
+          "upfrontDifference": 12.11,
+          "unitDifference": 11.560000000000002,
+          "unitWinner": "larger"
+        },
+        {
+          "key": "optimum",
+          "smallVariantId": 783,
+          "largeVariantId": 4614,
+          "upfrontDifference": 20.01,
+          "unitDifference": 0.03154574132492627,
+          "unitWinner": "smaller"
+        }
+      ],
+      "readiness": {
+        "qualifiedExamples": 4,
+        "distinctProducts": 2,
+        "brands": 2,
+        "matchedPairs": 2,
+        "approvedProteinRecords": 0
+      }
+    }
+  ]
+}

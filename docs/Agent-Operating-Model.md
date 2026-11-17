@@ -154,6 +154,20 @@ production write.
 
 ## Concurrency rule
 
+**Sprint5 checkpoint:** SEO-25 is CODE COMPLETE with local actual-source tests
+and1440/390px production-build QA. One Draft PR awaits a separate publication
+decision; no next implementation follows. Frozen SEO-20 remains active/binding.
+
+**17 November 2026 Content Growth Sprint 5 owner approval:**
+Content Growth exception: SEO-25 beside frozen SEO-20; Draft PR only.
+The single bundle is `/guides/mass-gainer-vs-whey-protein` and
+`/guides/creatine-pack-size-value`, selected after authenticated settled GSC
+and bounded data-readiness checks. Necessary code/tests/docs and minimal
+contextual links are authorized. SEO-21/22/23/24 stay LIVE VERIFIED; previous
+active-pair exceptions are retired. New routes stay planned/noindex.
+No merge, production deployment/indexing, data/nutrition/mapping/history or
+importer/workflow change, Google submission or Sprint 6 is authorized.
+
 **17 November 2026 SEO-24 LIVE VERIFIED closeout:** owner-approved PR #544
 squash merged release head `b8bfcf7bc167edb7529c02bcda8fe3e61de3e275` as
 `cd9a9d312c03db71c07e99f8c2a7b1cbaf4b5636` with identical tree.

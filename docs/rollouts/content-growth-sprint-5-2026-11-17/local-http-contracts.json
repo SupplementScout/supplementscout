@@ -1,0 +1,75 @@
+{
+  "capturedAt": "2026-11-17T20:45:38.279Z",
+  "environment": "local actual Next production build with GET/HEAD-only real catalogue; not public deployment",
+  "pages": [
+    {
+      "sourceBoundContentEquality": true,
+      "route": "/guides/mass-gainer-vs-whey-protein",
+      "status": 200,
+      "robots": "noindex, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-vs-whey-protein",
+      "h1Count": 1,
+      "schema": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "actualExamplesInInitialHTML": 2
+    },
+    {
+      "sourceBoundContentEquality": true,
+      "route": "/guides/mass-gainer-vs-whey-protein?sort=price&utm_source=qa",
+      "status": 200,
+      "robots": "noindex, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-vs-whey-protein",
+      "h1Count": 1,
+      "schema": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "actualExamplesInInitialHTML": 2
+    },
+    {
+      "sourceBoundContentEquality": true,
+      "route": "/guides/creatine-pack-size-value",
+      "status": 200,
+      "robots": "noindex, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/creatine-pack-size-value",
+      "h1Count": 1,
+      "schema": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "actualExamplesInInitialHTML": 4
+    },
+    {
+      "sourceBoundContentEquality": true,
+      "route": "/guides/creatine-pack-size-value?sort=price&utm_source=qa",
+      "status": 200,
+      "robots": "noindex, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/creatine-pack-size-value",
+      "h1Count": 1,
+      "schema": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "actualExamplesInInitialHTML": 4
+    }
+  ],
+  "incoming": [
+    {
+      "from": "/mass-gainer",
+      "to": "/guides/mass-gainer-vs-whey-protein",
+      "crawlableContextualLinks": 1,
+      "status": 200
+    },
+    {
+      "from": "/creatine",
+      "to": "/guides/creatine-pack-size-value",
+      "crawlableContextualLinks": 1,
+      "status": 200
+    }
+  ],
+  "newGuidesInSitemap": 0,
+  "existingProtectedRoutesInSitemap": "one each",
+  "writes": 0
+}

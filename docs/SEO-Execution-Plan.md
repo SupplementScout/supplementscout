@@ -1,5 +1,20 @@
 # SupplementScout SEO Execution Plan
 
+**17 November Sprint5 implementation checkpoint:** SEO-25 is CODE COMPLETE.
+140 focused tests, quick/full4,039, actual-source HTTP/cache and1440/390px QA
+pass. Both new routes remain planned/noindex and await publication review in
+one Draft PR. No merge/deployment, data/nutrition or Google write was performed.
+
+**17 November 2026 Content Growth Sprint 5 owner approval:**
+Content Growth exception: SEO-25 beside frozen SEO-20; Draft PR only.
+The single bundle is `/guides/mass-gainer-vs-whey-protein` and
+`/guides/creatine-pack-size-value`, selected after authenticated settled GSC
+and bounded data-readiness checks. Necessary code/tests/docs and minimal
+contextual links are authorized. SEO-21/22/23/24 stay LIVE VERIFIED; previous
+active-pair exceptions are retired. New routes stay planned/noindex.
+No merge, production deployment/indexing, data/nutrition/mapping/history or
+importer/workflow change, Google submission or Sprint 6 is authorized.
+
 **17 November 2026 SEO-24 LIVE VERIFIED closeout:** owner-approved PR #544
 squash merged release head `b8bfcf7bc167edb7529c02bcda8fe3e61de3e275` as
 `cd9a9d312c03db71c07e99f8c2a7b1cbaf4b5636` with identical tree.
@@ -401,7 +416,17 @@ Console evidence and user value.
 
 | SEO-24 | P1 | Content Growth Sprint 4: /guides/whey-isolate-vs-concentrate and /guides/protein-powder-pack-size-value. | `LIVE VERIFIED` | Owner-approved PR #544 squash cd9a9d312c03db71c07e99f8c2a7b1cbaf4b5636 preserves the reviewed tree. Main Quality Gate/Guardian pass; Vercel Production dpl_Ch1Hdj63RwBgzVVeQ4xWHyeyjwWx READY. Public HTTP/source-bound exact variants, delivered arithmetic, indexability/canonical/sitemap/schema, links and1440/390px QA pass; warm response guard passes. Missing nutrition remains withheld. No production-data or Google write. SEO-20 frozen; SEO-21/22/23 live. |
 
+| SEO-25 | P1 | Content Growth Sprint5: /guides/mass-gainer-vs-whey-protein and /guides/creatine-pack-size-value. | `CODE COMPLETE` | Authenticated complete28/7-day GSC evidence and five-candidate data gate support two distinct purchase decisions. Six exact selected variants across four product families/brands; correct delivered/kg comparisons and one existing approved protein record.140 focused checks, quick/full4,039, actual-source HTTP/cache, public variant links and1440/390px QA pass. One Draft PR, planned/noindex; no merge, production/data/nutrition write, workflow change or Google submission. SEO-20 frozen; SEO-21/22/23/24 live. |
+
 ## 6. Current active task
+
+**Sprint5 owner decision (17 November 2026):**
+Content Growth exception: SEO-25 beside frozen SEO-20; Draft PR only.
+Only /guides/mass-gainer-vs-whey-protein and /guides/creatine-pack-size-value
+form the implementation. SEO-21/22/23/24 remain LIVE VERIFIED; their former
+implementation exceptions are retired. New routes stay planned/noindex and
+publication requires a separate decision. No data write, workflow change,
+Google submission or Sprint6 follows.
 
 SEO-20 alone remains active/binding and frozen. SEO-24 is LIVE VERIFIED after
 PR #544 production/readback; its bounded implementation exception is retired.
@@ -649,6 +674,52 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 17 November 2026 - SEO-25 Content Growth Sprint5 CODE COMPLETE
+
+- Implementation and real-source local production-build QA pass.140 focused
+  checks, quick1,315/full4,039, TypeScript, ESLint, baseline validation and Next
+  build pass. Test inventory resealed368 (307 safe/57 integration/4 artifact/
+  67 quick); no test omitted. Guardian negative cases block altered/extra routes,
+  additional implementations and reopened SEO-21/22/23/24.
+- Six selected variants across four products/brands have fresh known-delivery
+  offers. Efectiv1196 live nutrition exactly matches its existing REVIEWED
+  manifest. Manufacturer ingredient/size checks support the selected formulas;
+  no nutrition is newly approved. The creatine pairs correctly produce opposite
+  size winners. Missing ingredient-dose/protein metrics stay hidden.
+- Initial HTTP HTML equals independent current source rendering; planned
+  canonical/parameters/schema/sitemap, one incoming link from each category,
+  exact product/source links and1440/390px QA pass. New local warm medians
+  19.7/24.1ms; two cold batch reads, zero warm DB reads; CLS0, LCP52-124ms.
+  Four existing guides remain comparable; no field CWV gain is claimed.
+- All six previous guides and frozen PER4M/tracking sources retain byte parity
+  with main. Creatine/Mass Gainer gain only the two approved contextual links.
+  Existing public contracts pass and production remains be42854a; new URLs
+  remain404 publicly and absent from sitemap. No merge/deployment occurred.
+
+- Fresh origin/main be42854a and open Draft PR532/33 have no overlap.
+  Six existing guides and latest SEO-24 production/readback were verified;
+  no duplicate guide or broad competitor audit is needed.
+- Existing authenticated Growth Analytics workflow was reused unchanged:
+  runs44166511050/44166516255/44166520996/44166526954 provide four
+  non-overlapping final seven-day reports for19Oct-15Nov. All28 dates are
+  present and final/all agree. Last7days9-15Nov are complete.16Nov is excluded.
+  Site totals9,661/74 and2,496/21 impressions/clicks are separate from page/
+  query metrics, capped100 query/250 page-query rows per week. Missing rows
+  mean unknown; these are not search-volume or growth estimates.
+- Mass Gainer821/0 (position51.33) and Creatine450/3 (27.49) page signals,
+  including page-query "mass gainer"114/0 (38.68) and "creatine prices"52/0
+  (12.90), support the two purchase decisions. Exact new-title demand is an
+  editorial inference, not a claimed observed "vs" or pack-size query volume.
+- Bounded GET-only data reads evaluated all five candidates. Selected exact
+  Hyper Mass Strawberry4kg and Efectiv Strawberry Milkshake2kg have current
+  delivered offers and verified weights; only Efectiv1196 has its own approved
+  protein record. Applied250/500g and Optimum317/634g unflavoured creatine
+  pairs have current exact offers/verified weights and current manufacturer
+  same-formula/size evidence. No exact creatine nutrition is borrowed.
+- [Existing Sprint5 execution record](rollouts/content-growth-sprint-5-2026-11-17.md).
+  Implementation/tests/local production-build QA and one Draft PR remain;
+  no launch, merge, deployment, production-data or Google write.
 
 ### 17 November 2026 - SEO-24 production release LIVE VERIFIED
 

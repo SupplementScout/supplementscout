@@ -1,0 +1,314 @@
+{
+  "capturedAt": "2026-11-17T20:44:51.107Z",
+  "environment": "local Next production build with guarded actual production-source reads; loopback lab sample, not field CWV or old-version guide baseline",
+  "results": [
+    {
+      "route": "/how-we-compare",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 91,
+        "totalMs": 95.4,
+        "decodedBytes": 27940
+      },
+      "coldDatabaseReads": 0,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 9.2,
+          "totalMs": 13.7,
+          "decodedBytes": 27940
+        },
+        {
+          "status": 200,
+          "ttfbMs": 9.9,
+          "totalMs": 14.3,
+          "decodedBytes": 27940
+        },
+        {
+          "status": 200,
+          "ttfbMs": 6.6,
+          "totalMs": 10.1,
+          "decodedBytes": 27940
+        },
+        {
+          "status": 200,
+          "ttfbMs": 14.8,
+          "totalMs": 18.9,
+          "decodedBytes": 27940
+        },
+        {
+          "status": 200,
+          "ttfbMs": 7.2,
+          "totalMs": 10.9,
+          "decodedBytes": 27940
+        }
+      ],
+      "warmMedianTTFBms": 9.2,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/mass-gainer-vs-whey-protein",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 985.5,
+        "totalMs": 994,
+        "decodedBytes": 35188
+      },
+      "coldDatabaseReads": 2,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 19.7,
+          "totalMs": 26,
+          "decodedBytes": 35102
+        },
+        {
+          "status": 200,
+          "ttfbMs": 19.7,
+          "totalMs": 25.9,
+          "decodedBytes": 35102
+        },
+        {
+          "status": 200,
+          "ttfbMs": 19.7,
+          "totalMs": 25.6,
+          "decodedBytes": 35102
+        },
+        {
+          "status": 200,
+          "ttfbMs": 14.9,
+          "totalMs": 20.4,
+          "decodedBytes": 35102
+        },
+        {
+          "status": 200,
+          "ttfbMs": 29.9,
+          "totalMs": 35.6,
+          "decodedBytes": 35102
+        }
+      ],
+      "warmMedianTTFBms": 19.7,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/creatine-pack-size-value",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 307.8,
+        "totalMs": 315.4,
+        "decodedBytes": 43671
+      },
+      "coldDatabaseReads": 2,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 14.7,
+          "totalMs": 21.5,
+          "decodedBytes": 43585
+        },
+        {
+          "status": 200,
+          "ttfbMs": 24.1,
+          "totalMs": 31,
+          "decodedBytes": 43585
+        },
+        {
+          "status": 200,
+          "ttfbMs": 28.1,
+          "totalMs": 34.1,
+          "decodedBytes": 43585
+        },
+        {
+          "status": 200,
+          "ttfbMs": 26.1,
+          "totalMs": 33.1,
+          "decodedBytes": 43585
+        },
+        {
+          "status": 200,
+          "ttfbMs": 19.6,
+          "totalMs": 26.4,
+          "decodedBytes": 43585
+        }
+      ],
+      "warmMedianTTFBms": 24.1,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/whey-isolate-vs-concentrate",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 235,
+        "totalMs": 242.3,
+        "decodedBytes": 38649
+      },
+      "coldDatabaseReads": 2,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 20.5,
+          "totalMs": 26.3,
+          "decodedBytes": 38563
+        },
+        {
+          "status": 200,
+          "ttfbMs": 12,
+          "totalMs": 18.8,
+          "decodedBytes": 38563
+        },
+        {
+          "status": 200,
+          "ttfbMs": 13.8,
+          "totalMs": 19.6,
+          "decodedBytes": 38563
+        },
+        {
+          "status": 200,
+          "ttfbMs": 16.8,
+          "totalMs": 22.7,
+          "decodedBytes": 38563
+        },
+        {
+          "status": 200,
+          "ttfbMs": 13.4,
+          "totalMs": 19.7,
+          "decodedBytes": 38563
+        }
+      ],
+      "warmMedianTTFBms": 13.8,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/protein-powder-pack-size-value",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 157.8,
+        "totalMs": 164.3,
+        "decodedBytes": 37179
+      },
+      "coldDatabaseReads": 2,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 15.2,
+          "totalMs": 21.7,
+          "decodedBytes": 37136
+        },
+        {
+          "status": 200,
+          "ttfbMs": 22.4,
+          "totalMs": 28.4,
+          "decodedBytes": 37136
+        },
+        {
+          "status": 200,
+          "ttfbMs": 15.2,
+          "totalMs": 21.2,
+          "decodedBytes": 37136
+        },
+        {
+          "status": 200,
+          "ttfbMs": 13.7,
+          "totalMs": 20,
+          "decodedBytes": 37136
+        },
+        {
+          "status": 200,
+          "ttfbMs": 21.5,
+          "totalMs": 30.4,
+          "decodedBytes": 37136
+        }
+      ],
+      "warmMedianTTFBms": 15.2,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/supplement-prices-including-delivery",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 261.2,
+        "totalMs": 281.4,
+        "decodedBytes": 32984
+      },
+      "coldDatabaseReads": 2,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 11.2,
+          "totalMs": 16.4,
+          "decodedBytes": 32941
+        },
+        {
+          "status": 200,
+          "ttfbMs": 23.3,
+          "totalMs": 30.2,
+          "decodedBytes": 32941
+        },
+        {
+          "status": 200,
+          "ttfbMs": 23,
+          "totalMs": 28.8,
+          "decodedBytes": 32941
+        },
+        {
+          "status": 200,
+          "ttfbMs": 12.3,
+          "totalMs": 17.6,
+          "decodedBytes": 32941
+        },
+        {
+          "status": 200,
+          "ttfbMs": 8.6,
+          "totalMs": 14.1,
+          "decodedBytes": 32941
+        }
+      ],
+      "warmMedianTTFBms": 12.3,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/cost-per-25g-protein",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 270.2,
+        "totalMs": 277.1,
+        "decodedBytes": 37449
+      },
+      "coldDatabaseReads": 2,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 16.4,
+          "totalMs": 22.2,
+          "decodedBytes": 37363
+        },
+        {
+          "status": 200,
+          "ttfbMs": 9.7,
+          "totalMs": 15.8,
+          "decodedBytes": 37363
+        },
+        {
+          "status": 200,
+          "ttfbMs": 10.4,
+          "totalMs": 17,
+          "decodedBytes": 37363
+        },
+        {
+          "status": 200,
+          "ttfbMs": 14.6,
+          "totalMs": 21.1,
+          "decodedBytes": 37363
+        },
+        {
+          "status": 200,
+          "ttfbMs": 15,
+          "totalMs": 22.1,
+          "decodedBytes": 37363
+        }
+      ],
+      "warmMedianTTFBms": 14.6,
+      "warmDatabaseReads": 0
+    }
+  ]
+}

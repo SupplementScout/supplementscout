@@ -1,0 +1,265 @@
+{
+  "capturedAt": "2026-11-17T20:41:08.910Z",
+  "environment": "existing public production preflight; new Sprint5 routes not deployed; no synthetic price proof",
+  "deployment": {
+    "id": "dpl_HFRgmfPab6HUmrap9QoM7whCjNpB",
+    "sha": "be42854a0d72de4e4ec481951e1d13bb97c37b14",
+    "state": "READY",
+    "target": "production"
+  },
+  "results": [
+    {
+      "path": "/",
+      "status": 200,
+      "title": "SupplementScout | Compare UK Supplement Prices",
+      "h1": "Find the rightsupplement atthe right price.",
+      "canonical": "https://www.supplementscout.co.uk"
+    },
+    {
+      "path": "/search",
+      "status": 200,
+      "title": "Search Supplements | SupplementScout",
+      "h1": "Search supplement deals",
+      "canonical": "https://www.supplementscout.co.uk/search",
+      "robots": "noindex, nofollow"
+    },
+    {
+      "path": "/how-we-compare",
+      "status": 200,
+      "title": "How We Compare Supplement Prices | SupplementScout",
+      "h1": "How SupplementScout compares supplement prices",
+      "canonical": "https://www.supplementscout.co.uk/how-we-compare",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/product/biotech-usa-hyper-mass-4kg?variant=2223",
+      "status": 200,
+      "title": "BioTech USA Hyper Mass 4kg | SupplementScout",
+      "h1": "BioTech USA Hyper Mass 4kg",
+      "canonical": "https://www.supplementscout.co.uk/product/biotech-usa-hyper-mass-4kg"
+    },
+    {
+      "path": "/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg?variant=1196",
+      "status": 200,
+      "title": "Efectiv Nutrition Grass-Fed Whey Protein Isolate 2kg | SupplementScout",
+      "h1": "Efectiv Nutrition Grass-Fed Whey Protein Isolate 2kg",
+      "canonical": "https://www.supplementscout.co.uk/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg"
+    },
+    {
+      "path": "/mass-gainer",
+      "status": 200,
+      "title": "Compare Mass Gainer Prices UK | SupplementScout",
+      "h1": "Compare Mass Gainer Prices UK",
+      "canonical": "https://www.supplementscout.co.uk/mass-gainer",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/whey-protein",
+      "status": 200,
+      "title": "Compare Whey Protein Prices UK | SupplementScout",
+      "h1": "Compare Whey Protein Prices UK",
+      "canonical": "https://www.supplementscout.co.uk/whey-protein",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/compare",
+      "status": 200,
+      "title": "Compare Two Supplements Side by Side | SupplementScout",
+      "h1": "Compare two supplements side by side",
+      "canonical": "https://www.supplementscout.co.uk/compare",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/guides/cost-per-25g-protein",
+      "status": 200,
+      "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout",
+      "h1": "How to compare protein powders by cost per 25g of protein",
+      "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/guides/supplement-prices-including-delivery",
+      "status": 200,
+      "title": "Supplement Prices Including Delivery: A UK Comparison | SupplementScout",
+      "h1": "Can a higher product price be cheaper after delivery?",
+      "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/guides/whey-isolate-vs-concentrate",
+      "status": 200,
+      "title": "Whey Isolate vs Concentrate: Which Is Better Value in the UK? | SupplementScout",
+      "h1": "Should I buy whey isolate or whey concentrate?",
+      "canonical": "https://www.supplementscout.co.uk/guides/whey-isolate-vs-concentrate",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/data-freshness",
+      "status": 200,
+      "title": "Supplement Price Data Freshness | SupplementScout",
+      "h1": "What our price-check timestamps mean",
+      "canonical": "https://www.supplementscout.co.uk/data-freshness",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/product/applied-nutrition-creatine-monohydrate-250g?variant=799",
+      "status": 200,
+      "title": "Applied Nutrition Creatine Monohydrate 250g | SupplementScout",
+      "h1": "Applied Nutrition Creatine Monohydrate 250g",
+      "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-creatine-monohydrate-250g"
+    },
+    {
+      "path": "/product/applied-nutrition-creatine-monohydrate-250g?variant=4559",
+      "status": 200,
+      "title": "Applied Nutrition Creatine Monohydrate 250g | SupplementScout",
+      "h1": "Applied Nutrition Creatine Monohydrate 250g",
+      "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-creatine-monohydrate-250g"
+    },
+    {
+      "path": "/product/optimum-nutrition-micronised-creatine-317g?variant=783",
+      "status": 200,
+      "title": "Optimum Nutrition Micronised Creatine 317g | SupplementScout",
+      "h1": "Optimum Nutrition Micronised Creatine 317g",
+      "canonical": "https://www.supplementscout.co.uk/product/optimum-nutrition-micronised-creatine-317g"
+    },
+    {
+      "path": "/product/optimum-nutrition-micronised-creatine-317g?variant=4614",
+      "status": 200,
+      "title": "Optimum Nutrition Micronised Creatine 317g | SupplementScout",
+      "h1": "Optimum Nutrition Micronised Creatine 317g",
+      "canonical": "https://www.supplementscout.co.uk/product/optimum-nutrition-micronised-creatine-317g"
+    },
+    {
+      "path": "/creatine",
+      "status": 200,
+      "title": "Compare Creatine Supplements &amp; Prices UK | SupplementScout",
+      "h1": "Compare Creatine Supplements UK",
+      "canonical": "https://www.supplementscout.co.uk/creatine",
+      "robots": "index, follow",
+      "under20": true
+    },
+    {
+      "path": "/creatine#under-20",
+      "status": 200,
+      "title": "Compare Creatine Supplements &amp; Prices UK | SupplementScout",
+      "h1": "Compare Creatine Supplements UK",
+      "canonical": "https://www.supplementscout.co.uk/creatine",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/guides/protein-powder-under-30",
+      "status": 200,
+      "title": "Protein Powder Under £30 UK: Compare Delivered Prices | SupplementScout",
+      "h1": "Which protein powders cost £30 or less including delivery?",
+      "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-under-30",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/guides/caffeine-free-pre-workout",
+      "status": 200,
+      "title": "Caffeine-Free Pre-Workout UK: How to Check and Compare | SupplementScout",
+      "h1": "How can I find and compare a pre-workout without caffeine?",
+      "canonical": "https://www.supplementscout.co.uk/guides/caffeine-free-pre-workout",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/guides/protein-powder-pack-size-value",
+      "status": 200,
+      "title": "Does Buying a Bigger Protein Bag Actually Save Money? | SupplementScout",
+      "h1": "Is a bigger protein pack better value after delivery?",
+      "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-pack-size-value",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/brands/per4m",
+      "status": 200,
+      "title": "Compare PER4M Prices Across UK Retailers | SupplementScout",
+      "h1": "Per4m Products &amp; Prices UK",
+      "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 200
+    }
+  ],
+  "variants": [
+    {
+      "url": "/product/biotech-usa-hyper-mass-4kg?variant=2223",
+      "expected": "Strawberry / 4kg",
+      "actual": "Strawberry / 4kg",
+      "result": "PASS"
+    },
+    {
+      "url": "/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg?variant=1196",
+      "expected": "Strawberry Milkshake / 2000g",
+      "actual": "Strawberry Milkshake / 2000g",
+      "result": "PASS"
+    },
+    {
+      "url": "/product/applied-nutrition-creatine-monohydrate-250g?variant=799",
+      "expected": "Unflavoured / 250g",
+      "actual": "Unflavoured / 250g",
+      "result": "PASS"
+    },
+    {
+      "url": "/product/applied-nutrition-creatine-monohydrate-250g?variant=4559",
+      "expected": "Unflavoured / 500g",
+      "actual": "Unflavoured / 500g",
+      "result": "PASS"
+    },
+    {
+      "url": "/product/optimum-nutrition-micronised-creatine-317g?variant=783",
+      "expected": "Unflavoured / 317g",
+      "actual": "Unflavoured / 317g",
+      "result": "PASS"
+    },
+    {
+      "url": "/product/optimum-nutrition-micronised-creatine-317g?variant=4614",
+      "expected": "Unflavoured / 634 g",
+      "actual": "Unflavoured / 634 g",
+      "result": "PASS"
+    }
+  ],
+  "external": [
+    {
+      "url": "https://shop.biotechusa.com/products/hyper-mass-4000-g",
+      "status": 200
+    },
+    {
+      "url": "https://efectivnutrition.com/products/efectiv-grass-fed-whey-protein-isolate-2kg",
+      "status": 200
+    },
+    {
+      "url": "https://appliednutrition.uk/products/creatine-monohydrate",
+      "status": 200
+    },
+    {
+      "url": "https://www.optimumnutrition.com/en-gb/products/micronised-creatine-powder",
+      "status": 200
+    }
+  ],
+  "newRoutes": [
+    {
+      "path": "/guides/mass-gainer-vs-whey-protein",
+      "status": 404,
+      "sitemapOccurrences": 0
+    },
+    {
+      "path": "/guides/creatine-pack-size-value",
+      "status": 404,
+      "sitemapOccurrences": 0
+    }
+  ],
+  "sitemap": {
+    "urls": 1483,
+    "duplicates": 0,
+    "newRoutes": 0
+  },
+  "googleSubmissions": 0,
+  "databaseWrites": 0
+}
