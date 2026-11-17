@@ -43,7 +43,7 @@ export const AUTOMATION_REVIEW_CAPABILITY_MATRIX: readonly RetailerCapabilityRow
     retailerId: "16",
     operations: {
       ...defaultOperations,
-      VERIFY_NO_CHANGE: REVIEW_ONLY("H&B automation is being prepared and requires a separate production activation decision."),
+      VERIFY_NO_CHANGE: REVIEW_ONLY("Freshness confirmations use the shared guarded schedule; this review card is read-only."),
       UPDATE_PRICE: REVIEW_ONLY("Price exceptions require owner review; this card does not authorize a price change."),
       UPDATE_STOCK: registeredExecution("16", "UPDATE_STOCK", "One owner-approved stock decision requires fresh source and database verification within the existing protected workflow."),
       UPDATE_PRICE_AND_STOCK: REVIEW_ONLY("Combined exceptions require a separate reviewed commercial decision."),

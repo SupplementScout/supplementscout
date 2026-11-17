@@ -1,0 +1,131 @@
+{
+  "schema_version": 1,
+  "at": "2026-11-17T09:35:24.252Z",
+  "result": "PASS_CONTROLLED_REVIEW_ONLY_NOT_SCHEDULED_APPLY",
+  "workflow": {
+    "run_id": 44055630899,
+    "commit": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+    "event": "workflow_dispatch",
+    "conclusion": "success",
+    "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44055630899"
+  },
+  "inputs": {
+    "retailer": "holland-barrett",
+    "operation": "review-only",
+    "validation_context": "workflow_dispatch"
+  },
+  "source": {
+    "http_status": 200,
+    "rows": 4711,
+    "fingerprint": "7fc669cc6db0455b651bfdd13f2615d2a4a42f8d43ca7deb9fa3c3a8f965f9c6",
+    "approved_scope": 219,
+    "matched": 217,
+    "missing": 2,
+    "capture_at": "2026-11-17T09:27:49.650Z"
+  },
+  "classification": {
+    "VERIFY_NO_CHANGE": 217
+  },
+  "apply_step": {
+    "name": "Apply safe Holland & Barrett offer refresh rows",
+    "conclusion": "skipped"
+  },
+  "publication": {
+    "schema_version": 1,
+    "kind": "automation-review-queue-reconciliation-apply",
+    "result": "PASS",
+    "source_run_id": "44055630899",
+    "operation_count": 2,
+    "created_count": 2,
+    "refreshed_count": 0,
+    "superseded_count": 0,
+    "resolved_by_source_count": 0,
+    "expired_count": 0,
+    "catalogue_writes": 0,
+    "database_writes": 5,
+    "already_applied": false,
+    "source_artifact": {
+      "run_id": "44055630899",
+      "artifact_id": "14315059253",
+      "artifact_name": "holland-barrett-offer-refresh-44055630899-1",
+      "commit_sha": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+      "artifact_digest": "6de0e70dea5abf44af2212a8e6917f2b2cdde6dd8b10855abe16e1a5275c3fa6",
+      "contract_sha256": "b49326e0b6b88b2c2408e52fb49f15532bb4dcd7355a9736bc94f3bc76a9e0d6",
+      "review_scope_fingerprint": "29cd12e6fde5f6591d2ddfaa40c706e4b64677138cf3a613dcabb89a87a13f84",
+      "contract_expires_at": "2026-11-18T09:27:49.650Z",
+      "review_offer_ids": [
+        "4661",
+        "4678"
+      ]
+    }
+  },
+  "independent_postflight": {
+    "at": "2026-11-17T09:33:33.420Z",
+    "result": "PASS_INDEPENDENT_REVIEW_ONLY_POSTFLIGHT",
+    "source_run_id": 44055630899,
+    "read_only": true,
+    "identity": {
+      "current_user": "postgres",
+      "session_user": "postgres",
+      "current_database": "postgres",
+      "read_only": "on",
+      "safe_update": null
+    },
+    "ledger_count": 268,
+    "ledger_fingerprint": "4da87e64288e023969f69149f28e31090c8bccd840ee668d63b0dab35b38482a",
+    "hb_business_fingerprint": "c90367d4de5024479a818000af5eee91f23dba9b912b69a41552b4b2cd0a3462",
+    "global_catalogue_counts": {
+      "products": "1494",
+      "product_variants": "4228",
+      "retailer_products": "4580",
+      "offers": "4580",
+      "price_history": "55071"
+    },
+    "hb_parent_count": 0,
+    "hb_request_count": 0,
+    "reviews": [
+      {
+        "id": 5960,
+        "offer_id": "4661",
+        "review_status": "PENDING",
+        "operation_type": "MANUAL_REVIEW_IDENTITY",
+        "proposed_state": {
+          "identity_review": "READ_ONLY",
+          "automatic_action": false,
+          "catalogue_action": "KEEP_UNCHANGED"
+        },
+        "impact_summary": {
+          "executable": false,
+          "review_only": true,
+          "catalogue_writes": 0
+        },
+        "source_row_fingerprint": "d49c850f4ea75c0adc43d41ef1e5aaf3af7be73d7b60d67744a2df9ae635ceb5"
+      },
+      {
+        "id": 5961,
+        "offer_id": "4678",
+        "review_status": "PENDING",
+        "operation_type": "MANUAL_REVIEW_IDENTITY",
+        "proposed_state": {
+          "identity_review": "READ_ONLY",
+          "automatic_action": false,
+          "catalogue_action": "KEEP_UNCHANGED"
+        },
+        "impact_summary": {
+          "executable": false,
+          "review_only": true,
+          "catalogue_writes": 0
+        },
+        "source_row_fingerprint": "0fa6bcef0da3792b843a8a73f6d30612d231db7586ad079eeebb9301cd819f50"
+      }
+    ],
+    "business_writes": 0,
+    "review_publication_database_writes": 5,
+    "review_cards_created": 2,
+    "approvals": 0,
+    "applies": 0,
+    "ordinary_scheduled_apply_verified": false
+  },
+  "scheduled_execution": "PENDING_REAL_SCHEDULE_EVENT",
+  "goal_complete": false
+}

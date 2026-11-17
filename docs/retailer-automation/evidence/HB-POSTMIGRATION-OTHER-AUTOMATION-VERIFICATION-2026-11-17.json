@@ -1,0 +1,393 @@
+{
+  "at": "2026-11-17T09:22:55.262Z",
+  "result": "PASS_NO_POSTMIGRATION_LEDGER_REGRESSION",
+  "main": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+  "scope": "Owner-requested remaining automation verification after ledger265->268",
+  "workflow_count": 10,
+  "retailer_count": 11,
+  "successful_workflows": 9,
+  "successful_retailers": 10,
+  "existing_blocked_retailers": 1,
+  "checks": [
+    {
+      "name": "fit-house-and-10reps",
+      "run_id": "44051876391",
+      "workflow": "fit-house-offer-refresh.yml",
+      "inputs": {
+        "operation": "dry-run",
+        "retailer": "all",
+        "validation_context": "workflow_dispatch"
+      },
+      "commit": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+      "result": "PASS_PRODUCTION_DRY_RUN",
+      "mutation_steps": [
+        {
+          "job": "ten-reps-offer-refresh",
+          "step": "Apply all approved 10 Reps offer refresh",
+          "conclusion": "skipped"
+        },
+        {
+          "job": "fit-house-offer-refresh",
+          "step": "Apply all approved Fit House offer refresh",
+          "conclusion": "skipped"
+        }
+      ],
+      "jobs": [
+        {
+          "name": "ten-reps-offer-refresh",
+          "conclusion": "success"
+        },
+        {
+          "name": "fit-house-offer-refresh",
+          "conclusion": "success"
+        },
+        {
+          "name": "expired-control-plan-recovery",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "gladiator-nutrition-offer-refresh",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "holland-barrett-offer-refresh",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "refresh-review-queue",
+          "conclusion": "skipped"
+        }
+      ]
+    },
+    {
+      "name": "gladiator-nutrition",
+      "run_id": "44051880896",
+      "workflow": "fit-house-offer-refresh.yml",
+      "inputs": {
+        "operation": "dry-run",
+        "retailer": "gladiator-nutrition",
+        "validation_context": "workflow_dispatch"
+      },
+      "commit": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+      "result": "PASS_PRODUCTION_DRY_RUN",
+      "mutation_steps": [
+        {
+          "job": "gladiator-nutrition-offer-refresh",
+          "step": "Apply safe Gladiator Nutrition offer refresh rows",
+          "conclusion": "skipped"
+        }
+      ],
+      "jobs": [
+        {
+          "name": "gladiator-nutrition-offer-refresh",
+          "conclusion": "success"
+        },
+        {
+          "name": "fit-house-offer-refresh",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "ten-reps-offer-refresh",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "expired-control-plan-recovery",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "holland-barrett-offer-refresh",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "refresh-review-queue",
+          "conclusion": "skipped"
+        }
+      ]
+    },
+    {
+      "name": "jons-supplements",
+      "run_id": "44051885579",
+      "workflow": "jons-offer-refresh.yml",
+      "inputs": {
+        "operation": "dry-run",
+        "validation_context": "workflow_dispatch",
+        "reviewed_price_1098": "false"
+      },
+      "commit": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+      "result": "PASS_PRODUCTION_DRY_RUN",
+      "mutation_steps": [
+        {
+          "job": "jons-offer-refresh",
+          "step": "Apply all approved Jon's offer refresh",
+          "conclusion": "skipped"
+        }
+      ],
+      "jobs": [
+        {
+          "name": "jons-offer-refresh",
+          "conclusion": "success"
+        },
+        {
+          "name": "refresh-review-queue",
+          "conclusion": "skipped"
+        }
+      ]
+    },
+    {
+      "name": "six-pack-supplements",
+      "run_id": "44051890380",
+      "workflow": "six-pack-offer-refresh.yml",
+      "inputs": {
+        "operation": "dry-run"
+      },
+      "commit": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+      "result": "PASS_PRODUCTION_DRY_RUN",
+      "mutation_steps": [
+        {
+          "job": "six-pack-offer-refresh",
+          "step": "Apply exact approved manifest",
+          "conclusion": "skipped"
+        }
+      ],
+      "jobs": [
+        {
+          "name": "six-pack-offer-refresh",
+          "conclusion": "success"
+        },
+        {
+          "name": "six-pack-reviewed-apply",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "refresh-review-queue",
+          "conclusion": "skipped"
+        }
+      ]
+    },
+    {
+      "name": "ebay-uk",
+      "run_id": "44051894735",
+      "workflow": "ebay-offer-refresh.yml",
+      "inputs": {
+        "operation": "dry-run",
+        "execution_mode": "catalogue-refresh"
+      },
+      "commit": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+      "result": "PASS_PRODUCTION_DRY_RUN",
+      "mutation_steps": [
+        {
+          "job": "refresh",
+          "step": "Apply exact approved existing-offer refresh",
+          "conclusion": "skipped"
+        }
+      ],
+      "jobs": [
+        {
+          "name": "refresh",
+          "conclusion": "success"
+        },
+        {
+          "name": "review-queue-reconciliation",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "refresh-review-queue",
+          "conclusion": "skipped"
+        }
+      ]
+    },
+    {
+      "name": "whey-okay",
+      "run_id": "44051899472",
+      "workflow": "whey-okay-offer-refresh.yml",
+      "inputs": {
+        "operation": "dry-run",
+        "validation_context": "workflow_dispatch"
+      },
+      "commit": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+      "result": "PASS_PRODUCTION_DRY_RUN",
+      "mutation_steps": [
+        {
+          "job": "whey-okay-offer-refresh",
+          "step": "Apply all approved Whey Okay offer refreshes",
+          "conclusion": "skipped"
+        }
+      ],
+      "jobs": [
+        {
+          "name": "route-operation",
+          "conclusion": "success"
+        },
+        {
+          "name": "whey-okay-offer-refresh",
+          "conclusion": "success"
+        },
+        {
+          "name": "reviewed-offer-73-dry-run",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "approve-reviewed-artifact",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "validate-reviewed-artifact",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "whey-okay-control-diagnostic",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "postflight-reviewed-artifact",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "execute-reviewed-artifact",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "refresh-review-queue",
+          "conclusion": "skipped"
+        }
+      ]
+    },
+    {
+      "name": "discount-supplements",
+      "run_id": "44051904491",
+      "workflow": "creatine-offer-refresh.yml",
+      "inputs": {
+        "operation": "dry-run",
+        "validation_context": "workflow_dispatch",
+        "scope_segment": "combined_109"
+      },
+      "commit": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+      "result": "PRE_EXISTING_IDENTICAL_VALIDATOR_BLOCK",
+      "mutation_steps": [
+        {
+          "job": "creatine-offer-refresh",
+          "step": "Apply safe authorised Discount refresh",
+          "conclusion": "skipped"
+        }
+      ],
+      "jobs": [
+        {
+          "name": "creatine-offer-refresh",
+          "conclusion": "failure"
+        }
+      ]
+    },
+    {
+      "name": "dolphin-fitness",
+      "run_id": "44051908809",
+      "workflow": "dolphin-vegan-protein-offer-refresh.yml",
+      "inputs": {
+        "operation": "dry-run"
+      },
+      "commit": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+      "result": "PASS_PRODUCTION_DRY_RUN",
+      "mutation_steps": [
+        {
+          "job": "dolphin-vegan-protein-offer-refresh",
+          "step": "Apply the one approved existing Dolphin offer refresh",
+          "conclusion": "skipped"
+        }
+      ],
+      "jobs": [
+        {
+          "name": "dolphin-vegan-protein-offer-refresh",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "simply-supplements",
+      "run_id": "44051913186",
+      "workflow": "simply-supplements-offer-refresh.yml",
+      "inputs": {
+        "operation": "dry-run",
+        "validation_context": "workflow_dispatch"
+      },
+      "commit": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+      "result": "PASS_PRODUCTION_DRY_RUN",
+      "mutation_steps": [
+        {
+          "job": "simply-supplements-offer-refresh",
+          "step": "Apply approved Simply Supplements offer refresh",
+          "conclusion": "skipped"
+        }
+      ],
+      "jobs": [
+        {
+          "name": "simply-supplements-offer-refresh",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "kior-health",
+      "run_id": "44051918993",
+      "workflow": "kior-offer-refresh.yml",
+      "inputs": {
+        "operation": "dry-run"
+      },
+      "commit": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+      "result": "PASS_PRODUCTION_DRY_RUN",
+      "mutation_steps": [
+        {
+          "job": "kior-offer-refresh",
+          "step": "Apply the exact approved KIOR offer refresh",
+          "conclusion": "skipped"
+        }
+      ],
+      "jobs": [
+        {
+          "name": "kior-offer-refresh",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "discount_baseline": {
+    "previous_run": 43907443266,
+    "current_run": 44051904491,
+    "previous_commit": "9ec8b2264fee6a453be46555dab0e500ff65feb1",
+    "current_commit": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+    "error_code": "VALIDATOR_REJECTED",
+    "error_detail": {
+      "batch_index": 3,
+      "batch_size": 18,
+      "new_oos_count": 0,
+      "total_oos_count": 3,
+      "previous_oos_count": 4,
+      "changed_row_count": 2,
+      "limits": {
+        "maximum_new_oos_count": "3",
+        "maximum_oos_increase_ratio": "0.15",
+        "maximum_total_oos_ratio": "0.35",
+        "maximum_changed_record_ratio": "0.25"
+      },
+      "validator_code": null,
+      "validator_summary": "validator rejected the batch"
+    },
+    "exact_details_unchanged": true,
+    "migration_regression": false,
+    "business_writes": 0,
+    "control_writes": 0,
+    "not_repaired_by_this_task": true
+  },
+  "native_shared_migration_contracts": {
+    "verified_producers": 11,
+    "expected_count": 268,
+    "old265_rejected": true,
+    "source": "tmp/hb-shared-automation-20261116/all-retailer-migration-bindings.json"
+  },
+  "local_state_reader_check": {
+    "passed": 10,
+    "jons": "Production readState uses protected Supabase API and is not exported; existing workflow44051885579 passed instead"
+  },
+  "gym_high": "OWNER_DEFERRED_NO_DISPATCH",
+  "predators_gear": "READ_ONLY_STATE_AND_MIGRATION_CONTRACT_VERIFIED_NO_NEW_WRITE_AUTHORITY",
+  "production_apply_steps_executed": 0,
+  "new_approval_or_recovery_authority": false
+}

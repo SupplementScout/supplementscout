@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "OWNER_AUTHORIZED_SQL_APPLIED_RUNTIME_RELEASE_PENDING",
+  "status": "DEPLOYED_ENABLED_CONTROLLED_REVIEW_VERIFIED_ORDINARY_SCHEDULE_PENDING",
   "owner_receipt": "docs/retailer-automation/evidence/HB-SHARED-AUTOMATION-OWNER-AUTHORIZATION-2026-11-17.json",
   "owner_receipt_sha256_lf": "72daaac45e776eefe2483fc194415b614e59950bc3e4959143dd1cd000d182ea",
   "guarded_applicator": "scripts/apply-selected-migrations.js",
@@ -111,16 +111,34 @@
       "updated_at": "2026-11-17T08:34:22Z",
       "value_logged": false
     },
-    "released": false,
+    "released": true,
     "enable_variable": "HOLLAND_BARRETT_REFRESH_ENABLED",
-    "enable_variable_set": false
+    "enable_variable_set": true,
+    "enable_variable_receipt": {
+      "at": "2026-11-17T09:25:58.957Z",
+      "authority_receipt": "ecd36ed5e3413acc148fe538c313044980d1220d6a8a09c924916ef095ddbe32",
+      "name": "HOLLAND_BARRETT_REFRESH_ENABLED",
+      "scope": "repository",
+      "before": "ABSENT",
+      "after": {
+        "name": "HOLLAND_BARRETT_REFRESH_ENABLED",
+        "value": "true",
+        "created_at": "2026-11-17T09:25:59Z",
+        "updated_at": "2026-11-17T09:25:59Z"
+      },
+      "main": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+      "production_deployment": 7848668005,
+      "main_quality_gate": 44051477879,
+      "other_automation_verification": "PASS_NO_POSTMIGRATION_LEDGER_REGRESSION",
+      "existing_discount_block_unchanged": true,
+      "set_after_release_and_regression_checks": true,
+      "ordinary_scheduled_apply_verified": false,
+      "business_write_executed_by_this_action": false
+    }
   },
   "remaining": [
-    "Final release checks and exact committed native READ ONLY",
-    "Merge/deploy and production readback",
-    "Verify remaining automation migration contracts and authorized read-only dry-runs",
-    "Set repository enable variable last",
-    "Ordinary scheduled execution with independent postflight/idempotency"
+    "Observe a genuine existing daily08:17UTC scheduled H&B execution after Gladiator",
+    "Independently verify expected deltas, exact review exclusions and fresh idempotency before LIVE VERIFIED"
   ],
   "manual_apply_exposed": false,
   "catalogue_growth_authorized": false,
@@ -238,8 +256,8 @@
     "stale265_rejected": true,
     "stale_error_code": "RSBI_SOURCE_HASH_MISMATCH",
     "other_paths": {
-      "6-pack": "No client-side global migration-count/fingerprint literal in current producer; fresh existing dry-run remains required",
-      "ebay-uk": "No client-side global migration-count/fingerprint literal in current producer; fresh existing dry-run remains required",
+      "6-pack": "Existing production dry-run44051890380 PASS; apply skipped",
+      "ebay-uk": "Existing production dry-run44051894735 PASS; apply skipped",
       "gym-high": "OWNER_DEFERRED; no apply or activation",
       "predators-gear": "Included shared binding; no new production-write authority"
     },
@@ -263,5 +281,111 @@
     },
     "test_inventory": 364,
     "new_test_filenames": 0
-  }
+  },
+  "updated_at": "2026-11-17T09:35:24.252Z",
+  "release": {
+    "pr": 539,
+    "merged_at": "2026-11-17T08:59:40Z",
+    "approved_feature_head": "a124a7db8239b0b64434e5aabafb76bb2f20b262",
+    "main": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+    "feature_and_main_tree": "b41011ec6062bdd8df6a2e7c0d1df92ac934e24a",
+    "checks": [
+      {
+        "run_id": 44051477879,
+        "commit": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+        "event": "push",
+        "conclusion": "success",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44051477879"
+      },
+      {
+        "run_id": 44051478297,
+        "commit": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+        "event": "push",
+        "conclusion": "success",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44051478297"
+      },
+      {
+        "run_id": 44051477923,
+        "commit": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+        "event": "push",
+        "conclusion": "success",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44051477923"
+      },
+      {
+        "run_id": 44049768753,
+        "commit": "a124a7db8239b0b64434e5aabafb76bb2f20b262",
+        "event": "workflow_dispatch",
+        "conclusion": "success",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44049768753"
+      }
+    ],
+    "isolated_postgresql": {
+      "run_id": 44049768753,
+      "pass": 196,
+      "fail": 0,
+      "skip": 0,
+      "production_credentials": false
+    },
+    "production_deployment": {
+      "id": 7848668005,
+      "commit": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+      "state": "success",
+      "url": "https://supplementscout-avc12s75j-supplement-scout.vercel.app"
+    },
+    "public_http": {
+      "at": "2026-11-17T09:04:36.979Z",
+      "rows": [
+        {
+          "url": "https://www.supplementscout.co.uk/",
+          "status": 200,
+          "final_url": "https://www.supplementscout.co.uk/",
+          "content_type": "text/html; charset=utf-8"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/robots.txt",
+          "status": 200,
+          "final_url": "https://www.supplementscout.co.uk/robots.txt",
+          "content_type": "text/plain; charset=utf-8"
+        }
+      ]
+    }
+  },
+  "final_native_read_only": {
+    "at": "2026-11-17T08:47:54.714Z",
+    "commit": "a124a7db8239b0b64434e5aabafb76bb2f20b262",
+    "evidence_directory": "native-a124a7db-20261117T084742353Z",
+    "result": "PASS_READ_ONLY_AUTHORIZED_PROFILE_NOT_EXECUTION",
+    "scope": 219,
+    "unchanged": 217,
+    "missing_source_review": 2,
+    "validator_batches": 11,
+    "validator_rows": 217,
+    "all_sessions_read_only": true,
+    "business_writes": 0,
+    "control_writes": 0,
+    "approvals": 0,
+    "applies": 0
+  },
+  "other_automations": {
+    "evidence": "docs/retailer-automation/evidence/HB-POSTMIGRATION-OTHER-AUTOMATION-VERIFICATION-2026-11-17.json",
+    "result": "PASS_NO_POSTMIGRATION_LEDGER_REGRESSION",
+    "successful_retailers": 10,
+    "existing_discount_block_unchanged": true,
+    "new_migration_regressions": 0,
+    "production_apply_steps_executed": 0
+  },
+  "controlled_review_only": {
+    "evidence": "docs/retailer-automation/evidence/HB-CONTROLLED-REVIEW-ONLY-VERIFICATION-2026-11-17.json",
+    "run_id": 44055630899,
+    "result": "PASS",
+    "review_cards_created": 2,
+    "publication_database_writes": 5,
+    "business_writes": 0,
+    "parent_plans": 0,
+    "execution_requests": 0,
+    "approvals": 0,
+    "applies": 0,
+    "independent_postflight": "PASS"
+  },
+  "ordinary_scheduled_apply_verified": false
 }

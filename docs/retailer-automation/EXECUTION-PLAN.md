@@ -1,6 +1,43 @@
 # Retailer Automation Consolidation Execution Plan
 
-**17 November owner-authorized SQL apply - CURRENT268 / RUNTIME RELEASE PENDING:**
+**17 November H&B - DEPLOYED / ENABLED / CONTROLLED REVIEW VERIFIED / ORDINARY SCHEDULE PENDING:**
+PR539 merged at08:59:40Z as4d91fde9, with the same tree as approved feature heada124a7db.
+Main quality44051477879, Guardian44051478297 and baseline44051477923 passed;
+Production7848668005 is SUCCESS for that exact main SHA. Public root/robots return200.
+Final isolated PostgreSQL44049768753 passes196/0/0 without production credentials.
+The exact committed native READ ONLY proves217 unchanged plus2 missing-source
+reviews in11 validator batches, with zero writes/approvals/applies.
+
+The owner's postmigration regression check is complete: all11 shared producers
+accept CURRENT268 and reject old265; existing workflow dry-runs cover11 other
+retailers, with10 passing and Discount retaining its exact earlier validator block.
+Discount44051904491 matches pre-migration43907443266 at batch3/18,109 mappings,
+VALIDATOR_REJECTED and zero writes. It is not repaired or declared healthy here.
+All apply steps were skipped; no historical owner control/recovery was replayed.
+GYM HIGH remains owner_deferred. See
+[other automation verification](evidence/HB-POSTMIGRATION-OTHER-AUTOMATION-VERIFICATION-2026-11-17.json).
+
+HOLLAND_BARRETT_REFRESH_ENABLED=true was set at repository scope last at09:25:59Z,
+after release and regression checks. Existing review-only run44055630899 passes:
+217 VERIFY_NO_CHANGE and2 SOURCE_VARIANT_MISSING; shared publication creates exactly
+two PENDING manual identity cards5960/5961 for offers4661/4678. Its5 database writes
+are review-publication/audit records, with zero catalogue/commercial writes.
+Independent owner READ ONLY at09:33:33Z verifies unchanged business hashc90367d4,
+unchanged global catalogue counts, zero H&B parents/requests and both cards marked
+KEEP_UNCHANGED/automatic_action=false/executable=false. No owner decision or apply
+was performed. See [controlled review proof](evidence/HB-CONTROLLED-REVIEW-ONLY-VERIFICATION-2026-11-17.json).
+
+The next step is a genuine daily08:17UTC schedule after Gladiator in the existing
+write lane, followed by independent postflight and fresh idempotency. The latest
+schedule observed at this checkpoint predates activation. Review-only success is
+not production apply proof; manual H&B apply stays unavailable. Keep this goal open
+until ordinary execution is LIVE VERIFIED. Future catalogue growth can reuse the
+existing reviewed importer, followed by separately approved exact manifest/scope
+and matching frozen SQL binding changes through this same guarded path.
+Current consolidated evidence:
+[activation execution](evidence/HB-SHARED-AUTOMATION-ACTIVATION-EXECUTION-2026-11-17.json).
+
+**17 November earlier owner-authorized SQL apply - CURRENT268 / pre-release observation:**
 The three exact owner-approved SQL changes committed through the existing
 apply-selected-migrations applicator after a successful rollback-only rehearsal.
 Independent owner READ ONLY at08:24:43Z confirms ledger268/fingerprint4da87e64,
@@ -12,13 +49,12 @@ The authoritative
 drives repository CURRENT268/pending=[]; staging remains120 with its same pending
 selection and excludes the three production-only migrations.
 
-The exact approved runtime configuration diff is prepared locally: manifest6c0ca5ee,
+At this earlier SQL checkpoint the exact approved runtime diff was prepared locally: manifest6c0ca5ee,
 preparation_only=false and enabled H&B stock worker/watchdog. The protected source
 secret was provisioned in production-readonly at08:34:22Z without logging its value.
-These runtime changes are not released yet; HOLLAND_BARRETT_REFRESH_ENABLED remains
-absent. Release checks, a fresh native read-only rehearsal and production readback
-must pass before setting the repository variable last. Ordinary scheduled apply,
-independent postflight/idempotency and goal closeout evidence are still pending.
+Runtime release and the repository enable variable were pending then; the current
+entry above records their completed checks, release and enablement. Ordinary
+scheduled apply, independent postflight/idempotency and goal closeout remain pending.
 
 **17 November earlier owner decisions - authorization and preflight record:**
 The owner separately approved policy/scope, the three exact SQL changes, and
