@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "task": "H&B existing-offer shared automation",
-  "status": "PREPARATION_RESUMED_NOT_ACTIVATED",
+  "status": "PREPARATION_VERIFIED_AWAITING_OWNER_DECISIONS_NOT_ACTIVATED",
   "owner_scope": "Reuse the existing shared pipeline; defer catalogue expansion; prepare and verify before separate production authorization.",
   "baseline": {
     "main_and_production": "9ec8b2264fee6a453be46555dab0e500ff65feb1",
@@ -56,17 +56,19 @@
     "proposed_source_regressions": "PASS real PostgreSQL publication prerequisite; H&B source/profile plan regressions pass local required gates",
     "quick": {
       "result": "PASS",
-      "pass": 1202,
+      "pass": 1204,
       "fail": 0,
       "skip": 3,
-      "log": "tmp/hb-shared-automation-20261116/verify-quick-review-wiring.log"
+      "code_commit": "d5ab176f4eaede3b473a5d72065b0a6d45cbb620",
+      "log": "tmp/hb-shared-automation-20261116/verify-quick-d5ab176f.log"
     },
     "full": {
       "result": "PASS",
-      "pass": 3947,
+      "pass": 3951,
       "fail": 0,
       "skip": 3,
-      "log": "tmp/hb-shared-automation-20261116/verify-full-review-wiring.log"
+      "code_commit": "d5ab176f4eaede3b473a5d72065b0a6d45cbb620",
+      "log": "tmp/hb-shared-automation-20261116/verify-full-d5ab176f.log"
     },
     "real_postgresql": {
       "run_id": 43937059837,
@@ -143,6 +145,102 @@
       "control_writes": 0,
       "approvals": 0,
       "applies": 0
+    },
+    "final_preparation": {
+      "quick": {
+        "result": "PASS",
+        "pass": 1204,
+        "fail": 0,
+        "skip": 3,
+        "code_commit": "d5ab176f4eaede3b473a5d72065b0a6d45cbb620",
+        "log": "tmp/hb-shared-automation-20261116/verify-quick-d5ab176f.log"
+      },
+      "full": {
+        "result": "PASS",
+        "pass": 3951,
+        "fail": 0,
+        "skip": 3,
+        "code_commit": "d5ab176f4eaede3b473a5d72065b0a6d45cbb620",
+        "log": "tmp/hb-shared-automation-20261116/verify-full-d5ab176f.log"
+      },
+      "ci_full": "https://github.com/SupplementScout/supplementscout/actions/runs/44038147843/job/133885939718",
+      "ci_security": "PASS",
+      "real_postgresql": {
+        "run_id": 44037623333,
+        "head": "6329ab420082bab256ca21c90a0f95c322e34531",
+        "pass": 196,
+        "fail": 0,
+        "skip": 0,
+        "registration_negative_cases": 25,
+        "legacy_profiles": 7,
+        "unknown_profiles_denied": 8,
+        "sql_and_integration_runners_unchanged_on_runtime_head": true,
+        "exact_file_bindings": [
+          {
+            "file": "scripts/gladiator-nutrition-registration.integration.test.js",
+            "sha256_lf": "527f7e940db1ce4bc4f417ef0f3a3e02f570ed21ec040eeae982f9b7d6f54539",
+            "unchanged_on_runtime_head": true
+          },
+          {
+            "file": "scripts/gladiator-sequential-parent-approval-migration.integration.test.js",
+            "sha256_lf": "2b8d2d5337d541593b8e7d076f95be375e4073ce3a51d21735c0ca5722a1d903",
+            "unchanged_on_runtime_head": true
+          },
+          {
+            "file": "supabase/proposals/20261116210000_align_review_refresh_proposed_state.sql",
+            "sha256_lf": "3816dbe28a277a79574b70688103745a4cf6dc6dc5a430a137020918d373375e",
+            "unchanged_on_runtime_head": true
+          },
+          {
+            "file": "supabase/proposals/20261116211000_register_shared_parent_approval_profiles.sql",
+            "sha256_lf": "842985652b164601169fb54dca81992acf7fcb0e16d7ef3a3cf6b6100eccd281",
+            "unchanged_on_runtime_head": true
+          },
+          {
+            "file": "supabase/proposals/20261117212000_register_holland_barrett_existing_offer_sync.sql",
+            "sha256_lf": "ee834460a1c9829e49781f4d5b755e646c696a3f3cc6f3226956be00780e396c",
+            "unchanged_on_runtime_head": true
+          }
+        ],
+        "log": "tmp/hb-shared-automation-20261116/integration-44037623333.log",
+        "production_credentials_supplied": false
+      },
+      "native_read_only": {
+        "at": "2026-11-17T07:25:57.318Z",
+        "code_commit": "d5ab176f4eaede3b473a5d72065b0a6d45cbb620",
+        "evidence_directory": "native-d5ab176f-20261117T072547128Z",
+        "scope_count": 219,
+        "validator_batches": 11,
+        "validator_rows": 217,
+        "classification": {
+          "VERIFY_NO_CHANGE": 217
+        },
+        "review_reasons": {
+          "SOURCE_VARIANT_MISSING": 2
+        },
+        "raw_source_fingerprint": "e17617575710a43c26ee3a59fbba963e0ca2aaebb0290189d50f05e24b3a5cbb",
+        "semantic_source_fingerprint": "7fc669cc6db0455b651bfdd13f2615d2a4a42f8d43ca7deb9fa3c3a8f965f9c6",
+        "source_file_last_modified_at": "2026-11-16T17:15:46.000Z",
+        "supplier_generated_at": null,
+        "unchanged_business_fingerprint": "b578023747ed6cb434df072b5145f4dd551dc32a99efe064177d173b7e715048",
+        "database_writes": 0,
+        "control_writes": 0,
+        "approvals": 0,
+        "applies": 0
+      },
+      "workflow_lint": {
+        "tool": "actionlint1.7.12",
+        "result": "PASS_COMPATIBLE_STDIN_VIEW",
+        "limitation": "The tool does not recognize pre-existing queue:max. Only that key was omitted from its temporary stdin view; repository queue:max is unchanged.",
+        "yaml_alias_and_expression_checks": "PASS"
+      },
+      "security_fixture_correction": {
+        "incident_id": 40181500,
+        "result": "RESOLVED_CURRENT_PR_CHECK_PASS",
+        "cause": "Synthetic test-only PostgreSQL URI; no actual credential was used or disclosed",
+        "correction": "Passwordless .invalid fixture with explicit trusted CA and a non-networking client mock",
+        "production_implementation_changed": false
+      }
     }
   },
   "partnerize_preparation": {
@@ -225,7 +323,7 @@
     "production_business_writes": 0,
     "production_control_writes": 0,
     "production_approvals_created": 0,
-    "workflow_dispatches": 4,
+    "workflow_dispatches": 5,
     "schedule_changes": 0,
     "migrations_applied": 0,
     "production_activation_authorized_by_goal": false,
@@ -302,7 +400,7 @@
     "sql_activated": false
   },
   "registration_proposal": {
-    "status": "PREPARED_AWAITING_POSTGRESQL_NOT_AUTHORIZED_NOT_SELECTED",
+    "status": "POSTGRESQL_VERIFIED_NOT_AUTHORIZED_NOT_SELECTED",
     "activated_manifest_sha256": "6c0ca5ee3bba035671ef587de2b9d08ae0a96402f1364e88e413b71f73cea3b8",
     "scope_sha256": "a6823565ed36c9fb21f863a099ff34126a6863a5df249c6ed8848d332dabd89e",
     "body_sha256": "b388ed2f7f4f7302ccd0655c96c410af6d3770b0950ba73ecf2eb439d6fde6e7",
@@ -319,7 +417,18 @@
     "production_only": true,
     "mapping_count": 219,
     "parent_readiness_required": true,
-    "business_writes": 0
+    "business_writes": 0,
+    "postgresql": {
+      "run_id": 44037623333,
+      "negative_cases": 25,
+      "scope": 219,
+      "isolated_rows": 217,
+      "children": 11,
+      "replay_guard": true,
+      "parent_readiness_guard": true,
+      "rollback": true,
+      "business_writes": 0
+    }
   },
   "shared_workflow_preparation": {
     "workflow": ".github/workflows/fit-house-offer-refresh.yml",
@@ -359,5 +468,10 @@
     "production_sql": "PENDING_SEPARATE_OWNER_DECISION",
     "schedule": "PENDING_SEPARATE_OWNER_DECISION",
     "live_verified": false
+  },
+  "activation_packet": {
+    "file": "docs/retailer-automation/evidence/HB-SHARED-AUTOMATION-ACTIVATION-PROPOSAL-2026-11-17.json",
+    "sha256_lf": "ecd36ed5e3413acc148fe538c313044980d1220d6a8a09c924916ef095ddbe32",
+    "status": "READY_FOR_OWNER_REVIEW_NOT_ACTIVATED"
   }
 }

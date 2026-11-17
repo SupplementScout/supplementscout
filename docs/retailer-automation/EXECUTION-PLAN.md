@@ -1,6 +1,36 @@
 # Retailer Automation Consolidation Execution Plan
 
-**17 November H&B existing-offer automation - PREPARATION RESUMED / NOT ACTIVATED:**
+**17 November H&B existing-offer automation - PREPARATION VERIFIED / OWNER DECISIONS PENDING / NOT ACTIVATED:**
+The complete review packet is
+[HB-SHARED-AUTOMATION-ACTIVATION-PROPOSAL-2026-11-17.json](evidence/HB-SHARED-AUTOMATION-ACTIVATION-PROPOSAL-2026-11-17.json).
+Runtime d5ab176f passes local quick1204/0/3, full3951/0/3 and PR full44038147843;
+GitGuardian passes after replacing a synthetic test URI with a passwordless
+.invalid fixture. No actual credential was exposed. Isolated PostgreSQL44037623333
+passes196/0/0: H&B scope219,217 isolated rows,11 children,25 rejection cases,
+parent readiness, replay and exact rollback; the seven legacy profiles still pass.
+The SQL and integration runners are byte-identical to its tested6329ab42 revision;
+only the synthetic safe-test fixture changed on d5ab176f. The registration suite
+isolates its dependencies; full H&B production apply is not claimed.
+
+Fresh native validator READ ONLY on d5ab176f at07:25:57Z again proves217 unchanged
+plus2 missing-source reviews,11 valid batches, unchanged business fingerprint and
+zero writes/approvals/applies. Immutable evidence: native-d5ab176f-20261117T072547128Z.
+Read-only active-parent RPC at07:35:09Z reports no active H&B parent. The dedicated
+validator cannot directly inspect FAILED parents, execution requests or the owner
+migration ledger; the existing privileged preflight must verify these before any
+activation, without automatic close/recovery. Main/Production remains9ec8b226.
+
+The packet contains exact before/after configuration hashes and an unapplied
+activation diff. A second unapplied selection diff reuses apply-selected-migrations:
+three exact SQL files, rollback-only rehearsal before apply,265->268 derivation and
+the existing receipt-based repository closeout before runtime activation. Its
+offline overlay proves unchanged staging bindings/pending selections and accepted
+transaction wrappers. Actual production selectors remain CURRENT265/pending=[].
+No owner credential was loaded, no SQL promoted/applied and no variable/secret set.
+Policy/scope, production SQL and deployment/schedule decisions remain separate.
+Preparation is ready for review; the goal is not LIVE VERIFIED or complete.
+
+The following records the verified preparation and historical resume evidence.
 The owner explicitly resumed the existing goal. Clean head1661654f and all PR539
 checks pass, including full43957314136. Main and successful Production7801184951
 remain9ec8b226. Fresh native validator READ ONLY at06:54:45Z again accounts for
@@ -19,7 +49,7 @@ manifest validator, parent/child approval and executor. Its static frozen bounda
 is production-only, pins all219 IDs, requires the existing parent approval entry
 point to be ready before inserting any control row, and forbids catalogue/mapping,
 affiliate-URL, delivery and hard-price mutations. It has an exact lineage/ACL/target
-rollback; it is outside migration selectors and awaits isolated PostgreSQL proof.
+rollback; it remains outside migration selectors. PostgreSQL proof is recorded above.
 
 The existing shared workflow now declares one YAML-anchored step sequence for
 Gladiator and H&B. Fit House/10 Reps runtime pins are unchanged; H&B runs after
@@ -38,9 +68,9 @@ Gladiator monitor's old shadow job/apply-step bindings were reconciled against
 successful ordinary production43929759455; debt limits and failure policies stay
 unchanged. Regression tests bind both profiles to actual resolved workflow steps.
 
-Current preparation tests cover the shared sequence, scheduled/manual guards,
-credential isolation and alias precedence; full gates and H&B SQL proof remain
-pending on the next committed head. No SQL or activation is authorized by resume.
+Preparation tests cover the shared sequence, scheduled/manual guards, credential
+isolation and alias precedence; required full gates and H&B SQL proof now pass.
+No SQL or activation is authorized by resume.
 
 Before owner activation, prepare and verify this exact sequence:
 
@@ -50,11 +80,13 @@ Before owner activation, prepare and verify this exact sequence:
    remains deferred and uses the existing reviewed importer later.
 2. Review exact forward/rollback hashes for the publication prerequisite,
    parent-profile registration and H&B control boundary. Production SQL needs a
-   separate owner decision and a fresh lineage/security readback; no old recovery
+   separate owner decision, the existing selected-migration applicator and a fresh
+   lineage/security readback; no old recovery
    or cleanup SQL is included. Rollback removes/reverts only exact functions and
    preserves decisions/business/control records; stop first if any active parent
    or in-flight execution requires separate recovery.
-3. After SQL approval/proof, a separately reviewed activation diff changes the
+3. After SQL approval/proof and receipt-based CURRENT268/pending=[] closeout, a
+   separately reviewed activation diff changes the
    existing manifest authorization to OWNER_APPROVED/true and its SHA to6c0ca5ee,
    profile preparation_only=false, the existing publication/worker registration
    and watchdog16 to enabled, and the protected feed secret. No approval status
