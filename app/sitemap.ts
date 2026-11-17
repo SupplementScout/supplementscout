@@ -76,6 +76,8 @@ async function loadActiveProducts() {
 }
 
 const staticPages: MetadataRoute.Sitemap = [
+  { url: `${siteUrl}/guides/whey-isolate-vs-concentrate`, changeFrequency: "weekly", priority: 0.6 },
+  { url: `${siteUrl}/guides/protein-powder-pack-size-value`, changeFrequency: "weekly", priority: 0.6 },
   { url: `${siteUrl}/guides/protein-powder-under-30`, changeFrequency: "weekly", priority: 0.6 },
   { url: `${siteUrl}/guides/caffeine-free-pre-workout`, changeFrequency: "weekly", priority: 0.6 },
   {

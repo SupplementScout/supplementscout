@@ -6,6 +6,18 @@
 pages, structured data, measurement and authority building.  
 **Parent authority:** `docs/SupplementScout-Operating-Plan-2026-07-15.md`
 
+**17 November 2026 Content Growth Sprint 4 checkpoint:** one owner-approved
+SEO-24 bundle prepares two guides in a single Draft PR. Fresh main5ac0e802 and
+open PR checks find no overlap. Bounded source reads plus manufacturer
+ingredient/size checks qualify both topics; protein costs remain withheld
+where exact approved nutrition is absent. Both routes stay planned/noindex.
+No broad research, merge, production indexing/deployment, data/nutrition write,
+workflow change or Google submission is authorized. SEO-20 stays frozen and
+binding; SEO-21/22/23 stay live verified.
+SEO-24 is now `CODE COMPLETE`: both topics have real qualified examples;
+54 focused checks, quick/full (4,021 safe tests), actual-source HTTP/cache and
+1440/390px QA pass. Both routes remain planned/noindex for the single Draft PR.
+
 **17 November 2026 SEO-23 production closeout:** PR #543 released approved
 head `1fb5316ff5a6c704bc29cb24d2c78223d8e30f89` as squash
 `9fe3d000ea958a938af02945023be1400c6f8bd1` with tree parity. Main CI and
@@ -361,7 +373,17 @@ Console evidence and user value.
 | SEO-22 | P1 | Content Growth Sprint 2: /guides/supplement-prices-including-delivery and /guides/cost-per-25g-protein. | `LIVE VERIFIED` | PR #542 released as53d933f1 with tree parity; Vercel Production READY. Public200, base index/follow, parameter noindex/follow, canonicals, one sitemap URL each, schema, actual-source arithmetic, links and1440/390px QA pass. GSC inspections succeed but both URLs remain unknown to Google: indexing PENDING. No data writes; SEO-20 frozen and SEO-21 live verified. |
 | SEO-23 | P1 | Content Growth Sprint 3: /guides/protein-powder-under-30 and /guides/caffeine-free-pre-workout. | `LIVE VERIFIED` | Owner-approved PR #543 squash9fe3d000 preserves the reviewed tree; main CI and Vercel Production READY. Public200, base index/follow, parameter noindex/follow, canonicals, one sitemap URL each, factual schema, actual-source HTML/calculations/applied caffeine facts, links and1440/390px QA pass. Performance follow-up passes unchanged guard; cold DNS traces retained. Google inclusion UNKNOWN; no GSC/data writes. SEO-20 frozen; SEO-21/22 live. |
 
+| SEO-24 | P1 | Content Growth Sprint 4: /guides/whey-isolate-vs-concentrate and /guides/protein-powder-pack-size-value. | `CODE COMPLETE` | Both topics qualify with two reviewed exact variants each, fresh known delivered offers and one approved nutrition record per selection. Real cash/kg comparisons; missing protein comparisons withheld.54 focused checks, quick/full4,021, actual-source HTTP/cache and1440/390px QA pass. One Draft PR, planned/noindex; no merge, production/data/nutrition write, workflow or Google action. SEO-20 frozen; SEO-21/22/23 live. |
+
 ## 6. Current active task
+
+**Sprint 4 owner approval (17 November 2026):**
+Content Growth exception: SEO-24 beside frozen SEO-20; Draft PR only.
+The single implementation is `/guides/whey-isolate-vs-concentrate` and
+`/guides/protein-powder-pack-size-value`. Both remain planned/noindex.
+SEO-21/22/23 stay live verified; previous active-pair exceptions are retired.
+No other active pair, reopened completed work, changed binding next task,
+missing authority, production release/data write, workflow or Google action.
 
 **Sprint 3 owner approval (17 November 2026):**
 Content Growth exception: SEO-23 beside frozen SEO-20; Draft PR only.
@@ -596,6 +618,40 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 17 November 2026 - SEO-24 Content Growth Sprint 4 CODE COMPLETE
+
+- Fresh main5ac0e802 and open Drafts532/33 show no overlap or duplicate guide.
+  Existing research/packs and Next16.2.9 guidance were reused; no broad audit.
+  The owner authorizes one bundle and Draft PR, not production/indexing.
+- Manufacturer Vanilla ingredient evidence establishes whey concentrate for
+  7Nutrition500g/2026 and isolate for ISO-XP1.8kg/735. Both have fresh known
+  delivered offers: £24.98/£85.52. Only735 has approved exact nutrition,
+  matching its existing reviewed manifest byte-for-field:72×22g supports£1.35
+  per25g. The concentrate's amounts/servings/protein cost remain withheld.
+- Matched ISO-XP Vanilla450g/4613 versus1.8kg/735 has common current manufacturer
+  formula/size evidence and verified one-pack masses. £30/£85.52 delivered
+  gives£66.67/£47.51 perkg, £55.52 more upfront and£19.16 less perkg for the
+  larger pack. Cents/grams determine ordering before display rounding. Missing
+  small-pack nutrition withholds both protein-unit comparison figures.
+- The readiness denominator is two selected reviewed variants per guide,
+  two fresh known-delivery examples each and one approved nutrition each;
+  discovery category counts are not comparison counts. No type is inferred
+  from an arbitrary name/blend, and no catalogue/nutrition write occurred.
+- 54 focused checks, verify:quick/full (4,021 safe tests), TypeScript, ESLint,
+  Guardian, baseline checks and production build pass. Inventory resealed367
+  (306 safe/57 integration/4 artifact/66 quick); no test omitted. One old
+  sitemap substring assertion was corrected to check the exact isolate URL.
+- Actual-source initial HTML, metadata/schema/parameters, planned/noindex,
+  sitemap exclusion and one incoming link each pass. Local production-build
+  Chrome1440/390px passes fit, clipping/card-overlap, keyboard order and zero
+  runtime/HTTP errors. CLS0 and local warm LCP92-224ms are lab observations,
+  not field CWV. Two cold batched reads per route; zero reads across five
+  warm requests, TTFB medians36.2/26.1ms. No new dependency/client calculator.
+- Frozen PER4M source/metadata, Creatine under20 and all SEO-22/23 public
+  contracts remain unchanged. Stage3 off; GYM HIGH hubs deferred. No workflow,
+  migration, price history, Google action, merge/release or next sprint.
+- [Source qualification, actual calculations, QA and exact owner launch scope](rollouts/content-growth-sprint-4-2026-11-17.md).
 
 ### 17 November 2026 - SEO-23 production release LIVE VERIFIED
 

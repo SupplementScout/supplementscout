@@ -6,6 +6,15 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## SupplementScout project control
 
+**17 November 2026 Content Growth Sprint 4 owner approval:**
+Content Growth exception: SEO-24 beside frozen SEO-20; Draft PR only.
+One bundle covers `/guides/whey-isolate-vs-concentrate` and
+`/guides/protein-powder-pack-size-value`, necessary tests/docs and minimal
+contextual links. SEO-21/22/23 stay live verified; previous implementation
+exceptions are retired. New routes stay planned/noindex. No merge, production
+deployment/indexing, catalogue/nutrition/mapping/history write, workflow change,
+Google submission or next sprint is authorized.
+
 For SEO, catalogue, retailer, automation or roadmap work:
 
 1. Read the current checkpoint in

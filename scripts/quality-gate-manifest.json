@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 366,
-    "sha256": "ced954c73cebda23656717d72ad8940173f1782dd6835e021f74f518af58fe37"
+    "count": 367,
+    "sha256": "85588cd09a8b77363dd59d0a81ccac0b249afa542eca78bf0311bbafe99f077f"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -146,6 +146,7 @@
     "scripts/partnerize-product-feed.test.js",
     "scripts/holland-barrett-offer-refresh.test.js",
     "scripts/buying-guides.test.js",
-    "scripts/buying-guides-sprint3.test.js"
+    "scripts/buying-guides-sprint3.test.js",
+    "scripts/buying-guides-sprint4.test.js"
   ]
 }

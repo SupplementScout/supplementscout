@@ -189,7 +189,7 @@ test("page metadata, SSR, structured data and discovery links use one canonical"
   const sitemap = fs.readFileSync(path.join(process.cwd(), "app/sitemap.ts"), "utf8");
   const home = fs.readFileSync(path.join(process.cwd(), "app/page.tsx"), "utf8");
   const whey = fs.readFileSync(path.join(process.cwd(), "app/whey-protein/page.tsx"), "utf8");
-  assert.equal((sitemap.match(/\/whey-isolate/g) || []).length, 1);
+  assert.equal(sitemap.split('${siteUrl}/whey-isolate`').length - 1, 1);
   assert.match(home, /Whey isolate", href: "\/whey-isolate"/);
   assert.match(whey, /href="\/whey-isolate"/);
 });

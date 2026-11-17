@@ -42,6 +42,8 @@ export const PUBLIC_INDEXABILITY_LIFECYCLE = Object.freeze({
   "/guides/cost-per-25g-protein": "live_verified",
   "/guides/protein-powder-under-30": "live_verified",
   "/guides/caffeine-free-pre-workout": "live_verified",
+  "/guides/whey-isolate-vs-concentrate": "planned",
+  "/guides/protein-powder-pack-size-value": "planned",
 } satisfies Readonly<Record<string, IndexabilityLifecycleStatus>>);
 
 /** Reserved decisions which deliberately do not create public routes. */

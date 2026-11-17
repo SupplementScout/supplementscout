@@ -1,0 +1,1185 @@
+{
+  "capturedAt": "2026-11-17T18:55:03.860Z",
+  "environment": "local Next production build with guarded actual production-source reads",
+  "base": "http://127.0.0.1:3118",
+  "syntheticOffers": false,
+  "results": [
+    {
+      "route": "/guides/whey-isolate-vs-concentrate",
+      "width": 1440,
+      "mobileTouchEmulation": false,
+      "result": "PASS",
+      "title": "Whey Isolate vs Concentrate: Which Is Better Value in the UK? | SupplementScout",
+      "h1": "Should I buy whey isolate or whey concentrate?",
+      "viewport": 1440,
+      "visualWidth": 1425,
+      "scale": 1,
+      "documentWidth": 1425,
+      "canonical": "https://www.supplementscout.co.uk/guides/whey-isolate-vs-concentrate",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "American Dairy Products Institute's ingredient definitions",
+          "href": "https://www.adpi.org/wp-content/uploads/2022/07/Whey-and-Whey-Products_Human-Food-Definitions.pdf"
+        },
+        {
+          "text": "7Nutrition Whey Protein 80",
+          "href": "/product/7nutrition-whey-protein-80-500g?variant=2026"
+        },
+        {
+          "text": "Manufacturer ingredient and identity source",
+          "href": "https://7nutrition.eu/en/products/7nutrition-whey-protein-80-500g-598.html"
+        },
+        {
+          "text": "Applied Nutrition ISO-XP",
+          "href": "/product/applied-nutrition-iso-xp-18kg?variant=735"
+        },
+        {
+          "text": "Manufacturer ingredient and identity source",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "the cost-per-25g method",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "Whey Protein comparison",
+          "href": "/whey-protein"
+        },
+        {
+          "text": "Whey Isolate comparison",
+          "href": "/whey-isolate"
+        },
+        {
+          "text": "two-product comparison",
+          "href": "/compare"
+        },
+        {
+          "text": "Help Me Choose",
+          "href": "/help-me-choose"
+        },
+        {
+          "text": "method",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "freshness rules",
+          "href": "/data-freshness"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "7Nutrition Whey Protein 80Whey concentrate. Variant: Vanilla / 500g. Exact pack: 500g, one pack.6 Pack SupplementsProduct price£19.99Delivery£4.99Delivered total£24.98Offer checked 17 Nov 2026, 11:452026-11-17T11:45:40.735+00:00Delivered cost per kilogram: £49.96/kg.Protein per serving, verified servings and cost per 25 g are not yet supported by approved nutrition for this exact variant. The recorded pack price remains usable; we do not fill the nutrition gap from another flavour or pack.Manufacturer ingredient and identity source. Classification evidence is separate from our approved nutrition records.",
+          "x": 288.5,
+          "y": 936,
+          "w": 414,
+          "h": 504
+        },
+        {
+          "text": "Applied Nutrition ISO-XPWhey isolate. Variant: Vanilla / 1.8kg. Exact pack: 1,800g, one pack.Whey OkayProduct price£81.53Delivery£3.99Delivered total£85.52Offer checked 17 Nov 2026, 10:482026-11-17T10:48:03.114+00:00Delivered cost per kilogram: £47.51/kg.Protein per serving22 gVerified servings72Cost per 25 g protein£1.35Manufacturer ingredient and identity source. Classification evidence is separate from our approved nutrition records.",
+          "x": 722.5,
+          "y": 936,
+          "w": 414,
+          "h": 504
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 224,
+      "navigation": {
+        "name": "http://127.0.0.1:3118/guides/whey-isolate-vs-concentrate?qa=1440",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 244.79999999701977,
+        "navigationId": 257,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 1.2999999970197678,
+        "domainLookupStart": 1.2999999970197678,
+        "domainLookupEnd": 1.2999999970197678,
+        "connectStart": 1.2999999970197678,
+        "secureConnectionStart": 0,
+        "connectEnd": 1.2999999970197678,
+        "requestStart": 3.0999999940395355,
+        "responseStart": 25,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 25,
+        "responseEnd": 48.29999999701977,
+        "transferSize": 12766,
+        "encodedBodySize": 12466,
+        "decodedBodySize": 38608,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 0,
+        "unloadEventEnd": 0,
+        "domInteractive": 102.19999998807907,
+        "domContentLoadedEventStart": 102.19999998807907,
+        "domContentLoadedEventEnd": 102.29999999701977,
+        "domComplete": 244.79999999701977,
+        "loadEventStart": 244.79999999701977,
+        "loadEventEnd": 244.79999999701977,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2cbkh-q68zkh4.css",
+          "bytes": 81234,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/12pnmy_4w9enr.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/turbopack-1lpaxmtsazld4.js",
+          "bytes": 10580,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2__vch4t43arf.js",
+          "bytes": 26872,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/0jubty45h__ir.js",
+          "bytes": 54646,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/0jfs0z2x9jfbq.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3-9v5llyj1vf9.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/favicon.ico?favicon.32r4ylec7nel_.ico",
+          "bytes": 2774,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=Tm-69x4GW730fyc_",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-iso-xp-18kg?variant=735&_rsc=Tm-69x4GW730fyc_",
+          "bytes": 261,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/7nutrition-whey-protein-80-500g?variant=2026&_rsc=Tm-69x4GW730fyc_",
+          "bytes": 264,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=Tm-69x4GW730fyc_",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=Tm-69x4GW730fyc_",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=Tm-69x4GW730fyc_",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-iso-xp-18kg?variant=735&_rsc=7HZtX8KJoEw1ih64",
+          "bytes": 3054,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/7nutrition-whey-protein-80-500g?variant=2026&_rsc=7HZtX8KJoEw1ih64",
+          "bytes": 3062,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=7HZtX8KJoEw1ih64",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=snVoHyYK7vz2rL3V",
+          "bytes": 2565,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=kdJAT3bLarjFkg5E",
+          "bytes": 2382,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=Wk4_yMZ5X9fd-2xE",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=RFNg2ZRZwxk6R5Kg",
+          "bytes": 1656,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=snVoHyYK7vz2rL3V",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/0w4d-y23x0hof.js",
+          "bytes": 13702,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=X0H0og1UUufqG-76",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=Uh47InetJhHc2zr1",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=7HZtX8KJoEw1ih64",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-iso-xp-18kg?_rsc=Tm-69x4GW730fyc_",
+          "bytes": 249,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/7nutrition-whey-protein-80-500g?_rsc=Tm-69x4GW730fyc_",
+          "bytes": 251,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/whey-isolate-vs-concentrate",
+      "width": 390,
+      "mobileTouchEmulation": true,
+      "result": "PASS",
+      "title": "Whey Isolate vs Concentrate: Which Is Better Value in the UK? | SupplementScout",
+      "h1": "Should I buy whey isolate or whey concentrate?",
+      "viewport": 390,
+      "visualWidth": 390,
+      "scale": 1,
+      "documentWidth": 390,
+      "canonical": "https://www.supplementscout.co.uk/guides/whey-isolate-vs-concentrate",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "American Dairy Products Institute's ingredient definitions",
+          "href": "https://www.adpi.org/wp-content/uploads/2022/07/Whey-and-Whey-Products_Human-Food-Definitions.pdf"
+        },
+        {
+          "text": "7Nutrition Whey Protein 80",
+          "href": "/product/7nutrition-whey-protein-80-500g?variant=2026"
+        },
+        {
+          "text": "Manufacturer ingredient and identity source",
+          "href": "https://7nutrition.eu/en/products/7nutrition-whey-protein-80-500g-598.html"
+        },
+        {
+          "text": "Applied Nutrition ISO-XP",
+          "href": "/product/applied-nutrition-iso-xp-18kg?variant=735"
+        },
+        {
+          "text": "Manufacturer ingredient and identity source",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "the cost-per-25g method",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "Whey Protein comparison",
+          "href": "/whey-protein"
+        },
+        {
+          "text": "Whey Isolate comparison",
+          "href": "/whey-isolate"
+        },
+        {
+          "text": "two-product comparison",
+          "href": "/compare"
+        },
+        {
+          "text": "Help Me Choose",
+          "href": "/help-me-choose"
+        },
+        {
+          "text": "method",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "freshness rules",
+          "href": "/data-freshness"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "7Nutrition Whey Protein 80Whey concentrate. Variant: Vanilla / 500g. Exact pack: 500g, one pack.6 Pack SupplementsProduct price£19.99Delivery£4.99Delivered total£24.98Offer checked 17 Nov 2026, 11:452026-11-17T11:45:40.735+00:00Delivered cost per kilogram: £49.96/kg.Protein per serving, verified servings and cost per 25 g are not yet supported by approved nutrition for this exact variant. The recorded pack price remains usable; we do not fill the nutrition gap from another flavour or pack.Manufacturer ingredient and identity source. Classification evidence is separate from our approved nutrition records.",
+          "x": 16,
+          "y": 1411,
+          "w": 358,
+          "h": 516
+        },
+        {
+          "text": "Applied Nutrition ISO-XPWhey isolate. Variant: Vanilla / 1.8kg. Exact pack: 1,800g, one pack.Whey OkayProduct price£81.53Delivery£3.99Delivered total£85.52Offer checked 17 Nov 2026, 10:482026-11-17T10:48:03.114+00:00Delivered cost per kilogram: £47.51/kg.Protein per serving22 gVerified servings72Cost per 25 g protein£1.35Manufacturer ingredient and identity source. Classification evidence is separate from our approved nutrition records.",
+          "x": 16,
+          "y": 1947,
+          "w": 358,
+          "h": 492
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 96,
+      "navigation": {
+        "name": "http://127.0.0.1:3118/guides/whey-isolate-vs-concentrate?qa=390",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 77.5,
+        "navigationId": 1393,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 1,
+        "domainLookupStart": 1,
+        "domainLookupEnd": 1,
+        "connectStart": 1,
+        "secureConnectionStart": 0,
+        "connectEnd": 1,
+        "requestStart": 3.7999999970197678,
+        "responseStart": 25.900000005960464,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 25.900000005960464,
+        "responseEnd": 37.70000000298023,
+        "transferSize": 12765,
+        "encodedBodySize": 12465,
+        "decodedBodySize": 38605,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 32.599999994039536,
+        "unloadEventEnd": 32.599999994039536,
+        "domInteractive": 72.59999999403954,
+        "domContentLoadedEventStart": 72.70000000298023,
+        "domContentLoadedEventEnd": 72.79999999701977,
+        "domComplete": 77.40000000596046,
+        "loadEventStart": 77.5,
+        "loadEventEnd": 77.5,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2cbkh-q68zkh4.css",
+          "bytes": 81234,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/12pnmy_4w9enr.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/turbopack-1lpaxmtsazld4.js",
+          "bytes": 10580,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2__vch4t43arf.js",
+          "bytes": 26872,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/0jubty45h__ir.js",
+          "bytes": 54646,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/0jfs0z2x9jfbq.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3-9v5llyj1vf9.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=Tm-69x4GW730fyc_",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=Tm-69x4GW730fyc_",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=Tm-69x4GW730fyc_",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=7HZtX8KJoEw1ih64",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=7HZtX8KJoEw1ih64",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=snVoHyYK7vz2rL3V",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=kdJAT3bLarjFkg5E",
+          "bytes": 2382,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=X0H0og1UUufqG-76",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=Uh47InetJhHc2zr1",
+          "bytes": 9069,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/protein-powder-pack-size-value",
+      "width": 1440,
+      "mobileTouchEmulation": false,
+      "result": "PASS",
+      "title": "Does Buying a Bigger Protein Bag Actually Save Money? | SupplementScout",
+      "h1": "Is a bigger protein pack better value after delivery?",
+      "viewport": 1440,
+      "visualWidth": 1425,
+      "scale": 1,
+      "documentWidth": 1425,
+      "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-pack-size-value",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "manufacturer lists both sizes and the Vanilla ingredient formula",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "Applied Nutrition ISO-XP",
+          "href": "/product/applied-nutrition-iso-xp-18kg?variant=4613"
+        },
+        {
+          "text": "Manufacturer ingredient and identity source",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "Applied Nutrition ISO-XP",
+          "href": "/product/applied-nutrition-iso-xp-18kg?variant=735"
+        },
+        {
+          "text": "Manufacturer ingredient and identity source",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "how the verified protein calculation works",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "our delivered-price guide",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "protein powders under £30 including delivery",
+          "href": "/guides/protein-powder-under-30"
+        },
+        {
+          "text": "Whey Protein comparison",
+          "href": "/whey-protein"
+        },
+        {
+          "text": "comparison method",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "freshness rules",
+          "href": "/data-freshness"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Applied Nutrition ISO-XPWhey isolate. Variant: Vanilla / 450 g. Exact pack: 450g, one pack.Holland & BarrettProduct price£30.00Delivery£0.00Delivered total£30.00Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00Delivered cost per kilogram: £66.67/kg.Cost per 25 g protein is withheld for this size comparison: both exact packs need approved nutrition. A verified record for the larger pack is not copied into the smaller one.Manufacturer ingredient and identity source. Classification evidence is separate from our approved nutrition records.",
+          "x": 288.5,
+          "y": 636,
+          "w": 414,
+          "h": 504
+        },
+        {
+          "text": "Applied Nutrition ISO-XPWhey isolate. Variant: Vanilla / 1.8kg. Exact pack: 1,800g, one pack.Whey OkayProduct price£81.53Delivery£3.99Delivered total£85.52Offer checked 17 Nov 2026, 10:482026-11-17T10:48:03.114+00:00Delivered cost per kilogram: £47.51/kg.Cost per 25 g protein is withheld for this size comparison: both exact packs need approved nutrition. A verified record for the larger pack is not copied into the smaller one.Manufacturer ingredient and identity source. Classification evidence is separate from our approved nutrition records.",
+          "x": 722.5,
+          "y": 636,
+          "w": 414,
+          "h": 504
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 116,
+      "navigation": {
+        "name": "http://127.0.0.1:3118/guides/protein-powder-pack-size-value?qa=1440",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 119.59999999403954,
+        "navigationId": 9075,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 1.3999999910593033,
+        "domainLookupStart": 1.3999999910593033,
+        "domainLookupEnd": 1.3999999910593033,
+        "connectStart": 1.3999999910593033,
+        "secureConnectionStart": 0,
+        "connectEnd": 1.3999999910593033,
+        "requestStart": 3,
+        "responseStart": 42.79999999701977,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 42.79999999701977,
+        "responseEnd": 55,
+        "transferSize": 12573,
+        "encodedBodySize": 12273,
+        "decodedBodySize": 37180,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 51.69999998807907,
+        "unloadEventEnd": 51.69999998807907,
+        "domInteractive": 72.8999999910593,
+        "domContentLoadedEventStart": 73,
+        "domContentLoadedEventEnd": 73,
+        "domComplete": 119.59999999403954,
+        "loadEventStart": 119.59999999403954,
+        "loadEventEnd": 119.59999999403954,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2cbkh-q68zkh4.css",
+          "bytes": 81234,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/12pnmy_4w9enr.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/turbopack-1lpaxmtsazld4.js",
+          "bytes": 10580,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2__vch4t43arf.js",
+          "bytes": 26872,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/0jubty45h__ir.js",
+          "bytes": 54646,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/02rbm3t2svhjy.js",
+          "bytes": 946,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3-9v5llyj1vf9.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-iso-xp-18kg?variant=735&_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 261,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-iso-xp-18kg?variant=4613&_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 262,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=cIj_sOd7cQdp-x0H",
+          "bytes": 2565,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=YRzLJfJDGxchjNic",
+          "bytes": 2382,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=d40UC_tM0_Ho1VBd",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=cbN2uTBgJIjWo4fb",
+          "bytes": 1656,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-iso-xp-18kg?variant=735&_rsc=cdEudNqPNlgWbdKz",
+          "bytes": 3054,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-iso-xp-18kg?variant=4613&_rsc=cdEudNqPNlgWbdKz",
+          "bytes": 3056,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=cdEudNqPNlgWbdKz",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/0w4d-y23x0hof.js",
+          "bytes": 13702,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=cIj_sOd7cQdp-x0H",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=75J5vWEgzFmI-gJZ",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=ljMFy-IQRD1_70Tu",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=cdEudNqPNlgWbdKz",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-iso-xp-18kg?_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 249,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/protein-powder-pack-size-value",
+      "width": 390,
+      "mobileTouchEmulation": true,
+      "result": "PASS",
+      "title": "Does Buying a Bigger Protein Bag Actually Save Money? | SupplementScout",
+      "h1": "Is a bigger protein pack better value after delivery?",
+      "viewport": 390,
+      "visualWidth": 390,
+      "scale": 1,
+      "documentWidth": 390,
+      "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-pack-size-value",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "manufacturer lists both sizes and the Vanilla ingredient formula",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "Applied Nutrition ISO-XP",
+          "href": "/product/applied-nutrition-iso-xp-18kg?variant=4613"
+        },
+        {
+          "text": "Manufacturer ingredient and identity source",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "Applied Nutrition ISO-XP",
+          "href": "/product/applied-nutrition-iso-xp-18kg?variant=735"
+        },
+        {
+          "text": "Manufacturer ingredient and identity source",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "how the verified protein calculation works",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "our delivered-price guide",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "protein powders under £30 including delivery",
+          "href": "/guides/protein-powder-under-30"
+        },
+        {
+          "text": "Whey Protein comparison",
+          "href": "/whey-protein"
+        },
+        {
+          "text": "comparison method",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "freshness rules",
+          "href": "/data-freshness"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Applied Nutrition ISO-XPWhey isolate. Variant: Vanilla / 450 g. Exact pack: 450g, one pack.Holland & BarrettProduct price£30.00Delivery£0.00Delivered total£30.00Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00Delivered cost per kilogram: £66.67/kg.Cost per 25 g protein is withheld for this size comparison: both exact packs need approved nutrition. A verified record for the larger pack is not copied into the smaller one.Manufacturer ingredient and identity source. Classification evidence is separate from our approved nutrition records.",
+          "x": 16,
+          "y": 888.5,
+          "w": 358,
+          "h": 496
+        },
+        {
+          "text": "Applied Nutrition ISO-XPWhey isolate. Variant: Vanilla / 1.8kg. Exact pack: 1,800g, one pack.Whey OkayProduct price£81.53Delivery£3.99Delivered total£85.52Offer checked 17 Nov 2026, 10:482026-11-17T10:48:03.114+00:00Delivered cost per kilogram: £47.51/kg.Cost per 25 g protein is withheld for this size comparison: both exact packs need approved nutrition. A verified record for the larger pack is not copied into the smaller one.Manufacturer ingredient and identity source. Classification evidence is separate from our approved nutrition records.",
+          "x": 16,
+          "y": 1404.5,
+          "w": 358,
+          "h": 496
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 92,
+      "navigation": {
+        "name": "http://127.0.0.1:3118/guides/protein-powder-pack-size-value?qa=390",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 69.29999999701977,
+        "navigationId": 6824,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 1.1000000089406967,
+        "domainLookupStart": 1.1000000089406967,
+        "domainLookupEnd": 1.1000000089406967,
+        "connectStart": 1.1000000089406967,
+        "secureConnectionStart": 0,
+        "connectEnd": 1.1000000089406967,
+        "requestStart": 2.7000000029802322,
+        "responseStart": 25.600000008940697,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 25.600000008940697,
+        "responseEnd": 39.400000005960464,
+        "transferSize": 12571,
+        "encodedBodySize": 12271,
+        "decodedBodySize": 37177,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 42,
+        "unloadEventEnd": 42,
+        "domInteractive": 64.40000000596046,
+        "domContentLoadedEventStart": 64.5,
+        "domContentLoadedEventEnd": 64.6000000089407,
+        "domComplete": 69.20000000298023,
+        "loadEventStart": 69.29999999701977,
+        "loadEventEnd": 69.29999999701977,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2cbkh-q68zkh4.css",
+          "bytes": 81234,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/12pnmy_4w9enr.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/turbopack-1lpaxmtsazld4.js",
+          "bytes": 10580,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2__vch4t43arf.js",
+          "bytes": 26872,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/0jubty45h__ir.js",
+          "bytes": 54646,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/02rbm3t2svhjy.js",
+          "bytes": 946,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3-9v5llyj1vf9.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-iso-xp-18kg?variant=4613&_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 262,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-iso-xp-18kg?variant=4613&_rsc=cdEudNqPNlgWbdKz",
+          "bytes": 3056,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=cdEudNqPNlgWbdKz",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=cIj_sOd7cQdp-x0H",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=YRzLJfJDGxchjNic",
+          "bytes": 2382,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=75J5vWEgzFmI-gJZ",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=ljMFy-IQRD1_70Tu",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=cdEudNqPNlgWbdKz",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-iso-xp-18kg?_rsc=2iUUcD3Wdks6xeYC",
+          "bytes": 249,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    }
+  ]
+}

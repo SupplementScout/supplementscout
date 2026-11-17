@@ -154,6 +154,14 @@ production write.
 
 ## Concurrency rule
 
+**17 November 2026 Sprint 4 owner approval:**
+Content Growth exception: SEO-24 beside frozen SEO-20; Draft PR only.
+Only the isolate/concentrate and matched protein-pack-size guides form this
+bundle. SEO-21/22/23 stay live verified and their active-pair exceptions are
+retired. Necessary code/tests/docs and one Draft PR are authorized; no merge,
+production deployment/indexing, data or nutrition write, workflow change,
+Google submission or further implementation follows.
+
 **17 November 2026 SEO-23 release approval:** PR #543's two guide lifecycle
 transitions, required tests/docs, guarded squash merge, automatic production
 deployment and evidence-based closeout are now owner-authorized. Earlier

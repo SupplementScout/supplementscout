@@ -1,0 +1,65 @@
+{
+  "capturedAt": "2026-11-17T18:52:18.818Z",
+  "scope": "only source-reviewed selected variants, not general category or discovery totals",
+  "discovery": {
+    "returnedActiveFreshKnownShippingProducts": 53,
+    "qualifiedComparisonCount": false
+  },
+  "guides": [
+    {
+      "path": "/guides/whey-isolate-vs-concentrate",
+      "reviewedSelectedVariants": 2,
+      "currentOffersKnownDelivery": 2,
+      "approvedExactNutrition": 1,
+      "fullPairProteinComparison": null,
+      "honestDeliveredArithmetic": true,
+      "ready": true
+    },
+    {
+      "path": "/guides/protein-powder-pack-size-value",
+      "reviewedSelectedVariants": 2,
+      "currentOffersKnownDelivery": 2,
+      "approvedExactNutrition": 1,
+      "fullPairProteinComparison": false,
+      "honestDeliveredArithmetic": true,
+      "ready": true
+    }
+  ],
+  "distinctSelectedVariants": [
+    2026,
+    735,
+    4613
+  ],
+  "editorialEvidence": [
+    {
+      "url": "https://appliednutrition.uk/products/iso-xp",
+      "checkedOn": "2026-11-17",
+      "scope": "Vanilla ingredient formula identifies whey isolate as the sole whey protein source; current size selector includes450g and1.8kg. Same line/flavour/formula supports the size pair; not a new nutrition approval."
+    },
+    {
+      "url": "https://7nutrition.eu/en/products/7nutrition-whey-protein-80-500g-598.html",
+      "checkedOn": "2026-11-17",
+      "scope": "Manufacturer Vanilla500g ingredient list identifies whey concentrate; no isolate is listed as a whey source. No protein/serving amounts imported or approved."
+    },
+    {
+      "url": "https://www.adpi.org/wp-content/uploads/2022/07/Whey-and-Whey-Products_Human-Food-Definitions.pdf",
+      "checkedOn": "2026-11-17",
+      "scope": "General definitions of whey-derived ingredients and removal of non-protein components; no finished-product nutrient or clinical claim."
+    }
+  ],
+  "excludedPack": "ISO-XP1kg was found with fresh offers but is not a current listed size on the checked manufacturer page; do not assume it has the same formula. The450g/1.8kg pair has current common manufacturer evidence.",
+  "nutrition": {
+    "capturedAt": "2026-11-17T18:46:59.463Z",
+    "manifest": "data/verified/variant-nutrition-reviewed-batch-1-v2.json",
+    "status": "REVIEWED",
+    "manifestSha256": "447048be2ca789210ad71f8d144471d8cd3b2ef75b5e81c3b4f6cd6169656fa7",
+    "reviewedScopeHash": "c2198812faa5a2cdaeb26e7ad80c154a3c4c85cdef23c9f579a5b5c3bd4c4844",
+    "productId": "178",
+    "variantId": "735",
+    "exactAppliedOverrideEquality": true,
+    "changedRecords": 0
+  },
+  "catalogueWrites": 0,
+  "nutritionApprovals": 0,
+  "rawManufacturerLabelsCommitted": false
+}

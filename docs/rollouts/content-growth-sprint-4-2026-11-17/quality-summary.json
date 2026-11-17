@@ -1,0 +1,42 @@
+{
+  "capturedAt": "2026-11-17T18:57:21.978Z",
+  "baseMain": "5ac0e802b5ffc5754466b546b5f99aa6716a196e",
+  "authorization": "one Sprint4 Draft PR; no merge, production deployment or indexing",
+  "gates": {
+    "focused": 54,
+    "quick": "PASS",
+    "full": "PASS",
+    "fullSafeTests": 4021,
+    "typeScript": "PASS",
+    "eslint": "PASS",
+    "productionBuild": "PASS",
+    "projectGuardian": "PASS",
+    "baselineMigrations": "PASS"
+  },
+  "inventory": {
+    "count": 367,
+    "sha256": "85588cd09a8b77363dd59d0a81ccac0b249afa542eca78bf0311bbafe99f077f",
+    "safe": 306,
+    "integration": 57,
+    "artifactBound": 4,
+    "quick": 66,
+    "integrationRun": false
+  },
+  "qualityGateProductionCredentials": false,
+  "manualActualDataTransport": "GET/HEAD only, table allowlist; not quality-gate process",
+  "productionDataWrites": 0,
+  "nutritionApprovals": 0,
+  "testCorrection": "Full gate caught the old Whey Isolate sitemap substring assertion also counting /guides/whey-isolate-vs-concentrate. It now requires the exact category canonical; full rerun passed. No test was omitted or disabled.",
+  "seo20Frozen": true,
+  "seo21": "LIVE VERIFIED",
+  "seo22": "LIVE VERIFIED",
+  "seo23": "LIVE VERIFIED",
+  "stage3": "disabled",
+  "gymHighHubs": "owner_deferred",
+  "newRoutesLifecycle": "planned",
+  "newRoutesIndexable": false,
+  "newRoutesPublished": false,
+  "gscActions": 0,
+  "fieldCwvClaim": false,
+  "images": "exact PNG Git blob parity required before commit"
+}
