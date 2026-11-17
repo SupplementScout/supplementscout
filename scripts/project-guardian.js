@@ -17,6 +17,10 @@ const ALLOWED_STATUSES = new Set([
   "BLOCKED",
   "DEFERRED",
 ]);
+// One dated owner decision, recorded in the existing authoritative documents.
+// This is not a general second implementation slot or publication approval.
+const CONTENT_GROWTH_APPROVAL =
+  "Content Growth exception: SEO-21 beside frozen SEO-20; Draft PR only.";
 
 function normalize(value) {
   return String(value).replace(/\r\n?/g, "\n");
@@ -141,7 +145,14 @@ function validateDocuments(docs, now = new Date()) {
     );
   }
   const inProgress = rows.filter((row) => row.status === "IN PROGRESS");
-  if (inProgress.length > 1) {
+  const approvedContentGrowth =
+    [docs.agents, docs.operating, currentSeoTask, docs.agentModel]
+      .every((text) => text.includes(CONTENT_GROWTH_APPROVAL)) &&
+    byId.get("SEO-20")?.status === "IN PROGRESS" &&
+    byId.get("SEO-21")?.task.includes("/creatine#under-20");
+  const permittedPair = approvedContentGrowth && inProgress.length === 2 &&
+    inProgress.every((row) => ["SEO-20", "SEO-21"].includes(row.id));
+  if (inProgress.length > 1 && !permittedPair) {
     errors.push(`More than one SEO task is IN PROGRESS: ${inProgress.map((row) => row.id).join(", ")}.`);
   }
 
@@ -155,6 +166,9 @@ function validateDocuments(docs, now = new Date()) {
   }
   if (inProgress.length === 1 && nextId !== inProgress[0].id) {
     errors.push(`IN PROGRESS task ${inProgress[0].id} does not match next executable task ${nextId}.`);
+  }
+  if (permittedPair && nextId !== "SEO-20") {
+    errors.push("The Content Growth exception must preserve SEO-20 as next executable task.");
   }
 
   const immediate = section(

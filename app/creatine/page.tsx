@@ -6,6 +6,7 @@ import { OfferCheckedBadge } from "../components/ComparisonProductVisuals";
 import ComparisonTransparencyLinks from "../components/ComparisonTransparencyLinks";
 import {
   getCreatineComparison,
+  selectCreatineUnder20,
   type CreatineComparisonResult,
   type CreatineComparisonRow,
 } from "../lib/creatineComparison";
@@ -34,7 +35,7 @@ const description =
   "Compare creatine supplement prices, delivery costs and retailer availability from UK supplement retailers.";
 const getCachedCreatineComparison = createLifecycleDataLoader(
   pagePath,
-  "creatine-comparison-v2",
+  "creatine-comparison-v3",
   getCreatineComparison
 );
 
@@ -202,7 +203,49 @@ function ProductIdentity({ row }: { row: CreatineComparisonRow }) {
   );
 }
 
-export function CreatinePageContent({ result, controlView }: { result: CreatineComparisonResult; controlView?: CategoryControlView<CreatineComparisonRow> }) {
+export function CreatineBudgetSection({ rows, now }: { rows: CreatineComparisonRow[]; now?: Date }) {
+  const examples = selectCreatineUnder20(rows, now);
+  return (
+    <section id="under-20" aria-labelledby="under-20-heading" className="mx-auto max-w-7xl scroll-mt-6 px-4 pb-10 sm:px-6 sm:pb-14">
+      <h2 id="under-20-heading" className="text-2xl font-bold sm:text-3xl">Creatine under £20: check the delivered cost</h2>
+      <p className="mt-4 max-w-3xl leading-7 text-zinc-700">
+        {examples.length > 0
+          ? "These checked creatine offers cost £20 or less including known delivery. Compare the exact pack and the delivered total before choosing."
+          : "We cannot currently show an exact-variant creatine offer at £20 or less including known delivery. Check the full comparison below or try Help Me Choose."}
+        {" "}A product price below £20 can exceed your budget once delivery is added.
+      </p>
+      {examples.length > 0 && (
+        <ul className="mt-6 grid gap-4 md:grid-cols-3">
+          {examples.map(({ row, offer }) => (
+            <li key={row.id} className="min-w-0 rounded-xl border border-zinc-200 bg-white p-5">
+              <h3 className="break-words text-lg font-bold">
+                <Link href={`${row.productUrl}?variant=${encodeURIComponent(offer.variantId)}`} className="underline decoration-zinc-300 underline-offset-4 hover:decoration-zinc-950">{row.name}</Link>
+              </h3>
+              <p className="mt-2 break-words text-sm text-zinc-600">Variant: {offer.variantLabel}. Pack: {offer.packLabel}.</p>
+              <dl className="mt-4 grid grid-cols-2 gap-x-3 gap-y-2 text-sm">
+                <dt>Retailer</dt><dd className="break-words font-semibold">{offer.retailer?.name}</dd>
+                <dt>Product price</dt><dd>{formatCurrency(offer.productPrice)}</dd>
+                <dt>Delivery</dt><dd>{formatCurrency(offer.shippingCost!)}</dd>
+                <dt>Delivered total</dt><dd className="font-bold">{formatCurrency(offer.deliveredPrice!.totalPrice)}</dd>
+                <dt>Cost per 5 g</dt><dd>{offer.verifiedCostPer5g === null ? "Not yet verified" : formatCurrency(offer.verifiedCostPer5g)}</dd>
+              </dl>
+              <p className="mt-4 text-xs leading-5 text-zinc-600">Offer checked: <time dateTime={offer.lastCheckedAt!}>{formatCheckedAt(offer.lastCheckedAt)} (UK time)</time></p>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="mt-5 max-w-3xl text-sm leading-6 text-zinc-600">
+        We show up to three products ordered by delivered price from our covered retailers, using only in-stock offers checked within our freshness window and linked to an active, exact variant with a known pack. Offers that age out are excluded. Cost per 5 g uses verified creatine and pack data for that variant; it is a price comparison unit, not a serving recommendation or an effectiveness score. Missing data is not estimated.
+      </p>
+      <p className="mt-3 max-w-3xl text-sm leading-6 text-zinc-600">
+        Coverage is limited to tracked offers. Delivery can vary by address, basket or retailer terms; discounts and membership benefits may differ. Confirm the selected variant, stock and final checkout total before buying.
+      </p>
+      <Link href="/help-me-choose?q=creatine%20under%20%C2%A320&priority=lowest_delivered_price" className="mt-4 inline-flex min-h-11 items-center font-semibold underline">Help me choose creatine under £20</Link>
+    </section>
+  );
+}
+
+export function CreatinePageContent({ result, controlView, budgetRows = result.rows }: { result: CreatineComparisonResult; controlView?: CategoryControlView<CreatineComparisonRow>; budgetRows?: CreatineComparisonRow[] }) {
   const lastUpdated = formatCheckedAt(result.summary.latestOfferCheckedAt);
   const jsonLd = buildCreatineStructuredData(result.rows, result.summary.latestOfferCheckedAt);
   const decisionAnswers = selectCategoryDecisionAnswers(
@@ -257,6 +300,8 @@ export function CreatinePageContent({ result, controlView }: { result: CreatineC
         answers={decisionAnswers}
         category="Creatine"
       />
+
+      {!result.error && <CreatineBudgetSection rows={budgetRows} />}
 
       <section aria-labelledby="comparison-heading" className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 sm:pb-14">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
@@ -397,5 +442,5 @@ export default async function CreatinePage({ searchParams }: PageProps = {}) {
   const result = await getCachedCreatineComparison();
   assertLifecycleDataAvailable(result, pagePath);
   const controlView = buildCategoryControlView(result.rows, params, creatineCategoryControlFacts, { verifiedValueSort: true });
-  return <CreatinePageContent result={{ ...result, rows: controlView.rows }} controlView={controlView} />;
+  return <CreatinePageContent result={{ ...result, rows: controlView.rows }} controlView={controlView} budgetRows={result.rows} />;
 }

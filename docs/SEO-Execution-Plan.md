@@ -1,10 +1,15 @@
 # SupplementScout SEO Execution Plan
 
-**Status date:** 3 November 2026<br>
+**Status date:** 17 November 2026<br>
 **Owner:** SupplementScout  
 **Scope:** Organic search traffic, indexation, internal discovery, search landing
 pages, structured data, measurement and authority building.  
 **Parent authority:** `docs/SupplementScout-Operating-Plan-2026-07-15.md`
+
+**17 November 2026 Content Growth checkpoint:** the owner permits the bounded
+SEO-21 Draft PR alongside frozen SEO-20. Section 6 defines the exact exception;
+the earlier “only SEO task” statements below describe their dated checkpoints.
+No production release or experiment change is authorized.
 
 **3 November 2026 SEO-19 production closeout:** SEO-19 is `LIVE VERIFIED`.
 PR `#439` merged approved head
@@ -205,13 +210,14 @@ structural pass does not replace task-specific tests or public verification.
 | Status | Meaning |
 |---|---|
 | `PLANNED` | Approved roadmap item, not started. |
-| `IN PROGRESS` | The single SEO implementation currently being worked on. |
+| `IN PROGRESS` | The active SEO task, subject only to the dated bounded Content Growth exception below. |
 | `CODE COMPLETE` | Code and local tests pass, but production is not yet verified. |
 | `LIVE VERIFIED` | Deployed and checked on the public site or in Search Console. This is the only completed state. |
 | `BLOCKED` | Cannot progress without a named external input or decision. |
 | `DEFERRED` | Deliberately postponed with a recorded reason. |
 
-Only one SEO implementation item may be `IN PROGRESS` at a time. Measurement,
+Only one SEO implementation item may be `IN PROGRESS` at a time, except the
+17 November owner-approved SEO-20/SEO-21 pair in section 6. Measurement,
 content research and legitimate outreach may continue in parallel when they do
 not change the same files or data.
 
@@ -289,15 +295,29 @@ Console evidence and user value.
 | SEO-18 | P1 | Add the homepage self-canonical and one clean Help Me Choose sitemap entry. | `LIVE VERIFIED` | PR `#437` merged as production `75097fc49deeb1e9dfce582d7602c6b6c5b107c3`; tree equivalence, main Quality Gate `41614046140`, Vercel deployment and public homepage, Help Me Choose base/parameter and sitemap contracts all passed with no title, description, robots, behavior, schema or lifecycle-registry regression. |
 | SEO-19 | P1 | Add reciprocal Vitamins and Multivitamins contextual links. | `LIVE VERIFIED` | PR `#439` merged as production `4bb719091cc762e806e96c097a49251ff756212d`; tree equivalence, main Project Guardian `41623541134`, Quality Gate `41623540890`, Vercel deployment and public HTTP, link-placement, anchor, canonical, robots, metadata and schema checks passed. No loader, pagination, indexability, data or generic link-system regression occurred. |
 | SEO-20 | P1 | Run the PER4M title-only CTR experiment. | `IN PROGRESS` | PR `#441` deployed production `4930dd541629ef06a919abe78992e52db5c8e97e`; public smoke at `2026-11-03T11:54:34Z` proved the exact browser title `Compare PER4M Prices Across UK Retailers | SupplementScout` and frozen-field parity. Freeze the deployed title, meta, H1, body, schema, direct anchors and data presentation during measurement except for a production regression; observe at least 28 settled days, 500 page impressions and 300 brand-navigational query impressions; primary success is CTR improvement without material ranking deterioration. |
+| SEO-21 | P1 | Content Growth: expand `/creatine#under-20` using exact-variant delivered prices. | `CODE COMPLETE` | Local Guardian, focused regressions, quick/full gates and production build pass. Desktop/390px SSR fixture QA passes for the section. Await review of the Draft PR head and separate merge/production-publication authorization; not deployed to production or live verified. Two guide drafts and seven briefs are supporting review material only. |
 
 ## 6. Current active task
 
 **Next executable task:** SEO-20 is `IN PROGRESS`. SEO-19 and SEO-18 are
-complete and `LIVE VERIFIED`; SEO-20 is the only SEO task `IN PROGRESS`. The
+complete and `LIVE VERIFIED`. The
 title-only experiment is live in production and the measurement clock started
 at `2026-11-03T11:54:34Z`. It is not `LIVE VERIFIED` and cannot be evaluated
 until both the settled-day and volume thresholds pass. See the
 [dated experiment record](rollouts/seo20-per4m-title-experiment-2026-11-03.md).
+
+**17 November 2026 owner decision:** Content Growth exception: SEO-21 beside frozen SEO-20; Draft PR only.
+SEO-21 is the one independent Content Growth implementation: existing
+`/creatine#under-20` plus tests and supporting documentation. SEO-20 retains
+its exact title, meta, H1, body, schema, direct anchors, data presentation,
+measurement start, schedule and 28-settled-day / 500-page / 300-brand-query gates.
+No parallel PER4M or Magnesium experiment is permitted. Code and governance
+are reviewable in the same Draft PR; the Guardian remains enabled and rejects
+any other active pair or missing authorization. The two guide drafts and seven
+briefs authorize no new route. Merge, deployment and publication require a
+separate owner decision. Supporting scope and evidence are in
+[the sprint review record](rollouts/content-growth-sprint-1-2026-11-17.md);
+this table remains the sole SEO status ledger.
 
 SEO-15 is `LIVE VERIFIED`. Owner-authorized closeout used ordinary scheduled
 run `41488694982` and artifact `13162932296`: `813/813` series pass 60-day
@@ -315,17 +335,14 @@ threshold weakening, automatic producer approval, manual evidence manufacture
 or legacy/incomplete publication is permitted. Even then, Stage 3 remains off
 until separate explicit owner authorization.
 
-The latest weekly GSC/GA4 read is scheduled run `38289200062` for 5-11 October:
-1,479 final impressions and 6 clicks across the six settled dates. The 11
-October row remains non-final (`220` impressions / `1` click), so it is excluded
-from those headline totals. GA4 has 82 Organic Search sessions, but 70 belong to
-one `search.google.com / referral` user; use 12 sessions as the conservative
-external signal. One retailer click and zero Better-value clicks do not support
-a conversion-uplift claim. Against 28 September-4 October, final GSC impressions
-rose from 1,234 to 1,479 while clicks fell from 13 to 6, CTR fell from 1.05% to
-0.41% and average position moved from 34.24 to 38.95. Keep measurement running.
-This small weekly sample did not itself change the roadmap; the later explicit
-2 November owner decision now governs the post-SEO-15 order.
+The latest weekly GSC/GA4 read inspected is scheduled run `43933467205`,
+artifact `14259172592`, for 9-15 November. Six settled dates (9-14 November)
+have 2,205 impressions, 21 clicks, 0.95% CTR and average position 32.77.
+The 15 November row is non-final and excluded. GA4 reports 79 Organic Search
+sessions, 13 users and 3 retailer clicks; the small sample does not establish
+conversion uplift or a reliable AI acquisition channel. The 17 November owner
+decision authorizes bounded Content Growth independently of interim SEO-20
+results. See the dated measurement evidence below.
 
 The SEO-15 technical plan remains the bounded design and evidence reference;
 this execution ledger remains the sole SEO status and ordering authority. The
@@ -487,6 +504,40 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 17 November 2026 - SEO-21 Content Growth CODE COMPLETE
+
+- Based on clean remote main `b9c44b3959fe857e49b8bb03a109a3d88e16f2b5`.
+  The owner approved one existing-route expansion, tests, minimal governance
+  and a Draft PR beside frozen SEO-20; no merge, deployment or publication.
+- Existing creatine loader, batched exact-variant resolver and shared pricing,
+  nutrition, freshness and lifecycle contracts are reused. Public identity,
+  metadata, robots, sitemap, schema and existing comparison functions remain.
+- 45 focused creatine/Guardian regressions pass. `verify:quick`,
+  `verify:full`, TypeScript, ESLint, migration validation and the Next.js
+  production build pass. Chrome desktop 1440px/mobile 390px fixture review covers
+  cards, long names, missing unit costs, checked times, keyboard links and
+  zero state; no clipping or layout shift is introduced in the section.
+- The new section is not deployed. A public-anon SELECT returned 86 category
+  products but no readable exact variant bindings; it cannot establish zero
+  qualifying offers or production readiness. Actual server-binding and public
+  new-section readback remain release checks after separate authorization.
+- Full scope, limitations, two English guide drafts, seven ordered briefs and
+  release decisions: [sprint review pack](rollouts/content-growth-sprint-1-2026-11-17.md).
+  SEO-20 remains `IN PROGRESS` with unchanged freeze and measurement gates.
+
+### 17 November 2026 - weekly measurement readback
+
+- Ordinary scheduled Growth Analytics run `43933467205` (16 November),
+  artifact `14259172592`, report `weekly-2026-11-15.json`, SHA-256
+  `9f1728703f0c9fc3d135c917ba8f68c6f8556f8abc5176d41014e4b17ae6a47c`.
+- GSC settled 9-14 November: 2,205 impressions / 21 clicks / CTR 0.95% /
+  average position 32.77. Non-final 15 November is excluded. The prior week's
+  settled rows had 2,205 impressions / 20 clicks. GA4 Organic Search:
+  79 sessions / 13 users / 3 retailer clicks. Raw private report stays outside
+  the repository; no conversion, revenue or AI-channel uplift is established.
+- The nominal 28-day comparison contains only 20 paired settled dates and is
+  not treated as a complete 28-day window or an SEO-20 result.
 
 ### 3 November 2026 - SEO-20 PER4M title experiment IN PROGRESS
 

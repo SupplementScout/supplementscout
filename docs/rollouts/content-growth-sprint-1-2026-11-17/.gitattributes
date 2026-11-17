@@ -1,0 +1,2 @@
+# Preserve screenshot bytes under the parent rollout text policy.
+*.png binary

@@ -1,9 +1,16 @@
 # SupplementScout Operating Plan
 
-**Status date:** 6 November 2026<br>
+**Status date:** 17 November 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
+
+**17 November 2026 Content Growth checkpoint:** one scoped creatine Draft PR
+is owner-authorized beside frozen SEO-20. The existing SEO ledger records
+SEO-21 as locally code complete; it is not deployed to production or live verified.
+Section 13 records the bounded exception. No merge, publication, production
+write or change to SEO-20 is authorized. The existing retailer, nutrition,
+Stage 3 and GYM HIGH approval boundaries are unchanged.
 
 **17 November 2026 owner-approved H&B activation checkpoint - ordinary schedule proof pending:**
 PR539 released as4d91fde9 with green main checks and Production7848668005 SUCCESS.
@@ -2520,7 +2527,7 @@ SEO-18 is complete and `LIVE VERIFIED`.
 
 SEO-19 is complete and `LIVE VERIFIED`.
 
-1. `SEO-20` is the next executable and sole `IN PROGRESS` task: the PER4M
+1. `SEO-20` is the next executable measurement task: the PER4M
    title-only experiment is live from `2026-11-03T11:54:34Z` and remains under
    its isolated measurement contract;
 2. keep `SEO-17` `PLANNED` until an exact, non-duplicative `/whey-protein`
@@ -5087,12 +5094,22 @@ Target experience:
 
 ### Current active task
 
-`SEO-20` is the next executable SEO task and the sole `IN PROGRESS` task. Its
+`SEO-20` is the next executable SEO task and remains `IN PROGRESS`. Its
 bounded title-only experiment is live in production from
 `2026-11-03T11:54:34Z` and remains frozen during measurement. SEO-19 and SEO-18
 are `LIVE VERIFIED`. SEO-15 is `LIVE VERIFIED` after the owner-authorized
 3 November closeout. Its shared automatic candidate inventory and scheduled
 read-only audit continue as operational monitoring, not active implementation.
+
+**17 November 2026 owner decision:** Content Growth exception: SEO-21 beside frozen SEO-20; Draft PR only.
+The owner authorizes one independent implementation of `/creatine#under-20`,
+tests, minimal governance alignment and supporting review materials in a
+controlled Draft PR. SEO-20's frozen fields, measurement schedule and thresholds
+remain unchanged; its binding place in the sequence is preserved. The existing
+SEO Execution Plan records SEO-21 and remains the sole SEO status ledger.
+No new guide route, automatic merge, deployment, production write or publication
+is approved. Further implementations and publication return for separate owner
+approval. See [the sprint review record](rollouts/content-growth-sprint-1-2026-11-17.md).
 Public Stage 3 remains disabled and deferred at current breadth `1 / 1 / 1`
 against the unchanged `12 / 30 / 4` gate. `SEO-16` is also complete and `LIVE
 VERIFIED`.
@@ -5253,7 +5270,8 @@ conservative external-session signal and make no conversion claim.
 ### Then
 
 1. Keep SEO-18 and SEO-19 `LIVE VERIFIED`, with SEO-20 as the next executable
-   and sole `IN PROGRESS` task under its settled-day and volume gates. `SEO-17` remains
+   task `IN PROGRESS` under its settled-day and volume gates, with only the
+   bounded SEO-21 Draft PR exception above. `SEO-17` remains
    `PLANNED` behind its separate owner-content gate. SEO-15 and SEO-16 are
    already live verified.
 2. Continue the SEO-15 scheduled read-only evidence monitor without treating it
