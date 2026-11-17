@@ -895,8 +895,8 @@ test("automation review capability matrix exposes only registered execution path
   assert.match(matrixSource, /registeredExecution/);
   assert.match(adapterSource, /automation-review-execution-adapters\.json/);
   assert.deepEqual(registry.adapters.map((adapter) => adapter.retailer_slug), ["ebay-uk", "fit-house", "10-reps", "whey-okay", "gladiator-nutrition", "holland-barrett"]);
-  assert.equal(registry.adapters.filter((adapter) => adapter.enabled !== false && adapter.operations.includes("UPDATE_STOCK")).length, 5);
-  assert.equal(registry.adapters.find((adapter) => adapter.retailer_id === "16").enabled, false);
+  assert.equal(registry.adapters.filter((adapter) => adapter.enabled !== false && adapter.operations.includes("UPDATE_STOCK")).length, 6);
+  assert.equal(registry.adapters.find((adapter) => adapter.retailer_id === "16").enabled, true);
   assert.equal(registry.adapters.some((adapter) => adapter.operations.some((operation) => /REBIN|MARK_OOS/.test(operation))), false);
   const { capabilityForReview } = loadTsModule("app/lib/automationReviewCapabilityMatrix.ts");
   assert.equal(capabilityForReview("14", "UPDATE_STOCK", "COMMERCIAL_CHANGE").capability, "REVIEW_EXECUTABLE");
@@ -1088,8 +1088,8 @@ test("automation review adapter registry is exact, single-row and default-deny",
   const source = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewAdapters.ts"), "utf8");
   const raw = require("../config/automation-review-execution-adapters.json");
   const { REVIEW_EXECUTION_ADAPTERS } = require("./lib/automation-review-adapter-registry");
-  assert.equal(REVIEW_EXECUTION_ADAPTERS.length, 5);
-  assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.map((adapter) => adapter.retailerId), ["12", "9", "14", "3", "15"]);
+  assert.equal(REVIEW_EXECUTION_ADAPTERS.length, 6);
+  assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.map((adapter) => adapter.retailerId), ["12", "9", "14", "3", "15", "16"]);
   assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.find((adapter) => adapter.retailerSlug === "ebay-uk").operations, ["VERIFY_NO_CHANGE", "UPDATE_PRICE", "UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"]);
   assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.find((adapter) => adapter.retailerSlug === "10-reps").operations, ["UPDATE_STOCK"]);
   assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.find((adapter) => adapter.retailerSlug === "whey-okay").operations, ["UPDATE_STOCK"]);
@@ -1121,13 +1121,16 @@ test("automation review adapter registry is exact, single-row and default-deny",
   assert.equal(resolveReviewAdapter("15", "UPDATE_STOCK", "STOCK_CHANGE").adapter?.retailerSlug, "gladiator-nutrition");
   assert.equal(resolveReviewAdapter("15", "UPDATE_PRICE", "STOCK_CHANGE").adapter, null);
   assert.equal(resolveReviewAdapter("15", "UPDATE_STOCK", "PRICE_CHANGE").adapter, null);
-  assert.equal(resolveReviewAdapter("16", "UPDATE_STOCK", "STOCK_CHANGE").adapter, null);
+  assert.equal(resolveReviewAdapter("16", "UPDATE_STOCK", "STOCK_CHANGE").adapter?.retailerSlug, "holland-barrett");
+  assert.equal(resolveReviewAdapter("16", "UPDATE_PRICE", "PRICE_CHANGE").adapter, null);
+  assert.equal(resolveReviewAdapter("16", "UPDATE_STOCK", "PRICE_CHANGE").adapter, null);
+  assert.equal(resolveReviewAdapter("17", "UPDATE_STOCK", "STOCK_CHANGE").adapter, null);
   assert.equal(resolveReviewAdapter("14", "MANUAL_REVIEW_IDENTITY", "SOURCE_MISSING").adapter, null);
 });
 
-test("H&B prepared review capabilities show source/identity/policy evidence while stock execution stays unavailable", () => {
+test("H&B approved review capabilities execute stock only and retain source/identity/policy reviews", () => {
   const { capabilityForReview, decisionGroupForReview } = loadTsModule("app/lib/automationReviewCapabilityMatrix.ts");
-  assert.equal(capabilityForReview("16", "UPDATE_STOCK", "COMMERCIAL_CHANGE").capability, "UNSUPPORTED");
+  assert.equal(capabilityForReview("16", "UPDATE_STOCK", "COMMERCIAL_CHANGE").capability, "REVIEW_EXECUTABLE");
   assert.equal(capabilityForReview("16", "MANUAL_REVIEW_IDENTITY", "IDENTITY_CONFLICT").capability, "REVIEW_ONLY");
   assert.equal(capabilityForReview("16", "MANUAL_REVIEW", "SOURCE_FAILURE").capability, "REVIEW_ONLY");
   assert.equal(capabilityForReview("16", "MANUAL_REVIEW", "POLICY_REVIEW").capability, "REVIEW_ONLY");
@@ -1780,12 +1783,12 @@ test("Review Queue postflight recovery reuses the same workflow and cannot repla
   assert.equal((workflow.match(/name: Automation Review Queue Worker/g) || []).length, 1);
 });
 
-test("shared retailer Review Queue worker uses one registry for Fit House, 10 Reps, Whey Okay and Gladiator", () => {
+test("shared retailer Review Queue worker uses one registry including approved Holland & Barrett", () => {
   const source = fs.readFileSync(path.join(process.cwd(), "scripts", "automation-review-shared-retailer-worker.js"), "utf8");
   const workflow = fs.readFileSync(path.join(process.cwd(), ".github", "workflows", "automation-review-queue-worker.yml"), "utf8");
   const capability = fs.readFileSync(path.join(process.cwd(), "app", "lib", "automationReviewCapabilityMatrix.ts"), "utf8");
   const { ADAPTERS, assertContext, parseArgs } = require("./automation-review-shared-retailer-worker");
-  assert.deepEqual(Object.keys(ADAPTERS), ["fit-house", "10-reps", "whey-okay", "gladiator-nutrition"]);
+  assert.deepEqual(Object.keys(ADAPTERS), ["fit-house", "10-reps", "whey-okay", "gladiator-nutrition", "holland-barrett"]);
   for (const adapter of Object.values(ADAPTERS)) {
     assert.equal(adapter.expectedExecutionRows, 20);
     assert.equal(adapter.expectedCommercialChanges, 1);
@@ -1800,7 +1803,7 @@ test("shared retailer Review Queue worker uses one registry for Fit House, 10 Re
   assert.match(source, /IDEMPOTENCY_FAILED/);
   assert.doesNotMatch(source, /\b(?:insert into|update|delete from)\s+(?:public\.)?(?:products|product_variants|retailer_products|offers|price_history)\b/i);
   assert.match(workflow, /group: retailer-offer-production-write/);
-  for (const prefix of ["FIT_HOUSE_SYNC", "TEN_REPS_REFRESH", "WHEY_OKAY_SYNC", "GLADIATOR_NUTRITION_REFRESH"]) for (const role of ["VALIDATOR", "APPROVER", "EXECUTOR"]) assert.match(workflow, new RegExp(`${prefix}_${role}_DATABASE_URL`));
+  for (const prefix of ["FIT_HOUSE_SYNC", "TEN_REPS_REFRESH", "WHEY_OKAY_SYNC", "GLADIATOR_NUTRITION_REFRESH", "HOLLAND_BARRETT_REFRESH"]) for (const role of ["VALIDATOR", "APPROVER", "EXECUTOR"]) assert.match(workflow, new RegExp(`${prefix}_${role}_DATABASE_URL`));
   for (const role of ["VALIDATOR", "APPROVER", "EXECUTOR"]) assert.match(workflow, new RegExp(`GLADIATOR_NUTRITION_REFRESH_${role}_DATABASE_URL: \\$\\{\\{ secrets\\.JONS_SYNC_${role}_DATABASE_URL \\}\\}`));
   assert.match(workflow, /WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL/);
   assert.match(workflow, /TEN_REPS_FEED_URL/);

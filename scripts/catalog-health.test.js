@@ -623,7 +623,7 @@ test("automation watchdog covers all retailers on a read-only six-hour schedule"
     "utf8"
   );
   assert.equal(config.retailers.length, 14);
-  assert.equal(activeRetailerProfiles(config).length, 13);
+  assert.equal(activeRetailerProfiles(config).length, 14);
   assert.equal(config.schema_version, 3);
   assert.equal(config.maximum_success_age_hours, 48);
   assert.deepEqual(config.platform_checks, [{
@@ -1667,8 +1667,8 @@ test("shared workflow watchdog stages match real step names and retailer artifac
     }
   }
   const hb = config.retailers.find(row => row.id === 16);
-  assert.equal(hb.enabled, false);
-  assert.ok(!activeRetailerProfiles(config).some(row => row.id === 16));
+  assert.equal(hb.enabled, true);
+  assert.ok(activeRetailerProfiles(config).some(row => row.id === 16));
   const rule = config.monitored_backlog.retailers["16"];
   assert.deepEqual(rule.allowed_review_offer_ids, ["4661", "4678"]);
   assert.deepEqual(rule.allowed_stale_offer_ids, ["4661", "4678"]);
@@ -1679,7 +1679,7 @@ test("inactive retailer registration makes no workflow/artifact request and rema
   const output = path.join(process.cwd(), "tmp", `watchdog-inactive-${process.pid}.json`);
   const source = loadWatchdogConfig();
   const report = await runWatchdog({ output }, {
-    config: { ...source, platform_checks: [], retailers: source.retailers.filter(row => row.id === 16) },
+    config: { ...source, platform_checks: [], retailers: source.retailers.filter(row => row.id === 16).map(row => ({ ...row, enabled: false })) },
     env: { GITHUB_REPOSITORY: "owner/repo", GITHUB_TOKEN: "test-token" },
     databaseEvidence: async () => new Map(),
     runStages: async () => { throw new Error("Inactive profile must never request workflow history"); },

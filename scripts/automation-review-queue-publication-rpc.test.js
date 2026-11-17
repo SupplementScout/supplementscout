@@ -224,12 +224,14 @@ test("shared proposed-state proposal preserves publication guards and each produ
   assert.equal(functionDefinition(proposedStateRollback), functionDefinition(bindingForwardSql));
 });
 
-test("proposed publication correction remains outside deployment selectors with a real PostgreSQL regression", () => {
+test("owner-approved publication correction is selected once on production and retains its PostgreSQL regression", () => {
   const { migrationBinding } = require("./lib/environment-migrations");
-  for (const environment of ["STAGING", "PRODUCTION"]) {
-    assert.ok(!migrationBinding(environment).versions.some(name => name.includes("align_review_refresh_proposed_state")));
-  }
-  assert.equal(fs.existsSync(path.join(process.cwd(), "supabase/migrations", path.basename(proposedStateProposalPath))), false);
+  assert.equal(migrationBinding("PRODUCTION").versions.filter(name => name.includes("align_review_refresh_proposed_state")).length, 1);
+  assert.ok(!migrationBinding("STAGING").versions.some(name => name.includes("align_review_refresh_proposed_state")));
+  const installedPath = path.join(process.cwd(), "supabase/migrations", path.basename(proposedStateProposalPath));
+  assert.equal(fs.readFileSync(installedPath, "utf8").replaceAll("\r\n", "\n"), fs.readFileSync(proposedStateProposalPath, "utf8").replaceAll("\r\n", "\n"));
+  const approval = require("../docs/retailer-automation/evidence/HB-SHARED-AUTOMATION-OWNER-AUTHORIZATION-2026-11-17.json");
+  assert.equal(approval.separate_owner_answers[1].answer, "Zatwierdzam opisane SQL");
   const runner = fs.readFileSync(path.join(process.cwd(), "scripts/atomic-product-import-integration.test.js"), "utf8");
   assert.match(runner, /reviewPublicationProposedStateScenarios\(container\)/);
   const scenarios = fs.readFileSync(path.join(process.cwd(), "supabase/test/automation_review_proposed_state_scenarios.sql"), "utf8");

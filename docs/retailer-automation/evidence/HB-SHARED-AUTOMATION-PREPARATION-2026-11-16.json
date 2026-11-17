@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "task": "H&B existing-offer shared automation",
-  "status": "PREPARATION_VERIFIED_AWAITING_OWNER_DECISIONS_NOT_ACTIVATED",
+  "status": "OWNER_AUTHORIZED_SQL_APPLIED_RUNTIME_RELEASE_PENDING",
   "owner_scope": "Reuse the existing shared pipeline; defer catalogue expansion; prepare and verify before separate production authorization.",
   "baseline": {
     "main_and_production": "9ec8b2264fee6a453be46555dab0e500ff65feb1",
@@ -464,14 +464,16 @@
     "regression": "scripts/catalog-health.test.js#shared workflow watchdog stages match real step names and retailer artifacts cannot cross profiles"
   },
   "activation_decisions": {
-    "policy_scope": "PENDING_OWNER_DECISION",
-    "production_sql": "PENDING_SEPARATE_OWNER_DECISION",
-    "schedule": "PENDING_SEPARATE_OWNER_DECISION",
+    "policy_scope": "EXPLICITLY_APPROVED_BY_OWNER",
+    "production_sql": "EXPLICITLY_APPROVED_BY_OWNER",
+    "schedule": "EXPLICITLY_APPROVED_BY_OWNER",
     "live_verified": false
   },
   "activation_packet": {
     "file": "docs/retailer-automation/evidence/HB-SHARED-AUTOMATION-ACTIVATION-PROPOSAL-2026-11-17.json",
     "sha256_lf": "ecd36ed5e3413acc148fe538c313044980d1220d6a8a09c924916ef095ddbe32",
     "status": "READY_FOR_OWNER_REVIEW_NOT_ACTIVATED"
-  }
+  },
+  "activation_execution": "docs/retailer-automation/evidence/HB-SHARED-AUTOMATION-ACTIVATION-EXECUTION-2026-11-17.json",
+  "owner_authorization": "docs/retailer-automation/evidence/HB-SHARED-AUTOMATION-OWNER-AUTHORIZATION-2026-11-17.json"
 }

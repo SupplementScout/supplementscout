@@ -7,8 +7,8 @@
     "source_platform": "PARTNERIZE_PRODUCT_FEED"
   },
   "authorization": {
-    "status": "OWNER_APPROVAL_REQUIRED",
-    "production_apply": false
+    "status": "OWNER_APPROVED",
+    "production_apply": true
   },
   "approved_mapping_count": 219,
   "scope_observed_at": "2026-11-16T19:11:49.076Z",

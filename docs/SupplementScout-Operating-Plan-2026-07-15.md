@@ -5,6 +5,18 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**17 November 2026 owner-approved H&B automation SQL checkpoint:** the existing
+selected-migration applicator completed a rollback-only rehearsal and exact
+three-file production apply. Independent readback confirms CURRENT268 and zero
+catalogue, offer, price-history or H&B control/decision deltas. The receipt-based
+repository closeout retains staging120 and its prior selection. The owner separately
+approved the219-offer policy, SQL and deployment/schedule; runtime release and
+ordinary scheduled proof remain pending, and the H&B enable variable is still off.
+Reuse the one shared engine, approvals, executor, queue and workflow. Catalogue
+expansion is deferred; completed61 imports and existing identity decisions are
+preserved. SEO-20 remains the sole active SEO task; RA-004 stays BLOCKED. See the
+[current execution ledger](retailer-automation/EXECUTION-PLAN.md).
+
 **15 November 2026 reviewed new-product identity migration closeout:** PR537
 released as a62c439cf46b9c5703d7bb163cd681be5a4a8c2b with Production SUCCESS.
 One authorized rollback-only rehearsal and one guarded committed apply of

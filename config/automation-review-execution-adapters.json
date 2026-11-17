@@ -110,7 +110,7 @@
       }
     },
     {
-      "enabled": false,
+      "enabled": true,
       "retailer_id": "16",
       "retailer_slug": "holland-barrett",
       "worker_kind": "shared-retailer",

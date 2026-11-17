@@ -226,7 +226,7 @@
     {
       "id": 16,
       "name": "Holland & Barrett",
-      "enabled": false,
+      "enabled": true,
       "artifact_name_prefix": "holland-barrett-offer-refresh-",
       "workflow": "fit-house-offer-refresh.yml",
       "review_publication": {

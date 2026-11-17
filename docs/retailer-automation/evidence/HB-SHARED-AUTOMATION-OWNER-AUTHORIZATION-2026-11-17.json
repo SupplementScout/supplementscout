@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "status": "OWNER_AUTHORIZED_POLICY_SQL_AND_DEPLOYMENT",
+  "decision_source": "Current conversation: explicit user_message_question_reply",
+  "question_call_id": "call_e2f7b9a901b249e2ac91c5c754a93759",
+  "approved_pr": 539,
+  "approved_preparation_head": "e7bdee2ee8dc84a67674e4887cd88511da06f827",
+  "approved_packet": "docs/retailer-automation/evidence/HB-SHARED-AUTOMATION-ACTIVATION-PROPOSAL-2026-11-17.json",
+  "approved_packet_sha256_lf": "ecd36ed5e3413acc148fe538c313044980d1220d6a8a09c924916ef095ddbe32",
+  "separate_owner_answers": [
+    {
+      "question_index": 0,
+      "scope": "H&B existing219 price/stock/freshness policy; strict price bounds below25percent and GBP20; anomalies/missing records in review; exact watchdog exceptions4661/4678; catalogue growth deferred",
+      "answer": "Zatwierdzam politykę i zakres"
+    },
+    {
+      "question_index": 1,
+      "scope": "Three exact packet SQL changes and rollbacks: publication correction, existing parent-profile eligibility, frozen H&B registration; existing guarded applicator after preflight and rollback-only rehearsal",
+      "answer": "Zatwierdzam opisane SQL"
+    },
+    {
+      "question_index": 2,
+      "scope": "Deploy the reviewed preparation and activation changes; enable the existing daily08:17UTC H&B job after Gladiator and successful SQL/production/release checks; existing profile, queue, monitor, protected secret and enable variable",
+      "answer": "Zatwierdzam wdrożenie i harmonogram"
+    }
+  ],
+  "execution_order": [
+    "Fresh read-only owner preflight",
+    "Exact approved migration-selection proposal through existing applicator",
+    "Rollback-only production SQL rehearsal and independent readback",
+    "Guarded approved SQL apply and independent ledger/function/business/control readback",
+    "Receipt-based CURRENT268 and pending=[] repository closeout",
+    "Approved runtime activation diff, protected secret and release checks",
+    "Enable the repository schedule variable last",
+    "Controlled existing-path checks, ordinary scheduled execution, independent postflight and fresh idempotency"
+  ],
+  "manual_apply_available": false,
+  "catalogue_growth_authorized": false,
+  "historical_recovery_or_cleanup_authorized": false,
+  "goal_complete": false
+}

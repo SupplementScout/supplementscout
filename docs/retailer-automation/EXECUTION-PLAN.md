@@ -1,5 +1,44 @@
 # Retailer Automation Consolidation Execution Plan
 
+**17 November owner-authorized SQL apply - CURRENT268 / RUNTIME RELEASE PENDING:**
+The three exact owner-approved SQL changes committed through the existing
+apply-selected-migrations applicator after a successful rollback-only rehearsal.
+Independent owner READ ONLY at08:24:43Z confirms ledger268/fingerprint4da87e64,
+the expected function bodies/ACL, unchanged H&B business hashc90367d4 and unchanged
+global catalogue counts1494/4228/4580/4580/55071. H&B parent/request/review counts
+remain0/0/0. No offer refresh, owner decision or catalogue import was executed.
+The authoritative
+[applicator receipt](evidence/HB-SHARED-AUTOMATION-PRODUCTION-268-CLOSEOUT-2026-11-17.json)
+drives repository CURRENT268/pending=[]; staging remains120 with its same pending
+selection and excludes the three production-only migrations.
+
+The exact approved runtime configuration diff is prepared locally: manifest6c0ca5ee,
+preparation_only=false and enabled H&B stock worker/watchdog. The protected source
+secret was provisioned in production-readonly at08:34:22Z without logging its value.
+These runtime changes are not released yet; HOLLAND_BARRETT_REFRESH_ENABLED remains
+absent. Release checks, a fresh native read-only rehearsal and production readback
+must pass before setting the repository variable last. Ordinary scheduled apply,
+independent postflight/idempotency and goal closeout evidence are still pending.
+
+**17 November earlier owner decisions - authorization and preflight record:**
+The owner separately approved policy/scope, the three exact SQL changes, and
+deployment/scheduling in the question reply. The
+[authorization receipt](evidence/HB-SHARED-AUTOMATION-OWNER-AUTHORIZATION-2026-11-17.json)
+binds the immutable reviewed packet and preparation heade7bdee2e. No permission
+needs repeating for that exact scope. Catalogue growth and historical control
+recovery/cleanup remain outside authorization; manual apply stays unavailable.
+
+Fresh owner READ ONLY preflight at08:20:08Z confirms CURRENT265 and its expected
+fingerprint, exact existing function lineage/ACL, zero H&B parents, requests or
+review cards, and unchanged H&B business state. Its timestamp-normalized hash
+c90367d4de5024479a818000af5eee91f23dba9b912b69a41552b4b2cd0a3462
+also matches the retained earlier snapshot under that same hash contract.
+Continue with the existing selected-migration applicator: rollback-only rehearsal,
+independent readback, guarded apply, receipt-based closeout, release checks and
+the enable variable last. No production mutation has yet occurred at this entry.
+
+The preparation entry below records the state immediately before owner approval.
+
 **17 November H&B existing-offer automation - PREPARATION VERIFIED / OWNER DECISIONS PENDING / NOT ACTIVATED:**
 The complete review packet is
 [HB-SHARED-AUTOMATION-ACTIVATION-PROPOSAL-2026-11-17.json](evidence/HB-SHARED-AUTOMATION-ACTIVATION-PROPOSAL-2026-11-17.json).

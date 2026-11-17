@@ -1133,7 +1133,17 @@ test("H&B source, identity and price/delivery policy reviews retain evidence wit
 });
 
 test("preparation-only H&B blocks both publication modes before any database or credential access", async t => {
-  const { run } = require("./automation-review-reconciliation-apply");
+  const filename = path.join(process.cwd(), "scripts/automation-review-reconciliation-apply.js");
+  const fixtureModule = { exports: {} }, localRequire = require("node:module").createRequire(filename);
+  const profiles = require("./lib/automation-review-publication-profiles");
+  require("node:vm").runInNewContext(fs.readFileSync(filename, "utf8"), {
+    module: fixtureModule, exports: fixtureModule.exports, __filename: filename, __dirname: path.dirname(filename),
+    require(name) { return name === "./lib/automation-review-publication-profiles"
+      ? { ...profiles, profileForRetailerId(id) { const profile = profiles.profileForRetailerId(id); return profile ? { ...profile, publicationEnabled: false } : profile; } }
+      : localRequire(name); },
+    process, console, Buffer, URL,
+  }, { filename });
+  const { run } = fixtureModule.exports;
   const file = path.join(process.cwd(), "tmp", `hb-publication-disabled-${process.pid}.json`);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, JSON.stringify({ request: { retailer: { id: "16" } } }), { flag: "wx" });

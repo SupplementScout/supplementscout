@@ -67,12 +67,13 @@ async function build(source = snapshot()) {
   return { engine, state, run: await engine.buildRun("production", state, null, null, true) };
 }
 
-test("H&B candidate scope pins exactly 219 existing mappings and identity seals without authorizing writes", () => {
+test("owner-approved H&B scope pins exactly219 existing mappings and identity seals", () => {
   const bytes = fs.readFileSync(path.join(ROOT, config.manifest_path), "utf8").replaceAll("\r\n", "\n");
   assert.equal(digest(bytes), config.manifest_sha256);
-  assert.equal(config.preparation_only, true);
-  assert.equal(manifest.authorization.status, "OWNER_APPROVAL_REQUIRED");
-  assert.equal(manifest.authorization.production_apply, false);
+  assert.equal(config.preparation_only, false);
+  assert.equal(manifest.authorization.status, "OWNER_APPROVED");
+  assert.equal(manifest.authorization.production_apply, true);
+  assert.equal(config.manifest_sha256, "6c0ca5ee3bba035671ef587de2b9d08ae0a96402f1364e88e413b71f73cea3b8");
   assert.equal(manifest.rows.length, 219);
   assert.equal(identities.size, 219);
   assert.equal(new Set(manifest.rows.map(row => row.mapping_id)).size, 219);
@@ -211,35 +212,45 @@ test("retrieval cannot make an old, unknown or future-dated Partnerize file fres
 });
 
 test("H&B preparation blocks control writes before credentials and still requires manifest authority if the flag changes", async () => {
-  const engine = loadEngine(snapshot());
+  const fixtureManifest = { ...manifest, authorization: { status: "OWNER_APPROVAL_REQUIRED", production_apply: false } };
+  const bytes = JSON.stringify(fixtureManifest, null, 2) + "\n";
+  const fixtureConfig = { ...config, preparation_only: true, manifest_sha256: digest(bytes) };
+  const engine = loadEngine(snapshot(), {}, {
+    "../config/retailers/holland-barrett-offer-sync.json": fixtureConfig,
+    "node:fs": { ...fs, readFileSync(file, encoding) {
+      if (path.resolve(file) === path.join(ROOT, config.manifest_path)) return encoding ? bytes : Buffer.from(bytes);
+      if (String(file).includes("credentials")) throw new Error("UNEXPECTED_CREDENTIAL_ACCESS");
+      return fs.readFileSync(file, encoding);
+    } },
+    pg: { Client: class { constructor() { throw new Error("UNEXPECTED_DATABASE_ACCESS"); } } },
+  });
   await assert.rejects(engine.register({ target: "production" }, {}), /REFRESH_PROFILE_NOT_ACTIVATED/);
-  config.preparation_only = false;
-  try { await assert.rejects(engine.register({ target: "production" }, {}), /REFRESH_SOURCE_SCOPE_NOT_AUTHORIZED/); }
-  finally { config.preparation_only = true; }
+  fixtureConfig.preparation_only = false;
+  await assert.rejects(engine.register({ target: "production" }, {}), /REFRESH_SOURCE_SCOPE_NOT_AUTHORIZED/);
 });
 
-test("H&B worker is prepared in the existing registry while active adapters and the postflight contract stay exact", () => {
+test("approved H&B worker joins the existing registry with the exact stock-only postflight contract", () => {
   const registry = require("../config/automation-review-execution-adapters.json");
   const { REVIEW_EXECUTION_ADAPTERS, adaptersForWorkerKind } = require("./lib/automation-review-adapter-registry");
   const publication = require("./lib/automation-review-publication-profiles").PROFILES["holland-barrett"];
   const postflight = require("./retailer-offer-refresh-postflight").PROFILES["holland-barrett"];
   const prepared = registry.adapters.find(row => row.retailer_id === "16");
-  assert.equal(prepared.enabled, false);
+  assert.equal(prepared.enabled, true);
   assert.deepEqual(prepared.operations, ["UPDATE_STOCK"]);
   assert.deepEqual(prepared.reason_codes, ["STOCK_CHANGE"]);
   assert.equal(prepared.shared_engine.engine_module, "scripts/fit-house-offer-refresh.js");
   assert.equal(prepared.shared_engine.profile, "holland-barrett");
   assert.equal(prepared.shared_engine.expected_commercial_changes, 1);
   assert.equal(prepared.shared_engine.freshness_confirmation_count, 19);
-  assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.map(row => row.retailerId), ["12", "9", "14", "3", "15"]);
-  assert.ok(!adaptersForWorkerKind("shared-retailer").some(row => row.retailerId === "16"));
-  assert.equal(publication.publicationEnabled, false);
+  assert.deepEqual(REVIEW_EXECUTION_ADAPTERS.map(row => row.retailerId), ["12", "9", "14", "3", "15", "16"]);
+  assert.ok(adaptersForWorkerKind("shared-retailer").some(row => row.retailerId === "16"));
+  assert.equal(publication.publicationEnabled, true);
   assert.equal(publication.approvedMappingCount, config.approved_mapping_count);
   assert.equal(postflight.approvedMappingCount, config.approved_mapping_count);
   assert.equal(postflight.manifestPath, config.manifest_path);
 });
 
-test("H&B reuses the exact shared workflow steps, stays disabled and cannot expose manual apply", () => {
+test("H&B reuses the exact shared workflow steps, requires its enable variable and cannot expose manual apply", () => {
   const workflow = require("js-yaml").load(fs.readFileSync(path.join(ROOT, ".github/workflows/fit-house-offer-refresh.yml"), "utf8"));
   const hb = workflow.jobs["holland-barrett-offer-refresh"], legacy = workflow.jobs["gladiator-nutrition-offer-refresh"];
   assert.equal(hb.steps, legacy.steps, "YAML alias must reuse one step sequence");
@@ -265,7 +276,7 @@ test("H&B reuses the exact shared workflow steps, stays disabled and cannot expo
   assert.ok(workflow.jobs["refresh-review-queue"].needs.includes("holland-barrett-offer-refresh"));
   const publish = workflow.jobs["refresh-review-queue"].steps.find(step => step.with?.profile === "holland-barrett");
   assert.equal(publish.uses, "./.github/actions/publish-automation-review-queue");
-  assert.equal(config.preparation_only, true);
+  assert.equal(config.preparation_only, false);
   const worker = require("js-yaml").load(fs.readFileSync(path.join(ROOT, ".github/workflows/automation-review-queue-worker.yml"), "utf8"));
   const steps = Object.values(worker.jobs).flatMap(job => job.steps || []);
   const execute = steps.find(step => step.name === "Execute oldest approved queue request");
