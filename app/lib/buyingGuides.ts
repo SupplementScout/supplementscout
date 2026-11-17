@@ -14,12 +14,12 @@ import { getVerifiedTotalPackageNutrient } from "./pricing";
 export const DELIVERY_GUIDE_PATH = "/guides/supplement-prices-including-delivery";
 export const PROTEIN_GUIDE_PATH = "/guides/cost-per-25g-protein";
 export const DELIVERY_PRODUCT = {
-  id: "794", slug: "time-4-creatine-powder-600g",
-  variantId: "2943", flavour: null, grams: 600,
+  id: "407", slug: "cnp-creatine-monohydrate-250g",
+  variantId: "2015", flavour: "Unflavoured", grams: 250,
 } as const;
 export const PROTEIN_PRODUCTS = [
-  { id: "936", slug: "time-4-whey-protein-professional-1-8kg", variantId: "1546", flavour: "Raspberry Smoothie", grams: 1800 },
-  { id: "865", slug: "cnp-peptide-whey-protein-blend-2-27kg", variantId: "1307", flavour: "Chocolate", grams: 2270 },
+  { id: "178", slug: "applied-nutrition-iso-xp-18kg", variantId: "732", flavour: "Banana", grams: 1800 },
+  { id: "178", slug: "applied-nutrition-iso-xp-18kg", variantId: "735", flavour: "Vanilla", grams: 1800 },
 ] as const;
 
 type ExampleTarget = {
@@ -52,12 +52,16 @@ function matchesVariant(product: RawCategoryComparisonProduct, offer: RawCompari
 
 function hasExactProteinEvidence(variant: NonNullable<ComparisonNutritionVariant>) {
   const data = variant.nutrition_override || {};
+  // Reviewed protein records may explicitly mark the unrelated creatine field
+  // as null. Keep validating protein and pack alignment with the shared helper.
+  const proteinEvidence = { ...data };
+  if (proteinEvidence.creatine_per_serving_g === null) delete proteinEvidence.creatine_per_serving_g;
   return variant.product_format === "powder" &&
     Object.hasOwn(data, "protein_per_serving_g") &&
     data.source_type === "manufacturer_product_page" &&
     typeof data.source_url === "string" && /^https:\/\//.test(data.source_url) &&
     typeof data.evidence === "string" && data.evidence.trim().length >= 20 &&
-    hasVariantAlignedReviewedNutrition(variant, data);
+    hasVariantAlignedReviewedNutrition(variant, proteinEvidence);
 }
 
 export function selectGuideExample(products: RawCategoryComparisonProduct[], target: ExampleTarget, now = new Date()): GuideExample | null {
@@ -102,7 +106,7 @@ export function currentDeliveredOffers(example: GuideExample | null, now = new D
 export function deliveryExample(products: RawCategoryComparisonProduct[], now = new Date()) {
   const example = selectGuideExample(products, DELIVERY_PRODUCT, now);
   const offers = currentDeliveredOffers(example, now).filter((offer) =>
-    ["jon-s-supplements", "ebay-uk"].includes(offer.retailer.slug || "")
+    ["jon-s-supplements", "6-pack-supplements"].includes(offer.retailer.slug || "")
   );
   if (!example) return null;
   if (offers.length < 2) return { ...example, offers: [], reversed: false };

@@ -11,7 +11,7 @@ const title = "Supplement Prices Including Delivery: A UK Comparison";
 const heading = "Can a higher product price be cheaper after delivery?";
 const description = "Compare checked UK supplement offers for the same variant and pack, with product price, delivery and the final delivered total shown apart.";
 const getCachedDeliveryExample = createLifecycleDataLoader(
-  pagePath, "delivery-guide-example-v1",
+  pagePath, "delivery-guide-example-v2",
   () => getBuyingGuideProducts([DELIVERY_PRODUCT.slug])
 );
 export const dynamic = "force-dynamic";
@@ -30,12 +30,12 @@ export function DeliveryGuideContent({ result, now }: { result: GuideProductsRes
       <p className="text-lg leading-8 text-zinc-800"><strong>A higher product price can be cheaper after delivery.</strong> Compare the final total for the same variant and pack, rather than the headline item price alone. If delivery is unknown, you do not yet have a reliable delivered-price comparison.</p>
       <section aria-labelledby="checked-example">
         <h2 id="checked-example" className="text-2xl font-bold text-zinc-950">A checked example for the same pack</h2>
-        <p className="mt-4">Our worked example follows Time 4 Creatine Powder 600g at covered UK retailers. A comparison is shown only when at least two retailers have fresh, in-stock offers for that exact variant with known delivery.</p>
+        <p className="mt-4">Our worked example follows CNP Creatine Monohydrate, Unflavoured 250g, at Jon&apos;s Supplements and 6 Pack Supplements. A comparison is shown only when both retailers have fresh, in-stock offers for that exact variant with known delivery.</p>
         {result.rows.length === 0 || !example || example.offers.length < 2 ? (
           <div className="mt-5 rounded-2xl border border-[var(--ss-border)] bg-white p-5 sm:p-6">
             <h3 className="font-bold text-zinc-950">No current matched example is available</h3>
             <p className="mt-2">We cannot currently show two qualifying retailer offers for this exact pack. Older or incomplete prices are not reused to suggest that delivery still reverses the choice.</p>
-            <Link href={example?.productUrl || "/creatine"} className="mt-4 inline-flex min-h-11 items-center font-semibold underline">{example ? "Check the Time 4 Creatine 600g variant" : "Browse current creatine products"}</Link>
+            <Link href={example?.productUrl || "/creatine"} className="mt-4 inline-flex min-h-11 items-center font-semibold underline">{example ? "Check the CNP Creatine Unflavoured 250g variant" : "Browse current creatine products"}</Link>
           </div>
         ) : (
           <div className="mt-5 rounded-2xl border border-[var(--ss-border)] bg-white p-5 sm:p-6">

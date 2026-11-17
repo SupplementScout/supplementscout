@@ -6,6 +6,12 @@
 pages, structured data, measurement and authority building.  
 **Parent authority:** `docs/SupplementScout-Operating-Plan-2026-07-15.md`
 
+**17 November 2026 final content-quality follow-up:** the owner authorizes
+bounded example replacement, a scoped protein-evidence fix and two contextual
+incoming links in existing Draft PR #542. SEO-22 is `CODE COMPLETE` after this
+revision's local and actual-source checks. No new project, nutrition approval/write, merge, lifecycle launch or
+production deployment is authorized. SEO-20 remains frozen; SEO-21 stays live.
+
 **17 November 2026 Sprint 2 checkpoint:** one owner-approved SEO-22 bundle
 prepares the two buying guides in a single Draft PR. SEO-21 stays live verified
 and SEO-20 remains frozen. No merge or production publication is authorized.
@@ -305,7 +311,7 @@ Console evidence and user value.
 | SEO-19 | P1 | Add reciprocal Vitamins and Multivitamins contextual links. | `LIVE VERIFIED` | PR `#439` merged as production `4bb719091cc762e806e96c097a49251ff756212d`; tree equivalence, main Project Guardian `41623541134`, Quality Gate `41623540890`, Vercel deployment and public HTTP, link-placement, anchor, canonical, robots, metadata and schema checks passed. No loader, pagination, indexability, data or generic link-system regression occurred. |
 | SEO-20 | P1 | Run the PER4M title-only CTR experiment. | `IN PROGRESS` | PR `#441` deployed production `4930dd541629ef06a919abe78992e52db5c8e97e`; public smoke at `2026-11-03T11:54:34Z` proved the exact browser title `Compare PER4M Prices Across UK Retailers | SupplementScout` and frozen-field parity. Freeze the deployed title, meta, H1, body, schema, direct anchors and data presentation during measurement except for a production regression; observe at least 28 settled days, 500 page impressions and 300 brand-navigational query impressions; primary success is CTR improvement without material ranking deterioration. |
 | SEO-21 | P1 | Content Growth: expand `/creatine#under-20` using exact-variant delivered prices. | `LIVE VERIFIED` | Owner-authorized PR #541 squash merge `e1d9a6d34ad41351822b8907cac045bac7f3cb52` preserves the approved tree. Main Guardian and Quality Gate pass; Vercel production `dpl_2ZHgzALoSDsz9Yu1YfMQeVSEuriB` is READY. Public HTTP/data and metadata contracts, real exact-variant links, desktop/390px responsive layout and warm-response performance checks pass. SEO-20 is untouched. Two guide drafts and seven briefs remain review material only. |
-| SEO-22 | P1 | Content Growth Sprint 2: /guides/supplement-prices-including-delivery and /guides/cost-per-25g-protein. | `CODE COMPLETE` | Both SSR guides pass 49 focused checks, quick/full gates, actual-source read-only QA and 1440/390px browser checks. Planned/noindex and excluded from sitemap pending owner launch approval. One Draft PR only; no merge, publication or data writes. SEO-20 frozen; SEO-21 remains live verified. |
+| SEO-22 | P1 | Content Growth Sprint 2: /guides/supplement-prices-including-delivery and /guides/cost-per-25g-protein. | `CODE COMPLETE` | Draft PR #542 now shows a fresh exact CNP250g retailer pair and reviewed ISO-XP Banana/Vanilla calculations, with two incoming links. 51 focused tests, quick/full (3,986 tests), actual-source and1440/390px QA pass. Planned/noindex and outside sitemap pending owner launch approval. No merge, publication or data writes; SEO-20 frozen and SEO-21 live verified. |
 
 ## 6. Current active task
 
@@ -532,6 +538,33 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 17 November 2026 - SEO-22 final content-quality revision CODE COMPLETE
+
+- The owner authorized bounded improvements in existing Draft PR #542, starting
+  at `07e20cfd474687be5721026e818c1c95f99304c1`. No new PR, nutrition
+  approval/write, production deployment or lifecycle transition is authorized.
+- Actual GET/HEAD-only reads show CNP Creatine Unflavoured250g, variant2015,
+  at Jon's £12.99 +£3.99 =£16.98 and6 Pack £15.00 +£4.99 =£19.99, both fresh.
+  This valid current pair does not reverse price order and is labelled neutrally.
+- ISO-XP1.8kg Banana732 andVanilla735 each have their own existing approved
+  manifest record, matching source override and fresh Whey Okay offer:
+  £81.53 +£3.99 =£85.52;72 ×22g =1,584g protein; cost per25g =£1.35 rounded.
+  The page identifies them as two flavours of the same product. A scoped
+  validation fix handles an unrelated null creatine field without changing
+  shared nutrition policy or any stored facts.
+- One contextual initial-HTML link each from Whey Protein and Creatine passes
+  actual local production-build readback. Their title/H1/canonical/robots match
+  public baselines; SEO-21's budget implementation and SEO-20 remain unchanged.
+- 51 focused checks, Guardian, quick/full (304 safe files /3,986 tests), TypeScript,
+  ESLint and production build pass. Actual1440/390px browser QA has no clipping,
+  overlap or runtime/HTTP errors; CLS0. Two cold batches, no warm database reads;
+  warm medians23.0/16.9ms in the local sample. All16 existing public links and
+  exact selected variants pass, including the approved manufacturer source.
+- Both routes remain `planned`, noindex/follow, excluded from effective sitemap.
+  The exact two-entry launch delta and state-test changes are prepared but
+  unapplied in the [existing Sprint 2 record](rollouts/content-growth-sprint-2-2026-11-17.md).
+  Merge, indexing and production publication still await separate owner approval.
 
 ### 17 November 2026 - SEO-22 two buying guides CODE COMPLETE
 

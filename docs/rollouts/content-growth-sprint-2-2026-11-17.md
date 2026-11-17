@@ -6,6 +6,141 @@ sole task ledger. The owner authorizes one bundled Draft PR, code, tests and
 necessary documentation. Merge, production publication and indexability
 launch require a separate owner decision.
 
+## Final content-quality revision in PR #542
+
+The owner's follow-up authorizes only improvements to this existing Draft,
+starting at `07e20cfd474687be5721026e818c1c95f99304c1`. Fresh main remains
+`6eb2944e3ad5b4432f2a423e5c9f4bc45946b269`. SEO-22 returns to `CODE COMPLETE`
+after the following revised local and actual-source checks. Nothing is merged,
+indexed or published to production. The original Draft evidence below is a
+historical checkpoint, not the current choice of examples.
+
+### Bounded selection and actual examples
+
+The [selection evidence](content-growth-sprint-2-2026-11-17/content-quality-selection.json)
+records bounded GET/HEAD-only reads, not a new catalogue audit or runtime
+discovery engine. An initial sample read 61 of 227 active powder variants with
+a protein verification flag. A more specific provenance query returned all
+14 manufacturer-sourced reviewed candidates across three products. Delivery
+selection read 81 of 85 matching active Creatine/Whey-category products with
+fresh in-stock known-shipping offers. Exact identity still uses the existing
+mapping resolver. No nutrition, source approval, mapping or production record
+was changed; no manufacturer label was newly collected or approved.
+
+No qualifying price-order reversal was found in that bounded delivery sample.
+The chosen current comparison is useful without claiming a reversal or using
+an old price as today's price. Both offers are ordinary single-pack records.
+
+| Guide / exact variant | Current item + delivery = total | Calculation / check time UTC |
+|---|---|---|
+| Delivery: CNP Creatine Monohydrate, Unflavoured 250g, variant2015 | Jon's £12.99 + £3.99 = £16.98; 6 Pack £15.00 + £4.99 = £19.99 | Both fresh and in stock; checked 17 Nov13:54:47 and11:45 respectively. Lower item price remains lower after delivery; the page says so. |
+| Protein: Applied Nutrition ISO-XP 1.8kg Banana, variant732 | Whey Okay £81.53 + £3.99 = £85.52 | 72 ×22g =1,584g protein; £85.52 /1,584 ×25 =£1.35 rounded. Offer checked 17 Nov10:48:03. |
+| Protein: Applied Nutrition ISO-XP 1.8kg Vanilla, variant735 | Whey Okay £81.53 + £3.99 = £85.52 | Its separate approved record also contains72 ×22g; result £1.35. Offer checked 17 Nov10:48:03. |
+
+These are dated observations from the
+[15:04:11 UTC source readback](content-growth-sprint-2-2026-11-17/content-quality-source-readback.json),
+not constants in page code. Both protein overrides exactly match their own
+previously approved entries in
+`data/verified/variant-nutrition-reviewed-batch-1-v2.json`, including flags,
+manufacturer provenance, servings and protein. Manifest scope/hash and exact
+override equality are recorded in that readback. Each pack has72 verified
+25g servings with22g protein per serving. No facts were transferred between
+flavours. The page explicitly describes two flavours of one product, not two
+different formulations or a cheapest-product ranking. Both guides now show
+real arithmetic/comparison; neither depends on an empty-only example.
+
+### Scoped correction and internal links
+
+The guide's protein gate incorrectly passed a reviewed record's explicitly
+null, unrelated `creatine_per_serving_g` to a helper that validates every
+present nutrient. It therefore rejected otherwise approved protein evidence.
+The scoped fix removes only that null key from a local validation copy, then
+uses the same shared protein/pack validator and existing cost calculation.
+It preserves rejection of invalid protein, invalid non-null nutrients,
+unapproved evidence and wrong variants. No shared nutrition policy changed.
+A regression test uses the existing approved manifest with a test offer.
+
+The examples remain pinned, not dynamically chosen per request. Both caches
+move to v2 to exclude old example results. The two flavour pins share one
+deduplicated product read and use distinct variant keys/links. There are still
+two database batches per cold guide and no per-variant query.
+
+Exactly one contextual crawlable link was added to each existing page:
+
+- `/whey-protein`, beside its explanation of value metrics, links to the
+  cost-per25g guide.
+- `/creatine`, beside its delivered-price explanation, links to the delivery
+  guide. The existing SEO-21 budget section is unchanged.
+
+[Incoming-link evidence](content-growth-sprint-2-2026-11-17/content-quality-incoming-links.json)
+confirms one link each in initial actual Next HTML. Existing title, H1,
+canonical and robots match the public baseline; the creatine budget section
+remains present. [Public link checks](content-growth-sprint-2-2026-11-17/content-quality-public-links.json)
+pass all16 existing destinations, including the three exact selected-variant
+URLs. The approved manufacturer source URL returns200. PER4M remains unchanged.
+
+### Quality and performance
+
+Project Guardian, 51 focused guide/Guardian/lifecycle checks, `verify:quick`,
+`verify:full` (304 safe files /3,986 tests), TypeScript, ESLint, baseline
+validation and production build pass. The test file inventory remains 365:
+two regression cases were added to the existing inventoried guide file, so
+the existing inventory seal was reviewed and revalidated unchanged. See
+[quality evidence](content-growth-sprint-2-2026-11-17/content-quality-quality.json).
+
+[Actual production-build browser QA](content-growth-sprint-2-2026-11-17/content-quality-browser.json)
+passes1440px desktop and390px touch emulation at normal scale: both cards on
+each page, no clipping/overflow, overlap, keyboard-order error, HTTP failure or
+runtime exception; CLS0. Screenshots:
+[delivery desktop](content-growth-sprint-2-2026-11-17/content-quality-delivery-1440.png),
+[delivery mobile](content-growth-sprint-2-2026-11-17/content-quality-delivery-390.png),
+[protein desktop](content-growth-sprint-2-2026-11-17/content-quality-protein-1440.png),
+[protein mobile](content-growth-sprint-2-2026-11-17/content-quality-protein-390.png).
+As in the first checkpoint, this is a local actual Next production build with
+guarded production-source GET/HEAD reads, not a public production deployment.
+
+[Cache/performance evidence](content-growth-sprint-2-2026-11-17/content-quality-performance.json)
+shows two cold batches and zero additional reads across five warm requests per
+guide. Cold TTFB is779.2/780.9ms; warm medians23.0/16.9ms versus the previous
+local33.0/32.6ms sample. These small loopback samples show no observed warm
+regression, not a statistically established speedup or field CWV. Decoded HTML
+is approximately33/37.4KB; the increase carries the real comparison and worked
+nutrition data. LCP is112/48ms for delivery and52/52ms for protein
+(desktop/mobile), CLS0. Observed script bytes match the first checkpoint;
+no client feature, dependency or extra database-query mechanism was added.
+
+### Exact launch delta prepared, not applied
+
+After separate owner approval, the production-code change for indexing is
+exactly these two existing entries in `app/lib/indexabilityLifecycle.ts`:
+
+```diff
+- "/guides/supplement-prices-including-delivery": "planned",
+- "/guides/cost-per-25g-protein": "planned",
++ "/guides/supplement-prices-including-delivery": "launch_approved",
++ "/guides/cost-per-25g-protein": "launch_approved",
+```
+
+The existing shared robots/sitemap adapter then emits base index/follow and
+admits exactly one canonical URL each:
+`https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery`
+and `https://www.supplementscout.co.uk/guides/cost-per-25g-protein`.
+Their sitemap candidates already exist; no `app/sitemap.ts`, `robots.txt`,
+canonical, metadata, schema or routing change is needed. Parameters remain
+noindex/follow with the clean canonical. No page generator or coverage-based
+indexability switch is introduced.
+
+In the same approved change, update only the state assertions in
+`scripts/buying-guides.test.js` (base robots indextrue; parameters stillfalse;
+status launch_approved and sitemap eligibilitytrue) and
+`scripts/indexability-lifecycle.test.js` (move the two paths from the expected
+planned list to the expected launch-approved list). Filenames/inventory stay
+unchanged. Run Guardian and the required gates before approved release, then
+the immediate readback/rollback procedure below. Mark `live_verified` only
+after public evidence passes. The intent boundaries against existing category,
+Deals, methodology and comparison tools are unchanged; no cannibalizing
+category listing or second comparison engine was added.
+
 ## Scope and preflight
 
 Fresh GitHub main was `6eb2944e3ad5b4432f2a423e5c9f4bc45946b269`.

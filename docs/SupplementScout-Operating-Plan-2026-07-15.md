@@ -5,6 +5,17 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**17 November 2026 final content-quality follow-up:** SEO-22 is `CODE COMPLETE`
+for the owner's bounded revision of existing Draft PR #542: use current
+approved exact-variant examples, fix the scoped protein-evidence rejection,
+add two contextual incoming links and repeat local/read-only QA. Both guides
+now show real current comparisons/calculations: CNP250g retailer totals and
+separate approved ISO-XP Banana/Vanilla £1.35-per25g examples.51 focused tests,
+quick/full (3,986 tests), actual-source and1440/390px checks pass. The prior
+code-complete checkpoint remains historical. Both guide routes stay planned;
+no nutrition/data write, merge, indexing launch or production release is
+authorized. SEO-20 remains frozen and the binding task; SEO-21 stays live.
+
 **17 November 2026 Content Growth Sprint 2 checkpoint:** the owner approves
 one bundled SEO-22 implementation and Draft PR for the delivery-inclusive and
 cost-per25g-protein guides. SEO-21 remains live verified; SEO-20 remains frozen

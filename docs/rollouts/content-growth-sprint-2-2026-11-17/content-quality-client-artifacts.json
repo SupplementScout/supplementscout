@@ -1,0 +1,84 @@
+{
+  "capturedAt": "2026-11-17T15:08:51.279Z",
+  "results": [
+    {
+      "route": "/how-we-compare",
+      "clientSourceModules": [
+        "[project]/.worktrees/content-growth-guides-20261117/app/components/AnalyticsConsent.tsx",
+        "[project]/.worktrees/content-growth-guides-20261117/app/components/MySupplementsShortcut.tsx"
+      ],
+      "entryScripts": [
+        {
+          "path": "static/chunks/3nvyxaaipp0wx.js",
+          "bytes": 26874,
+          "gzipBytes": 9240
+        },
+        {
+          "path": "static/chunks/14mrh2-p_w84d.js",
+          "bytes": 54646,
+          "gzipBytes": 12875
+        }
+      ]
+    },
+    {
+      "route": "/guides/supplement-prices-including-delivery",
+      "clientSourceModules": [
+        "[project]/.worktrees/content-growth-guides-20261117/app/components/AnalyticsConsent.tsx",
+        "[project]/.worktrees/content-growth-guides-20261117/app/components/MySupplementsShortcut.tsx",
+        "[project]/.worktrees/content-growth-guides-20261117/app/guides/supplement-prices-including-delivery/error.tsx"
+      ],
+      "entryScripts": [
+        {
+          "path": "static/chunks/3nvyxaaipp0wx.js",
+          "bytes": 26874,
+          "gzipBytes": 9240
+        },
+        {
+          "path": "static/chunks/14mrh2-p_w84d.js",
+          "bytes": 54646,
+          "gzipBytes": 12875
+        },
+        {
+          "path": "static/chunks/1v--p2438s8nz.js",
+          "bytes": 947,
+          "gzipBytes": 515
+        },
+        {
+          "path": "static/chunks/3-9v5llyj1vf9.js",
+          "bytes": 14474,
+          "gzipBytes": 5493
+        }
+      ]
+    },
+    {
+      "route": "/guides/cost-per-25g-protein",
+      "clientSourceModules": [
+        "[project]/.worktrees/content-growth-guides-20261117/app/components/AnalyticsConsent.tsx",
+        "[project]/.worktrees/content-growth-guides-20261117/app/components/MySupplementsShortcut.tsx",
+        "[project]/.worktrees/content-growth-guides-20261117/app/guides/cost-per-25g-protein/error.tsx"
+      ],
+      "entryScripts": [
+        {
+          "path": "static/chunks/3nvyxaaipp0wx.js",
+          "bytes": 26874,
+          "gzipBytes": 9240
+        },
+        {
+          "path": "static/chunks/14mrh2-p_w84d.js",
+          "bytes": 54646,
+          "gzipBytes": 12875
+        },
+        {
+          "path": "static/chunks/3vp82mizeu30a.js",
+          "bytes": 947,
+          "gzipBytes": 514
+        },
+        {
+          "path": "static/chunks/3-9v5llyj1vf9.js",
+          "bytes": 14474,
+          "gzipBytes": 5493
+        }
+      ]
+    }
+  ]
+}

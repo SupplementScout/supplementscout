@@ -47,7 +47,7 @@ function product(target, { nutrition = true, price = 46.99, shipping = 3.99 } = 
   const cnp = target.id === "865";
   return {
     id: target.id, slug: target.slug, name: "Fixture " + target.slug, brand: "Fixture",
-    category: target.id === "794" ? "Creatine" : "Whey Protein", image: null,
+    category: target.id === guides.DELIVERY_PRODUCT.id ? "Creatine" : "Whey Protein", image: null,
     product_format: "powder", net_weight_g: target.grams, net_volume_ml: null, unit_count: null, unit_type: null,
     serving_count_verified: cnp ? 35 : 60, serving_size_g: cnp ? 65 : 30,
     protein_per_serving_g: cnp ? 47 : 25, creatine_per_serving_g: null,
@@ -75,7 +75,7 @@ function deliveryProduct() {
   const row = product(guides.DELIVERY_PRODUCT, { nutrition: false, price: 22.99 });
   row.offers.push({
     ...row.offers[0], id: 2, retailer_product_id: 102, price: 24.99, shipping_cost: 0,
-    retailer: { id: 12, name: "eBay UK", slug: "ebay-uk" },
+    retailer: { id: 11, name: "6 Pack Supplements", slug: "6-pack-supplements" },
   });
   return row;
 }
@@ -89,8 +89,8 @@ test("delivery example uses the same reviewed variant, known delivery and exact 
   const result = guides.deliveryExample([deliveryProduct()], now);
   assert.equal(result.reversed, true);
   assert.deepEqual(result.offers.map((offer) => offer.deliveredPrice.totalPrice), [24.99, 26.98]);
-  assert.equal(result.variant.id, "2943");
-  assert.equal(result.packLabel, "600g");
+  assert.equal(result.variant.id, "2015");
+  assert.equal(result.packLabel, "250g");
 });
 test("a changed price order is described neutrally, not as the historical reversal", () => {
   const row = deliveryProduct(); row.offers[0].price = 10;
@@ -127,13 +127,36 @@ test("cached raw examples are rechecked for freshness at every render", () => {
   assert.doesNotMatch(html(proteinFile, { rows: [product(guides.PROTEIN_PRODUCTS[0])], error: false }, later), /£50\.98|£0\.85/);
 });
 test("protein examples use the existing verified denominator and round only the displayed result", () => {
-  const rows = [product(guides.PROTEIN_PRODUCTS[0]), product(guides.PROTEIN_PRODUCTS[1], { price: 65.99 })];
+  const row = product(guides.PROTEIN_PRODUCTS[0]);
+  const second = product(guides.PROTEIN_PRODUCTS[1], { price: 65.99 }).offers[0];
+  second.id = 2;
+  second.product_variant.nutrition_override.protein_per_serving_g = 23;
+  row.offers.push(second);
+  const rows = [row];
   const examples = guides.proteinExamples(rows, now);
-  assert.deepEqual(examples.map((example) => example.totalProteinG), [1500, 1645]);
+  assert.deepEqual(examples.map((example) => example.totalProteinG), [1500, 1380]);
   assert.ok(Math.abs(examples[0].row.costPer25gProtein - 50.98 / 1500 * 25) < 1e-12);
   const rendered = html(proteinFile, { rows, error: false });
-  assert.match(rendered, /£0\.85/); assert.match(rendered, /£1\.06/);
-  assert.match(rendered, /1,500/); assert.match(rendered, /1,645/);
+  assert.match(rendered, /£0\.85/); assert.match(rendered, /£1\.27/);
+  assert.match(rendered, /1,500/); assert.match(rendered, /1,380/);
+  assert.match(rendered, /£50\.98.*?1,500.*?25.*?£0\.85/s);
+  assert.match(rendered, /two flavours of the same product/);
+});
+
+test("reviewed protein variants accept an explicitly null unrelated creatine field", () => {
+  const manifest = JSON.parse(fs.readFileSync(path.join(root, "data/verified/variant-nutrition-reviewed-batch-1-v2.json"), "utf8"));
+  for (const target of guides.PROTEIN_PRODUCTS) {
+    const approved = manifest.changes.find((change) => change.variant_id === target.variantId);
+    assert.equal(approved.product_id, target.id);
+    const row = product(target, { price: 81.53 });
+    row.offers[0].product_variant.nutrition_override = approved.after_nutrition_override;
+    assert.equal(approved.after_nutrition_override.creatine_per_serving_g, null);
+    const example = guides.proteinExamples([row], now)[0];
+    assert.equal(example.nutritionApproved, true);
+    assert.equal(example.totalProteinG, 1584);
+    assert.ok(Math.abs(example.row.costPer25gProtein - 85.52 / 1584 * 25) < 1e-12);
+    assert.match(html(proteinFile, { rows: [row], error: false }), /£1\.35/);
+  }
 });
 test("product-level verification cannot stand in for exact-flavour nutrition evidence", () => {
   const row = product(guides.PROTEIN_PRODUCTS[0], { nutrition: false });
@@ -150,6 +173,7 @@ test("unreviewed, invalid and mismatched nutrition data never produce a protein 
     { nutrition_verified: false }, { source_url: null }, { evidence: "" },
     { serving_count_verified: 0 }, { serving_size_g: 0 }, { protein_per_serving_g: 100 },
     { protein_per_serving_g: null }, { serving_count_verified: 5 }, { source_type: "retailer_claim" },
+    { creatine_per_serving_g: 1000 },
   ]) {
     const row = product(guides.PROTEIN_PRODUCTS[0]);
     Object.assign(row.offers[0].product_variant.nutrition_override, patch);
@@ -169,7 +193,7 @@ test("protein cost stays blank without known delivery even with reviewed nutriti
 test("SSR includes full answers, exact variant links, check times and honest empty states", () => {
   const delivery = html(deliveryFile, { rows: [deliveryProduct()], error: false });
   assert.match(delivery, /higher product price can be cheaper after delivery/);
-  assert.match(delivery, /\?variant=2943/);
+  assert.match(delivery, /\?variant=2015/);
   assert.match(delivery, /dateTime="2026-11-17T11:00:00Z"/);
   assert.match(delivery, /Free-delivery thresholds/);
   assert.match(html(deliveryFile, { rows: [], error: false }), /No current matched example/);
@@ -239,10 +263,18 @@ test("both routes are registered once for safe future sitemap admission and use 
     assert.equal(sitemap.split(route).length - 1, 1);
   }
   const sources = [deliveryFile, proteinFile].map((file) => fs.readFileSync(path.join(root, file), "utf8"));
-  assert.match(sources[0], /"delivery-guide-example-v1"/);
-  assert.match(sources[1], /"protein-guide-examples-v1"/);
+  assert.match(sources[0], /"delivery-guide-example-v2"/);
+  assert.match(sources[1], /"protein-guide-examples-v2"/);
   assert.ok(sources.every((source) => !source.includes('"use client"') && source.includes("createLifecycleDataLoader")));
   assert.ok(sources.every((source) => !/£(?:22\.99|24\.99|26\.98|50\.98|69\.98)/.test(source)));
+});
+
+test("the two flavour examples deduplicate the product read and retain separate exact variant links", async () => {
+  let selectedSlugs;
+  const page = load(proteinFile, { "../../lib/buyingGuideData": { getBuyingGuideProducts: async (slugs) => { selectedSlugs = slugs; return { rows: [], error: false }; } } });
+  await page.default();
+  assert.deepEqual(selectedSlugs, [guides.PROTEIN_PRODUCTS[0].slug]);
+  assert.notEqual(guides.PROTEIN_PRODUCTS[0].variantId, guides.PROTEIN_PRODUCTS[1].variantId);
 });
 
 module.exports = { load, product, deliveryProduct, guides, now, html, deliveryFile, proteinFile };

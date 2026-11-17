@@ -1,0 +1,32 @@
+{
+  "capturedAt": "2026-11-17T15:08:07.886Z",
+  "environment": "actual local Next production build for new incoming links; existing public metadata baseline; GET-only source-link checks",
+  "results": [
+    {
+      "path": "/whey-protein",
+      "status": 200,
+      "target": "/guides/cost-per-25g-protein",
+      "linksInInitialHtml": 1,
+      "title": "Compare Whey Protein Prices UK | SupplementScout",
+      "h1": "Compare Whey Protein Prices UK",
+      "canonical": "https://www.supplementscout.co.uk/whey-protein",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/creatine",
+      "status": 200,
+      "target": "/guides/supplement-prices-including-delivery",
+      "linksInInitialHtml": 1,
+      "title": "Compare Creatine Supplements &amp; Prices UK | SupplementScout",
+      "h1": "Compare Creatine Supplements UK",
+      "canonical": "https://www.supplementscout.co.uk/creatine",
+      "robots": "index, follow",
+      "under20": true
+    },
+    {
+      "kind": "existing-approved-nutrition-source-link",
+      "url": "https://appliednutrition.uk/products/iso-xp",
+      "status": 200
+    }
+  ]
+}

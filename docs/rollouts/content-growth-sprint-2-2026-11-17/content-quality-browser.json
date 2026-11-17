@@ -1,0 +1,1114 @@
+{
+  "capturedAt": "2026-11-17T15:06:34.449Z",
+  "environment": "local Next production build, guarded GET/HEAD-only actual production data; not a deployed preview or field CWV",
+  "syntheticOffers": false,
+  "results": [
+    {
+      "route": "/guides/supplement-prices-including-delivery",
+      "width": 1440,
+      "mobileTouchEmulation": false,
+      "result": "PASS",
+      "title": "Supplement Prices Including Delivery: A UK Comparison | SupplementScout",
+      "h1": "Can a higher product price be cheaper after delivery?",
+      "viewport": 1440,
+      "visualWidth": 1425,
+      "scale": 1,
+      "documentWidth": 1425,
+      "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "CNP Creatine Monohydrate 250g",
+          "href": "/product/cnp-creatine-monohydrate-250g?variant=2015"
+        },
+        {
+          "text": "how we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "our freshness rules",
+          "href": "/data-freshness"
+        },
+        {
+          "text": "current supplement deals",
+          "href": "/deals"
+        },
+        {
+          "text": "creatine under £20",
+          "href": "/creatine#under-20"
+        },
+        {
+          "text": "cost per 25 g of protein",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "Help Me Choose",
+          "href": "/help-me-choose"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Jon's SupplementsProduct price£12.99Delivery£3.99Delivered total£16.98Offer checked 17 Nov 2026, 13:542026-11-17T13:54:47.083+00:00",
+          "x": 313.5,
+          "y": 737,
+          "w": 391,
+          "h": 186
+        },
+        {
+          "text": "6 Pack SupplementsProduct price£15.00Delivery£4.99Delivered total£19.99Offer checked 17 Nov 2026, 11:452026-11-17T11:45:40.735+00:00",
+          "x": 720.5,
+          "y": 737,
+          "w": 391,
+          "h": 186
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 112,
+      "navigation": {
+        "name": "http://127.0.0.1:3118/guides/supplement-prices-including-delivery?qa=1440",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 71,
+        "navigationId": 3166,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.7999999970197678,
+        "domainLookupStart": 0.7999999970197678,
+        "domainLookupEnd": 0.7999999970197678,
+        "connectStart": 0.7999999970197678,
+        "secureConnectionStart": 0,
+        "connectEnd": 0.7999999970197678,
+        "requestStart": 2.2999999970197678,
+        "responseStart": 12,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 12,
+        "responseEnd": 18.200000002980232,
+        "transferSize": 10670,
+        "encodedBodySize": 10370,
+        "decodedBodySize": 32987,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 0,
+        "unloadEventEnd": 0,
+        "domInteractive": 32.400000005960464,
+        "domContentLoadedEventStart": 32.400000005960464,
+        "domContentLoadedEventEnd": 32.5,
+        "domComplete": 71,
+        "loadEventStart": 71,
+        "loadEventEnd": 71,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2cbkh-q68zkh4.css",
+          "bytes": 81234,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/44bl2r2hpjypc.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/turbopack-2vfgxpqsiruq0.js",
+          "bytes": 10580,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3nvyxaaipp0wx.js",
+          "bytes": 26874,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/14mrh2-p_w84d.js",
+          "bytes": 54646,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/33o_umaj6msnn.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/1v--p2438s8nz.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3-9v5llyj1vf9.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/cnp-creatine-monohydrate-250g?variant=2015&_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 262,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/cnp-creatine-monohydrate-250g?variant=2015&_rsc=UuvagXt-zI-ynsW0",
+          "bytes": 2976,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=UuvagXt-zI-ynsW0",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=Pqg9bDeHVrqIm076",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=Ueksyfd5jUklAD31",
+          "bytes": 2383,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=Pqg9bDeHVrqIm076",
+          "bytes": 2565,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=dR04L7hFH03Ll1SW",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=S0_CymvaYCeygTNp",
+          "bytes": 1656,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=m4c6iJdCrlVrTGLS",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=fIbKdfwE6l8O9xI1",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/0609l8cq_xxg3.js",
+          "bytes": 13702,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=UuvagXt-zI-ynsW0",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/cnp-creatine-monohydrate-250g?_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 249,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/supplement-prices-including-delivery",
+      "width": 390,
+      "mobileTouchEmulation": true,
+      "result": "PASS",
+      "title": "Supplement Prices Including Delivery: A UK Comparison | SupplementScout",
+      "h1": "Can a higher product price be cheaper after delivery?",
+      "viewport": 390,
+      "visualWidth": 390,
+      "scale": 1,
+      "documentWidth": 390,
+      "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "CNP Creatine Monohydrate 250g",
+          "href": "/product/cnp-creatine-monohydrate-250g?variant=2015"
+        },
+        {
+          "text": "how we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "our freshness rules",
+          "href": "/data-freshness"
+        },
+        {
+          "text": "current supplement deals",
+          "href": "/deals"
+        },
+        {
+          "text": "creatine under £20",
+          "href": "/creatine#under-20"
+        },
+        {
+          "text": "cost per 25 g of protein",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "Help Me Choose",
+          "href": "/help-me-choose"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Jon's SupplementsProduct price£12.99Delivery£3.99Delivered total£16.98Offer checked 17 Nov 2026, 13:542026-11-17T13:54:47.083+00:00",
+          "x": 37,
+          "y": 957.5,
+          "w": 316,
+          "h": 186
+        },
+        {
+          "text": "6 Pack SupplementsProduct price£15.00Delivery£4.99Delivered total£19.99Offer checked 17 Nov 2026, 11:452026-11-17T11:45:40.735+00:00",
+          "x": 37,
+          "y": 1159.5,
+          "w": 316,
+          "h": 186
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 48,
+      "navigation": {
+        "name": "http://127.0.0.1:3118/guides/supplement-prices-including-delivery?qa=390",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 36.29999999701977,
+        "navigationId": 8641,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.7000000029802322,
+        "domainLookupStart": 0.7000000029802322,
+        "domainLookupEnd": 0.7000000029802322,
+        "connectStart": 0.7000000029802322,
+        "secureConnectionStart": 0,
+        "connectEnd": 0.7000000029802322,
+        "requestStart": 1.7000000029802322,
+        "responseStart": 11.5,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 11.5,
+        "responseEnd": 18.399999991059303,
+        "transferSize": 10669,
+        "encodedBodySize": 10369,
+        "decodedBodySize": 32984,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 15.5,
+        "unloadEventEnd": 15.5,
+        "domInteractive": 34.099999994039536,
+        "domContentLoadedEventStart": 34.099999994039536,
+        "domContentLoadedEventEnd": 34.20000000298023,
+        "domComplete": 36.29999999701977,
+        "loadEventStart": 36.29999999701977,
+        "loadEventEnd": 36.29999999701977,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2cbkh-q68zkh4.css",
+          "bytes": 81234,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/44bl2r2hpjypc.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/33o_umaj6msnn.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/turbopack-2vfgxpqsiruq0.js",
+          "bytes": 10580,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3nvyxaaipp0wx.js",
+          "bytes": 26874,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/14mrh2-p_w84d.js",
+          "bytes": 54646,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/1v--p2438s8nz.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3-9v5llyj1vf9.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/cnp-creatine-monohydrate-250g?variant=2015&_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 262,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=UuvagXt-zI-ynsW0",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/cnp-creatine-monohydrate-250g?variant=2015&_rsc=UuvagXt-zI-ynsW0",
+          "bytes": 2976,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=UuvagXt-zI-ynsW0",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=Pqg9bDeHVrqIm076",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=Ueksyfd5jUklAD31",
+          "bytes": 2383,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=m4c6iJdCrlVrTGLS",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=fIbKdfwE6l8O9xI1",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/cnp-creatine-monohydrate-250g?_rsc=c9f2RbmsAqQAotCV",
+          "bytes": 249,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/cost-per-25g-protein",
+      "width": 1440,
+      "mobileTouchEmulation": false,
+      "result": "PASS",
+      "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout",
+      "h1": "How to compare protein powders by cost per 25g of protein",
+      "viewport": 1440,
+      "visualWidth": 1425,
+      "scale": 1,
+      "documentWidth": 1425,
+      "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "Applied Nutrition ISO-XP 1.8kg",
+          "href": "/product/applied-nutrition-iso-xp-18kg?variant=732"
+        },
+        {
+          "text": "Nutrition source for this flavour",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "Applied Nutrition ISO-XP 1.8kg",
+          "href": "/product/applied-nutrition-iso-xp-18kg?variant=735"
+        },
+        {
+          "text": "Nutrition source for this flavour",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "current whey protein offers",
+          "href": "/whey-protein"
+        },
+        {
+          "text": "the whey isolate comparison",
+          "href": "/whey-isolate"
+        },
+        {
+          "text": "compare two products",
+          "href": "/compare"
+        },
+        {
+          "text": "how we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "data freshness",
+          "href": "/data-freshness"
+        },
+        {
+          "text": "why delivery changes a price comparison",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "Help Me Choose",
+          "href": "/help-me-choose"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Applied Nutrition ISO-XP 1.8kgVariant: Banana / 1.8kg. Pack: 1,800g.Whey OkayProduct price£81.53Delivery£3.99Delivered total£85.52Offer checked 17 Nov 2026, 10:482026-11-17T10:48:03.114+00:00Verified servings72Serving size25 gProtein per serving22 gTotal verified protein1,584 gCost per 25 g protein£1.35£85.52 ÷ 1,584 g × 25 g = £1.35 per 25 g protein, rounded to the nearest penny.Nutrition source for this flavour",
+          "x": 288.5,
+          "y": 1034,
+          "w": 848,
+          "h": 541
+        },
+        {
+          "text": "Applied Nutrition ISO-XP 1.8kgVariant: Vanilla / 1.8kg. Pack: 1,800g.Whey OkayProduct price£81.53Delivery£3.99Delivered total£85.52Offer checked 17 Nov 2026, 10:482026-11-17T10:48:03.114+00:00Verified servings72Serving size25 gProtein per serving22 gTotal verified protein1,584 gCost per 25 g protein£1.35£85.52 ÷ 1,584 g × 25 g = £1.35 per 25 g protein, rounded to the nearest penny.Nutrition source for this flavour",
+          "x": 288.5,
+          "y": 1595,
+          "w": 848,
+          "h": 541
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 52,
+      "navigation": {
+        "name": "http://127.0.0.1:3118/guides/cost-per-25g-protein?qa=1440",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 35.1000000089407,
+        "navigationId": 2805,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.7000000029802322,
+        "domainLookupStart": 0.7000000029802322,
+        "domainLookupEnd": 0.7000000029802322,
+        "connectStart": 0.7000000029802322,
+        "secureConnectionStart": 0,
+        "connectEnd": 0.7000000029802322,
+        "requestStart": 1.6000000089406967,
+        "responseStart": 14.400000005960464,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 14.400000005960464,
+        "responseEnd": 22.30000001192093,
+        "transferSize": 11810,
+        "encodedBodySize": 11510,
+        "decodedBodySize": 37409,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 18.100000008940697,
+        "unloadEventEnd": 18.100000008940697,
+        "domInteractive": 28.700000002980232,
+        "domContentLoadedEventStart": 28.700000002980232,
+        "domContentLoadedEventEnd": 28.80000001192093,
+        "domComplete": 35,
+        "loadEventStart": 35,
+        "loadEventEnd": 35.1000000089407,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2cbkh-q68zkh4.css",
+          "bytes": 81234,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/44bl2r2hpjypc.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/33o_umaj6msnn.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/turbopack-2vfgxpqsiruq0.js",
+          "bytes": 10580,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3nvyxaaipp0wx.js",
+          "bytes": 26874,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/14mrh2-p_w84d.js",
+          "bytes": 54646,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3vp82mizeu30a.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3-9v5llyj1vf9.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=UPLq0mPBu4Wn0pEa",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-iso-xp-18kg?variant=732&_rsc=UPLq0mPBu4Wn0pEa",
+          "bytes": 261,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=UPLq0mPBu4Wn0pEa",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=UPLq0mPBu4Wn0pEa",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=UPLq0mPBu4Wn0pEa",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-iso-xp-18kg?variant=732&_rsc=7jz3otRN5Udan0DF",
+          "bytes": 3054,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=HmZAvK-CQBnO3P2h",
+          "bytes": 2565,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=X8D6Lv0oUjYWDxHy",
+          "bytes": 2383,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=8W57oU13P-i9zA8z",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=7J9ykZHM6ZH98_8k",
+          "bytes": 1656,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=7jz3otRN5Udan0DF",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=HmZAvK-CQBnO3P2h",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/0609l8cq_xxg3.js",
+          "bytes": 13702,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=jQ2-OUtN0-nRRtUO",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=bfJ2Zm-CufhXL5DK",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=7jz3otRN5Udan0DF",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-iso-xp-18kg?_rsc=UPLq0mPBu4Wn0pEa",
+          "bytes": 249,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/cost-per-25g-protein",
+      "width": 390,
+      "mobileTouchEmulation": true,
+      "result": "PASS",
+      "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout",
+      "h1": "How to compare protein powders by cost per 25g of protein",
+      "viewport": 390,
+      "visualWidth": 390,
+      "scale": 1,
+      "documentWidth": 390,
+      "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "Applied Nutrition ISO-XP 1.8kg",
+          "href": "/product/applied-nutrition-iso-xp-18kg?variant=732"
+        },
+        {
+          "text": "Nutrition source for this flavour",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "Applied Nutrition ISO-XP 1.8kg",
+          "href": "/product/applied-nutrition-iso-xp-18kg?variant=735"
+        },
+        {
+          "text": "Nutrition source for this flavour",
+          "href": "https://appliednutrition.uk/products/iso-xp"
+        },
+        {
+          "text": "current whey protein offers",
+          "href": "/whey-protein"
+        },
+        {
+          "text": "the whey isolate comparison",
+          "href": "/whey-isolate"
+        },
+        {
+          "text": "compare two products",
+          "href": "/compare"
+        },
+        {
+          "text": "how we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "data freshness",
+          "href": "/data-freshness"
+        },
+        {
+          "text": "why delivery changes a price comparison",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "Help Me Choose",
+          "href": "/help-me-choose"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Applied Nutrition ISO-XP 1.8kgVariant: Banana / 1.8kg. Pack: 1,800g.Whey OkayProduct price£81.53Delivery£3.99Delivered total£85.52Offer checked 17 Nov 2026, 10:482026-11-17T10:48:03.114+00:00Verified servings72Serving size25 gProtein per serving22 gTotal verified protein1,584 gCost per 25 g protein£1.35£85.52 ÷ 1,584 g × 25 g = £1.35 per 25 g protein, rounded to the nearest penny.Nutrition source for this flavour",
+          "x": 16,
+          "y": 1506.5,
+          "w": 358,
+          "h": 553
+        },
+        {
+          "text": "Applied Nutrition ISO-XP 1.8kgVariant: Vanilla / 1.8kg. Pack: 1,800g.Whey OkayProduct price£81.53Delivery£3.99Delivered total£85.52Offer checked 17 Nov 2026, 10:482026-11-17T10:48:03.114+00:00Verified servings72Serving size25 gProtein per serving22 gTotal verified protein1,584 gCost per 25 g protein£1.35£85.52 ÷ 1,584 g × 25 g = £1.35 per 25 g protein, rounded to the nearest penny.Nutrition source for this flavour",
+          "x": 16,
+          "y": 2079.5,
+          "w": 358,
+          "h": 553
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 52,
+      "navigation": {
+        "name": "http://127.0.0.1:3118/guides/cost-per-25g-protein?qa=390",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 28.5,
+        "navigationId": 5436,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.6000000089406967,
+        "domainLookupStart": 0.6000000089406967,
+        "domainLookupEnd": 0.6000000089406967,
+        "connectStart": 0.6000000089406967,
+        "secureConnectionStart": 0,
+        "connectEnd": 0.6000000089406967,
+        "requestStart": 1.4000000059604645,
+        "responseStart": 10.700000002980232,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 10.700000002980232,
+        "responseEnd": 16.80000001192093,
+        "transferSize": 11808,
+        "encodedBodySize": 11508,
+        "decodedBodySize": 37406,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 14.300000011920929,
+        "unloadEventEnd": 14.300000011920929,
+        "domInteractive": 25.5,
+        "domContentLoadedEventStart": 25.5,
+        "domContentLoadedEventEnd": 25.5,
+        "domComplete": 28.400000005960464,
+        "loadEventStart": 28.5,
+        "loadEventEnd": 28.5,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2cbkh-q68zkh4.css",
+          "bytes": 81234,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/44bl2r2hpjypc.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/33o_umaj6msnn.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/turbopack-2vfgxpqsiruq0.js",
+          "bytes": 10580,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3nvyxaaipp0wx.js",
+          "bytes": 26874,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/14mrh2-p_w84d.js",
+          "bytes": 54646,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3vp82mizeu30a.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3-9v5llyj1vf9.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=UPLq0mPBu4Wn0pEa",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=UPLq0mPBu4Wn0pEa",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=UPLq0mPBu4Wn0pEa",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=7jz3otRN5Udan0DF",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=7jz3otRN5Udan0DF",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=HmZAvK-CQBnO3P2h",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=X8D6Lv0oUjYWDxHy",
+          "bytes": 2383,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=jQ2-OUtN0-nRRtUO",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=bfJ2Zm-CufhXL5DK",
+          "bytes": 9069,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    }
+  ]
+}

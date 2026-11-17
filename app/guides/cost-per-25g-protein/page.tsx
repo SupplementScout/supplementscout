@@ -12,8 +12,8 @@ const title = "Cost per 25g Protein: Compare UK Whey Prices Fairly";
 const heading = "How to compare protein powders by cost per 25g of protein";
 const description = "Understand delivered cost per 25 g of protein with checked whey examples, verified serving data and clear limits on missing information.";
 const getCachedProteinExamples = createLifecycleDataLoader(
-  pagePath, "protein-guide-examples-v1",
-  () => getBuyingGuideProducts(PROTEIN_PRODUCTS.map((target) => target.slug))
+  pagePath, "protein-guide-examples-v2",
+  () => getBuyingGuideProducts([...new Set(PROTEIN_PRODUCTS.map((target) => target.slug))])
 );
 export const dynamic = "force-dynamic";
 export const revalidate = 3600;
@@ -37,8 +37,8 @@ export function ProteinGuideContent({ result, now }: { result: GuideProductsResu
         <p className="mt-4">Powder weight and protein weight are different. A 30 g scoop does not mean 30 g of protein. Comparing the price of one scoop can therefore be misleading when serving sizes or protein amounts differ.</p>
       </section>
       <section aria-labelledby="checked-protein-examples">
-        <h2 id="checked-protein-examples" className="text-2xl font-bold text-zinc-950">Two selected whey examples</h2>
-        <p className="mt-4">These examples follow Time 4 Whey Protein Professional 1.8kg, Raspberry Smoothie, and CNP Peptide Whey Protein Blend 2.27kg, Chocolate. We keep the flavours and packs separate. A cost per 25 g appears only when nutrition is verified for the exact selected flavour and a fresh delivered price is available.</p>
+        <h2 id="checked-protein-examples" className="text-2xl font-bold text-zinc-950">Two checked flavour variants</h2>
+        <p className="mt-4">These examples follow Applied Nutrition ISO-XP 1.8kg in Banana and Vanilla. Both have their own previously reviewed nutrition record. We keep those records and offers separate; we do not assign one flavour&apos;s figures to another. A cost per 25 g appears only with verified nutrition for that exact variant and a fresh delivered price.</p>
         {result.rows.length === 0 || examples.length === 0 ? (
           <p className="mt-5 rounded-2xl border border-[var(--ss-border)] bg-white p-5">The selected exact variants are currently unavailable. No price or protein amount has been estimated.</p>
         ) : (
@@ -47,7 +47,7 @@ export function ProteinGuideContent({ result, now }: { result: GuideProductsResu
             const ready = example.nutritionApproved && offer?.deliveredPrice && example.row.costPer25gProtein !== null && example.totalProteinG !== null;
             const nutritionSource = example.variant.nutrition_override?.source_url;
             return (
-              <li key={example.row.id} className="min-w-0 rounded-2xl border border-[var(--ss-border)] bg-white p-5 sm:p-6">
+              <li key={String(example.variant.id)} className="min-w-0 rounded-2xl border border-[var(--ss-border)] bg-white p-5 sm:p-6">
                 <h3 className="text-xl font-bold text-zinc-950"><Link href={example.productUrl} className="underline">{example.row.name}</Link></h3>
                 <p className="mt-2 text-sm">Variant: {example.variantLabel}. Pack: {example.packLabel}.</p>
                 {offer?.deliveredPrice ? <><p className="mt-4 font-semibold">{offer.retailer.name}</p><GuidePriceBreakdown offer={offer} /></> : <p className="mt-4 text-sm">No fresh in-stock offer with known delivery is available for this exact variant.</p>}
@@ -60,6 +60,7 @@ export function ProteinGuideContent({ result, now }: { result: GuideProductsResu
                       <dt>Total verified protein</dt><dd>{example.totalProteinG!.toLocaleString("en-GB")} g</dd>
                       <dt>Cost per 25 g protein</dt><dd className="font-bold text-[var(--ss-accent-strong)]">{formatCurrency(example.row.costPer25gProtein!)}</dd>
                     </dl>
+                    <p className="mt-4 text-sm">{formatCurrency(offer!.deliveredPrice!.totalPrice)} ÷ {example.totalProteinG!.toLocaleString("en-GB")} g × 25 g = {formatCurrency(example.row.costPer25gProtein!)} per 25 g protein, rounded to the nearest penny.</p>
                     {typeof nutritionSource === "string" && <a href={nutritionSource} className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold underline" rel="noopener noreferrer">Nutrition source for this flavour</a>}
                   </div>
                 ) : (
@@ -69,7 +70,7 @@ export function ProteinGuideContent({ result, now }: { result: GuideProductsResu
             );
           })}</ul>
         )}
-        <p className="mt-4 text-sm">These are different formulations, not a controlled isolate-versus-concentrate test or a ranking of the cheapest UK offers. Different serving sizes answer a different question from a fixed amount of protein.</p>
+        <p className="mt-4 text-sm">These are two flavours of the same product, not two competing formulations or a ranking of the cheapest UK offers. They may currently have the same cost per 25 g; that is a result of their separate checked records, not an assumption that every flavour is identical.</p>
       </section>
       <section aria-labelledby="missing-figures">
         <h2 id="missing-figures" className="text-2xl font-bold text-zinc-950">When we leave the figure blank</h2>
