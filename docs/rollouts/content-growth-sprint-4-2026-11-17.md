@@ -162,10 +162,44 @@ there is no catalogue repair or nutrition approval prerequisite for publishing
 the honest cash/weight comparisons described above. The missing protein-unit
 comparison is explicit, not filled with invented numbers.
 
-Publication requires a separate owner decision covering only these two
+At the Draft checkpoint, publication required a separate owner decision covering only these two
 `planned`→`launch_approved` entries, corresponding existing lifecycle/sitemap
 contract expectations, guarded merge and automatic production deployment.
 Central helpers then provide base index/follow and one clean sitemap URL each;
 parameters remain noindex/follow. Public readback must pass before recording
 `live_verified` and closing SEO-24 as LIVE VERIFIED. No new sitemap or local
 robots mechanism is needed. GSC submission remains manual by the owner.
+
+## Owner-approved production release: in progress
+
+**17 November 2026 SEO-24 production-release approval:** the owner explicitly
+authorizes PR #544's two prepared guide lifecycle transitions to
+`launch_approved`, necessary existing tests/docs, quality gates, Ready for
+Review, guarded squash merge, automatic Vercel Production and public readback.
+Only `/guides/whey-isolate-vs-concentrate` and
+`/guides/protein-powder-pack-size-value` are in scope. The earlier Sprint 4
+Draft-only/no-launch wording below is historical and superseded for this
+release. SEO-24 remains CODE COMPLETE until positive production evidence;
+`live_verified` and LIVE VERIFIED closeout require that readback.
+SEO-20 stays frozen/binding; SEO-21/22/23 stay LIVE VERIFIED and SEO-15 Stage 3
+stays disabled. No catalogue, nutrition, mapping, history, importer or workflow
+write, Google submission or next sprint is authorized.
+
+Preflight confirmed reviewed HEAD
+`ac7de91b86f3d79276fb474457d6b3884682a033`, unchanged main
+`5ac0e802b5ffc5754466b546b5f99aa6716a196e`, no conflicts and all relevant
+CI checks successful (integration intentionally skipped by existing policy).
+The only public behavior change is the two central lifecycle entries:
+planned to launch_approved. Corresponding existing metadata/parameter/sitemap
+contract assertions are updated; no new tests or inventory change is needed.
+Production evidence and final release commit will be recorded after deployment.
+
+Release validation passed: 54 focused tests; Project Guardian; verify:quick;
+verify:full (4,021 safe tests), including TypeScript, ESLint, baseline migration
+validation and Next.js production build. Inventory remains367 with no test
+added/removed/renamed. Quality gates use the existing sanitized environment.
+Fresh GET-only source rendering still qualifies the three exact variants and
+the same real delivered/unit-cost calculations. Protected route sources and
+the frozen SEO-20 experiment have byte parity with main. The saved public
+prelaunch baseline confirms both new URLs404, absent from sitemap, and eight
+existing routes200 on Production READY main5ac0e802.

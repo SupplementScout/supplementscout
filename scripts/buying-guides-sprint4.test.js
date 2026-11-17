@@ -136,10 +136,10 @@ test("server HTML includes exact links, timestamps, real calculations and useful
   assert.match(b,/variant=4613/);assert.match(b,/£55\.52/);assert.match(b,/£19\.16/);
   assert.match(html(typeFile,[]),/No current selected example passes/);assert.match(html(packFile,[]),/No complete current pair passes/);
 });
-test("planned metadata is database-free, noindex/follow with self-canonicals and factual schema",async()=>{
+test("approved metadata is database-free, index/follow with self-canonicals and factual schema; parameters stay noindex",async()=>{
   for(const [file,route] of [[typeFile,model.WHEY_TYPE_GUIDE_PATH],[packFile,model.PACK_VALUE_GUIDE_PATH]]){
-    const page=load(file),m=await page.generateMetadata();assert.deepEqual(m.robots,{index:false,follow:true});assert.equal(m.alternates.canonical,route);
-    assert.deepEqual((await page.generateMetadata({searchParams:Promise.resolve({sort:"price"})})).robots,m.robots);
+    const page=load(file),m=await page.generateMetadata();assert.deepEqual(m.robots,{index:true,follow:true});assert.equal(m.alternates.canonical,route);
+    const parameter=await page.generateMetadata({searchParams:Promise.resolve({sort:"price"})});assert.deepEqual(parameter.robots,{index:false,follow:true});assert.equal(parameter.alternates.canonical,route);
     const schema=JSON.parse(html(file,[]).match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
     assert.deepEqual(schema["@graph"].map(n=>n["@type"]),["WebPage","BreadcrumbList"]);assert.equal(schema["@graph"][0].url,"https://www.supplementscout.co.uk"+route);
     assert.doesNotMatch(JSON.stringify(schema),/Article|FAQPage|ratingValue|datePublished|author/);
@@ -153,9 +153,9 @@ test("read errors fail closed; both loaders batch through existing catalogue/res
     await assert.rejects(page.default(),/temporarily unavailable/);assert.equal(reads,1);assert.equal(keys[0].path,route);
   }
 });
-test("sitemap excludes the two planned candidates and existing live routes stay verified",()=>{
+test("sitemap includes the two approved candidates exactly once and existing live routes stay verified",()=>{
   const lifecycle=load("app/lib/indexabilityLifecycle.ts"),sitemap=fs.readFileSync(path.join(root,"app/sitemap.ts"),"utf8");
-  for(const route of [model.WHEY_TYPE_GUIDE_PATH,model.PACK_VALUE_GUIDE_PATH]){assert.equal(lifecycle.getLifecycleStatus(route),"planned");assert.equal(lifecycle.isLifecycleSitemapEligible(route),false);assert.equal(sitemap.split(route).length-1,1);}
+  for(const route of [model.WHEY_TYPE_GUIDE_PATH,model.PACK_VALUE_GUIDE_PATH]){assert.equal(lifecycle.getLifecycleStatus(route),"launch_approved");assert.equal(lifecycle.isLifecycleSitemapEligible(route),true);assert.equal(sitemap.split(route).length-1,1);}
   for(const route of ["/brands/per4m","/creatine","/guides/cost-per-25g-protein","/guides/supplement-prices-including-delivery","/guides/protein-powder-under-30","/guides/caffeine-free-pre-workout"])assert.equal(lifecycle.getLifecycleStatus(route),"live_verified");
 });
 test("required outgoing links and one contextual incoming link per guide are crawlable",()=>{

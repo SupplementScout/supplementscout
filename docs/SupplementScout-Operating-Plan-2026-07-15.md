@@ -1,5 +1,18 @@
 # SupplementScout Operating Plan
 
+**17 November 2026 SEO-24 production-release approval:** the owner explicitly
+authorizes PR #544's two prepared guide lifecycle transitions to
+`launch_approved`, necessary existing tests/docs, quality gates, Ready for
+Review, guarded squash merge, automatic Vercel Production and public readback.
+Only `/guides/whey-isolate-vs-concentrate` and
+`/guides/protein-powder-pack-size-value` are in scope. The earlier Sprint 4
+Draft-only/no-launch wording below is historical and superseded for this
+release. SEO-24 remains CODE COMPLETE until positive production evidence;
+`live_verified` and LIVE VERIFIED closeout require that readback.
+SEO-20 stays frozen/binding; SEO-21/22/23 stay LIVE VERIFIED and SEO-15 Stage 3
+stays disabled. No catalogue, nutrition, mapping, history, importer or workflow
+write, Google submission or next sprint is authorized.
+
 **Status date:** 17 November 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  

@@ -1,5 +1,18 @@
 # SupplementScout SEO Execution Plan
 
+**17 November 2026 SEO-24 production-release approval:** the owner explicitly
+authorizes PR #544's two prepared guide lifecycle transitions to
+`launch_approved`, necessary existing tests/docs, quality gates, Ready for
+Review, guarded squash merge, automatic Vercel Production and public readback.
+Only `/guides/whey-isolate-vs-concentrate` and
+`/guides/protein-powder-pack-size-value` are in scope. The earlier Sprint 4
+Draft-only/no-launch wording below is historical and superseded for this
+release. SEO-24 remains CODE COMPLETE until positive production evidence;
+`live_verified` and LIVE VERIFIED closeout require that readback.
+SEO-20 stays frozen/binding; SEO-21/22/23 stay LIVE VERIFIED and SEO-15 Stage 3
+stays disabled. No catalogue, nutrition, mapping, history, importer or workflow
+write, Google submission or next sprint is authorized.
+
 **Status date:** 17 November 2026<br>
 **Owner:** SupplementScout  
 **Scope:** Organic search traffic, indexation, internal discovery, search landing
@@ -373,7 +386,7 @@ Console evidence and user value.
 | SEO-22 | P1 | Content Growth Sprint 2: /guides/supplement-prices-including-delivery and /guides/cost-per-25g-protein. | `LIVE VERIFIED` | PR #542 released as53d933f1 with tree parity; Vercel Production READY. Public200, base index/follow, parameter noindex/follow, canonicals, one sitemap URL each, schema, actual-source arithmetic, links and1440/390px QA pass. GSC inspections succeed but both URLs remain unknown to Google: indexing PENDING. No data writes; SEO-20 frozen and SEO-21 live verified. |
 | SEO-23 | P1 | Content Growth Sprint 3: /guides/protein-powder-under-30 and /guides/caffeine-free-pre-workout. | `LIVE VERIFIED` | Owner-approved PR #543 squash9fe3d000 preserves the reviewed tree; main CI and Vercel Production READY. Public200, base index/follow, parameter noindex/follow, canonicals, one sitemap URL each, factual schema, actual-source HTML/calculations/applied caffeine facts, links and1440/390px QA pass. Performance follow-up passes unchanged guard; cold DNS traces retained. Google inclusion UNKNOWN; no GSC/data writes. SEO-20 frozen; SEO-21/22 live. |
 
-| SEO-24 | P1 | Content Growth Sprint 4: /guides/whey-isolate-vs-concentrate and /guides/protein-powder-pack-size-value. | `CODE COMPLETE` | Both topics qualify with two reviewed exact variants each, fresh known delivered offers and one approved nutrition record per selection. Real cash/kg comparisons; missing protein comparisons withheld.54 focused checks, quick/full4,021, actual-source HTTP/cache and1440/390px QA pass. One Draft PR, planned/noindex; no merge, production/data/nutrition write, workflow or Google action. SEO-20 frozen; SEO-21/22/23 live. |
+| SEO-24 | P1 | Content Growth Sprint 4: /guides/whey-isolate-vs-concentrate and /guides/protein-powder-pack-size-value. | `CODE COMPLETE` | Both topics qualify with two reviewed exact variants each, fresh known delivered offers and one approved nutrition record per selection. Real cash/kg comparisons; missing protein comparisons withheld. Owner-approved PR #544 release is in progress: only these two lifecycle entries become launch_approved; required gates, guarded squash merge, automatic deployment and public readback precede LIVE VERIFIED. No production-data, nutrition, workflow or Google write. SEO-20 frozen; SEO-21/22/23 live. |
 
 ## 6. Current active task
 
