@@ -1,0 +1,226 @@
+{
+  "capturedAt": "2026-11-17T14:28:02.429Z",
+  "environment": "local server rendering of actual source components using GET/HEAD-only production catalogue reads; no synthetic rows",
+  "databaseWrites": 0,
+  "pages": [
+    {
+      "route": "/guides/supplement-prices-including-delivery",
+      "metadata": {
+        "title": "Supplement Prices Including Delivery: A UK Comparison",
+        "description": "Compare checked UK supplement offers for the same variant and pack, with product price, delivery and the final delivered total shown apart.",
+        "alternates": {
+          "canonical": "/guides/supplement-prices-including-delivery"
+        },
+        "robots": {
+          "index": false,
+          "follow": true
+        },
+        "openGraph": {
+          "title": "Supplement Prices Including Delivery: A UK Comparison",
+          "description": "Compare checked UK supplement offers for the same variant and pack, with product price, delivery and the final delivered total shown apart.",
+          "url": "/guides/supplement-prices-including-delivery",
+          "type": "website"
+        },
+        "twitter": {
+          "card": "summary",
+          "title": "Supplement Prices Including Delivery: A UK Comparison",
+          "description": "Compare checked UK supplement offers for the same variant and pack, with product price, delivery and the final delivered total shown apart."
+        }
+      },
+      "sourceReadMs": 1143,
+      "renderMs": 81,
+      "htmlBytes": 6722,
+      "reads": [
+        {
+          "table": "products",
+          "method": "GET",
+          "status": 200,
+          "ms": 911,
+          "bytes": 1279
+        },
+        {
+          "table": "retailer_products",
+          "method": "GET",
+          "status": 200,
+          "ms": 222,
+          "bytes": 468
+        }
+      ],
+      "links": [
+        "/",
+        "/search",
+        "/how-we-compare",
+        "/product/time-4-creatine-powder-600g?variant=2943",
+        "/data-freshness",
+        "/deals",
+        "/creatine#under-20",
+        "/guides/cost-per-25g-protein",
+        "/help-me-choose"
+      ],
+      "examples": [
+        {
+          "productId": "794",
+          "product": "Time 4 Creatine Powder 600g",
+          "variantId": 2943,
+          "variant": "600g",
+          "pack": "600g",
+          "productUrl": "/product/time-4-creatine-powder-600g?variant=2943",
+          "nutritionApproved": false,
+          "totalProteinG": null,
+          "currentDeliveredOffers": [
+            {
+              "retailer": "Jon's Supplements",
+              "price": 22.99,
+              "shipping": 3.99,
+              "total": 26.98,
+              "checkedAt": "2026-11-17T13:54:47.083+00:00"
+            }
+          ],
+          "sourceOffers": [
+            {
+              "id": 2636,
+              "retailer": "eBay UK",
+              "price": 24.99,
+              "shipping": 0,
+              "inStock": true,
+              "checkedAt": "2026-11-16T14:04:17.901+00:00"
+            },
+            {
+              "id": 1069,
+              "retailer": "Jon's Supplements",
+              "price": 22.99,
+              "shipping": 3.99,
+              "inStock": true,
+              "checkedAt": "2026-11-17T13:54:47.083+00:00"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "route": "/guides/cost-per-25g-protein",
+      "metadata": {
+        "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly",
+        "description": "Understand delivered cost per 25 g of protein with checked whey examples, verified serving data and clear limits on missing information.",
+        "alternates": {
+          "canonical": "/guides/cost-per-25g-protein"
+        },
+        "robots": {
+          "index": false,
+          "follow": true
+        },
+        "openGraph": {
+          "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly",
+          "description": "Understand delivered cost per 25 g of protein with checked whey examples, verified serving data and clear limits on missing information.",
+          "url": "/guides/cost-per-25g-protein",
+          "type": "website"
+        },
+        "twitter": {
+          "card": "summary",
+          "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly",
+          "description": "Understand delivered cost per 25 g of protein with checked whey examples, verified serving data and clear limits on missing information."
+        }
+      },
+      "sourceReadMs": 430,
+      "renderMs": 38,
+      "htmlBytes": 8988,
+      "reads": [
+        {
+          "table": "products",
+          "method": "GET",
+          "status": 200,
+          "ms": 217,
+          "bytes": 5024
+        },
+        {
+          "table": "retailer_products",
+          "method": "GET",
+          "status": 200,
+          "ms": 210,
+          "bytes": 2958
+        }
+      ],
+      "links": [
+        "/",
+        "/search",
+        "/how-we-compare",
+        "/product/time-4-whey-protein-professional-1-8kg?variant=1546",
+        "/product/cnp-peptide-whey-protein-blend-2-27kg?variant=1307",
+        "/whey-protein",
+        "/whey-isolate",
+        "/compare",
+        "/data-freshness",
+        "/guides/supplement-prices-including-delivery",
+        "/help-me-choose"
+      ],
+      "examples": [
+        {
+          "productId": "936",
+          "product": "Time 4 Whey Protein Professional 1.8kg",
+          "variantId": 1546,
+          "variant": "Raspberry Smoothie / 1800g",
+          "pack": "1,800g",
+          "productUrl": "/product/time-4-whey-protein-professional-1-8kg?variant=1546",
+          "nutritionApproved": false,
+          "totalProteinG": null,
+          "currentDeliveredOffers": [
+            {
+              "retailer": "Jon's Supplements",
+              "price": 46.99,
+              "shipping": 3.99,
+              "total": 50.98,
+              "checkedAt": "2026-11-17T13:54:47.083+00:00"
+            }
+          ],
+          "sourceOffers": [
+            {
+              "id": 1474,
+              "retailer": "Jon's Supplements",
+              "price": 46.99,
+              "shipping": 3.99,
+              "inStock": true,
+              "checkedAt": "2026-11-17T13:54:47.083+00:00"
+            }
+          ]
+        },
+        {
+          "productId": "865",
+          "product": "CNP Peptide Whey Protein Blend 2.27kg",
+          "variantId": 1307,
+          "variant": "Chocolate / 2270g",
+          "pack": "2,270g",
+          "productUrl": "/product/cnp-peptide-whey-protein-blend-2-27kg?variant=1307",
+          "nutritionApproved": false,
+          "totalProteinG": null,
+          "currentDeliveredOffers": [
+            {
+              "retailer": "Jon's Supplements",
+              "price": 65.99,
+              "shipping": 3.99,
+              "total": 69.98,
+              "checkedAt": "2026-11-17T13:54:47.083+00:00"
+            }
+          ],
+          "sourceOffers": [
+            {
+              "id": 1235,
+              "retailer": "Jon's Supplements",
+              "price": 65.99,
+              "shipping": 3.99,
+              "inStock": true,
+              "checkedAt": "2026-11-17T13:54:47.083+00:00"
+            },
+            {
+              "id": 2561,
+              "retailer": "eBay UK",
+              "price": 69.99,
+              "shipping": 3.5,
+              "inStock": true,
+              "checkedAt": "2026-11-16T14:03:24.266+00:00"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

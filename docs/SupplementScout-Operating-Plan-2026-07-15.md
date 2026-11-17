@@ -5,6 +5,16 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**17 November 2026 Content Growth Sprint 2 checkpoint:** the owner approves
+one bundled SEO-22 implementation and Draft PR for the delivery-inclusive and
+cost-per25g-protein guides. SEO-21 remains live verified; SEO-20 remains frozen
+and the binding next task. No merge or production publication is authorized.
+The existing SEO ledger is the only status authority.
+SEO-22 is `CODE COMPLETE`: both SSR guides pass focused and quick/full gates,
+actual-source read-only checks and desktop1440/mobile390px browser QA. The
+routes remain planned/noindex and outside the sitemap until owner launch
+approval. See the [Sprint 2 evidence](rollouts/content-growth-sprint-2-2026-11-17.md).
+
 **17 November 2026 Content Growth production closeout:** the owner explicitly
 authorized PR #541 head `d8bb5e3c7cad547353de445740b74fe1374f0376`,
 squash merge and automatic Vercel production deployment. The merge is
@@ -5098,6 +5108,13 @@ Target experience:
 ## 13. Immediate active plan
 
 ### Current active task
+
+SEO-20 remains the binding active experiment. For the separately approved
+Sprint 2 bundle only:
+Content Growth exception: SEO-22 beside frozen SEO-20; Draft PR only.
+SEO-22 contains exactly the two guide URLs in the existing SEO ledger.
+The SEO-21 active-pair exception is retired; SEO-21 stays live verified.
+No next sprint, production data write, merge or publication is authorized.
 
 `SEO-20` is the next executable SEO task and remains `IN PROGRESS`. Its
 bounded title-only experiment is live in production from

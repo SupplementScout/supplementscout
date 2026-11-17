@@ -37,6 +37,15 @@ That instruction supersedes the earlier Draft-only restriction for this
 release. SEO-21 is now live verified; SEO-20 remains frozen and active.
 No further implementation, guide publication or data-write authority follows.
 
+**Content Growth Sprint 2 owner approval (17 November 2026):**
+Content Growth exception: SEO-22 beside frozen SEO-20; Draft PR only.
+SEO-22 is one bundled implementation of only
+`/guides/supplement-prices-including-delivery` and
+`/guides/cost-per-25g-protein`, including necessary tests and documentation.
+SEO-21 stays live verified. The earlier SEO-21 concurrency exception is retired.
+No merge, production publication, nutrition/catalogue write, next sprint or
+SEO-20 change is authorized. New routes stay planned until owner launch approval.
+
 For nutrition work, also read `docs/Nutrition-Execution-Plan.md` (the canonical
 nutrition ledger) and `docs/nutrition-candidate-extractor.md` (the existing
 process). Keep one active nutrition task and preserve the Operating Plan's SEO

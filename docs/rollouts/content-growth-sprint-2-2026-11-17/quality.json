@@ -1,0 +1,42 @@
+{
+  "capturedAt": "2026-11-17T14:31:00.542Z",
+  "base": "6eb2944e3ad5b4432f2a423e5c9f4bc45946b269",
+  "status": "CODE COMPLETE; no merge or publication approval",
+  "results": {
+    "quick": {
+      "status": "PASS",
+      "tests": 1261,
+      "logSha256": "7354a74f969d67ed27453d91083275ca2976fe9f42c6d48ff5a6873dda314c82"
+    },
+    "full": {
+      "status": "PASS",
+      "tests": 3984,
+      "logSha256": "83554baed0ed17415b01f15d3442fb7ab727df6d2e4f813056e4776fc06eb5c2"
+    },
+    "focused": {
+      "status": "PASS",
+      "tests": 49,
+      "logSha256": "001bdf49f134145e8cebab579a2b2054683d45fff2f5a812b2363c006aedccc7"
+    },
+    "guardian": {
+      "status": "PASS",
+      "tests": 14,
+      "logSha256": "df2cfe996332460c1e563b2e25c8cf3ba6e8748494b27764fcd83c03f574642d"
+    }
+  },
+  "inventory": {
+    "count": 365,
+    "sha256": "092e672bac226e6b1586903a2646dc740177c826ad997ff6f6c291f578e0f242"
+  },
+  "safeFiles": 304,
+  "integrationFiles": 57,
+  "artifactFiles": 4,
+  "quickFiles": 64,
+  "typeScript": "PASS",
+  "eslint": "PASS",
+  "productionBuild": "PASS",
+  "databaseWrites": 0,
+  "sourceEvidence": "Actual GET/HEAD-only catalogue readback is separate from synthetic fixture tests",
+  "seo20": "Frozen; source/experiment unchanged; public title/H1/canonical/robots pass",
+  "seo21": "LIVE VERIFIED; untouched"
+}

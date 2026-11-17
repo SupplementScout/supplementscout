@@ -6,6 +6,12 @@
 pages, structured data, measurement and authority building.  
 **Parent authority:** `docs/SupplementScout-Operating-Plan-2026-07-15.md`
 
+**17 November 2026 Sprint 2 checkpoint:** one owner-approved SEO-22 bundle
+prepares the two buying guides in a single Draft PR. SEO-21 stays live verified
+and SEO-20 remains frozen. No merge or production publication is authorized.
+SEO-22 is now `CODE COMPLETE` with local actual-source, browser and quality-gate
+evidence below; the two routes remain planned and unapproved for launch.
+
 **17 November 2026 Content Growth production checkpoint:** the owner's later
 instruction authorized PR #541's exact head, squash merge, automatic Vercel
 production release and SEO-21 closeout. SEO-21 is `LIVE VERIFIED`; SEO-20
@@ -299,8 +305,20 @@ Console evidence and user value.
 | SEO-19 | P1 | Add reciprocal Vitamins and Multivitamins contextual links. | `LIVE VERIFIED` | PR `#439` merged as production `4bb719091cc762e806e96c097a49251ff756212d`; tree equivalence, main Project Guardian `41623541134`, Quality Gate `41623540890`, Vercel deployment and public HTTP, link-placement, anchor, canonical, robots, metadata and schema checks passed. No loader, pagination, indexability, data or generic link-system regression occurred. |
 | SEO-20 | P1 | Run the PER4M title-only CTR experiment. | `IN PROGRESS` | PR `#441` deployed production `4930dd541629ef06a919abe78992e52db5c8e97e`; public smoke at `2026-11-03T11:54:34Z` proved the exact browser title `Compare PER4M Prices Across UK Retailers | SupplementScout` and frozen-field parity. Freeze the deployed title, meta, H1, body, schema, direct anchors and data presentation during measurement except for a production regression; observe at least 28 settled days, 500 page impressions and 300 brand-navigational query impressions; primary success is CTR improvement without material ranking deterioration. |
 | SEO-21 | P1 | Content Growth: expand `/creatine#under-20` using exact-variant delivered prices. | `LIVE VERIFIED` | Owner-authorized PR #541 squash merge `e1d9a6d34ad41351822b8907cac045bac7f3cb52` preserves the approved tree. Main Guardian and Quality Gate pass; Vercel production `dpl_2ZHgzALoSDsz9Yu1YfMQeVSEuriB` is READY. Public HTTP/data and metadata contracts, real exact-variant links, desktop/390px responsive layout and warm-response performance checks pass. SEO-20 is untouched. Two guide drafts and seven briefs remain review material only. |
+| SEO-22 | P1 | Content Growth Sprint 2: /guides/supplement-prices-including-delivery and /guides/cost-per-25g-protein. | `CODE COMPLETE` | Both SSR guides pass 49 focused checks, quick/full gates, actual-source read-only QA and 1440/390px browser checks. Planned/noindex and excluded from sitemap pending owner launch approval. One Draft PR only; no merge, publication or data writes. SEO-20 frozen; SEO-21 remains live verified. |
 
 ## 6. Current active task
+
+**Sprint 2 owner approval (17 November 2026):**
+Content Growth exception: SEO-22 beside frozen SEO-20; Draft PR only.
+The one bundle contains only `/guides/supplement-prices-including-delivery`
+and `/guides/cost-per-25g-protein`, with necessary tests and documentation.
+SEO-21 remains `LIVE VERIFIED`; its earlier active-pair exception is retired.
+SEO-20 remains frozen and the binding next task. Guardian permits no different
+active pair, missing authorization, reopened SEO-21 or additional implementation.
+Both new routes start `planned`; indexing/sitemap launch, merge and production
+publication require separate owner approval. No nutrition, offer, mapping,
+history, retailer automation, Stage 3 or GYM HIGH change is authorized.
 
 **Next executable task:** SEO-20 is `IN PROGRESS`. SEO-19 and SEO-18 are
 complete and `LIVE VERIFIED`. The
@@ -514,6 +532,36 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 17 November 2026 - SEO-22 two buying guides CODE COMPLETE
+
+- One owner-authorized Sprint 2 bundle implements the delivery-inclusive and
+  cost-per25g-protein guides in an isolated branch based on fresh main
+  `6eb2944e3ad5b4432f2a423e5c9f4bc45946b269`. No merge or production
+  publication is authorized. Both route lifecycle entries remain `planned`,
+  with noindex/follow and no effective sitemap entry.
+- Local verification: 49 focused tests, Project Guardian, `verify:quick`,
+  `verify:full` (304 safe files / 3,984 tests), TypeScript, ESLint and production
+  build pass. The reviewed manifest contains 365 test files.
+- Actual GET/HEAD-only production-source reads confirm the three pinned
+  products/variants. The delivery pair is currently incomplete because eBay
+  is stale; fresh Jon's protein totals are £50.98/£69.98. Exact-flavour nutrition
+  overrides are empty, so no cost-per25g or borrowed protein amount is shown.
+  Fixtures are confined to tests and are not production evidence.
+- Actual local Next production-build HTTP and Chrome checks pass 1440px and
+  touch-emulated 390px: no overflow, clipping, overlap or runtime/HTTP errors;
+  correct keyboard order. Warm medians 33.0/32.6ms, two cold batch reads and zero
+  reads on five warm requests each; local CLS 0. Field CWV remains a later
+  production measurement, not claimed from these lab samples.
+- All 16 existing public link targets return 200 and product HTML confirms
+  exact selected variants. Production PER4M title/H1/canonical/robots and the
+  existing creatine section pass unchanged. SEO-20's source, clock, schedule
+  and 28/500/300 gates remain frozen; SEO-21 stays `LIVE VERIFIED`.
+- Full scope, overlap boundaries, screenshots, source evidence and the
+  owner-gated production readback/rollback are in the
+  [Sprint 2 record](rollouts/content-growth-sprint-2-2026-11-17.md).
+  SEO-22 is not `LIVE VERIFIED`; merge, indexing launch and publication await
+  separate owner approval. No next implementation or production data write.
 
 ### 17 November 2026 - SEO-21 production release LIVE VERIFIED
 

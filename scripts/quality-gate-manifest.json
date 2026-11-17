@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 364,
-    "sha256": "d4a96fd120023b7f00b7c23252c6d11c1102761f007181cd96ff41841f272837"
+    "count": 365,
+    "sha256": "092e672bac226e6b1586903a2646dc740177c826ad997ff6f6c291f578e0f242"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -144,6 +144,7 @@
     "scripts/fit-house-review-restoration.test.js",
     "scripts/feed-cream-flavour.test.js",
     "scripts/partnerize-product-feed.test.js",
-    "scripts/holland-barrett-offer-refresh.test.js"
+    "scripts/holland-barrett-offer-refresh.test.js",
+    "scripts/buying-guides.test.js"
   ]
 }

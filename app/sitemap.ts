@@ -77,6 +77,16 @@ async function loadActiveProducts() {
 
 const staticPages: MetadataRoute.Sitemap = [
   {
+    url: `${siteUrl}/guides/supplement-prices-including-delivery`,
+    changeFrequency: "weekly",
+    priority: 0.6,
+  },
+  {
+    url: `${siteUrl}/guides/cost-per-25g-protein`,
+    changeFrequency: "weekly",
+    priority: 0.6,
+  },
+  {
     url: siteUrl,
     changeFrequency: "daily",
     priority: 1,
