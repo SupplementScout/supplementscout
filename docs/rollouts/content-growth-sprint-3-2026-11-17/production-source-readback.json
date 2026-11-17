@@ -1,0 +1,231 @@
+{
+  "capturedAt": "2026-11-17T17:42:51.815Z",
+  "environment": "actual source components and GET/HEAD-only authorized production catalogue/applied-fact reads; not deployed or synthetic",
+  "databaseWrites": 0,
+  "pages": [
+    {
+      "route": "/guides/protein-powder-under-30",
+      "metadata": {
+        "title": "Protein Powder Under £30 UK: Compare Delivered Prices",
+        "description": "Check selected UK protein powders against a £30 delivered budget, with exact flavours, pack sizes, shipping, check times and honest nutrition limits.",
+        "alternates": {
+          "canonical": "/guides/protein-powder-under-30"
+        },
+        "robots": {
+          "index": true,
+          "follow": true
+        },
+        "openGraph": {
+          "title": "Protein Powder Under £30 UK: Compare Delivered Prices",
+          "description": "Check selected UK protein powders against a £30 delivered budget, with exact flavours, pack sizes, shipping, check times and honest nutrition limits.",
+          "url": "/guides/protein-powder-under-30",
+          "type": "website"
+        },
+        "twitter": {
+          "card": "summary",
+          "title": "Protein Powder Under £30 UK: Compare Delivered Prices",
+          "description": "Check selected UK protein powders against a £30 delivered budget, with exact flavours, pack sizes, shipping, check times and honest nutrition limits."
+        }
+      },
+      "sourceReadMs": 7693,
+      "reads": [
+        {
+          "table": "products",
+          "method": "GET",
+          "status": 200,
+          "ms": 7047,
+          "bytes": 6031
+        },
+        {
+          "table": "retailer_products",
+          "method": "GET",
+          "status": 200,
+          "ms": 638,
+          "bytes": 3366
+        }
+      ],
+      "htmlBytes": 11045,
+      "links": [
+        "/",
+        "/search",
+        "/how-we-compare",
+        "/product/biotech-usa-100-pure-whey-454g?variant=949",
+        "/product/optimum-nutrition-100-plant-protein-684g?variant=1623",
+        "/product/cnp-premium-whey-900g?variant=1318",
+        "/guides/cost-per-25g-protein",
+        "/guides/supplement-prices-including-delivery",
+        "/whey-protein",
+        "/vegan-protein",
+        "/help-me-choose",
+        "/data-freshness"
+      ],
+      "examples": [
+        {
+          "product": "BioTech USA 100% Pure Whey 454g",
+          "productId": "771",
+          "variant": "Hazelnut / 454g",
+          "variantId": 949,
+          "pack": "454g",
+          "productUrl": "/product/biotech-usa-100-pure-whey-454g?variant=949",
+          "retailer": "Fit House",
+          "item": 15.99,
+          "shipping": 3.99,
+          "total": 19.98,
+          "checkedAt": "2026-11-17T11:11:52.1+00:00",
+          "nutritionApproved": false,
+          "costPer25g": null
+        },
+        {
+          "product": "Optimum Nutrition 100% Plant Protein 684g",
+          "productId": "70",
+          "variant": "Vanilla / 684g",
+          "variantId": 1623,
+          "pack": "684g",
+          "productUrl": "/product/optimum-nutrition-100-plant-protein-684g?variant=1623",
+          "retailer": "Dolphin Fitness",
+          "item": 21.95,
+          "shipping": 3.95,
+          "total": 25.9,
+          "checkedAt": "2026-11-17T14:42:16.754+00:00",
+          "nutritionApproved": false,
+          "costPer25g": null
+        },
+        {
+          "product": "CNP Premium Whey 900g",
+          "productId": "867",
+          "variant": "Chocolate Peanut Butter / 900g",
+          "variantId": 1318,
+          "pack": "900g",
+          "productUrl": "/product/cnp-premium-whey-900g?variant=1318",
+          "retailer": "Jon's Supplements",
+          "item": 25.99,
+          "shipping": 3.99,
+          "total": 29.98,
+          "checkedAt": "2026-11-17T13:54:47.083+00:00",
+          "nutritionApproved": false,
+          "costPer25g": null
+        }
+      ]
+    },
+    {
+      "route": "/guides/caffeine-free-pre-workout",
+      "metadata": {
+        "title": "Caffeine-Free Pre-Workout UK: How to Check and Compare",
+        "description": "Compare checked caffeine-free pre-workout variants using approved confirmed-absence facts, exact flavours and packs, current UK prices and known delivery.",
+        "alternates": {
+          "canonical": "/guides/caffeine-free-pre-workout"
+        },
+        "robots": {
+          "index": true,
+          "follow": true
+        },
+        "openGraph": {
+          "title": "Caffeine-Free Pre-Workout UK: How to Check and Compare",
+          "description": "Compare checked caffeine-free pre-workout variants using approved confirmed-absence facts, exact flavours and packs, current UK prices and known delivery.",
+          "url": "/guides/caffeine-free-pre-workout",
+          "type": "website"
+        },
+        "twitter": {
+          "card": "summary",
+          "title": "Caffeine-Free Pre-Workout UK: How to Check and Compare",
+          "description": "Compare checked caffeine-free pre-workout variants using approved confirmed-absence facts, exact flavours and packs, current UK prices and known delivery."
+        }
+      },
+      "sourceReadMs": 983,
+      "reads": [
+        {
+          "table": "products",
+          "method": "GET",
+          "status": 200,
+          "ms": 381,
+          "bytes": 9526
+        },
+        {
+          "table": "retailer_products",
+          "method": "GET",
+          "status": 200,
+          "ms": 243,
+          "bytes": 30618
+        },
+        {
+          "table": "nutrition_candidates",
+          "method": "GET",
+          "status": 200,
+          "ms": 344,
+          "bytes": 57466
+        }
+      ],
+      "htmlBytes": 9209,
+      "links": [
+        "/",
+        "/search",
+        "/how-we-compare",
+        "/product/nutrend--pump-pre-workout?variant=1848",
+        "/product/applied-nutrition-abe-pump-500g?variant=763",
+        "/search?q=pre%20workout&caffeine=free",
+        "/pre-workout",
+        "/help-me-choose",
+        "/data-freshness",
+        "/guides/supplement-prices-including-delivery"
+      ],
+      "examples": [
+        {
+          "product": "Nutrend  Pump Pre-Workout",
+          "productId": "528",
+          "variant": "Bubble Gum / 225g",
+          "variantId": 1848,
+          "pack": "225g",
+          "productUrl": "/product/nutrend--pump-pre-workout?variant=1848",
+          "retailer": "eBay UK",
+          "item": 18.5,
+          "shipping": 0,
+          "total": 18.5,
+          "checkedAt": "2026-11-17T14:57:16.159+00:00",
+          "nutritionApproved": false,
+          "costPer25g": null,
+          "caffeine": {
+            "key": "caffeine",
+            "informationState": "confirmed_absent",
+            "amountPerServingMg": null,
+            "servingSizeValue": null,
+            "servingSizeUnit": null,
+            "servingBasisText": null,
+            "ingredientForm": null,
+            "ingredientRatio": null,
+            "sourceKinds": [
+              "manufacturer_source"
+            ]
+          }
+        },
+        {
+          "product": "Applied Nutrition ABE Pump 500g",
+          "productId": "481",
+          "variant": "Tigers Blood / 500g",
+          "variantId": 763,
+          "pack": "500g",
+          "productUrl": "/product/applied-nutrition-abe-pump-500g?variant=763",
+          "retailer": "eBay UK",
+          "item": 29.95,
+          "shipping": 0,
+          "total": 29.95,
+          "checkedAt": "2026-11-17T14:57:29.871+00:00",
+          "nutritionApproved": false,
+          "costPer25g": null,
+          "caffeine": {
+            "key": "caffeine",
+            "informationState": "confirmed_absent",
+            "amountPerServingMg": null,
+            "servingSizeValue": null,
+            "servingSizeUnit": null,
+            "servingBasisText": null,
+            "ingredientForm": null,
+            "ingredientRatio": null,
+            "sourceKinds": [
+              "manufacturer_source"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

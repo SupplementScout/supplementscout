@@ -5,6 +5,21 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**17 November 2026 SEO-23 live closeout:** owner-authorized PR #543 squash
+merged approved head `1fb5316ff5a6c704bc29cb24d2c78223d8e30f89` as
+`9fe3d000ea958a938af02945023be1400c6f8bd1` with identical reviewed tree.
+Main Guardian/Quality Gate pass; Vercel Production
+`dpl_F1KEiizYUcRaayJtWQUrVPWaTt7G` is READY on the public domain. Both guides
+pass actual-source HTML/arithmetic/fact equality, HTTP200, base index/follow,
+parameter noindex/follow, canonicals, sitemap/schema, links and1440/390px QA.
+SEO-23 and its two routes are `LIVE VERIFIED`; their indexing behavior is
+unchanged by closeout. Google inclusion is UNKNOWN: no inspection/submission
+was performed. Performance follow-up retained the original threshold and
+records transient HTTP variance plus Chrome DNS delays, not field CWV gains.
+See the [Sprint 3 production evidence](rollouts/content-growth-sprint-3-2026-11-17.md).
+SEO-20 stays frozen/binding; SEO-21/22 remain live, Stage3 off. No next sprint
+or production catalogue/nutrition/mapping write follows.
+
 **17 November 2026 SEO-23 production-release approval:** the owner explicitly
 authorizes PR #543, reviewed head `1c0fe408da4ab687c78805da99f649f0d7c773bb`,
 only its two guide lifecycle transitions to `launch_approved`, necessary

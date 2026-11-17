@@ -6,6 +6,15 @@
 pages, structured data, measurement and authority building.  
 **Parent authority:** `docs/SupplementScout-Operating-Plan-2026-07-15.md`
 
+**17 November 2026 SEO-23 production closeout:** PR #543 released approved
+head `1fb5316ff5a6c704bc29cb24d2c78223d8e30f89` as squash
+`9fe3d000ea958a938af02945023be1400c6f8bd1` with tree parity. Main CI and
+Vercel Production pass; public HTTP, actual-source content/arithmetic/facts,
+indexability/sitemap/schema, links and1440/390px QA pass. SEO-23 is
+`LIVE VERIFIED`; both routes record verified state without changing public
+indexability. Google inclusion is UNKNOWN; no GSC action ran. SEO-20 stays
+frozen/binding, SEO-21/22 live and Stage3 disabled. No next sprint follows.
+
 **17 November 2026 SEO-23 production-release approval:** the owner approves
 PR #543, last reviewed head `1c0fe408da4ab687c78805da99f649f0d7c773bb`,
 the two guide lifecycle changes to `launch_approved`, necessary tests/docs,
@@ -350,7 +359,7 @@ Console evidence and user value.
 | SEO-20 | P1 | Run the PER4M title-only CTR experiment. | `IN PROGRESS` | PR `#441` deployed production `4930dd541629ef06a919abe78992e52db5c8e97e`; public smoke at `2026-11-03T11:54:34Z` proved the exact browser title `Compare PER4M Prices Across UK Retailers | SupplementScout` and frozen-field parity. Freeze the deployed title, meta, H1, body, schema, direct anchors and data presentation during measurement except for a production regression; observe at least 28 settled days, 500 page impressions and 300 brand-navigational query impressions; primary success is CTR improvement without material ranking deterioration. |
 | SEO-21 | P1 | Content Growth: expand `/creatine#under-20` using exact-variant delivered prices. | `LIVE VERIFIED` | Owner-authorized PR #541 squash merge `e1d9a6d34ad41351822b8907cac045bac7f3cb52` preserves the approved tree. Main Guardian and Quality Gate pass; Vercel production `dpl_2ZHgzALoSDsz9Yu1YfMQeVSEuriB` is READY. Public HTTP/data and metadata contracts, real exact-variant links, desktop/390px responsive layout and warm-response performance checks pass. SEO-20 is untouched. Two guide drafts and seven briefs remain review material only. |
 | SEO-22 | P1 | Content Growth Sprint 2: /guides/supplement-prices-including-delivery and /guides/cost-per-25g-protein. | `LIVE VERIFIED` | PR #542 released as53d933f1 with tree parity; Vercel Production READY. Public200, base index/follow, parameter noindex/follow, canonicals, one sitemap URL each, schema, actual-source arithmetic, links and1440/390px QA pass. GSC inspections succeed but both URLs remain unknown to Google: indexing PENDING. No data writes; SEO-20 frozen and SEO-21 live verified. |
-| SEO-23 | P1 | Content Growth Sprint 3: /guides/protein-powder-under-30 and /guides/caffeine-free-pre-workout. | `CODE COMPLETE` | Both topics qualify: three exact protein packs under £30 delivered and two applied confirmed-absence caffeine variants. Actual-source SSR, metadata/sitemap/links, 1440/390px QA, bounded cached reads and quick/full gates (4,004 safe tests) pass. One Draft PR; planned/noindex; no merge, release, data write or GSC submission. SEO-20 frozen; SEO-21/SEO-22 live verified. |
+| SEO-23 | P1 | Content Growth Sprint 3: /guides/protein-powder-under-30 and /guides/caffeine-free-pre-workout. | `LIVE VERIFIED` | Owner-approved PR #543 squash9fe3d000 preserves the reviewed tree; main CI and Vercel Production READY. Public200, base index/follow, parameter noindex/follow, canonicals, one sitemap URL each, factual schema, actual-source HTML/calculations/applied caffeine facts, links and1440/390px QA pass. Performance follow-up passes unchanged guard; cold DNS traces retained. Google inclusion UNKNOWN; no GSC/data writes. SEO-20 frozen; SEO-21/22 live. |
 
 ## 6. Current active task
 
@@ -587,6 +596,44 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 17 November 2026 - SEO-23 production release LIVE VERIFIED
+
+- Owner-approved PR #543 head `1fb5316ff5a6c704bc29cb24d2c78223d8e30f89`
+  passed exact-head CI and changed to Ready for Review before guarded squash
+  merge at17:41:03UTC: `9fe3d000ea958a938af02945023be1400c6f8bd1`. Both
+  trees equal `07853631f9a819e52c99530280d7f45a8c2d94a5`. No protection or
+  failed check was bypassed. Main Guardian44139679095 and Quality Gate44139679149
+  pass. Vercel Production `dpl_F1KEiizYUcRaayJtWQUrVPWaTt7G` is READY and
+  serves the merge on the public domain.
+- Public readback at17:44:56UTC passes both HTTP200, base index/follow,
+  parameter noindex/follow, clean canonicals, one sitemap URL each, factual
+  WebPage/BreadcrumbList and Googlebot200. Complete visible main content equals
+  an independent contemporaneous GET-only source render, including exact packs,
+  delivered prices, check times, missing protein calculations and approved,
+  applied confirmed-absent caffeine facts. Five product links select their
+  exact variants; contextual incoming links and all public destinations pass.
+- Actual delivered totals remain £19.98/£25.90/£29.98 for the three protein
+  variants and £18.50/£29.95 for Nutrend/ABE Pump. The three protein unit costs
+  remain withheld for missing exact-flavour nutrition. No prices were hardcoded
+  and no production product/nutrition/mapping/history writes occurred.
+- Public Chrome1440/390px passes card fit, no horizontal clipping/card overlap,
+  keyboard order and zero runtime/HTTP errors. Warm in-session LCP256-348ms,
+  CLS0. First Chrome navigations include15.23s DNS before HTTP (request-to-first-
+  byte44-47ms); cold traces and subsequent existing-page warmup are retained.
+  These are lab observations, not field CWV or INP claims.
+- The first delivery-guide timing guard failed; closeout stopped. Repeat using
+  the same threshold passes: delivery190.2→192.5ms, protein-cost206→198.5ms.
+  New guide warm medians187.9/201.5ms; no persistent regression reproduced.
+  Frozen PER4M metadata, Creatine under20 and SEO-22 contracts/source parity pass.
+- 49 focused checks, verify:quick/full (4,004 safe tests), TypeScript, ESLint,
+  baseline migrations and production build pass. The two launch-approved
+  entries now record live verification with identical index/follow/sitemap
+  behavior. Google inclusion is UNKNOWN; no GSC inspection/submission or
+  unsupported Indexing API was used. Owner handles submission manually.
+- [Production evidence, screenshots and performance follow-up](rollouts/content-growth-sprint-3-2026-11-17.md).
+  SEO-20's frozen fields, clock/gates/schedule stay fixed; SEO-21/22 live,
+  Stage3 off, GYM HIGH hubs deferred and no next sprint.
 
 ### 17 November 2026 - SEO-23 Content Growth Sprint 3 CODE COMPLETE
 

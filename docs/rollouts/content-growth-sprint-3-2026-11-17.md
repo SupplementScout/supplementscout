@@ -5,6 +5,79 @@ the Operating Plan remains authoritative and the SEO Execution Plan is the
 sole task ledger. Scope: two guides in one Draft PR. This record grants no
 merge, production publication, indexability launch, data write or next sprint.
 
+## Production release and closeout: LIVE VERIFIED
+
+The subsequent explicit owner release approval has been executed. PR #543
+head `1fb5316ff5a6c704bc29cb24d2c78223d8e30f89` passed exact-head CI,
+became Ready for Review and squash merged at `2026-11-17T17:41:03Z` as
+`9fe3d000ea958a938af02945023be1400c6f8bd1`. Reviewed and merged trees both
+equal `07853631f9a819e52c99530280d7f45a8c2d94a5`. No protections or failed
+checks were bypassed. Main [Guardian](https://github.com/SupplementScout/supplementscout/actions/runs/44139679095)
+and [Quality Gate](https://github.com/SupplementScout/supplementscout/actions/runs/44139679149)
+pass. Vercel Production `dpl_F1KEiizYUcRaayJtWQUrVPWaTt7G` is READY and
+the public alias points to the merge.
+
+Production evidence:
+
+- [Public HTTP, metadata, sitemap, content equality and timings](content-growth-sprint-3-2026-11-17/production-readback.json)
+- [Independent actual GET-only catalogue and applied-fact render](content-growth-sprint-3-2026-11-17/production-source-readback.json)
+- [Public prelaunch baseline](content-growth-sprint-3-2026-11-17/production-baseline.json)
+- [Unique new and protected sitemap URLs](content-growth-sprint-3-2026-11-17/production-sitemap-contract.json)
+- [Chrome desktop1440/mobile390](content-growth-sprint-3-2026-11-17/production-browser.json),
+  [first cold DNS trace](content-growth-sprint-3-2026-11-17/production-cold-dns.json)
+  and [performance follow-up](content-growth-sprint-3-2026-11-17/performance-followup.json)
+- [Public links](content-growth-sprint-3-2026-11-17/production-links.json),
+  [five selected variants](content-growth-sprint-3-2026-11-17/production-variants.json),
+  [incoming links and arithmetic](content-growth-sprint-3-2026-11-17/production-incoming.json)
+  and [release quality summary](content-growth-sprint-3-2026-11-17/release-quality.json)
+- [Budget desktop](content-growth-sprint-3-2026-11-17/production-protein-budget-1440.png),
+  [budget mobile](content-growth-sprint-3-2026-11-17/production-protein-budget-390.png),
+  [caffeine desktop](content-growth-sprint-3-2026-11-17/production-caffeine-free-1440.png),
+  [caffeine mobile](content-growth-sprint-3-2026-11-17/production-caffeine-free-390.png).
+
+Both public base URLs return200, index/follow, self-canonical, exactly one
+sitemap entry and factual WebPage/BreadcrumbList schema. Parameters retain
+noindex/follow and base canonicals; Googlebot gets200. Complete visible main
+content equals an independent contemporaneous actual-source render after
+normalizing React comments/whitespace. This proves the five exact pack/flavour
+examples, current item/delivery/totals, check times and applied absence facts;
+synthetic test fixtures are not used as production proof. Delivered totals
+remain £19.98/£25.90/£29.98 for protein and £18.50/£29.95 for pre-workout.
+Protein cost per25g is withheld for all three unapproved exact flavours.
+Both pre-workouts retain their own approved and applied confirmed-absent fact.
+
+Public desktop1440 and mobile390 touch checks pass readable card layout,
+no horizontal clipping/card overlap, keyboard order and zero observed
+runtime/HTTP errors. CLS0; after an existing-page warmup, in-session LCP is
+256–348ms. Screenshots retain the pre-existing fixed Cookie Settings utility
+at the viewport edge; its shared component and normal scrolling behavior are
+unchanged from the SEO-22 baseline. No global consent UI was modified.
+
+The first HTTP readback stopped closeout on the existing delivery guide's
+timing guard. Its initial median was not persisted by the older assertion
+helper; the failure was retained and diagnostic persistence added. A repeat
+with the **unchanged** threshold passes: delivery190.2→192.5ms and existing
+protein-cost206→198.5ms. New-guide warm medians are187.9/201.5ms. No persistent
+regression was reproduced, and no architecture or cache rewrite followed.
+
+Two first Chrome navigations took16.30/15.60s to LCP, each dominated by15.23s
+DNS **before** the HTTP request; request-to-first-byte was44/47ms. Cold traces,
+the second diagnostic summary and the in-session warmup are retained. The
+prior SEO-22 release also recorded a15.25s first-navigation DNS delay. Warm
+results are not presented as cold-navigation performance or field CWV/INP.
+
+SEO-23 is LIVE VERIFIED and its two entries now record `live_verified` with
+identical index/follow/sitemap behavior. SEO-20's exact public title, H1,
+canonical, robots, frozen source/experiment, clock, gates and schedule remain
+unchanged. Creatine under20 and both live SEO-22 guides pass public contracts
+and source parity. Stage3 stays off; GYM HIGH hubs stay deferred.
+
+**GOOGLE INDEXED: UNKNOWN.** No Search Console inspection, submission,
+indexing request or Indexing API call was made for this release. Publication
+and technical indexability are proven; Google inclusion is not claimed. The
+owner handles manual submissions. No production product/nutrition/mapping/
+history write or next sprint was executed.
+
 ## Subsequent owner-approved production release
 
 The owner explicitly authorizes PR #543, reviewed head

@@ -1,0 +1,24 @@
+{
+  "capturedAt": "2026-11-17T17:45:49.690Z",
+  "environment": "actual public production links plus source-bound arithmetic; no fixtures",
+  "incoming": [
+    {
+      "from": "/whey-protein",
+      "to": "/guides/protein-powder-under-30",
+      "status": 200,
+      "contextualCrawlableLinks": 1
+    },
+    {
+      "from": "/pre-workout",
+      "to": "/guides/caffeine-free-pre-workout",
+      "status": 200,
+      "contextualCrawlableLinks": 1
+    }
+  ],
+  "arithmeticChecks": 5,
+  "budgetChecks": 3,
+  "appliedAbsenceChecks": 2,
+  "unverifiedProteinCalculations": 0,
+  "googleActions": 0,
+  "databaseWrites": 0
+}

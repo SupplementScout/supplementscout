@@ -1,0 +1,25 @@
+{
+  "capturedAt": "2026-11-17T17:50:28.065Z",
+  "mergedSha": "9fe3d000ea958a938af02945023be1400c6f8bd1",
+  "releaseChecks": {
+    "focused": 49,
+    "quick": "PASS",
+    "full": "PASS",
+    "fullSafeTests": 4004,
+    "typeScript": "PASS",
+    "eslint": "PASS",
+    "productionBuild": "PASS",
+    "projectGuardian": "PASS"
+  },
+  "prQualityGateRun": 44138926226,
+  "prGuardianRun": 44138926514,
+  "mainQualityGateRun": 44139679149,
+  "mainGuardianRun": 44139679095,
+  "productionVerification": "PASS: actual public content equals independent current GET-only source render; metadata, sitemap, links, arithmetic and responsive QA pass",
+  "googleIndexed": "UNKNOWN: no Search Console inspection was performed for these two URLs; Google inclusion is not claimed",
+  "googleSubmissions": 0,
+  "indexingApiCalls": 0,
+  "productionDataWrites": 0,
+  "fieldCwvClaim": false,
+  "nextSprintStarted": false
+}

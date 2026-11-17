@@ -1,0 +1,38 @@
+{
+  "capturedAt": "2026-11-17T17:45:48.083Z",
+  "environment": "existing public production product pages; no new guides deployed",
+  "checks": [
+    {
+      "path": "/product/biotech-usa-100-pure-whey-454g?variant=949",
+      "expected": "Hazelnut / 454g",
+      "actual": "Hazelnut / 454g",
+      "result": "PASS"
+    },
+    {
+      "path": "/product/optimum-nutrition-100-plant-protein-684g?variant=1623",
+      "expected": "Vanilla / 684g",
+      "actual": "Vanilla / 684g",
+      "result": "PASS"
+    },
+    {
+      "path": "/product/cnp-premium-whey-900g?variant=1318",
+      "expected": "Chocolate Peanut Butter / 900g",
+      "actual": "Chocolate Peanut Butter / 900g",
+      "result": "PASS"
+    },
+    {
+      "path": "/product/nutrend--pump-pre-workout?variant=1848",
+      "expected": "Bubble Gum / 225g",
+      "actual": "Bubble Gum / 225g",
+      "result": "PASS",
+      "caffeineConfirmedAbsent": true
+    },
+    {
+      "path": "/product/applied-nutrition-abe-pump-500g?variant=763",
+      "expected": "Tigers Blood / 500g",
+      "actual": "Tigers Blood / 500g",
+      "result": "PASS",
+      "caffeineConfirmedAbsent": true
+    }
+  ]
+}

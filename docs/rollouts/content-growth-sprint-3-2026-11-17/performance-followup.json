@@ -1,0 +1,65 @@
+{
+  "capturedAt": "2026-11-17T17:50:28.069Z",
+  "initialHttpGuard": {
+    "result": "FAILED once for existing delivery guide",
+    "threshold": "after warm median < before warm median * 1.5 + 100ms",
+    "initialMedianPersisted": false
+  },
+  "repeat": {
+    "result": "PASS using unchanged threshold",
+    "comparison": [
+      {
+        "route": "/how-we-compare",
+        "beforeWarmMs": 70.6,
+        "afterWarmMs": 90
+      },
+      {
+        "route": "/creatine",
+        "beforeWarmMs": 233.3,
+        "afterWarmMs": 237.3
+      },
+      {
+        "route": "/whey-protein",
+        "beforeWarmMs": 289.3,
+        "afterWarmMs": 243.3
+      },
+      {
+        "route": "/brands/per4m",
+        "beforeWarmMs": 530.6,
+        "afterWarmMs": 222.6
+      },
+      {
+        "route": "/guides/supplement-prices-including-delivery",
+        "beforeWarmMs": 190.2,
+        "afterWarmMs": 192.5
+      },
+      {
+        "route": "/guides/cost-per-25g-protein",
+        "beforeWarmMs": 206,
+        "afterWarmMs": 198.5
+      }
+    ],
+    "newGuides": [
+      {
+        "path": "/guides/protein-powder-under-30",
+        "warmMedianTTFBms": 187.9
+      },
+      {
+        "path": "/guides/caffeine-free-pre-workout",
+        "warmMedianTTFBms": 201.5
+      }
+    ]
+  },
+  "firstChromeNavigation": {
+    "lcpMs": 16304,
+    "dnsMs": 15227.40000000596,
+    "connectMs": 475.79999999701977,
+    "requestToFirstByteMs": 44.20000000298023
+  },
+  "secondChromeNavigation": {
+    "lcpMs": 15604,
+    "dnsMs": 15224.60000000894,
+    "requestToFirstByteMs": 47.1000000089407
+  },
+  "conclusion": "No persistent regression reproduced. First Chrome delay is dominated by DNS before the HTTP request; warm repeat retained. These lab samples are not field CWV."
+}

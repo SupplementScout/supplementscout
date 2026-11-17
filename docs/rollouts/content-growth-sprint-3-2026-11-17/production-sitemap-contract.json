@@ -1,0 +1,31 @@
+{
+  "capturedAt": "2026-11-17T17:54:08.839Z",
+  "status": 200,
+  "checks": [
+    {
+      "path": "/guides/protein-powder-under-30",
+      "canonicalOccurrences": 1
+    },
+    {
+      "path": "/guides/caffeine-free-pre-workout",
+      "canonicalOccurrences": 1
+    },
+    {
+      "path": "/guides/supplement-prices-including-delivery",
+      "canonicalOccurrences": 1
+    },
+    {
+      "path": "/guides/cost-per-25g-protein",
+      "canonicalOccurrences": 1
+    },
+    {
+      "path": "/creatine",
+      "canonicalOccurrences": 1
+    },
+    {
+      "path": "/brands/per4m",
+      "canonicalOccurrences": 1
+    }
+  ],
+  "parameterGuideUrls": 0
+}

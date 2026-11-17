@@ -72,6 +72,8 @@ guarded squash merge, automatic Vercel production release and closeout only
 after successful public verification. It supersedes the Draft-only boundary
 for this release. No product/nutrition/mapping write, SEO-20 change, Google
 submission or next sprint is authorized.
+SEO-23 has now passed public production verification and is closed. Its two
+routes are live verified; Google inclusion is unknown and no GSC action ran.
 
 For nutrition work, also read `docs/Nutrition-Execution-Plan.md` (the canonical
 nutrition ledger) and `docs/nutrition-candidate-extractor.md` (the existing

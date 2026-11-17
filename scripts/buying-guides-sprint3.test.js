@@ -209,7 +209,7 @@ test("launched metadata is database-free, indexable, self-canonical and factual 
 });
 test("approved guides enter sitemap once; existing guides stay live and caches are isolated", () => {
   const lifecycle = load("app/lib/indexabilityLifecycle.ts"), sitemap = fs.readFileSync(path.join(root, "app/sitemap.ts"), "utf8");
-  for (const route of [budget.PROTEIN_BUDGET_PATH, caffeine.CAFFEINE_FREE_PATH]) { assert.equal(lifecycle.getLifecycleStatus(route), "launch_approved"); assert.equal(lifecycle.isLifecycleSitemapEligible(route), true); assert.equal(sitemap.split(route).length - 1, 1); }
+  for (const route of [budget.PROTEIN_BUDGET_PATH, caffeine.CAFFEINE_FREE_PATH]) { assert.equal(lifecycle.getLifecycleStatus(route), "live_verified"); assert.equal(lifecycle.isLifecycleSitemapEligible(route), true); assert.equal(sitemap.split(route).length - 1, 1); }
   for (const route of ["/creatine", "/brands/per4m", "/guides/cost-per-25g-protein", "/guides/supplement-prices-including-delivery"]) assert.equal(lifecycle.getLifecycleStatus(route), "live_verified");
   assert.match(fs.readFileSync(path.join(root, budgetFile), "utf8"), /"protein-budget-examples-v1"/);
   assert.match(fs.readFileSync(path.join(root, caffeineFile), "utf8"), /"caffeine-free-examples-v1"/);
