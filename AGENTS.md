@@ -6,6 +6,22 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## SupplementScout project control
 
+**17 November 2026 SEO-25 LIVE VERIFIED closeout:** owner-approved PR #545
+squash merged release head `f6ef6f44759da7546bda22daffac2c0cc4328043` as
+`65983f24aadee1ec7e0f5f700800f6a10661ccb7` with identical tree. Main Quality Gate and Guardian pass.
+Vercel commit SUCCESS and exact GitHub Production deployment SUCCESS,
+a changed public build `9_WVqN0zBGLZhUxucMStg`, and source-bound
+public readback prove release on the custom domain. Direct Vercel API403
+and generated-URL SSO protections are retained. Both guides pass HTTP200,
+index/follow, canonical, sitemap, factual schema, six exact variant links,
+delivered/kg arithmetic and1440/390px QA. Only existing1196 approved
+nutrition supports a protein metric. Both routes now record live_verified
+without changing public indexability. Earlier Draft/CODE COMPLETE checkpoints
+are historical. SEO-20 remains frozen/binding; SEO-21/22/23/24 stay live.
+Stage3 remains disabled; no production-data write, Google action or Sprint6.
+Google inclusion is UNKNOWN; the owner handles submissions. Evidence:
+`docs/rollouts/content-growth-sprint-5-2026-11-17.md`.
+
 **17 November 2026 SEO-25 production-release approval:** the owner explicitly
 authorizes PR #545's two prepared guide lifecycle transitions to
 `launch_approved`, necessary existing tests/docs, quality gates, Ready for

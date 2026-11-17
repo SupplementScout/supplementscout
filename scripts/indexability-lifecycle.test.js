@@ -83,7 +83,7 @@ test("approved public routes have one explicit live-verified lifecycle", () => {
 });
 
 test("the public lifecycle registry is complete, routable and separate from owner-deferred decisions", () => {
-  assert.equal(liveVerifiedPaths.length, 22);
+  assert.equal(liveVerifiedPaths.length, 24);
   assert.deepEqual(plannedPaths, [
     "/testosterone-boosters",
     "/fat-burners",
@@ -91,10 +91,7 @@ test("the public lifecycle registry is complete, routable and separate from owne
     "/nootropics",
     "/carbohydrates",
   ]);
-  assert.deepEqual(launchApprovedPaths, [
-    "/guides/mass-gainer-vs-whey-protein",
-    "/guides/creatine-pack-size-value",
-  ]);
+  assert.deepEqual(launchApprovedPaths, []);
   assert.equal(publicPaths.length, 29);
   for (const route of publicPaths) {
     assert.equal(fs.existsSync(pageFiles.get(route)), true, route);

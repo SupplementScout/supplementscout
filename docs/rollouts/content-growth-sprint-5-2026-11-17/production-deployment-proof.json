@@ -1,0 +1,37 @@
+{
+  "capturedAt": "2026-11-17T21:26:38.415Z",
+  "sha": "65983f24aadee1ec7e0f5f700800f6a10661ccb7",
+  "target": "production",
+  "githubDeploymentId": 7866700641,
+  "githubDeploymentState": "success",
+  "githubDeploymentCreatedAt": "2026-11-17T21:26:21Z",
+  "generatedDeploymentUrl": "https://supplementscout-3b3xnhc7z-supplement-scout.vercel.app",
+  "vercelCommitState": "success",
+  "vercelStatusUrl": "https://vercel.com/supplement-scout/supplementscout/GG1cPhYzjAutgNVCeKrkwFtPTAjS",
+  "directVercelApi": "Prior403 retained; not retried or bypassed. Authorized GitHub/Vercel webhook and public build verification used.",
+  "id": "dpl_GG1cPhYzjAutgNVCeKrkwFtPTAjS",
+  "state": "READY",
+  "ready": true,
+  "publicDomain": "https://www.supplementscout.co.uk",
+  "publicBuildId": "9_WVqN0zBGLZhUxucMStg",
+  "previousPublicBuildId": "yHBCnoya8-F4MoFfJqS3O",
+  "publicDomainBuildTransition": true,
+  "samePublicBuildAcrossCheckedRoutes": true,
+  "checked": [
+    {
+      "path": "/guides/mass-gainer-vs-whey-protein",
+      "status": 200,
+      "buildId": "9_WVqN0zBGLZhUxucMStg",
+      "indexFollow": true,
+      "selfCanonical": true
+    },
+    {
+      "path": "/guides/creatine-pack-size-value",
+      "status": 200,
+      "buildId": "9_WVqN0zBGLZhUxucMStg",
+      "indexFollow": true,
+      "selfCanonical": true
+    }
+  ],
+  "readinessAuthority": "Vercel commit SUCCESS + exact latest GitHub Production deployment SUCCESS + public domain build fingerprint/content contracts; no private API READY claim"
+}

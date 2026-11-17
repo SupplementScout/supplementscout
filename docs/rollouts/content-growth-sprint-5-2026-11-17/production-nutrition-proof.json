@@ -1,0 +1,13 @@
+{
+  "capturedAt": "2026-11-17T21:27:20.564Z",
+  "variantId": "1196",
+  "manifest": "data/verified/variant-nutrition-reviewed-batch-1-v2.json",
+  "manifestSha256": "447048be2ca789210ad71f8d144471d8cd3b2ef75b5e81c3b4f6cd6169656fa7",
+  "reviewedScopeHash": "c2198812faa5a2cdaeb26e7ad80c154a3c4c85cdef23c9f579a5b5c3bd4c4844",
+  "liveOverrideEqualsReviewedAfter": true,
+  "servings": 66,
+  "proteinPerServing": 27,
+  "totalProteinG": 1782,
+  "costPer25g": 0.9117564534231201,
+  "databaseWrites": 0
+}

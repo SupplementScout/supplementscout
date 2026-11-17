@@ -199,3 +199,55 @@ prices and1196 approved nutrition binding. The public prelaunch baseline
 at21:15UTC records main be42854a, build yHBCnoya8-F4MoFfJqS3O, both new
 routes404 and absent from sitemap, and successful old-page HTTP/metadata.
 No live-completion claim is made before merge, deployment and public readback.
+
+## Production closeout: LIVE VERIFIED
+
+**17 November 2026 SEO-25 LIVE VERIFIED closeout:** owner-approved PR #545
+squash merged release head `f6ef6f44759da7546bda22daffac2c0cc4328043` as
+`65983f24aadee1ec7e0f5f700800f6a10661ccb7` with identical tree. Main Quality Gate and Guardian pass.
+Vercel commit SUCCESS and exact GitHub Production deployment SUCCESS,
+a changed public build `9_WVqN0zBGLZhUxucMStg`, and source-bound
+public readback prove release on the custom domain. Direct Vercel API403
+and generated-URL SSO protections are retained. Both guides pass HTTP200,
+index/follow, canonical, sitemap, factual schema, six exact variant links,
+delivered/kg arithmetic and1440/390px QA. Only existing1196 approved
+nutrition supports a protein metric. Both routes now record live_verified
+without changing public indexability. Earlier Draft/CODE COMPLETE checkpoints
+are historical. SEO-20 remains frozen/binding; SEO-21/22/23/24 stay live.
+Stage3 remains disabled; no production-data write, Google action or Sprint6.
+Google inclusion is UNKNOWN; the owner handles submissions. Evidence:
+`docs/rollouts/content-growth-sprint-5-2026-11-17.md`.
+
+The owner-approved release has passed all public gates. 4039 safe tests, 1315 quick checks and140 focused checks pass; main CI is green.
+
+| Exact current product / variant | Item + delivery = total | Delivered unit cost | Offer checked UTC |
+| --- | --- | --- | --- |
+| BioTech USA Hyper Mass / Strawberry / 4kg | £39.99 + £4.99 = £44.98 | £11.24/kg | 2026-11-17T11:45:40.735+00:00 |
+| Efectiv Grass-Fed Whey Protein Isolate / Strawberry Milkshake / 2000g | £64.99 + £0.00 = £64.99 | £32.49/kg | 2026-11-17T14:57:33.364+00:00 |
+| Applied Nutrition Creatine Monohydrate / Unflavoured / 250g | £14.40 + £3.49 = £17.89 | £71.56/kg | 2026-11-17T17:48:48.656+00:00 |
+| Applied Nutrition Creatine Monohydrate / Unflavoured / 500g | £30.00 + £0.00 = £30.00 | £60.00/kg | 2026-11-17T17:48:48.656+00:00 |
+| Optimum Nutrition Micronised Creatine / Unflavoured / 317g | £16.50 + £3.49 = £19.99 | £63.06/kg | 2026-11-17T17:48:48.656+00:00 |
+| Optimum Nutrition Micronised Creatine / Unflavoured / 634 g | £40.00 + £0.00 = £40.00 | £63.09/kg | 2026-11-17T17:48:48.656+00:00 |
+
+These values are a dated readback, not hardcoded guide prices. The live guides
+use current cached catalogue offers and age them out through existing guards.
+Efectiv1196 alone shows £0.91 per25g protein (66 ×27g); Hyper Mass and
+creatine dose/protein metrics remain withheld. Applied500g wins its pair perkg;
+Optimum317g wins its pair using unrounded pence/grams ordering.
+
+[Production readback](content-growth-sprint-5-2026-11-17/production-readback.json),
+[deployment proof](content-growth-sprint-5-2026-11-17/production-deployment-proof.json),
+[actual source](content-growth-sprint-5-2026-11-17/production-source-readback.json),
+[nutrition proof](content-growth-sprint-5-2026-11-17/production-nutrition-proof.json),
+[links/arithmetic](content-growth-sprint-5-2026-11-17/production-links.json),
+[desktop/mobile](content-growth-sprint-5-2026-11-17/production-browser.json),
+[performance](content-growth-sprint-5-2026-11-17/performance-followup.json) and
+[release gates](content-growth-sprint-5-2026-11-17/release-quality.json) retain
+the exact merge, source dates, fallback authority and baseline comparison.
+
+Rollback: if a real release regression appears, stop closeout and revert the
+release commit through existing GitHub safeguards and automatic deployment;
+verify the previous public build and prior route/indexability behavior. No
+production data, approval, credential or protection change is part of rollback.
+No rollback was needed. The final closeout commit/deployment must pass the same
+public build/readback and CI gates; its exact result is recorded on PR #545.

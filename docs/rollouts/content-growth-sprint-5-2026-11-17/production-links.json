@@ -1,0 +1,293 @@
+{
+  "capturedAt": "2026-11-17T21:27:59.246Z",
+  "environment": "actual public production link and independently recalculated source arithmetic readback",
+  "sourceCapturedAt": "2026-11-17T21:27:20.564Z",
+  "results": [
+    {
+      "path": "/",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk"
+    },
+    {
+      "path": "/search",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/search",
+      "robots": "noindex, nofollow"
+    },
+    {
+      "path": "/how-we-compare",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/how-we-compare",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/product/biotech-usa-hyper-mass-4kg?variant=2223",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/product/biotech-usa-hyper-mass-4kg"
+    },
+    {
+      "path": "/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg?variant=1196",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg"
+    },
+    {
+      "path": "/mass-gainer",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/mass-gainer",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/whey-protein",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/whey-protein",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/compare",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/compare",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/guides/cost-per-25g-protein",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/guides/supplement-prices-including-delivery",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/guides/whey-isolate-vs-concentrate",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/guides/whey-isolate-vs-concentrate",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/data-freshness",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/data-freshness",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/product/applied-nutrition-creatine-monohydrate-250g?variant=799",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-creatine-monohydrate-250g"
+    },
+    {
+      "path": "/product/applied-nutrition-creatine-monohydrate-250g?variant=4559",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-creatine-monohydrate-250g"
+    },
+    {
+      "path": "/product/optimum-nutrition-micronised-creatine-317g?variant=783",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/product/optimum-nutrition-micronised-creatine-317g"
+    },
+    {
+      "path": "/product/optimum-nutrition-micronised-creatine-317g?variant=4614",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/product/optimum-nutrition-micronised-creatine-317g"
+    },
+    {
+      "path": "/creatine",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/creatine",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/creatine#under-20",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/creatine",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/guides/mass-gainer-vs-whey-protein",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-vs-whey-protein",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/guides/creatine-pack-size-value",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/guides/creatine-pack-size-value",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/guides/protein-powder-under-30",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-under-30",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/guides/caffeine-free-pre-workout",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/guides/caffeine-free-pre-workout",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/guides/protein-powder-pack-size-value",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-pack-size-value",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/brands/per4m",
+      "status": 200,
+      "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 200
+    }
+  ],
+  "variants": [
+    {
+      "url": "/product/biotech-usa-hyper-mass-4kg?variant=2223",
+      "expected": "Strawberry / 4kg",
+      "actual": "Strawberry / 4kg",
+      "itemPence": 3999,
+      "shippingPence": 499,
+      "totalPence": 4498,
+      "weightG": 4000,
+      "pricePerKg": 11.245,
+      "checkedAt": "2026-11-17T11:45:40.735+00:00",
+      "approvedNutrition": false,
+      "costPer25g": null,
+      "result": "PASS"
+    },
+    {
+      "url": "/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg?variant=1196",
+      "expected": "Strawberry Milkshake / 2000g",
+      "actual": "Strawberry Milkshake / 2000g",
+      "itemPence": 6499,
+      "shippingPence": 0,
+      "totalPence": 6499,
+      "weightG": 2000,
+      "pricePerKg": 32.495,
+      "checkedAt": "2026-11-17T14:57:33.364+00:00",
+      "approvedNutrition": true,
+      "costPer25g": 0.9117564534231201,
+      "result": "PASS"
+    },
+    {
+      "url": "/product/applied-nutrition-creatine-monohydrate-250g?variant=799",
+      "expected": "Unflavoured / 250g",
+      "actual": "Unflavoured / 250g",
+      "itemPence": 1440,
+      "shippingPence": 349,
+      "totalPence": 1789,
+      "weightG": 250,
+      "pricePerKg": 71.56,
+      "checkedAt": "2026-11-17T17:48:48.656+00:00",
+      "approvedNutrition": false,
+      "costPer25g": null,
+      "result": "PASS"
+    },
+    {
+      "url": "/product/applied-nutrition-creatine-monohydrate-250g?variant=4559",
+      "expected": "Unflavoured / 500g",
+      "actual": "Unflavoured / 500g",
+      "itemPence": 3000,
+      "shippingPence": 0,
+      "totalPence": 3000,
+      "weightG": 500,
+      "pricePerKg": 60,
+      "checkedAt": "2026-11-17T17:48:48.656+00:00",
+      "approvedNutrition": false,
+      "costPer25g": null,
+      "result": "PASS"
+    },
+    {
+      "url": "/product/optimum-nutrition-micronised-creatine-317g?variant=783",
+      "expected": "Unflavoured / 317g",
+      "actual": "Unflavoured / 317g",
+      "itemPence": 1650,
+      "shippingPence": 349,
+      "totalPence": 1999,
+      "weightG": 317,
+      "pricePerKg": 63.059936908517344,
+      "checkedAt": "2026-11-17T17:48:48.656+00:00",
+      "approvedNutrition": false,
+      "costPer25g": null,
+      "result": "PASS"
+    },
+    {
+      "url": "/product/optimum-nutrition-micronised-creatine-317g?variant=4614",
+      "expected": "Unflavoured / 634 g",
+      "actual": "Unflavoured / 634 g",
+      "itemPence": 4000,
+      "shippingPence": 0,
+      "totalPence": 4000,
+      "weightG": 634,
+      "pricePerKg": 63.09148264984227,
+      "checkedAt": "2026-11-17T17:48:48.656+00:00",
+      "approvedNutrition": false,
+      "costPer25g": null,
+      "result": "PASS"
+    }
+  ],
+  "pairs": [
+    {
+      "key": "applied",
+      "smallVariantId": 799,
+      "largeVariantId": 4559,
+      "upfrontDifference": 12.11,
+      "unitDifference": 11.560000000000002,
+      "unitWinner": "larger"
+    },
+    {
+      "key": "optimum",
+      "smallVariantId": 783,
+      "largeVariantId": 4614,
+      "upfrontDifference": 20.01,
+      "unitDifference": 0.03154574132492627,
+      "unitWinner": "smaller"
+    }
+  ],
+  "incoming": [
+    {
+      "path": "/mass-gainer",
+      "target": "/guides/mass-gainer-vs-whey-protein",
+      "crawlable": true
+    },
+    {
+      "path": "/creatine",
+      "target": "/guides/creatine-pack-size-value",
+      "crawlable": true
+    }
+  ],
+  "external": [
+    {
+      "url": "https://shop.biotechusa.com/products/hyper-mass-4000-g",
+      "status": 200
+    },
+    {
+      "url": "https://efectivnutrition.com/products/efectiv-grass-fed-whey-protein-isolate-2kg",
+      "status": 200
+    },
+    {
+      "url": "https://appliednutrition.uk/products/creatine-monohydrate",
+      "status": 200
+    },
+    {
+      "url": "https://www.optimumnutrition.com/en-gb/products/micronised-creatine-powder",
+      "status": 200
+    }
+  ],
+  "sitemap": {
+    "urls": 1485,
+    "duplicates": 0,
+    "newRoutes": 2
+  },
+  "googleSubmissions": 0,
+  "databaseWrites": 0
+}

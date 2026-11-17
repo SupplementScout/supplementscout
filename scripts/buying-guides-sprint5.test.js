@@ -144,7 +144,7 @@ test("both pages deduplicate bounded reads through existing distinct lifecycle c
 });
 test("sitemap includes each approved route once and all previous guide/SEO lifecycles remain live",()=>{
   const lifecycle=load("app/lib/indexabilityLifecycle.ts"),sitemap=fs.readFileSync(path.join(root,"app/sitemap.ts"),"utf8");
-  for(const route of [model.MASS_WHEY_GUIDE_PATH,model.CREATINE_PACK_GUIDE_PATH]){assert.equal(lifecycle.getLifecycleStatus(route),"launch_approved");assert.equal(lifecycle.isLifecycleSitemapEligible(route),true);assert.equal(sitemap.split(route).length-1,1);}
+  for(const route of [model.MASS_WHEY_GUIDE_PATH,model.CREATINE_PACK_GUIDE_PATH]){assert.equal(lifecycle.getLifecycleStatus(route),"live_verified");assert.equal(lifecycle.isLifecycleSitemapEligible(route),true);assert.equal(sitemap.split(route).length-1,1);}
   for(const route of ["/brands/per4m","/creatine","/guides/supplement-prices-including-delivery","/guides/cost-per-25g-protein","/guides/protein-powder-under-30","/guides/caffeine-free-pre-workout","/guides/whey-isolate-vs-concentrate","/guides/protein-powder-pack-size-value"])assert.equal(lifecycle.getLifecycleStatus(route),"live_verified");
 });
 test("natural incoming and conversion links are crawlable and keep existing product-page retailer tracking",()=>{

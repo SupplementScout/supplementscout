@@ -1,0 +1,62 @@
+{
+  "capturedAt": "2026-11-17T21:29:41.455Z",
+  "mergedSha": "65983f24aadee1ec7e0f5f700800f6a10661ccb7",
+  "releaseHead": "f6ef6f44759da7546bda22daffac2c0cc4328043",
+  "releaseChecks": {
+    "focused": 140,
+    "quick": "PASS",
+    "quickTests": 1315,
+    "full": "PASS",
+    "fullSafeTests": 4039,
+    "typeScript": "PASS",
+    "eslint": "PASS",
+    "productionBuild": "PASS",
+    "projectGuardian": "PASS"
+  },
+  "ci": {
+    "pr": [
+      {
+        "conclusion": "success",
+        "databaseId": 44179018401,
+        "headSha": "f6ef6f44759da7546bda22daffac2c0cc4328043",
+        "name": "Project Guardian",
+        "status": "completed",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44179018401"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 44179018531,
+        "headSha": "f6ef6f44759da7546bda22daffac2c0cc4328043",
+        "name": "Quality Gate",
+        "status": "completed",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44179018531"
+      }
+    ],
+    "main": [
+      {
+        "conclusion": "success",
+        "databaseId": 44179670646,
+        "headSha": "65983f24aadee1ec7e0f5f700800f6a10661ccb7",
+        "name": "Project Guardian",
+        "status": "completed",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44179670646"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 44179670602,
+        "headSha": "65983f24aadee1ec7e0f5f700800f6a10661ccb7",
+        "name": "Quality Gate",
+        "status": "completed",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44179670602"
+      }
+    ]
+  },
+  "productionVerification": "PASS: public initial HTML equals independent current GET-only source rendering; SEO, six exact variants, delivered/kg/protein arithmetic, missing nutrition, links and responsive QA pass",
+  "deploymentAuthority": "Vercel commit SUCCESS + exact latest GitHub Production deployment SUCCESS + public domain build fingerprint/content contracts; no private API READY claim",
+  "googleIndexed": "UNKNOWN: no new Search Console inspection or submission performed",
+  "googleActions": 0,
+  "indexingApiCalls": 0,
+  "productionDataWrites": 0,
+  "fieldCwvClaim": false,
+  "nextSprintStarted": false
+}

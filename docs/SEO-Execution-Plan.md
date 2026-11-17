@@ -1,5 +1,21 @@
 # SupplementScout SEO Execution Plan
 
+**17 November 2026 SEO-25 LIVE VERIFIED closeout:** owner-approved PR #545
+squash merged release head `f6ef6f44759da7546bda22daffac2c0cc4328043` as
+`65983f24aadee1ec7e0f5f700800f6a10661ccb7` with identical tree. Main Quality Gate and Guardian pass.
+Vercel commit SUCCESS and exact GitHub Production deployment SUCCESS,
+a changed public build `9_WVqN0zBGLZhUxucMStg`, and source-bound
+public readback prove release on the custom domain. Direct Vercel API403
+and generated-URL SSO protections are retained. Both guides pass HTTP200,
+index/follow, canonical, sitemap, factual schema, six exact variant links,
+delivered/kg arithmetic and1440/390px QA. Only existing1196 approved
+nutrition supports a protein metric. Both routes now record live_verified
+without changing public indexability. Earlier Draft/CODE COMPLETE checkpoints
+are historical. SEO-20 remains frozen/binding; SEO-21/22/23/24 stay live.
+Stage3 remains disabled; no production-data write, Google action or Sprint6.
+Google inclusion is UNKNOWN; the owner handles submissions. Evidence:
+`docs/rollouts/content-growth-sprint-5-2026-11-17.md`.
+
 **17 November 2026 SEO-25 production-release approval:** the owner explicitly
 authorizes PR #545's two prepared guide lifecycle transitions to
 `launch_approved`, necessary existing tests/docs, quality gates, Ready for
@@ -431,7 +447,7 @@ Console evidence and user value.
 
 | SEO-24 | P1 | Content Growth Sprint 4: /guides/whey-isolate-vs-concentrate and /guides/protein-powder-pack-size-value. | `LIVE VERIFIED` | Owner-approved PR #544 squash cd9a9d312c03db71c07e99f8c2a7b1cbaf4b5636 preserves the reviewed tree. Main Quality Gate/Guardian pass; Vercel Production dpl_Ch1Hdj63RwBgzVVeQ4xWHyeyjwWx READY. Public HTTP/source-bound exact variants, delivered arithmetic, indexability/canonical/sitemap/schema, links and1440/390px QA pass; warm response guard passes. Missing nutrition remains withheld. No production-data or Google write. SEO-20 frozen; SEO-21/22/23 live. |
 
-| SEO-25 | P1 | Content Growth Sprint5: /guides/mass-gainer-vs-whey-protein and /guides/creatine-pack-size-value. | `CODE COMPLETE` | Authenticated complete28/7-day GSC evidence and five-candidate data gate support two distinct purchase decisions. Six exact selected variants across four product families/brands; correct delivered/kg comparisons and one existing approved protein record.140 focused checks, quick/full4,039, actual-source HTTP/cache, public variant links and1440/390px QA pass. One Draft PR, planned/noindex; no merge, production/data/nutrition write, workflow change or Google submission. SEO-20 frozen; SEO-21/22/23/24 live. |
+| SEO-25 | P1 | Content Growth Sprint5: /guides/mass-gainer-vs-whey-protein and /guides/creatine-pack-size-value. | `LIVE VERIFIED` | Owner-approved PR #545 squash 65983f24aadee1ec7e0f5f700800f6a10661ccb7 preserves the reviewed tree. Main Quality Gate/Guardian and exact GitHub Production/Vercel commit statuses pass; changed public build 9_WVqN0zBGLZhUxucMStg proves domain promotion without bypassing API403/SSO. Public HTTP200, indexability/canonical/sitemap/schema, actual-source initial HTML, six exact variants, delivered/kg/protein arithmetic, links,1440/390px QA and unchanged warm-response guard pass. Missing nutrition stays withheld. Google inclusion UNKNOWN; no data/GSC write. SEO-20 frozen; SEO-21/22/23/24 live. |
 
 ## 6. Current active task
 
@@ -689,6 +705,38 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 17 November 2026 - SEO-25 production release LIVE VERIFIED
+
+- PR #545 release head `f6ef6f44759da7546bda22daffac2c0cc4328043`
+  squash merged as `65983f24aadee1ec7e0f5f700800f6a10661ccb7` with
+  exact tree parity. Required PR/main checks pass; main Quality Gate44179670602
+  and Project Guardian44179670646. Local140 focused tests, quick1,315,
+  full4,039 safe tests, TypeScript, ESLint and production build pass.
+- Exact GitHub Production deployment7866700641 and Vercel commit status
+  dpl_GG1cPhYzjAutgNVCeKrkwFtPTAjS succeed. Public build changes from
+  yHBCnoya8-F4MoFfJqS3O to9_WVqN0zBGLZhUxucMStg on the custom domain
+  and both new routes. This is the owner-approved public/GitHub fallback;
+  private API403 and generated-URL SSO protections remain intact.
+- Both public URLs200, index/follow, self-canonical and once each in sitemap;
+  no duplicates. Parameters remain noindex/follow and clean canonical.
+  Googlebot sees200/index. WebPage/BreadcrumbList schema is factual.
+  Initial HTML equals independent current GET-only catalogue rendering.
+  Six exact variants, fresh check dates, known delivery, sums, perkg arithmetic,
+  unrounded pair ordering and links pass. Only1196's existing reviewed exact
+  nutrition supports £0.91 per25g protein. Missing nutrition stays withheld.
+- Desktop1440/mobile390, keyboard order, card layout and runtime/HTTP checks
+  pass; four screenshots visually reviewed. New warm TTFB130.0/123.7ms;
+  all11 existing routes pass the unchanged before*1.5+100ms guard. First
+  browser DNS6.9ms, connect28.6ms and request-to-first-byte12.7ms are
+  recorded separately. CLS0; these are lab samples, not field CWV claims.
+- [Existing Sprint5 release evidence](rollouts/content-growth-sprint-5-2026-11-17.md).
+  Only the two route states now record live_verified with unchanged public
+  indexability. SEO-20 frozen/binding and SEO-21/22/23/24 live contracts remain
+  intact. Stage3 stays disabled. Google inclusion UNKNOWN; no GSC/Indexing API
+  action, production-data write or next sprint. Final closeout commit/deployment
+  must pass the same CI and public readback gates; exact final proof stays on
+  the existing PR #545.
 
 ### 17 November 2026 - SEO-25 Content Growth Sprint5 CODE COMPLETE
 

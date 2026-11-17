@@ -1,0 +1,112 @@
+{
+  "capturedAt": "2026-11-17T21:29:41.457Z",
+  "threshold": "Existing-page after warm median < before warm median * 1.5 + 100ms; retained unchanged",
+  "comparison": [
+    {
+      "route": "/how-we-compare",
+      "beforeWarmMs": 25.6,
+      "afterWarmMs": 24.9
+    },
+    {
+      "route": "/creatine",
+      "beforeWarmMs": 193,
+      "afterWarmMs": 200.3
+    },
+    {
+      "route": "/whey-protein",
+      "beforeWarmMs": 217.6,
+      "afterWarmMs": 231.8
+    },
+    {
+      "route": "/brands/per4m",
+      "beforeWarmMs": 159.6,
+      "afterWarmMs": 177.6
+    },
+    {
+      "route": "/guides/supplement-prices-including-delivery",
+      "beforeWarmMs": 137.1,
+      "afterWarmMs": 137.4
+    },
+    {
+      "route": "/guides/cost-per-25g-protein",
+      "beforeWarmMs": 133.8,
+      "afterWarmMs": 136.6
+    },
+    {
+      "route": "/guides/protein-powder-under-30",
+      "beforeWarmMs": 141.4,
+      "afterWarmMs": 139.1
+    },
+    {
+      "route": "/guides/caffeine-free-pre-workout",
+      "beforeWarmMs": 136.6,
+      "afterWarmMs": 146
+    },
+    {
+      "route": "/guides/whey-isolate-vs-concentrate",
+      "beforeWarmMs": 133.4,
+      "afterWarmMs": 133.1
+    },
+    {
+      "route": "/guides/protein-powder-pack-size-value",
+      "beforeWarmMs": 130.2,
+      "afterWarmMs": 132.1
+    },
+    {
+      "route": "/mass-gainer",
+      "beforeWarmMs": 148.6,
+      "afterWarmMs": 145.8
+    }
+  ],
+  "newGuides": [
+    {
+      "path": "/guides/mass-gainer-vs-whey-protein",
+      "warmMedianTTFBms": 130
+    },
+    {
+      "path": "/guides/creatine-pack-size-value",
+      "warmMedianTTFBms": 123.7
+    }
+  ],
+  "firstBrowserNavigation": {
+    "lcpMs": 616,
+    "dnsMs": 6.9000000059604645,
+    "connectMs": 28.599999994039536,
+    "requestToFirstByteMs": 12.700000002980232
+  },
+  "warmedBrowser": [
+    {
+      "route": "/guides/mass-gainer-vs-whey-protein",
+      "width": 1440,
+      "lcpMs": 168,
+      "cls": 0,
+      "dnsMs": 0,
+      "requestToFirstByteMs": 11.900000005960464
+    },
+    {
+      "route": "/guides/mass-gainer-vs-whey-protein",
+      "width": 390,
+      "lcpMs": 172,
+      "cls": 0,
+      "dnsMs": 0,
+      "requestToFirstByteMs": 13
+    },
+    {
+      "route": "/guides/creatine-pack-size-value",
+      "width": 1440,
+      "lcpMs": 164,
+      "cls": 0,
+      "dnsMs": 0,
+      "requestToFirstByteMs": 12.700000002980232
+    },
+    {
+      "route": "/guides/creatine-pack-size-value",
+      "width": 390,
+      "lcpMs": 156,
+      "cls": 0,
+      "dnsMs": 0,
+      "requestToFirstByteMs": 12
+    }
+  ],
+  "conclusion": "Warm response guard and responsive checks passed; first-navigation network phases retained separately. These are lab samples, not field CWV."
+}

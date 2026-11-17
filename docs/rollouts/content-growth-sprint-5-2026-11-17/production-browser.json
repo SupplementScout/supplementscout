@@ -1,0 +1,1239 @@
+{
+  "capturedAt": "2026-11-17T21:27:54.787Z",
+  "environment": "actual public production Chrome QA; not field CWV; non-essential consent rejected if shown",
+  "base": "https://www.supplementscout.co.uk",
+  "syntheticOffers": false,
+  "warmup": {
+    "url": "https://www.supplementscout.co.uk/how-we-compare?qa=seo25-baseline",
+    "navigation": {
+      "name": "https://www.supplementscout.co.uk/how-we-compare?qa=seo25-baseline",
+      "entryType": "navigation",
+      "startTime": 0,
+      "duration": 62.1000000089407,
+      "navigationId": 416,
+      "initiatorType": "navigation",
+      "deliveryType": "",
+      "nextHopProtocol": "h2",
+      "renderBlockingStatus": "non-blocking",
+      "contentType": "text/html",
+      "contentEncoding": "br",
+      "workerStart": 0,
+      "workerRouterEvaluationStart": 0,
+      "workerCacheLookupStart": 0,
+      "workerMatchedSourceType": "",
+      "workerFinalSourceType": "",
+      "redirectStart": 0,
+      "redirectEnd": 0,
+      "fetchStart": 0.800000011920929,
+      "domainLookupStart": 0.800000011920929,
+      "domainLookupEnd": 0.800000011920929,
+      "connectStart": 0.800000011920929,
+      "secureConnectionStart": 0.800000011920929,
+      "connectEnd": 0.800000011920929,
+      "requestStart": 1.7000000029802322,
+      "responseStart": 14.5,
+      "firstInterimResponseStart": 14.5,
+      "finalResponseHeadersStart": 26.600000008940697,
+      "responseEnd": 30.80000001192093,
+      "transferSize": 6950,
+      "encodedBodySize": 6650,
+      "decodedBodySize": 28954,
+      "responseStatus": 200,
+      "serverTiming": [],
+      "unloadEventStart": 29.600000008940697,
+      "unloadEventEnd": 29.600000008940697,
+      "domInteractive": 37.400000005960464,
+      "domContentLoadedEventStart": 37.400000005960464,
+      "domContentLoadedEventEnd": 37.400000005960464,
+      "domComplete": 62.1000000089407,
+      "loadEventStart": 62.1000000089407,
+      "loadEventEnd": 62.1000000089407,
+      "type": "navigate",
+      "redirectCount": 0,
+      "activationStart": 0,
+      "criticalCHRestart": 0,
+      "notRestoredReasons": null,
+      "confidence": {}
+    },
+    "lcpMs": 68,
+    "cls": 0
+  },
+  "results": [
+    {
+      "route": "/guides/mass-gainer-vs-whey-protein",
+      "width": 1440,
+      "mobileTouchEmulation": false,
+      "result": "PASS",
+      "title": "Mass Gainer vs Whey Protein: Compare UK Buying Costs | SupplementScout",
+      "h1": "Should I buy mass gainer or whey protein?",
+      "viewport": 1440,
+      "visualWidth": 1425,
+      "scale": 1,
+      "documentWidth": 1425,
+      "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-vs-whey-protein",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "BioTech USA Hyper Mass (4,000g)",
+          "href": "/product/biotech-usa-hyper-mass-4kg?variant=2223"
+        },
+        {
+          "text": "Manufacturer ingredient and pack source",
+          "href": "https://shop.biotechusa.com/products/hyper-mass-4000-g"
+        },
+        {
+          "text": "Efectiv Grass-Fed Whey Protein Isolate (2,000g)",
+          "href": "/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg?variant=1196"
+        },
+        {
+          "text": "Manufacturer ingredient and pack source",
+          "href": "https://efectivnutrition.com/products/efectiv-grass-fed-whey-protein-isolate-2kg"
+        },
+        {
+          "text": "Mass Gainer comparison",
+          "href": "/mass-gainer"
+        },
+        {
+          "text": "Whey Protein comparison",
+          "href": "/whey-protein"
+        },
+        {
+          "text": "the comparison tool",
+          "href": "/compare"
+        },
+        {
+          "text": "the verified protein-cost method",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "why delivery changes the purchase price",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "how isolate and concentrate differ",
+          "href": "/guides/whey-isolate-vs-concentrate"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "BioTech USA Hyper Mass (4,000g)Carbohydrate-and-protein blend. Variant: Strawberry / 4kg. One exact 4,000g pack.6 Pack SupplementsProduct price£39.99Delivery£4.99Delivered total£44.98Offer checked 17 Nov 2026, 11:452026-11-17T11:45:40.735+00:00Delivered powder cost: £11.25/kg.Approved nutrition for this exact variant is not sufficient to show cost per 25 g of protein. We do not copy another flavour's figures or estimate a calorie cost.Manufacturer ingredient and pack source. Ingredient-source review is separate from the approved nutrition record used for calculations.",
+          "x": 288.5,
+          "y": 912,
+          "w": 414,
+          "h": 528
+        },
+        {
+          "text": "Efectiv Grass-Fed Whey Protein Isolate (2,000g)Whey isolate powder. Variant: Strawberry Milkshake / 2000g. One exact 2,000g pack.eBay UKProduct price£64.99Delivery£0.00Delivered total£64.99Offer checked 17 Nov 2026, 14:572026-11-17T14:57:33.364+00:00Delivered powder cost: £32.50/kg.Protein per serving27 gVerified servings66Cost per 25 g protein£0.91Manufacturer ingredient and pack source. Ingredient-source review is separate from the approved nutrition record used for calculations.",
+          "x": 722.5,
+          "y": 912,
+          "w": 414,
+          "h": 528
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 168,
+      "navigation": {
+        "name": "https://www.supplementscout.co.uk/guides/mass-gainer-vs-whey-protein?qa=1440",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 169.1000000089407,
+        "navigationId": 440,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "h2",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "br",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.5,
+        "domainLookupStart": 0.5,
+        "domainLookupEnd": 0.5,
+        "connectStart": 0.5,
+        "secureConnectionStart": 0.5,
+        "connectEnd": 0.5,
+        "requestStart": 1.2000000029802322,
+        "responseStart": 13.100000008940697,
+        "firstInterimResponseStart": 13.100000008940697,
+        "finalResponseHeadersStart": 135.20000000298023,
+        "responseEnd": 139.40000000596046,
+        "transferSize": 8311,
+        "encodedBodySize": 8011,
+        "decodedBodySize": 36244,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 0,
+        "unloadEventEnd": 0,
+        "domInteractive": 142.30000001192093,
+        "domContentLoadedEventStart": 142.40000000596046,
+        "domContentLoadedEventEnd": 142.40000000596046,
+        "domComplete": 169.1000000089407,
+        "loadEventStart": 169.1000000089407,
+        "loadEventEnd": 169.1000000089407,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1m4jsc1dh3h5_.css",
+          "bytes": 81236,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3j9pm5otqxm82.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/turbopack-05o9g6l_1hb89.js",
+          "bytes": 11041,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2qss5m6h08xun.js",
+          "bytes": 26871,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1xdsaumin0uei.js",
+          "bytes": 54645,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2yme14w_r39by.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1w9lotakwc4_z.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg?variant=1196&_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 285,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/biotech-usa-hyper-mass-4kg?variant=2223&_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 259,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=nMHzZIrbBMWMynZH",
+          "bytes": 2565,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=kR1QDn43qjudOZH6",
+          "bytes": 2908,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=WqGUMBthGw-mtWkM",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=bOqJ9Rx4NsIadTWm",
+          "bytes": 1655,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg?variant=1196&_rsc=1Gt5iweE9sZ4aWJ5",
+          "bytes": 3373,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/308ujrdr5rv1m.js",
+          "bytes": 13700,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/biotech-usa-hyper-mass-4kg?variant=2223&_rsc=1Gt5iweE9sZ4aWJ5",
+          "bytes": 3024,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=1Gt5iweE9sZ4aWJ5",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=nMHzZIrbBMWMynZH",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=rIIobIvsa3-p5e0X",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=vpkfNhhv08ns1wZK",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=1Gt5iweE9sZ4aWJ5",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg?_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 272,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/biotech-usa-hyper-mass-4kg?_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 246,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/mass-gainer-vs-whey-protein",
+      "width": 390,
+      "mobileTouchEmulation": true,
+      "result": "PASS",
+      "title": "Mass Gainer vs Whey Protein: Compare UK Buying Costs | SupplementScout",
+      "h1": "Should I buy mass gainer or whey protein?",
+      "viewport": 390,
+      "visualWidth": 390,
+      "scale": 1,
+      "documentWidth": 390,
+      "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-vs-whey-protein",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "BioTech USA Hyper Mass (4,000g)",
+          "href": "/product/biotech-usa-hyper-mass-4kg?variant=2223"
+        },
+        {
+          "text": "Manufacturer ingredient and pack source",
+          "href": "https://shop.biotechusa.com/products/hyper-mass-4000-g"
+        },
+        {
+          "text": "Efectiv Grass-Fed Whey Protein Isolate (2,000g)",
+          "href": "/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg?variant=1196"
+        },
+        {
+          "text": "Manufacturer ingredient and pack source",
+          "href": "https://efectivnutrition.com/products/efectiv-grass-fed-whey-protein-isolate-2kg"
+        },
+        {
+          "text": "Mass Gainer comparison",
+          "href": "/mass-gainer"
+        },
+        {
+          "text": "Whey Protein comparison",
+          "href": "/whey-protein"
+        },
+        {
+          "text": "the comparison tool",
+          "href": "/compare"
+        },
+        {
+          "text": "the verified protein-cost method",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "why delivery changes the purchase price",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "how isolate and concentrate differ",
+          "href": "/guides/whey-isolate-vs-concentrate"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "BioTech USA Hyper Mass (4,000g)Carbohydrate-and-protein blend. Variant: Strawberry / 4kg. One exact 4,000g pack.6 Pack SupplementsProduct price£39.99Delivery£4.99Delivered total£44.98Offer checked 17 Nov 2026, 11:452026-11-17T11:45:40.735+00:00Delivered powder cost: £11.25/kg.Approved nutrition for this exact variant is not sufficient to show cost per 25 g of protein. We do not copy another flavour's figures or estimate a calorie cost.Manufacturer ingredient and pack source. Ingredient-source review is separate from the approved nutrition record used for calculations.",
+          "x": 16,
+          "y": 1451,
+          "w": 358,
+          "h": 524
+        },
+        {
+          "text": "Efectiv Grass-Fed Whey Protein Isolate (2,000g)Whey isolate powder. Variant: Strawberry Milkshake / 2000g. One exact 2,000g pack.eBay UKProduct price£64.99Delivery£0.00Delivered total£64.99Offer checked 17 Nov 2026, 14:572026-11-17T14:57:33.364+00:00Delivered powder cost: £32.50/kg.Protein per serving27 gVerified servings66Cost per 25 g protein£0.91Manufacturer ingredient and pack source. Ingredient-source review is separate from the approved nutrition record used for calculations.",
+          "x": 16,
+          "y": 1995,
+          "w": 358,
+          "h": 520
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 172,
+      "navigation": {
+        "name": "https://www.supplementscout.co.uk/guides/mass-gainer-vs-whey-protein?qa=390",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 151.70000000298023,
+        "navigationId": 5980,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "h2",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "br",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.4000000059604645,
+        "domainLookupStart": 0.4000000059604645,
+        "domainLookupEnd": 0.4000000059604645,
+        "connectStart": 0.4000000059604645,
+        "secureConnectionStart": 0.4000000059604645,
+        "connectEnd": 0.4000000059604645,
+        "requestStart": 1.0999999940395355,
+        "responseStart": 14.099999994039536,
+        "firstInterimResponseStart": 14.099999994039536,
+        "finalResponseHeadersStart": 136,
+        "responseEnd": 140.70000000298023,
+        "transferSize": 8322,
+        "encodedBodySize": 8022,
+        "decodedBodySize": 36241,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 143.20000000298023,
+        "unloadEventEnd": 143.20000000298023,
+        "domInteractive": 149.90000000596046,
+        "domContentLoadedEventStart": 149.90000000596046,
+        "domContentLoadedEventEnd": 149.90000000596046,
+        "domComplete": 151.70000000298023,
+        "loadEventStart": 151.70000000298023,
+        "loadEventEnd": 151.70000000298023,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1m4jsc1dh3h5_.css",
+          "bytes": 81236,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3j9pm5otqxm82.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/turbopack-05o9g6l_1hb89.js",
+          "bytes": 11041,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2qss5m6h08xun.js",
+          "bytes": 26871,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1xdsaumin0uei.js",
+          "bytes": 54645,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2yme14w_r39by.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1w9lotakwc4_z.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=nMHzZIrbBMWMynZH",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=kR1QDn43qjudOZH6",
+          "bytes": 2908,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=rIIobIvsa3-p5e0X",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=vpkfNhhv08ns1wZK",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=1Gt5iweE9sZ4aWJ5",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=1Gt5iweE9sZ4aWJ5",
+          "bytes": 2444,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/creatine-pack-size-value",
+      "width": 1440,
+      "mobileTouchEmulation": false,
+      "result": "PASS",
+      "title": "Creatine Pack Sizes: Is a Bigger Tub Better Value? | SupplementScout",
+      "h1": "Should I buy a bigger tub of creatine?",
+      "viewport": 1440,
+      "visualWidth": 1425,
+      "scale": 1,
+      "documentWidth": 1425,
+      "canonical": "https://www.supplementscout.co.uk/guides/creatine-pack-size-value",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "manufacturer's unflavoured formula and pack-size source",
+          "href": "https://appliednutrition.uk/products/creatine-monohydrate"
+        },
+        {
+          "text": "Applied Nutrition Creatine Monohydrate (250g)",
+          "href": "/product/applied-nutrition-creatine-monohydrate-250g?variant=799"
+        },
+        {
+          "text": "Applied Nutrition Creatine Monohydrate (500g)",
+          "href": "/product/applied-nutrition-creatine-monohydrate-250g?variant=4559"
+        },
+        {
+          "text": "manufacturer's unflavoured formula and pack-size source",
+          "href": "https://www.optimumnutrition.com/en-gb/products/micronised-creatine-powder"
+        },
+        {
+          "text": "Optimum Nutrition Micronised Creatine (317g)",
+          "href": "/product/optimum-nutrition-micronised-creatine-317g?variant=783"
+        },
+        {
+          "text": "Optimum Nutrition Micronised Creatine (634g)",
+          "href": "/product/optimum-nutrition-micronised-creatine-317g?variant=4614"
+        },
+        {
+          "text": "Creatine comparison",
+          "href": "/creatine"
+        },
+        {
+          "text": "creatine under £20 including delivery",
+          "href": "/creatine#under-20"
+        },
+        {
+          "text": "the delivery-price guide",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "the two-product comparison tool",
+          "href": "/compare"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Applied Nutrition Creatine Monohydrate (250g)Unflavoured creatine powder. Variant: Unflavoured / 250g. One exact 250g pack.Holland & BarrettProduct price£14.40Delivery£3.49Delivered total£17.89Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00Delivered powder cost: £71.56/kg.",
+          "x": 288.5,
+          "y": 704,
+          "w": 414,
+          "h": 360
+        },
+        {
+          "text": "Applied Nutrition Creatine Monohydrate (500g)Unflavoured creatine powder. Variant: Unflavoured / 500g. One exact 500g pack.Holland & BarrettProduct price£30.00Delivery£0.00Delivered total£30.00Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00Delivered powder cost: £60.00/kg.",
+          "x": 722.5,
+          "y": 704,
+          "w": 414,
+          "h": 360
+        },
+        {
+          "text": "Optimum Nutrition Micronised Creatine (317g)Unflavoured creatine powder. Variant: Unflavoured / 317g. One exact 317g pack.Holland & BarrettProduct price£16.50Delivery£3.49Delivered total£19.99Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00Delivered powder cost: £63.06/kg.",
+          "x": 288.5,
+          "y": 1434,
+          "w": 414,
+          "h": 360
+        },
+        {
+          "text": "Optimum Nutrition Micronised Creatine (634g)Unflavoured creatine powder. Variant: Unflavoured / 634 g. One exact 634g pack.Holland & BarrettProduct price£40.00Delivery£0.00Delivered total£40.00Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00Delivered powder cost: £63.09/kg.",
+          "x": 722.5,
+          "y": 1434,
+          "w": 414,
+          "h": 360
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 164,
+      "navigation": {
+        "name": "https://www.supplementscout.co.uk/guides/creatine-pack-size-value?qa=1440",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 145.70000000298023,
+        "navigationId": 2590,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "h2",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "br",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.4000000059604645,
+        "domainLookupStart": 0.4000000059604645,
+        "domainLookupEnd": 0.4000000059604645,
+        "connectStart": 0.4000000059604645,
+        "secureConnectionStart": 0.4000000059604645,
+        "connectEnd": 0.4000000059604645,
+        "requestStart": 1.5,
+        "responseStart": 14.200000002980232,
+        "firstInterimResponseStart": 14.200000002980232,
+        "finalResponseHeadersStart": 129.6000000089407,
+        "responseEnd": 134.70000000298023,
+        "transferSize": 8720,
+        "encodedBodySize": 8420,
+        "decodedBodySize": 44727,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 132.5,
+        "unloadEventEnd": 132.5,
+        "domInteractive": 140.6000000089407,
+        "domContentLoadedEventStart": 140.6000000089407,
+        "domContentLoadedEventEnd": 140.6000000089407,
+        "domComplete": 145.70000000298023,
+        "loadEventStart": 145.70000000298023,
+        "loadEventEnd": 145.70000000298023,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1m4jsc1dh3h5_.css",
+          "bytes": 81236,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3j9pm5otqxm82.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/turbopack-05o9g6l_1hb89.js",
+          "bytes": 11041,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2qss5m6h08xun.js",
+          "bytes": 26871,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1xdsaumin0uei.js",
+          "bytes": 54645,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3b9hn_as77yst.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1w9lotakwc4_z.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-creatine-monohydrate-250g?variant=4559&_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 276,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-creatine-monohydrate-250g?variant=799&_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 275,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=_mwaSZxvfUJms3_3",
+          "bytes": 2565,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=wM6kplSMMK2Q5IaF",
+          "bytes": 2908,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=sWlShsA4ai8Jo-pK",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=a5jlyqPirO84di9I",
+          "bytes": 1655,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-creatine-monohydrate-250g?variant=4559&_rsc=W4S6mF_bKLSFj4TC",
+          "bytes": 3178,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-creatine-monohydrate-250g?variant=799&_rsc=W4S6mF_bKLSFj4TC",
+          "bytes": 3176,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/308ujrdr5rv1m.js",
+          "bytes": 13700,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=W4S6mF_bKLSFj4TC",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=_mwaSZxvfUJms3_3",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=iauZrvZTqwndQG8_",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=XHVzIZZi9ckUgCt1",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=W4S6mF_bKLSFj4TC",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-creatine-monohydrate-250g?_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 263,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/creatine-pack-size-value",
+      "width": 390,
+      "mobileTouchEmulation": true,
+      "result": "PASS",
+      "title": "Creatine Pack Sizes: Is a Bigger Tub Better Value? | SupplementScout",
+      "h1": "Should I buy a bigger tub of creatine?",
+      "viewport": 390,
+      "visualWidth": 390,
+      "scale": 1,
+      "documentWidth": 390,
+      "canonical": "https://www.supplementscout.co.uk/guides/creatine-pack-size-value",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "manufacturer's unflavoured formula and pack-size source",
+          "href": "https://appliednutrition.uk/products/creatine-monohydrate"
+        },
+        {
+          "text": "Applied Nutrition Creatine Monohydrate (250g)",
+          "href": "/product/applied-nutrition-creatine-monohydrate-250g?variant=799"
+        },
+        {
+          "text": "Applied Nutrition Creatine Monohydrate (500g)",
+          "href": "/product/applied-nutrition-creatine-monohydrate-250g?variant=4559"
+        },
+        {
+          "text": "manufacturer's unflavoured formula and pack-size source",
+          "href": "https://www.optimumnutrition.com/en-gb/products/micronised-creatine-powder"
+        },
+        {
+          "text": "Optimum Nutrition Micronised Creatine (317g)",
+          "href": "/product/optimum-nutrition-micronised-creatine-317g?variant=783"
+        },
+        {
+          "text": "Optimum Nutrition Micronised Creatine (634g)",
+          "href": "/product/optimum-nutrition-micronised-creatine-317g?variant=4614"
+        },
+        {
+          "text": "Creatine comparison",
+          "href": "/creatine"
+        },
+        {
+          "text": "creatine under £20 including delivery",
+          "href": "/creatine#under-20"
+        },
+        {
+          "text": "the delivery-price guide",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "the two-product comparison tool",
+          "href": "/compare"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Applied Nutrition Creatine Monohydrate (250g)Unflavoured creatine powder. Variant: Unflavoured / 250g. One exact 250g pack.Holland & BarrettProduct price£14.40Delivery£3.49Delivered total£17.89Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00Delivered powder cost: £71.56/kg.",
+          "x": 16,
+          "y": 1095,
+          "w": 358,
+          "h": 352
+        },
+        {
+          "text": "Applied Nutrition Creatine Monohydrate (500g)Unflavoured creatine powder. Variant: Unflavoured / 500g. One exact 500g pack.Holland & BarrettProduct price£30.00Delivery£0.00Delivered total£30.00Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00Delivered powder cost: £60.00/kg.",
+          "x": 16,
+          "y": 1467,
+          "w": 358,
+          "h": 352
+        },
+        {
+          "text": "Optimum Nutrition Micronised Creatine (317g)Unflavoured creatine powder. Variant: Unflavoured / 317g. One exact 317g pack.Holland & BarrettProduct price£16.50Delivery£3.49Delivered total£19.99Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00Delivered powder cost: £63.06/kg.",
+          "x": 16,
+          "y": 2405,
+          "w": 358,
+          "h": 352
+        },
+        {
+          "text": "Optimum Nutrition Micronised Creatine (634g)Unflavoured creatine powder. Variant: Unflavoured / 634 g. One exact 634g pack.Holland & BarrettProduct price£40.00Delivery£0.00Delivered total£40.00Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00Delivered powder cost: £63.09/kg.",
+          "x": 16,
+          "y": 2777,
+          "w": 358,
+          "h": 352
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 156,
+      "navigation": {
+        "name": "https://www.supplementscout.co.uk/guides/creatine-pack-size-value?qa=390",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 135.40000000596046,
+        "navigationId": 8319,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "h2",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "br",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.7000000029802322,
+        "domainLookupStart": 0.7000000029802322,
+        "domainLookupEnd": 0.7000000029802322,
+        "connectStart": 0.7000000029802322,
+        "secureConnectionStart": 0.7000000029802322,
+        "connectEnd": 0.7000000029802322,
+        "requestStart": 1.5,
+        "responseStart": 13.5,
+        "firstInterimResponseStart": 13.5,
+        "finalResponseHeadersStart": 117.59999999403954,
+        "responseEnd": 122.90000000596046,
+        "transferSize": 8726,
+        "encodedBodySize": 8426,
+        "decodedBodySize": 44724,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 126.90000000596046,
+        "unloadEventEnd": 126.90000000596046,
+        "domInteractive": 133.59999999403954,
+        "domContentLoadedEventStart": 133.59999999403954,
+        "domContentLoadedEventEnd": 133.59999999403954,
+        "domComplete": 135.40000000596046,
+        "loadEventStart": 135.40000000596046,
+        "loadEventEnd": 135.40000000596046,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1m4jsc1dh3h5_.css",
+          "bytes": 81236,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3j9pm5otqxm82.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/turbopack-05o9g6l_1hb89.js",
+          "bytes": 11041,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2qss5m6h08xun.js",
+          "bytes": 26871,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1xdsaumin0uei.js",
+          "bytes": 54645,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3b9hn_as77yst.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1w9lotakwc4_z.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-creatine-monohydrate-250g?variant=799&_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 275,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=_mwaSZxvfUJms3_3",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=wM6kplSMMK2Q5IaF",
+          "bytes": 2908,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=iauZrvZTqwndQG8_",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=XHVzIZZi9ckUgCt1",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-creatine-monohydrate-250g?variant=799&_rsc=W4S6mF_bKLSFj4TC",
+          "bytes": 3176,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-creatine-monohydrate-250g?_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 263,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=W4S6mF_bKLSFj4TC",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=W4S6mF_bKLSFj4TC",
+          "bytes": 2444,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    }
+  ]
+}
