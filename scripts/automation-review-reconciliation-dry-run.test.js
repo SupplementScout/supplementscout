@@ -1404,14 +1404,15 @@ test("Jon's and 6 Pack workflows reuse the publisher but receive no execution ad
   assert.equal(adapters.adapters.some((adapter) => ["10", "11"].includes(String(adapter.retailer_id))), false);
 });
 
-test("shared retailer workflow publishes Fit House, 10 Reps and Gladiator through one generic queue unit", () => {
-  const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
+test("shared retailer workflow publishes all registered profiles through one generic queue unit", () => {
+  const workflow = fs.readFileSync(path.join(process.cwd(), ".github/workflows/fit-house-offer-refresh.yml"), "utf8")
+    .replaceAll("${{ env.RETAILER_DISPLAY_NAME }}", "Gladiator Nutrition");
   const action = fs.readFileSync(path.join(process.cwd(), ".github/actions/publish-automation-review-queue/action.yml"), "utf8");
   const queueJob = workflow.slice(workflow.indexOf("\n  refresh-review-queue:"), workflow.indexOf("\n  expired-control-plan-recovery:"));
   assert.match(workflow, /Bind fresh Fit House Review Queue source/);
   assert.match(workflow, /Bind fresh 10 Reps Review Queue source/);
   assert.match(workflow, /Validate fresh Gladiator Nutrition Review Queue binding/);
-  assert.match(workflow, /refresh-review-queue:[\s\S]*needs: \[fit-house-offer-refresh, ten-reps-offer-refresh, gladiator-nutrition-offer-refresh\]/);
+  assert.match(workflow, /refresh-review-queue:[\s\S]*needs: \[fit-house-offer-refresh, ten-reps-offer-refresh, gladiator-nutrition-offer-refresh, holland-barrett-offer-refresh\]/);
   assert.doesNotMatch(workflow, /needs\.fit-house-offer-refresh\.result == 'success'/);
   assert.doesNotMatch(workflow, /needs\.ten-reps-offer-refresh\.result == 'success'/);
   assert.match(workflow, /Capture Fit House DB baseline read-only[\s\S]*Bind fresh Fit House Review Queue source[\s\S]*Apply all approved Fit House offer refresh/);
@@ -1421,8 +1422,8 @@ test("shared retailer workflow publishes Fit House, 10 Reps and Gladiator throug
   assert.doesNotMatch(tenRepsApply, /review-only/);
   assert.match(workflow, /refresh-review-queue:[\s\S]*inputs\.operation == 'review-only'/);
   assert.match(workflow, /github\.event_name == 'schedule'|inputs\.operation == 'apply'/);
-  assert.equal((queueJob.match(/uses: \.\/\.github\/actions\/publish-automation-review-queue/g) || []).length, 3);
-  for (const profile of ["fit-house", "10-reps", "gladiator-nutrition"]) {
+  assert.equal((queueJob.match(/uses: \.\/\.github\/actions\/publish-automation-review-queue/g) || []).length, 4);
+  for (const profile of ["fit-house", "10-reps", "gladiator-nutrition", "holland-barrett"]) {
     assert.match(queueJob, new RegExp(`profile: ${profile}`));
   }
   assert.doesNotMatch(queueJob, /shared-retailer-automation-review-source\.js|automation-review-reconciliation-apply\.js|actions\/download-artifact@v8/);
@@ -1433,9 +1434,9 @@ test("shared retailer workflow publishes Fit House, 10 Reps and Gladiator throug
   assert.match(action, /durable-sealed-artifacts-enforcement:\s*\n\s*description:[^\n]+\n\s*required: false\s*\n\s*default: ""/);
   assert.doesNotMatch(action, /vars\.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT/);
   assert.equal((action.match(/DURABLE_SEALED_ARTIFACTS_ENFORCEMENT: \$\{\{ inputs\.durable-sealed-artifacts-enforcement \}\}/g) || []).length, 2);
-  assert.equal((queueJob.match(/durable-sealed-artifacts-enforcement: \$\{\{ vars\.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT \}\}/g) || []).length, 3);
-  assert.doesNotMatch(action, /fit-house|10reps|gladiator-nutrition|--mode=apply|register_|APPROVER_DATABASE_URL|EXECUTOR_DATABASE_URL/);
-  for (const displayName of ["Fit House", "10 Reps", "Gladiator Nutrition"]) {
+  assert.equal((queueJob.match(/durable-sealed-artifacts-enforcement: \$\{\{ vars\.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT \}\}/g) || []).length, 4);
+  assert.doesNotMatch(action, /fit-house|10reps|gladiator-nutrition|holland-barrett|--mode=apply|register_|APPROVER_DATABASE_URL|EXECUTOR_DATABASE_URL/);
+  for (const displayName of ["Fit House", "10 Reps", "Gladiator Nutrition", "Holland & Barrett"]) {
     const publication = queueJob.match(new RegExp(`- name: Reconcile and publish fresh ${displayName} Review Queue source[\\s\\S]*?(?=\\n      - name:)`))?.[0] || "";
     assert.match(publication, /uses: \.\/\.github\/actions\/publish-automation-review-queue/);
     assert.match(publication, /durable-sealed-artifacts-enforcement: \$\{\{ vars\.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT \}\}/);

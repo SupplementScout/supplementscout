@@ -40,23 +40,25 @@ function snapshot() {
 }
 
 // Substitute only the read-only connector, never an approval, validator or executor.
-function loadEngine(source) {
+function loadEngine(source, environment = {}, dependencies = {}) {
   const filename = path.join(ROOT, "scripts/fit-house-offer-refresh.js");
   const localRequire = createRequire(filename);
   const fixtureModule = { exports: {} };
   let readerCalls = 0;
+  let readerOptions;
   const context = { module: fixtureModule, exports: fixtureModule.exports, __dirname: path.dirname(filename), __filename: filename,
-    require(name) { return name === "./lib/partnerize-product-feed-reader" ? { async readPartnerizeProductFeed(options) {
+    require(name) { return dependencies[name] || (name === "./lib/partnerize-product-feed-reader" ? { async readPartnerizeProductFeed(options) {
       readerCalls += 1;
+      readerOptions = options;
       assert.equal(options.feedUrlSha256, config.source_url_sha256);
       assert.equal(options.reviewedIdentities.length, 219);
       assert.equal(options.maximumBytes, 12000000);
       return source;
-    } } : localRequire(name); },
-    process: { ...process, env: { ...process.env, RETAILER_REFRESH_PROFILE: "holland-barrett", HOLLAND_BARRETT_PARTNERIZE_FEED_URL: "https://feeds.performancehorizon.com/fixture" } },
+    } } : localRequire(name)); },
+    process: { ...process, env: { ...process.env, RETAILER_REFRESH_PROFILE: "holland-barrett", HOLLAND_BARRETT_PARTNERIZE_FEED_URL: "https://feeds.performancehorizon.com/fixture", ...environment } },
     URL, Date, Buffer, console, setTimeout, clearTimeout, AbortController };
   vm.runInNewContext(fs.readFileSync(filename, "utf8"), context, { filename });
-  return { ...fixtureModule.exports, fixtureReaderCalls: () => readerCalls };
+  return { ...fixtureModule.exports, fixtureReaderCalls: () => readerCalls, fixtureReaderOptions: () => readerOptions };
 }
 
 async function build(source = snapshot()) {
@@ -235,4 +237,63 @@ test("H&B worker is prepared in the existing registry while active adapters and 
   assert.equal(publication.approvedMappingCount, config.approved_mapping_count);
   assert.equal(postflight.approvedMappingCount, config.approved_mapping_count);
   assert.equal(postflight.manifestPath, config.manifest_path);
+});
+
+test("H&B reuses the exact shared workflow steps, stays disabled and cannot expose manual apply", () => {
+  const workflow = require("js-yaml").load(fs.readFileSync(path.join(ROOT, ".github/workflows/fit-house-offer-refresh.yml"), "utf8"));
+  const hb = workflow.jobs["holland-barrett-offer-refresh"], legacy = workflow.jobs["gladiator-nutrition-offer-refresh"];
+  assert.equal(hb.steps, legacy.steps, "YAML alias must reuse one step sequence");
+  assert.equal(hb.outputs, legacy.outputs);
+  assert.deepEqual(hb.needs, ["gladiator-nutrition-offer-refresh"], "scheduled writers must be sequential");
+  assert.equal(hb.env.RETAILER_REFRESH_PROFILE, "holland-barrett");
+  assert.equal(hb.env.RETAILER_SOURCE_SECRET, "HOLLAND_BARRETT_PARTNERIZE_FEED_URL");
+  assert.equal(hb.env.RETAILER_REFRESH_OUTPUT_DIRECTORY, "tmp/holland-barrett-offer-refresh");
+  assert.deepEqual(workflow.concurrency, { group: "retailer-offer-production-write", "cancel-in-progress": false, queue: "max" });
+  const expression = hb.if.slice(3, -2).trim();
+  for (const enabled of ["", "false", "true"]) for (const event of ["schedule", "workflow_dispatch", "push"]) {
+    for (const operation of ["dry-run", "review-only", "apply", "control-recovery"]) for (const ref of ["refs/heads/main", "refs/heads/test"]) {
+      const context = { always: () => true, vars: { HOLLAND_BARRETT_REFRESH_ENABLED: enabled }, github: { ref, event_name: event, event: { schedule: "17 8 * * *" } }, inputs: { retailer: "holland-barrett", operation } };
+      const allowed = Boolean(vm.runInNewContext(expression, context));
+      assert.equal(allowed, enabled === "true" && ref === "refs/heads/main" && (event === "schedule" || event === "workflow_dispatch" && ["dry-run", "review-only"].includes(operation)));
+    }
+  }
+  const scripts = hb.steps.filter(step => step.run);
+  const apply = scripts.find(step => step.run.includes("--mode=apply"));
+  assert.match(apply.if, /github.event_name == 'schedule'/);
+  assert.match(apply.if, /env.RETAILER_REFRESH_CRON/);
+  for (const step of hb.steps.filter(step => /Install dependencies|Test .*contracts/.test(step.name || ""))) assert.equal(step.env, undefined, "dependency installation/tests receive no production credential");
+  assert.ok(workflow.jobs["refresh-review-queue"].needs.includes("holland-barrett-offer-refresh"));
+  const publish = workflow.jobs["refresh-review-queue"].steps.find(step => step.with?.profile === "holland-barrett");
+  assert.equal(publish.uses, "./.github/actions/publish-automation-review-queue");
+  assert.equal(config.preparation_only, true);
+  const worker = require("js-yaml").load(fs.readFileSync(path.join(ROOT, ".github/workflows/automation-review-queue-worker.yml"), "utf8"));
+  const steps = Object.values(worker.jobs).flatMap(job => job.steps || []);
+  const execute = steps.find(step => step.name === "Execute oldest approved queue request");
+  assert.equal(execute.env.HOLLAND_BARRETT_PARTNERIZE_FEED_URL, "${{ secrets.HOLLAND_BARRETT_PARTNERIZE_FEED_URL }}");
+  for (const role of ["VALIDATOR", "APPROVER", "EXECUTOR"]) assert.equal(execute.env[`HOLLAND_BARRETT_REFRESH_${role}_DATABASE_URL`], `\u0024{{ secrets.JONS_SYNC_${role}_DATABASE_URL }}`);
+});
+
+test("shared workflow environment aliases retain profile-specific source and validator precedence", async () => {
+  const source = snapshot(), alias = "https://feeds.performancehorizon.com/shared-fixture";
+  const fallback = loadEngine(source, { HOLLAND_BARRETT_PARTNERIZE_FEED_URL: undefined, RETAILER_REFRESH_SOURCE_URL: alias });
+  await fallback.readSourceSnapshot();
+  assert.equal(fallback.fixtureReaderOptions().feedUrl, alias);
+  const specific = loadEngine(source, { RETAILER_REFRESH_SOURCE_URL: alias });
+  await specific.readSourceSnapshot();
+  assert.equal(specific.fixtureReaderOptions().feedUrl, "https://feeds.performancehorizon.com/fixture");
+  const secure = require("./lib/secure-postgres");
+  for (const preferred of [false, true]) {
+    let connection;
+    const generic = "postgresql://fixture@database.example.invalid:5432/postgres";
+    const profile = generic.replace("fixture@", "profile@");
+    const engine = loadEngine(source, { RETAILER_REFRESH_VALIDATOR_DATABASE_URL: generic, HOLLAND_BARRETT_REFRESH_VALIDATOR_DATABASE_URL: preferred ? profile : undefined }, { "./lib/secure-postgres": {
+      ...secure,
+      postgresClientConfig: options => secure.postgresClientConfig({ ...options, tlsOptions: { env: { PGSSLROOTCERT: secure.BUNDLED_SUPABASE_CA } } }),
+    }, pg: { Client: class {
+      constructor(options) { connection = options.connectionString; assert.equal(options.ssl.rejectUnauthorized, true); }
+      async connect() { throw new Error("FIXTURE_STOP_BEFORE_NETWORK"); }
+    } } });
+    await assert.rejects(engine.readState("production"), /FIXTURE_STOP_BEFORE_NETWORK/);
+    assert.equal(new URL(connection).username, preferred ? "profile" : "fixture");
+  }
 });

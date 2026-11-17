@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "task": "H&B existing-offer shared automation",
-  "status": "PAUSED_BY_OWNER_NOT_ACTIVATED",
+  "status": "PREPARATION_RESUMED_NOT_ACTIVATED",
   "owner_scope": "Reuse the existing shared pipeline; defer catalogue expansion; prepare and verify before separate production authorization.",
   "baseline": {
     "main_and_production": "9ec8b2264fee6a453be46555dab0e500ff65feb1",
@@ -225,7 +225,7 @@
     "production_business_writes": 0,
     "production_control_writes": 0,
     "production_approvals_created": 0,
-    "workflow_dispatches": 3,
+    "workflow_dispatches": 4,
     "schedule_changes": 0,
     "migrations_applied": 0,
     "production_activation_authorized_by_goal": false,
@@ -253,7 +253,7 @@
     "production_activation_authorized": false
   },
   "parent_profile_proposal": {
-    "status": "WIP_UNVERIFIED_NOT_AUTHORIZED_NOT_SELECTED",
+    "status": "POSTGRESQL_VERIFIED_NOT_AUTHORIZED_NOT_SELECTED",
     "current_manifest_sha256": "aeeb44897c8a43c5d52ffe7ac02d3f711b06736c8c9fa1727ea6df3141521e71",
     "proposed_activated_manifest_sha256": "6c0ca5ee3bba035671ef587de2b9d08ae0a96402f1364e88e413b71f73cea3b8",
     "current_parent_sha256": "36ec800fd0056c5d556138ef3fe75f5dda627cd6fc6d193f2dc08ce6c1f23309",
@@ -275,6 +275,89 @@
     "rollback_sha256": "2e8a60af6f7180253b93be3e31094febcfefe1b828ce4f444398b8370774d837",
     "runtime_files_changed": false,
     "production_writes": 0,
-    "postgresql_execution": "NOT_RUN"
+    "postgresql_execution": "PASS",
+    "integration_run": 44034764700,
+    "integration_head": "1661654ffad336f7646632054c194708ffc64db1",
+    "legacy_profiles_verified": 7,
+    "unknown_profiles_denied": 8,
+    "rollback_preserves_control_state": true
+  },
+  "resumed_readback": {
+    "at": "2026-11-17T06:56:07.098Z",
+    "owner_resume": true,
+    "code_commit": "1661654ffad336f7646632054c194708ffc64db1",
+    "pr_checks": "PASS",
+    "full_run": 43957314136,
+    "native_evidence_directory": "native-1661654f-20261117T065435667Z",
+    "native_result": "PASS_READ_ONLY_PREPARATION_NOT_ACTIVATION",
+    "scope": 219,
+    "verify_no_change": 217,
+    "source_variant_missing": 2,
+    "validator_batches": 11,
+    "unchanged_business_fingerprint": "b578023747ed6cb434df072b5145f4dd551dc32a99efe064177d173b7e715048",
+    "production_lineage_unchanged": true,
+    "database_writes": 0,
+    "control_writes": 0,
+    "approvals": 0,
+    "sql_activated": false
+  },
+  "registration_proposal": {
+    "status": "PREPARED_AWAITING_POSTGRESQL_NOT_AUTHORIZED_NOT_SELECTED",
+    "activated_manifest_sha256": "6c0ca5ee3bba035671ef587de2b9d08ae0a96402f1364e88e413b71f73cea3b8",
+    "scope_sha256": "a6823565ed36c9fb21f863a099ff34126a6863a5df249c6ed8848d332dabd89e",
+    "body_sha256": "b388ed2f7f4f7302ccd0655c96c410af6d3770b0950ba73ecf2eb439d6fde6e7",
+    "files": [
+      {
+        "file": "supabase/proposals/20261117212000_register_holland_barrett_existing_offer_sync.sql",
+        "sha256": "ee834460a1c9829e49781f4d5b755e646c696a3f3cc6f3226956be00780e396c"
+      },
+      {
+        "file": "supabase/rollbacks/20261117212000_register_holland_barrett_existing_offer_sync_rollback.sql",
+        "sha256": "dee646e918220245e7e0be98df7371930faac9ea7ca0f04e76d82d8ef5e3d52f"
+      }
+    ],
+    "production_only": true,
+    "mapping_count": 219,
+    "parent_readiness_required": true,
+    "business_writes": 0
+  },
+  "shared_workflow_preparation": {
+    "workflow": ".github/workflows/fit-house-offer-refresh.yml",
+    "single_step_definition": "shared_existing_offer_refresh_steps",
+    "native_yaml_aliases": true,
+    "new_workflow": false,
+    "shared_write_lane": true,
+    "hb_runs_after": "gladiator-nutrition-offer-refresh",
+    "manual_apply_available": false,
+    "enable_variable": "HOLLAND_BARRETT_REFRESH_ENABLED",
+    "variable_changed": false,
+    "worker_adapter_enabled": false,
+    "profile_preparation_only": true,
+    "watchdog_registered_profiles": 14,
+    "watchdog_active_profiles": 13,
+    "watchdog_hb_enabled": false,
+    "proposed_review_and_stale_offer_ids": [
+      "4661",
+      "4678"
+    ],
+    "backlog_authorized": false,
+    "unrelated_runtime_pins_unchanged": true
+  },
+  "watchdog_binding_incident": {
+    "retailer_id": 15,
+    "production_readback_run": 43929759455,
+    "result": "SUCCESS",
+    "old_publication_job": "gladiator-nutrition-shadow",
+    "new_publication_job": "refresh-review-queue",
+    "old_apply_step": "Apply exact approved Gladiator Nutrition offer refresh",
+    "new_apply_step": "Apply safe Gladiator Nutrition offer refresh rows",
+    "debt_policy_changed": false,
+    "regression": "scripts/catalog-health.test.js#shared workflow watchdog stages match real step names and retailer artifacts cannot cross profiles"
+  },
+  "activation_decisions": {
+    "policy_scope": "PENDING_OWNER_DECISION",
+    "production_sql": "PENDING_SEPARATE_OWNER_DECISION",
+    "schedule": "PENDING_SEPARATE_OWNER_DECISION",
+    "live_verified": false
   }
 }

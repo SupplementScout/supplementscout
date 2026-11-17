@@ -56,6 +56,7 @@ const {
   normalizeCatalogHealthFilters,
 } = require(path.join(process.cwd(), "app", "admin", "lib", "catalogHealth.ts"));
 const {
+  activeRetailerProfiles,
   applyMonitoredBacklog,
   artifactBelongsToProfile,
   bindApprovedScopeEvidence,
@@ -621,7 +622,8 @@ test("automation watchdog covers all retailers on a read-only six-hour schedule"
     path.join(process.cwd(), ".github/workflows/automation-reliability-watchdog.yml"),
     "utf8"
   );
-  assert.equal(config.retailers.length, 13);
+  assert.equal(config.retailers.length, 14);
+  assert.equal(activeRetailerProfiles(config).length, 13);
   assert.equal(config.schema_version, 3);
   assert.equal(config.maximum_success_age_hours, 48);
   assert.deepEqual(config.platform_checks, [{
@@ -1627,26 +1629,67 @@ test("watchdog configuration binds exact stage alternatives for every retailer",
   assert.deepEqual(profiles.get("14").idempotency, ["Verify 10 Reps idempotency with a fresh source capture"]);
   assert.deepEqual(profiles.get("15"), {
     capture: ["Dry-run exact approved Gladiator Nutrition offers"],
-    apply: ["Apply exact approved Gladiator Nutrition offer refresh"],
+    apply: ["Apply safe Gladiator Nutrition offer refresh rows"],
     db_postflight: ["Verify Gladiator Nutrition DB postflight read-only"],
     idempotency: ["Verify Gladiator Nutrition idempotency with a fresh source capture"],
   });
-  assert.equal([...profiles.values()].filter((stages) => stages.idempotency.length > 0).length, 11);
+  assert.equal([...profiles.values()].filter((stages) => stages.idempotency.length > 0).length, 12);
 });
 
-test("Gladiator watchdog starts with zero monitored debt while scheduled activation stays disabled", () => {
+test("Gladiator watchdog binds the live scheduled job and publication without changing its debt policy", () => {
   const config = loadWatchdogConfig();
   const profile = config.retailers.find((row) => row.id === 15);
   const backlog = config.monitored_backlog.retailers["15"];
   assert.equal(profile.workflow, "fit-house-offer-refresh.yml");
   assert.deepEqual(profile.review_publication, {
-    job_name: "gladiator-nutrition-shadow",
-    step_name: "Validate fresh Gladiator Nutrition Review Queue binding",
+    job_name: "refresh-review-queue",
+    step_name: "Reconcile and publish fresh Gladiator Nutrition Review Queue source",
   });
   assert.equal(backlog.maximum_offers_older_than_48h, 0);
   assert.equal(backlog.maximum_review_row_count, 0);
   assert.deepEqual(backlog.allowed_review_offer_ids, undefined);
   assert.deepEqual(backlog.allowed_stale_offer_ids, undefined);
+});
+
+test("shared workflow watchdog stages match real step names and retailer artifacts cannot cross profiles", () => {
+  const config = loadWatchdogConfig();
+  const workflow = require("js-yaml").load(fs.readFileSync(path.join(process.cwd(), ".github/workflows/fit-house-offer-refresh.yml"), "utf8"));
+  for (const id of [15, 16]) {
+    const profile = config.retailers.find(row => row.id === id);
+    const slug = id === 15 ? "gladiator-nutrition" : "holland-barrett";
+    const job = workflow.jobs[`${slug}-offer-refresh`];
+    const names = job.steps.map(step => (step.name || "").replaceAll("${{ env.RETAILER_DISPLAY_NAME }}", profile.name));
+    for (const name of Object.values(profile.stages).flat()) assert.ok(names.includes(name), name);
+    assert.ok(workflow.jobs[profile.review_publication.job_name].steps.some(step => step.name === profile.review_publication.step_name));
+    assert.equal(artifactBelongsToProfile(profile, { name: `${slug}-offer-refresh-123-1` }), true);
+    for (const other of ["fit-house", "10reps", id === 15 ? "holland-barrett" : "gladiator-nutrition"]) {
+      assert.equal(artifactBelongsToProfile(profile, { name: `${other}-offer-refresh-123-1` }), false);
+    }
+  }
+  const hb = config.retailers.find(row => row.id === 16);
+  assert.equal(hb.enabled, false);
+  assert.ok(!activeRetailerProfiles(config).some(row => row.id === 16));
+  const rule = config.monitored_backlog.retailers["16"];
+  assert.deepEqual(rule.allowed_review_offer_ids, ["4661", "4678"]);
+  assert.deepEqual(rule.allowed_stale_offer_ids, ["4661", "4678"]);
+  assert.deepEqual(rule.allowed_failure_codes, []);
+});
+
+test("inactive retailer registration makes no workflow/artifact request and remains explicit in the watchdog report", async () => {
+  const output = path.join(process.cwd(), "tmp", `watchdog-inactive-${process.pid}.json`);
+  const source = loadWatchdogConfig();
+  const report = await runWatchdog({ output }, {
+    config: { ...source, platform_checks: [], retailers: source.retailers.filter(row => row.id === 16) },
+    env: { GITHUB_REPOSITORY: "owner/repo", GITHUB_TOKEN: "test-token" },
+    databaseEvidence: async () => new Map(),
+    runStages: async () => { throw new Error("Inactive profile must never request workflow history"); },
+  });
+  fs.rmSync(output, { force: true });
+  assert.equal(report.retailer_count, 0);
+  assert.equal(report.registered_retailer_count, 1);
+  assert.deepEqual(report.inactive_retailer_ids, ["16"]);
+  assert.deepEqual(report.retailers, []);
+  assert.equal(report.database_writes, 0);
 });
 
 test("same-run eBay evidence sealer requires exact apply, postflight and idempotency correlation", () => {

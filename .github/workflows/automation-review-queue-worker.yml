@@ -84,6 +84,10 @@ jobs:
           GLADIATOR_NUTRITION_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           GLADIATOR_NUTRITION_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
           GLADIATOR_NUTRITION_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
+          HOLLAND_BARRETT_PARTNERIZE_FEED_URL: ${{ secrets.HOLLAND_BARRETT_PARTNERIZE_FEED_URL }}
+          HOLLAND_BARRETT_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          HOLLAND_BARRETT_REFRESH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
+          HOLLAND_BARRETT_REFRESH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
           AUTOMATION_REVIEW_EXECUTION_REQUEST_ID: ${{ github.event.inputs.execution_request_id || '' }}
         run: node scripts/automation-review-queue-worker.js
       - name: Verify and close failed zero-business request
@@ -129,6 +133,8 @@ jobs:
           WHEY_OKAY_SYNC_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           WHEY_OKAY_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           GLADIATOR_NUTRITION_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
+          HOLLAND_BARRETT_PARTNERIZE_FEED_URL: ${{ secrets.HOLLAND_BARRETT_PARTNERIZE_FEED_URL }}
+          HOLLAND_BARRETT_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
           AUTOMATION_REVIEW_RECOVERY_REQUEST_ID: ${{ github.event.inputs.recovery_execution_request_id }}
         run: node scripts/automation-review-postflight-recovery.js --mode=recover --execution-request-id=${{ github.event.inputs.recovery_execution_request_id }} --artifact-directory=tmp/automation-review-recovery-input
       - name: Audit owner decisions after control closeout

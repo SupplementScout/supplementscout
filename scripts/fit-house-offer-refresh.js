@@ -61,7 +61,7 @@ function invariant(value,message){if(!value)throw new Error(message)}
 function parseArgs(argv){const out={};for(const arg of argv){const m=arg.match(/^--([^=]+)=(.*)$/);if(!m||out[m[1]]!==undefined||!["target","mode","isolate-unsafe","scope-segment"].includes(m[1]))throw new Error(`invalid argument ${arg}`);out[m[1]]=m[2]}if(!TARGETS[out.target]||!["dry-run","apply"].includes(out.mode))throw new Error("required --target=staging|production --mode=dry-run|apply");if(out["isolate-unsafe"]!==undefined&&!['true','false'].includes(out["isolate-unsafe"]))throw new Error("isolate-unsafe must be true or false");out.isolateUnsafe=out["isolate-unsafe"]==="true";const scopeSegment=out["scope-segment"]||null;delete out["isolate-unsafe"];delete out["scope-segment"];if(scopeSegment)out.scopeSegment=scopeSegment;return out}
 function loadEnvFile(file){if(!fs.existsSync(file))return{};const out={};for(const line of fs.readFileSync(file,"utf8").split(/\r?\n/)){const m=line.replace(/^\uFEFF/,"").match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)$/);if(m)out[m[1]]=m[2].trim().replace(/^(['"])(.*)\1$/,"$2")}return out}
 function loadEnvironment(){const files=[path.join(ROOT,".env.local")];if(config.local_env_path){invariant(/^\.env\.[a-z0-9.-]+\.local$/.test(config.local_env_path)||config.local_env_path==="../supplementscout.env.10reps.local","invalid local env path");files.push(path.resolve(ROOT,config.local_env_path))}for(const file of files)Object.assign(process.env,Object.fromEntries(Object.entries(loadEnvFile(file)).filter(([key])=>!process.env[key])))}
-function roleCredential(target,kind){const direct=process.env[`${config.environment_prefix}_${kind.toUpperCase()}_DATABASE_URL`];let url=direct;if(!url){const file=target==="production"?path.join(process.env.USERPROFILE||"", ".supplementscout","credentials",`production-${kind}.env`):path.join(ROOT,`.env.staging.${kind}.local`);const values=loadEnvFile(file);url=Object.entries(values).find(([key])=>key.endsWith("_DATABASE_URL"))?.[1]}invariant(url,`missing ${kind} database URL`);const parsed=new URL(url);invariant(!parsed.href.includes(TARGETS[target==="production"?"staging":"production"].ref),`${kind} opposite target`);return parsed.href}
+function roleCredential(target,kind){const direct=process.env[`${config.environment_prefix}_${kind.toUpperCase()}_DATABASE_URL`]||process.env[`RETAILER_REFRESH_${kind.toUpperCase()}_DATABASE_URL`];let url=direct;if(!url){const file=target==="production"?path.join(process.env.USERPROFILE||"", ".supplementscout","credentials",`production-${kind}.env`):path.join(ROOT,`.env.staging.${kind}.local`);const values=loadEnvFile(file);url=Object.entries(values).find(([key])=>key.endsWith("_DATABASE_URL"))?.[1]}invariant(url,`missing ${kind} database URL`);const parsed=new URL(url);invariant(!parsed.href.includes(TARGETS[target==="production"?"staging":"production"].ref),`${kind} opposite target`);return parsed.href}
 function git(...args){return execFileSync("git",args,{cwd:ROOT,encoding:"utf8",timeout:30000}).trim()}
 function canonicalHash(value){return sha256(canonicalJson(JSON.parse(JSON.stringify(value))))}
 function freshCapturedAt(now=new Date()){return canonicalTimestamp(now,"source capture")}
@@ -176,7 +176,7 @@ function projectSourceVariants(snapshot){
 }
 async function readSourceSnapshot(capturedAt){
   if(config.source_platform==="PARTNERIZE_PRODUCT_FEED"){
-    const feedUrl=process.env[config.source_url_env];invariant(feedUrl,`${config.source_url_env} is required`);
+    const feedUrl=process.env[config.source_url_env]||process.env.RETAILER_REFRESH_SOURCE_URL;invariant(feedUrl,`${config.source_url_env} is required`);
     const baselines=loadApprovedManifest().manifest.source_identity_baseline;
     return readPartnerizeProductFeed({feedUrl,feedUrlSha256:config.source_url_sha256,storeUrl:config.store_url,
       reviewedIdentities:baselines.map(row=>({sku:row.identity.sku,identity:row.identity,sha256:row.sha256})),
@@ -205,7 +205,7 @@ function mappedOfferSourceFingerprint(records,sourceVariants){
 function diagnosticName(argv,env=process.env){
   const target=argv.find(value=>value.startsWith("--target="))?.slice(9)||"unknown";
   const mode=argv.find(value=>value.startsWith("--mode="))?.slice(7)||"startup";
-  const phase=String(env[`${config.phase_prefix}_PHASE`]||mode).replace(/[^a-z0-9_-]+/gi,"-").toLowerCase();
+  const phase=String(env[`${config.phase_prefix}_PHASE`]||env.RETAILER_REFRESH_PHASE||mode).replace(/[^a-z0-9_-]+/gi,"-").toLowerCase();
   return`${target}-${phase}-diagnostic.json`;
 }
 function diagnosticTemplate(argv,env=process.env){
@@ -215,7 +215,7 @@ function diagnosticTemplate(argv,env=process.env){
     timestamp:new Date().toISOString(),
     result:"STARTED",
     workflow_run_context:{repository:env.GITHUB_REPOSITORY||"SupplementScout/supplementscout",run_id:env.GITHUB_RUN_ID||null,run_attempt:env.GITHUB_RUN_ATTEMPT||null,actor:env.GITHUB_ACTOR||null,event_name:env.GITHUB_EVENT_NAME||"local",ref:env.GITHUB_REF||null,actions:env.GITHUB_ACTIONS==="true"},
-    trigger_type:env[`${config.phase_prefix}_TRIGGER_TYPE`]||env.GITHUB_EVENT_NAME||"local",
+    trigger_type:env[`${config.phase_prefix}_TRIGGER_TYPE`]||env.RETAILER_REFRESH_TRIGGER_TYPE||env.GITHUB_EVENT_NAME||"local",
     commit,
     source:{url:["CSV_PRODUCT_FEED","PARTNERIZE_PRODUCT_FEED"].includes(config.source_platform)?"[PROTECTED_FEED]":config.source_platform==="PRODUCT_PAGE"?config.source_url:config.source_platform==="WOOCOMMERCE_PRODUCT_PAGES"?config.store_url:new URL("/products.json",config.store_url).href,type:["CSV_PRODUCT_FEED","PARTNERIZE_PRODUCT_FEED"].includes(config.source_platform)?config.source_platform:config.source_platform==="PRODUCT_PAGE"?"EXACT_PRODUCT_JSON_LD":config.source_platform==="WOOCOMMERCE_PRODUCT_PAGES"?"APPROVED_WOOCOMMERCE_PRODUCT_PAGES":"SHOPIFY_PRODUCTS_JSON",http_status:null,content_type:null,bytes_received:0,pages_fetched:0,pagination_completed:false,product_count:0,raw_variant_count:0,normalised_count:0,baseline_product_count:config.source_baseline.product_count,baseline_variant_count:config.source_baseline.variant_count,product_ratio:0,variant_ratio:0,ratio:0,minimum_ratio:config.source_baseline.minimum_count_ratio,genuine_collapse_ratio:config.source_baseline.genuine_collapse_ratio,request_headers:null,redirect_policy:null,retries:0},
     approved_mapping_count:0,approved_offer_count:0,mappings_matched:0,mappings_missing:0,guard_results:[],

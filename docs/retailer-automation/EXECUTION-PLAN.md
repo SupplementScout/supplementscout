@@ -1,6 +1,73 @@
 # Retailer Automation Consolidation Execution Plan
 
-**16 November H&B existing-offer automation - PAUSED AT OWNER REQUEST / NOT ACTIVATED:**
+**17 November H&B existing-offer automation - PREPARATION RESUMED / NOT ACTIVATED:**
+The owner explicitly resumed the existing goal. Clean head1661654f and all PR539
+checks pass, including full43957314136. Main and successful Production7801184951
+remain9ec8b226. Fresh native validator READ ONLY at06:54:45Z again accounts for
+219 offers:217 VERIFY_NO_CHANGE and2 SOURCE_VARIANT_MISSING reviews. All11 batches
+pass; the independent business fingerprint remainsb578023747ed6cb434df072b5145f4dd551dc32a99efe064177d173b7e715048.
+Immutable evidence: native-1661654f-20261117T065435667Z. Production function
+metadata at06:56:07Z matches the prior lineage; H&B registration and the proposed
+parent profile registry remain absent. Zero database/control writes or approvals.
+Isolated PostgreSQL CI44034764700 passes196/0/0. The parent-profile proposal now
+has real PostgreSQL proof: all7 legacy profiles retain eligibility,16 requires
+the exact proposed activated manifest,8 unknown profiles are denied and rollback
+preserves all decisions/control state. No historical control cleanup is reused.
+
+The H&B registration proposal20261117212000 reuses the existing control tables,
+manifest validator, parent/child approval and executor. Its static frozen boundary
+is production-only, pins all219 IDs, requires the existing parent approval entry
+point to be ready before inserting any control row, and forbids catalogue/mapping,
+affiliate-URL, delivery and hard-price mutations. It has an exact lineage/ACL/target
+rollback; it is outside migration selectors and awaits isolated PostgreSQL proof.
+
+The existing shared workflow now declares one YAML-anchored step sequence for
+Gladiator and H&B. Fit House/10 Reps runtime pins are unchanged; H&B runs after
+Gladiator in the same production-write lane and has no manual apply. Its job is
+disabled unless HOLLAND_BARRETT_REFRESH_ENABLED=true; the preparation profile and
+unapproved manifest independently deny writes. The existing queue worker receives
+only the required profile credential/source bindings; adapter16 remains disabled.
+The source URL remains a protected secret, never a committed address.
+
+Watchdog preparation registers14 profiles with13 active and16 explicitly disabled;
+disabled IDs are reported and excluded from database/history/artifact requests.
+H&B's proposed backlog is limited to exact offers4661/4678, with no allowed failure
+codes; it is not an owner-approved active allowance. Shared artifact prefixes are
+profile data and prevent cross-retailer evidence selection. The pre-existing
+Gladiator monitor's old shadow job/apply-step bindings were reconciled against
+successful ordinary production43929759455; debt limits and failure policies stay
+unchanged. Regression tests bind both profiles to actual resolved workflow steps.
+
+Current preparation tests cover the shared sequence, scheduled/manual guards,
+credential isolation and alias precedence; full gates and H&B SQL proof remain
+pending on the next committed head. No SQL or activation is authorized by resume.
+
+Before owner activation, prepare and verify this exact sequence:
+
+1. Policy/scope decision:219 existing offers only; preserve source identity,
+   delivery/affiliate URLs and catalogue records. Missing/unsafe rows remain
+   reviews; approve any exact monitored exceptions separately. Catalogue growth
+   remains deferred and uses the existing reviewed importer later.
+2. Review exact forward/rollback hashes for the publication prerequisite,
+   parent-profile registration and H&B control boundary. Production SQL needs a
+   separate owner decision and a fresh lineage/security readback; no old recovery
+   or cleanup SQL is included. Rollback removes/reverts only exact functions and
+   preserves decisions/business/control records; stop first if any active parent
+   or in-flight execution requires separate recovery.
+3. After SQL approval/proof, a separately reviewed activation diff changes the
+   existing manifest authorization to OWNER_APPROVED/true and its SHA to6c0ca5ee,
+   profile preparation_only=false, the existing publication/worker registration
+   and watchdog16 to enabled, and the protected feed secret. No approval status
+   or record is changed here by this preparation.
+4. Approve scheduled execution separately. Enable only the existing job's variable
+   after fresh source/native validation and owner-approved activation checks.
+   Manual apply remains unavailable. Never dispatch another retailer or repeat61
+   imports. Independent baseline/postflight, fresh idempotency and subsequent
+   ordinary scheduled evidence are required before LIVE VERIFIED.
+
+The saved checkpoint below is historical; the current entry above governs resume.
+
+**16 November historical safe pause / NOT ACTIVATED:**
 The owner is finishing for today and requested a safe pause until tomorrow.
 The goal is paused, not complete. Verified runtime headcded284d is saved in
 draft PR539: quick1202/0/3, full3947/0/3 and CI43951814405 PASS. Fresh native

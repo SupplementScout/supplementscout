@@ -300,7 +300,7 @@ async function run(options, dependencies = {}) {
   const profile = PROFILES[options.profile];
   const env = dependencies.env || process.env;
   const session = await withPostgresRoleSession({
-    connectionString: normalizeConnectionString(env[profile.credential], "validator"),
+    connectionString: normalizeConnectionString(env[profile.credential] || env.RETAILER_REFRESH_VALIDATOR_DATABASE_URL, "validator"),
     applicationName: `${options.profile}-offer-refresh-postflight`,
     ClientClass: dependencies.Client || Client,
     defaultReadOnly: true,
