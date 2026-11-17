@@ -1,0 +1,1189 @@
+{
+  "capturedAt": "2026-11-17T20:45:41.614Z",
+  "environment": "local Next production build with guarded actual production-source reads",
+  "base": "http://127.0.0.1:3118",
+  "syntheticOffers": false,
+  "results": [
+    {
+      "route": "/guides/mass-gainer-vs-whey-protein",
+      "width": 1440,
+      "mobileTouchEmulation": false,
+      "result": "PASS",
+      "title": "Mass Gainer vs Whey Protein: Compare UK Buying Costs | SupplementScout",
+      "h1": "Should I buy mass gainer or whey protein?",
+      "viewport": 1440,
+      "visualWidth": 1425,
+      "scale": 1,
+      "documentWidth": 1425,
+      "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-vs-whey-protein",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "BioTech USA Hyper Mass (4,000g)",
+          "href": "/product/biotech-usa-hyper-mass-4kg?variant=2223"
+        },
+        {
+          "text": "Manufacturer ingredient and pack source",
+          "href": "https://shop.biotechusa.com/products/hyper-mass-4000-g"
+        },
+        {
+          "text": "Efectiv Grass-Fed Whey Protein Isolate (2,000g)",
+          "href": "/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg?variant=1196"
+        },
+        {
+          "text": "Manufacturer ingredient and pack source",
+          "href": "https://efectivnutrition.com/products/efectiv-grass-fed-whey-protein-isolate-2kg"
+        },
+        {
+          "text": "Mass Gainer comparison",
+          "href": "/mass-gainer"
+        },
+        {
+          "text": "Whey Protein comparison",
+          "href": "/whey-protein"
+        },
+        {
+          "text": "the comparison tool",
+          "href": "/compare"
+        },
+        {
+          "text": "the verified protein-cost method",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "why delivery changes the purchase price",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "how isolate and concentrate differ",
+          "href": "/guides/whey-isolate-vs-concentrate"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "BioTech USA Hyper Mass (4,000g)Carbohydrate-and-protein blend. Variant: Strawberry / 4kg. One exact 4,000g pack.6 Pack SupplementsProduct price£39.99Delivery£4.99Delivered total£44.98Offer checked 17 Nov 2026, 11:452026-11-17T11:45:40.735+00:00Delivered powder cost: £11.25/kg.Approved nutrition for this exact variant is not sufficient to show cost per 25 g of protein. We do not copy another flavour's figures or estimate a calorie cost.Manufacturer ingredient and pack source. Ingredient-source review is separate from the approved nutrition record used for calculations.",
+          "x": 288.5,
+          "y": 912,
+          "w": 414,
+          "h": 528
+        },
+        {
+          "text": "Efectiv Grass-Fed Whey Protein Isolate (2,000g)Whey isolate powder. Variant: Strawberry Milkshake / 2000g. One exact 2,000g pack.eBay UKProduct price£64.99Delivery£0.00Delivered total£64.99Offer checked 17 Nov 2026, 14:572026-11-17T14:57:33.364+00:00Delivered powder cost: £32.50/kg.Protein per serving27 gVerified servings66Cost per 25 g protein£0.91Manufacturer ingredient and pack source. Ingredient-source review is separate from the approved nutrition record used for calculations.",
+          "x": 722.5,
+          "y": 912,
+          "w": 414,
+          "h": 528
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 124,
+      "navigation": {
+        "name": "http://127.0.0.1:3118/guides/mass-gainer-vs-whey-protein?qa=1440",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 140,
+        "navigationId": 7667,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.7000000029802322,
+        "domainLookupStart": 0.7000000029802322,
+        "domainLookupEnd": 0.7000000029802322,
+        "connectStart": 0.7000000029802322,
+        "secureConnectionStart": 0,
+        "connectEnd": 0.7000000029802322,
+        "requestStart": 1.7000000029802322,
+        "responseStart": 12.799999997019768,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 12.799999997019768,
+        "responseEnd": 18.399999991059303,
+        "transferSize": 11442,
+        "encodedBodySize": 11142,
+        "decodedBodySize": 35144,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 0,
+        "unloadEventEnd": 0,
+        "domInteractive": 60.29999999701977,
+        "domContentLoadedEventStart": 60.3999999910593,
+        "domContentLoadedEventEnd": 60.3999999910593,
+        "domComplete": 140,
+        "loadEventStart": 140,
+        "loadEventEnd": 140,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2cbkh-q68zkh4.css",
+          "bytes": 81234,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/258tivfqz5tvp.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3t8n3fp8sdksw.js",
+          "bytes": 26874,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/turbopack-40_gcejdcyxej.js",
+          "bytes": 10580,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/0960fv4m20-_d.js",
+          "bytes": 943,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/14mrh2-p_w84d.js",
+          "bytes": 54646,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3-9v5llyj1vf9.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/favicon.ico?favicon.32r4ylec7nel_.ico",
+          "bytes": 2774,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg?variant=1196&_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 285,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/biotech-usa-hyper-mass-4kg?variant=2223&_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 259,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg?variant=1196&_rsc=1Gt5iweE9sZ4aWJ5",
+          "bytes": 3373,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/biotech-usa-hyper-mass-4kg?variant=2223&_rsc=1Gt5iweE9sZ4aWJ5",
+          "bytes": 3024,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=1Gt5iweE9sZ4aWJ5",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=nMHzZIrbBMWMynZH",
+          "bytes": 2565,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=kR1QDn43qjudOZH6",
+          "bytes": 2383,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=WqGUMBthGw-mtWkM",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=bOqJ9Rx4NsIadTWm",
+          "bytes": 1656,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=nMHzZIrbBMWMynZH",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/27n1t7ebe3jib.js",
+          "bytes": 13702,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=rIIobIvsa3-p5e0X",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=vpkfNhhv08ns1wZK",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=1Gt5iweE9sZ4aWJ5",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg?_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 272,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/biotech-usa-hyper-mass-4kg?_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 246,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/mass-gainer-vs-whey-protein",
+      "width": 390,
+      "mobileTouchEmulation": true,
+      "result": "PASS",
+      "title": "Mass Gainer vs Whey Protein: Compare UK Buying Costs | SupplementScout",
+      "h1": "Should I buy mass gainer or whey protein?",
+      "viewport": 390,
+      "visualWidth": 390,
+      "scale": 1,
+      "documentWidth": 390,
+      "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-vs-whey-protein",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "BioTech USA Hyper Mass (4,000g)",
+          "href": "/product/biotech-usa-hyper-mass-4kg?variant=2223"
+        },
+        {
+          "text": "Manufacturer ingredient and pack source",
+          "href": "https://shop.biotechusa.com/products/hyper-mass-4000-g"
+        },
+        {
+          "text": "Efectiv Grass-Fed Whey Protein Isolate (2,000g)",
+          "href": "/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg?variant=1196"
+        },
+        {
+          "text": "Manufacturer ingredient and pack source",
+          "href": "https://efectivnutrition.com/products/efectiv-grass-fed-whey-protein-isolate-2kg"
+        },
+        {
+          "text": "Mass Gainer comparison",
+          "href": "/mass-gainer"
+        },
+        {
+          "text": "Whey Protein comparison",
+          "href": "/whey-protein"
+        },
+        {
+          "text": "the comparison tool",
+          "href": "/compare"
+        },
+        {
+          "text": "the verified protein-cost method",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "why delivery changes the purchase price",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "how isolate and concentrate differ",
+          "href": "/guides/whey-isolate-vs-concentrate"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "BioTech USA Hyper Mass (4,000g)Carbohydrate-and-protein blend. Variant: Strawberry / 4kg. One exact 4,000g pack.6 Pack SupplementsProduct price£39.99Delivery£4.99Delivered total£44.98Offer checked 17 Nov 2026, 11:452026-11-17T11:45:40.735+00:00Delivered powder cost: £11.25/kg.Approved nutrition for this exact variant is not sufficient to show cost per 25 g of protein. We do not copy another flavour's figures or estimate a calorie cost.Manufacturer ingredient and pack source. Ingredient-source review is separate from the approved nutrition record used for calculations.",
+          "x": 16,
+          "y": 1451,
+          "w": 358,
+          "h": 524
+        },
+        {
+          "text": "Efectiv Grass-Fed Whey Protein Isolate (2,000g)Whey isolate powder. Variant: Strawberry Milkshake / 2000g. One exact 2,000g pack.eBay UKProduct price£64.99Delivery£0.00Delivered total£64.99Offer checked 17 Nov 2026, 14:572026-11-17T14:57:33.364+00:00Delivered powder cost: £32.50/kg.Protein per serving27 gVerified servings66Cost per 25 g protein£0.91Manufacturer ingredient and pack source. Ingredient-source review is separate from the approved nutrition record used for calculations.",
+          "x": 16,
+          "y": 1995,
+          "w": 358,
+          "h": 520
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 52,
+      "navigation": {
+        "name": "http://127.0.0.1:3118/guides/mass-gainer-vs-whey-protein?qa=390",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 38.6000000089407,
+        "navigationId": 5605,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.6000000089406967,
+        "domainLookupStart": 0.6000000089406967,
+        "domainLookupEnd": 0.6000000089406967,
+        "connectStart": 0.6000000089406967,
+        "secureConnectionStart": 0,
+        "connectEnd": 0.6000000089406967,
+        "requestStart": 1.4000000059604645,
+        "responseStart": 12.200000002980232,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 12.200000002980232,
+        "responseEnd": 17.900000005960464,
+        "transferSize": 11441,
+        "encodedBodySize": 11141,
+        "decodedBodySize": 35141,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 15.800000011920929,
+        "unloadEventEnd": 15.800000011920929,
+        "domInteractive": 35.900000005960464,
+        "domContentLoadedEventStart": 36,
+        "domContentLoadedEventEnd": 36,
+        "domComplete": 38.6000000089407,
+        "loadEventStart": 38.6000000089407,
+        "loadEventEnd": 38.6000000089407,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2cbkh-q68zkh4.css",
+          "bytes": 81234,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/258tivfqz5tvp.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/turbopack-40_gcejdcyxej.js",
+          "bytes": 10580,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3t8n3fp8sdksw.js",
+          "bytes": 26874,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/14mrh2-p_w84d.js",
+          "bytes": 54646,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/0960fv4m20-_d.js",
+          "bytes": 943,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3-9v5llyj1vf9.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=5IDXObua6Z9UcQLJ",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=1Gt5iweE9sZ4aWJ5",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=1Gt5iweE9sZ4aWJ5",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=nMHzZIrbBMWMynZH",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=kR1QDn43qjudOZH6",
+          "bytes": 2383,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=rIIobIvsa3-p5e0X",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=vpkfNhhv08ns1wZK",
+          "bytes": 9069,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/creatine-pack-size-value",
+      "width": 1440,
+      "mobileTouchEmulation": false,
+      "result": "PASS",
+      "title": "Creatine Pack Sizes: Is a Bigger Tub Better Value? | SupplementScout",
+      "h1": "Should I buy a bigger tub of creatine?",
+      "viewport": 1440,
+      "visualWidth": 1425,
+      "scale": 1,
+      "documentWidth": 1425,
+      "canonical": "https://www.supplementscout.co.uk/guides/creatine-pack-size-value",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "manufacturer's unflavoured formula and pack-size source",
+          "href": "https://appliednutrition.uk/products/creatine-monohydrate"
+        },
+        {
+          "text": "Applied Nutrition Creatine Monohydrate (250g)",
+          "href": "/product/applied-nutrition-creatine-monohydrate-250g?variant=799"
+        },
+        {
+          "text": "Applied Nutrition Creatine Monohydrate (500g)",
+          "href": "/product/applied-nutrition-creatine-monohydrate-250g?variant=4559"
+        },
+        {
+          "text": "manufacturer's unflavoured formula and pack-size source",
+          "href": "https://www.optimumnutrition.com/en-gb/products/micronised-creatine-powder"
+        },
+        {
+          "text": "Optimum Nutrition Micronised Creatine (317g)",
+          "href": "/product/optimum-nutrition-micronised-creatine-317g?variant=783"
+        },
+        {
+          "text": "Optimum Nutrition Micronised Creatine (634g)",
+          "href": "/product/optimum-nutrition-micronised-creatine-317g?variant=4614"
+        },
+        {
+          "text": "Creatine comparison",
+          "href": "/creatine"
+        },
+        {
+          "text": "creatine under £20 including delivery",
+          "href": "/creatine#under-20"
+        },
+        {
+          "text": "the delivery-price guide",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "the two-product comparison tool",
+          "href": "/compare"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Applied Nutrition Creatine Monohydrate (250g)Unflavoured creatine powder. Variant: Unflavoured / 250g. One exact 250g pack.Holland & BarrettProduct price£14.40Delivery£3.49Delivered total£17.89Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00Delivered powder cost: £71.56/kg.",
+          "x": 288.5,
+          "y": 704,
+          "w": 414,
+          "h": 360
+        },
+        {
+          "text": "Applied Nutrition Creatine Monohydrate (500g)Unflavoured creatine powder. Variant: Unflavoured / 500g. One exact 500g pack.Holland & BarrettProduct price£30.00Delivery£0.00Delivered total£30.00Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00Delivered powder cost: £60.00/kg.",
+          "x": 722.5,
+          "y": 704,
+          "w": 414,
+          "h": 360
+        },
+        {
+          "text": "Optimum Nutrition Micronised Creatine (317g)Unflavoured creatine powder. Variant: Unflavoured / 317g. One exact 317g pack.Holland & BarrettProduct price£16.50Delivery£3.49Delivered total£19.99Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00Delivered powder cost: £63.06/kg.",
+          "x": 288.5,
+          "y": 1434,
+          "w": 414,
+          "h": 360
+        },
+        {
+          "text": "Optimum Nutrition Micronised Creatine (634g)Unflavoured creatine powder. Variant: Unflavoured / 634 g. One exact 634g pack.Holland & BarrettProduct price£40.00Delivery£0.00Delivered total£40.00Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00Delivered powder cost: £63.09/kg.",
+          "x": 722.5,
+          "y": 1434,
+          "w": 414,
+          "h": 360
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 64,
+      "navigation": {
+        "name": "http://127.0.0.1:3118/guides/creatine-pack-size-value?qa=1440",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 62.1000000089407,
+        "navigationId": 9009,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.6000000089406967,
+        "domainLookupStart": 0.6000000089406967,
+        "domainLookupEnd": 0.6000000089406967,
+        "connectStart": 0.6000000089406967,
+        "secureConnectionStart": 0,
+        "connectEnd": 0.6000000089406967,
+        "requestStart": 1.7000000029802322,
+        "responseStart": 23.600000008940697,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 23.600000008940697,
+        "responseEnd": 38.1000000089407,
+        "transferSize": 12862,
+        "encodedBodySize": 12562,
+        "decodedBodySize": 43627,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 27.700000002980232,
+        "unloadEventEnd": 27.700000002980232,
+        "domInteractive": 42.80000001192093,
+        "domContentLoadedEventStart": 42.80000001192093,
+        "domContentLoadedEventEnd": 42.900000005960464,
+        "domComplete": 62.1000000089407,
+        "loadEventStart": 62.1000000089407,
+        "loadEventEnd": 62.1000000089407,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2cbkh-q68zkh4.css",
+          "bytes": 81234,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/258tivfqz5tvp.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/turbopack-40_gcejdcyxej.js",
+          "bytes": 10580,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3t8n3fp8sdksw.js",
+          "bytes": 26874,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/14mrh2-p_w84d.js",
+          "bytes": 54646,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/146qu6uw2b2h-.js",
+          "bytes": 943,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3-9v5llyj1vf9.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-creatine-monohydrate-250g?variant=4559&_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 276,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-creatine-monohydrate-250g?variant=799&_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 275,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=_mwaSZxvfUJms3_3",
+          "bytes": 2565,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=wM6kplSMMK2Q5IaF",
+          "bytes": 2383,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=sWlShsA4ai8Jo-pK",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=a5jlyqPirO84di9I",
+          "bytes": 1656,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-creatine-monohydrate-250g?variant=4559&_rsc=W4S6mF_bKLSFj4TC",
+          "bytes": 3178,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-creatine-monohydrate-250g?variant=799&_rsc=W4S6mF_bKLSFj4TC",
+          "bytes": 3176,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=W4S6mF_bKLSFj4TC",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/27n1t7ebe3jib.js",
+          "bytes": 13702,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=_mwaSZxvfUJms3_3",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=iauZrvZTqwndQG8_",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=XHVzIZZi9ckUgCt1",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=W4S6mF_bKLSFj4TC",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-creatine-monohydrate-250g?_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 263,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/creatine-pack-size-value",
+      "width": 390,
+      "mobileTouchEmulation": true,
+      "result": "PASS",
+      "title": "Creatine Pack Sizes: Is a Bigger Tub Better Value? | SupplementScout",
+      "h1": "Should I buy a bigger tub of creatine?",
+      "viewport": 390,
+      "visualWidth": 390,
+      "scale": 1,
+      "documentWidth": 390,
+      "canonical": "https://www.supplementscout.co.uk/guides/creatine-pack-size-value",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "manufacturer's unflavoured formula and pack-size source",
+          "href": "https://appliednutrition.uk/products/creatine-monohydrate"
+        },
+        {
+          "text": "Applied Nutrition Creatine Monohydrate (250g)",
+          "href": "/product/applied-nutrition-creatine-monohydrate-250g?variant=799"
+        },
+        {
+          "text": "Applied Nutrition Creatine Monohydrate (500g)",
+          "href": "/product/applied-nutrition-creatine-monohydrate-250g?variant=4559"
+        },
+        {
+          "text": "manufacturer's unflavoured formula and pack-size source",
+          "href": "https://www.optimumnutrition.com/en-gb/products/micronised-creatine-powder"
+        },
+        {
+          "text": "Optimum Nutrition Micronised Creatine (317g)",
+          "href": "/product/optimum-nutrition-micronised-creatine-317g?variant=783"
+        },
+        {
+          "text": "Optimum Nutrition Micronised Creatine (634g)",
+          "href": "/product/optimum-nutrition-micronised-creatine-317g?variant=4614"
+        },
+        {
+          "text": "Creatine comparison",
+          "href": "/creatine"
+        },
+        {
+          "text": "creatine under £20 including delivery",
+          "href": "/creatine#under-20"
+        },
+        {
+          "text": "the delivery-price guide",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "the two-product comparison tool",
+          "href": "/compare"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Applied Nutrition Creatine Monohydrate (250g)Unflavoured creatine powder. Variant: Unflavoured / 250g. One exact 250g pack.Holland & BarrettProduct price£14.40Delivery£3.49Delivered total£17.89Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00Delivered powder cost: £71.56/kg.",
+          "x": 16,
+          "y": 1095,
+          "w": 358,
+          "h": 352
+        },
+        {
+          "text": "Applied Nutrition Creatine Monohydrate (500g)Unflavoured creatine powder. Variant: Unflavoured / 500g. One exact 500g pack.Holland & BarrettProduct price£30.00Delivery£0.00Delivered total£30.00Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00Delivered powder cost: £60.00/kg.",
+          "x": 16,
+          "y": 1467,
+          "w": 358,
+          "h": 352
+        },
+        {
+          "text": "Optimum Nutrition Micronised Creatine (317g)Unflavoured creatine powder. Variant: Unflavoured / 317g. One exact 317g pack.Holland & BarrettProduct price£16.50Delivery£3.49Delivered total£19.99Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00Delivered powder cost: £63.06/kg.",
+          "x": 16,
+          "y": 2405,
+          "w": 358,
+          "h": 352
+        },
+        {
+          "text": "Optimum Nutrition Micronised Creatine (634g)Unflavoured creatine powder. Variant: Unflavoured / 634 g. One exact 634g pack.Holland & BarrettProduct price£40.00Delivery£0.00Delivered total£40.00Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00Delivered powder cost: £63.09/kg.",
+          "x": 16,
+          "y": 2777,
+          "w": 358,
+          "h": 352
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 52,
+      "navigation": {
+        "name": "http://127.0.0.1:3118/guides/creatine-pack-size-value?qa=390",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 38.6000000089407,
+        "navigationId": 330,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.5,
+        "domainLookupStart": 0.5,
+        "domainLookupEnd": 0.5,
+        "connectStart": 0.5,
+        "secureConnectionStart": 0,
+        "connectEnd": 0.5,
+        "requestStart": 1.2999999970197678,
+        "responseStart": 17.100000008940697,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 17.100000008940697,
+        "responseEnd": 25,
+        "transferSize": 12861,
+        "encodedBodySize": 12561,
+        "decodedBodySize": 43624,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 21.200000002980232,
+        "unloadEventEnd": 21.200000002980232,
+        "domInteractive": 35.400000005960464,
+        "domContentLoadedEventStart": 35.400000005960464,
+        "domContentLoadedEventEnd": 35.400000005960464,
+        "domComplete": 38.6000000089407,
+        "loadEventStart": 38.6000000089407,
+        "loadEventEnd": 38.6000000089407,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2cbkh-q68zkh4.css",
+          "bytes": 81234,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/258tivfqz5tvp.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/turbopack-40_gcejdcyxej.js",
+          "bytes": 10580,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3t8n3fp8sdksw.js",
+          "bytes": 26874,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/14mrh2-p_w84d.js",
+          "bytes": 54646,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/146qu6uw2b2h-.js",
+          "bytes": 943,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3-9v5llyj1vf9.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-creatine-monohydrate-250g?variant=799&_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 275,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-creatine-monohydrate-250g?variant=799&_rsc=W4S6mF_bKLSFj4TC",
+          "bytes": 3176,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=W4S6mF_bKLSFj4TC",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=_mwaSZxvfUJms3_3",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=wM6kplSMMK2Q5IaF",
+          "bytes": 2383,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=iauZrvZTqwndQG8_",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=XHVzIZZi9ckUgCt1",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=W4S6mF_bKLSFj4TC",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-creatine-monohydrate-250g?_rsc=Q4MYKJROioz5D0-l",
+          "bytes": 263,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    }
+  ]
+}

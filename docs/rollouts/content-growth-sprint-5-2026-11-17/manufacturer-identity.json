@@ -1,0 +1,122 @@
+[
+  {
+    "checkedAt": "2026-11-17T20:24:06.790Z",
+    "sourceUrl": "https://shop.biotechusa.com/products/hyper-mass-4000-g",
+    "transport": "public manufacturer Shopify product JSON GET",
+    "status": 200,
+    "title": "Hyper Mass - 4000 g",
+    "selectedVariantLabels": [
+      "Strawberry"
+    ],
+    "options": [
+      {
+        "name": "Flavor",
+        "values": [
+          "vanilla",
+          "Chocolate",
+          "Strawberry",
+          "Salted caramel",
+          "cookies & cream"
+        ]
+      }
+    ],
+    "snapshotSha256": "7d259bd11fe52a1900f929c0a15ded330da7f04efc740c00bca18cc960e0db01",
+    "scope": "Editorial identity/formula-source review only; not a nutrition approval or retailer mapping."
+  },
+  {
+    "checkedAt": "2026-11-17T20:24:07.058Z",
+    "sourceUrl": "https://efectivnutrition.com/products/efectiv-grass-fed-whey-protein-isolate-2kg",
+    "transport": "public manufacturer Shopify product JSON GET",
+    "status": 200,
+    "title": "Grass Fed Whey Protein Isolate - 66 Servings - EFECTIV®",
+    "selectedVariantLabels": [
+      "66 Servings / 2kg / Strawberry Milkshake"
+    ],
+    "options": [
+      {
+        "name": "Servings",
+        "values": [
+          "66 Servings / 2kg"
+        ]
+      },
+      {
+        "name": "Flavour",
+        "values": [
+          "Milk Chocolate",
+          "Strawberry Milkshake",
+          "Vanilla Ice Cream"
+        ]
+      }
+    ],
+    "snapshotSha256": "27620ea0a55e510c4f4a4ff37dc5913aaf4824c71e4dc925ffd2ef80ba4d52bb",
+    "scope": "Editorial identity/formula-source review only; not a nutrition approval or retailer mapping."
+  },
+  {
+    "checkedAt": "2026-11-17T20:24:07.217Z",
+    "sourceUrl": "https://appliednutrition.uk/products/creatine-monohydrate",
+    "transport": "public manufacturer Shopify product JSON GET",
+    "status": 200,
+    "title": "Creatine Monohydrate",
+    "selectedVariantLabels": [
+      "Unflavoured - Informed Sport Batch Tested / 1kg (200 Servings)",
+      "Unflavoured - Informed Sport Batch Tested / 500g (100 Servings)",
+      "Unflavoured - Informed Sport Batch Tested / 250g (50 Servings)"
+    ],
+    "options": [
+      {
+        "name": "Flavour",
+        "values": [
+          "Unflavoured - Informed Sport Batch Tested",
+          "Cherry & Apple",
+          "Strawberry & Raspberry",
+          "Icy Blue Raz"
+        ]
+      },
+      {
+        "name": "Size",
+        "values": [
+          "1kg (200 Servings)",
+          "500g (100 Servings)",
+          "250g (50 Servings)"
+        ]
+      }
+    ],
+    "snapshotSha256": "5aabd6e8e7df5e58b6abe18316b6940ed444453639f94f28db077cfe0bcefab1",
+    "scope": "Editorial identity/formula-source review only; not a nutrition approval or retailer mapping."
+  },
+  {
+    "checkedAt": "2026-11-17T20:24:07.458Z",
+    "sourceUrl": "https://www.optimumnutrition.com/en-gb/products/micronised-creatine-powder",
+    "transport": "public manufacturer Shopify product JSON GET",
+    "status": 200,
+    "title": "Micronised Creatine Powder",
+    "selectedVariantLabels": [
+      "UnFlavoured / 187 g (55 servings)",
+      "UnFlavoured / 317 g (93 servings)",
+      "UnFlavoured / 634 g (186 servings)"
+    ],
+    "options": [
+      {
+        "name": "Flavour",
+        "values": [
+          "UnFlavoured",
+          "Fruit Punch",
+          "Blue Raspberry",
+          "Orange"
+        ]
+      },
+      {
+        "name": "Size",
+        "values": [
+          "187 g (55 servings)",
+          "317 g (93 servings)",
+          "634 g (186 servings)",
+          "247.5 g (55 servings)",
+          "360 g (80 servings)"
+        ]
+      }
+    ],
+    "snapshotSha256": "63bcd1731d4f36c70bf0cdf7e4c21a777f0b08efa86cbd6b6381a943820af777",
+    "scope": "Editorial identity/formula-source review only; not a nutrition approval or retailer mapping."
+  }
+]

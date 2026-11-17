@@ -20,7 +20,7 @@ const ALLOWED_STATUSES = new Set([
 // One dated owner decision, recorded in the existing authoritative documents.
 // This is not a general second implementation slot or publication approval.
 const CONTENT_GROWTH_APPROVAL =
-  "Content Growth exception: SEO-24 beside frozen SEO-20; Draft PR only.";
+  "Content Growth exception: SEO-25 beside frozen SEO-20; Draft PR only.";
 
 function normalize(value) {
   return String(value).replace(/\r\n?/g, "\n");
@@ -145,6 +145,7 @@ function validateDocuments(docs, now = new Date()) {
     );
   }
   const inProgress = rows.filter((row) => row.status === "IN PROGRESS");
+  const contentGrowthRoutes = byId.get("SEO-25")?.task.match(/\/guides\/[a-z0-9-]+/g) || [];
   const approvedContentGrowth =
     [docs.agents, docs.operating, currentSeoTask, docs.agentModel]
       .every((text) => text.includes(CONTENT_GROWTH_APPROVAL)) &&
@@ -152,10 +153,12 @@ function validateDocuments(docs, now = new Date()) {
     byId.get("SEO-21")?.status === "LIVE VERIFIED" &&
     byId.get("SEO-22")?.status === "LIVE VERIFIED" &&
     byId.get("SEO-23")?.status === "LIVE VERIFIED" &&
-    byId.get("SEO-24")?.task.includes("/guides/whey-isolate-vs-concentrate") &&
-    byId.get("SEO-24")?.task.includes("/guides/protein-powder-pack-size-value");
+    byId.get("SEO-24")?.status === "LIVE VERIFIED" &&
+    contentGrowthRoutes.length === 2 &&
+    contentGrowthRoutes.includes("/guides/mass-gainer-vs-whey-protein") &&
+    contentGrowthRoutes.includes("/guides/creatine-pack-size-value");
   const permittedPair = approvedContentGrowth && inProgress.length === 2 &&
-    inProgress.every((row) => ["SEO-20", "SEO-24"].includes(row.id));
+    inProgress.every((row) => ["SEO-20", "SEO-25"].includes(row.id));
   if (inProgress.length > 1 && !permittedPair) {
     errors.push(`More than one SEO task is IN PROGRESS: ${inProgress.map((row) => row.id).join(", ")}.`);
   }

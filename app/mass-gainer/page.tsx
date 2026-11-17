@@ -187,6 +187,7 @@ export function MassGainerPageContent({ result, controlView }: { result: MassGai
       </section>
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         <h2 className="text-2xl font-bold">Mass Gainer comparison questions</h2>
+        <p className="mt-4 leading-7 text-zinc-700">Still choosing the type of powder? Read <Link href="/guides/mass-gainer-vs-whey-protein" className="font-semibold underline">mass gainer vs whey protein</Link> before comparing pack prices and verified protein costs.</p>
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           <div><h3 className="font-bold">Does the first result mean the best Mass Gainer?</h3><p className="mt-2 leading-7 text-zinc-700">No. Ordering favours current retailer and offer coverage. We do not make an unsupported quality, effectiveness or health ranking.</p></div>
           <div><h3 className="font-bold">Are all pack sizes equivalent?</h3><p className="mt-2 leading-7 text-zinc-700">No. Products and variants can differ in pack size, flavour and serving information. Check the exact variant and retailer label before buying.</p></div>

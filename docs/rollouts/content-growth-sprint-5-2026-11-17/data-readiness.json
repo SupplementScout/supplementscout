@@ -1,0 +1,194 @@
+{
+  "capturedAt": "2026-11-17T20:16:06.924Z",
+  "bounds": {
+    "perCategory": 201,
+    "categories": 5
+  },
+  "reads": [
+    {
+      "table": "products",
+      "method": "GET",
+      "status": 200,
+      "ms": 1085,
+      "bytes": 148018
+    },
+    {
+      "table": "retailer_products",
+      "method": "GET",
+      "status": 200,
+      "ms": 217,
+      "bytes": 104882
+    },
+    {
+      "table": "products",
+      "method": "GET",
+      "status": 200,
+      "ms": 217,
+      "bytes": 46315
+    },
+    {
+      "table": "retailer_products",
+      "method": "GET",
+      "status": 200,
+      "ms": 131,
+      "bytes": 25164
+    },
+    {
+      "table": "products",
+      "method": "GET",
+      "status": 200,
+      "ms": 147,
+      "bytes": 26865
+    },
+    {
+      "table": "retailer_products",
+      "method": "GET",
+      "status": 200,
+      "ms": 81,
+      "bytes": 17035
+    },
+    {
+      "table": "products",
+      "method": "GET",
+      "status": 200,
+      "ms": 270,
+      "bytes": 205506
+    },
+    {
+      "table": "retailer_products",
+      "method": "GET",
+      "status": 200,
+      "ms": 205,
+      "bytes": 439659
+    },
+    {
+      "table": "products",
+      "method": "GET",
+      "status": 200,
+      "ms": 186,
+      "bytes": 55077
+    },
+    {
+      "table": "retailer_products",
+      "method": "GET",
+      "status": 200,
+      "ms": 65,
+      "bytes": 22441
+    }
+  ],
+  "databaseWrites": 0,
+  "discoveryNote": "Category/semantic discovery scopes can overlap; counts are not added into a catalogue total. Exact identity/pricing qualifiers are not the same as ingredient/nutrition readiness.",
+  "scopes": [
+    {
+      "category": "Whey Protein",
+      "discoveryProducts": 53,
+      "identityPriceQualifiedProducts": 38,
+      "identityPriceQualifiedVariants": 235,
+      "verifiedWeightVariants": 138,
+      "approvedExactProteinVariants": 5,
+      "scope": "Identity/pricing/stock/freshness-qualified exact single g powder packs through existing selectors. Formula/source comparability requires selected editorial checks; discovery count is not guide readiness."
+    },
+    {
+      "category": "Vegan Protein",
+      "discoveryProducts": 28,
+      "identityPriceQualifiedProducts": 9,
+      "identityPriceQualifiedVariants": 33,
+      "verifiedWeightVariants": 33,
+      "approvedExactProteinVariants": 0,
+      "scope": "Identity/pricing/stock/freshness-qualified exact single g powder packs through existing selectors. Formula/source comparability requires selected editorial checks; discovery count is not guide readiness."
+    },
+    {
+      "category": "Mass Gainer",
+      "discoveryProducts": 10,
+      "identityPriceQualifiedProducts": 10,
+      "identityPriceQualifiedVariants": 35,
+      "verifiedWeightVariants": 33,
+      "approvedExactProteinVariants": 0,
+      "scope": "Identity/pricing/stock/freshness-qualified exact single g powder packs through existing selectors. Formula/source comparability requires selected editorial checks; discovery count is not guide readiness."
+    },
+    {
+      "category": "Pre Workout",
+      "discoveryProducts": 102,
+      "identityPriceQualifiedProducts": 78,
+      "identityPriceQualifiedVariants": 310,
+      "verifiedWeightVariants": 0,
+      "deliveredUnder30Products": 27,
+      "deliveredUnder30Variants": 116,
+      "scope": "Identity/pricing/stock/freshness-qualified exact single g powder packs through existing selectors. Formula/source comparability requires selected editorial checks; discovery count is not guide readiness."
+    },
+    {
+      "category": "Creatine",
+      "discoveryProducts": 44,
+      "identityPriceQualifiedProducts": 18,
+      "identityPriceQualifiedVariants": 44,
+      "verifiedWeightVariants": 33,
+      "capsuleFormatCandidates": 5,
+      "capsuleCandidatesWithOwnNutrition": 0,
+      "scope": "Identity/pricing/stock/freshness-qualified exact single g powder packs through existing selectors. Formula/source comparability requires selected editorial checks; discovery count is not guide readiness."
+    }
+  ],
+  "selected": [
+    {
+      "route": "/guides/mass-gainer-vs-whey-protein",
+      "qualifiedExamples": 2,
+      "distinctProducts": 2,
+      "brands": 2,
+      "matchedPairs": 0,
+      "approvedProteinRecords": 1,
+      "variants": [
+        {
+          "productId": "1058",
+          "variantId": 2223,
+          "variant": "Strawberry / 4kg",
+          "weightG": 4000,
+          "nutritionApproved": false
+        },
+        {
+          "productId": "746",
+          "variantId": 1196,
+          "variant": "Strawberry Milkshake / 2000g",
+          "weightG": 2000,
+          "nutritionApproved": true
+        }
+      ]
+    },
+    {
+      "route": "/guides/creatine-pack-size-value",
+      "qualifiedExamples": 4,
+      "distinctProducts": 2,
+      "brands": 2,
+      "matchedPairs": 2,
+      "approvedProteinRecords": 0,
+      "variants": [
+        {
+          "productId": "742",
+          "variantId": 799,
+          "variant": "Unflavoured / 250g",
+          "weightG": 250,
+          "nutritionApproved": false
+        },
+        {
+          "productId": "742",
+          "variantId": 4559,
+          "variant": "Unflavoured / 500g",
+          "weightG": 500,
+          "nutritionApproved": false
+        },
+        {
+          "productId": "231",
+          "variantId": 783,
+          "variant": "Unflavoured / 317g",
+          "weightG": 317,
+          "nutritionApproved": false
+        },
+        {
+          "productId": "231",
+          "variantId": 4614,
+          "variant": "Unflavoured / 634 g",
+          "weightG": 634,
+          "nutritionApproved": false
+        }
+      ]
+    }
+  ]
+}

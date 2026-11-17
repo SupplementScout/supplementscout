@@ -1,5 +1,46 @@
 # SupplementScout Operating Plan
 
+**17 November 2026 SEO-25 production-release approval:** the owner explicitly
+authorizes PR #545's two prepared guide lifecycle transitions to
+`launch_approved`, necessary existing tests/docs, quality gates, Ready for
+Review, guarded squash merge, automatic Vercel Production and public readback.
+Only `/guides/mass-gainer-vs-whey-protein` and
+`/guides/creatine-pack-size-value` are in scope. Earlier Sprint5 Draft-only/
+no-launch wording below is historical and superseded for this release.
+SEO-25 remains CODE COMPLETE until positive production evidence; verified
+lifecycle state and LIVE VERIFIED closeout require that readback. Preserve
+SEO-20 frozen/binding, SEO-21/22/23/24 LIVE VERIFIED and Stage3 disabled.
+No catalogue/nutrition/mapping/history/importer/migration/workflow or schedule
+write, Google submission, GYM HIGH hub or Sprint6. If direct Vercel API403
+persists, retain protections and use authorized GitHub deployment evidence
+plus public readback; never claim deployment without reliable verification.
+
+**17 November Sprint5 implementation checkpoint:** SEO-25 is CODE COMPLETE:
+140 focused tests, quick/full4,039, actual-source initial HTML/calculations,
+metadata/sitemap, six exact public variant links, cache and1440/390px QA pass.
+New warm local TTFB medians19.7/24.1ms; two bounded cold reads and zero warm DB
+reads. These lab samples make no field CWV claim. Both routes stay planned/
+noindex for one Draft PR; publication/merge require a separate owner decision.
+SEO-20 frozen and SEO-21/22/23/24 LIVE VERIFIED remain unchanged.
+
+**17 November 2026 Content Growth Sprint 5 owner approval:**
+Content Growth exception: SEO-25 beside frozen SEO-20; Draft PR only.
+The single bundle is `/guides/mass-gainer-vs-whey-protein` and
+`/guides/creatine-pack-size-value`, selected after authenticated settled GSC
+and bounded data-readiness checks. Necessary code/tests/docs and minimal
+contextual links are authorized. SEO-21/22/23/24 stay LIVE VERIFIED; previous
+active-pair exceptions are retired. New routes stay planned/noindex.
+No merge, production deployment/indexing, data/nutrition/mapping/history or
+importer/workflow change, Google submission or Sprint 6 is authorized.
+
+Current preflight main is be42854a0d72de4e4ec481951e1d13bb97c37b14.
+GSC19Oct-15Nov has28 complete final days (9,661 impressions/74 clicks);
+9-15Nov has7 complete days (2,496/21). The incomplete16Nov is excluded.
+Mass Gainer821/0 and Creatine450/3 category impressions/clicks support the
+two selected purchase decisions; this is site visibility, not keyword volume.
+The [Sprint5 record](rollouts/content-growth-sprint-5-2026-11-17.md) records
+five candidates, exact examples and limitations. No new sprint follows this one.
+
 **17 November 2026 SEO-24 LIVE VERIFIED closeout:** owner-approved PR #544
 squash merged release head `b8bfcf7bc167edb7529c02bcda8fe3e61de3e275` as
 `cd9a9d312c03db71c07e99f8c2a7b1cbaf4b5636` with identical tree.
@@ -5218,6 +5259,13 @@ Target experience:
 ## 13. Immediate active plan
 
 ### Current active task
+
+SEO-20 remains frozen/binding. For the current Sprint5 bundle only:
+Content Growth exception: SEO-25 beside frozen SEO-20; Draft PR only.
+The exact two routes are /guides/mass-gainer-vs-whey-protein and
+/guides/creatine-pack-size-value. SEO-21/22/23/24 remain LIVE VERIFIED.
+Earlier no-next-sprint approvals below are historical for this bounded owner
+decision. No merge, production write/publication, Google submission or Sprint6.
 
 SEO-20 alone remains active/binding and frozen. SEO-24 is LIVE VERIFIED after
 PR #544 production/readback; its bounded implementation exception is retired.
