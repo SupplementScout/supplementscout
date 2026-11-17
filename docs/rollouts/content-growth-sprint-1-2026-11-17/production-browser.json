@@ -1,0 +1,243 @@
+{
+  "capturedAt": "2026-11-17T13:16:14.701Z",
+  "kind": "actual-production-responsive-browser-QA",
+  "fixture": false,
+  "responsiveViewport": true,
+  "touchEmulation": false,
+  "results": [
+    {
+      "width": 1440,
+      "result": "PASS",
+      "title": "Compare Creatine Supplements & Prices UK | SupplementScout",
+      "h1": "Compare Creatine Supplements UK",
+      "viewport": 1440,
+      "visualViewportWidth": 1425,
+      "documentWidth": 1425,
+      "visualScale": 1,
+      "screenWidth": 1440,
+      "sectionWidth": 1280,
+      "cards": [
+        {
+          "text": "OstroVit Creatine Monohydrate 300gVariant: Unflavored / 300g. Pack: 300 g.RetailerFit HouseProduct price£9.99Delivery£3.99Delivered total£13.98Cost per 5 g£0.26Offer checked: 17 Nov 2026, 11:11 (UK time)",
+          "x": 96.5,
+          "y": 264,
+          "width": 400,
+          "height": 330
+        },
+        {
+          "text": "Per4m Creatine Capsules | 30 ServingsVariant: 30 Servings. Pack: 30 servings.RetailereBay UKProduct price£13.99Delivery£0.00Delivered total£13.99Cost per 5 gNot yet verifiedOffer checked: 16 Nov 2026, 14:04 (UK time)",
+          "x": 512.5,
+          "y": 264,
+          "width": 400,
+          "height": 330
+        },
+        {
+          "text": "TWP Crea-Scendo Creatine MonohydrateVariant: Unflavoured / 50 Servings (3g) / 150g. Pack: 150 g.RetailerGladiator NutritionProduct price£9.99Delivery£6.99Delivered total£16.98Cost per 5 gNot yet verifiedOffer checked: 16 Nov 2026, 18:34 (UK time)",
+          "x": 928.5,
+          "y": 264,
+          "width": 400,
+          "height": 330
+        }
+      ],
+      "links": [
+        {
+          "text": "OstroVit Creatine Monohydrate 300g",
+          "href": "https://www.supplementscout.co.uk/product/ostrovit-creatine-monohydrate-300g?variant=931"
+        },
+        {
+          "text": "Per4m Creatine Capsules | 30 Servings",
+          "href": "https://www.supplementscout.co.uk/product/per4m-creatine-capsules-30-servings?variant=2881"
+        },
+        {
+          "text": "TWP Crea-Scendo Creatine Monohydrate",
+          "href": "https://www.supplementscout.co.uk/product/twp-crea-scendo-creatine-monohydrate?variant=4299"
+        },
+        {
+          "text": "Help me choose creatine under £20",
+          "href": "https://www.supplementscout.co.uk/help-me-choose?q=creatine%20under%20%C2%A320&priority=lowest_delivered_price"
+        }
+      ],
+      "clipped": [],
+      "cls": 0,
+      "lcpMs": 468,
+      "navigation": {
+        "name": "https://www.supplementscout.co.uk/creatine#under-20",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 642.7999999970198,
+        "navigationId": 7706,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "h2",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "br",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 1.0999999940395355,
+        "domainLookupStart": 1.0999999940395355,
+        "domainLookupEnd": 1.0999999940395355,
+        "connectStart": 1.0999999940395355,
+        "secureConnectionStart": 1.0999999940395355,
+        "connectEnd": 1.0999999940395355,
+        "requestStart": 2.5999999940395355,
+        "responseStart": 77,
+        "firstInterimResponseStart": 77,
+        "finalResponseHeadersStart": 236.5,
+        "responseEnd": 355.5,
+        "transferSize": 33715,
+        "encodedBodySize": 33415,
+        "decodedBodySize": 523727,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 242.09999999403954,
+        "unloadEventEnd": 242.09999999403954,
+        "domInteractive": 567,
+        "domContentLoadedEventStart": 567,
+        "domContentLoadedEventEnd": 567.3999999910593,
+        "domComplete": 642.5999999940395,
+        "loadEventStart": 642.7999999970198,
+        "loadEventEnd": 642.7999999970198,
+        "type": "reload",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {
+          "randomizedTriggerRate": 0.4994798,
+          "value": "high"
+        }
+      },
+      "focus": [
+        "https://www.supplementscout.co.uk/product/ostrovit-creatine-monohydrate-300g?variant=931",
+        "https://www.supplementscout.co.uk/product/per4m-creatine-capsules-30-servings?variant=2881",
+        "https://www.supplementscout.co.uk/product/twp-crea-scendo-creatine-monohydrate?variant=4299",
+        "https://www.supplementscout.co.uk/help-me-choose?q=creatine%20under%20%C2%A320&priority=lowest_delivered_price"
+      ],
+      "serverErrors": [],
+      "runtimeExceptions": []
+    },
+    {
+      "width": 390,
+      "result": "PASS",
+      "title": "Compare Creatine Supplements & Prices UK | SupplementScout",
+      "h1": "Compare Creatine Supplements UK",
+      "viewport": 390,
+      "visualViewportWidth": 375,
+      "documentWidth": 1050,
+      "visualScale": 1,
+      "screenWidth": 390,
+      "sectionWidth": 375,
+      "cards": [
+        {
+          "text": "OstroVit Creatine Monohydrate 300gVariant: Unflavored / 300g. Pack: 300 g.RetailerFit HouseProduct price£9.99Delivery£3.99Delivered total£13.98Cost per 5 g£0.26Offer checked: 17 Nov 2026, 11:11 (UK time)",
+          "x": 16,
+          "y": 348,
+          "width": 343,
+          "height": 310
+        },
+        {
+          "text": "Per4m Creatine Capsules | 30 ServingsVariant: 30 Servings. Pack: 30 servings.RetailereBay UKProduct price£13.99Delivery£0.00Delivered total£13.99Cost per 5 gNot yet verifiedOffer checked: 16 Nov 2026, 14:04 (UK time)",
+          "x": 16,
+          "y": 674,
+          "width": 343,
+          "height": 310
+        },
+        {
+          "text": "TWP Crea-Scendo Creatine MonohydrateVariant: Unflavoured / 50 Servings (3g) / 150g. Pack: 150 g.RetailerGladiator NutritionProduct price£9.99Delivery£6.99Delivered total£16.98Cost per 5 gNot yet verifiedOffer checked: 16 Nov 2026, 18:34 (UK time)",
+          "x": 16,
+          "y": 1000,
+          "width": 343,
+          "height": 330
+        }
+      ],
+      "links": [
+        {
+          "text": "OstroVit Creatine Monohydrate 300g",
+          "href": "https://www.supplementscout.co.uk/product/ostrovit-creatine-monohydrate-300g?variant=931"
+        },
+        {
+          "text": "Per4m Creatine Capsules | 30 Servings",
+          "href": "https://www.supplementscout.co.uk/product/per4m-creatine-capsules-30-servings?variant=2881"
+        },
+        {
+          "text": "TWP Crea-Scendo Creatine Monohydrate",
+          "href": "https://www.supplementscout.co.uk/product/twp-crea-scendo-creatine-monohydrate?variant=4299"
+        },
+        {
+          "text": "Help me choose creatine under £20",
+          "href": "https://www.supplementscout.co.uk/help-me-choose?q=creatine%20under%20%C2%A320&priority=lowest_delivered_price"
+        }
+      ],
+      "clipped": [],
+      "cls": 0,
+      "lcpMs": 492,
+      "navigation": {
+        "name": "https://www.supplementscout.co.uk/creatine#under-20",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 773.2999999970198,
+        "navigationId": 9411,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "h2",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "br",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 1.2000000029802322,
+        "domainLookupStart": 1.2000000029802322,
+        "domainLookupEnd": 1.2000000029802322,
+        "connectStart": 1.2000000029802322,
+        "secureConnectionStart": 1.2000000029802322,
+        "connectEnd": 1.2000000029802322,
+        "requestStart": 3.0999999940395355,
+        "responseStart": 52.599999994039536,
+        "firstInterimResponseStart": 52.599999994039536,
+        "finalResponseHeadersStart": 269.90000000596046,
+        "responseEnd": 451.90000000596046,
+        "transferSize": 33741,
+        "encodedBodySize": 33441,
+        "decodedBodySize": 523727,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 276,
+        "unloadEventEnd": 276,
+        "domInteractive": 524.5,
+        "domContentLoadedEventStart": 524.5,
+        "domContentLoadedEventEnd": 524.7999999970198,
+        "domComplete": 773.2000000029802,
+        "loadEventStart": 773.2999999970198,
+        "loadEventEnd": 773.2999999970198,
+        "type": "reload",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {
+          "randomizedTriggerRate": 0.4994798,
+          "value": "high"
+        }
+      },
+      "focus": [
+        "https://www.supplementscout.co.uk/product/ostrovit-creatine-monohydrate-300g?variant=931",
+        "https://www.supplementscout.co.uk/product/per4m-creatine-capsules-30-servings?variant=2881",
+        "https://www.supplementscout.co.uk/product/twp-crea-scendo-creatine-monohydrate?variant=4299",
+        "https://www.supplementscout.co.uk/help-me-choose?q=creatine%20under%20%C2%A320&priority=lowest_delivered_price"
+      ],
+      "serverErrors": [],
+      "runtimeExceptions": []
+    }
+  ]
+}

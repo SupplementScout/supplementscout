@@ -1,0 +1,146 @@
+{
+  "kind": "manual-read-only-server-release-readiness",
+  "capturedAt": "2026-11-17T13:09:14.753Z",
+  "implementationSha": "d8bb5e3c7cad547353de445740b74fe1374f0376",
+  "mode": "Existing application server read path, transport-enforced GET/HEAD only; no RPC or write endpoint.",
+  "products": 86,
+  "activeOffers": 68,
+  "variantBoundOffers": 53,
+  "selectorExamples": [
+    {
+      "productId": "767",
+      "product": "OstroVit Creatine Monohydrate 300g",
+      "offerId": "942",
+      "mappingId": "1128",
+      "variantId": "931",
+      "variant": "Unflavored / 300g",
+      "pack": "300 g",
+      "retailer": "Fit House",
+      "productPrice": 9.99,
+      "delivery": 3.99,
+      "delivered": 13.98,
+      "checkedAt": "2026-11-17T11:11:52.1+00:00",
+      "costPer5g": 0.26477272727272727,
+      "inStock": true,
+      "activeVariant": true,
+      "productUrl": "https://www.supplementscout.co.uk/product/ostrovit-creatine-monohydrate-300g?variant=931",
+      "productHttpStatus": 200,
+      "publicPageExcerpt": "Variant: Unflavored / 300g Net weight 300 g Verified servings 100 servings Creatine per serving 2.64 g creatine per serving Lowest delivered price £13.98 £9.99 product + £3.99 delivery Fit House Price checked 17 November 2026 1 in-stock offer from 1 retailer You’ll continue to the retailer’s external store. Go to Fit House Compare Keep track of this supplement Saved only in this browser. No account needed. Save to My Supplements Compare retailers Retailer offers 1 fresh in-stock offer from 1 retailer . Every displayed offer has a known delivered total. Fit House Unflavored / 300g Lowest delivered price In stock Product £9.99 Delivery £3.99 Total £13.98 Lowest product price: £9.99 Lowest deli"
+    },
+    {
+      "productId": "791",
+      "product": "Per4m Creatine Capsules | 30 Servings",
+      "offerId": "2624",
+      "mappingId": "2810",
+      "variantId": "2881",
+      "variant": "30 Servings",
+      "pack": "30 servings",
+      "retailer": "eBay UK",
+      "productPrice": 13.99,
+      "delivery": 0,
+      "delivered": 13.99,
+      "checkedAt": "2026-11-16T14:04:04.633+00:00",
+      "costPer5g": null,
+      "inStock": true,
+      "activeVariant": true,
+      "productUrl": "https://www.supplementscout.co.uk/product/per4m-creatine-capsules-30-servings?variant=2881",
+      "productHttpStatus": 200,
+      "publicPageExcerpt": "Variant: 30 Servings Verified servings 30 servings Creatine per serving 3 g creatine per serving Lowest delivered price £13.99 £13.99 product + free delivery eBay UK Price checked 16 November 2026 2 in-stock offer s from 2 retailer s You’ll continue to the retailer’s external store. Go to eBay UK Compare Keep track of this supplement Saved only in this browser. No account needed. Save to My Supplements Compare retailers Retailer offers 2 fresh in-stock offer s from 2 retailer s . Every displayed offer has a known delivered total. Compare tracked eBay UK offers with other retailers eBay UK 30 Servings Lowest delivered price Save £2.99 In stock Product £13.99 Delivery £0.00 Total £13.99 Lowest"
+    },
+    {
+      "productId": "1377",
+      "product": "TWP Crea-Scendo Creatine Monohydrate",
+      "offerId": "4076",
+      "mappingId": "4263",
+      "variantId": "4299",
+      "variant": "Unflavoured / 50 Servings (3g) / 150g",
+      "pack": "150 g",
+      "retailer": "Gladiator Nutrition",
+      "productPrice": 9.99,
+      "delivery": 6.99,
+      "delivered": 16.98,
+      "checkedAt": "2026-11-16T18:34:37.3+00:00",
+      "costPer5g": null,
+      "inStock": true,
+      "activeVariant": true,
+      "productUrl": "https://www.supplementscout.co.uk/product/twp-crea-scendo-creatine-monohydrate?variant=4299",
+      "productHttpStatus": 200,
+      "publicPageExcerpt": "Variant: Unflavoured / 50 Servings (3g) / 150g Net weight 150 g Lowest delivered price £16.98 £9.99 product + £6.99 delivery Gladiator Nutrition Price checked 16 November 2026 1 in-stock offer from 1 retailer You’ll continue to the retailer’s external store. Go to Gladiator Nutrition Compare Keep track of this supplement Saved only in this browser. No account needed. Save to My Supplements Compare retailers Retailer offers 1 fresh in-stock offer from 1 retailer . Every displayed offer has a known delivered total. Gladiator Nutrition Unflavoured / 50 Servings (3g) / 150g Lowest delivered price In stock Product £9.99 Delivery £6.99 Total £16.98 Lowest product price: £9.99 Lowest delivered pric"
+    }
+  ],
+  "rounds": [
+    {
+      "ms": 1037.4,
+      "requests": [
+        {
+          "table": "products",
+          "method": "GET",
+          "status": 200,
+          "ms": 751.6,
+          "bytes": 108298,
+          "rows": 86,
+          "bindingIdCount": null
+        },
+        {
+          "table": "retailer_products",
+          "method": "GET",
+          "status": 200,
+          "ms": 248.6,
+          "bytes": 56892,
+          "rows": 210,
+          "bindingIdCount": 210
+        }
+      ]
+    },
+    {
+      "ms": 460.9,
+      "requests": [
+        {
+          "table": "products",
+          "method": "GET",
+          "status": 200,
+          "ms": 261,
+          "bytes": 108298,
+          "rows": 86,
+          "bindingIdCount": null
+        },
+        {
+          "table": "retailer_products",
+          "method": "GET",
+          "status": 200,
+          "ms": 192.5,
+          "bytes": 56892,
+          "rows": 210,
+          "bindingIdCount": 210
+        }
+      ]
+    },
+    {
+      "ms": 381.4,
+      "requests": [
+        {
+          "table": "products",
+          "method": "GET",
+          "status": 200,
+          "ms": 233.3,
+          "bytes": 108298,
+          "rows": 86,
+          "bindingIdCount": null
+        },
+        {
+          "table": "retailer_products",
+          "method": "GET",
+          "status": 200,
+          "ms": 142,
+          "bytes": 56892,
+          "rows": 210,
+          "bindingIdCount": 210
+        }
+      ]
+    }
+  ],
+  "emptyAndAgedStatesHidePriceCards": true,
+  "unresolvedVariantsDoNotQualify": true,
+  "forbiddenWriteGuardPassed": true,
+  "databaseWrites": 0
+}

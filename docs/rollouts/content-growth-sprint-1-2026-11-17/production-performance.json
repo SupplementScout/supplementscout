@@ -1,0 +1,84 @@
+{
+  "capturedAt": "2026-11-17T13:15:27.190Z",
+  "kind": "actual-public-HTTP-performance",
+  "baselineWarmTtfbMs": 257.4,
+  "afterWarmMedianTtfbMs": 272.3,
+  "baselineBytes": 512957,
+  "afterBytes": 523727,
+  "baselineSource": "2026-11-17T12:53:45.984Z",
+  "samples": [
+    {
+      "path": "/creatine",
+      "ttfbMs": 640.2,
+      "totalMs": 755.1,
+      "bytes": 523727
+    },
+    {
+      "path": "/brands/per4m",
+      "ttfbMs": 297.8,
+      "totalMs": 324,
+      "bytes": 248983
+    },
+    {
+      "path": "/creatine",
+      "ttfbMs": 224.9,
+      "totalMs": 404.5,
+      "bytes": 523727
+    },
+    {
+      "path": "/brands/per4m",
+      "ttfbMs": 449.9,
+      "totalMs": 534.5,
+      "bytes": 248983
+    },
+    {
+      "path": "/creatine",
+      "ttfbMs": 287.9,
+      "totalMs": 496.1,
+      "bytes": 523727
+    },
+    {
+      "path": "/brands/per4m",
+      "ttfbMs": 240.8,
+      "totalMs": 260.5,
+      "bytes": 248983
+    },
+    {
+      "path": "/creatine",
+      "ttfbMs": 291,
+      "totalMs": 472.3,
+      "bytes": 523727
+    },
+    {
+      "path": "/brands/per4m",
+      "ttfbMs": 270.8,
+      "totalMs": 287.5,
+      "bytes": 248983
+    },
+    {
+      "path": "/creatine",
+      "ttfbMs": 250.9,
+      "totalMs": 286.2,
+      "bytes": 523727
+    },
+    {
+      "path": "/brands/per4m",
+      "ttfbMs": 189.3,
+      "totalMs": 282.9,
+      "bytes": 248983
+    },
+    {
+      "path": "/creatine",
+      "ttfbMs": 272.3,
+      "totalMs": 445.8,
+      "bytes": 523727
+    },
+    {
+      "path": "/brands/per4m",
+      "ttfbMs": 181.9,
+      "totalMs": 283.4,
+      "bytes": 248983
+    }
+  ],
+  "note": "Local network measurements, not field CWV. Initial post-deployment cold request is recorded in release-production-readback.json."
+}

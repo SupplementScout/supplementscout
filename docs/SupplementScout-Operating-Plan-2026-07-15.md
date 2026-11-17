@@ -5,12 +5,17 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
-**17 November 2026 Content Growth checkpoint:** one scoped creatine Draft PR
-is owner-authorized beside frozen SEO-20. The existing SEO ledger records
-SEO-21 as locally code complete; it is not deployed to production or live verified.
-Section 13 records the bounded exception. No merge, publication, production
-write or change to SEO-20 is authorized. The existing retailer, nutrition,
-Stage 3 and GYM HIGH approval boundaries are unchanged.
+**17 November 2026 Content Growth production closeout:** the owner explicitly
+authorized PR #541 head `d8bb5e3c7cad547353de445740b74fe1374f0376`,
+squash merge and automatic Vercel production deployment. The merge is
+`e1d9a6d34ad41351822b8907cac045bac7f3cb52`; its tree exactly matches the
+approved head. Production deployment `dpl_2ZHgzALoSDsz9Yu1YfMQeVSEuriB`
+is READY. Public HTTP/data, canonical/robots/schema/sitemap, real-variant
+links and desktop/390px responsive checks pass. SEO-21 is `LIVE VERIFIED`.
+SEO-20 remains the binding active task, with frozen fields and measurement
+gates unchanged. No next sprint, guide route, retailer/nutrition write or
+Stage 3/GYM HIGH approval is implied. See the existing
+[sprint record](rollouts/content-growth-sprint-1-2026-11-17.md).
 
 **17 November 2026 owner-approved H&B activation checkpoint - ordinary schedule proof pending:**
 PR539 released as4d91fde9 with green main checks and Production7848668005 SUCCESS.
@@ -5110,6 +5115,12 @@ SEO Execution Plan records SEO-21 and remains the sole SEO status ledger.
 No new guide route, automatic merge, deployment, production write or publication
 is approved. Further implementations and publication return for separate owner
 approval. See [the sprint review record](rollouts/content-growth-sprint-1-2026-11-17.md).
+
+The later explicit owner release instruction authorized that exact PR #541
+head, squash merge, automatic production deployment and SEO-21 closeout.
+Public evidence now supports `LIVE VERIFIED`; the earlier Draft-only
+restriction above is historical for this released scope. No new
+implementation is active or authorized by the closeout.
 Public Stage 3 remains disabled and deferred at current breadth `1 / 1 / 1`
 against the unchanged `12 / 30 / 4` gate. `SEO-16` is also complete and `LIVE
 VERIFIED`.

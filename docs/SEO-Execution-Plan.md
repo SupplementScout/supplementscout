@@ -6,10 +6,13 @@
 pages, structured data, measurement and authority building.  
 **Parent authority:** `docs/SupplementScout-Operating-Plan-2026-07-15.md`
 
-**17 November 2026 Content Growth checkpoint:** the owner permits the bounded
-SEO-21 Draft PR alongside frozen SEO-20. Section 6 defines the exact exception;
-the earlier “only SEO task” statements below describe their dated checkpoints.
-No production release or experiment change is authorized.
+**17 November 2026 Content Growth production checkpoint:** the owner's later
+instruction authorized PR #541's exact head, squash merge, automatic Vercel
+production release and SEO-21 closeout. SEO-21 is `LIVE VERIFIED`; SEO-20
+remains `IN PROGRESS`, frozen and the binding next task. The earlier
+Draft-only statements describe their dated approval scope and do not negate
+the subsequent explicit release authorization. No guide or next sprint is
+authorized by this closeout.
 
 **3 November 2026 SEO-19 production closeout:** SEO-19 is `LIVE VERIFIED`.
 PR `#439` merged approved head
@@ -295,7 +298,7 @@ Console evidence and user value.
 | SEO-18 | P1 | Add the homepage self-canonical and one clean Help Me Choose sitemap entry. | `LIVE VERIFIED` | PR `#437` merged as production `75097fc49deeb1e9dfce582d7602c6b6c5b107c3`; tree equivalence, main Quality Gate `41614046140`, Vercel deployment and public homepage, Help Me Choose base/parameter and sitemap contracts all passed with no title, description, robots, behavior, schema or lifecycle-registry regression. |
 | SEO-19 | P1 | Add reciprocal Vitamins and Multivitamins contextual links. | `LIVE VERIFIED` | PR `#439` merged as production `4bb719091cc762e806e96c097a49251ff756212d`; tree equivalence, main Project Guardian `41623541134`, Quality Gate `41623540890`, Vercel deployment and public HTTP, link-placement, anchor, canonical, robots, metadata and schema checks passed. No loader, pagination, indexability, data or generic link-system regression occurred. |
 | SEO-20 | P1 | Run the PER4M title-only CTR experiment. | `IN PROGRESS` | PR `#441` deployed production `4930dd541629ef06a919abe78992e52db5c8e97e`; public smoke at `2026-11-03T11:54:34Z` proved the exact browser title `Compare PER4M Prices Across UK Retailers | SupplementScout` and frozen-field parity. Freeze the deployed title, meta, H1, body, schema, direct anchors and data presentation during measurement except for a production regression; observe at least 28 settled days, 500 page impressions and 300 brand-navigational query impressions; primary success is CTR improvement without material ranking deterioration. |
-| SEO-21 | P1 | Content Growth: expand `/creatine#under-20` using exact-variant delivered prices. | `CODE COMPLETE` | Local Guardian, focused regressions, quick/full gates and production build pass. Desktop/390px SSR fixture QA passes for the section. Await review of the Draft PR head and separate merge/production-publication authorization; not deployed to production or live verified. Two guide drafts and seven briefs are supporting review material only. |
+| SEO-21 | P1 | Content Growth: expand `/creatine#under-20` using exact-variant delivered prices. | `LIVE VERIFIED` | Owner-authorized PR #541 squash merge `e1d9a6d34ad41351822b8907cac045bac7f3cb52` preserves the approved tree. Main Guardian and Quality Gate pass; Vercel production `dpl_2ZHgzALoSDsz9Yu1YfMQeVSEuriB` is READY. Public HTTP/data and metadata contracts, real exact-variant links, desktop/390px responsive layout and warm-response performance checks pass. SEO-20 is untouched. Two guide drafts and seven briefs remain review material only. |
 
 ## 6. Current active task
 
@@ -318,6 +321,13 @@ briefs authorize no new route. Merge, deployment and publication require a
 separate owner decision. Supporting scope and evidence are in
 [the sprint review record](rollouts/content-growth-sprint-1-2026-11-17.md);
 this table remains the sole SEO status ledger.
+
+The owner's subsequent explicit release instruction approved squash merge
+of exact head `d8bb5e3c7cad547353de445740b74fe1374f0376`, automatic Vercel
+production deployment and evidence-based SEO-21 closeout. Those actions have
+passed; SEO-21 is now `LIVE VERIFIED`, with only SEO-20 still `IN PROGRESS`.
+The earlier Draft-only restriction is historical for this scope. This grants
+no next implementation, guide route, production data write or experiment change.
 
 SEO-15 is `LIVE VERIFIED`. Owner-authorized closeout used ordinary scheduled
 run `41488694982` and artifact `13162932296`: `813/813` series pass 60-day
@@ -504,6 +514,44 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 17 November 2026 - SEO-21 production release LIVE VERIFIED
+
+- The owner approved exact PR #541 head
+  `d8bb5e3c7cad547353de445740b74fe1374f0376`, squash merge and automatic
+  Vercel production deployment, then completion evidence. The PR was made
+  ready and merged without admin bypass or changed GitHub safeguards at
+  `2026-11-17T13:06:59Z`.
+- Squash/main `e1d9a6d34ad41351822b8907cac045bac7f3cb52` and the approved
+  head both have tree `a1b1c3c595da3017548ce547791c9f9cd68e8fe2`.
+  Main Guardian `44089525823` and full Quality Gate `44089525913` pass.
+  Vercel production `dpl_2ZHgzALoSDsz9Yu1YfMQeVSEuriB` is READY and
+  the public alias resolves to the expected merge SHA.
+- Public readback at `2026-11-17T13:09:22Z` passed HTTP200, the visible budget
+  section, exact variants931/2881/4299, totals£13.98/£13.99/£16.98 including
+  known shipping, checked times under24 hours and source availability.
+  Product links return200 for the selected variants. Only the verified
+  OstroVit example shows a cost per5g (£0.26); unsupported costs remain blank.
+- Actual-source read-only server assertions and 86 focused pricing,
+  creatine and lifecycle tests pass. Negative empty/stale/unresolved controls
+  contain no price cards; they are tests, not a claim that production has no
+  qualifying offers. No catalogue, nutrition or history write occurred.
+- Production Chrome1440px and responsive390px checks pass for the new section:
+  readable cards, no overlap/clipping, four keyboard-accessible links, zero
+  runtime exceptions and zero same-origin HTTP5xx. Existing whole-page table
+  overflow remains unchanged; the touch-emulation diagnostic is retained in
+  the evidence rather than represented as a whole-page mobile improvement.
+- Warm HTTP median TTFB257.4ms before versus272.3ms after (+14.9ms, about5.8%);
+  the small network sample shows no material warm-response regression.
+  The first cold post-deployment request was1765.3ms. The unchanged hourly
+  cache bounds the additional single batched variant read; no client script,
+  second price engine or architecture change was introduced.
+- Creatine title/H1, canonical, base/parameter robots, one sitemap entry and
+  CollectionPage/ItemList/BreadcrumbList schema pass. PER4M public metadata and
+  protected source/experiment files match baseline; SEO-20's clock and gates
+  are unchanged. Supporting public/live evidence and actual screenshots are
+  recorded in the [existing sprint record](rollouts/content-growth-sprint-1-2026-11-17.md).
+  No next sprint or guide publication was started.
 
 ### 17 November 2026 - SEO-21 Content Growth CODE COMPLETE
 

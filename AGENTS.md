@@ -30,6 +30,13 @@ Preserve all SEO-20 frozen fields, measurement gates and schedule. No merge,
 deployment, production writes, new guide routes or publication is authorized.
 Use the existing SEO ledger; no further parallel implementation is implied.
 
+The later 17 November 2026 owner release instruction explicitly authorized
+PR #541 at `d8bb5e3c7cad547353de445740b74fe1374f0376`, squash merge,
+automatic Vercel production deployment and evidence-based SEO-21 closeout.
+That instruction supersedes the earlier Draft-only restriction for this
+release. SEO-21 is now live verified; SEO-20 remains frozen and active.
+No further implementation, guide publication or data-write authority follows.
+
 For nutrition work, also read `docs/Nutrition-Execution-Plan.md` (the canonical
 nutrition ledger) and `docs/nutrition-candidate-extractor.md` (the existing
 process). Keep one active nutrition task and preserve the Operating Plan's SEO

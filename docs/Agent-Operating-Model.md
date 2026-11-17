@@ -162,6 +162,10 @@ production write.
   deployment, publication or production-write authority and no permission for
   another concurrent implementation. The Guardian accepts only this exact pair
   with matching authorization in AGENTS.md and both authoritative plans.
+  The later owner instruction authorized PR #541's exact head, squash merge,
+  automatic production deployment and verified SEO-21 closeout. That release
+  supersedes its earlier Draft-only restriction; SEO-21 is now live verified.
+  The dated exception is historical and grants no next implementation.
 - One separately scoped retailer/data task may run only when it does not touch
   the same files, data or release boundary.
 - Analysis and independent verification may run in parallel when read-only.

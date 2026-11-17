@@ -5,6 +5,76 @@ evidence. The Operating Plan remains the project authority and
 [SEO Execution Plan](../SEO-Execution-Plan.md) remains the sole status ledger.
 This file does not create another roadmap or authorize publication.
 
+## Authorized production release and closeout
+
+The owner's subsequent instruction explicitly approved squash merge of
+PR #541 at exact head `d8bb5e3c7cad547353de445740b74fe1374f0376`,
+automatic Vercel production deployment and SEO-21 closeout after live checks.
+This supersedes only the earlier Draft-only restriction for this release.
+SEO-20, the two unimplemented guides and all other approval boundaries remain.
+
+- Merge at `2026-11-17T13:06:59Z`:
+  `e1d9a6d34ad41351822b8907cac045bac7f3cb52`.
+  Its tree and the approved head both equal
+  `a1b1c3c595da3017548ce547791c9f9cd68e8fe2`.
+- Main [Project Guardian](https://github.com/SupplementScout/supplementscout/actions/runs/44089525823)
+  and [Quality Gate](https://github.com/SupplementScout/supplementscout/actions/runs/44089525913)
+  pass. [Vercel production](https://vercel.com/supplement-scout/supplementscout/2ZHgzALoSDsz9Yu1YfMQeVSEuriB)
+  is READY, ID `dpl_2ZHgzALoSDsz9Yu1YfMQeVSEuriB`.
+- Public [creatine section](https://www.supplementscout.co.uk/creatine#under-20)
+  returned HTTP200 with the expected production SHA and new section.
+  The public HTML was cross-checked against fresh server-side GET-only
+  catalogue reads, independently checking offer, mapping and variant rows.
+  There were zero production data writes.
+
+| Exact checked example | Retailer | Item + shipping = delivered | Offer check (UTC) | Cost per5g |
+|---|---|---|---|---|
+| OstroVit Unflavored300g, variant931 | Fit House | £9.99 + £3.99 = £13.98 | 17 November11:11:52 | £0.26 |
+| PER4M30 Servings, variant2881 | eBay UK | £13.99 + £0 = £13.99 | 16 November14:04:04 | Not yet verified |
+| TWP Unflavoured150g, variant4299 | Gladiator Nutrition | £9.99 + £6.99 = £16.98 | 16 November18:34:37 | Not yet verified |
+
+These are dated production observations, not static page prices. All were
+in stock with active exact variants, fresh timestamps and working selected
+variant product links. The actual server render, empty/stale/unresolved
+negative controls and86 focused regressions passed. Negative tests are not
+represented as a production-empty snapshot.
+
+Actual production evidence:
+
+- [HTTP, metadata and live cards](content-growth-sprint-1-2026-11-17/production-readback.json)
+- [Source-bound GET-only data checks](content-growth-sprint-1-2026-11-17/production-data.json)
+- [Chrome responsive layout and runtime checks](content-growth-sprint-1-2026-11-17/production-browser.json)
+- [HTTP performance comparison](content-growth-sprint-1-2026-11-17/production-performance.json)
+- [Actual desktop screenshot](content-growth-sprint-1-2026-11-17/production-1440.png)
+  and [actual390px responsive screenshot](content-growth-sprint-1-2026-11-17/production-390.png).
+
+The new cards fit the390px responsive viewport with no overlap or text
+clipping, correct keyboard order and no runtime exceptions or same-origin
+HTTP5xx. There is a retained pre-existing whole-page/table overflow behavior:
+touch emulation reports document width1050px at390px and autoscaling.
+Temporarily removing only the new section in the local browser DOM leaves
+that width unchanged. The [touch diagnostic](content-growth-sprint-1-2026-11-17/production-touch-diagnostic.json)
+records this limitation; this release does not claim a whole-page mobile
+overflow fix. The actual responsive screenshot uses a390px CSS viewport at
+normal scale.
+
+Warm median HTTP TTFB was257.4ms before and272.3ms after (+14.9ms,5.8%).
+The initial cold post-deployment request was1765.3ms, followed by warm-cache
+responses. The full decoded response grew from512,957 to523,727bytes (+2.1%).
+This small local network sample does not establish field CWV; it shows no
+material warm-response regression. One batched variant query remains within
+the existing3600-second hour-bucket cache, with no added client script.
+
+The public title/H1, base canonical/index-follow, parameter canonical/
+noindex-follow, one clean sitemap entry and existing schema types all pass.
+SEO-20's public metadata, source, measurement start and28/500/300 gates remain
+unchanged. No new guide, retailer workflow, nutrition fact, database migration,
+history publication or next sprint was introduced.
+
+The SEO ledger records SEO-21 as `LIVE VERIFIED` on these local and public
+checks. This closeout updates documentation only; it gives no further release
+or implementation authority.
+
 ## Owner scope and fresh preflight
 
 The 17 November owner instruction approves one independent Content Growth
