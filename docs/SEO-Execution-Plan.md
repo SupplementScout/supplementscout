@@ -1,5 +1,20 @@
 # SupplementScout SEO Execution Plan
 
+**17 November 2026 SEO-25 production-release approval:** the owner explicitly
+authorizes PR #545's two prepared guide lifecycle transitions to
+`launch_approved`, necessary existing tests/docs, quality gates, Ready for
+Review, guarded squash merge, automatic Vercel Production and public readback.
+Only `/guides/mass-gainer-vs-whey-protein` and
+`/guides/creatine-pack-size-value` are in scope. Earlier Sprint5 Draft-only/
+no-launch wording below is historical and superseded for this release.
+SEO-25 remains CODE COMPLETE until positive production evidence; verified
+lifecycle state and LIVE VERIFIED closeout require that readback. Preserve
+SEO-20 frozen/binding, SEO-21/22/23/24 LIVE VERIFIED and Stage3 disabled.
+No catalogue/nutrition/mapping/history/importer/migration/workflow or schedule
+write, Google submission, GYM HIGH hub or Sprint6. If direct Vercel API403
+persists, retain protections and use authorized GitHub deployment evidence
+plus public readback; never claim deployment without reliable verification.
+
 **17 November Sprint5 implementation checkpoint:** SEO-25 is CODE COMPLETE.
 140 focused tests, quick/full4,039, actual-source HTTP/cache and1440/390px QA
 pass. Both new routes remain planned/noindex and await publication review in

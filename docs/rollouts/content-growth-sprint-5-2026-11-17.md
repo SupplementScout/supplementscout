@@ -155,3 +155,47 @@ existing lifecycle/metadata/sitemap expectations. Central helpers then provide
 index/follow and one clean sitemap URL each; parameters remain noindex/follow.
 Guarded release and positive public readback must precede live_verified/LIVE
 VERIFIED. No new publishing, canonical, cache or sitemap infrastructure is needed.
+
+## Owner-approved production release: in progress
+
+**17 November 2026 SEO-25 production-release approval:** the owner explicitly
+authorizes PR #545's two prepared guide lifecycle transitions to
+`launch_approved`, necessary existing tests/docs, quality gates, Ready for
+Review, guarded squash merge, automatic Vercel Production and public readback.
+Only `/guides/mass-gainer-vs-whey-protein` and
+`/guides/creatine-pack-size-value` are in scope. Earlier Sprint5 Draft-only/
+no-launch wording below is historical and superseded for this release.
+SEO-25 remains CODE COMPLETE until positive production evidence; verified
+lifecycle state and LIVE VERIFIED closeout require that readback. Preserve
+SEO-20 frozen/binding, SEO-21/22/23/24 LIVE VERIFIED and Stage3 disabled.
+No catalogue/nutrition/mapping/history/importer/migration/workflow or schedule
+write, Google submission, GYM HIGH hub or Sprint6. If direct Vercel API403
+persists, retain protections and use authorized GitHub deployment evidence
+plus public readback; never claim deployment without reliable verification.
+
+Preflight confirms reviewed HEAD
+`b315a504975ba9c0ce7ab8f89028d7d0142a4481`, unchanged main
+`be42854a0d72de4e4ec481951e1d13bb97c37b14`, no conflicts and all
+relevant CI checks successful. Isolated integration remains intentionally
+skipped by the existing workflow policy. The release amendment changes only
+the two central lifecycle entries and existing test/documentation expectations;
+the reviewed guide, selector, variant, pricing, nutrition and cache logic stays
+unchanged. No GSC audit or manufacturer research is repeated.
+
+Existing direct Vercel API access returned403 at the prior handoff. The
+authorized GitHub Production deployment webhook and Vercel commit status are
+available; public Next Flight build IDs allow a domain build transition to be
+recorded alongside fresh page content/metadata. The generated deployment URL
+retains its302 SSO gate. No bypass, new credentials or security change is used.
+Production verification must correlate the new exact main deployment,
+successful Vercel status, changed public build fingerprint and public content;
+missing evidence blocks live closeout.
+
+Release amendment local gates pass: Project Guardian,140 focused regression
+checks, verify:quick1,315 and verify:full4,039 safe tests, TypeScript, ESLint
+and Next16.2.9 production build. The test inventory is unchanged. Fresh
+GET-only source rendering at21:18UTC confirms the same six exact variants,
+prices and1196 approved nutrition binding. The public prelaunch baseline
+at21:15UTC records main be42854a, build yHBCnoya8-F4MoFfJqS3O, both new
+routes404 and absent from sitemap, and successful old-page HTTP/metadata.
+No live-completion claim is made before merge, deployment and public readback.

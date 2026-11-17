@@ -124,10 +124,10 @@ test("empty and partial selections retain useful decisions and honest limitation
   assert.match(html(creatineFile,[]),/No complete current pair passes/);
   for(const file of [massFile,creatineFile])assert.match(html(file,[]),/<ol class="mt-4 list-decimal/);
 });
-test("planned metadata is database-free, noindex/follow with self-canonical and factual schema; parameters canonicalize cleanly",async()=>{
+test("approved metadata is database-free, index/follow with self-canonical and factual schema; parameters remain noindex",async()=>{
   for(const [file,route] of [[massFile,model.MASS_WHEY_GUIDE_PATH],[creatineFile,model.CREATINE_PACK_GUIDE_PATH]]){
-    const p=load(file),m=await p.generateMetadata();assert.deepEqual(m.robots,{index:false,follow:true});assert.equal(m.alternates.canonical,route);
-    const parameter=await p.generateMetadata({searchParams:Promise.resolve({sort:"price"})});assert.deepEqual(parameter.robots,m.robots);assert.equal(parameter.alternates.canonical,route);
+    const p=load(file),m=await p.generateMetadata();assert.deepEqual(m.robots,{index:true,follow:true});assert.equal(m.alternates.canonical,route);
+    const parameter=await p.generateMetadata({searchParams:Promise.resolve({sort:"price"})});assert.deepEqual(parameter.robots,{index:false,follow:true});assert.equal(parameter.alternates.canonical,route);
     const schema=JSON.parse(html(file,[]).match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
     assert.deepEqual(schema["@graph"].map(n=>n["@type"]),["WebPage","BreadcrumbList"]);assert.equal(schema["@graph"][0].url,"https://www.supplementscout.co.uk"+route);
     assert.doesNotMatch(JSON.stringify(schema),/ratingValue|Article|FAQPage|datePublished|author/);
@@ -142,9 +142,9 @@ test("both pages deduplicate bounded reads through existing distinct lifecycle c
   }
   assert.equal(new Set(keys.map(k=>k.key)).size,2);
 });
-test("sitemap prepares each planned route once and all previous guide/SEO lifecycles remain live",()=>{
+test("sitemap includes each approved route once and all previous guide/SEO lifecycles remain live",()=>{
   const lifecycle=load("app/lib/indexabilityLifecycle.ts"),sitemap=fs.readFileSync(path.join(root,"app/sitemap.ts"),"utf8");
-  for(const route of [model.MASS_WHEY_GUIDE_PATH,model.CREATINE_PACK_GUIDE_PATH]){assert.equal(lifecycle.getLifecycleStatus(route),"planned");assert.equal(lifecycle.isLifecycleSitemapEligible(route),false);assert.equal(sitemap.split(route).length-1,1);}
+  for(const route of [model.MASS_WHEY_GUIDE_PATH,model.CREATINE_PACK_GUIDE_PATH]){assert.equal(lifecycle.getLifecycleStatus(route),"launch_approved");assert.equal(lifecycle.isLifecycleSitemapEligible(route),true);assert.equal(sitemap.split(route).length-1,1);}
   for(const route of ["/brands/per4m","/creatine","/guides/supplement-prices-including-delivery","/guides/cost-per-25g-protein","/guides/protein-powder-under-30","/guides/caffeine-free-pre-workout","/guides/whey-isolate-vs-concentrate","/guides/protein-powder-pack-size-value"])assert.equal(lifecycle.getLifecycleStatus(route),"live_verified");
 });
 test("natural incoming and conversion links are crawlable and keep existing product-page retailer tracking",()=>{
