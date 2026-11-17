@@ -66,6 +66,13 @@ New routes remain planned/noindex. No merge, production publication, data or
 nutrition write, Search Console submission or further sprint is authorized.
 The owner will submit URLs manually after a separately approved publication.
 
+The subsequent SEO-23 production-release instruction explicitly approves
+PR #543's two lifecycle transitions to launch_approved, necessary tests/docs,
+guarded squash merge, automatic Vercel production release and closeout only
+after successful public verification. It supersedes the Draft-only boundary
+for this release. No product/nutrition/mapping write, SEO-20 change, Google
+submission or next sprint is authorized.
+
 For nutrition work, also read `docs/Nutrition-Execution-Plan.md` (the canonical
 nutrition ledger) and `docs/nutrition-candidate-extractor.md` (the existing
 process). Keep one active nutrition task and preserve the Operating Plan's SEO

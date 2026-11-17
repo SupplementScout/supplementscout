@@ -196,20 +196,20 @@ test("SSR exposes prices, exact links, check times, evidence and honest empty st
   for (const href of ["/whey-protein", "/help-me-choose", "/guides/cost-per-25g-protein"]) assert.ok(a.includes('href="' + href + '"'));
   assert.ok(b.includes('href="/search?q=pre%20workout&amp;caffeine=free"'));
 });
-test("new metadata is database-free, planned/noindex, self-canonical and factual JSON-LD", async () => {
+test("launched metadata is database-free, indexable, self-canonical and factual JSON-LD", async () => {
   for (const [file, route, result] of [[budgetFile, budget.PROTEIN_BUDGET_PATH, { rows: [], error: false }], [caffeineFile, caffeine.CAFFEINE_FREE_PATH, { rows: [], appliedFacts: {}, error: false }]]) {
     const page = load(file), metadata = await page.generateMetadata();
-    assert.equal(metadata.alternates.canonical, route); assert.deepEqual(metadata.robots, { index: false, follow: true });
-    assert.deepEqual((await page.generateMetadata({ searchParams: Promise.resolve({ sort: "price", page: "2" }) })).robots, metadata.robots);
+    assert.equal(metadata.alternates.canonical, route); assert.deepEqual(metadata.robots, { index: true, follow: true });
+    assert.deepEqual((await page.generateMetadata({ searchParams: Promise.resolve({ sort: "price", page: "2" }) })).robots, { index: false, follow: true });
     const schema = JSON.parse(html(file, result).match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);
     assert.deepEqual(schema["@graph"].map(n => n["@type"]), ["WebPage", "BreadcrumbList"]);
     assert.equal(schema["@graph"][0].url, "https://www.supplementscout.co.uk" + route);
     assert.doesNotMatch(JSON.stringify(schema), /Article|FAQPage|ratingValue|datePublished|author/);
   }
 });
-test("new sitemap candidates remain excluded; existing guides stay live and caches are isolated", () => {
+test("approved guides enter sitemap once; existing guides stay live and caches are isolated", () => {
   const lifecycle = load("app/lib/indexabilityLifecycle.ts"), sitemap = fs.readFileSync(path.join(root, "app/sitemap.ts"), "utf8");
-  for (const route of [budget.PROTEIN_BUDGET_PATH, caffeine.CAFFEINE_FREE_PATH]) { assert.equal(lifecycle.getLifecycleStatus(route), "planned"); assert.equal(lifecycle.isLifecycleSitemapEligible(route), false); assert.equal(sitemap.split(route).length - 1, 1); }
+  for (const route of [budget.PROTEIN_BUDGET_PATH, caffeine.CAFFEINE_FREE_PATH]) { assert.equal(lifecycle.getLifecycleStatus(route), "launch_approved"); assert.equal(lifecycle.isLifecycleSitemapEligible(route), true); assert.equal(sitemap.split(route).length - 1, 1); }
   for (const route of ["/creatine", "/brands/per4m", "/guides/cost-per-25g-protein", "/guides/supplement-prices-including-delivery"]) assert.equal(lifecycle.getLifecycleStatus(route), "live_verified");
   assert.match(fs.readFileSync(path.join(root, budgetFile), "utf8"), /"protein-budget-examples-v1"/);
   assert.match(fs.readFileSync(path.join(root, caffeineFile), "utf8"), /"caffeine-free-examples-v1"/);

@@ -5,6 +5,15 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**17 November 2026 SEO-23 production-release approval:** the owner explicitly
+authorizes PR #543, reviewed head `1c0fe408da4ab687c78805da99f649f0d7c773bb`,
+only its two guide lifecycle transitions to `launch_approved`, necessary
+tests/docs, guarded squash merge and automatic Vercel release. SEO-23 remains
+`CODE COMPLETE` pending public readback and closeout. This supersedes the
+earlier Draft-only restrictions for this release. SEO-20 stays frozen/binding;
+SEO-21/22 stay live verified, Stage3 off. No catalogue/nutrition/mapping write,
+Google submission or next sprint is authorized.
+
 **17 November 2026 Content Growth Sprint 3 checkpoint:** the owner approves
 one SEO-23 bundle and Draft PR for protein powder under £30 delivered and
 confirmed caffeine-free pre-workout guides. Bounded existing-catalogue reads

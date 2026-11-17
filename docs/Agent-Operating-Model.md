@@ -154,6 +154,13 @@ production write.
 
 ## Concurrency rule
 
+**17 November 2026 SEO-23 release approval:** PR #543's two guide lifecycle
+transitions, required tests/docs, guarded squash merge, automatic production
+deployment and evidence-based closeout are now owner-authorized. Earlier
+Sprint 3 Draft-only wording is historical for this release. SEO-20 stays
+frozen; SEO-21/22 stay live. No production data write, GSC submission or next
+implementation follows.
+
 **17 November 2026 Sprint 3 approval:**
 Content Growth exception: SEO-23 beside frozen SEO-20; Draft PR only.
 Only the two named budget-protein/caffeine-free guides form this single bundle.

@@ -6,6 +6,15 @@
 pages, structured data, measurement and authority building.  
 **Parent authority:** `docs/SupplementScout-Operating-Plan-2026-07-15.md`
 
+**17 November 2026 SEO-23 production-release approval:** the owner approves
+PR #543, last reviewed head `1c0fe408da4ab687c78805da99f649f0d7c773bb`,
+the two guide lifecycle changes to `launch_approved`, necessary tests/docs,
+guarded squash merge and automatic Vercel release. SEO-23 remains
+`CODE COMPLETE` until successful public readback permits LIVE VERIFIED.
+Earlier Draft-only restrictions are historical for this approved release.
+SEO-20 stays frozen; SEO-21/22 remain live. No production data write, GSC
+submission or next sprint is authorized.
+
 **17 November 2026 Sprint 3 checkpoint:** the owner approves SEO-23 as one
 bundle for the protein-budget and caffeine-free pre-workout guides, with
 necessary tests/docs and a single Draft PR. Bounded read-only data checks

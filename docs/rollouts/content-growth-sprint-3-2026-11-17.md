@@ -5,6 +5,17 @@ the Operating Plan remains authoritative and the SEO Execution Plan is the
 sole task ledger. Scope: two guides in one Draft PR. This record grants no
 merge, production publication, indexability launch, data write or next sprint.
 
+## Subsequent owner-approved production release
+
+The owner explicitly authorizes PR #543, reviewed head
+`1c0fe408da4ab687c78805da99f649f0d7c773bb`, the two prepared guide entries
+moving to `launch_approved`, necessary tests/docs, guarded squash merge,
+automatic Vercel production release and closeout after positive public
+readback. Earlier Draft-only statements below record their original scope.
+SEO-23 stays CODE COMPLETE until deployment and public checks actually pass.
+No Google submission, production data/nutrition/mapping write, SEO-20 change,
+Stage3 activation or next sprint follows.
+
 ## Preflight and data qualification
 
 Fresh GitHub reads confirmed main
