@@ -5,17 +5,23 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
-**17 November 2026 owner-approved H&B automation SQL checkpoint:** the existing
-selected-migration applicator completed a rollback-only rehearsal and exact
-three-file production apply. Independent readback confirms CURRENT268 and zero
-catalogue, offer, price-history or H&B control/decision deltas. The receipt-based
-repository closeout retains staging120 and its prior selection. The owner separately
-approved the219-offer policy, SQL and deployment/schedule; runtime release and
-ordinary scheduled proof remain pending, and the H&B enable variable is still off.
+**17 November 2026 owner-approved H&B activation checkpoint - ordinary schedule proof pending:**
+PR539 released as4d91fde9 with green main checks and Production7848668005 SUCCESS.
+The existing guarded applicator committed the three approved SQL changes once;
+CURRENT268/pending=[] matches its receipt and staging120 is unchanged. Fresh dry-runs
+for the other automations verified10 retailers; Discount retains the exact prior
+VALIDATOR_REJECTED block, with no migration regression or apply steps executed.
+The H&B repository enable variable was set last at09:25:59Z. Controlled review-only
+run44055630899 passed:217 unchanged offers and two non-executable missing-source
+PENDING cards5960/5961 for4661/4678. Independent READ ONLY at09:33:33Z confirms
+unchanged H&B business state, zero parents/requests/approvals/applies, and only the
+authorized review publication. The ordinary08:17UTC scheduled apply, independent
+postflight and fresh idempotency remain unverified; the goal is not LIVE VERIFIED.
 Reuse the one shared engine, approvals, executor, queue and workflow. Catalogue
 expansion is deferred; completed61 imports and existing identity decisions are
 preserved. SEO-20 remains the sole active SEO task; RA-004 stays BLOCKED. See the
-[current execution ledger](retailer-automation/EXECUTION-PLAN.md).
+[current execution ledger](retailer-automation/EXECUTION-PLAN.md) and
+[activation evidence](retailer-automation/evidence/HB-SHARED-AUTOMATION-ACTIVATION-EXECUTION-2026-11-17.json).
 
 **15 November 2026 reviewed new-product identity migration closeout:** PR537
 released as a62c439cf46b9c5703d7bb163cd681be5a4a8c2b with Production SUCCESS.

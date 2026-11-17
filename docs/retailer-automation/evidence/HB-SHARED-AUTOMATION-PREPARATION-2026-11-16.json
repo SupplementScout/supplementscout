@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "task": "H&B existing-offer shared automation",
-  "status": "OWNER_AUTHORIZED_SQL_APPLIED_RUNTIME_RELEASE_PENDING",
+  "status": "DEPLOYED_ENABLED_CONTROLLED_REVIEW_VERIFIED_ORDINARY_SCHEDULE_PENDING",
   "owner_scope": "Reuse the existing shared pipeline; defer catalogue expansion; prepare and verify before separate production authorization.",
   "baseline": {
     "main_and_production": "9ec8b2264fee6a453be46555dab0e500ff65feb1",
@@ -309,11 +309,8 @@
     "confirmation_binds_source_identity_delivery_and_unknown_stock": true
   },
   "outstanding": [
-    "Exact existing control-registration and shared parent-approval profile preparation for retailer16",
-    "Existing watchdog and shared workflow wiring",
-    "Fresh native READ ONLY validation on final prepared head",
-    "Complete exact owner-reviewable production activation package",
-    "Separately approved controlled apply, postflight, idempotency and ordinary schedule observations"
+    "Observe a genuine existing daily08:17UTC scheduled H&B execution after Gladiator",
+    "Independently verify expected deltas, exact review exclusions and fresh idempotency before LIVE VERIFIED"
   ],
   "invariants": {
     "catalogue_expansion_deferred": true,
@@ -332,8 +329,9 @@
   "review": {
     "pr": 539,
     "url": "https://github.com/SupplementScout/supplementscout/pull/539",
-    "state": "OPEN_DRAFT",
-    "branch": "feat/hb-shared-automation-20261116"
+    "state": "MERGED",
+    "branch": "feat/hb-shared-automation-20261116",
+    "main": "4d91fde98032e81f6b0f68c00be39b07260e8312"
   },
   "pause": {
     "at": "2026-11-16T21:09:09.964Z",
@@ -472,8 +470,9 @@
   "activation_packet": {
     "file": "docs/retailer-automation/evidence/HB-SHARED-AUTOMATION-ACTIVATION-PROPOSAL-2026-11-17.json",
     "sha256_lf": "ecd36ed5e3413acc148fe538c313044980d1220d6a8a09c924916ef095ddbe32",
-    "status": "READY_FOR_OWNER_REVIEW_NOT_ACTIVATED"
+    "status": "IMMUTABLE_REVIEWED_PROPOSAL_APPROVED_VIA_OWNER_AUTHORIZATION_RECEIPT"
   },
   "activation_execution": "docs/retailer-automation/evidence/HB-SHARED-AUTOMATION-ACTIVATION-EXECUTION-2026-11-17.json",
-  "owner_authorization": "docs/retailer-automation/evidence/HB-SHARED-AUTOMATION-OWNER-AUTHORIZATION-2026-11-17.json"
+  "owner_authorization": "docs/retailer-automation/evidence/HB-SHARED-AUTOMATION-OWNER-AUTHORIZATION-2026-11-17.json",
+  "preparation_record_scope": "Detailed preparation, pause, proposed configuration and invariant sections in this file are historical pre-authorization observations. Current authorization, committed SQL, released configuration, schedule enablement and production evidence are authoritative in activation_execution; no outstanding preparation work is implied."
 }
