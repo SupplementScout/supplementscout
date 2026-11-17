@@ -203,7 +203,7 @@ test("SSR includes full answers, exact variant links, check times and honest emp
   for (const href of ["/whey-protein", "/whey-isolate", "/compare", "/how-we-compare"]) assert.ok(protein.includes('href="' + href + '"'));
   assert.match(protein, /rounded to the nearest penny/);
 });
-test("both guide metadata contracts are canonical, database-free and planned/noindex for base and parameters", async () => {
+test("both approved guide bases are indexable with clean canonicals and noindex parameter states", async () => {
   for (const [file, route, title] of [
     [deliveryFile, guides.DELIVERY_GUIDE_PATH, "Supplement Prices Including Delivery: A UK Comparison"],
     [proteinFile, guides.PROTEIN_GUIDE_PATH, "Cost per 25g Protein: Compare UK Whey Prices Fairly"],
@@ -211,8 +211,8 @@ test("both guide metadata contracts are canonical, database-free and planned/noi
     const page = load(file);
     const metadata = await page.generateMetadata();
     assert.equal(metadata.title, title); assert.equal(metadata.alternates.canonical, route);
-    assert.deepEqual(metadata.robots, { index: false, follow: true });
-    assert.deepEqual((await page.generateMetadata({ searchParams: Promise.resolve({ sort: "price" }) })).robots, metadata.robots);
+    assert.deepEqual(metadata.robots, { index: true, follow: true });
+    assert.deepEqual((await page.generateMetadata({ searchParams: Promise.resolve({ sort: "price" }) })).robots, { index: false, follow: true });
     const script = html(file, { rows: [], error: false }).match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1];
     const schema = JSON.parse(script);
     assert.deepEqual(schema["@graph"].map((entry) => entry["@type"]), ["WebPage", "BreadcrumbList"]);
@@ -254,12 +254,12 @@ test("partial reads, base-query failures and variant-query failures fail closed"
   });
   assert.deepEqual(await loader.getBuyingGuideProducts(["one"]), { rows: [], error: true });
 });
-test("both routes are registered once for safe future sitemap admission and use isolated shared caches", () => {
+test("both approved routes are sitemap eligible exactly once and retain isolated shared caches", () => {
   const registry = load("app/lib/indexabilityLifecycle.ts");
   const sitemap = fs.readFileSync(path.join(root, "app/sitemap.ts"), "utf8");
   for (const route of [guides.DELIVERY_GUIDE_PATH, guides.PROTEIN_GUIDE_PATH]) {
-    assert.equal(registry.getLifecycleStatus(route), "planned");
-    assert.equal(registry.isLifecycleSitemapEligible(route), false);
+    assert.equal(registry.getLifecycleStatus(route), "launch_approved");
+    assert.equal(registry.isLifecycleSitemapEligible(route), true);
     assert.equal(sitemap.split(route).length - 1, 1);
   }
   const sources = [deliveryFile, proteinFile].map((file) => fs.readFileSync(path.join(root, file), "utf8"));

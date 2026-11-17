@@ -8,6 +8,7 @@ const {
   GOOGLE_SCOPES,
   OUTPUT_ROOT,
   buildWeeklyReport,
+  buildInspectionTargets,
   buildUxMeasurement,
   conservativeExternalSearchSignal,
   createServiceAccountJwt,
@@ -39,6 +40,22 @@ function response(body, status = 200) {
     text: async () => JSON.stringify(body),
   };
 }
+
+test("manual SEO-22 inspection stays limited to the two approved canonical URLs", () => {
+  assert.deepEqual(buildInspectionTargets("sc-domain:supplementscout.co.uk", [], "seo22-guides"), [
+    "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+    "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+  ]);
+  const pages = Array.from({ length: 8 }, (_, index) => ({ page: `/page-${index}` }));
+  const defaults = buildInspectionTargets("https://www.supplementscout.co.uk/", pages);
+  assert.equal(defaults.length, 6);
+  assert.equal(defaults[0], "https://www.supplementscout.co.uk/");
+  assert.throws(() => buildInspectionTargets("sc-domain:supplementscout.co.uk", [], "arbitrary-urls"), /Unsupported/);
+  const workflow = fs.readFileSync(path.join(__dirname, "../.github/workflows/growth-analytics-report.yml"), "utf8");
+  assert.match(workflow, /GSC_INSPECTION_PROFILE:.*inputs\.inspection_profile/);
+  assert.match(workflow, /environment: production-readonly/);
+  assert.deepEqual(GOOGLE_SCOPES, ["https://www.googleapis.com/auth/analytics.readonly", "https://www.googleapis.com/auth/webmasters.readonly"]);
+});
 
 test("credentials and property identifiers fail closed", () => {
   assert.throws(() => parseServiceAccount(""), /required/);

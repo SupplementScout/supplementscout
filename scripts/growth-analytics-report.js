@@ -125,7 +125,14 @@ function orderedUnique(values) {
   return out;
 }
 
-function buildInspectionTargets(siteUrl, topPages) {
+function buildInspectionTargets(siteUrl, topPages, profile = "default") {
+  if (profile === "seo22-guides") {
+    return [
+      "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+      "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+    ];
+  }
+  if (profile !== "default") throw new Error("Unsupported GSC inspection profile.");
   const candidates = orderedUnique([
     `${inspectionBaseSite(siteUrl)}/`,
     ...topPages.map((row) => inspectableUrl(siteUrl, row.page)),
@@ -690,7 +697,7 @@ async function buildWeeklyReport({ env, now = new Date(), fetchImpl = fetch, end
         left.query.localeCompare(right.query)
     )
     .slice(0, 100);
-  const inspectionTargets = buildInspectionTargets(siteUrl, topPages);
+  const inspectionTargets = buildInspectionTargets(siteUrl, topPages, env.GSC_INSPECTION_PROFILE || "default");
   const inspectionResults = await Promise.all(
     inspectionTargets.map((inspectionUrl) =>
       safeInspectUrlIndexing(
@@ -858,6 +865,7 @@ module.exports = {
   GOOGLE_SCOPES,
   OUTPUT_ROOT,
   buildWeeklyReport,
+  buildInspectionTargets,
   buildUxMeasurement,
   conservativeExternalSearchSignal,
   createServiceAccountJwt,

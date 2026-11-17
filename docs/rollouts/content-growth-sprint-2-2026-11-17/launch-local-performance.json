@@ -1,0 +1,138 @@
+{
+  "capturedAt": "2026-11-17T15:35:24.545Z",
+  "environment": "local Next production build with guarded actual production-source reads; loopback lab sample, not field CWV or old-version guide baseline",
+  "results": [
+    {
+      "route": "/how-we-compare",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 159.4,
+        "totalMs": 168,
+        "decodedBytes": 27940
+      },
+      "coldDatabaseReads": 0,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 17.5,
+          "totalMs": 23.7,
+          "decodedBytes": 27940
+        },
+        {
+          "status": 200,
+          "ttfbMs": 22.1,
+          "totalMs": 28.9,
+          "decodedBytes": 27940
+        },
+        {
+          "status": 200,
+          "ttfbMs": 23.1,
+          "totalMs": 29.9,
+          "decodedBytes": 27940
+        },
+        {
+          "status": 200,
+          "ttfbMs": 26.2,
+          "totalMs": 31.9,
+          "decodedBytes": 27940
+        },
+        {
+          "status": 200,
+          "ttfbMs": 23.4,
+          "totalMs": 30.3,
+          "decodedBytes": 27940
+        }
+      ],
+      "warmMedianTTFBms": 23.1,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/supplement-prices-including-delivery",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 793.5,
+        "totalMs": 806.6,
+        "decodedBytes": 32984
+      },
+      "coldDatabaseReads": 2,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 34.8,
+          "totalMs": 45.6,
+          "decodedBytes": 32941
+        },
+        {
+          "status": 200,
+          "ttfbMs": 30.8,
+          "totalMs": 42.1,
+          "decodedBytes": 32941
+        },
+        {
+          "status": 200,
+          "ttfbMs": 35,
+          "totalMs": 47.5,
+          "decodedBytes": 32941
+        },
+        {
+          "status": 200,
+          "ttfbMs": 32.3,
+          "totalMs": 41.9,
+          "decodedBytes": 32941
+        },
+        {
+          "status": 200,
+          "ttfbMs": 16,
+          "totalMs": 26.2,
+          "decodedBytes": 32941
+        }
+      ],
+      "warmMedianTTFBms": 32.3,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/cost-per-25g-protein",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 394.5,
+        "totalMs": 407,
+        "decodedBytes": 37449
+      },
+      "coldDatabaseReads": 2,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 35.3,
+          "totalMs": 47.1,
+          "decodedBytes": 37363
+        },
+        {
+          "status": 200,
+          "ttfbMs": 34.7,
+          "totalMs": 45.2,
+          "decodedBytes": 37363
+        },
+        {
+          "status": 200,
+          "ttfbMs": 19.7,
+          "totalMs": 30.6,
+          "decodedBytes": 37363
+        },
+        {
+          "status": 200,
+          "ttfbMs": 35.5,
+          "totalMs": 46.2,
+          "decodedBytes": 37363
+        },
+        {
+          "status": 200,
+          "ttfbMs": 20.8,
+          "totalMs": 32.3,
+          "decodedBytes": 37363
+        }
+      ],
+      "warmMedianTTFBms": 34.7,
+      "warmDatabaseReads": 0
+    }
+  ]
+}

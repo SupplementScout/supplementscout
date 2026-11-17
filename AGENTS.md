@@ -46,6 +46,14 @@ SEO-21 stays live verified. The earlier SEO-21 concurrency exception is retired.
 No merge, production publication, nutrition/catalogue write, next sprint or
 SEO-20 change is authorized. New routes stay planned until owner launch approval.
 
+The subsequent SEO-22 production-launch instruction explicitly authorizes
+PR #542's two lifecycle transitions to launch_approved, necessary existing
+tests/documentation and read-only Search Console inspection, guarded squash
+merge, automatic Vercel production deployment and closeout only after public
+verification. This supersedes the earlier Draft-only restriction for SEO-22.
+It does not authorize catalogue/nutrition/mapping writes, SEO-20 changes or a
+next sprint. Existing Google read-only scopes and report schedules stay fixed.
+
 For nutrition work, also read `docs/Nutrition-Execution-Plan.md` (the canonical
 nutrition ledger) and `docs/nutrition-candidate-extractor.md` (the existing
 process). Keep one active nutrition task and preserve the Operating Plan's SEO

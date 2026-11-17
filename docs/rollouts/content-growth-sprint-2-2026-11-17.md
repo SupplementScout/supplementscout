@@ -6,6 +6,48 @@ sole task ledger. The owner authorizes one bundled Draft PR, code, tests and
 necessary documentation. Merge, production publication and indexability
 launch require a separate owner decision.
 
+## Approved production launch
+
+The owner's subsequent SEO-22 instruction explicitly approves publication and
+indexing of both prepared guides in PR #542, starting at reviewed head
+`375c3da84eb55ceafd8d3dccfbd902e71578e7ae`. It authorizes the two lifecycle
+transitions to `launch_approved`, necessary tests/docs, guarded squash merge,
+automatic Vercel production deployment, read-only Search Console checks and
+closeout only after public verification. Earlier Draft-only restrictions below
+are historical for this release. No catalogue, nutrition, mapping or offer
+write, SEO-20 change, Stage 3 activation or next sprint is authorized.
+
+Fresh preflight confirms exact reviewed head, main
+`6eb2944e3ad5b4432f2a423e5c9f4bc45946b269`, no conflicts and green prior CI.
+Only the two named route entries change; their state tests now require base
+index/follow and sitemap eligibility, with clean canonicals and parameter
+noindex/follow. The canonical sitemap candidates already exist. Existing
+routes and the SEO-20 experiment remain unchanged.
+
+The dedicated Google identity exists only in the protected existing
+`production-readonly` workflow, not locally. Its existing URL Inspection API
+reader receives one optional manual profile, `seo22-guides`, limited to these
+two exact canonical URLs. Default inspection targets, weekly report queries,
+read-only OAuth scopes and both existing cron schedules are unchanged. This
+reuses the existing integration; it does not submit URLs, use the Google
+Indexing API or add a new service. Production readback and GSC evidence will
+be recorded here before SEO-22 can be marked live verified.
+
+Premerge acceptance:62 focused checks, Project Guardian, `verify:quick`,
+`verify:full` (3,987 tests), TypeScript, ESLint and production build pass.
+The existing365-file manifest seal is revalidated. Local actual-server checks
+confirm base index/follow, clean canonicals, parameter noindex/follow and one
+sitemap entry each;1440/390px browser QA passes with two real cards per page,
+no overflow, overlap, runtime/HTTP error and CLS0. These remain local results,
+not a public release claim. Current catalogue reads retain the CNP pair and
+both approved ISO-XP calculations.
+
+- [Launch quality](content-growth-sprint-2-2026-11-17/launch-quality.json)
+- [Actual local indexing/sitemap contract](content-growth-sprint-2-2026-11-17/launch-local-contract.json)
+- [Fresh source readback](content-growth-sprint-2-2026-11-17/launch-source-readback.json)
+- [Local cache/performance](content-growth-sprint-2-2026-11-17/launch-local-performance.json)
+- [Prelaunch production baseline](content-growth-sprint-2-2026-11-17/launch-production-baseline.json)
+
 ## Final content-quality revision in PR #542
 
 The owner's follow-up authorizes only improvements to this existing Draft,

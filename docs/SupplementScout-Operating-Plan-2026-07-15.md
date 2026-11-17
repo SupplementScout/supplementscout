@@ -5,6 +5,14 @@
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
 
+**17 November 2026 SEO-22 production-launch approval:** PR #542's two prepared
+guide routes may become `launch_approved`, with required tests/docs, guarded
+squash merge, automatic Vercel production deployment and read-only GSC checks.
+SEO-22 remains `CODE COMPLETE` until public verification passes. The earlier
+Draft-only restrictions are historical for this approved release. SEO-20 stays
+frozen and the binding task; SEO-21 remains live verified. No catalogue,
+nutrition/mapping write, Stage 3 activation or next sprint is authorized.
+
 **17 November 2026 final content-quality follow-up:** SEO-22 is `CODE COMPLETE`
 for the owner's bounded revision of existing Draft PR #542: use current
 approved exact-variant examples, fix the scoped protein-evidence rejection,
