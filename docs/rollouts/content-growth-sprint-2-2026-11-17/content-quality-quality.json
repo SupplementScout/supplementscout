@@ -1,0 +1,43 @@
+{
+  "capturedAt": "2026-11-17T15:12:17.654Z",
+  "preRevisionHead": "07e20cfd474687be5721026e818c1c95f99304c1",
+  "status": "CODE COMPLETE; owner launch approval pending",
+  "results": {
+    "quick": {
+      "status": "PASS",
+      "tests": 1263,
+      "logSha256": "f05ee52c4cfc4887dd2beb0c8294944622db2786320fa5f254389daae31ffb92"
+    },
+    "full": {
+      "status": "PASS",
+      "tests": 3986,
+      "logSha256": "44dbb5c3eb922679f99348a6d55a76231c6b4fe3733c9f32fa7cff531442260d"
+    },
+    "focused": {
+      "status": "PASS",
+      "tests": 51,
+      "logSha256": "97b0994bd560e13a0149c8a07e70fa95e2e03f46e2e38242419f72205bb0c83a"
+    }
+  },
+  "inventory": {
+    "count": 365,
+    "sha256": "092e672bac226e6b1586903a2646dc740177c826ad997ff6f6c291f578e0f242"
+  },
+  "inventorySealRevalidated": true,
+  "safeFiles": 304,
+  "quickFiles": 64,
+  "guideTestCases": 19,
+  "typeScript": "PASS",
+  "eslint": "PASS",
+  "productionBuild": "PASS",
+  "databaseWrites": 0,
+  "lifecycle": "both planned; noindex/follow; excluded from effective sitemap",
+  "sourceFilesSha256LfNormalized": {
+    "app/lib/buyingGuides.ts": "ac880c000554942bd9b6465a32dcb455d8942ca0dcec49af4473d325d2e12582",
+    "app/guides/supplement-prices-including-delivery/page.tsx": "6d88da99bb7e61efb9d2a4f812655b97eda259b10d425bc8d871b2d8e20df821",
+    "app/guides/cost-per-25g-protein/page.tsx": "829f9b1b8cc8747292b0dd8baf2ccab759ad9b04c7e7ba83f108955dd0df14bc",
+    "app/whey-protein/page.tsx": "5897eed1663ab370bccaa51af12b1d5a467a4b9ddf1f54de4a84d8817526c28b",
+    "app/creatine/page.tsx": "721298c24d675b0baae67b9926d19e939f3dada7822ad978f85f7c7d88daf7c2",
+    "scripts/buying-guides.test.js": "fa2a75220761664974329cf8df390e79f76ca1360b0ce4223703d6c6e91ad290"
+  }
+}

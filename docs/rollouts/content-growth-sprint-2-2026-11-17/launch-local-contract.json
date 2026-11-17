@@ -1,0 +1,38 @@
+{
+  "capturedAt": "2026-11-17T15:36:02.630Z",
+  "environment": "actual local Next production build with read-only production-source data",
+  "results": [
+    {
+      "path": "/guides/supplement-prices-including-delivery",
+      "status": 200,
+      "robots": "index, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery"
+    },
+    {
+      "path": "/guides/supplement-prices-including-delivery?sort=price",
+      "status": 200,
+      "robots": "noindex, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery"
+    },
+    {
+      "path": "/guides/supplement-prices-including-delivery",
+      "sitemapOccurrences": 1
+    },
+    {
+      "path": "/guides/cost-per-25g-protein",
+      "status": 200,
+      "robots": "index, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein"
+    },
+    {
+      "path": "/guides/cost-per-25g-protein?sort=price",
+      "status": 200,
+      "robots": "noindex, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein"
+    },
+    {
+      "path": "/guides/cost-per-25g-protein",
+      "sitemapOccurrences": 1
+    }
+  ]
+}

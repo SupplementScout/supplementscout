@@ -1,0 +1,33 @@
+{
+  "capturedAt": "2026-11-17T15:36:48.411Z",
+  "reviewedHead": "375c3da84eb55ceafd8d3dccfbd902e71578e7ae",
+  "base": "6eb2944e3ad5b4432f2a423e5c9f4bc45946b269",
+  "ownerAuthorization": "two lifecycle launch transitions, existing tests/docs, read-only GSC inspection, guarded squash merge, automatic production deployment, live-evidence closeout",
+  "results": {
+    "focused": {
+      "status": "PASS",
+      "tests": 62,
+      "logSha256": "50cffeef54716d8631c25ce6dc50687ce983b42c4997c2bf6fe62d8ef1dd15c5"
+    },
+    "quick": {
+      "status": "PASS",
+      "tests": 1263,
+      "logSha256": "c9fd513807afef3719d00e556541aa92b256fccecc60460e132c117f8875ae53"
+    },
+    "full": {
+      "status": "PASS",
+      "tests": 3987,
+      "logSha256": "3615d8ed03e390c15c256fe79b7c80f849aceb7becfeada301e74d32a65583dc"
+    }
+  },
+  "inventory": {
+    "count": 365,
+    "sha256": "092e672bac226e6b1586903a2646dc740177c826ad997ff6f6c291f578e0f242"
+  },
+  "inventorySealRevalidated": true,
+  "productionDataWrites": 0,
+  "googleScopes": "unchanged read-only",
+  "reportSchedule": "unchanged",
+  "lifecycle": "only two guide entries launch_approved; all others unchanged",
+  "productionVerification": "pending merge/deployment; not claimed from local evidence"
+}

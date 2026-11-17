@@ -200,7 +200,7 @@ export function getVerifiedPricePerLitre(
     : null;
 }
 
-function getVerifiedTotalPackageNutrient(
+export function getVerifiedTotalPackageNutrient(
   servingCountVerified: number | string | null,
   nutrientPerServingG: number | string | null,
   unitPricingVerified: boolean | null,

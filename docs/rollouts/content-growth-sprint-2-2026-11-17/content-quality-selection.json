@@ -1,0 +1,134 @@
+{
+  "capturedAt": "2026-11-17T15:12:17.634Z",
+  "preRevisionHead": "07e20cfd474687be5721026e818c1c95f99304c1",
+  "databaseWrites": 0,
+  "readPolicy": "GET/HEAD only, whitelisted existing catalogue tables; no source collection, approval or mutation",
+  "initialProteinWindow": {
+    "limit": 61,
+    "matching": 227,
+    "products": 9
+  },
+  "provenanceWindow": {
+    "variantLimit": 41,
+    "matchingVariants": 14,
+    "products": 3
+  },
+  "deliveryWindow": {
+    "proteinVariantLimit": 61,
+    "proteinVariantCount": 227,
+    "proteinProducts": 9,
+    "deliveryProductLimit": 81,
+    "deliveryProductCount": 85,
+    "deliveryProductsRead": 81,
+    "claim": "bounded candidate selection, not an exhaustive catalogue census"
+  },
+  "reads": [
+    {
+      "table": "product_variants",
+      "method": "GET",
+      "status": 206,
+      "ms": 558,
+      "bytes": 24932
+    },
+    {
+      "table": "products",
+      "method": "GET",
+      "status": 200,
+      "ms": 201,
+      "bytes": 1682
+    },
+    {
+      "table": "products",
+      "method": "GET",
+      "status": 200,
+      "ms": 396,
+      "bytes": 51169
+    },
+    {
+      "table": "retailer_products",
+      "method": "GET",
+      "status": 200,
+      "ms": 211,
+      "bytes": 57025
+    },
+    {
+      "table": "products",
+      "method": "GET",
+      "status": 206,
+      "ms": 375,
+      "bytes": 156686
+    },
+    {
+      "table": "retailer_products",
+      "method": "GET",
+      "status": 200,
+      "ms": 254,
+      "bytes": 99362
+    },
+    {
+      "table": "product_variants",
+      "method": "GET",
+      "status": 200,
+      "ms": 478,
+      "bytes": 9502
+    },
+    {
+      "table": "products",
+      "method": "GET",
+      "status": 200,
+      "ms": 220,
+      "bytes": 592
+    },
+    {
+      "table": "products",
+      "method": "GET",
+      "status": 200,
+      "ms": 156,
+      "bytes": 9805
+    },
+    {
+      "table": "retailer_products",
+      "method": "GET",
+      "status": 200,
+      "ms": 145,
+      "bytes": 15656
+    }
+  ],
+  "deliveryChosen": {
+    "target": {
+      "id": "407",
+      "slug": "cnp-creatine-monohydrate-250g",
+      "variantId": "2015",
+      "flavour": "Unflavoured",
+      "grams": 250
+    },
+    "name": "CNP Creatine Monohydrate 250g",
+    "variant": "Unflavoured / 250g",
+    "reversed": false,
+    "offers": [
+      {
+        "id": "1018",
+        "retailer": "Jon's Supplements",
+        "price": 12.99,
+        "shipping": 3.99,
+        "total": 16.98,
+        "checkedAt": "2026-11-17T13:54:47.083+00:00"
+      },
+      {
+        "id": "2086",
+        "retailer": "6 Pack Supplements",
+        "price": 15,
+        "shipping": 4.99,
+        "total": 19.99,
+        "checkedAt": "2026-11-17T11:45:40.735+00:00"
+      }
+    ]
+  },
+  "nonPer4mReversalsInDeliveryWindow": 0,
+  "proteinChosen": [
+    732,
+    735
+  ],
+  "proteinChoiceExplanation": "Two separately reviewed flavours of one product, not two competing formulations. Existing approved manifest equality is recorded in the fresh source readback.",
+  "notAnExhaustiveCatalogueClaim": true
+}

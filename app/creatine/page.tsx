@@ -397,6 +397,7 @@ export function CreatinePageContent({ result, controlView, budgetRows = result.r
           <div>
             <h2 className="text-2xl font-bold">How this creatine comparison works</h2>
             <p className="mt-3 leading-7 text-zinc-700">For each canonical product, we compare recently verified active in-stock retailer offers. Older offer prices are excluded from current-price ranking until they are refreshed. Offers with a known product price and delivery charge are ordered by total delivered price. An offer with unknown delivery cannot outrank an offer with a known delivered total.</p>
+            <p className="mt-3 leading-7 text-zinc-700">See <Link href="/guides/supplement-prices-including-delivery" className="font-semibold underline">how delivery changes a supplement price comparison</Link>, with item price, shipping and total shown for the same pack.</p>
             <p className="mt-3 leading-7 text-zinc-700">Cost per 5 g uses the shared verified-pricing calculation. It requires verified unit pricing and nutrition data, positive creatine per serving, a known delivered price, and either verified servings or complete powder weight and serving-size data. Products that do not meet every requirement are marked “Not yet verified”.</p>
             <p className="mt-3 text-sm leading-6 text-zinc-600">Retailer data is checked when source updates are processed; we show the latest timestamp supplied by the qualifying offers rather than claiming a fixed update frequency.</p>
           </div>

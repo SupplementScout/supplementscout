@@ -7,6 +7,14 @@ on:
         description: Optional inclusive report end date (YYYY-MM-DD)
         required: false
         type: string
+      inspection_profile:
+        description: Read-only URL inspection targets; default preserves the weekly report
+        required: false
+        default: default
+        type: choice
+        options:
+          - default
+          - seo22-guides
   schedule:
     - cron: "37 8 * * 1"
     - cron: "37 12 * * 1"
@@ -83,6 +91,7 @@ jobs:
           GA4_PROPERTY_ID: ${{ vars.GA4_PROPERTY_ID }}
           GSC_SITE_URL: ${{ vars.GSC_SITE_URL }}
           GROWTH_REPORT_END_DATE: ${{ inputs.end_date }}
+          GSC_INSPECTION_PROFILE: ${{ inputs.inspection_profile || 'default' }}
         run: |
           if [ -n "$GROWTH_REPORT_END_DATE" ]; then
             node scripts/growth-analytics-report.js --end-date="$GROWTH_REPORT_END_DATE"

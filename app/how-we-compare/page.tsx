@@ -107,6 +107,12 @@ export default function ComparisonMethodologyPage() {
           fields needed for that calculation have been verified.
         </p>
 
+        <section aria-labelledby="buying-guides-heading" className="mt-10 rounded-3xl border border-zinc-200 bg-white p-6 sm:p-8">
+          <h2 id="buying-guides-heading" className="text-2xl font-bold">Worked buying guides</h2>
+          <p className="mt-4 leading-8 text-zinc-700">
+            See <Link href="/guides/supplement-prices-including-delivery" className="font-semibold underline">how delivery can change the cheaper offer</Link>, or learn <Link href="/guides/cost-per-25g-protein" className="font-semibold underline">how cost per 25 g of protein works</Link> with exact-variant examples and clear limits where data is missing.
+          </p>
+        </section>
         <div className="mt-12 grid gap-6">
           <section className="rounded-3xl border border-zinc-200 bg-white p-6 shadow-sm sm:p-8">
             <h2 className="text-2xl font-bold">Delivered price</h2>

@@ -1,0 +1,142 @@
+{
+  "capturedAt": "2026-11-17T14:12:40.321Z",
+  "results": [
+    {
+      "path": "/",
+      "status": 200,
+      "ms": 1408,
+      "title": "SupplementScout | Compare UK Supplement Prices",
+      "h1": "Find the rightsupplement atthe right price.",
+      "canonical": "https://www.supplementscout.co.uk"
+    },
+    {
+      "path": "/search",
+      "status": 200,
+      "ms": 528,
+      "title": "Search Supplements | SupplementScout",
+      "h1": "Search supplement deals",
+      "canonical": "https://www.supplementscout.co.uk/search",
+      "robots": "noindex, nofollow"
+    },
+    {
+      "path": "/how-we-compare",
+      "status": 200,
+      "ms": 642,
+      "title": "How We Compare Supplement Prices | SupplementScout",
+      "h1": "How SupplementScout compares supplement prices",
+      "canonical": "https://www.supplementscout.co.uk/how-we-compare",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/product/time-4-creatine-powder-600g?variant=2943",
+      "status": 200,
+      "ms": 1632,
+      "title": "Time 4 Creatine Powder 600g | SupplementScout",
+      "h1": "Time 4 Creatine Powder 600g",
+      "canonical": "https://www.supplementscout.co.uk/product/time-4-creatine-powder-600g",
+      "selectedVariant": "600g"
+    },
+    {
+      "path": "/data-freshness",
+      "status": 200,
+      "ms": 367,
+      "title": "Supplement Price Data Freshness | SupplementScout",
+      "h1": "What our price-check timestamps mean",
+      "canonical": "https://www.supplementscout.co.uk/data-freshness",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/deals",
+      "status": 200,
+      "ms": 360,
+      "title": "Best Supplement Prices Today UK | SupplementScout",
+      "h1": "Best Supplement Prices Today",
+      "canonical": "https://www.supplementscout.co.uk/deals",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/creatine#under-20",
+      "status": 200,
+      "ms": 500,
+      "title": "Compare Creatine Supplements &amp; Prices UK | SupplementScout",
+      "h1": "Compare Creatine Supplements UK",
+      "canonical": "https://www.supplementscout.co.uk/creatine",
+      "robots": "index, follow",
+      "under20": true
+    },
+    {
+      "path": "/help-me-choose",
+      "status": 200,
+      "ms": 255,
+      "title": "Help Me Choose a Supplement | SupplementScout",
+      "h1": "Help me choose",
+      "canonical": "https://www.supplementscout.co.uk/help-me-choose",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/product/time-4-whey-protein-professional-1-8kg?variant=1546",
+      "status": 200,
+      "ms": 1782,
+      "title": "Time 4 Whey Protein Professional 1.8kg | SupplementScout",
+      "h1": "Time 4 Whey Protein Professional 1.8kg",
+      "canonical": "https://www.supplementscout.co.uk/product/time-4-whey-protein-professional-1-8kg",
+      "selectedVariant": "Raspberry Smoothie / 1800g"
+    },
+    {
+      "path": "/product/cnp-peptide-whey-protein-blend-2-27kg?variant=1307",
+      "status": 200,
+      "ms": 1869,
+      "title": "CNP Peptide Whey Protein Blend 2.27kg | SupplementScout",
+      "h1": "CNP Peptide Whey Protein Blend 2.27kg",
+      "canonical": "https://www.supplementscout.co.uk/product/cnp-peptide-whey-protein-blend-2-27kg",
+      "selectedVariant": "Chocolate / 2270g"
+    },
+    {
+      "path": "/whey-protein",
+      "status": 200,
+      "ms": 416,
+      "title": "Compare Whey Protein Prices UK | SupplementScout",
+      "h1": "Compare Whey Protein Prices UK",
+      "canonical": "https://www.supplementscout.co.uk/whey-protein",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/whey-isolate",
+      "status": 200,
+      "ms": 1021,
+      "title": "Whey Isolate Prices UK – Delivered Cost | SupplementScout",
+      "h1": "Whey Isolate Prices UK – Compare Delivered Cost",
+      "canonical": "https://www.supplementscout.co.uk/whey-isolate",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/compare",
+      "status": 200,
+      "ms": 470,
+      "title": "Compare Two Supplements Side by Side | SupplementScout",
+      "h1": "Compare two supplements side by side",
+      "canonical": "https://www.supplementscout.co.uk/compare",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/brands/per4m",
+      "status": 200,
+      "ms": 752,
+      "title": "Compare PER4M Prices Across UK Retailers | SupplementScout",
+      "h1": "Per4m Products &amp; Prices UK",
+      "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200,
+      "ms": 218
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 200,
+      "ms": 2073,
+      "guidesInSitemap": false
+    }
+  ]
+}

@@ -458,6 +458,9 @@ export function WheyProteinPageContent({
               blank rather than estimated from a product name or retailer
               description.
             </p>
+            <p className="mt-3 leading-7 text-zinc-700">
+              See <Link href="/guides/cost-per-25g-protein" className="font-semibold underline">how to calculate cost per 25 g of protein</Link> with checked flavour-specific examples and the delivered-price breakdown.
+            </p>
           </div>
         </div>
       </section>

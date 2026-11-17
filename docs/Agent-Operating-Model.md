@@ -154,7 +154,20 @@ production write.
 
 ## Concurrency rule
 
+The subsequent 17 November SEO-22 launch approval authorizes the two prepared
+guides' indexability transition, tests/documentation, existing read-only GSC
+inspection, squash merge and automatic production deployment. Record live
+completion only after public verification. Earlier Draft-only wording below
+is historical for this release; SEO-20 and all data-write boundaries remain.
+
 - One SEO implementation may be in progress.
+- **17 November 2026 Sprint 2 approval:**
+  Content Growth exception: SEO-22 beside frozen SEO-20; Draft PR only.
+  Only the two named delivery/protein guides form this single bundled task.
+  SEO-21 must stay live verified; the earlier SEO-21 active-pair exception is
+  retired. Guardian permits only SEO-20/SEO-22 with matching authority in all
+  four documents and both approved routes in the existing ledger row.
+  No production release, data write or next implementation follows.
 - **17 November 2026 owner decision:** Content Growth exception: SEO-21 beside frozen SEO-20; Draft PR only.
   This permits one bounded `/creatine#under-20` implementation while SEO-20
   remains frozen and `IN PROGRESS`. The existing SEO ledger records both;
