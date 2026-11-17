@@ -154,6 +154,14 @@ production write.
 
 ## Concurrency rule
 
+**17 November 2026 Sprint 3 approval:**
+Content Growth exception: SEO-23 beside frozen SEO-20; Draft PR only.
+Only the two named budget-protein/caffeine-free guides form this single bundle.
+SEO-21 and SEO-22 must remain live verified; previous active-pair permissions
+are retired. The current owner decision supersedes the earlier no-next-sprint
+restriction only for this bundle. No merge, production write/publication,
+Search Console submission or next implementation is authorized.
+
 The subsequent 17 November SEO-22 launch approval authorizes the two prepared
 guides' indexability transition, tests/documentation, existing read-only GSC
 inspection, squash merge and automatic production deployment. Record live

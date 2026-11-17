@@ -20,7 +20,7 @@ const ALLOWED_STATUSES = new Set([
 // One dated owner decision, recorded in the existing authoritative documents.
 // This is not a general second implementation slot or publication approval.
 const CONTENT_GROWTH_APPROVAL =
-  "Content Growth exception: SEO-22 beside frozen SEO-20; Draft PR only.";
+  "Content Growth exception: SEO-23 beside frozen SEO-20; Draft PR only.";
 
 function normalize(value) {
   return String(value).replace(/\r\n?/g, "\n");
@@ -150,10 +150,11 @@ function validateDocuments(docs, now = new Date()) {
       .every((text) => text.includes(CONTENT_GROWTH_APPROVAL)) &&
     byId.get("SEO-20")?.status === "IN PROGRESS" &&
     byId.get("SEO-21")?.status === "LIVE VERIFIED" &&
-    byId.get("SEO-22")?.task.includes("/guides/supplement-prices-including-delivery") &&
-    byId.get("SEO-22")?.task.includes("/guides/cost-per-25g-protein");
+    byId.get("SEO-22")?.status === "LIVE VERIFIED" &&
+    byId.get("SEO-23")?.task.includes("/guides/protein-powder-under-30") &&
+    byId.get("SEO-23")?.task.includes("/guides/caffeine-free-pre-workout");
   const permittedPair = approvedContentGrowth && inProgress.length === 2 &&
-    inProgress.every((row) => ["SEO-20", "SEO-22"].includes(row.id));
+    inProgress.every((row) => ["SEO-20", "SEO-23"].includes(row.id));
   if (inProgress.length > 1 && !permittedPair) {
     errors.push(`More than one SEO task is IN PROGRESS: ${inProgress.map((row) => row.id).join(", ")}.`);
   }

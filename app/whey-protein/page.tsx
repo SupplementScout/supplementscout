@@ -461,6 +461,7 @@ export function WheyProteinPageContent({
             <p className="mt-3 leading-7 text-zinc-700">
               See <Link href="/guides/cost-per-25g-protein" className="font-semibold underline">how to calculate cost per 25 g of protein</Link> with checked flavour-specific examples and the delivered-price breakdown.
             </p>
+            <p className="mt-3 leading-7 text-zinc-700">For a fixed cash limit, check <Link href="/guides/protein-powder-under-30" className="font-semibold underline">protein powders under £30 including delivery</Link>, with exact packs and clear limits on missing nutrition.</p>
           </div>
         </div>
       </section>

@@ -90,9 +90,11 @@ test("the public lifecycle registry is complete, routable and separate from owne
     "/collagen",
     "/nootropics",
     "/carbohydrates",
+    "/guides/protein-powder-under-30",
+    "/guides/caffeine-free-pre-workout",
   ]);
   assert.deepEqual(launchApprovedPaths, []);
-  assert.equal(publicPaths.length, 23);
+  assert.equal(publicPaths.length, 25);
   for (const route of publicPaths) {
     assert.equal(fs.existsSync(pageFiles.get(route)), true, route);
     assert.equal(

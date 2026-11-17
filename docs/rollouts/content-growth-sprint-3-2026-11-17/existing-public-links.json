@@ -1,0 +1,173 @@
+{
+  "capturedAt": "2026-11-17T17:01:13.688Z",
+  "results": [
+    {
+      "path": "/",
+      "status": 200,
+      "ms": 5995,
+      "title": "SupplementScout | Compare UK Supplement Prices",
+      "h1": "Find the rightsupplement atthe right price.",
+      "canonical": "https://www.supplementscout.co.uk"
+    },
+    {
+      "path": "/search",
+      "status": 200,
+      "ms": 781,
+      "title": "Search Supplements | SupplementScout",
+      "h1": "Search supplement deals",
+      "canonical": "https://www.supplementscout.co.uk/search",
+      "robots": "noindex, nofollow"
+    },
+    {
+      "path": "/how-we-compare",
+      "status": 200,
+      "ms": 707,
+      "title": "How We Compare Supplement Prices | SupplementScout",
+      "h1": "How SupplementScout compares supplement prices",
+      "canonical": "https://www.supplementscout.co.uk/how-we-compare",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/product/biotech-usa-100-pure-whey-454g?variant=949",
+      "status": 200,
+      "ms": 2353,
+      "title": "BioTech USA 100% Pure Whey 454g | SupplementScout",
+      "h1": "BioTech USA 100% Pure Whey 454g",
+      "canonical": "https://www.supplementscout.co.uk/product/biotech-usa-100-pure-whey-454g"
+    },
+    {
+      "path": "/product/optimum-nutrition-100-plant-protein-684g?variant=1623",
+      "status": 200,
+      "ms": 2717,
+      "title": "Optimum Nutrition 100% Plant Protein 684g | SupplementScout",
+      "h1": "Optimum Nutrition 100% Plant Protein 684g",
+      "canonical": "https://www.supplementscout.co.uk/product/optimum-nutrition-100-plant-protein-684g"
+    },
+    {
+      "path": "/product/cnp-premium-whey-900g?variant=1318",
+      "status": 200,
+      "ms": 2179,
+      "title": "CNP Premium Whey 900g | SupplementScout",
+      "h1": "CNP Premium Whey 900g",
+      "canonical": "https://www.supplementscout.co.uk/product/cnp-premium-whey-900g"
+    },
+    {
+      "path": "/guides/cost-per-25g-protein",
+      "status": 200,
+      "ms": 863,
+      "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout",
+      "h1": "How to compare protein powders by cost per 25g of protein",
+      "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/guides/supplement-prices-including-delivery",
+      "status": 200,
+      "ms": 461,
+      "title": "Supplement Prices Including Delivery: A UK Comparison | SupplementScout",
+      "h1": "Can a higher product price be cheaper after delivery?",
+      "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/whey-protein",
+      "status": 200,
+      "ms": 2845,
+      "title": "Compare Whey Protein Prices UK | SupplementScout",
+      "h1": "Compare Whey Protein Prices UK",
+      "canonical": "https://www.supplementscout.co.uk/whey-protein",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/vegan-protein",
+      "status": 200,
+      "ms": 1149,
+      "title": "Compare Vegan Protein Prices UK | SupplementScout",
+      "h1": "Compare Vegan Protein Prices UK",
+      "canonical": "https://www.supplementscout.co.uk/vegan-protein",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/help-me-choose",
+      "status": 200,
+      "ms": 249,
+      "title": "Help Me Choose a Supplement | SupplementScout",
+      "h1": "Help me choose",
+      "canonical": "https://www.supplementscout.co.uk/help-me-choose",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/data-freshness",
+      "status": 200,
+      "ms": 346,
+      "title": "Supplement Price Data Freshness | SupplementScout",
+      "h1": "What our price-check timestamps mean",
+      "canonical": "https://www.supplementscout.co.uk/data-freshness",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/product/nutrend--pump-pre-workout?variant=1848",
+      "status": 200,
+      "ms": 1921,
+      "title": "Nutrend  Pump Pre-Workout | SupplementScout",
+      "h1": "Nutrend  Pump Pre-Workout",
+      "canonical": "https://www.supplementscout.co.uk/product/nutrend--pump-pre-workout"
+    },
+    {
+      "path": "/product/applied-nutrition-abe-pump-500g?variant=763",
+      "status": 200,
+      "ms": 1575,
+      "title": "Applied Nutrition ABE Pump 500g | SupplementScout",
+      "h1": "Applied Nutrition ABE Pump 500g",
+      "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g"
+    },
+    {
+      "path": "/search?q=pre%20workout&caffeine=free",
+      "status": 200,
+      "ms": 2984,
+      "title": "Search results for “pre workout” | SupplementScout",
+      "h1": "pre workout",
+      "canonical": "https://www.supplementscout.co.uk/search",
+      "robots": "noindex, nofollow"
+    },
+    {
+      "path": "/pre-workout",
+      "status": 200,
+      "ms": 1258,
+      "title": "Compare Pre Workout Prices UK | SupplementScout",
+      "h1": "Compare Pre Workout Prices UK",
+      "canonical": "https://www.supplementscout.co.uk/pre-workout",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/brands/per4m",
+      "status": 200,
+      "ms": 633,
+      "title": "Compare PER4M Prices Across UK Retailers | SupplementScout",
+      "h1": "Per4m Products &amp; Prices UK",
+      "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+      "robots": "index, follow"
+    },
+    {
+      "path": "/creatine",
+      "status": 200,
+      "ms": 1324,
+      "title": "Compare Creatine Supplements &amp; Prices UK | SupplementScout",
+      "h1": "Compare Creatine Supplements UK",
+      "canonical": "https://www.supplementscout.co.uk/creatine",
+      "robots": "index, follow",
+      "under20": true
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200,
+      "ms": 74
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 200,
+      "ms": 2221,
+      "guidesInSitemap": true
+    }
+  ]
+}

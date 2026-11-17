@@ -1,0 +1,133 @@
+{
+  "capturedAt": "2026-11-17T17:09:30.534Z",
+  "results": [
+    {
+      "route": "/guides/protein-powder-under-30",
+      "projectClientModules": [
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/components/AnalyticsConsent.tsx <module evaluation>",
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/components/AnalyticsConsent.tsx",
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/components/MySupplementsShortcut.tsx <module evaluation>",
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/components/MySupplementsShortcut.tsx",
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/guides/protein-powder-under-30/error.tsx <module evaluation>",
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/guides/protein-powder-under-30/error.tsx"
+      ],
+      "entryJS": {
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/layout": [
+          "static/chunks/2xduqwcnfr5vo.js",
+          "static/chunks/14mrh2-p_w84d.js"
+        ],
+        "[project]/node_modules/next/dist/client/components/builtin/global-error": [
+          "static/chunks/2xduqwcnfr5vo.js",
+          "static/chunks/14mrh2-p_w84d.js"
+        ],
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/guides/protein-powder-under-30/error": [
+          "static/chunks/2xduqwcnfr5vo.js",
+          "static/chunks/14mrh2-p_w84d.js",
+          "static/chunks/0rvs5l5976x8_.js"
+        ],
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/guides/protein-powder-under-30/page": [
+          "static/chunks/2xduqwcnfr5vo.js",
+          "static/chunks/14mrh2-p_w84d.js",
+          "static/chunks/3-9v5llyj1vf9.js"
+        ]
+      },
+      "serverPageInClientGraph": false
+    },
+    {
+      "route": "/guides/caffeine-free-pre-workout",
+      "projectClientModules": [
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/components/AnalyticsConsent.tsx <module evaluation>",
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/components/AnalyticsConsent.tsx",
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/components/MySupplementsShortcut.tsx <module evaluation>",
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/components/MySupplementsShortcut.tsx",
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/guides/caffeine-free-pre-workout/error.tsx <module evaluation>",
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/guides/caffeine-free-pre-workout/error.tsx"
+      ],
+      "entryJS": {
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/layout": [
+          "static/chunks/2xduqwcnfr5vo.js",
+          "static/chunks/14mrh2-p_w84d.js"
+        ],
+        "[project]/node_modules/next/dist/client/components/builtin/global-error": [
+          "static/chunks/2xduqwcnfr5vo.js",
+          "static/chunks/14mrh2-p_w84d.js"
+        ],
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/guides/caffeine-free-pre-workout/error": [
+          "static/chunks/2xduqwcnfr5vo.js",
+          "static/chunks/14mrh2-p_w84d.js",
+          "static/chunks/3sq-x9zyz5yg4.js"
+        ],
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/guides/caffeine-free-pre-workout/page": [
+          "static/chunks/2xduqwcnfr5vo.js",
+          "static/chunks/14mrh2-p_w84d.js",
+          "static/chunks/3-9v5llyj1vf9.js"
+        ]
+      },
+      "serverPageInClientGraph": false
+    },
+    {
+      "route": "/guides/supplement-prices-including-delivery",
+      "projectClientModules": [
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/components/AnalyticsConsent.tsx <module evaluation>",
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/components/AnalyticsConsent.tsx",
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/components/MySupplementsShortcut.tsx <module evaluation>",
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/components/MySupplementsShortcut.tsx",
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/guides/supplement-prices-including-delivery/error.tsx <module evaluation>",
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/guides/supplement-prices-including-delivery/error.tsx"
+      ],
+      "entryJS": {
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/layout": [
+          "static/chunks/2xduqwcnfr5vo.js",
+          "static/chunks/14mrh2-p_w84d.js"
+        ],
+        "[project]/node_modules/next/dist/client/components/builtin/global-error": [
+          "static/chunks/2xduqwcnfr5vo.js",
+          "static/chunks/14mrh2-p_w84d.js"
+        ],
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/guides/supplement-prices-including-delivery/error": [
+          "static/chunks/2xduqwcnfr5vo.js",
+          "static/chunks/14mrh2-p_w84d.js",
+          "static/chunks/28iuxo5opq7mf.js"
+        ],
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/guides/supplement-prices-including-delivery/page": [
+          "static/chunks/2xduqwcnfr5vo.js",
+          "static/chunks/14mrh2-p_w84d.js",
+          "static/chunks/3-9v5llyj1vf9.js"
+        ]
+      },
+      "serverPageInClientGraph": false
+    },
+    {
+      "route": "/guides/cost-per-25g-protein",
+      "projectClientModules": [
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/components/AnalyticsConsent.tsx <module evaluation>",
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/components/AnalyticsConsent.tsx",
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/components/MySupplementsShortcut.tsx <module evaluation>",
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/components/MySupplementsShortcut.tsx",
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/guides/cost-per-25g-protein/error.tsx <module evaluation>",
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/guides/cost-per-25g-protein/error.tsx"
+      ],
+      "entryJS": {
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/layout": [
+          "static/chunks/2xduqwcnfr5vo.js",
+          "static/chunks/14mrh2-p_w84d.js"
+        ],
+        "[project]/node_modules/next/dist/client/components/builtin/global-error": [
+          "static/chunks/2xduqwcnfr5vo.js",
+          "static/chunks/14mrh2-p_w84d.js"
+        ],
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/guides/cost-per-25g-protein/error": [
+          "static/chunks/2xduqwcnfr5vo.js",
+          "static/chunks/14mrh2-p_w84d.js",
+          "static/chunks/0bnt7mav8xtuf.js"
+        ],
+        "[project]/.worktrees/content-growth-sprint3-20261117/app/guides/cost-per-25g-protein/page": [
+          "static/chunks/2xduqwcnfr5vo.js",
+          "static/chunks/14mrh2-p_w84d.js",
+          "static/chunks/3-9v5llyj1vf9.js"
+        ]
+      },
+      "serverPageInClientGraph": false
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "capturedAt": "2026-11-17T17:10:12.785Z",
+  "baseMain": "73f3c473e665df5862eb0fe92a5eefa4c1658656",
+  "authorization": "one Draft PR; no merge, production release or Google submission",
+  "environment": {
+    "node": "v24.18.0",
+    "next": "16.2.9",
+    "chrome": "157.0.8103.78",
+    "qualityGatesProductionCredentials": false,
+    "manualSourceTransport": "GET/HEAD only; whitelisted catalogue/fact tables; databaseWrites=0"
+  },
+  "gates": {
+    "focused": {
+      "pass": 49,
+      "fail": 0
+    },
+    "quick": "PASS",
+    "full": "PASS",
+    "fullSafeTests": 4004,
+    "typeScript": "PASS",
+    "eslint": "PASS",
+    "productionBuild": "PASS",
+    "baselineMigrations": "PASS",
+    "projectGuardian": "PASS"
+  },
+  "inventory": {
+    "count": 366,
+    "sha256": "ced954c73cebda23656717d72ad8940173f1782dd6835e021f74f518af58fe37",
+    "safe": 305,
+    "integration": 57,
+    "artifactBound": 4,
+    "quick": 65,
+    "integrationRun": false
+  },
+  "protectedSourceParity": [
+    "app/brands/per4m",
+    "app/creatine",
+    "app/guides/cost-per-25g-protein",
+    "app/guides/supplement-prices-including-delivery",
+    "docs/rollouts/seo20-per4m-title-experiment-2026-11-03.md"
+  ],
+  "previousSameMachineLab": {
+    "capturedAt": "2026-11-17T15:35:24.545Z",
+    "warmMedianTTFBms": {
+      "/how-we-compare": 23.1,
+      "/guides/supplement-prices-including-delivery": 32.3,
+      "/guides/cost-per-25g-protein": 34.7
+    },
+    "limitation": "small loopback samples; new routes have no previous public version; not field CWV or INP"
+  },
+  "newRoutesPublished": false,
+  "newRoutesIndexable": false,
+  "gscActions": 0,
+  "productionWrites": 0
+}

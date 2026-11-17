@@ -57,6 +57,15 @@ That release is now production verified and SEO-22 is closed. Its two routes
 are live verified; Google indexing is separately pending. The earlier Draft
 exception is historical and grants no further implementation authority.
 
+**Content Growth Sprint 3 owner approval (17 November 2026):**
+Content Growth exception: SEO-23 beside frozen SEO-20; Draft PR only.
+One bundle covers `/guides/protein-powder-under-30` and
+`/guides/caffeine-free-pre-workout`, necessary tests/docs and contextual links.
+SEO-21 and SEO-22 stay live verified; their active-pair exceptions are retired.
+New routes remain planned/noindex. No merge, production publication, data or
+nutrition write, Search Console submission or further sprint is authorized.
+The owner will submit URLs manually after a separately approved publication.
+
 For nutrition work, also read `docs/Nutrition-Execution-Plan.md` (the canonical
 nutrition ledger) and `docs/nutrition-candidate-extractor.md` (the existing
 process). Keep one active nutrition task and preserve the Operating Plan's SEO

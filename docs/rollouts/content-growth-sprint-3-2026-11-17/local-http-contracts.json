@@ -1,0 +1,71 @@
+{
+  "capturedAt": "2026-11-17T17:07:44.009Z",
+  "environment": "local actual Next production build with GET/HEAD-only real catalogue and applied facts; not public deployment",
+  "pages": [
+    {
+      "route": "/guides/protein-powder-under-30",
+      "status": 200,
+      "robots": "noindex, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-under-30",
+      "h1Count": 1,
+      "schema": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "actualExamplesInInitialHTML": 3
+    },
+    {
+      "route": "/guides/protein-powder-under-30?sort=price&utm_source=qa",
+      "status": 200,
+      "robots": "noindex, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-under-30",
+      "h1Count": 1,
+      "schema": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "actualExamplesInInitialHTML": 3
+    },
+    {
+      "route": "/guides/caffeine-free-pre-workout",
+      "status": 200,
+      "robots": "noindex, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/caffeine-free-pre-workout",
+      "h1Count": 1,
+      "schema": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "actualExamplesInInitialHTML": 2
+    },
+    {
+      "route": "/guides/caffeine-free-pre-workout?sort=price&utm_source=qa",
+      "status": 200,
+      "robots": "noindex, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/caffeine-free-pre-workout",
+      "h1Count": 1,
+      "schema": [
+        "WebPage",
+        "BreadcrumbList"
+      ],
+      "actualExamplesInInitialHTML": 2
+    }
+  ],
+  "incoming": [
+    {
+      "from": "/whey-protein",
+      "to": "/guides/protein-powder-under-30",
+      "crawlableContextualLinks": 1,
+      "status": 200
+    },
+    {
+      "from": "/pre-workout",
+      "to": "/guides/caffeine-free-pre-workout",
+      "crawlableContextualLinks": 1,
+      "status": 200
+    }
+  ],
+  "newGuidesInSitemap": 0,
+  "existingProtectedRoutesInSitemap": "one each",
+  "writes": 0
+}

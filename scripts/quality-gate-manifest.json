@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 365,
-    "sha256": "092e672bac226e6b1586903a2646dc740177c826ad997ff6f6c291f578e0f242"
+    "count": 366,
+    "sha256": "ced954c73cebda23656717d72ad8940173f1782dd6835e021f74f518af58fe37"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -145,6 +145,7 @@
     "scripts/feed-cream-flavour.test.js",
     "scripts/partnerize-product-feed.test.js",
     "scripts/holland-barrett-offer-refresh.test.js",
-    "scripts/buying-guides.test.js"
+    "scripts/buying-guides.test.js",
+    "scripts/buying-guides-sprint3.test.js"
   ]
 }

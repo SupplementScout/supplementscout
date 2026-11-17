@@ -456,6 +456,7 @@ export function PreWorkoutPageContent({
               empty fields and facts from another flavour do not qualify a result.
               This page does not infer stimulant status or ingredient suitability.
             </p>
+            <p className="mt-3 leading-7 text-zinc-700">Read <Link href="/guides/caffeine-free-pre-workout" className="font-semibold underline">how to check and compare caffeine-free pre-workouts</Link>, with confirmed exact-variant examples and delivered prices.</p>
           </div>
           <div>
             <h3 className="font-bold">
