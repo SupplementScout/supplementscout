@@ -154,6 +154,27 @@ production write.
 
 ## Concurrency rule
 
+**17 November 2026 SEO-24 production-release approval:** the owner explicitly
+authorizes PR #544's two prepared guide lifecycle transitions to
+`launch_approved`, necessary existing tests/docs, quality gates, Ready for
+Review, guarded squash merge, automatic Vercel Production and public readback.
+Only `/guides/whey-isolate-vs-concentrate` and
+`/guides/protein-powder-pack-size-value` are in scope. The earlier Sprint 4
+Draft-only/no-launch wording below is historical and superseded for this
+release. SEO-24 remains CODE COMPLETE until positive production evidence;
+`live_verified` and LIVE VERIFIED closeout require that readback.
+SEO-20 stays frozen/binding; SEO-21/22/23 stay LIVE VERIFIED and SEO-15 Stage 3
+stays disabled. No catalogue, nutrition, mapping, history, importer or workflow
+write, Google submission or next sprint is authorized.
+
+**17 November 2026 Sprint 4 owner approval:**
+Content Growth exception: SEO-24 beside frozen SEO-20; Draft PR only.
+Only the isolate/concentrate and matched protein-pack-size guides form this
+bundle. SEO-21/22/23 stay live verified and their active-pair exceptions are
+retired. Necessary code/tests/docs and one Draft PR are authorized; no merge,
+production deployment/indexing, data or nutrition write, workflow change,
+Google submission or further implementation follows.
+
 **17 November 2026 SEO-23 release approval:** PR #543's two guide lifecycle
 transitions, required tests/docs, guarded squash merge, automatic production
 deployment and evidence-based closeout are now owner-authorized. Earlier

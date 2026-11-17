@@ -1,9 +1,39 @@
 # SupplementScout Operating Plan
 
+**17 November 2026 SEO-24 production-release approval:** the owner explicitly
+authorizes PR #544's two prepared guide lifecycle transitions to
+`launch_approved`, necessary existing tests/docs, quality gates, Ready for
+Review, guarded squash merge, automatic Vercel Production and public readback.
+Only `/guides/whey-isolate-vs-concentrate` and
+`/guides/protein-powder-pack-size-value` are in scope. The earlier Sprint 4
+Draft-only/no-launch wording below is historical and superseded for this
+release. SEO-24 remains CODE COMPLETE until positive production evidence;
+`live_verified` and LIVE VERIFIED closeout require that readback.
+SEO-20 stays frozen/binding; SEO-21/22/23 stay LIVE VERIFIED and SEO-15 Stage 3
+stays disabled. No catalogue, nutrition, mapping, history, importer or workflow
+write, Google submission or next sprint is authorized.
+
 **Status date:** 17 November 2026<br>
 **Purpose:** One authoritative operating document for architecture, current state, priorities, rules, roadmap, and definitions of done.  
 **Replaces:** the older fragmented project brief and decisions scattered across chats.  
 **Primary goal:** Build the UK's smartest and most trustworthy supplement search and comparison platform.
+
+**17 November 2026 Content Growth Sprint 4 checkpoint:** the owner approves
+one SEO-24 bundle and Draft PR for isolate/concentrate value and matched
+protein-pack-size value. Fresh main is `5ac0e802b5ffc5754466b546b5f99aa6716a196e`.
+Bounded read-only checks qualify both: two exact variants each with current
+delivered offers; one approved nutrition record per selection, so only the
+isolate example has a protein cost and the size pair withholds that comparison.
+Manufacturer ingredient/size evidence supports the reviewed types and same
+ISO-XP Vanilla450g/1.8kg formula. Reuse existing guide/pricing/resolver/cache;
+no nutrition approval/write or catalogue reclassification. New routes remain
+planned/noindex. No merge, production launch, workflow change or GSC action.
+SEO-20 stays frozen/binding; SEO-21/22/23 stay live verified.
+SEO-24 is now `CODE COMPLETE` with54 focused checks, quick/full4,021 tests,
+actual-source HTML/calculations, cache and1440/390px QA. Both planned/noindex
+guides are ready for publication review in one Draft PR. The
+[Sprint 4 record](rollouts/content-growth-sprint-4-2026-11-17.md) preserves
+exact data qualification, missing nutrition and the separate owner launch scope.
 
 **17 November 2026 SEO-23 live closeout:** owner-authorized PR #543 squash
 merged approved head `1fb5316ff5a6c704bc29cb24d2c78223d8e30f89` as
@@ -5175,6 +5205,13 @@ Target experience:
 ## 13. Immediate active plan
 
 ### Current active task
+
+SEO-20 remains the binding frozen experiment. For this Sprint 4 bundle only:
+Content Growth exception: SEO-24 beside frozen SEO-20; Draft PR only.
+SEO-24 contains exactly the two guide URLs in the existing SEO ledger.
+SEO-21/22/23 stay live verified; previous active-pair exceptions are retired.
+No production release/indexing, data write, workflow change, Google submission
+or next sprint is authorized.
 
 SEO-20 remains the binding frozen experiment. For the owner-approved Sprint 3
 bundle only:

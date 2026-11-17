@@ -1,0 +1,237 @@
+{
+  "capturedAt": "2026-11-17T18:46:23.886Z",
+  "environment": "actual source components with GET/HEAD-only authorized production catalogue reads; not a production deployment or synthetic offers",
+  "databaseWrites": 0,
+  "pages": [
+    {
+      "route": "/guides/whey-isolate-vs-concentrate",
+      "metadata": {
+        "title": "Whey Isolate vs Concentrate: Which Is Better Value in the UK?",
+        "description": "Compare whey isolate and concentrate using checked exact-flavour examples, delivered prices and approved protein costs, with clear limits where nutrition is missing.",
+        "alternates": {
+          "canonical": "/guides/whey-isolate-vs-concentrate"
+        },
+        "robots": {
+          "index": false,
+          "follow": true
+        },
+        "openGraph": {
+          "title": "Whey Isolate vs Concentrate: Which Is Better Value in the UK?",
+          "description": "Compare whey isolate and concentrate using checked exact-flavour examples, delivered prices and approved protein costs, with clear limits where nutrition is missing.",
+          "url": "/guides/whey-isolate-vs-concentrate",
+          "type": "website"
+        },
+        "twitter": {
+          "card": "summary",
+          "title": "Whey Isolate vs Concentrate: Which Is Better Value in the UK?",
+          "description": "Compare whey isolate and concentrate using checked exact-flavour examples, delivered prices and approved protein costs, with clear limits where nutrition is missing."
+        }
+      },
+      "sourceReadMs": 1190,
+      "reads": [
+        {
+          "table": "products",
+          "method": "GET",
+          "status": 200,
+          "ms": 626,
+          "bytes": 10761
+        },
+        {
+          "table": "retailer_products",
+          "method": "GET",
+          "status": 200,
+          "ms": 292,
+          "bytes": 12108
+        }
+      ],
+      "htmlBytes": 10535,
+      "links": [
+        "/",
+        "/search",
+        "/how-we-compare",
+        "https://www.adpi.org/wp-content/uploads/2022/07/Whey-and-Whey-Products_Human-Food-Definitions.pdf",
+        "/product/7nutrition-whey-protein-80-500g?variant=2026",
+        "https://7nutrition.eu/en/products/7nutrition-whey-protein-80-500g-598.html",
+        "/product/applied-nutrition-iso-xp-18kg?variant=735",
+        "https://appliednutrition.uk/products/iso-xp",
+        "/guides/cost-per-25g-protein",
+        "/whey-protein",
+        "/whey-isolate",
+        "/compare",
+        "/help-me-choose",
+        "/data-freshness"
+      ],
+      "examples": [
+        {
+          "product": "7Nutrition Whey Protein 80",
+          "productId": "1005",
+          "variant": "Vanilla / 500g",
+          "variantId": 2026,
+          "pack": "500g",
+          "productUrl": "/product/7nutrition-whey-protein-80-500g?variant=2026",
+          "type": "Whey concentrate",
+          "source": "https://7nutrition.eu/en/products/7nutrition-whey-protein-80-500g-598.html",
+          "retailer": "6 Pack Supplements",
+          "item": 19.99,
+          "shipping": 4.99,
+          "total": 24.98,
+          "checkedAt": "2026-11-17T11:45:40.735+00:00",
+          "weightG": 500,
+          "unitPricingVerified": true,
+          "pricePerKg": 49.96,
+          "nutritionApproved": false,
+          "protein": null,
+          "servings": null,
+          "costPer25g": null,
+          "proteinMetricShown": false
+        },
+        {
+          "product": "Applied Nutrition ISO-XP",
+          "productId": "178",
+          "variant": "Vanilla / 1.8kg",
+          "variantId": 735,
+          "pack": "1,800g",
+          "productUrl": "/product/applied-nutrition-iso-xp-18kg?variant=735",
+          "type": "Whey isolate",
+          "source": "https://appliednutrition.uk/products/iso-xp",
+          "retailer": "Whey Okay",
+          "item": 81.53,
+          "shipping": 3.99,
+          "total": 85.52,
+          "checkedAt": "2026-11-17T10:48:03.114+00:00",
+          "weightG": 1800,
+          "unitPricingVerified": true,
+          "pricePerKg": 47.511111111111106,
+          "nutritionApproved": true,
+          "protein": 22,
+          "servings": 72,
+          "costPer25g": 1.3497474747474747,
+          "proteinMetricShown": true
+        }
+      ],
+      "comparison": null,
+      "dataReadiness": {
+        "reviewedSelectedVariants": 2,
+        "currentOffersKnownDelivery": 2,
+        "approvedExactNutrition": 1,
+        "fullPairProteinComparison": null
+      }
+    },
+    {
+      "route": "/guides/protein-powder-pack-size-value",
+      "metadata": {
+        "title": "Does Buying a Bigger Protein Bag Actually Save Money?",
+        "description": "Compare matched UK protein pack sizes using real delivered prices and verified cost per kilogram. See the extra upfront spend and limits on protein-unit comparisons.",
+        "alternates": {
+          "canonical": "/guides/protein-powder-pack-size-value"
+        },
+        "robots": {
+          "index": false,
+          "follow": true
+        },
+        "openGraph": {
+          "title": "Does Buying a Bigger Protein Bag Actually Save Money?",
+          "description": "Compare matched UK protein pack sizes using real delivered prices and verified cost per kilogram. See the extra upfront spend and limits on protein-unit comparisons.",
+          "url": "/guides/protein-powder-pack-size-value",
+          "type": "website"
+        },
+        "twitter": {
+          "card": "summary",
+          "title": "Does Buying a Bigger Protein Bag Actually Save Money?",
+          "description": "Compare matched UK protein pack sizes using real delivered prices and verified cost per kilogram. See the extra upfront spend and limits on protein-unit comparisons."
+        }
+      },
+      "sourceReadMs": 704,
+      "reads": [
+        {
+          "table": "products",
+          "method": "GET",
+          "status": 200,
+          "ms": 312,
+          "bytes": 4734
+        },
+        {
+          "table": "retailer_products",
+          "method": "GET",
+          "status": 200,
+          "ms": 216,
+          "bytes": 7475
+        }
+      ],
+      "htmlBytes": 9822,
+      "links": [
+        "/",
+        "/search",
+        "/how-we-compare",
+        "https://appliednutrition.uk/products/iso-xp",
+        "/product/applied-nutrition-iso-xp-18kg?variant=4613",
+        "/product/applied-nutrition-iso-xp-18kg?variant=735",
+        "/guides/cost-per-25g-protein",
+        "/guides/supplement-prices-including-delivery",
+        "/guides/protein-powder-under-30",
+        "/whey-protein",
+        "/data-freshness"
+      ],
+      "examples": [
+        {
+          "product": "Applied Nutrition ISO-XP",
+          "productId": "178",
+          "variant": "Vanilla / 450 g",
+          "variantId": 4613,
+          "pack": "450g",
+          "productUrl": "/product/applied-nutrition-iso-xp-18kg?variant=4613",
+          "type": "Whey isolate",
+          "source": "https://appliednutrition.uk/products/iso-xp",
+          "retailer": "Holland & Barrett",
+          "item": 30,
+          "shipping": 0,
+          "total": 30,
+          "checkedAt": "2026-11-17T17:48:48.656+00:00",
+          "weightG": 450,
+          "unitPricingVerified": true,
+          "pricePerKg": 66.66666666666667,
+          "nutritionApproved": false,
+          "protein": null,
+          "servings": null,
+          "costPer25g": null,
+          "proteinMetricShown": false
+        },
+        {
+          "product": "Applied Nutrition ISO-XP",
+          "productId": "178",
+          "variant": "Vanilla / 1.8kg",
+          "variantId": 735,
+          "pack": "1,800g",
+          "productUrl": "/product/applied-nutrition-iso-xp-18kg?variant=735",
+          "type": "Whey isolate",
+          "source": "https://appliednutrition.uk/products/iso-xp",
+          "retailer": "Whey Okay",
+          "item": 81.53,
+          "shipping": 3.99,
+          "total": 85.52,
+          "checkedAt": "2026-11-17T10:48:03.114+00:00",
+          "weightG": 1800,
+          "unitPricingVerified": true,
+          "pricePerKg": 47.511111111111106,
+          "nutritionApproved": true,
+          "protein": 22,
+          "servings": 72,
+          "costPer25g": 1.3497474747474747,
+          "proteinMetricShown": false
+        }
+      ],
+      "comparison": {
+        "upfrontDifference": 55.52,
+        "unitDifference": 19.155555555555566,
+        "unitWinner": "larger",
+        "bothProteinVerified": false
+      },
+      "dataReadiness": {
+        "reviewedSelectedVariants": 2,
+        "currentOffersKnownDelivery": 2,
+        "approvedExactNutrition": 1,
+        "fullPairProteinComparison": false
+      }
+    }
+  ]
+}
