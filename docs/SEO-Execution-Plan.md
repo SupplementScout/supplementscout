@@ -1,5 +1,18 @@
 # SupplementScout SEO Execution Plan
 
+**18 November 2026 SEO-30 Draft checkpoint:** the owner-approved improvement
+to the existing `/guides/cost-per-25g-protein` is CODE COMPLETE for publication
+review. ISO-XP Vanilla735 and Efectiv Strawberry Milkshake1196 now demonstrate
+two distinct whey isolates using their own existing reviewed nutrition and fresh
+delivered offers. A small SSR summary compares unrounded protein costs only when
+both qualify; ties, partial/empty states and changing prices remain safe.
+This later owner instruction supersedes earlier no-SEO-30 wording only for this
+bounded Draft scope. One Draft PR; no merge, Production or data write is approved.
+SEO-20 stays frozen; SEO-21–29 stay LIVE VERIFIED and Stage3 stays disabled.
+No SEO-31 or analytics schedule/Google action. Guardian remains unchanged:
+the completed Draft task is CODE COMPLETE, with only SEO-20 IN PROGRESS.
+See [SEO-30 evidence](rollouts/seo30-protein-guide-pair-2026-11-18.md).
+
 **18 November 2026 SEO-29 LIVE VERIFIED:** the later explicit owner release
 approval authorizes PR #549 squash merge, automatic Production and closeout.
 Final reviewed head3a2e2d8a403b0f837baedfb22c0863bf56a3b937 adds only a
@@ -571,6 +584,8 @@ Console evidence and user value.
 
 | SEO-29 | P1 | Improve existing Myprotein Clear Whey product1470 buying clarity. | `LIVE VERIFIED` | Owner-approved PR #549 squash645d6c51698c524185cfc9d9e48cdda40391bbd3 preserves final3a2e2d8a tree and approved runtime implementation. Fresh quick/full gates and PR/main Quality Gate/Guardian pass; exact GitHub Production/Vercel SUCCESS and public build6jOjXHHkhMo4PGIhR-a3i prove deployment. Public200, exact description/OG/Twitter, initial summary, current-source variants/delivery/date/arithmetic, unchanged canonical/robots/schema/sitemap/tracking and nine1440/390/320px layouts pass. Warm guard and runtime reads7→7/9→9 pass. No production-data/Google write; SEO-20 frozen, SEO-21–28 live, Stage3 off. Evidence: docs/rollouts/seo29-clear-whey-intent-2026-11-18.md. |
 
+| SEO-30 | P1 | Improve existing /guides/cost-per-25g-protein with two distinct reviewed whey isolates. | `CODE COMPLETE` | Owner-approved Draft only. Exact ISO-XP178/735 Vanilla1800g and Efectiv746/1196 Strawberry Milkshake2000g replace two flavours of one product. Existing selectors, batched loader, nutrition/pricing validators and BuyingGuide stay in place; only the payload key becomes v3. Manifest/live equality, fresh delivered arithmetic, dynamic comparison/tie/partial/empty states,27 focused tests, quick/full gates, SEO parity and1440/768/390/320px actual-source QA pass. Cold reads2→2, warm0→0; unchanged warm-response guard. No merge/Production/data write; SEO-20 frozen, SEO-21–29 live, Stage3 off. Evidence: docs/rollouts/seo30-protein-guide-pair-2026-11-18.md. |
+
 ## 6. Current active task
 
 **18 November SEO-27 closeout:** the subsequent owner production approval has
@@ -846,6 +861,35 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 18 November 2026 - SEO-30 existing protein guide CODE COMPLETE
+
+- Owner authorizes one Draft PR for the existing protein-unit-cost guide only,
+  from main77a9472f7eb4ceecd6fad7ee4fc8c043dc09a50a. No open competing guide PR exists;
+  old Drafts #532/#33 are unrelated. No merge or Production release is approved.
+- Existing PROTEIN_PRODUCTS now pins Vanilla735/product178/1800g and
+  Strawberry Milkshake1196/product746/2000g. The shared nutrition/pricing and
+  exact mapping gates are unchanged. The batched loader uses one call for both
+  products; the existing route's payload key moves v2→v3, with unchanged hourly
+  cache/freshness/error contracts. No new route, resolver, API, dependency or JS.
+- GET-only proof at2026-11-18T15:51:26.264Z matches both live overrides to
+  the existing reviewed manifest. Protein totals72×22=1584g and66×27=1782g
+  use verified servings, not powder mass. Current known delivered observations
+  are85.52GBP at Whey Okay and64.99GBP at eBay UK; unrounded protein costs
+  display1.35GBP and0.91GBP, difference0.44GBP. These are dated observations,
+  never constants in the application. Stale/OOS offers are excluded.
+- 1336 quick/4073 full PASS,3 existing legacy skips,0 FAIL;
+  TypeScript, ESLint, production build,27 focused guide cases and Guardian pass.
+  Eight before/after1440/768/390/320px layouts, actual-source SSR, parameter
+  noindex, unchanged metadata/canonical/schema/1,487-URL sitemap, internal links
+  and four unchanged control pages pass. Warm local TTFB22.3→20.8ms;
+  cold GETs2→2, warm0→0. This is local build evidence, not Production release
+  or field CWV/organic-growth evidence. [Dated proof/screenshots](rollouts/seo30-protein-guide-pair-2026-11-18.md).
+- Exact-guide GSC impressions/clicks/CTR/position/query and attributable GA4
+  landing sessions/retailer clicks remain UNKNOWN in existing capped reports,
+  not zero. Preserve7/28 complete-day follow-up after future approved deployment;
+  no new job/schedule or Google submission. SEO-20 frozen and SEO-21–29 statuses
+  unchanged; Stage3 disabled. SEO-30 is CODE COMPLETE, not LIVE VERIFIED.
 
 ### 18 November 2026 - SEO-29 production release LIVE VERIFIED
 

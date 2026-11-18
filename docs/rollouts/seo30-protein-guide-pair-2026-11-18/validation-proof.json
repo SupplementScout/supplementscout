@@ -1,0 +1,348 @@
+{
+  "at": "2026-11-18T16:09:14.467Z",
+  "base": "77a9472f7eb4ceecd6fad7ee4fc8c043dc09a50a",
+  "environment": "paired local production builds; real authorized GET-only catalogue sources; not a production deployment",
+  "quick": {
+    "scheduled": 1339,
+    "passed": 1336,
+    "failed": 0,
+    "skipped": 3
+  },
+  "full": {
+    "scheduled": 4076,
+    "passed": 4073,
+    "failed": 0,
+    "skipped": 3
+  },
+  "focusedGuideTests": 27,
+  "sourceAt": "2026-11-18T15:51:26.264Z",
+  "readbackAt": "2026-11-18T16:05:56.216Z",
+  "proofs": [
+    {
+      "id": "178",
+      "name": "Applied Nutrition ISO-XP 1.8kg",
+      "variantId": 735,
+      "variant": "Vanilla / 1.8kg",
+      "pack": "1,800g",
+      "retailer": "Whey Okay",
+      "product": 81.53,
+      "shipping": 3.99,
+      "total": 85.52,
+      "servings": 72,
+      "proteinPerServing": 22,
+      "totalProtein": 1584,
+      "costPer25g": 1.3497474747474747,
+      "checkedAt": "2026-11-18T10:14:49.194+00:00",
+      "productUrl": "/product/applied-nutrition-iso-xp-18kg?variant=735"
+    },
+    {
+      "id": "746",
+      "name": "Efectiv Nutrition Grass-Fed Whey Protein Isolate 2kg",
+      "variantId": 1196,
+      "variant": "Strawberry Milkshake / 2000g",
+      "pack": "2,000g",
+      "retailer": "eBay UK",
+      "product": 64.99,
+      "shipping": 0,
+      "total": 64.99,
+      "servings": 66,
+      "proteinPerServing": 27,
+      "totalProtein": 1782,
+      "costPer25g": 0.9117564534231201,
+      "checkedAt": "2026-11-18T14:37:35.716+00:00",
+      "productUrl": "/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg?variant=1196"
+    }
+  ],
+  "query": [
+    {
+      "path": "/guides/cost-per-25g-protein?sort=price",
+      "robots": "noindex, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein"
+    },
+    {
+      "path": "/guides/cost-per-25g-protein?utm_source=qa",
+      "robots": "noindex, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein"
+    }
+  ],
+  "controls": [
+    {
+      "path": "/guides/supplement-prices-including-delivery",
+      "status": 200,
+      "metadataSchemaContentLinksParity": true
+    },
+    {
+      "path": "/brands/per4m",
+      "status": 200,
+      "metadataSchemaContentLinksParity": true
+    },
+    {
+      "path": "/product/myprotein-clear-whey-protein-isolate",
+      "status": 200,
+      "metadataSchemaContentLinksParity": true
+    },
+    {
+      "path": "/whey-protein",
+      "status": 200,
+      "metadataSchemaContentLinksParity": true
+    }
+  ],
+  "links": [
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/search",
+      "status": 200
+    },
+    {
+      "path": "/how-we-compare",
+      "status": 200
+    },
+    {
+      "path": "/product/applied-nutrition-iso-xp-18kg?variant=735",
+      "status": 200
+    },
+    {
+      "path": "/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg?variant=1196",
+      "status": 200
+    },
+    {
+      "path": "/whey-protein",
+      "status": 200
+    },
+    {
+      "path": "/whey-isolate",
+      "status": 200
+    },
+    {
+      "path": "/compare",
+      "status": 200
+    },
+    {
+      "path": "/data-freshness",
+      "status": 200
+    },
+    {
+      "path": "/guides/supplement-prices-including-delivery",
+      "status": 200
+    },
+    {
+      "path": "/help-me-choose",
+      "status": 200
+    }
+  ],
+  "sitemapCount": 1487,
+  "seoParity": true,
+  "performance": {
+    "beforeWarmMedianTTFBms": 22.340699999999742,
+    "afterWarmMedianTTFBms": 20.7503999999999,
+    "guard": "after <= before*1.5+100ms",
+    "guardPass": true,
+    "coldReadsBefore": 2,
+    "coldReadsAfter": 2,
+    "warmReadsBefore": 0,
+    "warmReadsAfter": 0,
+    "samples": [
+      {
+        "port": 3137,
+        "ttfbMs": 35.61229999999978,
+        "totalMs": 45.92920000000004,
+        "reads": 0
+      },
+      {
+        "port": 3136,
+        "ttfbMs": 30.53139999999985,
+        "totalMs": 40.053499999999985,
+        "reads": 0
+      },
+      {
+        "port": 3136,
+        "ttfbMs": 22.340699999999742,
+        "totalMs": 32.008800000000065,
+        "reads": 0
+      },
+      {
+        "port": 3137,
+        "ttfbMs": 17.853200000000015,
+        "totalMs": 28.40729999999985,
+        "reads": 0
+      },
+      {
+        "port": 3137,
+        "ttfbMs": 20.579699999999775,
+        "totalMs": 31.254699999999957,
+        "reads": 0
+      },
+      {
+        "port": 3136,
+        "ttfbMs": 19.251700000000255,
+        "totalMs": 30.183100000000195,
+        "reads": 0
+      },
+      {
+        "port": 3136,
+        "ttfbMs": 18.07360000000017,
+        "totalMs": 27.357300000000123,
+        "reads": 0
+      },
+      {
+        "port": 3137,
+        "ttfbMs": 20.7503999999999,
+        "totalMs": 30.929499999999734,
+        "reads": 0
+      },
+      {
+        "port": 3137,
+        "ttfbMs": 23.965099999999893,
+        "totalMs": 34.941299999999956,
+        "reads": 0
+      },
+      {
+        "port": 3136,
+        "ttfbMs": 29.284299999999803,
+        "totalMs": 39.65909999999985,
+        "reads": 0
+      },
+      {
+        "port": 3136,
+        "ttfbMs": 19.398599999999988,
+        "totalMs": 29.191699999999855,
+        "reads": 0
+      },
+      {
+        "port": 3137,
+        "ttfbMs": 20.591300000000047,
+        "totalMs": 30.088600000000042,
+        "reads": 0
+      }
+    ]
+  },
+  "browserBefore": [
+    {
+      "width": 1440,
+      "result": "PASS",
+      "docWidth": 1425,
+      "clipped": [],
+      "cls": 0,
+      "lcpMs": 196,
+      "jsBytes": 542322,
+      "focus": {
+        "href": "/product/applied-nutrition-iso-xp-18kg?variant=732",
+        "visible": true
+      },
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "width": 768,
+      "result": "PASS",
+      "docWidth": 753,
+      "clipped": [],
+      "cls": 0,
+      "lcpMs": 136,
+      "jsBytes": 528620,
+      "focus": {
+        "href": "/product/applied-nutrition-iso-xp-18kg?variant=732",
+        "visible": true
+      },
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "width": 390,
+      "result": "PASS",
+      "docWidth": 390,
+      "clipped": [],
+      "cls": 0,
+      "lcpMs": 120,
+      "jsBytes": 528620,
+      "focus": {
+        "href": "/product/applied-nutrition-iso-xp-18kg?variant=732",
+        "visible": true
+      },
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "width": 320,
+      "result": "PASS",
+      "docWidth": 320,
+      "clipped": [],
+      "cls": 0,
+      "lcpMs": 112,
+      "jsBytes": 528620,
+      "focus": {
+        "href": "/product/applied-nutrition-iso-xp-18kg?variant=732",
+        "visible": true
+      },
+      "runtimeExceptions": [],
+      "httpErrors": []
+    }
+  ],
+  "browserAfter": [
+    {
+      "width": 1440,
+      "result": "PASS",
+      "docWidth": 1425,
+      "clipped": [],
+      "cls": 0,
+      "lcpMs": 156,
+      "jsBytes": 542325,
+      "focus": {
+        "href": "/product/applied-nutrition-iso-xp-18kg?variant=735",
+        "visible": true
+      },
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "width": 768,
+      "result": "PASS",
+      "docWidth": 753,
+      "clipped": [],
+      "cls": 0,
+      "lcpMs": 124,
+      "jsBytes": 528623,
+      "focus": {
+        "href": "/product/applied-nutrition-iso-xp-18kg?variant=735",
+        "visible": true
+      },
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "width": 390,
+      "result": "PASS",
+      "docWidth": 390,
+      "clipped": [],
+      "cls": 0,
+      "lcpMs": 108,
+      "jsBytes": 528623,
+      "focus": {
+        "href": "/product/applied-nutrition-iso-xp-18kg?variant=735",
+        "visible": true
+      },
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "width": 320,
+      "result": "PASS",
+      "docWidth": 320,
+      "clipped": [],
+      "cls": 0,
+      "lcpMs": 116,
+      "jsBytes": 528623,
+      "focus": {
+        "href": "/product/applied-nutrition-iso-xp-18kg?variant=735",
+        "visible": true
+      },
+      "runtimeExceptions": [],
+      "httpErrors": []
+    }
+  ],
+  "productionDataWrites": 0,
+  "retailerNavigations": 0
+}

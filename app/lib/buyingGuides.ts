@@ -18,8 +18,8 @@ export const DELIVERY_PRODUCT = {
   variantId: "2015", flavour: "Unflavoured", grams: 250,
 } as const;
 export const PROTEIN_PRODUCTS = [
-  { id: "178", slug: "applied-nutrition-iso-xp-18kg", variantId: "732", flavour: "Banana", grams: 1800 },
   { id: "178", slug: "applied-nutrition-iso-xp-18kg", variantId: "735", flavour: "Vanilla", grams: 1800 },
+  { id: "746", slug: "efectiv-nutrition-grass-fed-whey-protein-isolate-2kg", variantId: "1196", flavour: "Strawberry Milkshake", grams: 2000 },
 ] as const;
 
 type ExampleTarget = {

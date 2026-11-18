@@ -1,0 +1,250 @@
+{
+  "capturedAt": "2026-11-18T15:51:26.264Z",
+  "environment": "Actual existing catalogue through authorized GET-only reader; not fixtures or checkout quotes",
+  "productionDataWrites": 0,
+  "syntheticData": false,
+  "manifestPath": "data/verified/variant-nutrition-reviewed-batch-1-v2.json",
+  "manifestSha256": "447048be2ca789210ad71f8d144471d8cd3b2ef75b5e81c3b4f6cd6169656fa7",
+  "reviewedScopeHash": "c2198812faa5a2cdaeb26e7ad80c154a3c4c85cdef23c9f579a5b5c3bd4c4844",
+  "reads": [
+    {
+      "table": "products",
+      "method": "GET",
+      "status": 200,
+      "ms": 609,
+      "bytes": 7559
+    },
+    {
+      "table": "retailer_products",
+      "method": "GET",
+      "status": 200,
+      "ms": 228,
+      "bytes": 11988
+    },
+    {
+      "table": "product_variants",
+      "method": "GET",
+      "status": 200,
+      "ms": 127,
+      "bytes": 1433
+    }
+  ],
+  "proofs": [
+    {
+      "target": {
+        "id": "178",
+        "slug": "applied-nutrition-iso-xp-18kg",
+        "variantId": "735",
+        "flavour": "Vanilla",
+        "grams": 1800
+      },
+      "name": "Applied Nutrition ISO-XP 1.8kg",
+      "brand": "Applied Nutrition",
+      "category": "Whey Protein",
+      "active": true,
+      "reviewedVariantKey": "vanilla-1800g",
+      "manifestLiveOverrideEquality": true,
+      "reviewedAfter": {
+        "net_weight_g": 1800,
+        "serving_count_verified": 72,
+        "serving_size_g": 25,
+        "protein_per_serving_g": 22,
+        "product_format": "powder",
+        "unit_pricing_verified": true,
+        "nutrition_verified": true,
+        "source_url": "https://appliednutrition.uk/products/iso-xp",
+        "source_type": "manufacturer_product_page",
+        "evidence": "Manufacturer declares 1.8kg, 72 servings, one 25g scoop and approximately 22g protein per serving.",
+        "creatine_per_serving_g": null
+      },
+      "liveOverride": {
+        "evidence": "Manufacturer declares 1.8kg, 72 servings, one 25g scoop and approximately 22g protein per serving.",
+        "source_url": "https://appliednutrition.uk/products/iso-xp",
+        "source_type": "manufacturer_product_page",
+        "net_weight_g": 1800,
+        "product_format": "powder",
+        "serving_size_g": 25,
+        "nutrition_verified": true,
+        "protein_per_serving_g": 22,
+        "unit_pricing_verified": true,
+        "creatine_per_serving_g": null,
+        "serving_count_verified": 72
+      },
+      "totalProteinG": 1584,
+      "costPer25g": 1.3497474747474747,
+      "selectedOffer": {
+        "id": "1536",
+        "retailer": {
+          "id": "3",
+          "name": "Whey Okay",
+          "slug": "whey-okay"
+        },
+        "productPrice": 81.53,
+        "shippingCost": 3.99,
+        "deliveredPrice": {
+          "productPrice": 81.53,
+          "shippingCost": 3.99,
+          "totalPrice": 85.52
+        },
+        "lastCheckedAt": "2026-11-18T10:14:49.194+00:00",
+        "nutritionVariant": {
+          "id": 735,
+          "is_active": true,
+          "size_unit": "g",
+          "pack_count": 1,
+          "product_id": 178,
+          "size_value": 1800,
+          "display_name": "Vanilla / 1.8kg",
+          "flavour_label": "Vanilla",
+          "product_format": "powder",
+          "nutrition_override": {
+            "evidence": "Manufacturer declares 1.8kg, 72 servings, one 25g scoop and approximately 22g protein per serving.",
+            "source_url": "https://appliednutrition.uk/products/iso-xp",
+            "source_type": "manufacturer_product_page",
+            "net_weight_g": 1800,
+            "product_format": "powder",
+            "serving_size_g": 25,
+            "nutrition_verified": true,
+            "protein_per_serving_g": 22,
+            "unit_pricing_verified": true,
+            "creatine_per_serving_g": null,
+            "serving_count_verified": 72
+          }
+        },
+        "variantResolution": "resolved"
+      },
+      "observedMappings": [
+        {
+          "offerId": 1536,
+          "retailerProductId": 1722,
+          "resolution": "resolved",
+          "variantId": 735,
+          "retailer": "Whey Okay",
+          "productPrice": 81.53,
+          "shipping": 3.99,
+          "inStock": true,
+          "checkedAt": "2026-11-18T10:14:49.194+00:00"
+        },
+        {
+          "offerId": 770,
+          "retailerProductId": 956,
+          "resolution": "resolved",
+          "variantId": 735,
+          "retailer": "Discount Supplements",
+          "productPrice": 69.99,
+          "shipping": 4.99,
+          "inStock": true,
+          "checkedAt": "2026-07-19T19:46:46.459+00:00"
+        }
+      ]
+    },
+    {
+      "target": {
+        "id": "746",
+        "slug": "efectiv-nutrition-grass-fed-whey-protein-isolate-2kg",
+        "variantId": "1196",
+        "flavour": "Strawberry Milkshake",
+        "grams": 2000
+      },
+      "name": "Efectiv Nutrition Grass-Fed Whey Protein Isolate 2kg",
+      "brand": "Efectiv Nutrition",
+      "category": "Whey Protein",
+      "active": true,
+      "reviewedVariantKey": "strawberry-milkshake-2000g",
+      "manifestLiveOverrideEquality": true,
+      "reviewedAfter": {
+        "net_weight_g": 2000,
+        "serving_count_verified": 66,
+        "serving_size_g": 30,
+        "protein_per_serving_g": 27,
+        "product_format": "powder",
+        "unit_pricing_verified": true,
+        "nutrition_verified": true,
+        "source_url": "https://efectivnutrition.com/products/efectiv-grass-fed-whey-protein-isolate-2kg",
+        "source_type": "manufacturer_product_page",
+        "evidence": "Manufacturer declares 2kg, 66 servings, a 30g scoop and 27g protein per serving across the product family.",
+        "creatine_per_serving_g": null
+      },
+      "liveOverride": {
+        "evidence": "Manufacturer declares 2kg, 66 servings, a 30g scoop and 27g protein per serving across the product family.",
+        "source_url": "https://efectivnutrition.com/products/efectiv-grass-fed-whey-protein-isolate-2kg",
+        "source_type": "manufacturer_product_page",
+        "net_weight_g": 2000,
+        "product_format": "powder",
+        "serving_size_g": 30,
+        "nutrition_verified": true,
+        "protein_per_serving_g": 27,
+        "unit_pricing_verified": true,
+        "creatine_per_serving_g": null,
+        "serving_count_verified": 66
+      },
+      "totalProteinG": 1782,
+      "costPer25g": 0.9117564534231201,
+      "selectedOffer": {
+        "id": "2640",
+        "retailer": {
+          "id": "12",
+          "name": "eBay UK",
+          "slug": "ebay-uk"
+        },
+        "productPrice": 64.99,
+        "shippingCost": 0,
+        "deliveredPrice": {
+          "productPrice": 64.99,
+          "shippingCost": 0,
+          "totalPrice": 64.99
+        },
+        "lastCheckedAt": "2026-11-18T14:37:35.716+00:00",
+        "nutritionVariant": {
+          "id": 1196,
+          "is_active": true,
+          "size_unit": "g",
+          "pack_count": 1,
+          "product_id": 746,
+          "size_value": 2000,
+          "display_name": "Strawberry Milkshake / 2000g",
+          "flavour_label": "Strawberry Milkshake",
+          "product_format": "powder",
+          "nutrition_override": {
+            "evidence": "Manufacturer declares 2kg, 66 servings, a 30g scoop and 27g protein per serving across the product family.",
+            "source_url": "https://efectivnutrition.com/products/efectiv-grass-fed-whey-protein-isolate-2kg",
+            "source_type": "manufacturer_product_page",
+            "net_weight_g": 2000,
+            "product_format": "powder",
+            "serving_size_g": 30,
+            "nutrition_verified": true,
+            "protein_per_serving_g": 27,
+            "unit_pricing_verified": true,
+            "creatine_per_serving_g": null,
+            "serving_count_verified": 66
+          }
+        },
+        "variantResolution": "resolved"
+      },
+      "observedMappings": [
+        {
+          "offerId": 2640,
+          "retailerProductId": 2826,
+          "resolution": "resolved",
+          "variantId": 1196,
+          "retailer": "eBay UK",
+          "productPrice": 64.99,
+          "shipping": 0,
+          "inStock": true,
+          "checkedAt": "2026-11-18T14:37:35.716+00:00"
+        },
+        {
+          "offerId": 1124,
+          "retailerProductId": 1310,
+          "resolution": "resolved",
+          "variantId": 1196,
+          "retailer": "Jon's Supplements",
+          "productPrice": 61.99,
+          "shipping": 3.99,
+          "inStock": false,
+          "checkedAt": "2026-11-18T13:30:32.742+00:00"
+        }
+      ]
+    }
+  ]
+}

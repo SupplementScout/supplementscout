@@ -45,6 +45,7 @@ const proteinFile = "app/guides/cost-per-25g-protein/page.tsx";
 
 function product(target, { nutrition = true, price = 46.99, shipping = 3.99 } = {}) {
   const cnp = target.id === "865";
+  const efectiv = target.id === "746";
   return {
     id: target.id, slug: target.slug, name: "Fixture " + target.slug, brand: "Fixture",
     category: target.id === guides.DELIVERY_PRODUCT.id ? "Creatine" : "Whey Protein", image: null,
@@ -62,8 +63,8 @@ function product(target, { nutrition = true, price = 46.99, shipping = 3.99 } = 
         flavour_label: target.flavour, size_value: target.grams, size_unit: "g", pack_count: 1,
         product_format: "powder", is_active: true,
         nutrition_override: nutrition ? {
-          serving_count_verified: cnp ? 35 : 60, serving_size_g: cnp ? 65 : 30,
-          protein_per_serving_g: cnp ? 47 : 25, nutrition_verified: true, unit_pricing_verified: true,
+          serving_count_verified: cnp ? 35 : efectiv ? 66 : 60, serving_size_g: cnp ? 65 : 30,
+          protein_per_serving_g: cnp ? 47 : efectiv ? 27 : 25, nutrition_verified: true, unit_pricing_verified: true,
           source_type: "manufacturer_product_page", source_url: "https://manufacturer.example/label",
           evidence: "Synthetic reviewed-label fixture for exact flavour and pack.",
         } : {},
@@ -128,34 +129,33 @@ test("cached raw examples are rechecked for freshness at every render", () => {
 });
 test("protein examples use the existing verified denominator and round only the displayed result", () => {
   const row = product(guides.PROTEIN_PRODUCTS[0]);
-  const second = product(guides.PROTEIN_PRODUCTS[1], { price: 65.99 }).offers[0];
-  second.id = 2;
-  second.product_variant.nutrition_override.protein_per_serving_g = 23;
-  row.offers.push(second);
-  const rows = [row];
+  const second = product(guides.PROTEIN_PRODUCTS[1], { price: 65.99 });
+  second.offers[0].id = 2;
+  const rows = [row, second];
   const examples = guides.proteinExamples(rows, now);
-  assert.deepEqual(examples.map((example) => example.totalProteinG), [1500, 1380]);
+  assert.deepEqual(examples.map((example) => example.totalProteinG), [1500, 1782]);
   assert.ok(Math.abs(examples[0].row.costPer25gProtein - 50.98 / 1500 * 25) < 1e-12);
   const rendered = html(proteinFile, { rows, error: false });
-  assert.match(rendered, /£0\.85/); assert.match(rendered, /£1\.27/);
-  assert.match(rendered, /1,500/); assert.match(rendered, /1,380/);
+  assert.match(rendered, /£0\.85/); assert.match(rendered, /£0\.98/);
+  assert.match(rendered, /1,500/); assert.match(rendered, /1,782/);
   assert.match(rendered, /£50\.98.*?1,500.*?25.*?£0\.85/s);
-  assert.match(rendered, /two flavours of the same product/);
+  assert.match(rendered, /different whey isolate products/);
 });
 
 test("reviewed protein variants accept an explicitly null unrelated creatine field", () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(root, "data/verified/variant-nutrition-reviewed-batch-1-v2.json"), "utf8"));
-  for (const target of guides.PROTEIN_PRODUCTS) {
+  for (const [index, target] of guides.PROTEIN_PRODUCTS.entries()) {
     const approved = manifest.changes.find((change) => change.variant_id === target.variantId);
     assert.equal(approved.product_id, target.id);
-    const row = product(target, { price: 81.53 });
+    const row = product(target, index === 0 ? { price: 81.53 } : { price: 64.99, shipping: 0 });
     row.offers[0].product_variant.nutrition_override = approved.after_nutrition_override;
     assert.equal(approved.after_nutrition_override.creatine_per_serving_g, null);
     const example = guides.proteinExamples([row], now)[0];
     assert.equal(example.nutritionApproved, true);
-    assert.equal(example.totalProteinG, 1584);
-    assert.ok(Math.abs(example.row.costPer25gProtein - 85.52 / 1584 * 25) < 1e-12);
-    assert.match(html(proteinFile, { rows: [row], error: false }), /£1\.35/);
+    const totalProtein = index === 0 ? 1584 : 1782, delivered = index === 0 ? 85.52 : 64.99;
+    assert.equal(example.totalProteinG, totalProtein);
+    assert.ok(Math.abs(example.row.costPer25gProtein - delivered / totalProtein * 25) < 1e-12);
+    assert.match(html(proteinFile, { rows: [row], error: false }), index === 0 ? /£1\.35/ : /£0\.91/);
   }
 });
 test("product-level verification cannot stand in for exact-flavour nutrition evidence", () => {
@@ -264,17 +264,136 @@ test("both approved routes are sitemap eligible exactly once and retain isolated
   }
   const sources = [deliveryFile, proteinFile].map((file) => fs.readFileSync(path.join(root, file), "utf8"));
   assert.match(sources[0], /"delivery-guide-example-v2"/);
-  assert.match(sources[1], /"protein-guide-examples-v2"/);
+  assert.match(sources[1], /"protein-guide-examples-v3"/);
   assert.ok(sources.every((source) => !source.includes('"use client"') && source.includes("createLifecycleDataLoader")));
   assert.ok(sources.every((source) => !/£(?:22\.99|24\.99|26\.98|50\.98|69\.98)/.test(source)));
 });
 
-test("the two flavour examples deduplicate the product read and retain separate exact variant links", async () => {
-  let selectedSlugs;
-  const page = load(proteinFile, { "../../lib/buyingGuideData": { getBuyingGuideProducts: async (slugs) => { selectedSlugs = slugs; return { rows: [], error: false }; } } });
+test("the two distinct products share one loader call and retain their exact variant links", async () => {
+  let selectedSlugs, calls = 0;
+  const cacheKeys = [];
+  const page = load(proteinFile, {
+    "../../lib/buyingGuideData": { getBuyingGuideProducts: async (slugs) => { calls++; selectedSlugs = slugs; return { rows: [], error: false }; } },
+    "next/cache": { unstable_cache: (read, keys, options) => { cacheKeys.push({ keys, options }); return read; } },
+  });
   await page.default();
-  assert.deepEqual(selectedSlugs, [guides.PROTEIN_PRODUCTS[0].slug]);
+  assert.equal(calls, 1);
+  assert.deepEqual(selectedSlugs, guides.PROTEIN_PRODUCTS.map(target => target.slug));
+  assert.notEqual(guides.PROTEIN_PRODUCTS[0].id, guides.PROTEIN_PRODUCTS[1].id);
   assert.notEqual(guides.PROTEIN_PRODUCTS[0].variantId, guides.PROTEIN_PRODUCTS[1].variantId);
+  assert.deepEqual(cacheKeys, [{ keys: ["lifecycle-hub-data-v1", guides.PROTEIN_GUIDE_PATH, "protein-guide-examples-v3"], options: { revalidate: 3600, tags: ["lifecycle-hub:" + guides.PROTEIN_GUIDE_PATH] } }]);
+});
+
+// TEST ONLY offers at a fixed clock; prices here are not evidence of live availability.
+function reviewedProteinRows(prices = [81.53, 64.99], shipping = [3.99, 0]) {
+  const manifest = JSON.parse(fs.readFileSync(path.join(root, "data/verified/variant-nutrition-reviewed-batch-1-v2.json"), "utf8"));
+  return guides.PROTEIN_PRODUCTS.map((target, index) => {
+    const row = product(target, { price: prices[index], shipping: shipping[index] });
+    row.offers[0].product_variant.nutrition_override = structuredClone(manifest.changes.find(c => c.variant_id === target.variantId).after_nutrition_override);
+    return row;
+  });
+}
+
+test("the selected exact pair uses its own reviewed records: 72×22 and 66×27, never powder grams", () => {
+  assert.deepEqual(guides.PROTEIN_PRODUCTS, [
+    { id: "178", slug: "applied-nutrition-iso-xp-18kg", variantId: "735", flavour: "Vanilla", grams: 1800 },
+    { id: "746", slug: "efectiv-nutrition-grass-fed-whey-protein-isolate-2kg", variantId: "1196", flavour: "Strawberry Milkshake", grams: 2000 },
+  ]);
+  const rows = reviewedProteinRows(), examples = guides.proteinExamples(rows, now);
+  assert.deepEqual(examples.map(e => [e.row.verifiedServingCount, e.row.proteinPerServingG, e.totalProteinG]), [[72, 22, 1584], [66, 27, 1782]]);
+  assert.deepEqual(examples.map(e => e.row.bestOffer.deliveredPrice.totalPrice), [85.52, 64.99]);
+  assert.ok(Math.abs(examples[0].row.costPer25gProtein - 85.52 / 1584 * 25) < 1e-12);
+  assert.ok(Math.abs(examples[1].row.costPer25gProtein - 64.99 / 1782 * 25) < 1e-12);
+  const rendered = html(proteinFile, { rows, error: false });
+  for (const amount of [/£1\.35/, /£0\.91/, /£0\.44/, /1,584/, /1,782/]) assert.match(rendered, amount);
+  for (const target of guides.PROTEIN_PRODUCTS) assert.ok(rendered.includes(`href="/product/${target.slug}?variant=${target.variantId}"`));
+  assert.match(rendered, /efectiv[^<]*<\/strong> currently costs less/i);
+  assert.match(rendered, /not a ranking of the whole UK market/);
+  assert.match(rendered, /does not establish better quality, taste, effectiveness or suitability/);
+});
+
+test("current delivered prices can reverse or tie the result without changing the nutrition denominator", () => {
+  const reversed = html(proteinFile, { rows: reviewedProteinRows([20, 64.99]), error: false });
+  assert.match(reversed, /iso-xp[^<]*<\/strong> currently costs less/i);
+  const tied = html(proteinFile, { rows: reviewedProteinRows([63.36, 71.28], [0, 0]), error: false });
+  assert.match(tied, /same verified cost per 25 g/);
+  assert.doesNotMatch(tied, /currently costs less/);
+});
+
+test("the comparison uses unrounded unit costs even when displayed prices both round to one pound", () => {
+  const rows = reviewedProteinRows([63.36, 71.27], [0, 0]);
+  const examples = guides.proteinExamples(rows, now);
+  assert.ok(examples[1].row.costPer25gProtein < examples[0].row.costPer25gProtein);
+  const rendered = html(proteinFile, { rows, error: false });
+  assert.match(rendered, /efectiv[^<]*<\/strong> currently costs less/i);
+  assert.match(rendered, /unrounded difference is less than one penny/);
+  assert.doesNotMatch(rendered, /difference is £0\.00/);
+});
+
+test("either product loses only its own price calculation when shipping, stock or freshness fails", () => {
+  for (const index of [0, 1]) for (const patch of [
+    { shipping_cost: null }, { in_stock: false }, { last_checked_at: null },
+    { last_checked_at: "invalid" }, { last_checked_at: "2026-11-15T11:00:00Z" },
+    { last_checked_at: "2026-11-18T11:00:00Z" },
+  ]) {
+    const rows = reviewedProteinRows(); Object.assign(rows[index].offers[0], patch);
+    const examples = guides.proteinExamples(rows, now);
+    assert.equal(examples[index].row.costPer25gProtein, null);
+    assert.ok(examples[1 - index].row.costPer25gProtein > 0);
+    const rendered = html(proteinFile, { rows, error: false });
+    assert.equal((rendered.match(/<dt>Cost per 25 g protein<\/dt>/g) || []).length, 1);
+    assert.doesNotMatch(rendered, /currently costs less|same verified cost/);
+  }
+});
+
+test("two stale offers retain the method without any stale price or invented ranking", () => {
+  const rows = reviewedProteinRows();
+  for (const row of rows) row.offers[0].last_checked_at = "2026-11-15T11:00:00Z";
+  const rendered = html(proteinFile, { rows, error: false });
+  assert.match(rendered, /delivered pack price ÷ total verified protein/);
+  assert.doesNotMatch(rendered, /£85\.52|£64\.99|£1\.35|£0\.91|currently costs less|same verified cost/);
+  assert.equal((rendered.match(/No fresh in-stock offer with known delivery/g) || []).length, 2);
+});
+
+test("changed product, slug, variant, flavour, pack or unresolved mapping cannot become a selected example", () => {
+  for (const index of [0, 1]) {
+    for (const patch of [{ id: "999" }, { slug: "wrong-product" }, { is_active: false }, { merged_at: "2026-11-01" }, { merged_into_product_id: "999" }]) {
+      const rows = reviewedProteinRows(); Object.assign(rows[index], patch);
+      assert.equal(guides.proteinExamples(rows, now).length, 1);
+    }
+    for (const patch of [{ id: "999" }, { product_id: "999" }, { flavour_label: "Other" }, { size_value: 500 }, { size_unit: "kg" }, { pack_count: 2 }, { is_active: false }]) {
+      const rows = reviewedProteinRows(); Object.assign(rows[index].offers[0].product_variant, patch);
+      assert.equal(guides.proteinExamples(rows, now).length, 1);
+    }
+    const rows = reviewedProteinRows(); rows[index].offers[0].variant_resolution = "unresolved";
+    assert.equal(guides.proteinExamples(rows, now).length, 1);
+    assert.doesNotMatch(html(proteinFile, { rows, error: false }), /currently costs less|same verified cost/);
+  }
+});
+
+test("missing, unreviewed, malformed and other-pack provenance cannot be priced as the selected nutrition", () => {
+  for (const index of [0, 1]) {
+    for (const patch of [{ nutrition_verified: false }, { serving_count_verified: null }, { source_type: "retailer_claim" }, { source_url: "http://manufacturer.example/old" }, { source_url: null }, { evidence: "old" }, { serving_count_verified: 5 }, { protein_per_serving_g: null }, { protein_per_serving_g: 1000 }]) {
+      const rows = reviewedProteinRows(); Object.assign(rows[index].offers[0].product_variant.nutrition_override, patch);
+      assert.equal(guides.proteinExamples(rows, now)[index].row.costPer25gProtein, null, JSON.stringify({ index, patch }));
+      assert.doesNotMatch(html(proteinFile, { rows, error: false }), /currently costs less|same verified cost/);
+    }
+    const rows = reviewedProteinRows(); rows[index].offers[0].product_variant.nutrition_override = structuredClone(rows[1 - index].offers[0].product_variant.nutrition_override);
+    assert.equal(guides.proteinExamples(rows, now)[index].row.costPer25gProtein, null);
+    rows[index].offers[0].product_variant.nutrition_override = {};
+    assert.equal(guides.proteinExamples(rows, now)[index].row.costPer25gProtein, null);
+  }
+});
+
+test("the lowest current known delivered price wins within a variant and OOS cannot undercut it", () => {
+  const rows = reviewedProteinRows(), offer = rows[0].offers[0];
+  rows[0].offers.push({ ...offer, id: 2, retailer: { id: 11, name: "Fixture alternate", slug: "fixture-alternate" }, price: 80, shipping_cost: 1 });
+  rows[0].offers.push({ ...offer, id: 3, price: 1, shipping_cost: 0, in_stock: false });
+  rows[0].offers.push({ ...offer, id: 4, price: 2, shipping_cost: null });
+  const example = guides.proteinExamples(rows, now)[0];
+  assert.equal(example.row.bestOffer.id, "2");
+  assert.equal(example.row.bestOffer.deliveredPrice.totalPrice, 81);
+  assert.ok(Math.abs(example.row.costPer25gProtein - 81 / 1584 * 25) < 1e-12);
 });
 
 module.exports = { load, product, deliveryProduct, guides, now, html, deliveryFile, proteinFile };

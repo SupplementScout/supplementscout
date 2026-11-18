@@ -12,7 +12,7 @@ const title = "Cost per 25g Protein: Compare UK Whey Prices Fairly";
 const heading = "How to compare protein powders by cost per 25g of protein";
 const description = "Understand delivered cost per 25 g of protein with checked whey examples, verified serving data and clear limits on missing information.";
 const getCachedProteinExamples = createLifecycleDataLoader(
-  pagePath, "protein-guide-examples-v2",
+  pagePath, "protein-guide-examples-v3",
   () => getBuyingGuideProducts([...new Set(PROTEIN_PRODUCTS.map((target) => target.slug))])
 );
 export const dynamic = "force-dynamic";
@@ -26,6 +26,12 @@ export async function generateMetadata({ searchParams }: Props = {}): Promise<Me
 
 export function ProteinGuideContent({ result, now }: { result: GuideProductsResult; now?: Date }) {
   const examples = proteinExamples(result.rows, now);
+  const [lower, higher] = examples.flatMap((example) =>
+    example.nutritionApproved && example.row.bestOffer?.deliveredPrice &&
+    example.totalProteinG !== null && example.row.costPer25gProtein !== null
+      ? [{ name: example.row.name, cost: example.row.costPer25gProtein }] : []
+  ).sort((a, b) => a.cost - b.cost);
+  const difference = lower && higher ? higher.cost - lower.cost : null;
   return (
     <BuyingGuide title={heading} breadcrumb="Cost per 25g protein" structuredData={guideStructuredData(pagePath, heading, description)}>
       <p className="text-lg leading-8 text-zinc-800"><strong>Cost per 25 g of protein compares a pack&apos;s delivered price with the amount of verified protein it contains.</strong> A bigger tub or a cheaper scoop is not automatically better value on that basis.</p>
@@ -37,8 +43,8 @@ export function ProteinGuideContent({ result, now }: { result: GuideProductsResu
         <p className="mt-4">Powder weight and protein weight are different. A 30 g scoop does not mean 30 g of protein. Comparing the price of one scoop can therefore be misleading when serving sizes or protein amounts differ.</p>
       </section>
       <section aria-labelledby="checked-protein-examples">
-        <h2 id="checked-protein-examples" className="text-2xl font-bold text-zinc-950">Two checked flavour variants</h2>
-        <p className="mt-4">These examples follow Applied Nutrition ISO-XP 1.8kg in Banana and Vanilla. Both have their own previously reviewed nutrition record. We keep those records and offers separate; we do not assign one flavour&apos;s figures to another. A cost per 25 g appears only with verified nutrition for that exact variant and a fresh delivered price.</p>
+        <h2 id="checked-protein-examples" className="text-2xl font-bold text-zinc-950">Two verified whey protein examples</h2>
+        <p className="mt-4">Compare Applied Nutrition ISO-XP Vanilla 1.8kg with Efectiv Nutrition Grass-Fed Whey Protein Isolate Strawberry Milkshake 2kg. These are different whey isolate products, flavours and pack sizes, each with its own previously reviewed nutrition record. A cost per 25 g appears only with verified nutrition for that exact variant and a fresh delivered price.</p>
         {result.rows.length === 0 || examples.length === 0 ? (
           <p className="mt-5 rounded-2xl border border-[var(--ss-border)] bg-white p-5">The selected exact variants are currently unavailable. No price or protein amount has been estimated.</p>
         ) : (
@@ -70,7 +76,16 @@ export function ProteinGuideContent({ result, now }: { result: GuideProductsResu
             );
           })}</ul>
         )}
-        <p className="mt-4 text-sm">These are two flavours of the same product, not two competing formulations or a ranking of the cheapest UK offers. They may currently have the same cost per 25 g; that is a result of their separate checked records, not an assumption that every flavour is identical.</p>
+        {lower && higher && difference !== null && (
+          <p className="mt-5 rounded-2xl border border-[var(--ss-border)] bg-white p-5">
+            {/* Ignore floating-point noise without rounding the unit costs before comparing. */}
+            {difference < 1e-12 ? "These two exact examples currently have the same verified cost per 25 g of protein." : <>
+              <strong>{lower.name}</strong> currently costs less per 25 g of verified protein than {higher.name}.{" "}
+              {difference < 0.005 ? "The unrounded difference is less than one penny per 25 g." : <>The difference is {formatCurrency(difference)} per 25 g.</>}
+            </>}
+          </p>
+        )}
+        <p className="mt-4 text-sm">Pack price alone can hide differences in how much verified protein each pack contains. This comparison covers only these two checked examples, not a ranking of the whole UK market. Changing prices or delivery charges can change the result. A lower protein cost does not establish better quality, taste, effectiveness or suitability.</p>
       </section>
       <section aria-labelledby="missing-figures">
         <h2 id="missing-figures" className="text-2xl font-bold text-zinc-950">When we leave the figure blank</h2>
