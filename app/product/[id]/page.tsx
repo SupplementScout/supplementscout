@@ -33,6 +33,7 @@ import {
   buildProductKeyFacts,
   buildProductMetadataDescription,
   buildProductSummary,
+  isMyproteinClearWheyProduct,
   isStandardAbeProduct,
   selectedVariantPresentation,
 } from "../../lib/productPresentation";
@@ -505,9 +506,26 @@ export default async function ProductPage({
   const selectedPresentation = selectedVariant
     ? selectedVariantPresentation(product, effectiveMetrics)
     : product;
-  const productSummary = buildProductSummary(selectedPresentation, {
-    allowCuratedSummary: selectedVariant === null,
-  });
+  const myproteinClearWhey = isMyproteinClearWheyProduct(product);
+  const productSummary = myproteinClearWhey
+    ? "Myprotein Clear Whey Protein Isolate is a whey isolate protein powder. Flavours can have different pack weights: compare the exact flavour and pack, rather than treating different sizes as the same variant."
+    : buildProductSummary(selectedPresentation, {
+        allowCuratedSummary: selectedVariant === null,
+      });
+  const clearWheyVariantLabels = new Map<string, string>();
+  const clearWheyRetailerIds = new Set<string>();
+  if (myproteinClearWhey) {
+    for (const offer of sortedOffers) {
+      const variant = offer.product_variant;
+      const label = getOfferVariantLabel(offer);
+      if (!variant || String(variant.id) !== String(offer.product_variant_id) ||
+          variant.product_format !== "powder" || Number(variant.pack_count) !== 1 ||
+          !(Number(variant.size_value) > 0) || !/^(g|kg)$/.test(variant.size_unit || "") ||
+          !label || getKnownProductPrice(offer.price) === null || !offer.retailer?.id) continue;
+      clearWheyVariantLabels.set(String(variant.id), label);
+      clearWheyRetailerIds.add(String(offer.retailer.id));
+    }
+  }
   const standardAbe = isStandardAbeProduct(product);
   const comparisonLink = comparisonLinkForProduct(product);
   const structuredData = buildProductStructuredData({
@@ -893,6 +911,30 @@ export default async function ProductPage({
             <section className="mt-5 w-full min-w-0 max-w-full rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:mt-7 sm:p-6 lg:mt-8 lg:rounded-3xl lg:p-8">
               <h2 className="text-2xl font-bold text-gray-900">Product summary</h2>
               <p className="mt-4 min-w-0 max-w-full break-words leading-8 text-gray-700 [overflow-wrap:anywhere]">{productSummary}</p>
+              {myproteinClearWhey && (
+                <div className="mt-4 min-w-0 space-y-4 text-sm leading-7 text-zinc-700 sm:text-base">
+                  {clearWheyVariantLabels.size > 0 ? (
+                    <p>
+                      Currently listed for this selection: {Array.from(clearWheyVariantLabels.values()).join("; ")}.
+                      {" "}Matching offers come from {clearWheyRetailerIds.size} tracked UK retailer{clearWheyRetailerIds.size === 1 ? ". This is a single-retailer listing." : "s."}
+                    </p>
+                  ) : (
+                    <p>No current, identified flavour-and-pack offer is available for this selection. Check the retailer for current availability.</p>
+                  )}
+                  <p>
+                    The offers above show item prices, delivery and check dates. When delivery is unknown,
+                    the item price is not a delivered total. Confirm the exact pack and final total at the retailer.
+                  </p>
+                  <p>
+                    {effectiveMetrics.nutrition_verified !== true
+                      ? "Nutrition has not been verified for this exact flavour and pack. Cost per 25g of protein is unavailable."
+                      : "Cost per 25g of protein requires verified nutrition, pack size and servings for the exact variant, plus a known delivered price."}
+                  </p>
+                  <Link href="/whey-isolate" className="inline-flex min-h-11 max-w-full items-center font-semibold underline underline-offset-4">
+                    Compare whey isolate prices
+                  </Link>
+                </div>
+              )}
               {standardAbe && (
                 <div className="mt-4 min-w-0 space-y-4 text-sm leading-7 text-zinc-700 sm:text-base">
                   <p>
