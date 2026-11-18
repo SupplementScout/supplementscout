@@ -1,5 +1,21 @@
 # SupplementScout Operating Plan
 
+**18 November 2026 SEO-29 LIVE VERIFIED:** the later explicit owner release
+approval authorizes PR #549 squash merge, automatic Production and closeout.
+Final reviewed head3a2e2d8a403b0f837baedfb22c0863bf56a3b937 adds only a
+deterministic test-clock correction to approved592960a9; runtime code is identical.
+Squash645d6c51698c524185cfc9d9e48cdda40391bbd3 preserves that complete tree. Fresh local gates,
+PR/main Quality Gate and Guardian, exact GitHub Production/Vercel SUCCESS and
+changed public build6jOjXHHkhMo4PGIhR-a3i pass. Public source-bound HTML,
+exact metadata/variants/delivery arithmetic,16-route SEO/sitemap readback,
+nine1440/390/320px layouts and unchanged warm-response/read guards pass.
+Earlier Draft-only restrictions are historical for this approved release.
+SEO-20 stays frozen, SEO-21–28 stay LIVE VERIFIED and Stage3 stays disabled.
+No catalogue/nutrition/mapping/history, Google, analytics schedule or SEO-30
+change. Final documentation main SHA/CI/deployment proof is recorded on
+[merged PR #549](https://github.com/SupplementScout/supplementscout/pull/549).
+[Production evidence](rollouts/seo29-clear-whey-intent-2026-11-18.md).
+
 **18 November 2026 SEO-29 owner-approved Draft checkpoint:** the exact
 Myprotein Clear Whey product1470 improvement is CODE COMPLETE for publication
 review. The owner authorizes one bounded Draft PR, necessary tests/evidence

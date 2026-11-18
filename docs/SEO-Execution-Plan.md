@@ -1,5 +1,21 @@
 # SupplementScout SEO Execution Plan
 
+**18 November 2026 SEO-29 LIVE VERIFIED:** the later explicit owner release
+approval authorizes PR #549 squash merge, automatic Production and closeout.
+Final reviewed head3a2e2d8a403b0f837baedfb22c0863bf56a3b937 adds only a
+deterministic test-clock correction to approved592960a9; runtime code is identical.
+Squash645d6c51698c524185cfc9d9e48cdda40391bbd3 preserves that complete tree. Fresh local gates,
+PR/main Quality Gate and Guardian, exact GitHub Production/Vercel SUCCESS and
+changed public build6jOjXHHkhMo4PGIhR-a3i pass. Public source-bound HTML,
+exact metadata/variants/delivery arithmetic,16-route SEO/sitemap readback,
+nine1440/390/320px layouts and unchanged warm-response/read guards pass.
+Earlier Draft-only restrictions are historical for this approved release.
+SEO-20 stays frozen, SEO-21–28 stay LIVE VERIFIED and Stage3 stays disabled.
+No catalogue/nutrition/mapping/history, Google, analytics schedule or SEO-30
+change. Final documentation main SHA/CI/deployment proof is recorded on
+[merged PR #549](https://github.com/SupplementScout/supplementscout/pull/549).
+[Production evidence](rollouts/seo29-clear-whey-intent-2026-11-18.md).
+
 **18 November 2026 SEO-29 Draft checkpoint:** exact Myprotein Clear Whey
 product1470 buying clarity is CODE COMPLETE after full gates and actual-source
 paired local production-build QA. One owner-approved Draft PR only; no merge,
@@ -553,7 +569,7 @@ Console evidence and user value.
 
 | SEO-28 | P1 | Homepage protein-comparison search intent: compact decision copy and contextual navigation. | `LIVE VERIFIED` | Owner-approved PR #548 squash2b48c4b7 preserves approved10dfa02d tree. Fresh local gates, PR/main Quality Gate/Guardian and exact GitHub Production/Vercel SUCCESS pass. Public buildGcAMDDlZE-2hHGYdLaWvx, initial HTML,18-route SEO/sitemap readback, actual variant/pricing/unit arithmetic and1440/768/390/320px QA pass. Cold reads12→12, warm3→3; unchanged cache, initial client assets and warm-response guard. EKM image works publicly; local NAT64 limitation remains separate. No data/Google write; SEO-20 frozen, SEO-21–27 live. Evidence: docs/rollouts/seo28-homepage-protein-intent-2026-11-18.md. |
 
-| SEO-29 | P1 | Improve existing Myprotein Clear Whey product1470 buying clarity. | `CODE COMPLETE` | Owner-approved Draft PR only. Exact id/slug/name/brand/category/powder guard; factual summary and current exact-pack/single-retailer coverage reuse loaded offers. Source confirms4649 Peach Tea244g and4633 Orange Mango261g, unverified nutrition and dynamic delivery totals. The later owner correction changes only target meta/OG/Twitter descriptions; title/H1/canonical/body/schema/sitemap/tracking stay unchanged. Full gates, nine1440/390/320px content layouts and warm guard pass. Runtime reads7→7 base/9→9 exact variants. No production/data/GSC write; SEO-20 frozen, SEO-21–28 live. Evidence: docs/rollouts/seo29-clear-whey-intent-2026-11-18.md. |
+| SEO-29 | P1 | Improve existing Myprotein Clear Whey product1470 buying clarity. | `LIVE VERIFIED` | Owner-approved PR #549 squash645d6c51698c524185cfc9d9e48cdda40391bbd3 preserves final3a2e2d8a tree and approved runtime implementation. Fresh quick/full gates and PR/main Quality Gate/Guardian pass; exact GitHub Production/Vercel SUCCESS and public build6jOjXHHkhMo4PGIhR-a3i prove deployment. Public200, exact description/OG/Twitter, initial summary, current-source variants/delivery/date/arithmetic, unchanged canonical/robots/schema/sitemap/tracking and nine1440/390/320px layouts pass. Warm guard and runtime reads7→7/9→9 pass. No production-data/Google write; SEO-20 frozen, SEO-21–28 live, Stage3 off. Evidence: docs/rollouts/seo29-clear-whey-intent-2026-11-18.md. |
 
 ## 6. Current active task
 
@@ -831,7 +847,34 @@ SEO-07 manual evidence queue is now complete:
 
 ## 11. Execution evidence
 
-### 18 November 2026 - SEO-29 Clear Whey product intent CODE COMPLETE
+### 18 November 2026 - SEO-29 production release LIVE VERIFIED
+
+- Owner-authorized PR #549 merged at2026-11-18T15:15:58Z as645d6c51698c524185cfc9d9e48cdda40391bbd3;
+  exact tree parity with reviewed3a2e2d8a. The only follow-up to approved592960a9
+  freezes the existing caffeine-loader TEST clock to its dated fixture: the
+  failure reproduced on original main when its24h fixture expired.17/17 focused
+  cases,45 product-presentation cases, quick1,328 pass/3 existing skips and
+  full4,065 pass/3 same skips pass; no new skips or runtime change.
+- TypeScript, ESLint, production build, manifest seal, Project Guardian and
+  PR/main CI pass. Production7887440889, Verceldpl_7XbCxA3ZBp3nTUdMxEvXUGEcxuUB
+  SUCCESS at2026-11-18T15:16:57Z; public build changes from
+  uqJ4jcOCjbjSdrHsZAaHr to6jOjXHHkhMo4PGIhR-a3i. First proof
+  2026-11-18T15:17:12.270Z; complete public readback2026-11-18T15:19:27.024Z.
+- HTTP200 and actual-source initial HTML verify both exact packs, one retailer,
+  known shipping/decimal totals/check dates, approved summary and exact meta/OG/
+  Twitter text. No unverified25g cost. Existing canonical/robots, Product and
+  BreadcrumbList rules,1,487 unique sitemap URLs, tracked offer anchors and
+ 16-route regression readback pass. HEAD204 only; no synthetic offer GET.
+- Nine public layouts1440/390/320px × base/Peach/Orange pass with no clipping,
+  overlap, new horizontal overflow, runtime exceptions or HTTP errors; keyboard
+  focus and flavour buttons pass. Warm-response guard and paired actual-source
+  local reads7→7/9→9 pass. Cache/client architecture unchanged; no field CWV claim.
+- [Dated sources, exact metrics and public screenshots](rollouts/seo29-clear-whey-intent-2026-11-18.md).
+  SEO-20 clock/thresholds/frozen fields and SEO-21–28 ledger rows remain unchanged.
+  Stage3 stays disabled. Existing7/28 complete-day follow-up stays in place,
+  with no analytics schedule change or GSC submission. No SEO-30 begins.
+
+### 18 November 2026 - SEO-29 historical Draft checkpoint CODE COMPLETE
 
 - Owner authorizes one bounded Draft PR from main2794c555 for existing
   product1470 only. No concurrent product PR was open. No merge, Production,

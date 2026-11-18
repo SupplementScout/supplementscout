@@ -1,9 +1,132 @@
 # SEO-29: Myprotein Clear Whey buying clarity
 
-Status: **CODE COMPLETE — READY FOR PUBLICATION REVIEW**. One owner-approved
-Draft PR only; no merge, Production deployment or SEO-30.
-Base: `2794c555bb12a25dbdd1ad7552ebf4d3f1f5c74c`. Final head, CI and protected
-Preview result are recorded on the Draft PR.
+Status: **LIVE VERIFIED** after owner-approved merge, Production and public readback.
+Base: `2794c555bb12a25dbdd1ad7552ebf4d3f1f5c74c`.
+
+## Owner-approved Production closeout — 18 November 2026
+
+The later explicit release approval supersedes the Draft-only boundary below.
+PR [#549](https://github.com/SupplementScout/supplementscout/pull/549) merged at
+2026-11-18T15:15:58Z. Approved592960a91db61589bb7d1f3bd4184157e4d45253 became
+reviewed3a2e2d8a403b0f837baedfb22c0863bf56a3b937 solely through a test-clock
+fix. The unchanged caffeine loader's fixture expired at15:00UTC on18Nov; the
+failure was reproduced on base main. The test now uses its fixture date through
+the existing Node test clock. No application code, data, freshness limit,
+assertion or test skip was weakened.17/17 targeted and45 presentation cases pass.
+
+Squash/main release: `645d6c51698c524185cfc9d9e48cdda40391bbd3`, exact reviewed tree parity.
+GitHub Production deployment `7887440889` and Vercel
+`dpl_7XbCxA3ZBp3nTUdMxEvXUGEcxuUB` report SUCCESS at `2026-11-18T15:16:57Z`.
+Public build `uqJ4jcOCjbjSdrHsZAaHr` changes to
+`6jOjXHHkhMo4PGIhR-a3i`; first target proof `2026-11-18T15:17:12.270Z`,
+complete16-route readback `2026-11-18T15:19:27.024Z`. This combines exact-commit GitHub/
+Vercel evidence with actual custom-domain HTML. It does not claim private API
+READY access: previous API403 and Preview SSO are retained, never bypassed.
+Final documentation-only main SHA/CI/Production proof is recorded on merged
+PR #549 after that final deployment; its application sources remain identical.
+
+### Fresh real data and public HTML
+
+Read-only catalogue/resolver snapshot `2026-11-18T15:17:06.905Z`, public binding
+proof `2026-11-18T15:19:29.257Z`. Both variants are active single packs, resolved to1470,
+in stock and younger than the existing24h limit at verification. Values below
+are dated observations, not application constants or independent checkout quotes.
+
+|Exact variant|Offer / mapping|Retailer|Product + delivery = total|Offer checked UTC|
+|---|---|---|---|---|
+|4649 Peach Tea, 244g|4647 / 4834|Holland & Barrett|£17.00 + £3.49 = £20.49|2026-11-17T17:48:48.656+00:00|
+|4633 Orange Mango, 261g|4631 / 4818|Holland & Barrett|£17.00 + £3.49 = £20.49|2026-11-17T17:48:48.656+00:00|
+
+Only one tracked retailer is stated;244g/261g are never treated as500g. Stored
+destinations identify the exact two H&B packs. Nutrition candidates approved0,
+empty variant overrides and false product verification flags remain unchanged;
+numeric cost25g is absent. Public initial HTML preserves the approved summary,
+exact variant labels, delivery explanations/check date and crawlable isolate
+link. Flavour selection keeps go/4647 and go/4631 with product_offer_list;
+primary product_best_offer links are unchanged. Safe HEAD204 only, no outbound
+retailer GET, purchase, synthetic retailer click or production-data write.
+
+The requested description appears once in each HTML/OG/Twitter field on all
+three target addresses. Title, one H1, canonical to base and existing default
+index/follow remain unchanged. Base retains BreadcrumbList without ambiguous
+Product schema; exact variants retain Product/AggregateOffer plus BreadcrumbList,
+with source-bound prices and the approved factual summary description. No new
+Review, rating, nutrition,500g or metadata-as-schema claim appears. Robots and
+all1,487 unique sitemap addresses match baseline, with one target canonical.
+No new route or parameter indexability rule was introduced.
+
+All16 public routes pass SEO contracts. Controls: Impact Whey Isolate, Applied
+Clear Whey, ABE, PER4M card/hub, CNP Creatine, homepage, whey-protein/isolate,
+creatine under20 and representative SEO-22/26 guides. The scoped helper's
+negative tests also preserve standard Impact Whey; no active public standard
+Impact URL was invented. Exact frozen PER4M title/H1, unchanged metadata and
+schema entity rules pass. SEO-20 and SEO-21–28 ledger rows are byte-for-byte
+unchanged; their runtime sources and lifecycle are untouched.
+
+### Fresh gates and public responsive QA
+
+Fresh quick1,331 scheduled:1,328 PASS,3 existing legacy10Reps fixture skips,
+0 FAIL. Full4,068 scheduled:4,065 PASS,3 identical skips,0 FAIL. TypeScript,
+ESLint, migration baseline, Next16.2.9 production build and manifest369/seal
+2bfb325c9c18f95e45a4d596f7bd7c80a33199cbcef3dbc91c29d8518b0e27b8 pass.
+Project Guardian passes before/after closeout; its negative contracts pass.
+PR/main required CI is green. Isolated DB/integration job stays outside this
+credential-free gate and retains its existing workflow skip.
+
+Public base/Peach/Orange ×1440/390/320px:9/9 PASS. No clipping, overlap, new
+horizontal overflow, runtime exception, HTTP4xx/5xx or focus failure. Existing
+flavour-button selection and visible keyboard focus work. Analytics collection
+was blocked, nonessential consent rejected and offer links were never followed.
+Screenshots: [1440px](seo29-clear-whey-2026-11-18/production-1440.webp),
+[390px](seo29-clear-whey-2026-11-18/production-390.webp),
+[320px](seo29-clear-whey-2026-11-18/production-320.webp).
+
+### Performance and reads
+
+Public warm TTFB: five retained samples after an initial warm-up per route;
+same existing before×1.5+100ms guard, unchanged. DNS/connection errors are
+recorded separately and excluded from application timings. Network error count
+in this run:0.
+
+|Public route|Baseline median TTFB|Production median TTFB|Existing guard|
+|---|---:|---:|---|
+|/product/myprotein-clear-whey-protein-isolate|1176.6ms|1131.0ms|PASS|
+|/product/myprotein-clear-whey-protein-isolate?variant=4649|1402.7ms|1258.1ms|PASS|
+|/product/myprotein-clear-whey-protein-isolate?variant=4633|1529.2ms|1185.0ms|PASS|
+|/product/myprotein-impact-whey-isolate-powder|1161.5ms|1104.8ms|PASS|
+|/product/applied-nutrition-abe-ultimate-pre-workout-315g|1167.4ms|929.4ms|PASS|
+|/brands/per4m|190.5ms|194.2ms|PASS|
+|/|644.7ms|599.4ms|PASS|
+
+Paired actual-source local production builds use GET-only interception and
+five warm alternating samples per build/route. These are instrumented local
+read counts/full HTTP durations, not Production database telemetry or TTFB.
+
+|Route|Before full response|After full response|GETs each request|
+|---|---:|---:|---|
+|/product/myprotein-clear-whey-protein-isolate|800.3ms|740.8ms|7→7|
+|/product/myprotein-clear-whey-protein-isolate?variant=4649|802.6ms|755.8ms|9→9|
+|/product/myprotein-clear-whey-protein-isolate?variant=4633|756.3ms|731.9ms|9→9|
+
+Existing cache/query mechanics and client architecture remain unchanged. Public
+browser asset/LCP/CLS diagnostics are laboratory observations only; no field
+Core Web Vitals or organic traffic improvement is claimed. Raw JSON, HTML,
+read traces, CI/production authority and viewport PNGs remain in ignored
+`.worktrees/seo29-clear-whey-intent-20261118/tmp/release-seo29/`.
+
+SEO-29 is LIVE VERIFIED after these public checks. SEO-20 remains frozen with
+its original clock/thresholds; SEO-21–28 remain LIVE VERIFIED and Stage3 disabled.
+No catalogue, offer, nutrition approval, mapping, price history, importer,
+migration, workflow or analytics/GSC schedule change occurred. No Google URL
+submission or SEO-30. Google indexing is UNKNOWN, not inferred from publication.
+Keep existing7/28 complete-day checks from the production success timestamp;
+the first complete UTC day is19Nov2026 (7-day window19–25Nov,28-day19Nov–16Dec).
+No new reporting job is started.
+
+## Historical Draft implementation and evidence
+
+The sections below preserve the earlier review checkpoint. Their Draft-only
+release wording is superseded by the explicit approval and verified release above.
 
 ## Bounded implementation
 
