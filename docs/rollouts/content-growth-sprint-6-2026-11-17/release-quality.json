@@ -1,0 +1,69 @@
+{
+  "capturedAt": "2026-11-18T07:28:46.493Z",
+  "mergeSha": "318bff37157e1f02e40fdc5b8168b7b025a3644d",
+  "releaseHead": "339c5472367c8377e49d84fc0a11cccd8a9a43bf",
+  "focusedTests": 166,
+  "quick": {
+    "result": "PASS",
+    "tests": 1330
+  },
+  "full": {
+    "result": "PASS",
+    "tests": 4054
+  },
+  "typeScript": "PASS",
+  "eslint": "PASS",
+  "productionBuild": "PASS",
+  "projectGuardian": "PASS",
+  "ci": {
+    "pr": [
+      {
+        "conclusion": "success",
+        "databaseId": 44257912852,
+        "headSha": "339c5472367c8377e49d84fc0a11cccd8a9a43bf",
+        "name": "Project Guardian",
+        "status": "completed",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44257912852"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 44257912850,
+        "headSha": "339c5472367c8377e49d84fc0a11cccd8a9a43bf",
+        "name": "Quality Gate",
+        "status": "completed",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44257912850"
+      }
+    ],
+    "main": [
+      {
+        "conclusion": "success",
+        "databaseId": 44258466806,
+        "headSha": "318bff37157e1f02e40fdc5b8168b7b025a3644d",
+        "name": "Project Guardian",
+        "status": "completed",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44258466806"
+      },
+      {
+        "conclusion": "success",
+        "databaseId": 44258466698,
+        "headSha": "318bff37157e1f02e40fdc5b8168b7b025a3644d",
+        "name": "Quality Gate",
+        "status": "completed",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44258466698"
+      }
+    ]
+  },
+  "productionVerification": "PASS: initial HTML equals independent current GET-only source rendering; SEO, exact variants, budgets, arithmetic, links, responsive QA and unchanged warm-response guard pass",
+  "cacheValidation": {
+    "sameReviewedRuntime": true,
+    "existingActualSourceLocalColdReads": 2,
+    "existingActualSourceLocalWarmReads": 0,
+    "productionDbReadCountMeasured": false
+  },
+  "deploymentAuthority": "Vercel commit SUCCESS + exact latest GitHub Production deployment SUCCESS + public domain build fingerprint/content contracts; no private API READY claim",
+  "googleIndexed": "UNKNOWN; no new inspection or submission",
+  "googleActions": 0,
+  "productionDataWrites": 0,
+  "fieldCwvClaim": false,
+  "nextSprintStarted": false
+}

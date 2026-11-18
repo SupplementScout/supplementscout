@@ -1,6 +1,6 @@
 # SupplementScout Agent Operating Model
 
-**Status date:** 17 November 2026<br>
+**Status date:** 18 November 2026<br>
 **Authority:** Supporting operating model. The SupplementScout Operating Plan
 remains the project authority and the SEO Execution Plan remains the SEO task
 ledger.
@@ -153,6 +153,22 @@ permission, receives no secrets and performs no network, catalogue or
 production write.
 
 ## Concurrency rule
+
+**18 November 2026 SEO-26 LIVE VERIFIED closeout:** owner-approved PR #546
+released head `339c5472367c8377e49d84fc0a11cccd8a9a43bf` as squash
+`318bff37157e1f02e40fdc5b8168b7b025a3644d` with exact tree parity. PR/main Quality Gate and
+Guardian pass. Exact GitHub Production deployment SUCCESS and Vercel commit
+SUCCESS, a changed public build `x6d6M-h4ZO-FddB0fktZ5`,
+and source-bound public HTML prove the custom domain release. API403/SSO
+protections remain intact. Both guides pass HTTP200, index/follow, self-canonical,
+one sitemap URL each, parameter noindex/follow, factual schema, actual dynamic
+exact-variant delivered budgets and verified unit costs, links and1440/390px QA.
+Both routes now record live_verified without changing public indexability.
+Earlier Draft/CODE COMPLETE checkpoints are historical. SEO-20 remains frozen/
+binding and SEO-21/22/23/24/25 LIVE VERIFIED; Stage3 stays disabled. No data/
+nutrition/mapping/history/importer/workflow/schedule write, Google action or
+Sprint7. Google inclusion UNKNOWN; the owner handles submissions. Evidence:
+`docs/rollouts/content-growth-sprint-6-2026-11-17.md`.
 
 **18 November 2026 SEO-26 production-release approval:** the owner explicitly
 authorizes PR #546, reviewed head3d5ccc21, the two prepared guide lifecycle

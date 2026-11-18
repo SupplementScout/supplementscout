@@ -1,0 +1,1202 @@
+{
+  "capturedAt": "2026-11-18T07:25:49.964Z",
+  "environment": "actual public production Chrome QA; not field CWV; non-essential consent rejected if shown",
+  "base": "https://www.supplementscout.co.uk",
+  "syntheticOffers": false,
+  "results": [
+    {
+      "route": "/guides/pre-workout-under-30",
+      "width": 1440,
+      "mobileTouchEmulation": false,
+      "result": "PASS",
+      "title": "Pre-Workout Under £30 UK: Compare Prices Including Delivery | SupplementScout",
+      "h1": "Which pre-workouts cost £30 or less including delivery?",
+      "viewport": 1440,
+      "visualWidth": 1425,
+      "scale": 1,
+      "documentWidth": 1425,
+      "canonical": "https://www.supplementscout.co.uk/guides/pre-workout-under-30",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "Warrior Rage Unleash Hell, Blazin Berry / 392g",
+          "href": "/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006"
+        },
+        {
+          "text": "Warrior Rage Unleash Hell",
+          "href": "/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006"
+        },
+        {
+          "text": "Applied Nutrition ABE Ultimate Pre-Workout",
+          "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1672"
+        },
+        {
+          "text": "Cellucor C4 Sport Pre-Workout",
+          "href": "/product/cellucor-c4-sport-pre-workout-powder?variant=4610"
+        },
+        {
+          "text": "Cellucor C4 Sport Pre-Workout",
+          "href": "/product/cellucor-c4-sport-pre-workout-powder?variant=4610"
+        },
+        {
+          "text": "Applied Nutrition ABE Ultimate Pre-Workout",
+          "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1672"
+        },
+        {
+          "text": "how delivery changes supplement prices",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "verified caffeine-free pre-workout guide",
+          "href": "/guides/caffeine-free-pre-workout"
+        },
+        {
+          "text": "the pre-workout comparison",
+          "href": "/pre-workout"
+        },
+        {
+          "text": "compare two products",
+          "href": "/compare"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Warrior Rage Unleash HellBrand: Warrior. Variant: Blazin Berry / 392g. One exact 392g pack.eBay UKProduct price£13.99Delivery£0.00Delivered total£13.99Offer checked 17 Nov 2026, 14:562026-11-17T14:56:56.868+00:00A verified serving count and cost per serving are not available for this exact variant. We do not turn its pack weight or a serving claim in its name into a verified count.",
+          "x": 288.5,
+          "y": 636,
+          "w": 269.328125,
+          "h": 476
+        },
+        {
+          "text": "Applied Nutrition ABE Ultimate Pre-WorkoutBrand: Applied Nutrition. Variant: Baddy Berry / 315g. One exact 315g pack.eBay UKProduct price£21.95Delivery£0.00Delivered total£21.95Offer checked 17 Nov 2026, 14:572026-11-17T14:57:48.215+00:00A verified serving count and cost per serving are not available for this exact variant. We do not turn its pack weight or a serving claim in its name into a verified count.",
+          "x": 577.828125,
+          "y": 636,
+          "w": 269.328125,
+          "h": 476
+        },
+        {
+          "text": "Cellucor C4 Sport Pre-WorkoutBrand: Cellucor. Variant: Icy Blue Raspberry / 270 g. One exact 270g pack.Holland & BarrettProduct price£19.99Delivery£3.49Delivered total£23.48Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00A verified serving count and cost per serving are not available for this exact variant. We do not turn its pack weight or a serving claim in its name into a verified count.",
+          "x": 867.15625,
+          "y": 636,
+          "w": 269.34375,
+          "h": 476
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 704,
+      "navigation": {
+        "name": "https://www.supplementscout.co.uk/guides/pre-workout-under-30?qa=1440",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 919.4000000059605,
+        "navigationId": 9052,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "h2",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "br",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.800000011920929,
+        "domainLookupStart": 1.4000000059604645,
+        "domainLookupEnd": 10.599999994039536,
+        "connectStart": 10.599999994039536,
+        "secureConnectionStart": 20.700000017881393,
+        "connectEnd": 42.400000005960464,
+        "requestStart": 42.599999994039536,
+        "responseStart": 54.099999994039536,
+        "firstInterimResponseStart": 54.099999994039536,
+        "finalResponseHeadersStart": 311.90000000596046,
+        "responseEnd": 316.80000001192093,
+        "transferSize": 8372,
+        "encodedBodySize": 8072,
+        "decodedBodySize": 39413,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 0,
+        "unloadEventEnd": 0,
+        "domInteractive": 574.5999999940395,
+        "domContentLoadedEventStart": 574.7000000178814,
+        "domContentLoadedEventEnd": 574.7000000178814,
+        "domComplete": 919.3000000119209,
+        "loadEventStart": 919.4000000059605,
+        "loadEventEnd": 919.4000000059605,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1m4jsc1dh3h5_.css",
+          "bytes": 81236,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3j9pm5otqxm82.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/turbopack-05o9g6l_1hb89.js",
+          "bytes": 11041,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2qss5m6h08xun.js",
+          "bytes": 26871,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1xdsaumin0uei.js",
+          "bytes": 54645,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1w9lotakwc4_z.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2s1m7kw-blijk.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/favicon.ico?favicon.32r4ylec7nel_.ico",
+          "bytes": 2774,
+          "type": "other"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/cellucor-c4-sport-pre-workout-powder?variant=4610&_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 269,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006&_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 275,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1672&_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 280,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=-26vTCB3wYD9EVj-",
+          "bytes": 2565,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=HlN9APHfDE9f_iKN",
+          "bytes": 2908,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=dNibC0lSx5r7gNFn",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=Ih50Sxt7TqXak-OO",
+          "bytes": 1655,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/cellucor-c4-sport-pre-workout-powder?variant=4610&_rsc=Xe56pu39FmUw0ymK",
+          "bytes": 2930,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/308ujrdr5rv1m.js",
+          "bytes": 13700,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=Xe56pu39FmUw0ymK",
+          "bytes": 2635,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/pre-workout-under-30",
+      "width": 390,
+      "mobileTouchEmulation": true,
+      "result": "PASS",
+      "title": "Pre-Workout Under £30 UK: Compare Prices Including Delivery | SupplementScout",
+      "h1": "Which pre-workouts cost £30 or less including delivery?",
+      "viewport": 390,
+      "visualWidth": 390,
+      "scale": 1,
+      "documentWidth": 390,
+      "canonical": "https://www.supplementscout.co.uk/guides/pre-workout-under-30",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "Warrior Rage Unleash Hell, Blazin Berry / 392g",
+          "href": "/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006"
+        },
+        {
+          "text": "Warrior Rage Unleash Hell",
+          "href": "/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006"
+        },
+        {
+          "text": "Applied Nutrition ABE Ultimate Pre-Workout",
+          "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1672"
+        },
+        {
+          "text": "Cellucor C4 Sport Pre-Workout",
+          "href": "/product/cellucor-c4-sport-pre-workout-powder?variant=4610"
+        },
+        {
+          "text": "Cellucor C4 Sport Pre-Workout",
+          "href": "/product/cellucor-c4-sport-pre-workout-powder?variant=4610"
+        },
+        {
+          "text": "Applied Nutrition ABE Ultimate Pre-Workout",
+          "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1672"
+        },
+        {
+          "text": "how delivery changes supplement prices",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "verified caffeine-free pre-workout guide",
+          "href": "/guides/caffeine-free-pre-workout"
+        },
+        {
+          "text": "the pre-workout comparison",
+          "href": "/pre-workout"
+        },
+        {
+          "text": "compare two products",
+          "href": "/compare"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Warrior Rage Unleash HellBrand: Warrior. Variant: Blazin Berry / 392g. One exact 392g pack.eBay UKProduct price£13.99Delivery£0.00Delivered total£13.99Offer checked 17 Nov 2026, 14:562026-11-17T14:56:56.868+00:00A verified serving count and cost per serving are not available for this exact variant. We do not turn its pack weight or a serving claim in its name into a verified count.",
+          "x": 16,
+          "y": 888.5,
+          "w": 358,
+          "h": 384
+        },
+        {
+          "text": "Applied Nutrition ABE Ultimate Pre-WorkoutBrand: Applied Nutrition. Variant: Baddy Berry / 315g. One exact 315g pack.eBay UKProduct price£21.95Delivery£0.00Delivered total£21.95Offer checked 17 Nov 2026, 14:572026-11-17T14:57:48.215+00:00A verified serving count and cost per serving are not available for this exact variant. We do not turn its pack weight or a serving claim in its name into a verified count.",
+          "x": 16,
+          "y": 1292.5,
+          "w": 358,
+          "h": 412
+        },
+        {
+          "text": "Cellucor C4 Sport Pre-WorkoutBrand: Cellucor. Variant: Icy Blue Raspberry / 270 g. One exact 270g pack.Holland & BarrettProduct price£19.99Delivery£3.49Delivered total£23.48Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00A verified serving count and cost per serving are not available for this exact variant. We do not turn its pack weight or a serving claim in its name into a verified count.",
+          "x": 16,
+          "y": 1724.5,
+          "w": 358,
+          "h": 384
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 244,
+      "navigation": {
+        "name": "https://www.supplementscout.co.uk/guides/pre-workout-under-30?qa=390",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 227.19999998807907,
+        "navigationId": 1805,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "h2",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "br",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.5999999940395355,
+        "domainLookupStart": 0.5999999940395355,
+        "domainLookupEnd": 0.5999999940395355,
+        "connectStart": 0.5999999940395355,
+        "secureConnectionStart": 0.5999999940395355,
+        "connectEnd": 0.5999999940395355,
+        "requestStart": 1.5,
+        "responseStart": 14.799999982118607,
+        "firstInterimResponseStart": 14.799999982118607,
+        "finalResponseHeadersStart": 198.39999997615814,
+        "responseEnd": 215.7999999821186,
+        "transferSize": 8379,
+        "encodedBodySize": 8079,
+        "decodedBodySize": 39410,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 209,
+        "unloadEventEnd": 209,
+        "domInteractive": 225.09999999403954,
+        "domContentLoadedEventStart": 225.09999999403954,
+        "domContentLoadedEventEnd": 225.09999999403954,
+        "domComplete": 227.19999998807907,
+        "loadEventStart": 227.19999998807907,
+        "loadEventEnd": 227.19999998807907,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1m4jsc1dh3h5_.css",
+          "bytes": 81236,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3j9pm5otqxm82.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/turbopack-05o9g6l_1hb89.js",
+          "bytes": 11041,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2qss5m6h08xun.js",
+          "bytes": 26871,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1xdsaumin0uei.js",
+          "bytes": 54645,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2s1m7kw-blijk.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1w9lotakwc4_z.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006&_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 275,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=-26vTCB3wYD9EVj-",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=HlN9APHfDE9f_iKN",
+          "bytes": 2908,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=BqF2e6RZ-hezh9ZO",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=Xe56pu39FmUw0ymK",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006&_rsc=Xe56pu39FmUw0ymK",
+          "bytes": 2986,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=YcNP9cYDvLDdZVER",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=Xe56pu39FmUw0ymK",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/warrior-rage-unleash-hell-pre-workout-392g?_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 262,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/mass-gainer-under-40",
+      "width": 1440,
+      "mobileTouchEmulation": false,
+      "result": "PASS",
+      "title": "Mass Gainer Under £40 UK: Compare Prices Including Delivery | SupplementScout",
+      "h1": "Which mass gainers cost £40 or less including delivery?",
+      "viewport": 1440,
+      "visualWidth": 1425,
+      "scale": 1,
+      "documentWidth": 1425,
+      "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-under-40",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "7Nutrition Bodybuilder, Cookies & Cream / 1.5kg",
+          "href": "/product/7nutrition-bodybuilder-15kg?variant=2009"
+        },
+        {
+          "text": "7Nutrition Bodybuilder",
+          "href": "/product/7nutrition-bodybuilder-15kg?variant=2009"
+        },
+        {
+          "text": "Mutant Mass",
+          "href": "/product/mutant-mass-mass-gainer-227kg?variant=1973"
+        },
+        {
+          "text": "Applied Nutrition Critical Mass Lean Mass Gainz",
+          "href": "/product/applied-nutrition-critical-mass-lean-mass-gainz-24kg?variant=1803"
+        },
+        {
+          "text": "7Nutrition Bodybuilder",
+          "href": "/product/7nutrition-bodybuilder-15kg?variant=2009"
+        },
+        {
+          "text": "Applied Nutrition Critical Mass Lean Mass Gainz",
+          "href": "/product/applied-nutrition-critical-mass-lean-mass-gainz-24kg?variant=1803"
+        },
+        {
+          "text": "the delivery-price guide",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "mass gainer versus whey protein",
+          "href": "/guides/mass-gainer-vs-whey-protein"
+        },
+        {
+          "text": "the mass gainer comparison",
+          "href": "/mass-gainer"
+        },
+        {
+          "text": "compare two exact products",
+          "href": "/compare"
+        },
+        {
+          "text": "the verified protein-cost method",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "7Nutrition BodybuilderBrand: 7Nutrition. Variant: Cookies & Cream / 1.5kg. One exact 1,500g pack.6 Pack SupplementsProduct price£19.99Delivery£4.99Delivered total£24.98Offer checked 17 Nov 2026, 11:452026-11-17T11:45:40.735+00:00Delivered powder cost: £16.65/kg. This measures powder bought, not protein or calories.",
+          "x": 288.5,
+          "y": 636,
+          "w": 269.328125,
+          "h": 484
+        },
+        {
+          "text": "Mutant MassBrand: Mutant. Variant: Vanilla Ice Cream / 2270g. One exact 2,270g pack.Fit HouseProduct price£31.99Delivery£3.99Delivered total£35.98Offer checked 17 Nov 2026, 11:112026-11-17T11:11:52.1+00:00Delivered powder cost: £15.85/kg. This measures powder bought, not protein or calories.",
+          "x": 577.828125,
+          "y": 636,
+          "w": 269.328125,
+          "h": 484
+        },
+        {
+          "text": "Applied Nutrition Critical Mass Lean Mass GainzBrand: Applied Nutrition. Variant: Chocolate / 2400g. One exact 2,400g pack.Whey OkayProduct price£33.57Delivery£3.99Delivered total£37.56Offer checked 17 Nov 2026, 10:482026-11-17T10:48:03.114+00:00Delivered powder cost: £15.65/kg. This measures powder bought, not protein or calories.",
+          "x": 867.15625,
+          "y": 636,
+          "w": 269.34375,
+          "h": 484
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 172,
+      "navigation": {
+        "name": "https://www.supplementscout.co.uk/guides/mass-gainer-under-40?qa=1440",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 283.19999998807907,
+        "navigationId": 4623,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "h2",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "br",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.699999988079071,
+        "domainLookupStart": 0.699999988079071,
+        "domainLookupEnd": 0.699999988079071,
+        "connectStart": 0.699999988079071,
+        "secureConnectionStart": 0.699999988079071,
+        "connectEnd": 0.699999988079071,
+        "requestStart": 1.699999988079071,
+        "responseStart": 13.900000005960464,
+        "firstInterimResponseStart": 13.900000005960464,
+        "finalResponseHeadersStart": 134.09999999403954,
+        "responseEnd": 140.7999999821186,
+        "transferSize": 8446,
+        "encodedBodySize": 8146,
+        "decodedBodySize": 39205,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 138.69999998807907,
+        "unloadEventEnd": 138.69999998807907,
+        "domInteractive": 148.09999999403954,
+        "domContentLoadedEventStart": 148.19999998807907,
+        "domContentLoadedEventEnd": 148.19999998807907,
+        "domComplete": 283.19999998807907,
+        "loadEventStart": 283.19999998807907,
+        "loadEventEnd": 283.19999998807907,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1m4jsc1dh3h5_.css",
+          "bytes": 81236,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3j9pm5otqxm82.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/turbopack-05o9g6l_1hb89.js",
+          "bytes": 11041,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2qss5m6h08xun.js",
+          "bytes": 26871,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1xdsaumin0uei.js",
+          "bytes": 54645,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2hchg2cth6b95.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1w9lotakwc4_z.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-critical-mass-lean-mass-gainz-24kg?variant=1803&_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 285,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/mutant-mass-mass-gainer-227kg?variant=1973&_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 262,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/7nutrition-bodybuilder-15kg?variant=2009&_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 260,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=cBqyIE38pIK4X1OQ",
+          "bytes": 2565,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=lS5vb3chZS-KCw8a",
+          "bytes": 2908,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=xtmoHmQuOM_v8q8r",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/my-supplements?_rsc=y82rGYtjRjMc_TgI",
+          "bytes": 1655,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-critical-mass-lean-mass-gainz-24kg?variant=1803&_rsc=zE3zw4-dC2bpnLUn",
+          "bytes": 3289,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/mutant-mass-mass-gainer-227kg?variant=1973&_rsc=zE3zw4-dC2bpnLUn",
+          "bytes": 3031,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/308ujrdr5rv1m.js",
+          "bytes": 13700,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/7nutrition-bodybuilder-15kg?variant=2009&_rsc=zE3zw4-dC2bpnLUn",
+          "bytes": 2986,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=zE3zw4-dC2bpnLUn",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=cBqyIE38pIK4X1OQ",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=0UphIc0EYDHBZCh5",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=oee2xvQZ01ma5yf3",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=zE3zw4-dC2bpnLUn",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/applied-nutrition-critical-mass-lean-mass-gainz-24kg?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 272,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/mutant-mass-mass-gainer-227kg?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 249,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/7nutrition-bodybuilder-15kg?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 247,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/mass-gainer-under-40",
+      "width": 390,
+      "mobileTouchEmulation": true,
+      "result": "PASS",
+      "title": "Mass Gainer Under £40 UK: Compare Prices Including Delivery | SupplementScout",
+      "h1": "Which mass gainers cost £40 or less including delivery?",
+      "viewport": 390,
+      "visualWidth": 390,
+      "scale": 1,
+      "documentWidth": 390,
+      "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-under-40",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "7Nutrition Bodybuilder, Cookies & Cream / 1.5kg",
+          "href": "/product/7nutrition-bodybuilder-15kg?variant=2009"
+        },
+        {
+          "text": "7Nutrition Bodybuilder",
+          "href": "/product/7nutrition-bodybuilder-15kg?variant=2009"
+        },
+        {
+          "text": "Mutant Mass",
+          "href": "/product/mutant-mass-mass-gainer-227kg?variant=1973"
+        },
+        {
+          "text": "Applied Nutrition Critical Mass Lean Mass Gainz",
+          "href": "/product/applied-nutrition-critical-mass-lean-mass-gainz-24kg?variant=1803"
+        },
+        {
+          "text": "7Nutrition Bodybuilder",
+          "href": "/product/7nutrition-bodybuilder-15kg?variant=2009"
+        },
+        {
+          "text": "Applied Nutrition Critical Mass Lean Mass Gainz",
+          "href": "/product/applied-nutrition-critical-mass-lean-mass-gainz-24kg?variant=1803"
+        },
+        {
+          "text": "the delivery-price guide",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "mass gainer versus whey protein",
+          "href": "/guides/mass-gainer-vs-whey-protein"
+        },
+        {
+          "text": "the mass gainer comparison",
+          "href": "/mass-gainer"
+        },
+        {
+          "text": "compare two exact products",
+          "href": "/compare"
+        },
+        {
+          "text": "the verified protein-cost method",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "7Nutrition BodybuilderBrand: 7Nutrition. Variant: Cookies & Cream / 1.5kg. One exact 1,500g pack.6 Pack SupplementsProduct price£19.99Delivery£4.99Delivered total£24.98Offer checked 17 Nov 2026, 11:452026-11-17T11:45:40.735+00:00Delivered powder cost: £16.65/kg. This measures powder bought, not protein or calories.",
+          "x": 16,
+          "y": 916.5,
+          "w": 358,
+          "h": 344
+        },
+        {
+          "text": "Mutant MassBrand: Mutant. Variant: Vanilla Ice Cream / 2270g. One exact 2,270g pack.Fit HouseProduct price£31.99Delivery£3.99Delivered total£35.98Offer checked 17 Nov 2026, 11:112026-11-17T11:11:52.1+00:00Delivered powder cost: £15.85/kg. This measures powder bought, not protein or calories.",
+          "x": 16,
+          "y": 1280.5,
+          "w": 358,
+          "h": 344
+        },
+        {
+          "text": "Applied Nutrition Critical Mass Lean Mass GainzBrand: Applied Nutrition. Variant: Chocolate / 2400g. One exact 2,400g pack.Whey OkayProduct price£33.57Delivery£3.99Delivered total£37.56Offer checked 17 Nov 2026, 10:482026-11-17T10:48:03.114+00:00Delivered powder cost: £15.65/kg. This measures powder bought, not protein or calories.",
+          "x": 16,
+          "y": 1644.5,
+          "w": 358,
+          "h": 372
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 180,
+      "navigation": {
+        "name": "https://www.supplementscout.co.uk/guides/mass-gainer-under-40?qa=390",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 160.7999999821186,
+        "navigationId": 7031,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "h2",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "br",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.7999999821186066,
+        "domainLookupStart": 0.7999999821186066,
+        "domainLookupEnd": 0.7999999821186066,
+        "connectStart": 0.7999999821186066,
+        "secureConnectionStart": 0.7999999821186066,
+        "connectEnd": 0.7999999821186066,
+        "requestStart": 1.9000000059604645,
+        "responseStart": 14.699999988079071,
+        "firstInterimResponseStart": 14.699999988079071,
+        "finalResponseHeadersStart": 139.5,
+        "responseEnd": 144.2999999821186,
+        "transferSize": 8479,
+        "encodedBodySize": 8179,
+        "decodedBodySize": 39202,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 149.69999998807907,
+        "unloadEventEnd": 149.69999998807907,
+        "domInteractive": 158.09999999403954,
+        "domContentLoadedEventStart": 158.09999999403954,
+        "domContentLoadedEventEnd": 158.09999999403954,
+        "domComplete": 160.69999998807907,
+        "loadEventStart": 160.7999999821186,
+        "loadEventEnd": 160.7999999821186,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1m4jsc1dh3h5_.css",
+          "bytes": 81236,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/26f16j0dplny0.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/27jktro2p5rq9.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/07u_h6i539_wj.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/3j9pm5otqxm82.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/turbopack-05o9g6l_1hb89.js",
+          "bytes": 11041,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2qss5m6h08xun.js",
+          "bytes": 26871,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1xdsaumin0uei.js",
+          "bytes": 54645,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/2hchg2cth6b95.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/_next/static/chunks/1w9lotakwc4_z.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/7nutrition-bodybuilder-15kg?variant=2009&_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 260,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=cBqyIE38pIK4X1OQ",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=lS5vb3chZS-KCw8a",
+          "bytes": 2908,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=0UphIc0EYDHBZCh5",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/how-we-compare?_rsc=oee2xvQZ01ma5yf3",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/7nutrition-bodybuilder-15kg?variant=2009&_rsc=zE3zw4-dC2bpnLUn",
+          "bytes": 2986,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/product/7nutrition-bodybuilder-15kg?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 247,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/search?_rsc=zE3zw4-dC2bpnLUn",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "https://www.supplementscout.co.uk/?_rsc=zE3zw4-dC2bpnLUn",
+          "bytes": 2635,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    }
+  ]
+}

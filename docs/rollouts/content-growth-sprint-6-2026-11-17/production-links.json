@@ -1,0 +1,184 @@
+{
+  "capturedAt": "2026-11-18T07:26:58.312Z",
+  "environment": "actual public production links plus independently recalculated current read-only catalogue arithmetic",
+  "sourceCapturedAt": "2026-11-18T07:25:39.702Z",
+  "checks": [
+    {
+      "path": "/",
+      "status": 200
+    },
+    {
+      "path": "/search",
+      "status": 200
+    },
+    {
+      "path": "/how-we-compare",
+      "status": 200
+    },
+    {
+      "path": "/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006",
+      "status": 200,
+      "exactVariant": "Blazin Berry / 392g"
+    },
+    {
+      "path": "/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1672",
+      "status": 200,
+      "exactVariant": "Baddy Berry / 315g"
+    },
+    {
+      "path": "/product/cellucor-c4-sport-pre-workout-powder?variant=4610",
+      "status": 200,
+      "exactVariant": "Icy Blue Raspberry / 270 g"
+    },
+    {
+      "path": "/guides/supplement-prices-including-delivery",
+      "status": 200
+    },
+    {
+      "path": "/guides/caffeine-free-pre-workout",
+      "status": 200
+    },
+    {
+      "path": "/pre-workout",
+      "status": 200
+    },
+    {
+      "path": "/compare",
+      "status": 200
+    },
+    {
+      "path": "/data-freshness",
+      "status": 200
+    },
+    {
+      "path": "/product/7nutrition-bodybuilder-15kg?variant=2009",
+      "status": 200,
+      "exactVariant": "Cookies & Cream / 1.5kg"
+    },
+    {
+      "path": "/product/mutant-mass-mass-gainer-227kg?variant=1973",
+      "status": 200,
+      "exactVariant": "Vanilla Ice Cream / 2270g"
+    },
+    {
+      "path": "/product/applied-nutrition-critical-mass-lean-mass-gainz-24kg?variant=1803",
+      "status": 200,
+      "exactVariant": "Chocolate / 2400g"
+    },
+    {
+      "path": "/guides/mass-gainer-vs-whey-protein",
+      "status": 200
+    },
+    {
+      "path": "/mass-gainer",
+      "status": 200
+    },
+    {
+      "path": "/guides/cost-per-25g-protein",
+      "status": 200
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 200
+    }
+  ],
+  "arithmetic": [
+    {
+      "variantId": 1006,
+      "productUrl": "/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006",
+      "itemPence": 1399,
+      "shippingPence": 0,
+      "totalPence": 1399,
+      "checkedAt": "2026-11-17T14:56:56.868+00:00",
+      "verifiedPowderWeight": false,
+      "pricePerKg": null,
+      "verifiedServings": null,
+      "costPerServing": null,
+      "result": "PASS"
+    },
+    {
+      "variantId": 1672,
+      "productUrl": "/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1672",
+      "itemPence": 2195,
+      "shippingPence": 0,
+      "totalPence": 2195,
+      "checkedAt": "2026-11-17T14:57:48.215+00:00",
+      "verifiedPowderWeight": false,
+      "pricePerKg": null,
+      "verifiedServings": null,
+      "costPerServing": null,
+      "result": "PASS"
+    },
+    {
+      "variantId": 4610,
+      "productUrl": "/product/cellucor-c4-sport-pre-workout-powder?variant=4610",
+      "itemPence": 1999,
+      "shippingPence": 349,
+      "totalPence": 2348,
+      "checkedAt": "2026-11-17T17:48:48.656+00:00",
+      "verifiedPowderWeight": false,
+      "pricePerKg": null,
+      "verifiedServings": null,
+      "costPerServing": null,
+      "result": "PASS"
+    },
+    {
+      "variantId": 2009,
+      "productUrl": "/product/7nutrition-bodybuilder-15kg?variant=2009",
+      "itemPence": 1999,
+      "shippingPence": 499,
+      "totalPence": 2498,
+      "checkedAt": "2026-11-17T11:45:40.735+00:00",
+      "verifiedPowderWeight": true,
+      "pricePerKg": 16.653333333333332,
+      "verifiedServings": null,
+      "costPerServing": null,
+      "result": "PASS"
+    },
+    {
+      "variantId": 1973,
+      "productUrl": "/product/mutant-mass-mass-gainer-227kg?variant=1973",
+      "itemPence": 3199,
+      "shippingPence": 399,
+      "totalPence": 3598,
+      "checkedAt": "2026-11-17T11:11:52.1+00:00",
+      "verifiedPowderWeight": true,
+      "pricePerKg": 15.85022026431718,
+      "verifiedServings": null,
+      "costPerServing": null,
+      "result": "PASS"
+    },
+    {
+      "variantId": 1803,
+      "productUrl": "/product/applied-nutrition-critical-mass-lean-mass-gainz-24kg?variant=1803",
+      "itemPence": 3357,
+      "shippingPence": 399,
+      "totalPence": 3756,
+      "checkedAt": "2026-11-17T10:48:03.114+00:00",
+      "verifiedPowderWeight": true,
+      "pricePerKg": 15.650000000000002,
+      "verifiedServings": null,
+      "costPerServing": null,
+      "result": "PASS"
+    }
+  ],
+  "incoming": [
+    {
+      "from": "/pre-workout",
+      "to": "/guides/pre-workout-under-30",
+      "crawlableLinks": 1
+    },
+    {
+      "from": "/mass-gainer",
+      "to": "/guides/mass-gainer-under-40",
+      "crawlableLinks": 1
+    }
+  ],
+  "sitemap": {
+    "urls": 1487,
+    "duplicates": 0,
+    "newRoutes": 2
+  },
+  "databaseWrites": 0,
+  "googleActions": 0
+}

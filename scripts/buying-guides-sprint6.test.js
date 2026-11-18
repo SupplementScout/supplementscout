@@ -119,7 +119,7 @@ test("each route makes one bounded shared loader call with its own cache version
 });
 test("only the two approved sitemap candidates are indexable and all eight prior guides stay live",()=>{
   const lifecycle=load('app/lib/indexabilityLifecycle.ts'),sitemap=fs.readFileSync(path.join(root,'app/sitemap.ts'),'utf8');
-  for(const g of groups){assert.equal(lifecycle.getLifecycleStatus(g.route),'launch_approved');assert.equal(lifecycle.isLifecycleSitemapEligible(g.route),true);assert.equal(sitemap.split(g.route).length-1,1);}
+  for(const g of groups){assert.equal(lifecycle.getLifecycleStatus(g.route),'live_verified');assert.equal(lifecycle.isLifecycleSitemapEligible(g.route),true);assert.equal(sitemap.split(g.route).length-1,1);}
   for(const route of ['/guides/supplement-prices-including-delivery','/guides/cost-per-25g-protein','/guides/protein-powder-under-30','/guides/caffeine-free-pre-workout','/guides/whey-isolate-vs-concentrate','/guides/protein-powder-pack-size-value','/guides/mass-gainer-vs-whey-protein','/guides/creatine-pack-size-value','/brands/per4m','/creatine'])assert.equal(lifecycle.getLifecycleStatus(route),'live_verified');
 });
 test("one contextual incoming link per category preserves product offer tracking and server components",()=>{

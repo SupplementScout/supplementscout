@@ -1,0 +1,37 @@
+{
+  "capturedAt": "2026-11-18T07:24:24.461Z",
+  "sha": "318bff37157e1f02e40fdc5b8168b7b025a3644d",
+  "target": "production",
+  "githubDeploymentId": 7876916192,
+  "githubDeploymentState": "success",
+  "githubDeploymentCreatedAt": "2026-11-18T07:24:07Z",
+  "generatedDeploymentUrl": "https://supplementscout-hr2vh4cqe-supplement-scout.vercel.app",
+  "vercelCommitState": "success",
+  "vercelStatusUrl": "https://vercel.com/supplement-scout/supplementscout/7zwoUkUKJa8sCotuxiPdmVbDwN3R",
+  "directVercelApi": "Prior403 retained; not retried or bypassed. Authorized GitHub/Vercel webhook and public build verification used.",
+  "id": "dpl_7zwoUkUKJa8sCotuxiPdmVbDwN3R",
+  "state": "READY",
+  "ready": true,
+  "publicDomain": "https://www.supplementscout.co.uk",
+  "publicBuildId": "x6d6M-h4ZO-FddB0fktZ5",
+  "previousPublicBuildId": "f0eussJ1uy3EC5Mh3knOb",
+  "publicDomainBuildTransition": true,
+  "samePublicBuildAcrossCheckedRoutes": true,
+  "checked": [
+    {
+      "path": "/guides/pre-workout-under-30",
+      "status": 200,
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5",
+      "indexFollow": true,
+      "selfCanonical": true
+    },
+    {
+      "path": "/guides/mass-gainer-under-40",
+      "status": 200,
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5",
+      "indexFollow": true,
+      "selfCanonical": true
+    }
+  ],
+  "readinessAuthority": "Vercel commit SUCCESS + exact latest GitHub Production deployment SUCCESS + public domain build fingerprint/content contracts; no private API READY claim"
+}

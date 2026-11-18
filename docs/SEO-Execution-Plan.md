@@ -1,5 +1,21 @@
 # SupplementScout SEO Execution Plan
 
+**18 November 2026 SEO-26 LIVE VERIFIED closeout:** owner-approved PR #546
+released head `339c5472367c8377e49d84fc0a11cccd8a9a43bf` as squash
+`318bff37157e1f02e40fdc5b8168b7b025a3644d` with exact tree parity. PR/main Quality Gate and
+Guardian pass. Exact GitHub Production deployment SUCCESS and Vercel commit
+SUCCESS, a changed public build `x6d6M-h4ZO-FddB0fktZ5`,
+and source-bound public HTML prove the custom domain release. API403/SSO
+protections remain intact. Both guides pass HTTP200, index/follow, self-canonical,
+one sitemap URL each, parameter noindex/follow, factual schema, actual dynamic
+exact-variant delivered budgets and verified unit costs, links and1440/390px QA.
+Both routes now record live_verified without changing public indexability.
+Earlier Draft/CODE COMPLETE checkpoints are historical. SEO-20 remains frozen/
+binding and SEO-21/22/23/24/25 LIVE VERIFIED; Stage3 stays disabled. No data/
+nutrition/mapping/history/importer/workflow/schedule write, Google action or
+Sprint7. Google inclusion UNKNOWN; the owner handles submissions. Evidence:
+`docs/rollouts/content-growth-sprint-6-2026-11-17.md`.
+
 **18 November 2026 SEO-26 production-release approval:** the owner explicitly
 authorizes PR #546, reviewed head3d5ccc21, the two prepared guide lifecycle
 transitions to launch_approved, necessary existing tests/docs, full gates,
@@ -105,7 +121,7 @@ SEO-20 stays frozen/binding; SEO-21/22/23 stay LIVE VERIFIED and SEO-15 Stage 3
 stays disabled. No catalogue, nutrition, mapping, history, importer or workflow
 write, Google submission or next sprint is authorized.
 
-**Status date:** 17 November 2026<br>
+**Status date:** 18 November 2026<br>
 **Owner:** SupplementScout  
 **Scope:** Organic search traffic, indexation, internal discovery, search landing
 pages, structured data, measurement and authority building.  
@@ -482,7 +498,7 @@ Console evidence and user value.
 
 | SEO-25 | P1 | Content Growth Sprint5: /guides/mass-gainer-vs-whey-protein and /guides/creatine-pack-size-value. | `LIVE VERIFIED` | Owner-approved PR #545 squash 65983f24aadee1ec7e0f5f700800f6a10661ccb7 preserves the reviewed tree. Main Quality Gate/Guardian and exact GitHub Production/Vercel commit statuses pass; changed public build 9_WVqN0zBGLZhUxucMStg proves domain promotion without bypassing API403/SSO. Public HTTP200, indexability/canonical/sitemap/schema, actual-source initial HTML, six exact variants, delivered/kg/protein arithmetic, links,1440/390px QA and unchanged warm-response guard pass. Missing nutrition stays withheld. Google inclusion UNKNOWN; no data/GSC write. SEO-20 frozen; SEO-21/22/23/24 live. |
 
-| SEO-26 | P1 | Content Growth Sprint6: /guides/pre-workout-under-30 and /guides/mass-gainer-under-40. | `CODE COMPLETE` | Latest verified complete GSC artifacts reused; fresh16Nov availability check remains incomplete and excluded. Three exact current products/brands per guide; delivered budgets, real shipping reversal and verified powder unit prices.166 focused, quick1,330/full4,054, actual-source initial HTML/cache, public exact links and1440/390px QA pass. One Draft PR; planned/noindex. No merge/production/data/nutrition or Google write. SEO-20 frozen; SEO-21/22/23/24/25 live. |
+| SEO-26 | P1 | Content Growth Sprint6: /guides/pre-workout-under-30 and /guides/mass-gainer-under-40. | `LIVE VERIFIED` | Owner-approved PR #546 squash 318bff37157e1f02e40fdc5b8168b7b025a3644d preserves the reviewed tree. PR/main Quality Gate and Guardian pass. Exact GitHub Production/Vercel commit SUCCESS plus changed public build x6d6M-h4ZO-FddB0fktZ5 prove custom-domain deployment without API403/SSO bypass. Public HTTP200, indexability/canonical/sitemap/schema, current-source initial HTML, exact variants, delivered budgets/unit costs, links,1440/390px QA and unchanged warm-response guard pass. No unverified nutrition or production-data/Google write. SEO-20 frozen; SEO-21/22/23/24/25 live. |
 
 ## 6. Current active task
 
@@ -753,6 +769,36 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 18 November 2026 - SEO-26 production release LIVE VERIFIED
+
+- Release head `339c5472367c8377e49d84fc0a11cccd8a9a43bf` squash merged as
+  `318bff37157e1f02e40fdc5b8168b7b025a3644d` with exact tree parity. Required PR/main CI,
+  Guardian,166 focused tests, quick1330/full4054 safe tests, TypeScript, ESLint
+  and Next16.2.9 production build pass. No test, dependency or workflow omitted.
+- Exact GitHub Production/Vercel commit SUCCESS and changed public build
+  x6d6M-h4ZO-FddB0fktZ5 match the new main and both public guides.
+  API403/SSO remain protected; this is the authorized public/GitHub fallback.
+- Public HTTP200, one H1, index/follow, self-canonical, exactly one sitemap
+  occurrence each, parameter noindex/follow, Googlebot and factual schema pass.
+  Initial HTML equals independent current GET-only source rendering. Exact
+  variants, actual offer dates, stock/freshness, known shipping, inclusive
+  delivered budgets, verified powder weight costs and links pass. No snapshot
+  price is forced and no unverified serving/caffeine/protein/calorie metric
+  is invented. Safe partial/empty and error contracts remain tested.
+- Desktop1440/mobile390, keyboard order, readable cards, overflow, runtime
+  and HTTP checks pass; screenshots visually reviewed. New warm medians
+  140.7ms/140.8ms; all14 existing routes pass the unchanged before*1.5+100ms guard.
+  Cold DNS/connect and request TTFB are retained separately. Cache runtime
+  retains verified local two-cold/zero-warm reads; production DB counts are
+  not claimed. These samples do not establish field CWV improvements.
+- [Existing Sprint6 production evidence](rollouts/content-growth-sprint-6-2026-11-17.md).
+  SEO-26 is LIVE VERIFIED and only its two states become live_verified.
+  Frozen SEO-20 and live SEO-21–25 retain source/public contract parity;
+  Stage3 stays disabled. Google inclusion UNKNOWN; no GSC/Indexing API action,
+  production-data write or next sprint. Final closeout main CI and public
+  build/readback must pass again; exact final SHA is retained on PR #546.
+
 
 ### 17 November 2026 - SEO-26 Content Growth Sprint6 CODE COMPLETE
 

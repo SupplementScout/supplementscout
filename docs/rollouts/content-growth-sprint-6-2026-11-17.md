@@ -182,3 +182,50 @@ offer check dates are real, within24 hours, and are not rewritten to today.
 The prelaunch public baseline records unchanged main971527c3/build
 f0eussJ1uy3EC5Mh3knOb,14 protected-page warm/SEO baselines, and both new
 URLs404/absent from sitemap. Deployment and public verification remain pending.
+
+## 18 November production closeout: LIVE VERIFIED
+
+**18 November 2026 SEO-26 LIVE VERIFIED closeout:** owner-approved PR #546
+released head `339c5472367c8377e49d84fc0a11cccd8a9a43bf` as squash
+`318bff37157e1f02e40fdc5b8168b7b025a3644d` with exact tree parity. PR/main Quality Gate and
+Guardian pass. Exact GitHub Production deployment SUCCESS and Vercel commit
+SUCCESS, a changed public build `x6d6M-h4ZO-FddB0fktZ5`,
+and source-bound public HTML prove the custom domain release. API403/SSO
+protections remain intact. Both guides pass HTTP200, index/follow, self-canonical,
+one sitemap URL each, parameter noindex/follow, factual schema, actual dynamic
+exact-variant delivered budgets and verified unit costs, links and1440/390px QA.
+Both routes now record live_verified without changing public indexability.
+Earlier Draft/CODE COMPLETE checkpoints are historical. SEO-20 remains frozen/
+binding and SEO-21/22/23/24/25 LIVE VERIFIED; Stage3 stays disabled. No data/
+nutrition/mapping/history/importer/workflow/schedule write, Google action or
+Sprint7. Google inclusion UNKNOWN; the owner handles submissions. Evidence:
+`docs/rollouts/content-growth-sprint-6-2026-11-17.md`.
+
+| Exact current product / variant | Retailer | Item + delivery = total | Verified powder cost | Offer checked UTC |
+| --- | --- | --- | --- | --- |
+| Warrior Rage Unleash Hell / Blazin Berry / 392g (`1006`) | eBay UK | £13.99 + £0.00 = £13.99 | Withheld | 2026-11-17T14:56:56.868+00:00 |
+| Applied Nutrition ABE Ultimate Pre-Workout / Baddy Berry / 315g (`1672`) | eBay UK | £21.95 + £0.00 = £21.95 | Withheld | 2026-11-17T14:57:48.215+00:00 |
+| Cellucor C4 Sport Pre-Workout / Icy Blue Raspberry / 270 g (`4610`) | Holland & Barrett | £19.99 + £3.49 = £23.48 | Withheld | 2026-11-17T17:48:48.656+00:00 |
+| 7Nutrition Bodybuilder / Cookies & Cream / 1.5kg (`2009`) | 6 Pack Supplements | £19.99 + £4.99 = £24.98 | £16.65/kg | 2026-11-17T11:45:40.735+00:00 |
+| Mutant Mass / Vanilla Ice Cream / 2270g (`1973`) | Fit House | £31.99 + £3.99 = £35.98 | £15.85/kg | 2026-11-17T11:11:52.1+00:00 |
+| Applied Nutrition Critical Mass Lean Mass Gainz / Chocolate / 2400g (`1803`) | Whey Okay | £33.57 + £3.99 = £37.56 | £15.65/kg | 2026-11-17T10:48:03.114+00:00 |
+
+These are dated actual readback values, not fixed live prices. Valid missing
+examples remain excluded without substitution; blank nutrition is not zero.
+
+[Deployment proof](content-growth-sprint-6-2026-11-17/production-deployment-proof.json),
+[public readback](content-growth-sprint-6-2026-11-17/production-readback.json),
+[current source](content-growth-sprint-6-2026-11-17/production-source-readback.json),
+[data contract](content-growth-sprint-6-2026-11-17/production-data-contract.json),
+[links/arithmetic](content-growth-sprint-6-2026-11-17/production-links.json),
+[browser/screenshots](content-growth-sprint-6-2026-11-17/production-browser.json),
+[performance](content-growth-sprint-6-2026-11-17/performance-followup.json) and
+[quality](content-growth-sprint-6-2026-11-17/release-quality.json) retain actual
+commit/source dates, baseline and fallback authority. No private API READY
+response or production DB-read instrumentation is claimed.
+
+No rollback was required. A real regression stops closeout; diagnose against
+this source/baseline and use the existing guarded code-revert procedure under
+its authorization, preserving data and protections. The final closeout commit
+and automatic deployment must pass exact-head CI and public build/readback
+again; final SHA and evidence links are retained on the existing PR #546.

@@ -1,0 +1,134 @@
+{
+  "capturedAt": "2026-11-18T07:28:46.494Z",
+  "guard": "Existing warm median after < before * 1.5 + 100ms, unchanged",
+  "comparison": [
+    {
+      "route": "/how-we-compare",
+      "beforeWarmMs": 33.2,
+      "afterWarmMs": 25.6
+    },
+    {
+      "route": "/creatine",
+      "beforeWarmMs": 194,
+      "afterWarmMs": 210.3
+    },
+    {
+      "route": "/whey-protein",
+      "beforeWarmMs": 213.3,
+      "afterWarmMs": 233.7
+    },
+    {
+      "route": "/brands/per4m",
+      "beforeWarmMs": 201.4,
+      "afterWarmMs": 179.6
+    },
+    {
+      "route": "/guides/supplement-prices-including-delivery",
+      "beforeWarmMs": 144.6,
+      "afterWarmMs": 158.9
+    },
+    {
+      "route": "/guides/cost-per-25g-protein",
+      "beforeWarmMs": 141.5,
+      "afterWarmMs": 131.5
+    },
+    {
+      "route": "/guides/protein-powder-under-30",
+      "beforeWarmMs": 143.3,
+      "afterWarmMs": 149.8
+    },
+    {
+      "route": "/guides/caffeine-free-pre-workout",
+      "beforeWarmMs": 136.1,
+      "afterWarmMs": 170.4
+    },
+    {
+      "route": "/guides/whey-isolate-vs-concentrate",
+      "beforeWarmMs": 139.6,
+      "afterWarmMs": 139.5
+    },
+    {
+      "route": "/guides/protein-powder-pack-size-value",
+      "beforeWarmMs": 134.3,
+      "afterWarmMs": 157.6
+    },
+    {
+      "route": "/mass-gainer",
+      "beforeWarmMs": 151.3,
+      "afterWarmMs": 163.1
+    },
+    {
+      "route": "/pre-workout",
+      "beforeWarmMs": 245.9,
+      "afterWarmMs": 259.4
+    },
+    {
+      "route": "/guides/mass-gainer-vs-whey-protein",
+      "beforeWarmMs": 179,
+      "afterWarmMs": 167.6
+    },
+    {
+      "route": "/guides/creatine-pack-size-value",
+      "beforeWarmMs": 153.7,
+      "afterWarmMs": 156.8
+    }
+  ],
+  "newGuides": [
+    {
+      "route": "/guides/pre-workout-under-30",
+      "warmMedianTTFBms": 140.7
+    },
+    {
+      "route": "/guides/mass-gainer-under-40",
+      "warmMedianTTFBms": 140.8
+    }
+  ],
+  "coldFirstNavigation": {
+    "route": "/guides/pre-workout-under-30",
+    "width": 1440,
+    "lcpMs": 704,
+    "cls": 0,
+    "dnsMs": 9.199999988079071,
+    "connectMs": 31.80000001192093,
+    "requestToFirstByteMs": 11.5
+  },
+  "warmBrowser": [
+    {
+      "route": "/guides/pre-workout-under-30",
+      "width": 1440,
+      "lcpMs": 236,
+      "cls": 0,
+      "dnsMs": 0,
+      "connectMs": 0,
+      "requestToFirstByteMs": 12.5
+    },
+    {
+      "route": "/guides/pre-workout-under-30",
+      "width": 390,
+      "lcpMs": 164,
+      "cls": 0,
+      "dnsMs": 0,
+      "connectMs": 0,
+      "requestToFirstByteMs": 12.5
+    },
+    {
+      "route": "/guides/mass-gainer-under-40",
+      "width": 1440,
+      "lcpMs": 172,
+      "cls": 0,
+      "dnsMs": 0,
+      "connectMs": 0,
+      "requestToFirstByteMs": 13.599999994039536
+    },
+    {
+      "route": "/guides/mass-gainer-under-40",
+      "width": 390,
+      "lcpMs": 172,
+      "cls": 0,
+      "dnsMs": 0,
+      "connectMs": 0,
+      "requestToFirstByteMs": 12.5
+    }
+  ],
+  "note": "Small production HTTP/browser lab samples, not field Core Web Vitals. DNS/connect/source cold cost remains separate; reviewed two-cold/zero-warm data-cache contract retained without new production instrumentation."
+}

@@ -1,0 +1,2135 @@
+{
+  "capturedAt": "2026-11-18T07:26:05.468Z",
+  "kind": "production-release-readback",
+  "deployment": {
+    "sha": "318bff37157e1f02e40fdc5b8168b7b025a3644d",
+    "target": "production",
+    "githubDeploymentId": 7876916192,
+    "githubDeploymentState": "success",
+    "githubDeploymentCreatedAt": "2026-11-18T07:24:07Z",
+    "generatedDeploymentUrl": "https://supplementscout-hr2vh4cqe-supplement-scout.vercel.app",
+    "vercelCommitState": "success",
+    "vercelStatusUrl": "https://vercel.com/supplement-scout/supplementscout/7zwoUkUKJa8sCotuxiPdmVbDwN3R",
+    "directVercelApi": "Prior403 retained; not retried or bypassed. Authorized GitHub/Vercel webhook and public build verification used.",
+    "id": "dpl_7zwoUkUKJa8sCotuxiPdmVbDwN3R",
+    "state": "READY",
+    "ready": true,
+    "publicDomain": "https://www.supplementscout.co.uk",
+    "publicBuildId": "x6d6M-h4ZO-FddB0fktZ5",
+    "previousPublicBuildId": null,
+    "publicDomainBuildTransition": null,
+    "samePublicBuildAcrossCheckedRoutes": true,
+    "checked": [
+      {
+        "path": "/guides/pre-workout-under-30",
+        "status": 200,
+        "buildId": "x6d6M-h4ZO-FddB0fktZ5",
+        "indexFollow": true,
+        "selfCanonical": true
+      },
+      {
+        "path": "/guides/mass-gainer-under-40",
+        "status": 200,
+        "buildId": "x6d6M-h4ZO-FddB0fktZ5",
+        "indexFollow": true,
+        "selfCanonical": true
+      }
+    ],
+    "readinessAuthority": "Vercel commit SUCCESS + exact latest GitHub Production deployment SUCCESS + public domain build fingerprint/content contracts; no private API READY claim"
+  },
+  "pages": [
+    {
+      "path": "/guides/pre-workout-under-30",
+      "status": 200,
+      "ttfbMs": 176.9,
+      "totalMs": 185.4,
+      "bytes": 39367,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::rl7db-1794986762270-b1c11b16dc76",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Pre-Workout Under £30 UK: Compare Prices Including Delivery | SupplementScout",
+        "h1": "Which pre-workouts cost £30 or less including delivery?",
+        "canonical": "https://www.supplementscout.co.uk/guides/pre-workout-under-30",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5",
+      "parameter": {
+        "path": "/guides/pre-workout-under-30?sort=price",
+        "status": 200,
+        "ttfbMs": 130.4,
+        "totalMs": 135.3,
+        "bytes": 39422,
+        "xRobotsTag": null,
+        "vercelId": "lhr1::iad1::rsz6x-1794986762427-79feb9ccfc21",
+        "vercelCache": "MISS",
+        "serverTiming": null,
+        "metadata": {
+          "title": "Pre-Workout Under £30 UK: Compare Prices Including Delivery | SupplementScout",
+          "h1": "Which pre-workouts cost £30 or less including delivery?",
+          "canonical": "https://www.supplementscout.co.uk/guides/pre-workout-under-30",
+          "robots": "noindex, follow",
+          "schema": [
+            "BreadcrumbList",
+            "WebPage"
+          ]
+        },
+        "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+      },
+      "googlebot": {
+        "path": "/guides/pre-workout-under-30",
+        "status": 200,
+        "ttfbMs": 140.3,
+        "totalMs": 145.2,
+        "bytes": 39367,
+        "xRobotsTag": null,
+        "vercelId": "lhr1::iad1::rsz6x-1794986762576-0559d57a0c7a",
+        "vercelCache": "MISS",
+        "serverTiming": null,
+        "metadata": {
+          "title": "Pre-Workout Under £30 UK: Compare Prices Including Delivery | SupplementScout",
+          "h1": "Which pre-workouts cost £30 or less including delivery?",
+          "canonical": "https://www.supplementscout.co.uk/guides/pre-workout-under-30",
+          "robots": "index, follow",
+          "schema": [
+            "BreadcrumbList",
+            "WebPage"
+          ]
+        },
+        "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+      },
+      "sourceCapturedAt": "2026-11-18T07:25:39.702Z",
+      "sourceBoundContentEquality": true,
+      "warmSamples": [
+        {
+          "path": "/guides/pre-workout-under-30",
+          "status": 200,
+          "ttfbMs": 126.4,
+          "totalMs": 130.9,
+          "bytes": 39367,
+          "xRobotsTag": null,
+          "vercelId": "lhr1::iad1::4x72n-1794986762710-74f132c371f2",
+          "vercelCache": "MISS",
+          "serverTiming": null,
+          "metadata": {
+            "title": "Pre-Workout Under £30 UK: Compare Prices Including Delivery | SupplementScout",
+            "h1": "Which pre-workouts cost £30 or less including delivery?",
+            "canonical": "https://www.supplementscout.co.uk/guides/pre-workout-under-30",
+            "robots": "index, follow",
+            "schema": [
+              "BreadcrumbList",
+              "WebPage"
+            ]
+          },
+          "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+        },
+        {
+          "path": "/guides/pre-workout-under-30",
+          "status": 200,
+          "ttfbMs": 117.1,
+          "totalMs": 121.9,
+          "bytes": 39367,
+          "xRobotsTag": null,
+          "vercelId": "lhr1::iad1::4x72n-1794986762835-2f7590590431",
+          "vercelCache": "MISS",
+          "serverTiming": null,
+          "metadata": {
+            "title": "Pre-Workout Under £30 UK: Compare Prices Including Delivery | SupplementScout",
+            "h1": "Which pre-workouts cost £30 or less including delivery?",
+            "canonical": "https://www.supplementscout.co.uk/guides/pre-workout-under-30",
+            "robots": "index, follow",
+            "schema": [
+              "BreadcrumbList",
+              "WebPage"
+            ]
+          },
+          "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+        },
+        {
+          "path": "/guides/pre-workout-under-30",
+          "status": 200,
+          "ttfbMs": 144.1,
+          "totalMs": 149.5,
+          "bytes": 39367,
+          "xRobotsTag": null,
+          "vercelId": "lhr1::iad1::4x72n-1794986762955-262517f097a3",
+          "vercelCache": "MISS",
+          "serverTiming": null,
+          "metadata": {
+            "title": "Pre-Workout Under £30 UK: Compare Prices Including Delivery | SupplementScout",
+            "h1": "Which pre-workouts cost £30 or less including delivery?",
+            "canonical": "https://www.supplementscout.co.uk/guides/pre-workout-under-30",
+            "robots": "index, follow",
+            "schema": [
+              "BreadcrumbList",
+              "WebPage"
+            ]
+          },
+          "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+        },
+        {
+          "path": "/guides/pre-workout-under-30",
+          "status": 200,
+          "ttfbMs": 144.8,
+          "totalMs": 149.8,
+          "bytes": 39367,
+          "xRobotsTag": null,
+          "vercelId": "lhr1::iad1::ktlcn-1794986763108-76ad0d15d6fa",
+          "vercelCache": "MISS",
+          "serverTiming": null,
+          "metadata": {
+            "title": "Pre-Workout Under £30 UK: Compare Prices Including Delivery | SupplementScout",
+            "h1": "Which pre-workouts cost £30 or less including delivery?",
+            "canonical": "https://www.supplementscout.co.uk/guides/pre-workout-under-30",
+            "robots": "index, follow",
+            "schema": [
+              "BreadcrumbList",
+              "WebPage"
+            ]
+          },
+          "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+        },
+        {
+          "path": "/guides/pre-workout-under-30",
+          "status": 200,
+          "ttfbMs": 140.7,
+          "totalMs": 148.7,
+          "bytes": 39367,
+          "xRobotsTag": null,
+          "vercelId": "lhr1::iad1::ktlcn-1794986763262-517174ba9f80",
+          "vercelCache": "MISS",
+          "serverTiming": null,
+          "metadata": {
+            "title": "Pre-Workout Under £30 UK: Compare Prices Including Delivery | SupplementScout",
+            "h1": "Which pre-workouts cost £30 or less including delivery?",
+            "canonical": "https://www.supplementscout.co.uk/guides/pre-workout-under-30",
+            "robots": "index, follow",
+            "schema": [
+              "BreadcrumbList",
+              "WebPage"
+            ]
+          },
+          "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+        }
+      ],
+      "warmMedianTTFBms": 140.7,
+      "sitemapOccurrences": 1
+    },
+    {
+      "path": "/guides/mass-gainer-under-40",
+      "status": 200,
+      "ttfbMs": 155.3,
+      "totalMs": 159.8,
+      "bytes": 39159,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::6m5t9-1794986763406-a2a321f553d3",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Mass Gainer Under £40 UK: Compare Prices Including Delivery | SupplementScout",
+        "h1": "Which mass gainers cost £40 or less including delivery?",
+        "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-under-40",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5",
+      "parameter": {
+        "path": "/guides/mass-gainer-under-40?sort=price",
+        "status": 200,
+        "ttfbMs": 178.3,
+        "totalMs": 183.4,
+        "bytes": 39214,
+        "xRobotsTag": null,
+        "vercelId": "lhr1::iad1::rsz6x-1794986763565-dbb5924496e5",
+        "vercelCache": "MISS",
+        "serverTiming": null,
+        "metadata": {
+          "title": "Mass Gainer Under £40 UK: Compare Prices Including Delivery | SupplementScout",
+          "h1": "Which mass gainers cost £40 or less including delivery?",
+          "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-under-40",
+          "robots": "noindex, follow",
+          "schema": [
+            "BreadcrumbList",
+            "WebPage"
+          ]
+        },
+        "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+      },
+      "googlebot": {
+        "path": "/guides/mass-gainer-under-40",
+        "status": 200,
+        "ttfbMs": 146,
+        "totalMs": 150.6,
+        "bytes": 39159,
+        "xRobotsTag": null,
+        "vercelId": "lhr1::iad1::rsz6x-1794986763764-d03c12530a91",
+        "vercelCache": "MISS",
+        "serverTiming": null,
+        "metadata": {
+          "title": "Mass Gainer Under £40 UK: Compare Prices Including Delivery | SupplementScout",
+          "h1": "Which mass gainers cost £40 or less including delivery?",
+          "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-under-40",
+          "robots": "index, follow",
+          "schema": [
+            "BreadcrumbList",
+            "WebPage"
+          ]
+        },
+        "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+      },
+      "sourceCapturedAt": "2026-11-18T07:25:39.702Z",
+      "sourceBoundContentEquality": true,
+      "warmSamples": [
+        {
+          "path": "/guides/mass-gainer-under-40",
+          "status": 200,
+          "ttfbMs": 141.1,
+          "totalMs": 145.5,
+          "bytes": 39159,
+          "xRobotsTag": null,
+          "vercelId": "lhr1::iad1::ktlcn-1794986763913-2f7ffe6e9ed7",
+          "vercelCache": "MISS",
+          "serverTiming": null,
+          "metadata": {
+            "title": "Mass Gainer Under £40 UK: Compare Prices Including Delivery | SupplementScout",
+            "h1": "Which mass gainers cost £40 or less including delivery?",
+            "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-under-40",
+            "robots": "index, follow",
+            "schema": [
+              "BreadcrumbList",
+              "WebPage"
+            ]
+          },
+          "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+        },
+        {
+          "path": "/guides/mass-gainer-under-40",
+          "status": 200,
+          "ttfbMs": 135.4,
+          "totalMs": 140.7,
+          "bytes": 39159,
+          "xRobotsTag": null,
+          "vercelId": "lhr1::iad1::xth2z-1794986764053-00e88ab13fd5",
+          "vercelCache": "MISS",
+          "serverTiming": null,
+          "metadata": {
+            "title": "Mass Gainer Under £40 UK: Compare Prices Including Delivery | SupplementScout",
+            "h1": "Which mass gainers cost £40 or less including delivery?",
+            "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-under-40",
+            "robots": "index, follow",
+            "schema": [
+              "BreadcrumbList",
+              "WebPage"
+            ]
+          },
+          "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+        },
+        {
+          "path": "/guides/mass-gainer-under-40",
+          "status": 200,
+          "ttfbMs": 139.3,
+          "totalMs": 143.4,
+          "bytes": 39159,
+          "xRobotsTag": null,
+          "vercelId": "lhr1::iad1::kbx2c-1794986764193-9faa9e39b24f",
+          "vercelCache": "MISS",
+          "serverTiming": null,
+          "metadata": {
+            "title": "Mass Gainer Under £40 UK: Compare Prices Including Delivery | SupplementScout",
+            "h1": "Which mass gainers cost £40 or less including delivery?",
+            "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-under-40",
+            "robots": "index, follow",
+            "schema": [
+              "BreadcrumbList",
+              "WebPage"
+            ]
+          },
+          "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+        },
+        {
+          "path": "/guides/mass-gainer-under-40",
+          "status": 200,
+          "ttfbMs": 141,
+          "totalMs": 146.5,
+          "bytes": 39159,
+          "xRobotsTag": null,
+          "vercelId": "lhr1::iad1::xth2z-1794986764340-ebb563de1b6a",
+          "vercelCache": "MISS",
+          "serverTiming": null,
+          "metadata": {
+            "title": "Mass Gainer Under £40 UK: Compare Prices Including Delivery | SupplementScout",
+            "h1": "Which mass gainers cost £40 or less including delivery?",
+            "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-under-40",
+            "robots": "index, follow",
+            "schema": [
+              "BreadcrumbList",
+              "WebPage"
+            ]
+          },
+          "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+        },
+        {
+          "path": "/guides/mass-gainer-under-40",
+          "status": 200,
+          "ttfbMs": 140.8,
+          "totalMs": 145.3,
+          "bytes": 39159,
+          "xRobotsTag": null,
+          "vercelId": "lhr1::iad1::ktlcn-1794986764491-5343ceda91ce",
+          "vercelCache": "MISS",
+          "serverTiming": null,
+          "metadata": {
+            "title": "Mass Gainer Under £40 UK: Compare Prices Including Delivery | SupplementScout",
+            "h1": "Which mass gainers cost £40 or less including delivery?",
+            "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-under-40",
+            "robots": "index, follow",
+            "schema": [
+              "BreadcrumbList",
+              "WebPage"
+            ]
+          },
+          "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+        }
+      ],
+      "warmMedianTTFBms": 140.8,
+      "sitemapOccurrences": 1
+    }
+  ],
+  "existingSamples": [
+    {
+      "path": "/how-we-compare",
+      "status": 200,
+      "ttfbMs": 30.3,
+      "totalMs": 33.9,
+      "bytes": 28954,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::xth2z-1794986744859-07fca2bce3de",
+      "vercelCache": "HIT",
+      "serverTiming": null,
+      "metadata": {
+        "title": "How We Compare Supplement Prices | SupplementScout",
+        "h1": "How SupplementScout compares supplement prices",
+        "canonical": "https://www.supplementscout.co.uk/how-we-compare",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/creatine",
+      "status": 200,
+      "ttfbMs": 1105.6,
+      "totalMs": 1273.8,
+      "bytes": 528677,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::rl7db-1794986744910-fbc7b3ac62a4",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare Creatine Supplements & Prices UK | SupplementScout",
+        "h1": "Compare Creatine Supplements UK",
+        "canonical": "https://www.supplementscout.co.uk/creatine",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/whey-protein",
+      "status": 200,
+      "ttfbMs": 372.1,
+      "totalMs": 464,
+      "bytes": 606052,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::rl7db-1794986746170-501759ebaf3e",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare Whey Protein Prices UK | SupplementScout",
+        "h1": "Compare Whey Protein Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/whey-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/brands/per4m",
+      "status": 200,
+      "ttfbMs": 230.2,
+      "totalMs": 242.1,
+      "bytes": 248931,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::6m5t9-1794986746639-80e23feab8af",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare PER4M Prices Across UK Retailers | SupplementScout",
+        "h1": "Per4m Products & Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/supplement-prices-including-delivery",
+      "status": 200,
+      "ttfbMs": 147.4,
+      "totalMs": 151.4,
+      "bytes": 33998,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::8nzfv-1794986746883-f0d10e32a73f",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Supplement Prices Including Delivery: A UK Comparison | SupplementScout",
+        "h1": "Can a higher product price be cheaper after delivery?",
+        "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/cost-per-25g-protein",
+      "status": 200,
+      "ttfbMs": 152.8,
+      "totalMs": 161.8,
+      "bytes": 38463,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::8nzfv-1794986747034-0a599fd0247e",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout",
+        "h1": "How to compare protein powders by cost per 25g of protein",
+        "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/protein-powder-under-30",
+      "status": 200,
+      "ttfbMs": 176.1,
+      "totalMs": 180.4,
+      "bytes": 41255,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::kbx2c-1794986747199-bbd26d1b1ccf",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Protein Powder Under £30 UK: Compare Delivered Prices | SupplementScout",
+        "h1": "Which protein powders cost £30 or less including delivery?",
+        "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-under-30",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/caffeine-free-pre-workout",
+      "status": 200,
+      "ttfbMs": 155.4,
+      "totalMs": 159.7,
+      "bytes": 36221,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::9r299-1794986747376-fa506fe9fdec",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Caffeine-Free Pre-Workout UK: How to Check and Compare | SupplementScout",
+        "h1": "How can I find and compare a pre-workout without caffeine?",
+        "canonical": "https://www.supplementscout.co.uk/guides/caffeine-free-pre-workout",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/whey-isolate-vs-concentrate",
+      "status": 200,
+      "ttfbMs": 174.8,
+      "totalMs": 181,
+      "bytes": 39663,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::9r299-1794986747541-7358eacb77aa",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Whey Isolate vs Concentrate: Which Is Better Value in the UK? | SupplementScout",
+        "h1": "Should I buy whey isolate or whey concentrate?",
+        "canonical": "https://www.supplementscout.co.uk/guides/whey-isolate-vs-concentrate",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/protein-powder-pack-size-value",
+      "status": 200,
+      "ttfbMs": 155.9,
+      "totalMs": 156.9,
+      "bytes": 38193,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::7bc59-1794986747719-4005c4ede213",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Does Buying a Bigger Protein Bag Actually Save Money? | SupplementScout",
+        "h1": "Is a bigger protein pack better value after delivery?",
+        "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-pack-size-value",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/mass-gainer",
+      "status": 200,
+      "ttfbMs": 159.6,
+      "totalMs": 176.4,
+      "bytes": 137500,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::kpm82-1794986747876-c7c93028248a",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare Mass Gainer Prices UK | SupplementScout",
+        "h1": "Compare Mass Gainer Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/mass-gainer",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/pre-workout",
+      "status": 200,
+      "ttfbMs": 295.9,
+      "totalMs": 390.2,
+      "bytes": 897492,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::7bc59-1794986748058-1d09a0d8f214",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare Pre Workout Prices UK | SupplementScout",
+        "h1": "Compare Pre Workout Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/pre-workout",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/mass-gainer-vs-whey-protein",
+      "status": 200,
+      "ttfbMs": 142.8,
+      "totalMs": 151.6,
+      "bytes": 36198,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::xth2z-1794986748443-851e7bfcce2d",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Mass Gainer vs Whey Protein: Compare UK Buying Costs | SupplementScout",
+        "h1": "Should I buy mass gainer or whey protein?",
+        "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-vs-whey-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/creatine-pack-size-value",
+      "status": 200,
+      "ttfbMs": 165.3,
+      "totalMs": 170.5,
+      "bytes": 44681,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::xth2z-1794986748598-d3c95056c902",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Creatine Pack Sizes: Is a Bigger Tub Better Value? | SupplementScout",
+        "h1": "Should I buy a bigger tub of creatine?",
+        "canonical": "https://www.supplementscout.co.uk/guides/creatine-pack-size-value",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/how-we-compare",
+      "status": 200,
+      "ttfbMs": 25.6,
+      "totalMs": 29.9,
+      "bytes": 28954,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::rsz6x-1794986748767-25c13cb31b6f",
+      "vercelCache": "HIT",
+      "serverTiming": null,
+      "metadata": {
+        "title": "How We Compare Supplement Prices | SupplementScout",
+        "h1": "How SupplementScout compares supplement prices",
+        "canonical": "https://www.supplementscout.co.uk/how-we-compare",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/creatine",
+      "status": 200,
+      "ttfbMs": 277.9,
+      "totalMs": 315.6,
+      "bytes": 528677,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::7bc59-1794986748807-517e8c09d38e",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare Creatine Supplements & Prices UK | SupplementScout",
+        "h1": "Compare Creatine Supplements UK",
+        "canonical": "https://www.supplementscout.co.uk/creatine",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/whey-protein",
+      "status": 200,
+      "ttfbMs": 233.7,
+      "totalMs": 406,
+      "bytes": 606052,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::whstg-1794986749112-86ef5dc143eb",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare Whey Protein Prices UK | SupplementScout",
+        "h1": "Compare Whey Protein Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/whey-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/brands/per4m",
+      "status": 200,
+      "ttfbMs": 226.5,
+      "totalMs": 244.7,
+      "bytes": 248931,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::gkpbn-1794986749526-1c65af93decc",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare PER4M Prices Across UK Retailers | SupplementScout",
+        "h1": "Per4m Products & Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/supplement-prices-including-delivery",
+      "status": 200,
+      "ttfbMs": 178.3,
+      "totalMs": 182.8,
+      "bytes": 33998,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::9r299-1794986749776-21899153333f",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Supplement Prices Including Delivery: A UK Comparison | SupplementScout",
+        "h1": "Can a higher product price be cheaper after delivery?",
+        "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/cost-per-25g-protein",
+      "status": 200,
+      "ttfbMs": 141.1,
+      "totalMs": 145.7,
+      "bytes": 38463,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::whstg-1794986749949-a6668ce75613",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout",
+        "h1": "How to compare protein powders by cost per 25g of protein",
+        "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/protein-powder-under-30",
+      "status": 200,
+      "ttfbMs": 149.8,
+      "totalMs": 153.9,
+      "bytes": 41255,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::9r299-1794986750094-bfc122613c52",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Protein Powder Under £30 UK: Compare Delivered Prices | SupplementScout",
+        "h1": "Which protein powders cost £30 or less including delivery?",
+        "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-under-30",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/caffeine-free-pre-workout",
+      "status": 200,
+      "ttfbMs": 170.4,
+      "totalMs": 175.1,
+      "bytes": 36221,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::9r299-1794986750256-7c6ccb7d44e4",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Caffeine-Free Pre-Workout UK: How to Check and Compare | SupplementScout",
+        "h1": "How can I find and compare a pre-workout without caffeine?",
+        "canonical": "https://www.supplementscout.co.uk/guides/caffeine-free-pre-workout",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/whey-isolate-vs-concentrate",
+      "status": 200,
+      "ttfbMs": 155.6,
+      "totalMs": 160.2,
+      "bytes": 39663,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::rsz6x-1794986750428-282f5ef15ddf",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Whey Isolate vs Concentrate: Which Is Better Value in the UK? | SupplementScout",
+        "h1": "Should I buy whey isolate or whey concentrate?",
+        "canonical": "https://www.supplementscout.co.uk/guides/whey-isolate-vs-concentrate",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/protein-powder-pack-size-value",
+      "status": 200,
+      "ttfbMs": 157.6,
+      "totalMs": 162.4,
+      "bytes": 38193,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::rsz6x-1794986750585-79476567ac7d",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Does Buying a Bigger Protein Bag Actually Save Money? | SupplementScout",
+        "h1": "Is a bigger protein pack better value after delivery?",
+        "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-pack-size-value",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/mass-gainer",
+      "status": 200,
+      "ttfbMs": 163.1,
+      "totalMs": 177.2,
+      "bytes": 137500,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::rsz6x-1794986750756-de7339df0ab7",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare Mass Gainer Prices UK | SupplementScout",
+        "h1": "Compare Mass Gainer Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/mass-gainer",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/pre-workout",
+      "status": 200,
+      "ttfbMs": 304.8,
+      "totalMs": 496,
+      "bytes": 897492,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::rsz6x-1794986750923-84319d0c4fbe",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare Pre Workout Prices UK | SupplementScout",
+        "h1": "Compare Pre Workout Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/pre-workout",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/mass-gainer-vs-whey-protein",
+      "status": 200,
+      "ttfbMs": 157.5,
+      "totalMs": 162,
+      "bytes": 36198,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::rsz6x-1794986751429-8702846965be",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Mass Gainer vs Whey Protein: Compare UK Buying Costs | SupplementScout",
+        "h1": "Should I buy mass gainer or whey protein?",
+        "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-vs-whey-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/creatine-pack-size-value",
+      "status": 200,
+      "ttfbMs": 156.8,
+      "totalMs": 161.7,
+      "bytes": 44681,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::whstg-1794986751582-19ed72d96a66",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Creatine Pack Sizes: Is a Bigger Tub Better Value? | SupplementScout",
+        "h1": "Should I buy a bigger tub of creatine?",
+        "canonical": "https://www.supplementscout.co.uk/guides/creatine-pack-size-value",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/how-we-compare",
+      "status": 200,
+      "ttfbMs": 26.1,
+      "totalMs": 30.3,
+      "bytes": 28954,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::8tkxv-1794986751749-2996283a1c3f",
+      "vercelCache": "HIT",
+      "serverTiming": null,
+      "metadata": {
+        "title": "How We Compare Supplement Prices | SupplementScout",
+        "h1": "How SupplementScout compares supplement prices",
+        "canonical": "https://www.supplementscout.co.uk/how-we-compare",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/creatine",
+      "status": 200,
+      "ttfbMs": 210.3,
+      "totalMs": 385.7,
+      "bytes": 528677,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::8tkxv-1794986751779-d79e9fefb613",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare Creatine Supplements & Prices UK | SupplementScout",
+        "h1": "Compare Creatine Supplements UK",
+        "canonical": "https://www.supplementscout.co.uk/creatine",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/whey-protein",
+      "status": 200,
+      "ttfbMs": 235.1,
+      "totalMs": 408.8,
+      "bytes": 606052,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::8tkxv-1794986752174-70627c7e816d",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare Whey Protein Prices UK | SupplementScout",
+        "h1": "Compare Whey Protein Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/whey-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/brands/per4m",
+      "status": 200,
+      "ttfbMs": 158.1,
+      "totalMs": 250.4,
+      "bytes": 248931,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::7bc59-1794986752576-ed0218194c68",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare PER4M Prices Across UK Retailers | SupplementScout",
+        "h1": "Per4m Products & Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/supplement-prices-including-delivery",
+      "status": 200,
+      "ttfbMs": 132.6,
+      "totalMs": 136.9,
+      "bytes": 33998,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::7bc59-1794986752824-e9f9c3c798f1",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Supplement Prices Including Delivery: A UK Comparison | SupplementScout",
+        "h1": "Can a higher product price be cheaper after delivery?",
+        "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/cost-per-25g-protein",
+      "status": 200,
+      "ttfbMs": 128.8,
+      "totalMs": 133.4,
+      "bytes": 38463,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::8tkxv-1794986752965-9d0453ba4606",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout",
+        "h1": "How to compare protein powders by cost per 25g of protein",
+        "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/protein-powder-under-30",
+      "status": 200,
+      "ttfbMs": 160.8,
+      "totalMs": 165.6,
+      "bytes": 41255,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::8nzfv-1794986753106-d064a96feca1",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Protein Powder Under £30 UK: Compare Delivered Prices | SupplementScout",
+        "h1": "Which protein powders cost £30 or less including delivery?",
+        "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-under-30",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/caffeine-free-pre-workout",
+      "status": 200,
+      "ttfbMs": 194.9,
+      "totalMs": 199.5,
+      "bytes": 36221,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::s94x2-1794986753273-a5730a1e295d",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Caffeine-Free Pre-Workout UK: How to Check and Compare | SupplementScout",
+        "h1": "How can I find and compare a pre-workout without caffeine?",
+        "canonical": "https://www.supplementscout.co.uk/guides/caffeine-free-pre-workout",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/whey-isolate-vs-concentrate",
+      "status": 200,
+      "ttfbMs": 139.5,
+      "totalMs": 223.6,
+      "bytes": 39663,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::8nzfv-1794986753464-c2120d45cca9",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Whey Isolate vs Concentrate: Which Is Better Value in the UK? | SupplementScout",
+        "h1": "Should I buy whey isolate or whey concentrate?",
+        "canonical": "https://www.supplementscout.co.uk/guides/whey-isolate-vs-concentrate",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/protein-powder-pack-size-value",
+      "status": 200,
+      "ttfbMs": 147.6,
+      "totalMs": 151.6,
+      "bytes": 38193,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::8nzfv-1794986753688-5e5e5b81fcc4",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Does Buying a Bigger Protein Bag Actually Save Money? | SupplementScout",
+        "h1": "Is a bigger protein pack better value after delivery?",
+        "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-pack-size-value",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/mass-gainer",
+      "status": 200,
+      "ttfbMs": 140.8,
+      "totalMs": 149.6,
+      "bytes": 137500,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::kpm82-1794986753843-b9705bfc3242",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare Mass Gainer Prices UK | SupplementScout",
+        "h1": "Compare Mass Gainer Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/mass-gainer",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/pre-workout",
+      "status": 200,
+      "ttfbMs": 222,
+      "totalMs": 316.3,
+      "bytes": 897492,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::kpm82-1794986753995-f9e0cde1cf9f",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare Pre Workout Prices UK | SupplementScout",
+        "h1": "Compare Pre Workout Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/pre-workout",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/mass-gainer-vs-whey-protein",
+      "status": 200,
+      "ttfbMs": 145.9,
+      "totalMs": 150.8,
+      "bytes": 36198,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::9r299-1794986754309-12b0b5ab0b50",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Mass Gainer vs Whey Protein: Compare UK Buying Costs | SupplementScout",
+        "h1": "Should I buy mass gainer or whey protein?",
+        "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-vs-whey-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/creatine-pack-size-value",
+      "status": 200,
+      "ttfbMs": 124.6,
+      "totalMs": 129.5,
+      "bytes": 44681,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::s94x2-1794986754459-629b84bfae4d",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Creatine Pack Sizes: Is a Bigger Tub Better Value? | SupplementScout",
+        "h1": "Should I buy a bigger tub of creatine?",
+        "canonical": "https://www.supplementscout.co.uk/guides/creatine-pack-size-value",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/how-we-compare",
+      "status": 200,
+      "ttfbMs": 21.1,
+      "totalMs": 25.1,
+      "bytes": 28954,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::8nzfv-1794986754586-ded5a359eda8",
+      "vercelCache": "HIT",
+      "serverTiming": null,
+      "metadata": {
+        "title": "How We Compare Supplement Prices | SupplementScout",
+        "h1": "How SupplementScout compares supplement prices",
+        "canonical": "https://www.supplementscout.co.uk/how-we-compare",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/creatine",
+      "status": 200,
+      "ttfbMs": 198.8,
+      "totalMs": 286.9,
+      "bytes": 528677,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::8nzfv-1794986754616-7f302585c4e4",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare Creatine Supplements & Prices UK | SupplementScout",
+        "h1": "Compare Creatine Supplements UK",
+        "canonical": "https://www.supplementscout.co.uk/creatine",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/whey-protein",
+      "status": 200,
+      "ttfbMs": 208,
+      "totalMs": 231.5,
+      "bytes": 606052,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::kpm82-1794986754910-94383bf50cf5",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare Whey Protein Prices UK | SupplementScout",
+        "h1": "Compare Whey Protein Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/whey-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/brands/per4m",
+      "status": 200,
+      "ttfbMs": 169,
+      "totalMs": 181.6,
+      "bytes": 248931,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::9r299-1794986755140-4887d29ccfe7",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare PER4M Prices Across UK Retailers | SupplementScout",
+        "h1": "Per4m Products & Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/supplement-prices-including-delivery",
+      "status": 200,
+      "ttfbMs": 158.9,
+      "totalMs": 163.4,
+      "bytes": 33998,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::8nzfv-1794986755318-874d780f63ff",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Supplement Prices Including Delivery: A UK Comparison | SupplementScout",
+        "h1": "Can a higher product price be cheaper after delivery?",
+        "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/cost-per-25g-protein",
+      "status": 200,
+      "ttfbMs": 131.5,
+      "totalMs": 136.3,
+      "bytes": 38463,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::7bc59-1794986755483-92c1f738bf93",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout",
+        "h1": "How to compare protein powders by cost per 25g of protein",
+        "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/protein-powder-under-30",
+      "status": 200,
+      "ttfbMs": 121.5,
+      "totalMs": 125.6,
+      "bytes": 41255,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::kpm82-1794986755615-c0e2e2428d93",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Protein Powder Under £30 UK: Compare Delivered Prices | SupplementScout",
+        "h1": "Which protein powders cost £30 or less including delivery?",
+        "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-under-30",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/caffeine-free-pre-workout",
+      "status": 200,
+      "ttfbMs": 129,
+      "totalMs": 133.9,
+      "bytes": 36221,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::kpm82-1794986755745-546fba787ff1",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Caffeine-Free Pre-Workout UK: How to Check and Compare | SupplementScout",
+        "h1": "How can I find and compare a pre-workout without caffeine?",
+        "canonical": "https://www.supplementscout.co.uk/guides/caffeine-free-pre-workout",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/whey-isolate-vs-concentrate",
+      "status": 200,
+      "ttfbMs": 119.9,
+      "totalMs": 123.8,
+      "bytes": 39663,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::4x72n-1794986755876-2e94c0fe8f16",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Whey Isolate vs Concentrate: Which Is Better Value in the UK? | SupplementScout",
+        "h1": "Should I buy whey isolate or whey concentrate?",
+        "canonical": "https://www.supplementscout.co.uk/guides/whey-isolate-vs-concentrate",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/protein-powder-pack-size-value",
+      "status": 200,
+      "ttfbMs": 381.3,
+      "totalMs": 386.1,
+      "bytes": 38193,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::s94x2-1794986756003-bda216669388",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Does Buying a Bigger Protein Bag Actually Save Money? | SupplementScout",
+        "h1": "Is a bigger protein pack better value after delivery?",
+        "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-pack-size-value",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/mass-gainer",
+      "status": 200,
+      "ttfbMs": 145.2,
+      "totalMs": 157.3,
+      "bytes": 137500,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::kbx2c-1794986756385-d141935d41c2",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare Mass Gainer Prices UK | SupplementScout",
+        "h1": "Compare Mass Gainer Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/mass-gainer",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/pre-workout",
+      "status": 200,
+      "ttfbMs": 221.9,
+      "totalMs": 254.3,
+      "bytes": 897492,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::kbx2c-1794986756549-7a4359799926",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare Pre Workout Prices UK | SupplementScout",
+        "h1": "Compare Pre Workout Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/pre-workout",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/mass-gainer-vs-whey-protein",
+      "status": 200,
+      "ttfbMs": 215.5,
+      "totalMs": 219.7,
+      "bytes": 36198,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::s94x2-1794986756806-0dfe23f2683d",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Mass Gainer vs Whey Protein: Compare UK Buying Costs | SupplementScout",
+        "h1": "Should I buy mass gainer or whey protein?",
+        "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-vs-whey-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/creatine-pack-size-value",
+      "status": 200,
+      "ttfbMs": 136.8,
+      "totalMs": 141.8,
+      "bytes": 44681,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::whstg-1794986757023-4f3c10f1b215",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Creatine Pack Sizes: Is a Bigger Tub Better Value? | SupplementScout",
+        "h1": "Should I buy a bigger tub of creatine?",
+        "canonical": "https://www.supplementscout.co.uk/guides/creatine-pack-size-value",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/how-we-compare",
+      "status": 200,
+      "ttfbMs": 20,
+      "totalMs": 55.5,
+      "bytes": 28954,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::kbx2c-1794986757160-ca3409e2c10a",
+      "vercelCache": "HIT",
+      "serverTiming": null,
+      "metadata": {
+        "title": "How We Compare Supplement Prices | SupplementScout",
+        "h1": "How SupplementScout compares supplement prices",
+        "canonical": "https://www.supplementscout.co.uk/how-we-compare",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/creatine",
+      "status": 200,
+      "ttfbMs": 204.1,
+      "totalMs": 333.1,
+      "bytes": 528677,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::jbzjs-1794986757217-a90d7d9ccff9",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare Creatine Supplements & Prices UK | SupplementScout",
+        "h1": "Compare Creatine Supplements UK",
+        "canonical": "https://www.supplementscout.co.uk/creatine",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/whey-protein",
+      "status": 200,
+      "ttfbMs": 195.2,
+      "totalMs": 375.2,
+      "bytes": 606052,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::rls8q-1794986757557-933bbb8d3db1",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare Whey Protein Prices UK | SupplementScout",
+        "h1": "Compare Whey Protein Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/whey-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/brands/per4m",
+      "status": 200,
+      "ttfbMs": 179.6,
+      "totalMs": 197,
+      "bytes": 248931,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::9r299-1794986757940-06b5f2426d46",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare PER4M Prices Across UK Retailers | SupplementScout",
+        "h1": "Per4m Products & Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/supplement-prices-including-delivery",
+      "status": 200,
+      "ttfbMs": 150,
+      "totalMs": 155,
+      "bytes": 33998,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::rls8q-1794986758140-138a3f6132e4",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Supplement Prices Including Delivery: A UK Comparison | SupplementScout",
+        "h1": "Can a higher product price be cheaper after delivery?",
+        "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/cost-per-25g-protein",
+      "status": 200,
+      "ttfbMs": 129.7,
+      "totalMs": 134.9,
+      "bytes": 38463,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::8tkxv-1794986758279-e24d85c9a937",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout",
+        "h1": "How to compare protein powders by cost per 25g of protein",
+        "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/protein-powder-under-30",
+      "status": 200,
+      "ttfbMs": 127.9,
+      "totalMs": 132.6,
+      "bytes": 41255,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::7bc59-1794986758416-6ae428780e02",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Protein Powder Under £30 UK: Compare Delivered Prices | SupplementScout",
+        "h1": "Which protein powders cost £30 or less including delivery?",
+        "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-under-30",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/caffeine-free-pre-workout",
+      "status": 200,
+      "ttfbMs": 134.2,
+      "totalMs": 139.1,
+      "bytes": 36221,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::9r299-1794986758549-496ed3c40fcf",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Caffeine-Free Pre-Workout UK: How to Check and Compare | SupplementScout",
+        "h1": "How can I find and compare a pre-workout without caffeine?",
+        "canonical": "https://www.supplementscout.co.uk/guides/caffeine-free-pre-workout",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/whey-isolate-vs-concentrate",
+      "status": 200,
+      "ttfbMs": 131.6,
+      "totalMs": 136.1,
+      "bytes": 39663,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::7bc59-1794986758688-1dde044f1e23",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Whey Isolate vs Concentrate: Which Is Better Value in the UK? | SupplementScout",
+        "h1": "Should I buy whey isolate or whey concentrate?",
+        "canonical": "https://www.supplementscout.co.uk/guides/whey-isolate-vs-concentrate",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/protein-powder-pack-size-value",
+      "status": 200,
+      "ttfbMs": 131.3,
+      "totalMs": 136.7,
+      "bytes": 38193,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::7bc59-1794986758827-b3daaf35a3a1",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Does Buying a Bigger Protein Bag Actually Save Money? | SupplementScout",
+        "h1": "Is a bigger protein pack better value after delivery?",
+        "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-pack-size-value",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/mass-gainer",
+      "status": 200,
+      "ttfbMs": 171.6,
+      "totalMs": 179.7,
+      "bytes": 137500,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::kpm82-1794986758961-2be56259dc05",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare Mass Gainer Prices UK | SupplementScout",
+        "h1": "Compare Mass Gainer Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/mass-gainer",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/pre-workout",
+      "status": 200,
+      "ttfbMs": 259.4,
+      "totalMs": 291.9,
+      "bytes": 897492,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::8tkxv-1794986759141-748ee0702e8d",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Compare Pre Workout Prices UK | SupplementScout",
+        "h1": "Compare Pre Workout Prices UK",
+        "canonical": "https://www.supplementscout.co.uk/pre-workout",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "CollectionPage",
+          "ItemList"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/mass-gainer-vs-whey-protein",
+      "status": 200,
+      "ttfbMs": 167.6,
+      "totalMs": 173.4,
+      "bytes": 36198,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::4x72n-1794986759444-5f9ec3f7fc60",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Mass Gainer vs Whey Protein: Compare UK Buying Costs | SupplementScout",
+        "h1": "Should I buy mass gainer or whey protein?",
+        "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-vs-whey-protein",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    },
+    {
+      "path": "/guides/creatine-pack-size-value",
+      "status": 200,
+      "ttfbMs": 238.3,
+      "totalMs": 328.6,
+      "bytes": 44681,
+      "xRobotsTag": null,
+      "vercelId": "lhr1::iad1::rls8q-1794986759628-151e36657757",
+      "vercelCache": "MISS",
+      "serverTiming": null,
+      "metadata": {
+        "title": "Creatine Pack Sizes: Is a Bigger Tub Better Value? | SupplementScout",
+        "h1": "Should I buy a bigger tub of creatine?",
+        "canonical": "https://www.supplementscout.co.uk/guides/creatine-pack-size-value",
+        "robots": "index, follow",
+        "schema": [
+          "BreadcrumbList",
+          "WebPage"
+        ]
+      },
+      "buildId": "x6d6M-h4ZO-FddB0fktZ5"
+    }
+  ],
+  "performanceSummary": [
+    {
+      "route": "/how-we-compare",
+      "warmMedianTTFBms": 25.6,
+      "decodedBytes": 28954
+    },
+    {
+      "route": "/creatine",
+      "warmMedianTTFBms": 210.3,
+      "decodedBytes": 528677
+    },
+    {
+      "route": "/whey-protein",
+      "warmMedianTTFBms": 233.7,
+      "decodedBytes": 606052
+    },
+    {
+      "route": "/brands/per4m",
+      "warmMedianTTFBms": 179.6,
+      "decodedBytes": 248931
+    },
+    {
+      "route": "/guides/supplement-prices-including-delivery",
+      "warmMedianTTFBms": 158.9,
+      "decodedBytes": 33998
+    },
+    {
+      "route": "/guides/cost-per-25g-protein",
+      "warmMedianTTFBms": 131.5,
+      "decodedBytes": 38463
+    },
+    {
+      "route": "/guides/protein-powder-under-30",
+      "warmMedianTTFBms": 149.8,
+      "decodedBytes": 41255
+    },
+    {
+      "route": "/guides/caffeine-free-pre-workout",
+      "warmMedianTTFBms": 170.4,
+      "decodedBytes": 36221
+    },
+    {
+      "route": "/guides/whey-isolate-vs-concentrate",
+      "warmMedianTTFBms": 139.5,
+      "decodedBytes": 39663
+    },
+    {
+      "route": "/guides/protein-powder-pack-size-value",
+      "warmMedianTTFBms": 157.6,
+      "decodedBytes": 38193
+    },
+    {
+      "route": "/mass-gainer",
+      "warmMedianTTFBms": 163.1,
+      "decodedBytes": 137500
+    },
+    {
+      "route": "/pre-workout",
+      "warmMedianTTFBms": 259.4,
+      "decodedBytes": 897492
+    },
+    {
+      "route": "/guides/mass-gainer-vs-whey-protein",
+      "warmMedianTTFBms": 167.6,
+      "decodedBytes": 36198
+    },
+    {
+      "route": "/guides/creatine-pack-size-value",
+      "warmMedianTTFBms": 156.8,
+      "decodedBytes": 44681
+    }
+  ],
+  "robots": {
+    "status": 200,
+    "text": "User-Agent: SERankingBacklinksBot\nDisallow: /\n\nUser-Agent: *\nAllow: /\nDisallow: /admin\nDisallow: /go\n\nSitemap: https://www.supplementscout.co.uk/sitemap.xml\n"
+  },
+  "sitemap": {
+    "status": 200,
+    "guideOccurrences": [
+      {
+        "path": "/guides/pre-workout-under-30",
+        "count": 1
+      },
+      {
+        "path": "/guides/mass-gainer-under-40",
+        "count": 1
+      }
+    ]
+  },
+  "productionDataWrites": 0,
+  "performanceComparison": [
+    {
+      "route": "/how-we-compare",
+      "beforeWarmMs": 33.2,
+      "afterWarmMs": 25.6
+    },
+    {
+      "route": "/creatine",
+      "beforeWarmMs": 194,
+      "afterWarmMs": 210.3
+    },
+    {
+      "route": "/whey-protein",
+      "beforeWarmMs": 213.3,
+      "afterWarmMs": 233.7
+    },
+    {
+      "route": "/brands/per4m",
+      "beforeWarmMs": 201.4,
+      "afterWarmMs": 179.6
+    },
+    {
+      "route": "/guides/supplement-prices-including-delivery",
+      "beforeWarmMs": 144.6,
+      "afterWarmMs": 158.9
+    },
+    {
+      "route": "/guides/cost-per-25g-protein",
+      "beforeWarmMs": 141.5,
+      "afterWarmMs": 131.5
+    },
+    {
+      "route": "/guides/protein-powder-under-30",
+      "beforeWarmMs": 143.3,
+      "afterWarmMs": 149.8
+    },
+    {
+      "route": "/guides/caffeine-free-pre-workout",
+      "beforeWarmMs": 136.1,
+      "afterWarmMs": 170.4
+    },
+    {
+      "route": "/guides/whey-isolate-vs-concentrate",
+      "beforeWarmMs": 139.6,
+      "afterWarmMs": 139.5
+    },
+    {
+      "route": "/guides/protein-powder-pack-size-value",
+      "beforeWarmMs": 134.3,
+      "afterWarmMs": 157.6
+    },
+    {
+      "route": "/mass-gainer",
+      "beforeWarmMs": 151.3,
+      "afterWarmMs": 163.1
+    },
+    {
+      "route": "/pre-workout",
+      "beforeWarmMs": 245.9,
+      "afterWarmMs": 259.4
+    },
+    {
+      "route": "/guides/mass-gainer-vs-whey-protein",
+      "beforeWarmMs": 179,
+      "afterWarmMs": 167.6
+    },
+    {
+      "route": "/guides/creatine-pack-size-value",
+      "beforeWarmMs": 153.7,
+      "afterWarmMs": 156.8
+    }
+  ]
+}
