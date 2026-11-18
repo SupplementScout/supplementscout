@@ -1,5 +1,16 @@
 # SupplementScout Operating Plan
 
+**18 November 2026 SEO-28 owner-approved Draft checkpoint:** the bounded
+homepage protein-comparison decision block is CODE COMPLETE for publication
+review, with initial-HTML tests, full gates and paired actual-source local
+production-build QA. This owner instruction supersedes earlier no-next-task
+wording only for SEO-28. One Draft PR; no merge or Production deployment.
+Broad positioning, hero/search/featured comparisons, metadata, lifecycle,
+data reads and cache contracts are preserved. SEO-20 remains frozen/binding;
+SEO-21–27 stay LIVE VERIFIED and SEO-15 Stage3 stays disabled. No production
+data, analytics workflow, Google submission or SEO-29 work.
+See [SEO-28 evidence](rollouts/seo28-homepage-protein-intent-2026-11-18.md).
+
 **18 November 2026 SEO-27 LIVE VERIFIED closeout:** owner-approved PR #547
 released exact head `a321fc1a931c0ec6ed58a9a80185b23a72017d21` as squash
 `5e483e94fd6d044f162512d4d92a314338e448e5` with identical tree. PR/main
