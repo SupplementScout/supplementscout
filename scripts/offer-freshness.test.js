@@ -93,7 +93,7 @@ test("comparison pages share product thumbnails and the dated red offer badge", 
   ];
 
   assert.match(visuals, /ComparisonProductThumbnail/);
-  assert.match(visuals, /role="img"/);
+  assert.match(visuals, /ComparisonThumbnailImage/);
   assert.match(visuals, /No image/);
   assert.match(visuals, /Offer checked \{formatted\}/);
   assert.match(visuals, /border-red-200 bg-red-50/);

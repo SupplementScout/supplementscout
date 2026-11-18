@@ -25,6 +25,17 @@ const controls = compileModule(
   path.join(process.cwd(), "app", "lib", "categoryControls.ts")
 );
 
+test("the filter and sort row can wrap within its parent instead of enforcing its combined intrinsic width", () => {
+  const source = fs.readFileSync("app/components/CategoryComparisonControls.tsx", "utf8");
+  const group = source.match(/<div className="([^"]+)">\s*\{groups\.length > 0/);
+  assert.ok(group, "existing filter/sort group");
+  const classes = group[1].split(" ");
+  assert.ok(classes.includes("flex-wrap"), "allow the select onto its own line at narrow widths");
+  assert.ok(classes.includes("max-w-full"), "bound the group to the available parent width");
+  assert.doesNotMatch(source, /overflow-x-hidden|scale-\[/);
+  assert.match(source, /htmlFor=\{`\$\{basePath\}-sort`\}/);
+});
+
 function row(overrides = {}) {
   return {
     id: "1",

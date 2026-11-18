@@ -1,5 +1,15 @@
 # SupplementScout Operating Plan
 
+**18 November 2026 targeted whey technical repairs CODE COMPLETE:** after
+SEO-31 LIVE VERIFIED, the owner separately authorizes only the existing narrow
+filter/sort overflow and failed Critical Whey2.27kg thumbnail. The shared control
+row now wraps; a small thumbnail client boundary handles real load failures while
+preserving exact source/name/link and frame. No catalogue or SEO change.
+Eight-width actual-source before/after QA,14 representative cases,quick/full and
+the existing response guard pass. One separate repair PR may release under the
+owner's stated gates; no SEO-32. SEO-20 frozen;SEO-21–31 LIVE VERIFIED;Stage3 off.
+[Repair evidence](rollouts/whey-mobile-thumbnail-repair-2026-11-18.md).
+
 **18 November 2026 SEO-31 LIVE VERIFIED:** explicit owner approval authorized
 PR#551 squash merge and automatic Production. Approved headd2bf2275 merged as
 `b3891dc1b952b5badf3e0361198e4cb5368343aa` with exact tree parity. Fresh quick/full, TypeScript/ESLint/build,

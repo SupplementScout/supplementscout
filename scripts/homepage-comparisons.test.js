@@ -67,6 +67,60 @@ function offer(retailerId, price, overrides = {}) {
 function result(raw = [offer(1, 20), offer(2, 25)]) { return deals.buildDealsResult(raw, now); }
 function featured(comparisons) { return renderToStaticMarkup(React.createElement(components.HomeFeaturedComparison, { comparisons })); }
 
+function thumbnailImageHarness() {
+  let failed = false;
+  const Image = load("app/components/ComparisonThumbnailImage.tsx", {
+    react: { ...React, useState: () => [failed, (value) => { failed = value; }] },
+  }).default;
+  const props = { src: "https://test-only.example/exact-2270g.jpg", name: "TEST ONLY Critical Whey 2.27kg" };
+  return () => Image(props);
+}
+
+test("thumbnail load errors replace only the failed image with an identity-specific message without retrying another source", () => {
+  const image = thumbnailImageHarness();
+  const initial = image();
+  assert.equal(initial.type, "img");
+  assert.equal(initial.props.src, "https://test-only.example/exact-2270g.jpg");
+  assert.equal(initial.props.alt, "TEST ONLY Critical Whey 2.27kg product image");
+  assert.equal(initial.props.loading, "lazy");
+  initial.props.onError();
+  const failed = image();
+  assert.equal(failed.type, "span");
+  assert.equal(failed.props.children, "Image unavailable");
+  assert.equal(failed.props["aria-label"], "Image unavailable for TEST ONLY Critical Whey 2.27kg");
+  assert.equal(failed.props.src, undefined);
+});
+
+test("a thumbnail failure completed before hydration is detected while valid and pending images stay visible", () => {
+  const image = thumbnailImageHarness();
+  image().props.ref(null);
+  image().props.ref({ complete: false, naturalWidth: 0 });
+  assert.equal(image().type, "img");
+  image().props.ref({ complete: true, naturalWidth: 128 });
+  assert.equal(image().type, "img");
+  image().props.ref({ complete: true, naturalWidth: 0 });
+  assert.equal(image().props.children, "Image unavailable");
+});
+
+test("thumbnail SSR preserves its exact source and product link, rejects unsafe sources, and remounts error state for a new source", () => {
+  const { ComparisonProductThumbnail } = load("app/components/ComparisonProductVisuals.tsx");
+  const props = { name: "TEST ONLY Exact Pack", productUrl: "/product/test-only?variant=117", nativeNavigation: true };
+  const first = ComparisonProductThumbnail({ ...props, image: "https://test-only.example/exact.jpg" });
+  assert.equal(first.props.children.key, "https://test-only.example/exact.jpg");
+  const next = ComparisonProductThumbnail({ ...props, image: "https://test-only.example/updated-exact.jpg" });
+  assert.notEqual(next.props.children.key, first.props.children.key);
+  const html = renderToStaticMarkup(first);
+  assert.match(html, /href="\/product\/test-only\?variant=117"/);
+  assert.match(html, /src="https:\/\/test-only\.example\/exact\.jpg"/);
+  assert.match(html, /alt="TEST ONLY Exact Pack product image"/);
+  assert.doesNotMatch(html, /background-image|Image unavailable/);
+  for (const image of [null, "not-a-url", "javascript:alert(1)", "data:image/png;base64,AAAA", "file:///tmp/image.png"]) {
+    const empty = renderToStaticMarkup(React.createElement(ComparisonProductThumbnail, { ...props, image }));
+    assert.match(empty, /No image/);
+    assert.doesNotMatch(empty, /<img\b/);
+  }
+});
+
 test("homepage wordmark keeps a single accessible home link with the full brand name", () => {
   const Header = load("app/components/HomeHeader.tsx").default;
   const html = renderToStaticMarkup(React.createElement(Header));
