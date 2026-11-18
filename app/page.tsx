@@ -171,6 +171,43 @@ export default async function Home() {
       <HomeCurrentComparisons rows={comparisons.rows.slice(1)} />
       <HomeCategoryLinks items={categoryLinks} />
 
+      <section className="home-section" aria-labelledby="protein-comparison-heading">
+        <div className="ss-card grid gap-6 p-5 sm:p-6 lg:grid-cols-2 lg:gap-10">
+          <div>
+            <p className="home-kicker">Choose your comparison</p>
+            <h2 id="protein-comparison-heading" className="mt-2">
+              Compare protein powder prices across UK retailers
+            </h2>
+            <a
+              href="/whey-protein"
+              className="mt-5 inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
+            >
+              Compare whey protein prices
+            </a>
+            <p className="home-section-copy mt-3">
+              Looking for a specific formula? Choose <a className="underline underline-offset-4" href="/whey-isolate">whey isolate</a>,
+              or browse <a className="underline underline-offset-4" href="/vegan-protein">vegan protein</a> for a plant-based option.
+            </p>
+          </div>
+          <dl className="home-section-copy space-y-4">
+            <div>
+              <dt className="font-semibold text-zinc-900">Match the flavour and pack</dt>
+              <dd className="mt-1">
+                Compare the same flavour, pack size and pack count across stores. Include known delivery
+                costs: a lower item price can cost more delivered. On a budget? See <a className="underline underline-offset-4" href="/guides/protein-powder-under-30">protein powder under £30 including delivery</a>.
+              </dd>
+            </div>
+            <div>
+              <dt className="font-semibold text-zinc-900">Check the protein value</dt>
+              <dd className="mt-1">
+                The cheapest pack is not necessarily the cheapest protein. Compare the <a className="underline underline-offset-4" href="/guides/cost-per-25g-protein">cost per 25g of protein</a> only
+                when the exact variant has verified pack size, servings and protein per serving, plus known delivery.
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
       <section
         id="stats"
         aria-labelledby="stats-heading"

@@ -333,3 +333,35 @@ test("homepage retains server copy, one H1 and every canonical catalogue path wh
   assert.deepEqual(page.metadata.alternates, { canonical: "/" });
   assert.equal(page.dynamic, "force-dynamic", "ISR must not serve expired commercial claims before background regeneration");
 });
+
+test("protein decision copy and canonical links survive empty and unavailable comparisons in server HTML", async () => {
+  for (const state of ["empty", "unavailable"]) {
+    let reads = 0;
+    const page = load("app/page.tsx", {
+      "./lib/homepageData": { getHomepageData: async () => {
+        reads++;
+        return { categories: [], productCount: null, retailerCount: null, latestOfferCheckAt: null, comparisons: { state, rows: [] } };
+      } },
+    });
+    const html = renderToStaticMarkup(await page.default());
+    const section = html.match(/<section\b[^>]*aria-labelledby="protein-comparison-heading"[^>]*>([\s\S]*?)<\/section>/)?.[1];
+    assert.ok(section, "decision copy must be present before client hydration, even when catalogue data fails");
+    assert.equal(reads, 1, "the existing homepage loader remains the only data entry point");
+    assert.equal((html.match(/<h1\b/g) || []).length, 1);
+    assert.match(section, /<h2 id="protein-comparison-heading"[^>]*>Compare protein powder prices across UK retailers<\/h2>/);
+    const links = [...section.matchAll(/<a\b[^>]*href="([^"]+)"[^>]*>([\s\S]*?)<\/a>/g)];
+    assert.deepEqual(links.map((link) => link[1]), ["/whey-protein", "/whey-isolate", "/vegan-protein", "/guides/protein-powder-under-30", "/guides/cost-per-25g-protein"]);
+    for (const [, href] of links) assert.ok(fs.existsSync(path.join(process.cwd(), "app", href, "page.tsx")), href);
+    const text = section.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ");
+    assert.match(text, /same flavour, pack size and pack count/);
+    assert.match(text, /known delivery costs/);
+    assert.match(text, /cheapest pack is not necessarily the cheapest protein/);
+    assert.match(text, /exact variant has verified pack size, servings and protein per serving, plus known delivery/);
+    assert.doesNotMatch(section, /<script|<img|<button|<form|\?variant=|lowest price|every UK retailer/i);
+    assert.ok(html.indexOf('id="search"') < html.indexOf('id="protein-comparison-heading"'));
+    assert.ok(html.indexOf('class="home-category-directory"') < html.indexOf('id="protein-comparison-heading"'));
+    assert.deepEqual(page.metadata, { alternates: { canonical: "/" } });
+    assert.equal(page.revalidate, 3600);
+    assert.equal(page.dynamic, "force-dynamic");
+  }
+});
