@@ -1,5 +1,15 @@
 # SupplementScout SEO Execution Plan
 
+**18 November 2026 targeted whey technical repairs LIVE VERIFIED:** owner-approved
+separate PR#552 squashc956a41408922d7857fd3894ccacaf7c580a10ff preserves exact reviewedaff1de66 tree.
+PR/main CI,Guardian and Production/Vercel SUCCESS pass. Public build
+`-WNI_hOBwKQEIJtIlfYR3` confirms eight-width document/body containment,
+real133404 fallback and healthy743 image,filters/sort/drawer/focus,14 shared
+cases and18-route SEO/data/link parity. Existing warm-response guard passes.
+The external133 URL remains404; the app handles it without substituting a photo
+or writing catalogue data. SEO-20 frozen,SEO-21–31 LIVE VERIFIED,Stage3 off.
+No unrelated repair,Google action or SEO-32. [Evidence](rollouts/whey-mobile-thumbnail-repair-2026-11-18.md).
+
 **18 November 2026 targeted whey technical repairs CODE COMPLETE:** after
 SEO-31 LIVE VERIFIED, the owner separately authorizes only the existing narrow
 filter/sort overflow and failed Critical Whey2.27kg thumbnail. The shared control
@@ -912,6 +922,25 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 18 November 2026 - targeted whey technical repairs LIVE VERIFIED
+
+- Owner-approved separate PR#552 merged2026-11-18T21:22:09Z as
+  c956a41408922d7857fd3894ccacaf7c580a10ff,exact approvedaff1de66 tree. Local quick1341/full4078PASS,
+  3 unchanged archive skips,TypeScript/ESLint/build,Guardian and PR/main CI pass.
+- Exact Production7896626787/Verceldpl_Cr2TPErP7rbJo7zVDK2qpeRJLLxbSUCCESS,
+  build-WNI_hOBwKQEIJtIlfYR3;public readback2026-11-18T21:24:30.557Z.
+- All eight viewports satisfy document.scrollWidth<=clientWidth and the body
+  equivalent. Filters/sort/drawer/focus,empty results and14 shared cases pass.
+  Real1332.27kg404 now has an identity-specific app message;healthy7432kg image
+  stays visible. Source URL is still404;no catalogue/image substitution/write.
+- Independent actual source2026-11-18T21:24:13.946Z verifies104 cards/order/prices,
+  delivery/arithmetic/check dates/nutrition display and product links.18 routes,
+  canonical/robots/schema/sitemap1487 and analytics source retain parity.
+  Existing public warm guard passes;instrumented local reads2→2 cold/0→0 warm
+  and unchanged loaders/cache confirm no added reads;no Production DB telemetry
+  or field CWV claim. SEO-20–31 rows unchanged;Stage3 off,no SEO-32.
+- [Production evidence](rollouts/whey-mobile-thumbnail-repair-2026-11-18.md).
 
 ### 18 November 2026 - owner-approved targeted whey technical repairs CODE COMPLETE
 

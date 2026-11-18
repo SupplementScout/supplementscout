@@ -1,6 +1,58 @@
 # Whey mobile controls and failed-thumbnail repair
 
-18 November 2026. **CODE COMPLETE; separately owner-authorized conditional release.**
+## Owner-approved Production closeout — 18 November 2026
+
+**Both application repairs LIVE VERIFIED.** Separate PR[#552](https://github.com/SupplementScout/supplementscout/pull/552)
+approvedaff1de66bb74ce0be1b6b619f0b9b67b1ed2856a,squash`c956a41408922d7857fd3894ccacaf7c580a10ff`,
+merged2026-11-18T21:22:09Z,exact tree parity. Fresh local quick1341/full4078PASS,
+3 unchanged archive skips,TypeScript/ESLint/Next16.2.9 build,Guardian and PR/main CI pass.
+
+Latest GitHub Production7896626787,Verceldpl_Cr2TPErP7rbJo7zVDK2qpeRJLLxbSUCCESS at
+2026-11-18T21:23:02Z,public build`-WNI_hOBwKQEIJtIlfYR3`.
+Public readback2026-11-18T21:24:30.557Z;independent actual catalogue source2026-11-18T21:24:13.946Z.
+
+|Viewport px|Document/client px|Body/client px|Initial lab CLS|Result|
+|---:|---:|---:|---:|---|
+|320|320/320|320/320|0|PASS|
+|360|360/360|360/360|0|PASS|
+|375|375/375|375/375|0|PASS|
+|390|390/390|390/390|0|PASS|
+|430|430/430|430/430|0|PASS|
+|768|753/753|753/753|0|PASS|
+|1024|1009/1009|1009/1009|0|PASS|
+|1440|1425/1425|1425/1425|0.0008054854108956602|PASS|
+
+Public filters/sort/drawer/Escape,keyboard focus,empty results,long names and14
+representative shared cases pass with no new runtime exception or HTTP5xx. Product133
+shows Image unavailable following its real404;product743 image stays valid. The
+upstream133 URL still returns404 and was not changed. No other pack/photo is used.
+104 cards match actual prices,delivered arithmetic,dates,order and
+links. All18 checked routes retain initial content,metadata,canonical/robots/schema,
+all1487 unique sitemap URLs and analytics contracts. No retailer test clicks.
+Baseline limitations outside the two fixes are retained: Creatine320 document/client
+1050/320px,matching the reference; homepage keeps its existing five text truncations.
+They are recorded in the proof and no unrelated repair is included.
+
+|Public route|Before warm median TTFB ms|After ms|Existing guard|
+|---|---:|---:|---|
+|/whey-protein|200.9|199.8|PASS|
+|/brands/per4m|155.5|171.0|PASS|
+|/whey-isolate|160.4|167.1|PASS|
+|/vegan-protein|151.6|148.9|PASS|
+
+Network/DNS failures are separate: 0 recorded. Existing local
+instrumentation remains cold2→2/warm0→0 with unchanged loaders/cache;no direct
+Production DB telemetry. No field CWV improvement claim. Full public browser,
+source,timing and exact deployment proof:[production-proof.json](whey-mobile-thumbnail-repair-2026-11-18/production-proof.json).
+Public screenshots for all eight widths are production-*.webp in this evidence folder;
+[320](whey-mobile-thumbnail-repair-2026-11-18/production-320.webp),
+[real404 handling](whey-mobile-thumbnail-repair-2026-11-18/production-critical-whey-320.webp),
+[drawer](whey-mobile-thumbnail-repair-2026-11-18/production-drawer-320.webp).
+SEO-20 stays frozen,SEO-21–31 LIVE VERIFIED,Stage3 off. No data,nutrition,mapping,
+history,importer,workflow,Google or unrelated repair. Final documentation main SHA,
+CI and Production proof are attached to merged PR#552.
+
+18 November 2026. **LIVE VERIFIED; owner-approved separate PR#552 release.**
 Base main`dfd0049b24531a118f9506fa18ca12a17c4892eb`. SEO-31 was already LIVE VERIFIED before this work.
 Only two confirmed technical defects are in scope; no SEO-32 or data-write approval.
 

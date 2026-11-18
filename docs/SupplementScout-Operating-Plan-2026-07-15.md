@@ -1,5 +1,15 @@
 # SupplementScout Operating Plan
 
+**18 November 2026 targeted whey technical repairs LIVE VERIFIED:** owner-approved
+separate PR#552 squashc956a41408922d7857fd3894ccacaf7c580a10ff preserves exact reviewedaff1de66 tree.
+PR/main CI,Guardian and Production/Vercel SUCCESS pass. Public build
+`-WNI_hOBwKQEIJtIlfYR3` confirms eight-width document/body containment,
+real133404 fallback and healthy743 image,filters/sort/drawer/focus,14 shared
+cases and18-route SEO/data/link parity. Existing warm-response guard passes.
+The external133 URL remains404; the app handles it without substituting a photo
+or writing catalogue data. SEO-20 frozen,SEO-21–31 LIVE VERIFIED,Stage3 off.
+No unrelated repair,Google action or SEO-32. [Evidence](rollouts/whey-mobile-thumbnail-repair-2026-11-18.md).
+
 **18 November 2026 targeted whey technical repairs CODE COMPLETE:** after
 SEO-31 LIVE VERIFIED, the owner separately authorizes only the existing narrow
 filter/sort overflow and failed Critical Whey2.27kg thumbnail. The shared control
