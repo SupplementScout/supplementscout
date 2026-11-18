@@ -318,10 +318,10 @@ export function WheyProteinPageContent({
             Compare Whey Protein Prices UK
           </h1>
           <p className="mt-5 text-base leading-7 text-zinc-700 sm:text-lg sm:leading-8">
-            Compare recently checked Whey Protein offers from UK supplement
-            retailers. We show the lowest known delivered total for each
-            product when delivery is available, without estimating missing
-            prices or nutrition.
+            Compare current whey protein powder prices from UK retailers,
+            including known delivery costs. Open a product to check the exact
+            flavour, pack size and retailer offers. Missing prices or
+            unverified nutrition are not estimated.
           </p>
           {!result.error && (
             <p className="mt-4 text-sm leading-6 text-zinc-600">
@@ -452,11 +452,11 @@ export function WheyProteinPageContent({
               When value metrics are shown
             </h2>
             <p className="mt-3 leading-7 text-zinc-700">
-              Price per kilogram and cost per 25 g of protein appear only when
-              the required package, serving and nutrition fields have been
-              reviewed and marked as verified. Missing information is left
-              blank rather than estimated from a product name or retailer
-              description.
+              Delivered pack price is the cash cost including known delivery.
+              Price per kilogram compares cost by powder weight; cost per 25 g
+              of protein compares verified protein content. Each unit metric
+              needs its own verified data. Missing figures stay blank rather
+              than being estimated.
             </p>
             <p className="mt-3 leading-7 text-zinc-700">
               See <Link href="/guides/cost-per-25g-protein" className="font-semibold underline">how to calculate cost per 25 g of protein</Link> with checked flavour-specific examples and the delivered-price breakdown.

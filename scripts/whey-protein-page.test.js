@@ -508,6 +508,12 @@ test("server-rendered page includes quick decisions and explains ranking, delive
   );
 
   assert.match(html, /Compare Whey Protein Prices UK/);
+  assert.equal((html.match(/<h1\b/g) || []).length, 1);
+  assert.match(html, /Compare current whey protein powder prices from UK retailers/);
+  assert.match(html, /Open a product to check the exact flavour, pack size and retailer offers/);
+  assert.match(html, /Delivered pack price is the cash cost including known delivery/);
+  assert.match(html, /Price per kilogram compares cost by powder weight; cost per 25 g of protein compares verified protein content/);
+  assert.match(html, /Each unit metric needs its own verified data/);
   assert.match(html, /Quick decision 2/);
   assert.match(html, /href="\/product\/example-whey-protein-1kg"/);
   assert.match(html, /Includes known delivery/);
@@ -517,6 +523,17 @@ test("server-rendered page includes quick decisions and explains ranking, delive
   assert.match(html, /application\/ld\+json/);
   assert.doesNotMatch(html, /Critical Plant Protein|BEEF-XP/);
   assert.match(html, /Search whey/);
+});
+
+test("buying guidance survives empty coverage without invented prices and source errors still abort", async () => {
+  const empty = { ...categoryComparison.emptyCategoryComparisonResult(), error: false };
+  const { page } = loadPage(empty);
+  const html = renderToStaticMarkup(React.createElement(page.WheyProteinPageContent, { result: empty }));
+  assert.match(html, /No recently checked Whey Protein offers/);
+  assert.match(html, /Missing figures stay blank rather than being estimated/);
+  assert.doesNotMatch(html, /£28\.99|£33\.99|Includes known delivery/);
+  const failed = loadPage({ ...empty, error: true });
+  await assert.rejects(failed.page.default(), /temporarily unavailable/);
 });
 
 test("Whey has one sitemap URL and prominent internal links", () => {
