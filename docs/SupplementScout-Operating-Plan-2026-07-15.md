@@ -1,5 +1,20 @@
 # SupplementScout Operating Plan
 
+**18 November 2026 SEO-30 LIVE VERIFIED:** the later explicit owner approval
+authorized PR #550 squash merge and automatic Production. Approved head
+`baba83569aa467c1be9bf3cd0d55a0d460c21d8f` merged as
+`72e0502e1182c7af4a5967a2b0a4c18fb88a9705` with exact tree parity. Fresh local gates,
+PR/main CI and exact GitHub Production/Vercel SUCCESS pass. Public build
+`fVwqxt_Y5IFtN7dg--vcx`, independent current-source nutrition/offer
+readback, all 10 guides plus 6 control pages, parameter/sitemap/schema contracts,
+1440/768/390/320px QA and the existing warm-response guard pass. SEO-30 is
+LIVE VERIFIED; earlier Draft-only restrictions are historical for this release.
+SEO-20 remains frozen, SEO-21–29 remain LIVE VERIFIED and Stage3 stays disabled.
+No data, nutrition approval, mapping, importer, workflow, analytics schedule,
+Google submission or SEO-31 change. Final documentation main SHA/CI/Production
+proof is recorded on [merged PR #550](https://github.com/SupplementScout/supplementscout/pull/550).
+[Production evidence](rollouts/seo30-protein-guide-pair-2026-11-18.md).
+
 **18 November 2026 SEO-30 Draft checkpoint:** the owner-approved improvement
 to the existing `/guides/cost-per-25g-protein` is CODE COMPLETE for publication
 review. ISO-XP Vanilla735 and Efectiv Strawberry Milkshake1196 now demonstrate

@@ -1,5 +1,20 @@
 # SupplementScout SEO Execution Plan
 
+**18 November 2026 SEO-30 LIVE VERIFIED:** the later explicit owner approval
+authorized PR #550 squash merge and automatic Production. Approved head
+`baba83569aa467c1be9bf3cd0d55a0d460c21d8f` merged as
+`72e0502e1182c7af4a5967a2b0a4c18fb88a9705` with exact tree parity. Fresh local gates,
+PR/main CI and exact GitHub Production/Vercel SUCCESS pass. Public build
+`fVwqxt_Y5IFtN7dg--vcx`, independent current-source nutrition/offer
+readback, all 10 guides plus 6 control pages, parameter/sitemap/schema contracts,
+1440/768/390/320px QA and the existing warm-response guard pass. SEO-30 is
+LIVE VERIFIED; earlier Draft-only restrictions are historical for this release.
+SEO-20 remains frozen, SEO-21–29 remain LIVE VERIFIED and Stage3 stays disabled.
+No data, nutrition approval, mapping, importer, workflow, analytics schedule,
+Google submission or SEO-31 change. Final documentation main SHA/CI/Production
+proof is recorded on [merged PR #550](https://github.com/SupplementScout/supplementscout/pull/550).
+[Production evidence](rollouts/seo30-protein-guide-pair-2026-11-18.md).
+
 **18 November 2026 SEO-30 Draft checkpoint:** the owner-approved improvement
 to the existing `/guides/cost-per-25g-protein` is CODE COMPLETE for publication
 review. ISO-XP Vanilla735 and Efectiv Strawberry Milkshake1196 now demonstrate
@@ -584,7 +599,7 @@ Console evidence and user value.
 
 | SEO-29 | P1 | Improve existing Myprotein Clear Whey product1470 buying clarity. | `LIVE VERIFIED` | Owner-approved PR #549 squash645d6c51698c524185cfc9d9e48cdda40391bbd3 preserves final3a2e2d8a tree and approved runtime implementation. Fresh quick/full gates and PR/main Quality Gate/Guardian pass; exact GitHub Production/Vercel SUCCESS and public build6jOjXHHkhMo4PGIhR-a3i prove deployment. Public200, exact description/OG/Twitter, initial summary, current-source variants/delivery/date/arithmetic, unchanged canonical/robots/schema/sitemap/tracking and nine1440/390/320px layouts pass. Warm guard and runtime reads7→7/9→9 pass. No production-data/Google write; SEO-20 frozen, SEO-21–28 live, Stage3 off. Evidence: docs/rollouts/seo29-clear-whey-intent-2026-11-18.md. |
 
-| SEO-30 | P1 | Improve existing /guides/cost-per-25g-protein with two distinct reviewed whey isolates. | `CODE COMPLETE` | Owner-approved Draft only. Exact ISO-XP178/735 Vanilla1800g and Efectiv746/1196 Strawberry Milkshake2000g replace two flavours of one product. Existing selectors, batched loader, nutrition/pricing validators and BuyingGuide stay in place; only the payload key becomes v3. Manifest/live equality, fresh delivered arithmetic, dynamic comparison/tie/partial/empty states,27 focused tests, quick/full gates, SEO parity and1440/768/390/320px actual-source QA pass. Cold reads2→2, warm0→0; unchanged warm-response guard. No merge/Production/data write; SEO-20 frozen, SEO-21–29 live, Stage3 off. Evidence: docs/rollouts/seo30-protein-guide-pair-2026-11-18.md. |
+| SEO-30 | P1 | Improve existing /guides/cost-per-25g-protein with two distinct reviewed whey isolates. | `LIVE VERIFIED` | Owner-approved PR #550 squash 72e0502e1182c7af4a5967a2b0a4c18fb88a9705 preserves exact approved baba8356 tree. Fresh local quick/full, PR/main CI and Guardian pass; exact GitHub Production/Vercel SUCCESS and public build fVwqxt_Y5IFtN7dg--vcx prove deployment. Public200, real exact735/1196 nutrition provenance and current delivered arithmetic, dynamic comparison/partial-state rules, metadata/canonical/robots/schema/sitemap parity,16-route readback and1440/768/390/320px QA pass. Warm guard passes; existing instrumented cold2→2/warm0→0 and cache contracts remain unchanged. No production-data/Google write; SEO-20 frozen, SEO-21–29 live, Stage3 off. Evidence: docs/rollouts/seo30-protein-guide-pair-2026-11-18.md. |
 
 ## 6. Current active task
 
@@ -861,6 +876,37 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 18 November 2026 - SEO-30 production release LIVE VERIFIED
+
+- Explicit owner release approval authorizes Ready for Review, exact-head squash,
+  automatic Production and closeout. PR #550 merged at 2026-11-18T16:57:27Z
+  as 72e0502e1182c7af4a5967a2b0a4c18fb88a9705, identical to approved baba8356 tree.
+  Fresh quick1336/full4073 PASS,3 existing legacy skips,0 FAIL; TypeScript,
+  ESLint, production build,27 guide cases and PR/main Guardian/Quality Gate pass.
+- GitHub Production 7890185474 and Vercel dpl_46hbtGXN2JkvWjn82yrr4MV1ZubS
+  SUCCESS at 2026-11-18T16:58:33Z. Public build changes from
+  5G92xxzNghw0hh9d8E9nM to fVwqxt_Y5IFtN7dg--vcx; first proof
+  2026-11-18T16:58:49.547Z, complete public readback 2026-11-18T17:00:14.436Z.
+  API403/Preview SSO protections are retained; exact webhook/public proof is used.
+- Independent GET-only source at 2026-11-18T16:59:23.865Z matches both exact
+  nutrition overrides to their existing reviewed records. Public initial HTML
+  confirms735 Vanilla/1800g and1196 Strawberry Milkshake/2000g, verified
+  protein1584g/1782g, current eligible delivered totals/unit costs/check times,
+  dynamic comparison, exact product links and nutrition sources. No data write.
+- All10 public guides and6 controls return200 with preserved metadata, oneH1,
+  canonical/robots/schema,1,487 unique sitemap URLs and parameter noindex/follow.
+  Frozen PER4M body/direct links/schema retain parity; creatine, whey, delivery,
+  ABE, Myprotein Clear Whey, homepage and every other published guide pass.
+- Public1440/768/390/320px QA4/4 passes: no clipping, overlap, new overflow,
+  runtime/HTTP errors or focus failure. Existing public warm-response guard
+  passes on7 routes. Instrumented paired local cold2→2/warm0→0 remains valid
+  for the identical released application tree; batching/cache tests pass fresh.
+  No Production DB telemetry or field CWV improvement is claimed.
+- [Dated public source, metrics and screenshots](rollouts/seo30-protein-guide-pair-2026-11-18.md).
+  SEO-30 is LIVE VERIFIED. SEO-20 frozen fields/clock/thresholds and SEO-21–29
+  rows stay unchanged; Stage3 off. Keep existing7/28 complete-day measurement
+  after release, without analytics schedule changes, Google submission or SEO-31.
 
 ### 18 November 2026 - SEO-30 existing protein guide CODE COMPLETE
 

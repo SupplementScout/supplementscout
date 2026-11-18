@@ -1,0 +1,741 @@
+{
+  "at": "2026-11-18T17:06:10.974Z",
+  "merge": {
+    "headRefOid": "baba83569aa467c1be9bf3cd0d55a0d460c21d8f",
+    "mergeCommit": {
+      "oid": "72e0502e1182c7af4a5967a2b0a4c18fb88a9705"
+    },
+    "mergedAt": "2026-11-18T16:57:27Z",
+    "state": "MERGED",
+    "url": "https://github.com/SupplementScout/supplementscout/pull/550",
+    "treeParity": true,
+    "verifiedAt": "2026-11-18T16:57:35.244Z"
+  },
+  "production": {
+    "sha": "72e0502e1182c7af4a5967a2b0a4c18fb88a9705",
+    "target": "production",
+    "githubDeploymentId": 7890185474,
+    "githubDeploymentState": "success",
+    "githubDeploymentCreatedAt": "2026-11-18T16:58:33Z",
+    "generatedDeploymentUrl": "https://supplementscout-7cp1pnh23-supplement-scout.vercel.app",
+    "vercelCommitState": "success",
+    "vercelStatusUrl": "https://vercel.com/supplement-scout/supplementscout/46hbtGXN2JkvWjn82yrr4MV1ZubS",
+    "directVercelApi": "Prior403 retained; not retried or bypassed. Authorized GitHub/Vercel webhook and public build verification used.",
+    "id": "dpl_46hbtGXN2JkvWjn82yrr4MV1ZubS",
+    "state": "READY",
+    "ready": true,
+    "publicDomain": "https://www.supplementscout.co.uk",
+    "publicBuildId": "fVwqxt_Y5IFtN7dg--vcx",
+    "previousPublicBuildId": "5G92xxzNghw0hh9d8E9nM",
+    "publicDomainBuildTransition": true,
+    "samePublicBuildAcrossCheckedRoutes": true,
+    "checked": [],
+    "readinessAuthority": "Vercel commit SUCCESS + exact latest GitHub Production deployment SUCCESS + public domain build fingerprint/content contracts; no private API READY claim",
+    "githubProductionSuccessAt": "2026-11-18T16:58:33Z",
+    "firstVerifiedAt": "2026-11-18T16:58:49.547Z"
+  },
+  "ci": {
+    "sha": "72e0502e1182c7af4a5967a2b0a4c18fb88a9705",
+    "at": "2026-11-18T17:01:11.608Z",
+    "result": "PASS",
+    "checks": [
+      {
+        "name": "full",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44353183388/job/134974118104",
+        "completedAt": "2026-11-18T17:00:57Z"
+      },
+      {
+        "name": "verify-project-control",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44353183436/job/134974118130",
+        "completedAt": "2026-11-18T16:57:43Z"
+      }
+    ]
+  },
+  "source": {
+    "at": "2026-11-18T17:00:32.507Z",
+    "sourceAt": "2026-11-18T16:59:23.865Z",
+    "label": "production",
+    "result": "PASS",
+    "proofs": [
+      {
+        "productId": "178",
+        "variantId": "735",
+        "name": "Applied Nutrition ISO-XP 1.8kg",
+        "variant": "Vanilla / 1.8kg",
+        "pack": "1,800g",
+        "servings": 72,
+        "proteinPerServing": 22,
+        "totalProteinG": 1584,
+        "nutritionManifestEquality": true,
+        "qualifies": true,
+        "retailer": "Whey Okay",
+        "offerId": "1536",
+        "productPrice": 81.53,
+        "shipping": 3.99,
+        "total": 85.52,
+        "costPer25g": 1.3497474747474747,
+        "checkedAt": "2026-11-18T10:14:49.194+00:00",
+        "productUrl": "/product/applied-nutrition-iso-xp-18kg?variant=735"
+      },
+      {
+        "productId": "746",
+        "variantId": "1196",
+        "name": "Efectiv Nutrition Grass-Fed Whey Protein Isolate 2kg",
+        "variant": "Strawberry Milkshake / 2000g",
+        "pack": "2,000g",
+        "servings": 66,
+        "proteinPerServing": 27,
+        "totalProteinG": 1782,
+        "nutritionManifestEquality": true,
+        "qualifies": true,
+        "retailer": "eBay UK",
+        "offerId": "2640",
+        "productPrice": 64.99,
+        "shipping": 0,
+        "total": 64.99,
+        "costPer25g": 0.9117564534231201,
+        "checkedAt": "2026-11-18T14:37:35.716+00:00",
+        "productUrl": "/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg?variant=1196"
+      }
+    ],
+    "comparison": {
+      "lowerProduct": "Efectiv Nutrition Grass-Fed Whey Protein Isolate 2kg",
+      "differenceUnrounded": 0.43799102132435463,
+      "differenceDisplayed": 0.44,
+      "tie": false
+    },
+    "links": [
+      {
+        "path": "/",
+        "status": 200
+      },
+      {
+        "path": "/search",
+        "status": 200
+      },
+      {
+        "path": "/how-we-compare",
+        "status": 200
+      },
+      {
+        "path": "/product/applied-nutrition-iso-xp-18kg?variant=735",
+        "status": 200
+      },
+      {
+        "path": "/product/efectiv-nutrition-grass-fed-whey-protein-isolate-2kg?variant=1196",
+        "status": 200
+      },
+      {
+        "path": "/whey-protein",
+        "status": 200
+      },
+      {
+        "path": "/whey-isolate",
+        "status": 200
+      },
+      {
+        "path": "/compare",
+        "status": 200
+      },
+      {
+        "path": "/data-freshness",
+        "status": 200
+      },
+      {
+        "path": "/guides/supplement-prices-including-delivery",
+        "status": 200
+      },
+      {
+        "path": "/help-me-choose",
+        "status": 200
+      }
+    ],
+    "productionDataWrites": 0,
+    "retailerNavigations": 0,
+    "nutritionApprovals": 0
+  },
+  "publicReadbackAt": "2026-11-18T17:00:14.436Z",
+  "routes": [
+    {
+      "route": "/guides/cost-per-25g-protein",
+      "status": 200,
+      "buildId": "fVwqxt_Y5IFtN7dg--vcx",
+      "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout",
+      "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+      "robots": "index, follow",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "route": "/guides/supplement-prices-including-delivery",
+      "status": 200,
+      "buildId": "fVwqxt_Y5IFtN7dg--vcx",
+      "title": "Supplement Prices Including Delivery: A UK Comparison | SupplementScout",
+      "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+      "robots": "index, follow",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "route": "/guides/protein-powder-under-30",
+      "status": 200,
+      "buildId": "fVwqxt_Y5IFtN7dg--vcx",
+      "title": "Protein Powder Under £30 UK: Compare Delivered Prices | SupplementScout",
+      "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-under-30",
+      "robots": "index, follow",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "route": "/guides/caffeine-free-pre-workout",
+      "status": 200,
+      "buildId": "fVwqxt_Y5IFtN7dg--vcx",
+      "title": "Caffeine-Free Pre-Workout UK: How to Check and Compare | SupplementScout",
+      "canonical": "https://www.supplementscout.co.uk/guides/caffeine-free-pre-workout",
+      "robots": "index, follow",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "route": "/guides/whey-isolate-vs-concentrate",
+      "status": 200,
+      "buildId": "fVwqxt_Y5IFtN7dg--vcx",
+      "title": "Whey Isolate vs Concentrate: Which Is Better Value in the UK? | SupplementScout",
+      "canonical": "https://www.supplementscout.co.uk/guides/whey-isolate-vs-concentrate",
+      "robots": "index, follow",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "route": "/guides/protein-powder-pack-size-value",
+      "status": 200,
+      "buildId": "fVwqxt_Y5IFtN7dg--vcx",
+      "title": "Does Buying a Bigger Protein Bag Actually Save Money? | SupplementScout",
+      "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-pack-size-value",
+      "robots": "index, follow",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "route": "/guides/mass-gainer-vs-whey-protein",
+      "status": 200,
+      "buildId": "fVwqxt_Y5IFtN7dg--vcx",
+      "title": "Mass Gainer vs Whey Protein: Compare UK Buying Costs | SupplementScout",
+      "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-vs-whey-protein",
+      "robots": "index, follow",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "route": "/guides/creatine-pack-size-value",
+      "status": 200,
+      "buildId": "fVwqxt_Y5IFtN7dg--vcx",
+      "title": "Creatine Pack Sizes: Is a Bigger Tub Better Value? | SupplementScout",
+      "canonical": "https://www.supplementscout.co.uk/guides/creatine-pack-size-value",
+      "robots": "index, follow",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "route": "/guides/pre-workout-under-30",
+      "status": 200,
+      "buildId": "fVwqxt_Y5IFtN7dg--vcx",
+      "title": "Pre-Workout Under £30 UK: Compare Prices Including Delivery | SupplementScout",
+      "canonical": "https://www.supplementscout.co.uk/guides/pre-workout-under-30",
+      "robots": "index, follow",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "route": "/guides/mass-gainer-under-40",
+      "status": 200,
+      "buildId": "fVwqxt_Y5IFtN7dg--vcx",
+      "title": "Mass Gainer Under £40 UK: Compare Prices Including Delivery | SupplementScout",
+      "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-under-40",
+      "robots": "index, follow",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "route": "/brands/per4m",
+      "status": 200,
+      "buildId": "fVwqxt_Y5IFtN7dg--vcx",
+      "title": "Compare PER4M Prices Across UK Retailers | SupplementScout",
+      "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+      "robots": "index, follow",
+      "schemaTypes": [
+        "CollectionPage",
+        "ItemList",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "route": "/creatine",
+      "status": 200,
+      "buildId": "fVwqxt_Y5IFtN7dg--vcx",
+      "title": "Compare Creatine Supplements & Prices UK | SupplementScout",
+      "canonical": "https://www.supplementscout.co.uk/creatine",
+      "robots": "index, follow",
+      "schemaTypes": [
+        "CollectionPage",
+        "ItemList",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "route": "/whey-protein",
+      "status": 200,
+      "buildId": "fVwqxt_Y5IFtN7dg--vcx",
+      "title": "Compare Whey Protein Prices UK | SupplementScout",
+      "canonical": "https://www.supplementscout.co.uk/whey-protein",
+      "robots": "index, follow",
+      "schemaTypes": [
+        "CollectionPage",
+        "ItemList",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+      "status": 200,
+      "buildId": "fVwqxt_Y5IFtN7dg--vcx",
+      "title": "Applied Nutrition ABE Ultimate Pre-Workout 315g | SupplementScout",
+      "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+      "schemaTypes": [
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "route": "/product/myprotein-clear-whey-protein-isolate",
+      "status": 200,
+      "buildId": "fVwqxt_Y5IFtN7dg--vcx",
+      "title": "Myprotein Clear Whey Protein Isolate | SupplementScout",
+      "canonical": "https://www.supplementscout.co.uk/product/myprotein-clear-whey-protein-isolate",
+      "schemaTypes": [
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "route": "/",
+      "status": 200,
+      "buildId": "fVwqxt_Y5IFtN7dg--vcx",
+      "title": "SupplementScout | Compare UK Supplement Prices",
+      "canonical": "https://www.supplementscout.co.uk",
+      "schemaTypes": []
+    }
+  ],
+  "parameters": [
+    {
+      "route": "/guides/cost-per-25g-protein?sort=price",
+      "status": 200,
+      "robots": "noindex, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein"
+    },
+    {
+      "route": "/guides/cost-per-25g-protein?utm_source=qa",
+      "status": 200,
+      "robots": "noindex, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein"
+    }
+  ],
+  "sitemapCount": 1487,
+  "performance": [
+    {
+      "route": "/guides/cost-per-25g-protein",
+      "beforeMs": 155.2792999999947,
+      "warmMedianTTFBms": 146.77300000000105,
+      "guardPass": true,
+      "samples": [
+        {
+          "route": "/guides/cost-per-25g-protein",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 146.70720000000074,
+          "totalMs": 171.59330000000045
+        },
+        {
+          "route": "/guides/cost-per-25g-protein",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 131.07749999999942,
+          "totalMs": 172.22650000000067
+        },
+        {
+          "route": "/guides/cost-per-25g-protein",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 189.20249999999942,
+          "totalMs": 206.22630000000208
+        },
+        {
+          "route": "/guides/cost-per-25g-protein",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 146.77300000000105,
+          "totalMs": 172.16820000000007
+        },
+        {
+          "route": "/guides/cost-per-25g-protein",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 440.6693000000014,
+          "totalMs": 453.74579999999696
+        }
+      ]
+    },
+    {
+      "route": "/brands/per4m",
+      "beforeMs": 197.31800000000658,
+      "warmMedianTTFBms": 184.3122000000003,
+      "guardPass": true,
+      "samples": [
+        {
+          "route": "/brands/per4m",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 214.52449999999953,
+          "totalMs": 267.28879999999845
+        },
+        {
+          "route": "/brands/per4m",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 171.1875,
+          "totalMs": 315.7430999999997
+        },
+        {
+          "route": "/brands/per4m",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 184.3122000000003,
+          "totalMs": 326.0453000000016
+        },
+        {
+          "route": "/brands/per4m",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 168.72679999999673,
+          "totalMs": 295.28859999999986
+        },
+        {
+          "route": "/brands/per4m",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 644.9017000000022,
+          "totalMs": 773.3305000000037
+        }
+      ]
+    },
+    {
+      "route": "/creatine",
+      "beforeMs": 236.29170000000158,
+      "warmMedianTTFBms": 291.72019999999975,
+      "guardPass": true,
+      "samples": [
+        {
+          "route": "/creatine",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 228.0630999999994,
+          "totalMs": 305.8891000000003
+        },
+        {
+          "route": "/creatine",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 291.72019999999975,
+          "totalMs": 424.5073999999986
+        },
+        {
+          "route": "/creatine",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 308.0462000000007,
+          "totalMs": 514.5254999999997
+        },
+        {
+          "route": "/creatine",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 655.4297999999981,
+          "totalMs": 869.6029000000017
+        },
+        {
+          "route": "/creatine",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 226.7977000000028,
+          "totalMs": 325.28809999999794
+        }
+      ]
+    },
+    {
+      "route": "/whey-protein",
+      "beforeMs": 213.27020000000266,
+      "warmMedianTTFBms": 309.9155000000028,
+      "guardPass": true,
+      "samples": [
+        {
+          "route": "/whey-protein",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 375.4412000000011,
+          "totalMs": 464.3099000000002
+        },
+        {
+          "route": "/whey-protein",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 309.9155000000028,
+          "totalMs": 460.82640000000174
+        },
+        {
+          "route": "/whey-protein",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 255.0480000000025,
+          "totalMs": 478.3580000000002
+        },
+        {
+          "route": "/whey-protein",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 1017.3989000000001,
+          "totalMs": 1241.604800000001
+        },
+        {
+          "route": "/whey-protein",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 253.15409999999974,
+          "totalMs": 368.21399999999994
+        }
+      ]
+    },
+    {
+      "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+      "beforeMs": 1351.4331999999995,
+      "warmMedianTTFBms": 1266.8108999999968,
+      "guardPass": true,
+      "samples": [
+        {
+          "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 1240.6512000000002,
+          "totalMs": 1359.4716000000008
+        },
+        {
+          "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 1701.0347000000002,
+          "totalMs": 1870.4624000000003
+        },
+        {
+          "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 1408.5216999999975,
+          "totalMs": 1541.580399999999
+        },
+        {
+          "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 977.2223000000013,
+          "totalMs": 1134.368300000002
+        },
+        {
+          "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 1266.8108999999968,
+          "totalMs": 1390.9978999999948
+        }
+      ]
+    },
+    {
+      "route": "/product/myprotein-clear-whey-protein-isolate",
+      "beforeMs": 1130.919600000001,
+      "warmMedianTTFBms": 1175.768799999998,
+      "guardPass": true,
+      "samples": [
+        {
+          "route": "/product/myprotein-clear-whey-protein-isolate",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 1026.7895000000026,
+          "totalMs": 1135.252700000001
+        },
+        {
+          "route": "/product/myprotein-clear-whey-protein-isolate",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 1157.5121,
+          "totalMs": 1264.2366000000002
+        },
+        {
+          "route": "/product/myprotein-clear-whey-protein-isolate",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 1305.9390000000021,
+          "totalMs": 1398.7715000000026
+        },
+        {
+          "route": "/product/myprotein-clear-whey-protein-isolate",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 1175.768799999998,
+          "totalMs": 1277.651899999997
+        },
+        {
+          "route": "/product/myprotein-clear-whey-protein-isolate",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 1321.3092999999935,
+          "totalMs": 1423.8584999999948
+        }
+      ]
+    },
+    {
+      "route": "/",
+      "beforeMs": 463.75389999999607,
+      "warmMedianTTFBms": 765.907100000004,
+      "guardPass": true,
+      "samples": [
+        {
+          "route": "/",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 673.2089000000014,
+          "totalMs": 730.3898999999983
+        },
+        {
+          "route": "/",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 792.891599999999,
+          "totalMs": 905.0991999999969
+        },
+        {
+          "route": "/",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 476.89080000000104,
+          "totalMs": 586.2577000000019
+        },
+        {
+          "route": "/",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 2533.9205999999976,
+          "totalMs": 2632.4751000000033
+        },
+        {
+          "route": "/",
+          "dnsMs": null,
+          "reusedSocket": true,
+          "ttfbMs": 765.907100000004,
+          "totalMs": 888.2679000000062
+        }
+      ]
+    }
+  ],
+  "networkErrors": [],
+  "browser": [
+    {
+      "width": 1440,
+      "result": "PASS",
+      "clipped": [],
+      "docWidth": 1425,
+      "cls": 0,
+      "lcpMs": 744,
+      "jsBytes": 529080,
+      "focus": {
+        "href": "/product/applied-nutrition-iso-xp-18kg?variant=735",
+        "visible": true
+      },
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "width": 768,
+      "result": "PASS",
+      "clipped": [],
+      "docWidth": 753,
+      "cls": 0,
+      "lcpMs": 516,
+      "jsBytes": 529080,
+      "focus": {
+        "href": "/product/applied-nutrition-iso-xp-18kg?variant=735",
+        "visible": true
+      },
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "width": 390,
+      "result": "PASS",
+      "clipped": [],
+      "docWidth": 390,
+      "cls": 0,
+      "lcpMs": 18540,
+      "jsBytes": 529080,
+      "focus": {
+        "href": "/product/applied-nutrition-iso-xp-18kg?variant=735",
+        "visible": true
+      },
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "width": 320,
+      "result": "PASS",
+      "clipped": [],
+      "docWidth": 320,
+      "cls": 0,
+      "lcpMs": 384,
+      "jsBytes": 529080,
+      "focus": {
+        "href": "/product/applied-nutrition-iso-xp-18kg?variant=735",
+        "visible": true
+      },
+      "runtimeExceptions": [],
+      "httpErrors": []
+    }
+  ],
+  "runtimeReads": {
+    "environment": "Instrumented paired actual-source local production builds; application tree matches release",
+    "coldBefore": 2,
+    "coldAfter": 2,
+    "warmBefore": 0,
+    "warmAfter": 0
+  },
+  "productionDataWrites": 0,
+  "googleSubmissions": 0
+}

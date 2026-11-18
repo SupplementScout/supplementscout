@@ -1,0 +1,302 @@
+{
+  "at": "2026-11-18T17:06:10.966Z",
+  "initialMobileLCPms": 18540,
+  "followup": [
+    {
+      "width": 390,
+      "lcpMs": 416,
+      "documentTTFBms": 46.30000001192093,
+      "slowResources": [
+        {
+          "name": "https://www.supplementscout.co.uk/_next/static/chunks/07u_h6i539_wj.js",
+          "duration": 19283.20000001788,
+          "start": 211.59999999403954,
+          "dns": 0,
+          "connect": 0,
+          "requestToResponse": 101.90000000596046,
+          "response": 19164.40000000596,
+          "initiator": "script"
+        },
+        {
+          "name": "https://www.supplementscout.co.uk/_next/static/chunks/3j9pm5otqxm82.js",
+          "duration": 19447.600000023842,
+          "start": 211.69999998807907,
+          "dns": 0.10000002384185791,
+          "connect": 69.7999999821186,
+          "requestToResponse": 48.79999998211861,
+          "response": 46.70000001788139,
+          "initiator": "script"
+        },
+        {
+          "name": "https://www.supplementscout.co.uk/_next/static/chunks/turbopack-05o9g6l_1hb89.js",
+          "duration": 19472.70000001788,
+          "start": 211.69999998807907,
+          "dns": 0,
+          "connect": 0,
+          "requestToResponse": 94.7999999821186,
+          "response": 25.700000017881393,
+          "initiator": "script"
+        },
+        {
+          "name": "https://www.supplementscout.co.uk/_next/static/chunks/1xdsaumin0uei.js",
+          "duration": 19488,
+          "start": 211.90000000596046,
+          "dns": 0,
+          "connect": 0,
+          "requestToResponse": 119.5,
+          "response": 16.400000005960464,
+          "initiator": "script"
+        },
+        {
+          "name": "https://www.supplementscout.co.uk/_next/static/chunks/2qss5m6h08xun.js",
+          "duration": 19488.5,
+          "start": 211.90000000596046,
+          "dns": 0,
+          "connect": 0,
+          "requestToResponse": 119.59999999403954,
+          "response": 16.700000017881393,
+          "initiator": "script"
+        },
+        {
+          "name": "https://www.supplementscout.co.uk/_next/static/chunks/2wa5y9ulg87tc.js",
+          "duration": 19488.69999998808,
+          "start": 212,
+          "dns": 0,
+          "connect": 0,
+          "requestToResponse": 119.80000001192093,
+          "response": 16.899999976158142,
+          "initiator": "script"
+        },
+        {
+          "name": "https://www.supplementscout.co.uk/_next/static/chunks/1w9lotakwc4_z.js",
+          "duration": 19489,
+          "start": 212,
+          "dns": 0,
+          "connect": 0,
+          "requestToResponse": 120.09999999403954,
+          "response": 17,
+          "initiator": "script"
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "lcpMs": 464,
+      "documentTTFBms": 43.599999994039536,
+      "slowResources": [
+        {
+          "name": "https://www.supplementscout.co.uk/_next/static/chunks/2qss5m6h08xun.js",
+          "duration": 219.2000000178814,
+          "start": 226.09999999403954,
+          "dns": 0,
+          "connect": 0,
+          "requestToResponse": 164.60000002384186,
+          "response": 47.099999994039536,
+          "initiator": "script"
+        },
+        {
+          "name": "https://www.supplementscout.co.uk/_next/static/chunks/1xdsaumin0uei.js",
+          "duration": 217.59999999403954,
+          "start": 226.2000000178814,
+          "dns": 0,
+          "connect": 0,
+          "requestToResponse": 164.5,
+          "response": 45.30000001192093,
+          "initiator": "script"
+        },
+        {
+          "name": "https://www.supplementscout.co.uk/_next/static/chunks/1w9lotakwc4_z.js",
+          "duration": 218.2999999821186,
+          "start": 226.30000001192093,
+          "dns": 0,
+          "connect": 0,
+          "requestToResponse": 164.19999998807907,
+          "response": 46,
+          "initiator": "script"
+        },
+        {
+          "name": "https://www.supplementscout.co.uk/_next/static/chunks/2wa5y9ulg87tc.js",
+          "duration": 237.90000000596046,
+          "start": 226.30000001192093,
+          "dns": 0,
+          "connect": 0,
+          "requestToResponse": 208.5,
+          "response": 21.600000023841858,
+          "initiator": "script"
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "lcpMs": 464,
+      "documentTTFBms": 34.900000005960464,
+      "slowResources": [
+        {
+          "name": "https://www.supplementscout.co.uk/_next/static/chunks/3j9pm5otqxm82.js",
+          "duration": 216.69999998807907,
+          "start": 167.7000000178814,
+          "dns": 0,
+          "connect": 0,
+          "requestToResponse": 173.09999999403954,
+          "response": 28.30000001192093,
+          "initiator": "script"
+        },
+        {
+          "name": "https://www.supplementscout.co.uk/_next/static/chunks/1xdsaumin0uei.js",
+          "duration": 200.60000002384186,
+          "start": 168.09999999403954,
+          "dns": 0,
+          "connect": 0,
+          "requestToResponse": 171,
+          "response": 13,
+          "initiator": "script"
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "lcpMs": 368,
+      "documentTTFBms": 37.70000001788139,
+      "slowResources": [
+        {
+          "name": "https://www.supplementscout.co.uk/_next/static/chunks/26f16j0dplny0.js",
+          "duration": 207.59999999403954,
+          "start": 184.90000000596046,
+          "dns": 0,
+          "connect": 0,
+          "requestToResponse": 189.5,
+          "response": 6.5,
+          "initiator": "link"
+        },
+        {
+          "name": "https://www.supplementscout.co.uk/_next/static/chunks/3j9pm5otqxm82.js",
+          "duration": 212.59999999403954,
+          "start": 185.30000001192093,
+          "dns": 0,
+          "connect": 0,
+          "requestToResponse": 124.40000000596046,
+          "response": 76.19999998807907,
+          "initiator": "script"
+        },
+        {
+          "name": "https://www.supplementscout.co.uk/_next/static/chunks/1xdsaumin0uei.js",
+          "duration": 209.5,
+          "start": 185.60000002384186,
+          "dns": 0,
+          "connect": 0,
+          "requestToResponse": 188.90000000596046,
+          "response": 8.300000011920929,
+          "initiator": "script"
+        }
+      ]
+    }
+  ],
+  "assetProbe": {
+    "at": "2026-11-18T17:04:19.041Z",
+    "environment": "Public HTTPS read-only diagnostics; no application or network-setting changes",
+    "rows": [
+      {
+        "path": "/_next/static/chunks/07u_h6i539_wj.js",
+        "status": 200,
+        "ttfbMs": 269.6222,
+        "totalMs": 341.90430000000003,
+        "bytes": 150333,
+        "cache": "HIT",
+        "cacheControl": "public,max-age=31536000,immutable",
+        "age": "288"
+      },
+      {
+        "path": "/_next/static/chunks/3j9pm5otqxm82.js",
+        "status": 200,
+        "ttfbMs": 43.00419999999997,
+        "totalMs": 115.17930000000001,
+        "bytes": 226355,
+        "cache": "HIT",
+        "cacheControl": "public,max-age=31536000,immutable",
+        "age": "288"
+      },
+      {
+        "path": "/_next/static/chunks/07u_h6i539_wj.js",
+        "status": 200,
+        "ttfbMs": 63.9547,
+        "totalMs": 92.61489999999992,
+        "bytes": 150333,
+        "cache": "HIT",
+        "cacheControl": "public,max-age=31536000,immutable",
+        "age": "288"
+      },
+      {
+        "path": "/_next/static/chunks/3j9pm5otqxm82.js",
+        "status": 200,
+        "ttfbMs": 40.312400000000025,
+        "totalMs": 102.2414,
+        "bytes": 226355,
+        "cache": "HIT",
+        "cacheControl": "public,max-age=31536000,immutable",
+        "age": "288"
+      },
+      {
+        "path": "/_next/static/chunks/07u_h6i539_wj.js",
+        "status": 200,
+        "ttfbMs": 39.06169999999997,
+        "totalMs": 60.723100000000045,
+        "bytes": 150333,
+        "cache": "HIT",
+        "cacheControl": "public,max-age=31536000,immutable",
+        "age": "288"
+      },
+      {
+        "path": "/_next/static/chunks/3j9pm5otqxm82.js",
+        "status": 200,
+        "ttfbMs": 29.971900000000005,
+        "totalMs": 83.07690000000002,
+        "bytes": 226355,
+        "cache": "HIT",
+        "cacheControl": "public,max-age=31536000,immutable",
+        "age": "288"
+      },
+      {
+        "path": "/_next/static/chunks/07u_h6i539_wj.js",
+        "status": 200,
+        "ttfbMs": 43.74520000000007,
+        "totalMs": 69.4099,
+        "bytes": 150333,
+        "cache": "HIT",
+        "cacheControl": "public,max-age=31536000,immutable",
+        "age": "289"
+      },
+      {
+        "path": "/_next/static/chunks/3j9pm5otqxm82.js",
+        "status": 200,
+        "ttfbMs": 36.19799999999998,
+        "totalMs": 99.14789999999994,
+        "bytes": 226355,
+        "cache": "HIT",
+        "cacheControl": "public,max-age=31536000,immutable",
+        "age": "289"
+      },
+      {
+        "path": "/_next/static/chunks/07u_h6i539_wj.js",
+        "status": 200,
+        "ttfbMs": 42.46010000000001,
+        "totalMs": 71.18029999999999,
+        "bytes": 150333,
+        "cache": "HIT",
+        "cacheControl": "public,max-age=31536000,immutable",
+        "age": "289"
+      },
+      {
+        "path": "/_next/static/chunks/3j9pm5otqxm82.js",
+        "status": 200,
+        "ttfbMs": 53.84529999999995,
+        "totalMs": 106.01549999999997,
+        "bytes": 226355,
+        "cache": "HIT",
+        "cacheControl": "public,max-age=31536000,immutable",
+        "age": "289"
+      }
+    ]
+  },
+  "assetURLsAlreadyPresentInBaseline": true,
+  "initialLCPRootCause": "Not established; resource transfer/queue pauses observed separately. Repeated LCP/document/asset reads and warm-response guards pass. No field CWV or network-setting change claim."
+}
