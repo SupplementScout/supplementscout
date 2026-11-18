@@ -1,5 +1,15 @@
 # SupplementScout Operating Plan
 
+**18 November 2026 SEO-27 Draft-only owner scope:** the owner authorizes one
+bounded improvement of the existing standard ABE315g product card, necessary
+tests and evidence, and one Draft PR. This supersedes earlier no-next-task
+wording only for SEO-27. No merge, production deployment, new URL, metadata
+competition with Pump, catalogue/nutrition/mapping/offer/history write or next
+implementation is authorized. SEO-27 is CODE COMPLETE for publication review;
+it is not LIVE VERIFIED. Only frozen SEO-20 remains IN PROGRESS/binding;
+SEO-21–26 remain LIVE VERIFIED and Stage3 stays disabled. No homepage or
+Clear Whey change. See [SEO-27 evidence](rollouts/seo27-abe-product-intent-2026-11-18.md).
+
 **18 November 2026 SEO-26 LIVE VERIFIED closeout:** owner-approved PR #546
 released head `339c5472367c8377e49d84fc0a11cccd8a9a43bf` as squash
 `318bff37157e1f02e40fdc5b8168b7b025a3644d` with exact tree parity. PR/main Quality Gate and

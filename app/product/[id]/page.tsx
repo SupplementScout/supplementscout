@@ -33,6 +33,7 @@ import {
   buildProductKeyFacts,
   buildProductMetadataDescription,
   buildProductSummary,
+  isStandardAbeProduct,
   selectedVariantPresentation,
 } from "../../lib/productPresentation";
 import {
@@ -507,6 +508,7 @@ export default async function ProductPage({
   const productSummary = buildProductSummary(selectedPresentation, {
     allowCuratedSummary: selectedVariant === null,
   });
+  const standardAbe = isStandardAbeProduct(product);
   const comparisonLink = comparisonLinkForProduct(product);
   const structuredData = buildProductStructuredData({
     categoryComparison: comparisonLink
@@ -658,6 +660,13 @@ export default async function ProductPage({
               <h1 className="mt-2 min-w-0 max-w-full break-words text-[34px] font-extrabold leading-[1.08] text-[#111827] [overflow-wrap:anywhere] sm:mt-3 sm:text-5xl lg:text-5xl">
                 {product.name}
               </h1>
+
+              {standardAbe && (
+                <p className="mt-3 max-w-prose text-sm leading-6 text-zinc-600 sm:text-base">
+                  Compare UK retailer offers for the standard ABE pre-workout powder.
+                  ABE Pump, shots and ready-to-drink cans are separate products.
+                </p>
+              )}
 
               {requestedVariant && selectedVariantLabel && (
                 <p className="mt-2 min-w-0 max-w-full break-words text-sm font-medium text-[#4B5563] [overflow-wrap:anywhere] sm:mt-3 sm:text-base">
@@ -884,6 +893,32 @@ export default async function ProductPage({
             <section className="mt-5 w-full min-w-0 max-w-full rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:mt-7 sm:p-6 lg:mt-8 lg:rounded-3xl lg:p-8">
               <h2 className="text-2xl font-bold text-gray-900">Product summary</h2>
               <p className="mt-4 min-w-0 max-w-full break-words leading-8 text-gray-700 [overflow-wrap:anywhere]">{productSummary}</p>
+              {standardAbe && (
+                <div className="mt-4 min-w-0 space-y-4 text-sm leading-7 text-zinc-700 sm:text-base">
+                  <p>
+                    Check the pack and flavour beside each retailer offer. The retailer
+                    list above shows current tracked offers, known delivery charges and
+                    check dates. Available flavours and retailers can change; confirm
+                    your selection and the final total at the retailer.
+                  </p>
+                  <h3 className="text-lg font-semibold text-zinc-950">Standard ABE or ABE Pump?</h3>
+                  <p>
+                    ABE Pump 500g is a different powder, not another flavour of this
+                    standard ABE product. Check each product&apos;s reviewed caffeine
+                    information for the selected variant. Facts for one flavour or
+                    product do not establish the facts for another, and a missing
+                    caffeine figure does not mean caffeine-free.
+                  </p>
+                  <div className="flex flex-wrap gap-x-5 gap-y-3 font-semibold">
+                    <Link href="/product/applied-nutrition-abe-pump-500g" className="max-w-full underline underline-offset-4">
+                      View ABE Pump 500g
+                    </Link>
+                    <Link href={{ pathname: "/compare", query: { left: "215", right: "481" } }} className="max-w-full underline underline-offset-4">
+                      Compare ABE and ABE Pump
+                    </Link>
+                  </div>
+                </div>
+              )}
             </section>
 
             {keyFacts.length > 0 && (
