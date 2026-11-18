@@ -1,5 +1,18 @@
 # SupplementScout Operating Plan
 
+**18 November 2026 SEO-30 Draft checkpoint:** the owner-approved improvement
+to the existing `/guides/cost-per-25g-protein` is CODE COMPLETE for publication
+review. ISO-XP Vanilla735 and Efectiv Strawberry Milkshake1196 now demonstrate
+two distinct whey isolates using their own existing reviewed nutrition and fresh
+delivered offers. A small SSR summary compares unrounded protein costs only when
+both qualify; ties, partial/empty states and changing prices remain safe.
+This later owner instruction supersedes earlier no-SEO-30 wording only for this
+bounded Draft scope. One Draft PR; no merge, Production or data write is approved.
+SEO-20 stays frozen; SEO-21–29 stay LIVE VERIFIED and Stage3 stays disabled.
+No SEO-31 or analytics schedule/Google action. Guardian remains unchanged:
+the completed Draft task is CODE COMPLETE, with only SEO-20 IN PROGRESS.
+See [SEO-30 evidence](rollouts/seo30-protein-guide-pair-2026-11-18.md).
+
 **18 November 2026 SEO-29 LIVE VERIFIED:** the later explicit owner release
 approval authorizes PR #549 squash merge, automatic Production and closeout.
 Final reviewed head3a2e2d8a403b0f837baedfb22c0863bf56a3b937 adds only a
