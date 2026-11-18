@@ -201,6 +201,7 @@ test("ABE context cannot leak onto Pump or unrelated cards", async () => {
 });
 
 const clearWheyIdentity = { id: "1470", slug: "myprotein-clear-whey-protein-isolate", name: "Myprotein Clear Whey Protein Isolate", brand: "Myprotein", category: "Whey Protein", product_format: "powder" };
+const clearWheyMetadataDescription = "Compare Myprotein Clear Whey Protein Isolate prices in the UK. Check available flavours, exact pack sizes, retailer offers and known delivery costs.";
 function renderClearWhey(options = {}) {
   const { productOverrides, variantOverrides, offerOverrides, ...rest } = options;
   return renderProductPage({
@@ -249,12 +250,46 @@ test("Clear Whey copy reuses dynamic totals and preserves metadata while exact P
   assert.match(b.html, /£37\.00/);
   assert.deepEqual(b.metadata, a.metadata);
   assert.equal(a.metadata.title, clearWheyIdentity.name);
-  assert.equal(a.metadata.description, "Myprotein Clear Whey Protein Isolate is a supplement.");
+  assert.equal(a.metadata.description, clearWheyMetadataDescription);
+  assert.equal(a.metadata.openGraph.description, clearWheyMetadataDescription);
+  assert.equal(a.metadata.twitter.description, clearWheyMetadataDescription);
   assert.equal(a.metadata.alternates.canonical, "https://www.supplementscout.co.uk/product/myprotein-clear-whey-protein-isolate");
   assert.equal(a.metadata.robots, undefined);
   assert.match(a.html, /"@type":"Product"/);
   assert.match(a.html, /is a whey isolate protein powder/);
   assert.deepEqual(b.reads, a.reads, "copy adds no data call or per-retailer read");
+});
+
+test("Clear Whey approved metadata description requires the complete exact identity and leaves summary unchanged", () => {
+  const p = product(clearWheyIdentity);
+  assert.equal(buildProductMetadataDescription(p), clearWheyMetadataDescription);
+  assert.equal(buildProductSummary(p), "Myprotein Clear Whey Protein Isolate is a supplement.");
+  for (const override of [{ id: "999" }, { slug: undefined }, { slug: null }, { slug: "another-slug" }, { name: "Myprotein Impact Whey Isolate" }, { brand: "Another brand" }, { category: "Vegan Protein" }, { product_format: null }, { product_format: "liquid" }]) {
+    const other = { ...p, ...override };
+    assert.equal(buildProductMetadataDescription(other), buildProductSummary(other), JSON.stringify(override));
+  }
+});
+
+test("generateMetadata preserves ABE, PER4M and other products across description, Open Graph and Twitter", async () => {
+  for (const identity of [
+    { id: "215", slug: "applied-nutrition-abe-ultimate-pre-workout-315g", name: "Applied Nutrition ABE Ultimate Pre-Workout 315g", brand: "Applied Nutrition", category: "Pre Workout" },
+    { id: "12", slug: "per4m-whey-protein-2kg", name: "Per4m Whey Protein 2kg", brand: "Per4m" },
+    { id: "1469", slug: "myprotein-impact-whey-isolate-powder", name: "Myprotein Impact Whey Isolate Powder" },
+    { id: "338", slug: "applied-nutrition-clear-whey-protein-875g", name: "Applied Nutrition Clear Whey Protein 875g", brand: "Applied Nutrition" },
+    { id: "999", slug: "unrelated-product", name: "Unrelated Product", brand: "Example Nutrition" },
+  ]) {
+    const expected = buildProductSummary(product({ ...clearWheyIdentity, ...identity }));
+    const { metadata, html } = await renderClearWhey({ productOverrides: identity });
+    assert.equal(metadata.description, expected, identity.slug);
+    assert.equal(metadata.openGraph.description, expected);
+    assert.equal(metadata.twitter.description, expected);
+    assert.equal(metadata.title, identity.name);
+    assert.equal(metadata.alternates.canonical, `https://www.supplementscout.co.uk/product/${identity.slug}`);
+    assert.doesNotMatch(html, /Compare Myprotein Clear Whey Protein Isolate prices in the UK/);
+  }
+  const { html } = await renderClearWhey({ variantId: "4649" });
+  assert.match(clearWheySummary(html), /is a whey isolate protein powder/);
+  assert.doesNotMatch(html, /Compare Myprotein Clear Whey Protein Isolate prices in the UK/);
 });
 
 test("Clear Whey current coverage excludes stale, OOS, missing-price and failed-source offers", async () => {

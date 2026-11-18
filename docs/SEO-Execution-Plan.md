@@ -4,7 +4,9 @@
 product1470 buying clarity is CODE COMPLETE after full gates and actual-source
 paired local production-build QA. One owner-approved Draft PR only; no merge,
 Production deployment, data write or SEO-30. The existing summary/offer models
-are reused; metadata and query/cache/tracking contracts remain unchanged.
+are reused. The later owner correction changes only product1470's meta/OG/
+Twitter description; title/H1/canonical/body/schema and query/cache/tracking
+contracts remain unchanged.
 SEO-20 stays frozen, SEO-21–28 LIVE VERIFIED and Stage3 disabled.
 [Evidence and screenshots](rollouts/seo29-clear-whey-intent-2026-11-18.md).
 
@@ -551,7 +553,7 @@ Console evidence and user value.
 
 | SEO-28 | P1 | Homepage protein-comparison search intent: compact decision copy and contextual navigation. | `LIVE VERIFIED` | Owner-approved PR #548 squash2b48c4b7 preserves approved10dfa02d tree. Fresh local gates, PR/main Quality Gate/Guardian and exact GitHub Production/Vercel SUCCESS pass. Public buildGcAMDDlZE-2hHGYdLaWvx, initial HTML,18-route SEO/sitemap readback, actual variant/pricing/unit arithmetic and1440/768/390/320px QA pass. Cold reads12→12, warm3→3; unchanged cache, initial client assets and warm-response guard. EKM image works publicly; local NAT64 limitation remains separate. No data/Google write; SEO-20 frozen, SEO-21–27 live. Evidence: docs/rollouts/seo28-homepage-protein-intent-2026-11-18.md. |
 
-| SEO-29 | P1 | Improve existing Myprotein Clear Whey product1470 buying clarity. | `CODE COMPLETE` | Owner-approved Draft PR only. Exact id/slug/name/brand/category/powder guard; factual summary and current exact-pack/single-retailer coverage reuse loaded offers. Source confirms4649 Peach Tea244g and4633 Orange Mango261g, unverified nutrition and dynamic delivery totals. Full gates, nine1440/390/320px local layouts, metadata/schema/sitemap/tracking parity and warm guard pass. Runtime reads7→7 base/9→9 exact variants. No production/data/GSC write; SEO-20 frozen, SEO-21–28 live. Evidence: docs/rollouts/seo29-clear-whey-intent-2026-11-18.md. |
+| SEO-29 | P1 | Improve existing Myprotein Clear Whey product1470 buying clarity. | `CODE COMPLETE` | Owner-approved Draft PR only. Exact id/slug/name/brand/category/powder guard; factual summary and current exact-pack/single-retailer coverage reuse loaded offers. Source confirms4649 Peach Tea244g and4633 Orange Mango261g, unverified nutrition and dynamic delivery totals. The later owner correction changes only target meta/OG/Twitter descriptions; title/H1/canonical/body/schema/sitemap/tracking stay unchanged. Full gates, nine1440/390/320px content layouts and warm guard pass. Runtime reads7→7 base/9→9 exact variants. No production/data/GSC write; SEO-20 frozen, SEO-21–28 live. Evidence: docs/rollouts/seo29-clear-whey-intent-2026-11-18.md. |
 
 ## 6. Current active task
 
@@ -842,9 +844,9 @@ SEO-07 manual evidence queue is now complete:
   one Holland & Barrett retailer,17.00+3.49=20.49 GBP per pack at the recorded
   check time. Neither exact variant has approved nutrition; no25g cost is shown.
   These are dated observations, not hardcoded prices or assumed500g packs.
-- 43 focused tests, quick1,331/full4,066 scheduled cases, TypeScript, ESLint,
+- Original content validation:43 focused tests, quick1,331/full4,066 scheduled cases, TypeScript, ESLint,
   production build and Project Guardian pass;3 existing legacy artifact skips
-  remain unchanged. Metadata/H1/canonical/robots, schema entity/offer rules,
+  remain unchanged. Original metadata/H1/canonical/robots, schema entity/offer rules,
  1,487-URL sitemap, tracked links and unrelated card/homepage contracts pass.
 - Paired actual-source local production builds retain7→7 GETs for base and
  9→9 for each exact variant across six warm samples. Warm full-response
@@ -857,6 +859,12 @@ SEO-07 manual evidence queue is now complete:
   Retain7/28 complete-day follow-up only after separate owner release approval.
 - SEO-29 is CODE COMPLETE review material, not LIVE VERIFIED. SEO-20 remains
   frozen, SEO-21–28 LIVE VERIFIED, Stage3 disabled and existing schedules intact.
+- The later owner correction replaces only the exact product's generic meta
+  description with the requested UK price/flavour/pack/delivery text, reused
+  for Open Graph and Twitter by generateMetadata. The existing strict identity
+  guard and productPresentation mechanism are reused. Product summary, schema,
+  title/H1/canonical/robots/sitemap and other products stay unchanged. Exact
+  value, new-head tests/CI and rendered HTML proof are recorded on PR #549.
 
 ### 18 November 2026 - SEO-28 production release LIVE VERIFIED
 

@@ -49,15 +49,23 @@ without approved exact-variant nutrition. No production-data write occurred.
 
 ## SEO decision and validation
 
-Keep title/H1 **Myprotein Clear Whey Protein Isolate** and the existing metadata
-description unchanged. The title/H1 already identify the exact buying intent;
-the capped GSC report has no exact-card/query row to justify a separate SERP
-rewrite. The generic body is improved independently of metadata. No competing
-URL or new indexable route is created.
+Keep title/H1 **Myprotein Clear Whey Protein Isolate**. The later explicit owner
+correction replaces the generic meta description for exact product1470 with:
+
+> Compare Myprotein Clear Whey Protein Isolate prices in the UK. Check available flavours, exact pack sizes, retailer offers and known delivery costs.
+
+The existing productPresentation helper uses the same complete identity guard.
+generateMetadata already shares its description with Open Graph and Twitter,
+so all three fields use this exact text. Other products keep the original
+description path. This correction changes no title/H1/canonical/robots/sitemap,
+schema or existing Product summary. No further research, competing URL or new
+indexable route is introduced. New-head tests/CI and actual rendered metadata
+are recorded on the existing PR #549.
 
 Initial HTML contains the new summary, real variant labels and crawlable isolate
-link. One H1, metadata/OG/Twitter/canonical/robots and1,487-URL duplicate-free
-sitemap match baseline; the product canonical occurs once. Base with two
+link. Except the three owner-approved description fields, metadata/H1/canonical/
+robots and1,487-URL duplicate-free sitemap match baseline; the product canonical
+occurs once. Base with two
 different variants still has BreadcrumbList without ambiguous Product schema.
 Exact-variant routes retain Product/offer rules and unchanged price/identity
 fields; only factual Product.description follows the new visible summary.

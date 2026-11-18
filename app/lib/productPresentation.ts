@@ -330,8 +330,11 @@ function truncateMetadataDescription(value: string, maxLength = 160) {
 }
 
 export function buildProductMetadataDescription(
-  product: ProductPresentationInput
+  product: ProductPresentationInput & { slug?: string | null }
 ) {
+  if (isMyproteinClearWheyProduct({ ...product, slug: product.slug ?? null })) {
+    return "Compare Myprotein Clear Whey Protein Isolate prices in the UK. Check available flavours, exact pack sizes, retailer offers and known delivery costs.";
+  }
   return truncateMetadataDescription(buildProductSummary(product));
 }
 

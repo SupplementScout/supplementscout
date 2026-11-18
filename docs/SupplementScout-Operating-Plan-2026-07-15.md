@@ -7,7 +7,9 @@ and no merge or Production deployment. This supersedes earlier no-Clear-Whey/
 no-next-task wording only for SEO-29. Existing Product summary now identifies
 the powder, lists current exact packs/retailer coverage from existing offers,
 explains delivery/nutrition limits and links to the existing isolate comparison.
-Metadata, data/cache/query and tracking contracts are preserved. SEO-20 stays
+The later owner correction changes only this product's meta/OG/Twitter
+description; title/H1/canonical/robots/sitemap/schema/Product summary and
+data/cache/query/tracking contracts are preserved. SEO-20 stays
 frozen; SEO-21–28 stay LIVE VERIFIED; Stage3 stays disabled. No production-data,
 Google, workflow/schedule or SEO-30 change. See [SEO-29 evidence](rollouts/seo29-clear-whey-intent-2026-11-18.md).
 
