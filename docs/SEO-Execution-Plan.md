@@ -1,5 +1,16 @@
 # SupplementScout SEO Execution Plan
 
+**18 November 2026 SEO-28 LIVE VERIFIED:** the later explicit owner approval
+authorized PR #548 exact-head squash merge, automatic Production and closeout.
+Squash2b48c4b73bbb0aa17814f92dfcd749ea37002606 preserves approved10dfa02d.
+Fresh local gates, PR/main Quality Gate/Guardian, exact Production/Vercel
+SUCCESS, changed public build and public homepage/18-route readback pass.
+Responsive QA, real offer/variant arithmetic, unchanged SEO/tracking/cache,
+cold12→12/warm3→3 and the existing warm-response guard pass. Earlier Draft-only
+wording is historical. SEO-20 stays frozen; SEO-21–27 remain LIVE VERIFIED;
+Stage3 stays disabled. No production-data/Google write or next implementation.
+[Production evidence](rollouts/seo28-homepage-protein-intent-2026-11-18.md).
+
 **18 November 2026 SEO-28 Draft checkpoint:** owner-approved homepage-only
 protein-comparison decision copy is CODE COMPLETE, ready for publication
 review. One static SSR block, existing destinations, existing test harness;
@@ -530,7 +541,7 @@ Console evidence and user value.
 
 | SEO-27 | P1 | Improve buying-intent clarity on existing /product/applied-nutrition-abe-ultimate-pre-workout-315g only. | `LIVE VERIFIED` | Owner-approved PR #547 squash5e483e94 preserves approved tree. PR/main Quality Gate and Guardian pass; exact GitHub Production/Vercel SUCCESS and new public build cUA2uOSFCTHL4PrKVYSEZ prove release. Public200, actual-source variant/delivered-price/date/caffeine and SEO/tracked-link contracts,1440/390px QA and unchanged warm-response guard pass. No product-data/Google write; SEO-20 frozen and SEO-21–26 live. Evidence: docs/rollouts/seo27-abe-product-intent-2026-11-18.md. |
 
-| SEO-28 | P1 | Homepage protein-comparison search intent: compact decision copy and contextual navigation. | `CODE COMPLETE` | Owner-approved Draft PR only; static initial HTML, unchanged broad hero/search/featured/metadata and existing category/guide destinations. Full gates and 1440/768/390/320px QA pass. Actual-source reads remain cold12→12 and warm3→3; no new client feature or cache change. Existing local NAT64 image restriction is recorded separately. No merge/deployment/data/Google write; SEO-20 frozen, SEO-21–27 live. Evidence: docs/rollouts/seo28-homepage-protein-intent-2026-11-18.md. |
+| SEO-28 | P1 | Homepage protein-comparison search intent: compact decision copy and contextual navigation. | `LIVE VERIFIED` | Owner-approved PR #548 squash2b48c4b7 preserves approved10dfa02d tree. Fresh local gates, PR/main Quality Gate/Guardian and exact GitHub Production/Vercel SUCCESS pass. Public buildGcAMDDlZE-2hHGYdLaWvx, initial HTML,18-route SEO/sitemap readback, actual variant/pricing/unit arithmetic and1440/768/390/320px QA pass. Cold reads12→12, warm3→3; unchanged cache, initial client assets and warm-response guard. EKM image works publicly; local NAT64 limitation remains separate. No data/Google write; SEO-20 frozen, SEO-21–27 live. Evidence: docs/rollouts/seo28-homepage-protein-intent-2026-11-18.md. |
 
 ## 6. Current active task
 
@@ -807,6 +818,35 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 18 November 2026 - SEO-28 production release LIVE VERIFIED
+
+- Later explicit owner approval authorizes Ready for Review, exact-head squash,
+  automatic Production and evidence-based closeout. PR #548 merged at12:39:17Z
+  as2b48c4b73bbb0aa17814f92dfcd749ea37002606 with exact approved10dfa02d tree.
+  Fresh verify:quick/full, TypeScript, ESLint, production build and PR/main
+  Quality Gate/Guardian pass; three existing legacy fixture skips remain.
+- GitHub Production7883508663 and Vercel dpl_4iwEC4GX5BQizKP2PiE9FpcLmDGv
+  report SUCCESS at12:40:18Z. Public build changes fromG5rZE-n-tlTYR8szQzAT0
+  toGcAMDDlZE-2hHGYdLaWvx. First positive homepage proof12:40:27.542Z;
+  full public readback12:42:05.402Z. API403/SSO protections are retained.
+- Public200, initial H2/advice/five anchors, one unchanged H1, metadata/OG/
+  Twitter/canonical/robots/schema and1,487-URL sitemap parity pass. PER4M,
+  protein hubs, creatine/under-20, ABE base/1672 and all ten guides remain valid.
+  Real GET-only source checks verify featured exact variant, three offers,
+  delivery sums, dates, approved unit metrics and all three secondary cards.
+- Public1440/768/390/320px screenshots, keyboard/focus, category expansion
+  and search results pass. Hero/search/featured/category geometry is identical;
+  CLS0 and no runtime/HTTP errors. Initial client asset URLs/bytes are unchanged;
+  an optional existing My Supplements desktop prefetch is recorded separately.
+- Five public warm-response guards pass; homepage TTFB657.4→723.3ms. DNS
+  errors0 and network timings are separate; no field CWV improvement claim.
+  Fresh local cold reads12→12, warm3→3. [Production proof and screenshots](rollouts/seo28-homepage-protein-intent-2026-11-18.md).
+- SEO-28 is LIVE VERIFIED. Final documentation-only main SHA/CI/deployment
+  confirmation are recorded on merged PR #548. SEO-20 clock/thresholds,
+  live SEO-21–27, Stage3 disabled and manual owner GSC handling are unchanged.
+  No catalogue/nutrition/mapping/offer/history/importer/workflow/Google write,
+  Myprotein Clear Whey implementation or SEO-29 occurred.
 
 ### 18 November 2026 - SEO-28 homepage protein intent CODE COMPLETE
 

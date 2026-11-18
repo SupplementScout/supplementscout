@@ -1,5 +1,19 @@
 # SupplementScout Operating Plan
 
+**18 November 2026 SEO-28 LIVE VERIFIED closeout:** the later explicit owner
+release decision authorized PR #548 squash merge and automatic Production.
+Approved head10dfa02d974054bbace5c09467239ad98be28ff0 and squash
+2b48c4b73bbb0aa17814f92dfcd749ea37002606 have identical trees. Fresh local
+gates and PR/main CI pass. Exact GitHub Production/Vercel SUCCESS at12:40:18Z,
+public buildGcAMDDlZE-2hHGYdLaWvx and positive public readback prove release.
+Initial HTML/SEO contracts, actual-source prices/variants,18 public routes,
+1440/768/390/320px QA, unchanged cache/reads and warm-response guard pass.
+Earlier Draft-only wording is historical for this approved release. SEO-20
+stays frozen; SEO-21–27 remain LIVE VERIFIED; Stage3 stays disabled. No data,
+Google, analytics schedule, Clear Whey or SEO-29 work. Final documentation
+commit/CI and production confirmation are recorded on merged PR #548.
+See [production evidence](rollouts/seo28-homepage-protein-intent-2026-11-18.md).
+
 **18 November 2026 SEO-28 owner-approved Draft checkpoint:** the bounded
 homepage protein-comparison decision block is CODE COMPLETE for publication
 review, with initial-HTML tests, full gates and paired actual-source local

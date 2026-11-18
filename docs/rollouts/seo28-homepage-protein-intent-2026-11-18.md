@@ -1,9 +1,78 @@
 # SEO-28: homepage protein-comparison intent
 
-Status: **CODE COMPLETE — READY FOR PUBLICATION REVIEW**. Owner authorizes one
-Draft PR only. Base: `92091e13e654e9a1f25746cd997dc3d01b114fa1`. Final head,
-PR/CI and protected Preview result are recorded on the Draft PR. No merge,
-Production deployment, Google submission or SEO-29 is authorized.
+Status: **LIVE VERIFIED — owner-approved Production release**.
+Base: `92091e13e654e9a1f25746cd997dc3d01b114fa1`.
+Approved head: `10dfa02d974054bbace5c09467239ad98be28ff0`.
+The later explicit owner instruction authorizes Ready for Review, squash merge,
+automatic Production and verified closeout. Earlier Draft-only restrictions
+below are historical. No Google submission, Clear Whey or SEO-29 is authorized.
+Final documentation-only main SHA/CI/deployment are recorded on merged PR #548
+to avoid embedding a self-referential commit hash in this record.
+
+## Production release — 18 November 2026
+
+- [PR #548](https://github.com/SupplementScout/supplementscout/pull/548)
+  squash merged at12:39:17UTC as `2b48c4b73bbb0aa17814f92dfcd749ea37002606`.
+  Its complete tree matches the approved head; no runtime fix was needed.
+  Existing GitHub controls were retained.
+- Fresh quick1,331/full4,059 scheduled cases, TypeScript, ESLint and Next16.2.9
+  build pass: full4,056 passed/3 existing legacy fixture skips/0 failures.
+  [Main Quality Gate](https://github.com/SupplementScout/supplementscout/actions/runs/44305983386)
+  and [Guardian](https://github.com/SupplementScout/supplementscout/actions/runs/44305983466)
+  pass; PR GitGuardian passes. The integration job retains its existing isolated
+  workflow skip; no new skip or production-write credential was added to gates.
+- Exact GitHub Production deployment7883508663 and [Vercel Production](https://vercel.com/supplement-scout/supplementscout/4iwEC4GX5BQizKP2PiE9FpcLmDGv)
+  report SUCCESS at12:40:18UTC. Public build changes from
+  `G5rZE-n-tlTYR8szQzAT0` to `GcAMDDlZE-2hHGYdLaWvx`.
+  First positive public homepage proof:12:40:27.542UTC. Full18-route public
+  readback:12:42:05.402UTC. Existing API403/Preview SSO protections are retained.
+- Homepage200 contains the approved section/H2 and five anchors in initial
+  HTML, after category/deal navigation. One H1 and all metadata, OG/Twitter,
+  canonical, effective index/follow and schema contracts match baseline.
+  Robots and the duplicate-free1,487-URL sitemap match baseline. All five
+  destinations, PER4M, creatine/under-20, ABE base/1672 and all ten guides pass.
+- GET-only source evidence verifies featured product788/variant1075,
+  Chocolate2400g, three exact mapped offers, in-stock/fresh dates and sums:
+  Whey Okay33.57+3.99=37.56; Holland & Barrett38.00+0=38.00;
+  Gladiator Nutrition33.00+6.99=39.99 GBP. Existing verified metrics2.35/serving,
+  1.40/25g protein and16 servings match the existing calculator. All three
+  secondary cards' exact-variant delivered totals/savings also match source.
+  These are dated evidence snapshots, not hardcoded application prices.
+- Public Chrome1440/768/390/320px passes visual review against Draft screenshots:
+  no clipping/overlap/new overflow, runtime or HTTP errors. Hero/search/featured/
+  categories have identical bounds and existing comparison text/links. Keyboard
+  order and visible focus pass; category expansion works; native search renders
+  72 product links for creatine. Existing tracked hrefs and three safe HEAD204
+  checks preserve the click contract without synthetic retailer clicks.
+- CLS is0 before/after, including scrolling. Production LCP samples after
+  release:1768/2096/1036/1072ms by width; these are lab diagnostics, not field
+  CWV improvement claims. The EKM image works publicly at every width; the old
+  local NAT64/SSRF restriction is kept separate and was not weakened.
+- Initial client script URLs and shared asset bytes are identical. One desktop
+  run additionally prefetched an existing13,700B My Supplements route chunk;
+  it is absent from initial HTML, exists in the baseline build and adds no new
+  homepage client logic. Other widths load identical540,389B totals.
+- Fresh actual-source local builds retain cold12→12 (10 GET/2 HEAD) and warm
+  3→3 across six requests each; warm full-response medians370.3→347.4ms.
+  Source/cache/revalidation remain unchanged. Public warm timing below excludes
+  failed DNS attempts; DNS errors0. Each route passes before×1.5+100ms.
+
+| Public warm median TTFB | Before | After |
+| --- | ---: | ---: |
+| Homepage | 657.4ms | 723.3ms |
+| PER4M | 201.0ms | 210.6ms |
+| Whey Protein | 251.1ms | 260.6ms |
+| Creatine | 255.4ms | 236.6ms |
+| ABE | 1213.1ms | 1538.8ms |
+
+Production screenshots: [desktop1440](seo28-homepage-2026-11-18/production-1440.webp)
+and [mobile390](seo28-homepage-2026-11-18/production-390.webp).
+Raw HTML, read-only source checks, DNS/connect/TLS traces, four-width PNGs,
+browser measurements and readiness proof remain ignored under the shared
+worktree's `tmp/release-20261118/`. Documentation closeout changes no runtime
+source. Its final SHA/CI and subsequent automatic Production readback are on
+merged PR #548. SEO-20 remains frozen, SEO-21–27 LIVE VERIFIED, Stage3 disabled;
+no production-data, analytics schedule, Google or next-sprint write occurred.
 
 ## Bounded change
 
@@ -25,7 +94,7 @@ No global metadata, OG/Twitter, canonical, robots, schema, lifecycle or sitemap
 change. Product/variant/nutrition/mapping/importer/history/workflow data and
 production writes remain outside scope.
 
-## Validation — 18 November 2026
+## Original Draft validation — 18 November 2026
 
 - Project Guardian before/after status evidence; quick **1,331** scheduled
   cases (**1,328 pass**,3 existing skips), full **4,059** (**4,056 pass**,3 same
@@ -110,13 +179,15 @@ country filter is implied. GA4 existing site totals:290 Organic Search sessions,
 10 retailer-offer clicks;30 search.google.com/referral sessions are suspect,
 so260 is a conservative signal, not proven external traffic. Homepage-specific
 sessions/retailer clicks are UNKNOWN in the existing report.
-After a separately approved release, check7 and28 **complete post-release days**
-using existing Growth Analytics: homepage/non-brand query impressions, clicks,
-CTR/position, related protein pages and retailer clicks. No schedule or GSC
-submission now; do not attribute all future traffic to this change.
+Retain the existing7/28 **complete post-release-day** Growth Analytics checks:
+homepage/non-brand query impressions, clicks, CTR/position, related protein
+pages and retailer clicks. For the approved18Nov release the first complete
+windows are19–25Nov and19Nov–16Dec, subject to GSC completeness. No schedule
+change or GSC submission; do not attribute all future traffic to this change.
 
 SEO-20 remains frozen IN PROGRESS with its original clock/thresholds;
-SEO-21–27 remain LIVE VERIFIED. SEO-15 Stage3 remains disabled. Guardian needs
-no exception: SEO-28 is CODE COMPLETE review material, not a second IN PROGRESS
-task. Public homepage readback at11:59UTC returns200 with no SEO-28 block.
-Production remains the approved baseline; this record makes no live-launch claim.
+SEO-21–27 remain LIVE VERIFIED. SEO-15 Stage3 remains disabled. Guardian needed
+no Draft exception: SEO-28 was CODE COMPLETE, not a second IN PROGRESS task.
+The original11:59UTC public homepage readback returned200 without the SEO-28
+block. That Draft boundary is superseded by the later explicit owner release
+approval and positive Production verification recorded above.
