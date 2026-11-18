@@ -1,5 +1,17 @@
 # SupplementScout SEO Execution Plan
 
+**18 November 2026 SEO-31 LIVE VERIFIED:** explicit owner approval authorized
+PR#551 squash merge and automatic Production. Approved headd2bf2275 merged as
+`b3891dc1b952b5badf3e0361198e4cb5368343aa` with exact tree parity. Fresh quick/full, TypeScript/ESLint/build,
+PR/main CI and Guardian pass. Exact latest GitHub Production/Vercel SUCCESS plus
+public build`jZ4U_EKZhqscdpdH1M1SI` confirm deployment.18 public routes,
+actual current-source cards/prices/links, SEO/schema/sitemap parity, four-width
+QA and the existing warm-response guard pass. Existing320px overflow and external
+image404 remain documented baseline issues, not SEO-31 regressions. SEO-20 stays
+frozen;SEO-21–30 stay LIVE VERIFIED;Stage3 off. Separate owner-authorized targeted
+technical repairs may follow; no SEO-32, data write or Google submission.
+[Production evidence](rollouts/seo31-whey-search-intent-2026-11-18.md).
+
 **18 November 2026 SEO-31 Draft checkpoint:** the owner-approved existing
 `/whey-protein` improvement is CODE COMPLETE for publication review. Only two
 existing SSR paragraphs clarify exact flavour/pack continuation and the different
@@ -613,7 +625,7 @@ Console evidence and user value.
 
 | SEO-30 | P1 | Improve existing /guides/cost-per-25g-protein with two distinct reviewed whey isolates. | `LIVE VERIFIED` | Owner-approved PR #550 squash 72e0502e1182c7af4a5967a2b0a4c18fb88a9705 preserves exact approved baba8356 tree. Fresh local quick/full, PR/main CI and Guardian pass; exact GitHub Production/Vercel SUCCESS and public build fVwqxt_Y5IFtN7dg--vcx prove deployment. Public200, real exact735/1196 nutrition provenance and current delivered arithmetic, dynamic comparison/partial-state rules, metadata/canonical/robots/schema/sitemap parity,16-route readback and1440/768/390/320px QA pass. Warm guard passes; existing instrumented cold2→2/warm0→0 and cache contracts remain unchanged. No production-data/Google write; SEO-20 frozen, SEO-21–29 live, Stage3 off. Evidence: docs/rollouts/seo30-protein-guide-pair-2026-11-18.md. |
 
-| SEO-31 | P1 | Clarify existing Whey Protein buying intent and delivered/unit-price evidence. | `CODE COMPLETE` | Owner-approved Draft only. Two existing SSR paragraphs clarify exact flavour/pack navigation and pack/kg/protein denominators. Metadata/H1, coverage-first ranking, cards, filters, taxonomy, resolvers, cache and SEO contracts unchanged. Existing GSC page evidence verified; exact-query/28-day totals UNKNOWN.16 focused tests, quick/full gates and actual-source1440/768/390/320px before/after regression QA pass; baseline320px overflow/image404 retained and disclosed. Cold reads2→2/warm0→0; warm guard passes. No merge/Production/data write; SEO-20 frozen, SEO-21–30 live, Stage3 off. Evidence: docs/rollouts/seo31-whey-search-intent-2026-11-18.md. |
+| SEO-31 | P1 | Clarify existing Whey Protein buying intent and delivered/unit-price evidence. | `LIVE VERIFIED` | Owner-approved PR#551 squashb3891dc1b952b5badf3e0361198e4cb5368343aa equals approvedd2bf2275 tree. Fresh quick1337/full4074PASS,3 historical skips; TypeScript/ESLint/build,PR/main CI and Guardian pass. Exact Production/Vercel SUCCESS and public buildjZ4U_EKZhqscdpdH1M1SI;18 routes,real current-source cards/prices/links,canonical/robots/schema/sitemap parity,four-width QA and warm guard pass. Existing320px overflow/image404 retained as baseline; separately approved repairs follow without data writes. SEO-20 frozen,SEO-21–30 live,Stage3 off. Evidence:docs/rollouts/seo31-whey-search-intent-2026-11-18.md. |
 
 ## 6. Current active task
 
@@ -890,6 +902,25 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 18 November 2026 - SEO-31 production release LIVE VERIFIED
+
+- PR#551 approved exact headd2bf227598bd9b8637fe23044fdef7025bc30235,
+  squashb3891dc1b952b5badf3e0361198e4cb5368343aa,merged2026-11-18T20:41:44Z; full tree parity confirmed.
+- Fresh quick1337/full4074PASS,3 existing archive skips,
+  TypeScript/ESLint/Next16.2.9 build,Guardian and PR/main CI pass.
+- Production7895673477,Verceldpl_CJzaE533AP8K7KjtXeg4TUiwFHM5SUCCESS,
+  public buildjZ4U_EKZhqscdpdH1M1SI,readback2026-11-18T20:43:32.330Z.
+  Both paragraphs occur in initial HTML;oneH1 and all SEO contracts remain.
+- Independent GET-only source2026-11-18T20:45:03.805Z verifies104
+  real cards in coverage-first order,prices/delivery/check times and product links.
+ 18 public routes,sitemap1487,parameters,filters/sort/drawer/focus and four
+  widths pass; warm guard passes. Unchanged loader/cache code and instrumented
+  local2→2 cold/0→0 warm proof remain valid; no Production DB telemetry claim.
+- Existing320→364px overflow and external image404 remain baseline observations.
+  Separate owner-authorized technical repairs follow only after this verified
+  publication. No production-data/Google write,retailer test click or SEO-32.
+  SEO-20 frozen and SEO-21–30 LIVE VERIFIED unchanged. [Evidence](rollouts/seo31-whey-search-intent-2026-11-18.md).
 
 ### 18 November 2026 - SEO-31 existing whey comparison CODE COMPLETE
 

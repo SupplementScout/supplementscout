@@ -1,0 +1,1759 @@
+{
+  "at": "2026-11-18T20:45:51.774Z",
+  "merge": {
+    "headRefOid": "d2bf227598bd9b8637fe23044fdef7025bc30235",
+    "mergeCommit": {
+      "oid": "b3891dc1b952b5badf3e0361198e4cb5368343aa"
+    },
+    "mergedAt": "2026-11-18T20:41:44Z",
+    "state": "MERGED",
+    "url": "https://github.com/SupplementScout/supplementscout/pull/551",
+    "treeParity": true,
+    "verifiedAt": "2026-11-18T20:41:49.231Z"
+  },
+  "ready": {
+    "sha": "b3891dc1b952b5badf3e0361198e4cb5368343aa",
+    "target": "production",
+    "githubDeploymentId": 7895673477,
+    "githubDeploymentState": "success",
+    "githubDeploymentCreatedAt": "2026-11-18T20:42:29Z",
+    "generatedDeploymentUrl": "https://supplementscout-2say00ifm-supplement-scout.vercel.app",
+    "vercelCommitState": "success",
+    "vercelStatusUrl": "https://vercel.com/supplement-scout/supplementscout/CJzaE533AP8K7KjtXeg4TUiwFHM5",
+    "directVercelApi": "Prior403 retained; not retried or bypassed. Authorized GitHub/Vercel webhook and public build verification used.",
+    "id": "dpl_CJzaE533AP8K7KjtXeg4TUiwFHM5",
+    "state": "READY",
+    "ready": true,
+    "publicDomain": "https://www.supplementscout.co.uk",
+    "publicBuildId": "jZ4U_EKZhqscdpdH1M1SI",
+    "previousPublicBuildId": "ixerMLZeDZ_JwEVTbjo-o",
+    "publicDomainBuildTransition": true,
+    "samePublicBuildAcrossCheckedRoutes": true,
+    "checked": [],
+    "readinessAuthority": "Vercel commit SUCCESS + exact latest GitHub Production deployment SUCCESS + public domain build fingerprint/content contracts; no private API READY claim",
+    "githubProductionSuccessAt": "2026-11-18T20:42:30Z",
+    "firstVerifiedAt": "2026-11-18T20:42:35.925Z"
+  },
+  "ci": {
+    "sha": "b3891dc1b952b5badf3e0361198e4cb5368343aa",
+    "at": "2026-11-18T20:45:19.454Z",
+    "result": "PASS",
+    "checks": [
+      {
+        "name": "full",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44393712827/job/135117878852",
+        "completedAt": "2026-11-18T20:45:15Z"
+      },
+      {
+        "name": "verify-project-control",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44393712843/job/135117878844",
+        "completedAt": "2026-11-18T20:42:00Z"
+      }
+    ]
+  },
+  "quick": {
+    "tests": 1340,
+    "passed": 1337,
+    "failed": 0,
+    "skipped": 3
+  },
+  "full": {
+    "tests": 4077,
+    "passed": 4074,
+    "failed": 0,
+    "skipped": 3
+  },
+  "source": {
+    "at": "2026-11-18T20:45:05.532Z",
+    "sourceAt": "2026-11-18T20:45:03.805Z",
+    "source": "Independent existing getWheyComparison loader via authorized GET/HEAD-only clients; real current data, no fixtures",
+    "summary": {
+      "scopedProducts": 104,
+      "visibleProducts": 104,
+      "freshOffers": 487,
+      "freshRetailers": 8,
+      "productsWithOneFreshRetailer": 45,
+      "productsWithMultipleFreshRetailers": 19,
+      "freshRetailersAcrossComparisons": 8,
+      "staleOrUnusableOffersExcluded": 150,
+      "latestOfferCheckedAt": "2026-11-18T17:27:34.236+00:00"
+    },
+    "reads": [
+      {
+        "table": "products",
+        "method": "GET",
+        "status": 200,
+        "ms": 443,
+        "bytes": 468787
+      },
+      {
+        "table": "retailer_products",
+        "method": "GET",
+        "status": 200,
+        "ms": 176,
+        "bytes": 300632
+      }
+    ],
+    "publicStatus": 200,
+    "validatedCards": 104,
+    "cardOrderPricesDeliveryArithmeticCheckedDatesAndLinksMatch": true,
+    "proofs": [
+      {
+        "id": "743",
+        "name": "Applied Nutrition Critical Whey 2kg",
+        "url": "/product/applied-nutrition-critical-whey-2kg",
+        "netWeightG": 2000,
+        "referenceVariant": {
+          "id": 805,
+          "is_active": true,
+          "size_unit": "g",
+          "pack_count": 1,
+          "product_id": 743,
+          "size_value": 2000,
+          "display_name": "Cookies & Cream / 2kg",
+          "flavour_label": "Cookies & Cream",
+          "product_format": "powder",
+          "nutrition_override": {}
+        },
+        "bestOffer": {
+          "id": "4567",
+          "retailer": {
+            "id": "16",
+            "name": "Holland & Barrett",
+            "slug": "holland-barrett"
+          },
+          "productPrice": 27,
+          "shippingCost": 3.49,
+          "deliveredPrice": {
+            "productPrice": 27,
+            "shippingCost": 3.49,
+            "totalPrice": 30.49
+          },
+          "lastCheckedAt": "2026-11-18T17:27:34.236+00:00",
+          "nutritionVariant": null,
+          "variantResolution": "unresolved"
+        },
+        "pricePerKg": 15.245,
+        "costPer25gProtein": null
+      },
+      {
+        "id": "338",
+        "name": "Applied Nutrition Clear Whey Protein 875g",
+        "url": "/product/applied-nutrition-clear-whey-protein-875g",
+        "netWeightG": 875,
+        "referenceVariant": {
+          "id": 1782,
+          "is_active": true,
+          "size_unit": "g",
+          "pack_count": 1,
+          "product_id": 338,
+          "size_value": 875,
+          "display_name": "Orange Squash / 875g",
+          "flavour_label": "Orange Squash",
+          "product_format": "powder",
+          "nutrition_override": {}
+        },
+        "bestOffer": {
+          "id": "1788",
+          "retailer": {
+            "id": "3",
+            "name": "Whey Okay",
+            "slug": "whey-okay"
+          },
+          "productPrice": 47.18,
+          "shippingCost": 3.99,
+          "deliveredPrice": {
+            "productPrice": 47.18,
+            "shippingCost": 3.99,
+            "totalPrice": 51.17
+          },
+          "lastCheckedAt": "2026-11-18T10:14:49.194+00:00",
+          "nutritionVariant": {
+            "id": 1782,
+            "is_active": true,
+            "size_unit": "g",
+            "pack_count": 1,
+            "product_id": 338,
+            "size_value": 875,
+            "display_name": "Orange Squash / 875g",
+            "flavour_label": "Orange Squash",
+            "product_format": "powder",
+            "nutrition_override": {}
+          },
+          "variantResolution": "resolved"
+        },
+        "pricePerKg": 58.480000000000004,
+        "costPer25gProtein": 1.7183826986365776
+      },
+      {
+        "id": "248",
+        "name": "Optimum Nutrition 100% Isolate 930g",
+        "url": "/product/optimum-nutrition-100-isolate-930g",
+        "netWeightG": 930,
+        "referenceVariant": {
+          "id": 737,
+          "is_active": true,
+          "size_unit": "g",
+          "pack_count": 1,
+          "product_id": 248,
+          "size_value": 930,
+          "display_name": "Strawberry / 930g",
+          "flavour_label": "Strawberry",
+          "product_format": "powder",
+          "nutrition_override": {}
+        },
+        "bestOffer": {
+          "id": "3288",
+          "retailer": {
+            "id": "14",
+            "name": "10 Reps",
+            "slug": "10-reps"
+          },
+          "productPrice": 57.49,
+          "shippingCost": 3.99,
+          "deliveredPrice": {
+            "productPrice": 57.49,
+            "shippingCost": 3.99,
+            "totalPrice": 61.48
+          },
+          "lastCheckedAt": "2026-11-18T10:47:00.534+00:00",
+          "nutritionVariant": {
+            "id": 737,
+            "is_active": true,
+            "size_unit": "g",
+            "pack_count": 1,
+            "product_id": 248,
+            "size_value": 930,
+            "display_name": "Strawberry / 930g",
+            "flavour_label": "Strawberry",
+            "product_format": "powder",
+            "nutrition_override": {}
+          },
+          "variantResolution": "resolved"
+        },
+        "pricePerKg": null,
+        "costPer25gProtein": null
+      },
+      {
+        "id": "178",
+        "name": "Applied Nutrition ISO-XP 1.8kg",
+        "url": "/product/applied-nutrition-iso-xp-18kg",
+        "netWeightG": 1800,
+        "referenceVariant": {
+          "id": 732,
+          "is_active": true,
+          "size_unit": "g",
+          "pack_count": 1,
+          "product_id": 178,
+          "size_value": 1800,
+          "display_name": "Banana / 1.8kg",
+          "flavour_label": "Banana",
+          "product_format": "powder",
+          "nutrition_override": {
+            "evidence": "Manufacturer declares 1.8kg, 72 servings, one 25g scoop and approximately 22g protein per serving.",
+            "source_url": "https://appliednutrition.uk/products/iso-xp",
+            "source_type": "manufacturer_product_page",
+            "net_weight_g": 1800,
+            "product_format": "powder",
+            "serving_size_g": 25,
+            "nutrition_verified": true,
+            "protein_per_serving_g": 22,
+            "unit_pricing_verified": true,
+            "creatine_per_serving_g": null,
+            "serving_count_verified": 72
+          }
+        },
+        "bestOffer": {
+          "id": "4566",
+          "retailer": {
+            "id": "16",
+            "name": "Holland & Barrett",
+            "slug": "holland-barrett"
+          },
+          "productPrice": 30,
+          "shippingCost": 0,
+          "deliveredPrice": {
+            "productPrice": 30,
+            "shippingCost": 0,
+            "totalPrice": 30
+          },
+          "lastCheckedAt": "2026-11-18T17:27:34.236+00:00",
+          "nutritionVariant": null,
+          "variantResolution": "unresolved"
+        },
+        "pricePerKg": 16.666666666666668,
+        "costPer25gProtein": null
+      },
+      {
+        "id": "328",
+        "name": "Per4m Isolate Zero 900g",
+        "url": "/product/per4m-isolate-zero-900g",
+        "netWeightG": 900,
+        "referenceVariant": {
+          "id": 1825,
+          "is_active": true,
+          "size_unit": "g",
+          "pack_count": 1,
+          "product_id": 328,
+          "size_value": 900,
+          "display_name": "Salted Caramel / 900g",
+          "flavour_label": "Salted Caramel",
+          "product_format": "powder",
+          "nutrition_override": {}
+        },
+        "bestOffer": {
+          "id": "2665",
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk"
+          },
+          "productPrice": 42.9,
+          "shippingCost": 0,
+          "deliveredPrice": {
+            "productPrice": 42.9,
+            "shippingCost": 0,
+            "totalPrice": 42.9
+          },
+          "lastCheckedAt": "2026-11-18T14:37:45.946+00:00",
+          "nutritionVariant": {
+            "id": 1825,
+            "is_active": true,
+            "size_unit": "g",
+            "pack_count": 1,
+            "product_id": 328,
+            "size_value": 900,
+            "display_name": "Salted Caramel / 900g",
+            "flavour_label": "Salted Caramel",
+            "product_format": "powder",
+            "nutrition_override": {}
+          },
+          "variantResolution": "resolved"
+        },
+        "pricePerKg": null,
+        "costPer25gProtein": null
+      }
+    ],
+    "productionDataWrites": 0,
+    "syntheticData": false
+  },
+  "public": {
+    "at": "2026-11-18T20:43:32.330Z",
+    "pages": [
+      {
+        "path": "/whey-protein",
+        "status": 200,
+        "build": "jZ4U_EKZhqscdpdH1M1SI",
+        "title": "Compare Whey Protein Prices UK | SupplementScout",
+        "description": "Compare current Whey Protein prices from UK supplement retailers, including known delivery, retailer coverage and verified value metrics.",
+        "h1": [
+          "Compare Whey Protein Prices UK"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/whey-protein",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "CollectionPage",
+          "ItemList",
+          "BreadcrumbList"
+        ],
+        "schemaSha256": "08244a5a20bc9dbd8c2d23ec65094a773f03c701453a529d36db1fbdd10d1c77",
+        "linksSha256": "5f46b91426746a215f8704db86561cffb8f778a90ff3dd3d3ad85b7c297454ea"
+      },
+      {
+        "path": "/guides/supplement-prices-including-delivery",
+        "status": 200,
+        "build": "jZ4U_EKZhqscdpdH1M1SI",
+        "title": "Supplement Prices Including Delivery: A UK Comparison | SupplementScout",
+        "description": "Compare checked UK supplement offers for the same variant and pack, with product price, delivery and the final delivered total shown apart.",
+        "h1": [
+          "Can a higher product price be cheaper after delivery?"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ],
+        "schemaSha256": "210eb3a0490ce1e9c0c7a59cf71b669bf54eeddeb5c6c2b5ef91ab2e1e031e06",
+        "linksSha256": "b971a388df54ce320460d3fa6f205c2e922430dee65206ecf22b63e0f056a35c"
+      },
+      {
+        "path": "/guides/cost-per-25g-protein",
+        "status": 200,
+        "build": "jZ4U_EKZhqscdpdH1M1SI",
+        "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout",
+        "description": "Understand delivered cost per 25 g of protein with checked whey examples, verified serving data and clear limits on missing information.",
+        "h1": [
+          "How to compare protein powders by cost per 25g of protein"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ],
+        "schemaSha256": "b95948eb250acf3d7af661a15af5ca442a07f0dc961bcd188d23350f7b214552",
+        "linksSha256": "d4f8dbd7ed5fa599ff758e8da8f563e437bf7f7a19513cdaf9fa0edb25d3179f"
+      },
+      {
+        "path": "/guides/protein-powder-under-30",
+        "status": 200,
+        "build": "jZ4U_EKZhqscdpdH1M1SI",
+        "title": "Protein Powder Under £30 UK: Compare Delivered Prices | SupplementScout",
+        "description": "Check selected UK protein powders against a £30 delivered budget, with exact flavours, pack sizes, shipping, check times and honest nutrition limits.",
+        "h1": [
+          "Which protein powders cost £30 or less including delivery?"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-under-30",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ],
+        "schemaSha256": "470f81eebd521e62588fd7c84ae0e19d8f465558f092c15cd529a4c565714c4d",
+        "linksSha256": "4394cbd50a99487ea1f89a31ab33edae806549a5b2ccc175bdc7c4d55464bbdb"
+      },
+      {
+        "path": "/guides/caffeine-free-pre-workout",
+        "status": 200,
+        "build": "jZ4U_EKZhqscdpdH1M1SI",
+        "title": "Caffeine-Free Pre-Workout UK: How to Check and Compare | SupplementScout",
+        "description": "Compare checked caffeine-free pre-workout variants using approved confirmed-absence facts, exact flavours and packs, current UK prices and known delivery.",
+        "h1": [
+          "How can I find and compare a pre-workout without caffeine?"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/caffeine-free-pre-workout",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ],
+        "schemaSha256": "6a9851ab80ab8db373e56570c81cf8197e3560ff1675b487b8f29dc1878319ea",
+        "linksSha256": "d121edd1e4ccca1ccd9209c7e852a152ef5ffd06295dfa3e77c5ede94af39b78"
+      },
+      {
+        "path": "/guides/whey-isolate-vs-concentrate",
+        "status": 200,
+        "build": "jZ4U_EKZhqscdpdH1M1SI",
+        "title": "Whey Isolate vs Concentrate: Which Is Better Value in the UK? | SupplementScout",
+        "description": "Compare whey isolate and concentrate using checked exact-flavour examples, delivered prices and approved protein costs, with clear limits where nutrition is missing.",
+        "h1": [
+          "Should I buy whey isolate or whey concentrate?"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/whey-isolate-vs-concentrate",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ],
+        "schemaSha256": "fe02f1d01e969a8d8e865feac8135a13febfe8554fd26f237ac14433214574c4",
+        "linksSha256": "0e056e7d5304ca5afa3dea5e1548ba89037359991a84b4f78189816a3dede2bf"
+      },
+      {
+        "path": "/guides/protein-powder-pack-size-value",
+        "status": 200,
+        "build": "jZ4U_EKZhqscdpdH1M1SI",
+        "title": "Does Buying a Bigger Protein Bag Actually Save Money? | SupplementScout",
+        "description": "Compare matched UK protein pack sizes using real delivered prices and verified cost per kilogram. See the extra upfront spend and limits on protein-unit comparisons.",
+        "h1": [
+          "Is a bigger protein pack better value after delivery?"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-pack-size-value",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ],
+        "schemaSha256": "1fc330566dd09475542eb723f59346f2e25c43e00df7b995e33c5fa2ad7ae304",
+        "linksSha256": "a892d09fddae328a1f046c4877dc08cde16351726658b78284bd10c247fcaf1d"
+      },
+      {
+        "path": "/guides/mass-gainer-vs-whey-protein",
+        "status": 200,
+        "build": "jZ4U_EKZhqscdpdH1M1SI",
+        "title": "Mass Gainer vs Whey Protein: Compare UK Buying Costs | SupplementScout",
+        "description": "Compare a carbohydrate-and-protein blend with whey using exact UK packs, checked delivery costs and protein pricing only where verified nutrition supports it.",
+        "h1": [
+          "Should I buy mass gainer or whey protein?"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-vs-whey-protein",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ],
+        "schemaSha256": "52674a16aa4191ef7ad77f0ce62301a3999af6ae2e0de696961a7dca71e97bac",
+        "linksSha256": "785a53474c5d198221e175c00c86dfe0099d4477ab690254db8cd5817111734d"
+      },
+      {
+        "path": "/guides/creatine-pack-size-value",
+        "status": 200,
+        "build": "jZ4U_EKZhqscdpdH1M1SI",
+        "title": "Creatine Pack Sizes: Is a Bigger Tub Better Value? | SupplementScout",
+        "description": "Compare matched unflavoured creatine pack sizes using current UK delivered prices, verified cost per kilogram and the extra upfront spend.",
+        "h1": [
+          "Should I buy a bigger tub of creatine?"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/creatine-pack-size-value",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ],
+        "schemaSha256": "829e987cb3148454dae631d9b3aa84f33360d190df35b31fd41166f88cf299cb",
+        "linksSha256": "25c343580db1b047a1ca6c9b40b66b5cb75ef6fa639f80185e7a26baa864cfbd"
+      },
+      {
+        "path": "/guides/pre-workout-under-30",
+        "status": 200,
+        "build": "jZ4U_EKZhqscdpdH1M1SI",
+        "title": "Pre-Workout Under £30 UK: Compare Prices Including Delivery | SupplementScout",
+        "description": "Check selected UK pre-workouts against a £30 delivered budget: exact flavours, packs, stock, shipping and check dates, with serving costs only when verified.",
+        "h1": [
+          "Which pre-workouts cost £30 or less including delivery?"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/pre-workout-under-30",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ],
+        "schemaSha256": "be9de975ae3ae00f8607be64217251f10313b2213dcde1ff8812663d6176dcca",
+        "linksSha256": "9954d99ddf6bd0cb18d93c0f44350cd0418c80ccb03accdd79cfb83d8cb08c74"
+      },
+      {
+        "path": "/guides/mass-gainer-under-40",
+        "status": 200,
+        "build": "jZ4U_EKZhqscdpdH1M1SI",
+        "title": "Mass Gainer Under £40 UK: Compare Prices Including Delivery | SupplementScout",
+        "description": "Compare selected UK mass gainer packs within a £40 delivered budget, with exact flavours, shipping, check dates and powder cost per kilogram only when verified.",
+        "h1": [
+          "Which mass gainers cost £40 or less including delivery?"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-under-40",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ],
+        "schemaSha256": "a10f0a7b6dc67f78c765fdc9de40b16a972e96678aaa092396a1ef75dd98d77b",
+        "linksSha256": "2c4f1e3754168ee71f0c0298422be042edd60a153fd572644a6c60b0daae5e00"
+      },
+      {
+        "path": "/brands/per4m",
+        "status": 200,
+        "build": "jZ4U_EKZhqscdpdH1M1SI",
+        "title": "Compare PER4M Prices Across UK Retailers | SupplementScout",
+        "description": "Compare current Per4m product prices from UK supplement retailers, including known delivery, retailer coverage and recently checked offers.",
+        "h1": [
+          "Per4m Products & Prices UK"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "CollectionPage",
+          "ItemList",
+          "BreadcrumbList"
+        ],
+        "schemaSha256": "ec1390a4066eb978d8caf1de673d42f6fd4153f0c2f8f93ad245fec11058745d",
+        "linksSha256": "3f6b00514034744a53377353a992fd95dc820e40bb3bf252914ea1a8d8c0a721"
+      },
+      {
+        "path": "/creatine",
+        "status": 200,
+        "build": "jZ4U_EKZhqscdpdH1M1SI",
+        "title": "Compare Creatine Supplements & Prices UK | SupplementScout",
+        "description": "Compare creatine supplement prices, delivery costs and retailer availability from UK supplement retailers.",
+        "h1": [
+          "Compare Creatine Supplements UK"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/creatine",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "CollectionPage",
+          "ItemList",
+          "BreadcrumbList"
+        ],
+        "schemaSha256": "f6cf270b1887f36c2a0d63e2adb00fb0ad886c7da4f786a1a08fe63c5b020720",
+        "linksSha256": "4209a0496e1480f5518b68349dbe64a6216668b5914598a5dc1d524ae058f44e"
+      },
+      {
+        "path": "/",
+        "status": 200,
+        "build": "jZ4U_EKZhqscdpdH1M1SI",
+        "title": "SupplementScout | Compare UK Supplement Prices",
+        "description": "Compare supplement prices from UK retailers. Check delivery costs, price history, cost per serving and find the best real price.",
+        "h1": [
+          "Find the right supplement at the right price."
+        ],
+        "canonical": "https://www.supplementscout.co.uk",
+        "schemaTypes": [],
+        "schemaSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "linksSha256": "f74975da3a40d9dd64b2cab7e0996add9fd9d38e5fedbc1dd4c1b35912af6d48"
+      },
+      {
+        "path": "/whey-isolate",
+        "status": 200,
+        "build": "jZ4U_EKZhqscdpdH1M1SI",
+        "title": "Whey Isolate Prices UK – Delivered Cost | SupplementScout",
+        "description": "Compare Whey Isolate prices across UK supplement retailers. See the lowest known delivered cost, fresh offers and verified protein value when available.",
+        "h1": [
+          "Whey Isolate Prices UK – Compare Delivered Cost"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/whey-isolate",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "CollectionPage",
+          "ItemList",
+          "BreadcrumbList"
+        ],
+        "schemaSha256": "77ed0b8e696ffac5aa388840135a836ef13e34cf0e6595b21bc51052c26963d5",
+        "linksSha256": "8d5094c7beaaee50966c9826504927ab77a942c74a5c5ad4b63cdec5f6963e80"
+      },
+      {
+        "path": "/vegan-protein",
+        "status": 200,
+        "build": "jZ4U_EKZhqscdpdH1M1SI",
+        "title": "Compare Vegan Protein Prices UK | SupplementScout",
+        "description": "Compare current Vegan Protein prices from UK supplement retailers using recently checked offers, known delivery and verified value metrics.",
+        "h1": [
+          "Compare Vegan Protein Prices UK"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/vegan-protein",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "CollectionPage",
+          "ItemList",
+          "BreadcrumbList"
+        ],
+        "schemaSha256": "943c0f0a81b68975bb8fc504ca4898a93e680370d328b408e8e331ac9a9aa778",
+        "linksSha256": "76aec23114637287aafb3e7a53b6365e720aeb5da095261c78f43c23e605fcbb"
+      },
+      {
+        "path": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+        "status": 200,
+        "build": "jZ4U_EKZhqscdpdH1M1SI",
+        "title": "Applied Nutrition ABE Ultimate Pre-Workout 315g | SupplementScout",
+        "description": "Applied Nutrition ABE Ultimate Pre-Workout 315g is a pre-workout supplement.",
+        "h1": [
+          "Applied Nutrition ABE Ultimate Pre-Workout 315g"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+        "schemaTypes": [
+          "BreadcrumbList"
+        ],
+        "schemaSha256": "c5dd349bfda3bb17722c84e28e4a8b20113b2c6f0d3a086e1d47527aedf314b3",
+        "linksSha256": "a5938b15f8207a76baca163a97c3a6770172209a20ea3d49e07197b6aba61f33"
+      },
+      {
+        "path": "/product/myprotein-clear-whey-protein-isolate",
+        "status": 200,
+        "build": "jZ4U_EKZhqscdpdH1M1SI",
+        "title": "Myprotein Clear Whey Protein Isolate | SupplementScout",
+        "description": "Compare Myprotein Clear Whey Protein Isolate prices in the UK. Check available flavours, exact pack sizes, retailer offers and known delivery costs.",
+        "h1": [
+          "Myprotein Clear Whey Protein Isolate"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/product/myprotein-clear-whey-protein-isolate",
+        "schemaTypes": [
+          "BreadcrumbList"
+        ],
+        "schemaSha256": "6dda56c03961834e78d21931c8d963b804e06777d3b98eb0f871fa520fd455cb",
+        "linksSha256": "f9f5ff55c79d3d9b0f748d1aeac4d4b4b1a11144cb6be75fb139c43a1bccbe7a"
+      }
+    ],
+    "parameters": [
+      {
+        "path": "/whey-protein?sort=delivered_total",
+        "status": 200,
+        "robots": "noindex, follow",
+        "canonical": "https://www.supplementscout.co.uk/whey-protein"
+      },
+      {
+        "path": "/whey-protein?brand=10x+athletic&retailer=11",
+        "status": 200,
+        "robots": "noindex, follow",
+        "canonical": "https://www.supplementscout.co.uk/whey-protein"
+      },
+      {
+        "path": "/whey-protein?utm_source=qa",
+        "status": 200,
+        "robots": "noindex, follow",
+        "canonical": "https://www.supplementscout.co.uk/whey-protein"
+      }
+    ],
+    "sitemapCount": 1487,
+    "performance": [
+      {
+        "path": "/whey-protein",
+        "beforeMs": 225.4912000000004,
+        "medianTTFBms": 248.5676000000003,
+        "guardPass": true,
+        "samples": [
+          {
+            "path": "/whey-protein",
+            "ttfbMs": 248.5676000000003,
+            "dnsMs": 0,
+            "totalMs": 518.7078000000001
+          },
+          {
+            "path": "/whey-protein",
+            "ttfbMs": 264.4399000000012,
+            "dnsMs": 0,
+            "totalMs": 450.35280000000057
+          },
+          {
+            "path": "/whey-protein",
+            "ttfbMs": 224.6110000000008,
+            "dnsMs": 0,
+            "totalMs": 457.17329999999856
+          },
+          {
+            "path": "/whey-protein",
+            "ttfbMs": 248.93559999999707,
+            "dnsMs": 0,
+            "totalMs": 374.6234000000004
+          },
+          {
+            "path": "/whey-protein",
+            "ttfbMs": 221.71180000000095,
+            "dnsMs": 0,
+            "totalMs": 448.16289999999935
+          }
+        ]
+      },
+      {
+        "path": "/brands/per4m",
+        "beforeMs": 165.51480000000083,
+        "medianTTFBms": 166.57500000000073,
+        "guardPass": true,
+        "samples": [
+          {
+            "path": "/brands/per4m",
+            "ttfbMs": 204.7466999999997,
+            "dnsMs": 0,
+            "totalMs": 304.08599999999933
+          },
+          {
+            "path": "/brands/per4m",
+            "ttfbMs": 166.57500000000073,
+            "dnsMs": 0,
+            "totalMs": 328.0020000000004
+          },
+          {
+            "path": "/brands/per4m",
+            "ttfbMs": 160.41489999999976,
+            "dnsMs": 0,
+            "totalMs": 227.92879999999786
+          },
+          {
+            "path": "/brands/per4m",
+            "ttfbMs": 151.6906999999992,
+            "dnsMs": 0,
+            "totalMs": 210.35180000000037
+          },
+          {
+            "path": "/brands/per4m",
+            "ttfbMs": 175.6347999999998,
+            "dnsMs": 0,
+            "totalMs": 290.64710000000196
+          }
+        ]
+      },
+      {
+        "path": "/whey-isolate",
+        "beforeMs": 161.15040000000226,
+        "medianTTFBms": 149.13750000000073,
+        "guardPass": true,
+        "samples": [
+          {
+            "path": "/whey-isolate",
+            "ttfbMs": 137.07760000000053,
+            "dnsMs": 0,
+            "totalMs": 302.5610000000015
+          },
+          {
+            "path": "/whey-isolate",
+            "ttfbMs": 169.84180000000197,
+            "dnsMs": 0,
+            "totalMs": 299.96470000000045
+          },
+          {
+            "path": "/whey-isolate",
+            "ttfbMs": 165.0574000000015,
+            "dnsMs": 0,
+            "totalMs": 303.79279999999926
+          },
+          {
+            "path": "/whey-isolate",
+            "ttfbMs": 149.13750000000073,
+            "dnsMs": 0,
+            "totalMs": 265.07730000000083
+          },
+          {
+            "path": "/whey-isolate",
+            "ttfbMs": 140.09959999999774,
+            "dnsMs": 0,
+            "totalMs": 178.14029999999912
+          }
+        ]
+      },
+      {
+        "path": "/vegan-protein",
+        "beforeMs": 149.02920000000086,
+        "medianTTFBms": 136.6421999999984,
+        "guardPass": true,
+        "samples": [
+          {
+            "path": "/vegan-protein",
+            "ttfbMs": 197.688900000001,
+            "dnsMs": 0,
+            "totalMs": 251.9828000000016
+          },
+          {
+            "path": "/vegan-protein",
+            "ttfbMs": 255.3582000000024,
+            "dnsMs": 0,
+            "totalMs": 395.0714000000007
+          },
+          {
+            "path": "/vegan-protein",
+            "ttfbMs": 136.33630000000267,
+            "dnsMs": 0,
+            "totalMs": 251.29089999999997
+          },
+          {
+            "path": "/vegan-protein",
+            "ttfbMs": 136.6421999999984,
+            "dnsMs": 0,
+            "totalMs": 174.14849999999933
+          },
+          {
+            "path": "/vegan-protein",
+            "ttfbMs": 135.31140000000232,
+            "dnsMs": 0,
+            "totalMs": 165.94870000000083
+          }
+        ]
+      }
+    ],
+    "networkErrors": []
+  },
+  "browserBefore": [
+    {
+      "width": 1440,
+      "docWidth": 1425,
+      "scale": 1,
+      "h1": [
+        "Compare Whey Protein Prices UK"
+      ],
+      "hero": {
+        "top": 69,
+        "bottom": 437,
+        "height": 368
+      },
+      "intro": {
+        "top": 261,
+        "bottom": 325,
+        "height": 64
+      },
+      "introLineHeight": 32,
+      "decision": {
+        "top": 437,
+        "bottom": 1003,
+        "height": 566
+      },
+      "firstDecision": {
+        "top": 622,
+        "bottom": 918,
+        "height": 296
+      },
+      "comparison": {
+        "top": 1003,
+        "bottom": 31728,
+        "height": 30725
+      },
+      "firstOffer": {
+        "top": 1670,
+        "bottom": 1961,
+        "height": 291
+      },
+      "cardCount": 104,
+      "firstCard": "1. APPLIED NUTRITION\n\nApplied Nutrition Critical Whey 2kg\n\n2,000 g\n\n19 recently checked in-stock offers from Holland & Barrett, Whey Okay, 10 Reps.\n\nOffer checked 18 Nov 2026, 17:27\n\nLOWEST CURRENT DELIVERED PRICE\n\n£30.49\n\nIncludes known delivery\n\nAvailable at Holland & Barrett\n\nDelivered price / kg\n£15.25\nCompare this product",
+      "cardLinks": [
+        [
+          "/product/applied-nutrition-critical-whey-2kg",
+          "/product/applied-nutrition-critical-whey-2kg",
+          "/product/applied-nutrition-critical-whey-2kg"
+        ],
+        [
+          "/product/applied-nutrition-clear-whey-protein-875g",
+          "/product/applied-nutrition-clear-whey-protein-875g",
+          "/product/applied-nutrition-clear-whey-protein-875g"
+        ],
+        [
+          "/product/optimum-nutrition-100-isolate-930g",
+          "/product/optimum-nutrition-100-isolate-930g",
+          "/product/optimum-nutrition-100-isolate-930g"
+        ]
+      ],
+      "select": "decision",
+      "clipped": [],
+      "sections": [
+        {
+          "top": 69,
+          "bottom": 437,
+          "height": 368
+        },
+        {
+          "top": 437,
+          "bottom": 1003,
+          "height": 566
+        },
+        {
+          "top": 1003,
+          "bottom": 31728,
+          "height": 30725
+        },
+        {
+          "top": 31728,
+          "bottom": 32202,
+          "height": 474
+        },
+        {
+          "top": 32202,
+          "bottom": 33064,
+          "height": 862
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 1424,
+      "jsBytes": 549520,
+      "cssBytes": 81755,
+      "requestedWidth": 1440,
+      "focus": {
+        "href": "/compare?left=1468",
+        "visible": true
+      },
+      "interactions": {
+        "brandLink": "/whey-protein?brand=10x+athletic",
+        "sort": true,
+        "filterCanonical": {
+          "robots": "noindex, follow",
+          "canonical": "https://www.supplementscout.co.uk/whey-protein"
+        }
+      },
+      "result": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": [
+        {
+          "url": "https://files.ekmcdn.com/2ab763/images/applied-nutrition-critical-whey-2.27kg-738-dv-p.jpg",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "width": 768,
+      "docWidth": 753,
+      "scale": 1,
+      "h1": [
+        "Compare Whey Protein Prices UK"
+      ],
+      "hero": {
+        "top": 69,
+        "bottom": 517,
+        "height": 448
+      },
+      "intro": {
+        "top": 309,
+        "bottom": 405,
+        "height": 96
+      },
+      "introLineHeight": 32,
+      "decision": {
+        "top": 517,
+        "bottom": 1659,
+        "height": 1142
+      },
+      "firstDecision": {
+        "top": 738,
+        "bottom": 1006,
+        "height": 268
+      },
+      "comparison": {
+        "top": 1659,
+        "bottom": 46871,
+        "height": 45212
+      },
+      "firstOffer": {
+        "top": 1981,
+        "bottom": 2438,
+        "height": 457
+      },
+      "cardCount": 104,
+      "firstCard": "1. APPLIED NUTRITION\n\nApplied Nutrition Critical Whey 2kg\n\n2,000 g\n\n19 recently checked in-stock offers from Holland & Barrett, Whey Okay, 10 Reps.\n\nOffer checked 18 Nov 2026, 17:27\n\nLOWEST CURRENT DELIVERED PRICE\n\n£30.49\n\nIncludes known delivery\n\nAvailable at Holland & Barrett\n\nDelivered price / kg\n£15.25\nCompare this product",
+      "cardLinks": [
+        [
+          "/product/applied-nutrition-critical-whey-2kg",
+          "/product/applied-nutrition-critical-whey-2kg",
+          "/product/applied-nutrition-critical-whey-2kg"
+        ],
+        [
+          "/product/applied-nutrition-clear-whey-protein-875g",
+          "/product/applied-nutrition-clear-whey-protein-875g",
+          "/product/applied-nutrition-clear-whey-protein-875g"
+        ],
+        [
+          "/product/optimum-nutrition-100-isolate-930g",
+          "/product/optimum-nutrition-100-isolate-930g",
+          "/product/optimum-nutrition-100-isolate-930g"
+        ]
+      ],
+      "select": "decision",
+      "clipped": [],
+      "sections": [
+        {
+          "top": 69,
+          "bottom": 517,
+          "height": 448
+        },
+        {
+          "top": 517,
+          "bottom": 1659,
+          "height": 1142
+        },
+        {
+          "top": 1659,
+          "bottom": 46871,
+          "height": 45212
+        },
+        {
+          "top": 46871,
+          "bottom": 47537,
+          "height": 666
+        },
+        {
+          "top": 47537,
+          "bottom": 48663,
+          "height": 1126
+        }
+      ],
+      "cls": 0.0017280029880478087,
+      "lcpMs": 1008,
+      "jsBytes": 535820,
+      "cssBytes": 81755,
+      "requestedWidth": 768,
+      "focus": {
+        "href": "/compare?left=1468",
+        "visible": true
+      },
+      "interactions": {
+        "mobileDrawerEscape": true,
+        "brandLink": "/whey-protein?brand=10x+athletic",
+        "sort": true,
+        "filterCanonical": {
+          "robots": "noindex, follow",
+          "canonical": "https://www.supplementscout.co.uk/whey-protein"
+        }
+      },
+      "result": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": [
+        {
+          "url": "https://files.ekmcdn.com/2ab763/images/applied-nutrition-critical-whey-2.27kg-738-dv-p.jpg",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "docWidth": 390,
+      "scale": 1,
+      "h1": [
+        "Compare Whey Protein Prices UK"
+      ],
+      "hero": {
+        "top": 61,
+        "bottom": 529,
+        "height": 468
+      },
+      "intro": {
+        "top": 269,
+        "bottom": 409,
+        "height": 140
+      },
+      "introLineHeight": 28,
+      "decision": {
+        "top": 529,
+        "bottom": 2187,
+        "height": 1658
+      },
+      "firstDecision": {
+        "top": 822,
+        "bottom": 1246,
+        "height": 424
+      },
+      "comparison": {
+        "top": 2187,
+        "bottom": 56347,
+        "height": 54160
+      },
+      "firstOffer": {
+        "top": 2605,
+        "bottom": 3146,
+        "height": 541
+      },
+      "cardCount": 104,
+      "firstCard": "1. APPLIED NUTRITION\n\nApplied Nutrition Critical Whey 2kg\n\n2,000 g\n\n19 recently checked in-stock offers from Holland & Barrett, Whey Okay, 10 Reps.\n\nOffer checked 18 Nov 2026, 17:27\n\nLOWEST CURRENT DELIVERED PRICE\n\n£30.49\n\nIncludes known delivery\n\nAvailable at Holland & Barrett\n\nDelivered price / kg\n£15.25\nCompare this product",
+      "cardLinks": [
+        [
+          "/product/applied-nutrition-critical-whey-2kg",
+          "/product/applied-nutrition-critical-whey-2kg",
+          "/product/applied-nutrition-critical-whey-2kg"
+        ],
+        [
+          "/product/applied-nutrition-clear-whey-protein-875g",
+          "/product/applied-nutrition-clear-whey-protein-875g",
+          "/product/applied-nutrition-clear-whey-protein-875g"
+        ],
+        [
+          "/product/optimum-nutrition-100-isolate-930g",
+          "/product/optimum-nutrition-100-isolate-930g",
+          "/product/optimum-nutrition-100-isolate-930g"
+        ]
+      ],
+      "select": "decision",
+      "clipped": [],
+      "sections": [
+        {
+          "top": 61,
+          "bottom": 529,
+          "height": 468
+        },
+        {
+          "top": 529,
+          "bottom": 2187,
+          "height": 1658
+        },
+        {
+          "top": 2187,
+          "bottom": 56347,
+          "height": 54160
+        },
+        {
+          "top": 56347,
+          "bottom": 57285,
+          "height": 938
+        },
+        {
+          "top": 57285,
+          "bottom": 59079,
+          "height": 1794
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 712,
+      "jsBytes": 535820,
+      "cssBytes": 81755,
+      "requestedWidth": 390,
+      "focus": {
+        "href": "/compare?left=1468",
+        "visible": true
+      },
+      "interactions": {
+        "mobileDrawerEscape": true,
+        "brandLink": "/whey-protein?brand=10x+athletic",
+        "sort": true,
+        "filterCanonical": {
+          "robots": "noindex, follow",
+          "canonical": "https://www.supplementscout.co.uk/whey-protein"
+        }
+      },
+      "result": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": [
+        {
+          "url": "https://files.ekmcdn.com/2ab763/images/applied-nutrition-critical-whey-2.27kg-738-dv-p.jpg",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "width": 364,
+      "docWidth": 364,
+      "scale": 1,
+      "h1": [
+        "Compare Whey Protein Prices UK"
+      ],
+      "hero": {
+        "top": 61,
+        "bottom": 621,
+        "height": 560
+      },
+      "intro": {
+        "top": 309,
+        "bottom": 477,
+        "height": 168
+      },
+      "introLineHeight": 28,
+      "decision": {
+        "top": 621,
+        "bottom": 2427,
+        "height": 1806
+      },
+      "firstDecision": {
+        "top": 942,
+        "bottom": 1410,
+        "height": 468
+      },
+      "comparison": {
+        "top": 2427,
+        "bottom": 67883,
+        "height": 65456
+      },
+      "firstOffer": {
+        "top": 2869,
+        "bottom": 3506,
+        "height": 637
+      },
+      "cardCount": 104,
+      "firstCard": "1. APPLIED NUTRITION\n\nApplied Nutrition Critical Whey 2kg\n\n2,000 g\n\n19 recently checked in-stock offers from Holland & Barrett, Whey Okay, 10 Reps.\n\nOffer checked 18 Nov 2026, 17:27\n\nLOWEST CURRENT DELIVERED PRICE\n\n£30.49\n\nIncludes known delivery\n\nAvailable at Holland & Barrett\n\nDelivered price / kg\n£15.25\nCompare this product",
+      "cardLinks": [
+        [
+          "/product/applied-nutrition-critical-whey-2kg",
+          "/product/applied-nutrition-critical-whey-2kg",
+          "/product/applied-nutrition-critical-whey-2kg"
+        ],
+        [
+          "/product/applied-nutrition-clear-whey-protein-875g",
+          "/product/applied-nutrition-clear-whey-protein-875g",
+          "/product/applied-nutrition-clear-whey-protein-875g"
+        ],
+        [
+          "/product/optimum-nutrition-100-isolate-930g",
+          "/product/optimum-nutrition-100-isolate-930g",
+          "/product/optimum-nutrition-100-isolate-930g"
+        ]
+      ],
+      "select": "decision",
+      "clipped": [],
+      "sections": [
+        {
+          "top": 61,
+          "bottom": 621,
+          "height": 560
+        },
+        {
+          "top": 621,
+          "bottom": 2427,
+          "height": 1806
+        },
+        {
+          "top": 2427,
+          "bottom": 67883,
+          "height": 65456
+        },
+        {
+          "top": 67883,
+          "bottom": 69049,
+          "height": 1166
+        },
+        {
+          "top": 69049,
+          "bottom": 71123,
+          "height": 2074
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 800,
+      "jsBytes": 535820,
+      "cssBytes": 81755,
+      "requestedWidth": 320,
+      "focus": {
+        "href": "/compare?left=1468",
+        "visible": true
+      },
+      "interactions": {
+        "mobileDrawerEscape": true,
+        "brandLink": "/whey-protein?brand=10x+athletic",
+        "sort": true,
+        "filterCanonical": {
+          "robots": "noindex, follow",
+          "canonical": "https://www.supplementscout.co.uk/whey-protein"
+        }
+      },
+      "result": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": [
+        {
+          "url": "https://files.ekmcdn.com/2ab763/images/applied-nutrition-critical-whey-2.27kg-738-dv-p.jpg",
+          "status": 404
+        }
+      ]
+    }
+  ],
+  "browserAfter": [
+    {
+      "width": 1440,
+      "docWidth": 1425,
+      "scale": 1,
+      "h1": [
+        "Compare Whey Protein Prices UK"
+      ],
+      "hero": {
+        "top": 69,
+        "bottom": 469,
+        "height": 400
+      },
+      "intro": {
+        "top": 261,
+        "bottom": 357,
+        "height": 96
+      },
+      "introLineHeight": 32,
+      "decision": {
+        "top": 469,
+        "bottom": 1035,
+        "height": 566
+      },
+      "firstDecision": {
+        "top": 654,
+        "bottom": 950,
+        "height": 296
+      },
+      "comparison": {
+        "top": 1035,
+        "bottom": 31760,
+        "height": 30725
+      },
+      "firstOffer": {
+        "top": 1702,
+        "bottom": 1993,
+        "height": 291
+      },
+      "cardCount": 104,
+      "firstCard": "1. APPLIED NUTRITION\n\nApplied Nutrition Critical Whey 2kg\n\n2,000 g\n\n19 recently checked in-stock offers from Holland & Barrett, Whey Okay, 10 Reps.\n\nOffer checked 18 Nov 2026, 17:27\n\nLOWEST CURRENT DELIVERED PRICE\n\n£30.49\n\nIncludes known delivery\n\nAvailable at Holland & Barrett\n\nDelivered price / kg\n£15.25\nCompare this product",
+      "cardLinks": [
+        [
+          "/product/applied-nutrition-critical-whey-2kg",
+          "/product/applied-nutrition-critical-whey-2kg",
+          "/product/applied-nutrition-critical-whey-2kg"
+        ],
+        [
+          "/product/applied-nutrition-clear-whey-protein-875g",
+          "/product/applied-nutrition-clear-whey-protein-875g",
+          "/product/applied-nutrition-clear-whey-protein-875g"
+        ],
+        [
+          "/product/optimum-nutrition-100-isolate-930g",
+          "/product/optimum-nutrition-100-isolate-930g",
+          "/product/optimum-nutrition-100-isolate-930g"
+        ]
+      ],
+      "select": "decision",
+      "clipped": [],
+      "sections": [
+        {
+          "top": 69,
+          "bottom": 469,
+          "height": 400
+        },
+        {
+          "top": 469,
+          "bottom": 1035,
+          "height": 566
+        },
+        {
+          "top": 1035,
+          "bottom": 31760,
+          "height": 30725
+        },
+        {
+          "top": 31760,
+          "bottom": 32234,
+          "height": 474
+        },
+        {
+          "top": 32234,
+          "bottom": 33096,
+          "height": 862
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 1060,
+      "jsBytes": 549520,
+      "cssBytes": 81755,
+      "requestedWidth": 1440,
+      "focus": {
+        "href": "/compare?left=1468",
+        "visible": true
+      },
+      "interactions": {
+        "brandLink": "/whey-protein?brand=10x+athletic",
+        "sort": true,
+        "filterCanonical": {
+          "robots": "noindex, follow",
+          "canonical": "https://www.supplementscout.co.uk/whey-protein"
+        }
+      },
+      "result": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": [
+        {
+          "url": "https://files.ekmcdn.com/2ab763/images/applied-nutrition-critical-whey-2.27kg-738-dv-p.jpg",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "width": 768,
+      "docWidth": 753,
+      "scale": 1,
+      "h1": [
+        "Compare Whey Protein Prices UK"
+      ],
+      "hero": {
+        "top": 69,
+        "bottom": 517,
+        "height": 448
+      },
+      "intro": {
+        "top": 309,
+        "bottom": 405,
+        "height": 96
+      },
+      "introLineHeight": 32,
+      "decision": {
+        "top": 517,
+        "bottom": 1659,
+        "height": 1142
+      },
+      "firstDecision": {
+        "top": 738,
+        "bottom": 1006,
+        "height": 268
+      },
+      "comparison": {
+        "top": 1659,
+        "bottom": 46871,
+        "height": 45212
+      },
+      "firstOffer": {
+        "top": 1981,
+        "bottom": 2438,
+        "height": 457
+      },
+      "cardCount": 104,
+      "firstCard": "1. APPLIED NUTRITION\n\nApplied Nutrition Critical Whey 2kg\n\n2,000 g\n\n19 recently checked in-stock offers from Holland & Barrett, Whey Okay, 10 Reps.\n\nOffer checked 18 Nov 2026, 17:27\n\nLOWEST CURRENT DELIVERED PRICE\n\n£30.49\n\nIncludes known delivery\n\nAvailable at Holland & Barrett\n\nDelivered price / kg\n£15.25\nCompare this product",
+      "cardLinks": [
+        [
+          "/product/applied-nutrition-critical-whey-2kg",
+          "/product/applied-nutrition-critical-whey-2kg",
+          "/product/applied-nutrition-critical-whey-2kg"
+        ],
+        [
+          "/product/applied-nutrition-clear-whey-protein-875g",
+          "/product/applied-nutrition-clear-whey-protein-875g",
+          "/product/applied-nutrition-clear-whey-protein-875g"
+        ],
+        [
+          "/product/optimum-nutrition-100-isolate-930g",
+          "/product/optimum-nutrition-100-isolate-930g",
+          "/product/optimum-nutrition-100-isolate-930g"
+        ]
+      ],
+      "select": "decision",
+      "clipped": [],
+      "sections": [
+        {
+          "top": 69,
+          "bottom": 517,
+          "height": 448
+        },
+        {
+          "top": 517,
+          "bottom": 1659,
+          "height": 1142
+        },
+        {
+          "top": 1659,
+          "bottom": 46871,
+          "height": 45212
+        },
+        {
+          "top": 46871,
+          "bottom": 47537,
+          "height": 666
+        },
+        {
+          "top": 47537,
+          "bottom": 48663,
+          "height": 1126
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 568,
+      "jsBytes": 535820,
+      "cssBytes": 81755,
+      "requestedWidth": 768,
+      "focus": {
+        "href": "/compare?left=1468",
+        "visible": true
+      },
+      "interactions": {
+        "mobileDrawerEscape": true,
+        "brandLink": "/whey-protein?brand=10x+athletic",
+        "sort": true,
+        "filterCanonical": {
+          "robots": "noindex, follow",
+          "canonical": "https://www.supplementscout.co.uk/whey-protein"
+        }
+      },
+      "result": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": [
+        {
+          "url": "https://files.ekmcdn.com/2ab763/images/applied-nutrition-critical-whey-2.27kg-738-dv-p.jpg",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "docWidth": 390,
+      "scale": 1,
+      "h1": [
+        "Compare Whey Protein Prices UK"
+      ],
+      "hero": {
+        "top": 61,
+        "bottom": 529,
+        "height": 468
+      },
+      "intro": {
+        "top": 269,
+        "bottom": 409,
+        "height": 140
+      },
+      "introLineHeight": 28,
+      "decision": {
+        "top": 529,
+        "bottom": 2187,
+        "height": 1658
+      },
+      "firstDecision": {
+        "top": 822,
+        "bottom": 1246,
+        "height": 424
+      },
+      "comparison": {
+        "top": 2187,
+        "bottom": 56347,
+        "height": 54160
+      },
+      "firstOffer": {
+        "top": 2605,
+        "bottom": 3146,
+        "height": 541
+      },
+      "cardCount": 104,
+      "firstCard": "1. APPLIED NUTRITION\n\nApplied Nutrition Critical Whey 2kg\n\n2,000 g\n\n19 recently checked in-stock offers from Holland & Barrett, Whey Okay, 10 Reps.\n\nOffer checked 18 Nov 2026, 17:27\n\nLOWEST CURRENT DELIVERED PRICE\n\n£30.49\n\nIncludes known delivery\n\nAvailable at Holland & Barrett\n\nDelivered price / kg\n£15.25\nCompare this product",
+      "cardLinks": [
+        [
+          "/product/applied-nutrition-critical-whey-2kg",
+          "/product/applied-nutrition-critical-whey-2kg",
+          "/product/applied-nutrition-critical-whey-2kg"
+        ],
+        [
+          "/product/applied-nutrition-clear-whey-protein-875g",
+          "/product/applied-nutrition-clear-whey-protein-875g",
+          "/product/applied-nutrition-clear-whey-protein-875g"
+        ],
+        [
+          "/product/optimum-nutrition-100-isolate-930g",
+          "/product/optimum-nutrition-100-isolate-930g",
+          "/product/optimum-nutrition-100-isolate-930g"
+        ]
+      ],
+      "select": "decision",
+      "clipped": [],
+      "sections": [
+        {
+          "top": 61,
+          "bottom": 529,
+          "height": 468
+        },
+        {
+          "top": 529,
+          "bottom": 2187,
+          "height": 1658
+        },
+        {
+          "top": 2187,
+          "bottom": 56347,
+          "height": 54160
+        },
+        {
+          "top": 56347,
+          "bottom": 57285,
+          "height": 938
+        },
+        {
+          "top": 57285,
+          "bottom": 59079,
+          "height": 1794
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 900,
+      "jsBytes": 535820,
+      "cssBytes": 81755,
+      "requestedWidth": 390,
+      "focus": {
+        "href": "/compare?left=1468",
+        "visible": true
+      },
+      "interactions": {
+        "mobileDrawerEscape": true,
+        "brandLink": "/whey-protein?brand=10x+athletic",
+        "sort": true,
+        "filterCanonical": {
+          "robots": "noindex, follow",
+          "canonical": "https://www.supplementscout.co.uk/whey-protein"
+        }
+      },
+      "result": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": [
+        {
+          "url": "https://files.ekmcdn.com/2ab763/images/applied-nutrition-critical-whey-2.27kg-738-dv-p.jpg",
+          "status": 404
+        }
+      ]
+    },
+    {
+      "width": 364,
+      "docWidth": 364,
+      "scale": 1,
+      "h1": [
+        "Compare Whey Protein Prices UK"
+      ],
+      "hero": {
+        "top": 61,
+        "bottom": 621,
+        "height": 560
+      },
+      "intro": {
+        "top": 309,
+        "bottom": 477,
+        "height": 168
+      },
+      "introLineHeight": 28,
+      "decision": {
+        "top": 621,
+        "bottom": 2427,
+        "height": 1806
+      },
+      "firstDecision": {
+        "top": 942,
+        "bottom": 1410,
+        "height": 468
+      },
+      "comparison": {
+        "top": 2427,
+        "bottom": 67883,
+        "height": 65456
+      },
+      "firstOffer": {
+        "top": 2869,
+        "bottom": 3506,
+        "height": 637
+      },
+      "cardCount": 104,
+      "firstCard": "1. APPLIED NUTRITION\n\nApplied Nutrition Critical Whey 2kg\n\n2,000 g\n\n19 recently checked in-stock offers from Holland & Barrett, Whey Okay, 10 Reps.\n\nOffer checked 18 Nov 2026, 17:27\n\nLOWEST CURRENT DELIVERED PRICE\n\n£30.49\n\nIncludes known delivery\n\nAvailable at Holland & Barrett\n\nDelivered price / kg\n£15.25\nCompare this product",
+      "cardLinks": [
+        [
+          "/product/applied-nutrition-critical-whey-2kg",
+          "/product/applied-nutrition-critical-whey-2kg",
+          "/product/applied-nutrition-critical-whey-2kg"
+        ],
+        [
+          "/product/applied-nutrition-clear-whey-protein-875g",
+          "/product/applied-nutrition-clear-whey-protein-875g",
+          "/product/applied-nutrition-clear-whey-protein-875g"
+        ],
+        [
+          "/product/optimum-nutrition-100-isolate-930g",
+          "/product/optimum-nutrition-100-isolate-930g",
+          "/product/optimum-nutrition-100-isolate-930g"
+        ]
+      ],
+      "select": "decision",
+      "clipped": [],
+      "sections": [
+        {
+          "top": 61,
+          "bottom": 621,
+          "height": 560
+        },
+        {
+          "top": 621,
+          "bottom": 2427,
+          "height": 1806
+        },
+        {
+          "top": 2427,
+          "bottom": 67883,
+          "height": 65456
+        },
+        {
+          "top": 67883,
+          "bottom": 69077,
+          "height": 1194
+        },
+        {
+          "top": 69077,
+          "bottom": 71151,
+          "height": 2074
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 832,
+      "jsBytes": 535820,
+      "cssBytes": 81755,
+      "requestedWidth": 320,
+      "focus": {
+        "href": "/compare?left=1468",
+        "visible": true
+      },
+      "interactions": {
+        "mobileDrawerEscape": true,
+        "brandLink": "/whey-protein?brand=10x+athletic",
+        "sort": true,
+        "filterCanonical": {
+          "robots": "noindex, follow",
+          "canonical": "https://www.supplementscout.co.uk/whey-protein"
+        }
+      },
+      "result": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": [
+        {
+          "url": "https://files.ekmcdn.com/2ab763/images/applied-nutrition-critical-whey-2.27kg-738-dv-p.jpg",
+          "status": 404
+        }
+      ]
+    }
+  ],
+  "knownBaselineIssues": [
+    "320px retains364px layout/document before/after; separate technical repair authorized only after SEO-31 closeout.",
+    "External Critical Whey image404 persists before/after, not introduced by SEO-31."
+  ],
+  "runtimeReadEvidence": "Unchanged data loaders/cache/analytics source and existing instrumented local actual-source cold2→2/warm0→0 proof; no direct Production DB telemetry claimed",
+  "productionDataWrites": 0,
+  "retailerNavigations": 0
+}

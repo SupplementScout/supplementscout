@@ -1,5 +1,47 @@
 # SEO-31 — existing Whey Protein buying intent, Draft evidence
 
+## Owner-approved Production release — 18 November 2026
+
+**SEO-31 LIVE VERIFIED.** PR[#551](https://github.com/SupplementScout/supplementscout/pull/551)
+approvedd2bf227598bd9b8637fe23044fdef7025bc30235 merged2026-11-18T20:41:44Z as
+`b3891dc1b952b5badf3e0361198e4cb5368343aa`,with exact approved tree parity. Fresh quick1337
+and full4074PASS,3 unchanged historical archive skips,0 failures;
+TypeScript/ESLint/Next16.2.9 build,PR/main CI and Guardian pass.
+
+GitHub Production7895673477 and Verceldpl_CJzaE533AP8K7KjtXeg4TUiwFHM5SUCCESS at
+2026-11-18T20:42:30Z; public build changes from
+`ixerMLZeDZ_JwEVTbjo-o` to `jZ4U_EKZhqscdpdH1M1SI`.
+Complete public readback2026-11-18T20:43:32.330Z; independent actual source2026-11-18T20:45:03.805Z.
+104 cards match actual existing loader order,identity,prices,
+known/unknown delivery,arithmetic,check dates,nutrition display and product links.
+Only two intended paragraphs differ in initial main HTML;metadata/oneH1,
+canonical/robots/CollectionPage/ItemList/BreadcrumbList/links remain unchanged.
+All18 checked routes,1487 unique sitemap URLs and parameter states pass.
+
+|Public route|Before warm median TTFB ms|After ms|Existing guard|
+|---|---:|---:|---|
+|/whey-protein|225.5|248.6|PASS|
+|/brands/per4m|165.5|166.6|PASS|
+|/whey-isolate|161.2|149.1|PASS|
+|/vegan-protein|149.0|136.6|PASS|
+
+Network/DNS failures are separate: 0 recorded. Source
+readers/cache policies and analytics/tracking source are unchanged. Existing local
+actual-source instrumentation proves cold2→2/warm0→0; no Production DB telemetry
+or field CWV improvement claim. Public1440/768/390/320px QA preserves cards,
+filters/sort,drawer/Escape and keyboard focus,with no new runtime exception/HTTP5xx.
+Existing320→364px width and the external Critical Whey404 persist both before/after;
+they are not caused by SEO-31. Separately authorized technical repairs start only
+after this closeout. [Public proof](seo31-whey-search-intent-2026-11-18/production-proof.json).
+
+Screenshots: [1440](seo31-whey-search-intent-2026-11-18/production-1440.webp),
+[768](seo31-whey-search-intent-2026-11-18/production-768.webp),
+[390](seo31-whey-search-intent-2026-11-18/production-390.webp),
+[320](seo31-whey-search-intent-2026-11-18/production-320.webp).
+SEO-20 clock/thresholds stay frozen,SEO-21–30 LIVE VERIFIED,Stage3 disabled.
+No catalogue,nutrition,mapping,history,importer,workflow,Google or retailer test write.
+Final documentation SHA/CI/Production evidence is attached to merged PR#551.
+
 18 November 2026. **CODE COMPLETE — READY FOR PUBLICATION REVIEW.**
 Only target: https://www.supplementscout.co.uk/whey-protein . Base main
 `8ec90b4b09e79c7cd38678b120524e350dfd35b2`. No merge or Production authorization. Final HEAD and

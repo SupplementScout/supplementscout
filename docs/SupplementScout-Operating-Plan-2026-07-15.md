@@ -1,5 +1,17 @@
 # SupplementScout Operating Plan
 
+**18 November 2026 SEO-31 LIVE VERIFIED:** explicit owner approval authorized
+PR#551 squash merge and automatic Production. Approved headd2bf2275 merged as
+`b3891dc1b952b5badf3e0361198e4cb5368343aa` with exact tree parity. Fresh quick/full, TypeScript/ESLint/build,
+PR/main CI and Guardian pass. Exact latest GitHub Production/Vercel SUCCESS plus
+public build`jZ4U_EKZhqscdpdH1M1SI` confirm deployment.18 public routes,
+actual current-source cards/prices/links, SEO/schema/sitemap parity, four-width
+QA and the existing warm-response guard pass. Existing320px overflow and external
+image404 remain documented baseline issues, not SEO-31 regressions. SEO-20 stays
+frozen;SEO-21–30 stay LIVE VERIFIED;Stage3 off. Separate owner-authorized targeted
+technical repairs may follow; no SEO-32, data write or Google submission.
+[Production evidence](rollouts/seo31-whey-search-intent-2026-11-18.md).
+
 **18 November 2026 SEO-31 Draft checkpoint:** the owner-approved existing
 `/whey-protein` improvement is CODE COMPLETE for publication review. Only two
 existing SSR paragraphs clarify exact flavour/pack continuation and the different
