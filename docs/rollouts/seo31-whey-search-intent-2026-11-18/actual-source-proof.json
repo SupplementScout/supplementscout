@@ -1,0 +1,411 @@
+{
+  "at": "2026-11-18T18:08:51.710Z",
+  "environment": "Existing actual comparison loader with authorized GET/HEAD-only catalogue clients; no data writes",
+  "summary": {
+    "scopedProducts": 104,
+    "visibleProducts": 104,
+    "freshOffers": 487,
+    "freshRetailers": 8,
+    "productsWithOneFreshRetailer": 45,
+    "productsWithMultipleFreshRetailers": 19,
+    "freshRetailersAcrossComparisons": 8,
+    "staleOrUnusableOffersExcluded": 150,
+    "latestOfferCheckedAt": "2026-11-18T17:27:34.236+00:00"
+  },
+  "reads": [
+    {
+      "table": "products",
+      "method": "GET",
+      "status": 200,
+      "ms": 622,
+      "bytes": 468787
+    },
+    {
+      "table": "retailer_products",
+      "method": "GET",
+      "status": 200,
+      "ms": 250,
+      "bytes": 300632
+    }
+  ],
+  "publicPages": [
+    {
+      "path": "/whey-protein",
+      "status": 200,
+      "ms": 1948.3333000000002,
+      "title": "Compare Whey Protein Prices UK | SupplementScout",
+      "h1": [
+        "Compare Whey Protein Prices UK"
+      ],
+      "description": "Compare current Whey Protein prices from UK supplement retailers, including known delivery, retailer coverage and verified value metrics.",
+      "canonical": "https://www.supplementscout.co.uk/whey-protein",
+      "robots": "index, follow",
+      "schemaTypes": [
+        "CollectionPage",
+        "ItemList",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "path": "/",
+      "status": 200,
+      "ms": 1581.2313999999997,
+      "title": "SupplementScout | Compare UK Supplement Prices",
+      "h1": [
+        "Find the right supplement at the right price."
+      ],
+      "description": "Compare supplement prices from UK retailers. Check delivery costs, price history, cost per serving and find the best real price.",
+      "canonical": "https://www.supplementscout.co.uk",
+      "schemaTypes": []
+    },
+    {
+      "path": "/whey-isolate",
+      "status": 200,
+      "ms": 906.2923999999994,
+      "title": "Whey Isolate Prices UK – Delivered Cost | SupplementScout",
+      "h1": [
+        "Whey Isolate Prices UK – Compare Delivered Cost"
+      ],
+      "description": "Compare Whey Isolate prices across UK supplement retailers. See the lowest known delivered cost, fresh offers and verified protein value when available.",
+      "canonical": "https://www.supplementscout.co.uk/whey-isolate",
+      "robots": "index, follow",
+      "schemaTypes": [
+        "CollectionPage",
+        "ItemList",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "path": "/vegan-protein",
+      "status": 200,
+      "ms": 895.9123,
+      "title": "Compare Vegan Protein Prices UK | SupplementScout",
+      "h1": [
+        "Compare Vegan Protein Prices UK"
+      ],
+      "description": "Compare current Vegan Protein prices from UK supplement retailers using recently checked offers, known delivery and verified value metrics.",
+      "canonical": "https://www.supplementscout.co.uk/vegan-protein",
+      "robots": "index, follow",
+      "schemaTypes": [
+        "CollectionPage",
+        "ItemList",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "path": "/guides/cost-per-25g-protein",
+      "status": 200,
+      "ms": 539.1112000000003,
+      "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout",
+      "h1": [
+        "How to compare protein powders by cost per 25g of protein"
+      ],
+      "description": "Understand delivered cost per 25 g of protein with checked whey examples, verified serving data and clear limits on missing information.",
+      "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+      "robots": "index, follow",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "path": "/guides/protein-powder-under-30",
+      "status": 200,
+      "ms": 801.8912999999993,
+      "title": "Protein Powder Under £30 UK: Compare Delivered Prices | SupplementScout",
+      "h1": [
+        "Which protein powders cost £30 or less including delivery?"
+      ],
+      "description": "Check selected UK protein powders against a £30 delivered budget, with exact flavours, pack sizes, shipping, check times and honest nutrition limits.",
+      "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-under-30",
+      "robots": "index, follow",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "path": "/guides/whey-isolate-vs-concentrate",
+      "status": 200,
+      "ms": 698.8937000000005,
+      "title": "Whey Isolate vs Concentrate: Which Is Better Value in the UK? | SupplementScout",
+      "h1": [
+        "Should I buy whey isolate or whey concentrate?"
+      ],
+      "description": "Compare whey isolate and concentrate using checked exact-flavour examples, delivered prices and approved protein costs, with clear limits where nutrition is missing.",
+      "canonical": "https://www.supplementscout.co.uk/guides/whey-isolate-vs-concentrate",
+      "robots": "index, follow",
+      "schemaTypes": [
+        "WebPage",
+        "BreadcrumbList"
+      ]
+    },
+    {
+      "path": "/brands/per4m",
+      "status": 200,
+      "ms": 464.5743999999995,
+      "title": "Compare PER4M Prices Across UK Retailers | SupplementScout",
+      "h1": [
+        "Per4m Products & Prices UK"
+      ],
+      "description": "Compare current Per4m product prices from UK supplement retailers, including known delivery, retailer coverage and recently checked offers.",
+      "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+      "robots": "index, follow",
+      "schemaTypes": [
+        "CollectionPage",
+        "ItemList",
+        "BreadcrumbList"
+      ]
+    }
+  ],
+  "rows": [
+    {
+      "id": "743",
+      "name": "Applied Nutrition Critical Whey 2kg",
+      "productUrl": "/product/applied-nutrition-critical-whey-2kg",
+      "netWeightG": 2000,
+      "referenceVariant": {
+        "id": 805,
+        "is_active": true,
+        "size_unit": "g",
+        "pack_count": 1,
+        "product_id": 743,
+        "size_value": 2000,
+        "display_name": "Cookies & Cream / 2kg",
+        "flavour_label": "Cookies & Cream",
+        "product_format": "powder",
+        "nutrition_override": {}
+      },
+      "bestOffer": {
+        "id": "4567",
+        "retailer": {
+          "id": "16",
+          "name": "Holland & Barrett",
+          "slug": "holland-barrett"
+        },
+        "productPrice": 27,
+        "shippingCost": 3.49,
+        "deliveredPrice": {
+          "productPrice": 27,
+          "shippingCost": 3.49,
+          "totalPrice": 30.49
+        },
+        "lastCheckedAt": "2026-11-18T17:27:34.236+00:00",
+        "nutritionVariant": null,
+        "variantResolution": "unresolved"
+      },
+      "pricePerKg": 15.245,
+      "costPer25gProtein": null,
+      "retailerCount": 3,
+      "offerCount": 19
+    },
+    {
+      "id": "338",
+      "name": "Applied Nutrition Clear Whey Protein 875g",
+      "productUrl": "/product/applied-nutrition-clear-whey-protein-875g",
+      "netWeightG": 875,
+      "referenceVariant": {
+        "id": 1782,
+        "is_active": true,
+        "size_unit": "g",
+        "pack_count": 1,
+        "product_id": 338,
+        "size_value": 875,
+        "display_name": "Orange Squash / 875g",
+        "flavour_label": "Orange Squash",
+        "product_format": "powder",
+        "nutrition_override": {}
+      },
+      "bestOffer": {
+        "id": "1788",
+        "retailer": {
+          "id": "3",
+          "name": "Whey Okay",
+          "slug": "whey-okay"
+        },
+        "productPrice": 47.18,
+        "shippingCost": 3.99,
+        "deliveredPrice": {
+          "productPrice": 47.18,
+          "shippingCost": 3.99,
+          "totalPrice": 51.17
+        },
+        "lastCheckedAt": "2026-11-18T10:14:49.194+00:00",
+        "nutritionVariant": {
+          "id": 1782,
+          "is_active": true,
+          "size_unit": "g",
+          "pack_count": 1,
+          "product_id": 338,
+          "size_value": 875,
+          "display_name": "Orange Squash / 875g",
+          "flavour_label": "Orange Squash",
+          "product_format": "powder",
+          "nutrition_override": {}
+        },
+        "variantResolution": "resolved"
+      },
+      "pricePerKg": 58.480000000000004,
+      "costPer25gProtein": 1.7183826986365776,
+      "retailerCount": 3,
+      "offerCount": 17
+    },
+    {
+      "id": "248",
+      "name": "Optimum Nutrition 100% Isolate 930g",
+      "productUrl": "/product/optimum-nutrition-100-isolate-930g",
+      "netWeightG": 930,
+      "referenceVariant": {
+        "id": 737,
+        "is_active": true,
+        "size_unit": "g",
+        "pack_count": 1,
+        "product_id": 248,
+        "size_value": 930,
+        "display_name": "Strawberry / 930g",
+        "flavour_label": "Strawberry",
+        "product_format": "powder",
+        "nutrition_override": {}
+      },
+      "bestOffer": {
+        "id": "3288",
+        "retailer": {
+          "id": "14",
+          "name": "10 Reps",
+          "slug": "10-reps"
+        },
+        "productPrice": 57.49,
+        "shippingCost": 3.99,
+        "deliveredPrice": {
+          "productPrice": 57.49,
+          "shippingCost": 3.99,
+          "totalPrice": 61.48
+        },
+        "lastCheckedAt": "2026-11-18T10:47:00.534+00:00",
+        "nutritionVariant": {
+          "id": 737,
+          "is_active": true,
+          "size_unit": "g",
+          "pack_count": 1,
+          "product_id": 248,
+          "size_value": 930,
+          "display_name": "Strawberry / 930g",
+          "flavour_label": "Strawberry",
+          "product_format": "powder",
+          "nutrition_override": {}
+        },
+        "variantResolution": "resolved"
+      },
+      "pricePerKg": null,
+      "costPer25gProtein": null,
+      "retailerCount": 3,
+      "offerCount": 8
+    },
+    {
+      "id": "178",
+      "name": "Applied Nutrition ISO-XP 1.8kg",
+      "productUrl": "/product/applied-nutrition-iso-xp-18kg",
+      "netWeightG": 1800,
+      "referenceVariant": {
+        "id": 732,
+        "is_active": true,
+        "size_unit": "g",
+        "pack_count": 1,
+        "product_id": 178,
+        "size_value": 1800,
+        "display_name": "Banana / 1.8kg",
+        "flavour_label": "Banana",
+        "product_format": "powder",
+        "nutrition_override": {
+          "evidence": "Manufacturer declares 1.8kg, 72 servings, one 25g scoop and approximately 22g protein per serving.",
+          "source_url": "https://appliednutrition.uk/products/iso-xp",
+          "source_type": "manufacturer_product_page",
+          "net_weight_g": 1800,
+          "product_format": "powder",
+          "serving_size_g": 25,
+          "nutrition_verified": true,
+          "protein_per_serving_g": 22,
+          "unit_pricing_verified": true,
+          "creatine_per_serving_g": null,
+          "serving_count_verified": 72
+        }
+      },
+      "bestOffer": {
+        "id": "4566",
+        "retailer": {
+          "id": "16",
+          "name": "Holland & Barrett",
+          "slug": "holland-barrett"
+        },
+        "productPrice": 30,
+        "shippingCost": 0,
+        "deliveredPrice": {
+          "productPrice": 30,
+          "shippingCost": 0,
+          "totalPrice": 30
+        },
+        "lastCheckedAt": "2026-11-18T17:27:34.236+00:00",
+        "nutritionVariant": null,
+        "variantResolution": "unresolved"
+      },
+      "pricePerKg": 16.666666666666668,
+      "costPer25gProtein": null,
+      "retailerCount": 3,
+      "offerCount": 7
+    },
+    {
+      "id": "328",
+      "name": "Per4m Isolate Zero 900g",
+      "productUrl": "/product/per4m-isolate-zero-900g",
+      "netWeightG": 900,
+      "referenceVariant": {
+        "id": 1825,
+        "is_active": true,
+        "size_unit": "g",
+        "pack_count": 1,
+        "product_id": 328,
+        "size_value": 900,
+        "display_name": "Salted Caramel / 900g",
+        "flavour_label": "Salted Caramel",
+        "product_format": "powder",
+        "nutrition_override": {}
+      },
+      "bestOffer": {
+        "id": "2665",
+        "retailer": {
+          "id": "12",
+          "name": "eBay UK",
+          "slug": "ebay-uk"
+        },
+        "productPrice": 42.9,
+        "shippingCost": 0,
+        "deliveredPrice": {
+          "productPrice": 42.9,
+          "shippingCost": 0,
+          "totalPrice": 42.9
+        },
+        "lastCheckedAt": "2026-11-18T14:37:45.946+00:00",
+        "nutritionVariant": {
+          "id": 1825,
+          "is_active": true,
+          "size_unit": "g",
+          "pack_count": 1,
+          "product_id": 328,
+          "size_value": 900,
+          "display_name": "Salted Caramel / 900g",
+          "flavour_label": "Salted Caramel",
+          "product_format": "powder",
+          "nutrition_override": {}
+        },
+        "variantResolution": "resolved"
+      },
+      "pricePerKg": null,
+      "costPer25gProtein": null,
+      "retailerCount": 3,
+      "offerCount": 6
+    }
+  ],
+  "productionDataWrites": 0,
+  "syntheticData": false,
+  "note": "Observed current catalogue values, not hardcoded app prices. A reference variant is not proof that an unresolved cheapest offer matches that variant; unresolved nutrition remains absent. Existing shared rules are unchanged."
+}

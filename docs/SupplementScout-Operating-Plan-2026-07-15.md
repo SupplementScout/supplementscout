@@ -1,5 +1,17 @@
 # SupplementScout Operating Plan
 
+**18 November 2026 SEO-31 Draft checkpoint:** the owner-approved existing
+`/whey-protein` improvement is CODE COMPLETE for publication review. Only two
+existing SSR paragraphs clarify exact flavour/pack continuation and the different
+denominators/evidence for delivered pack price, powder/kg and protein/25g.
+Title/description/H1, coverage-first ranking, cards, controls, data, cache and SEO
+contracts stay unchanged. Actual-source paired builds and quick/full gates pass;
+existing320px overflow and one external image404 are recorded without concealment.
+One Draft PR only: no merge, Production, catalogue write or Google submission.
+SEO-20 stays frozen IN PROGRESS; SEO-21–30 stay LIVE VERIFIED; Stage3 stays off.
+Guardian needs no exception: SEO-31 is CODE COMPLETE; no SEO-32 begins.
+See [SEO-31 evidence](rollouts/seo31-whey-search-intent-2026-11-18.md).
+
 **18 November 2026 SEO-30 LIVE VERIFIED:** the later explicit owner approval
 authorized PR #550 squash merge and automatic Production. Approved head
 `baba83569aa467c1be9bf3cd0d55a0d460c21d8f` merged as

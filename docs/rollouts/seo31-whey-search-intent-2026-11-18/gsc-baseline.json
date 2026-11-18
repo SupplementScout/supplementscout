@@ -1,0 +1,239 @@
+{
+  "capturedAt": "2026-11-18T17:56:24.104Z",
+  "target": "/whey-protein",
+  "source": "Existing authenticated read-only Growth Analytics Report artifacts; no new research/workflow/schedule",
+  "period": {
+    "start": "2026-10-19",
+    "end": "2026-11-15"
+  },
+  "caps": {
+    "pageRows": 100,
+    "queryRows": 100,
+    "pageQueryRows": 250
+  },
+  "weeks": [
+    {
+      "runId": 44166511050,
+      "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44166511050",
+      "period": {
+        "startDate": "2026-10-19",
+        "endDate": "2026-10-25"
+      },
+      "completeness": "NO_INCOMPLETE_DATA_REPORTED",
+      "page": "UNKNOWN; absent from capped output",
+      "pageQueries": [],
+      "ga4Dimensions": [
+        "sessions",
+        "users",
+        "views",
+        "retailerOfferClicks"
+      ]
+    },
+    {
+      "runId": 44166516255,
+      "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44166516255",
+      "period": {
+        "startDate": "2026-10-26",
+        "endDate": "2026-11-01"
+      },
+      "completeness": "NO_INCOMPLETE_DATA_REPORTED",
+      "page": {
+        "page": "https://www.supplementscout.co.uk/whey-protein",
+        "clicks": 1,
+        "impressions": 111,
+        "ctr": 0.009009009009009009,
+        "position": 17.243243243243242
+      },
+      "pageQueries": [],
+      "ga4Dimensions": [
+        "sessions",
+        "users",
+        "views",
+        "retailerOfferClicks"
+      ]
+    },
+    {
+      "runId": 44166520996,
+      "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44166520996",
+      "period": {
+        "startDate": "2026-11-02",
+        "endDate": "2026-11-08"
+      },
+      "completeness": "NO_INCOMPLETE_DATA_REPORTED",
+      "page": {
+        "page": "https://www.supplementscout.co.uk/whey-protein",
+        "clicks": 1,
+        "impressions": 97,
+        "ctr": 0.010309278350515464,
+        "position": 17.608247422680414
+      },
+      "pageQueries": [],
+      "ga4Dimensions": [
+        "sessions",
+        "users",
+        "views",
+        "retailerOfferClicks"
+      ]
+    },
+    {
+      "runId": 44166526954,
+      "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44166526954",
+      "period": {
+        "startDate": "2026-11-09",
+        "endDate": "2026-11-15"
+      },
+      "completeness": "NO_INCOMPLETE_DATA_REPORTED",
+      "page": {
+        "page": "https://www.supplementscout.co.uk/whey-protein",
+        "clicks": 3,
+        "impressions": 137,
+        "ctr": 0.021897810218978103,
+        "position": 17.54014598540146
+      },
+      "pageQueries": [],
+      "ga4Dimensions": [
+        "sessions",
+        "users",
+        "views",
+        "retailerOfferClicks"
+      ]
+    }
+  ],
+  "localGoogleReadOnlyAvailability": {
+    "encodedReadOnlyAccount": false,
+    "applicationCredentialConfigured": false
+  },
+  "whole28DayPageTotal": "UNKNOWN while a weekly page row is absent; do not use missing as zero",
+  "queryCompleteness": "UNKNOWN; page-query pairs are from globally capped output",
+  "organicSessionsForExactURL": "UNKNOWN; organic search projection is sitewide",
+  "retailerClicksForExactURL": "UNKNOWN; page/source attribution unavailable in saved projection",
+  "adjacentWeeklyPageRows": [
+    {
+      "runId": 44166511050,
+      "period": {
+        "startDate": "2026-10-19",
+        "endDate": "2026-10-25"
+      },
+      "pages": [
+        {
+          "path": "/",
+          "page": {
+            "page": "https://www.supplementscout.co.uk/",
+            "clicks": 2,
+            "impressions": 47,
+            "ctr": 0.0425531914893617,
+            "position": 7.0212765957446805
+          }
+        },
+        {
+          "path": "/whey-isolate",
+          "page": {
+            "page": "https://www.supplementscout.co.uk/whey-isolate",
+            "clicks": 1,
+            "impressions": 170,
+            "ctr": 0.0058823529411764705,
+            "position": 50.752941176470586
+          }
+        },
+        {
+          "path": "/vegan-protein",
+          "page": "UNKNOWN; not returned by capped projection"
+        }
+      ]
+    },
+    {
+      "runId": 44166516255,
+      "period": {
+        "startDate": "2026-10-26",
+        "endDate": "2026-11-01"
+      },
+      "pages": [
+        {
+          "path": "/",
+          "page": {
+            "page": "https://www.supplementscout.co.uk/",
+            "clicks": 9,
+            "impressions": 102,
+            "ctr": 0.08823529411764706,
+            "position": 5.509803921568627
+          }
+        },
+        {
+          "path": "/whey-isolate",
+          "page": "UNKNOWN; not returned by capped projection"
+        },
+        {
+          "path": "/vegan-protein",
+          "page": "UNKNOWN; not returned by capped projection"
+        }
+      ]
+    },
+    {
+      "runId": 44166520996,
+      "period": {
+        "startDate": "2026-11-02",
+        "endDate": "2026-11-08"
+      },
+      "pages": [
+        {
+          "path": "/",
+          "page": {
+            "page": "https://www.supplementscout.co.uk/",
+            "clicks": 3,
+            "impressions": 110,
+            "ctr": 0.02727272727272727,
+            "position": 4.118181818181818
+          }
+        },
+        {
+          "path": "/whey-isolate",
+          "page": "UNKNOWN; not returned by capped projection"
+        },
+        {
+          "path": "/vegan-protein",
+          "page": "UNKNOWN; not returned by capped projection"
+        }
+      ]
+    },
+    {
+      "runId": 44166526954,
+      "period": {
+        "startDate": "2026-11-09",
+        "endDate": "2026-11-15"
+      },
+      "pages": [
+        {
+          "path": "/",
+          "page": {
+            "page": "https://www.supplementscout.co.uk/",
+            "clicks": 5,
+            "impressions": 180,
+            "ctr": 0.027777777777777776,
+            "position": 7.366666666666666
+          }
+        },
+        {
+          "path": "/whey-isolate",
+          "page": {
+            "page": "https://www.supplementscout.co.uk/whey-isolate",
+            "clicks": 1,
+            "impressions": 126,
+            "ctr": 0.007936507936507936,
+            "position": 53.333333333333336
+          }
+        },
+        {
+          "path": "/vegan-protein",
+          "page": "UNKNOWN; not returned by capped projection"
+        }
+      ]
+    }
+  ],
+  "queryGroups": {
+    "branded": "UNKNOWN",
+    "generic": "UNKNOWN",
+    "priceComparison": "UNKNOWN",
+    "candidateQueriesAreNotObservedQueries": true
+  },
+  "targetedApiFallback": "No local authorized Google read-only credential or GSC connector; existing main-only workflow has no exact-page filter input. No secrets, workflow, permissions or schedule changed. Owner-authorized UNKNOWN fallback used."
+}
