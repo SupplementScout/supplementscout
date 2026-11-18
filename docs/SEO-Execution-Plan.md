@@ -1,5 +1,14 @@
 # SupplementScout SEO Execution Plan
 
+**18 November 2026 SEO-27 owner-approved Draft checkpoint:** one existing
+standard ABE315g card is CODE COMPLETE for publication review. The owner
+authorizes its copy, exact-identity guard, regression tests, minimal evidence
+and one Draft PR only. Generic ABE search ownership remains unresolved, so
+title/description and Pump remain unchanged. This supersedes earlier
+no-next-task wording only for SEO-27; no merge, production deployment, data
+write or further implementation follows. Frozen SEO-20 remains binding and
+SEO-21–26 remain LIVE VERIFIED. [Evidence](rollouts/seo27-abe-product-intent-2026-11-18.md).
+
 **18 November 2026 SEO-26 LIVE VERIFIED closeout:** owner-approved PR #546
 released head `339c5472367c8377e49d84fc0a11cccd8a9a43bf` as squash
 `318bff37157e1f02e40fdc5b8168b7b025a3644d` with exact tree parity. PR/main Quality Gate and
@@ -500,7 +509,15 @@ Console evidence and user value.
 
 | SEO-26 | P1 | Content Growth Sprint6: /guides/pre-workout-under-30 and /guides/mass-gainer-under-40. | `LIVE VERIFIED` | Owner-approved PR #546 squash 318bff37157e1f02e40fdc5b8168b7b025a3644d preserves the reviewed tree. PR/main Quality Gate and Guardian pass. Exact GitHub Production/Vercel commit SUCCESS plus changed public build x6d6M-h4ZO-FddB0fktZ5 prove custom-domain deployment without API403/SSO bypass. Public HTTP200, indexability/canonical/sitemap/schema, current-source initial HTML, exact variants, delivered budgets/unit costs, links,1440/390px QA and unchanged warm-response guard pass. No unverified nutrition or production-data/Google write. SEO-20 frozen; SEO-21/22/23/24/25 live. |
 
+| SEO-27 | P1 | Improve buying-intent clarity on existing /product/applied-nutrition-abe-ultimate-pre-workout-315g only. | `CODE COMPLETE` | Owner-approved Draft-only scope; exact identity guard, SSR buying copy, contextual Pump and existing two-product links. Title/description, canonical/robots/sitemap/schema contracts and production data unchanged. Local actual-source HTTP,1440/390px QA and warm-response/read-count parity recorded in docs/rollouts/seo27-abe-product-intent-2026-11-18.md. Await separate publication approval; not LIVE VERIFIED. |
+
 ## 6. Current active task
+
+**18 November SEO-27 checkpoint:** the latest owner decision authorized one
+bounded ABE315g implementation through a Draft PR. It is CODE COMPLETE and
+awaits publication review; no second implementation is active. SEO-20 remains
+the frozen/binding IN PROGRESS task. SEO-21–26 retain LIVE VERIFIED status.
+Earlier sprint permissions below are historical, not authority to reopen them.
 
 **17 November 2026 Content Growth Sprint6 owner approval:**
 Content Growth exception: SEO-26 beside frozen SEO-20; Draft PR only.
@@ -769,6 +786,23 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 18 November 2026 - SEO-27 ABE product intent CODE COMPLETE
+
+- Owner-approved scope is the existing standard ABE315g card, tests and one
+  Draft PR. No merge, deployment, new route, data write or next task.
+- Reuses productPresentation and the existing SSR product/offer/fact renderers;
+  adds no runtime query, client component, dependency or cache change.
+- Exact identity tests and async page regression cases cover dynamic price,
+  unknown delivery, missing facts, stale/empty/OOS/source failures, tracked
+  links and isolation from Pump/PER4M/unrelated cards. Full quality checks,
+  actual-source local-build readback,1440/390px visual QA and baseline comparison
+  are recorded in [the SEO-27 record](rollouts/seo27-abe-product-intent-2026-11-18.md).
+- Metadata and generic keyword ownership remain unchanged; GSC rows for the
+  exact cards are UNKNOWN, not zero. Plan7/28 settled post-release-day checks
+  using existing analytics. No GSC submission or SEO-20 measurement change.
+- This is CODE COMPLETE review material, not production completion or
+  LIVE VERIFIED. Only the owner may authorize a subsequent release.
 
 ### 18 November 2026 - SEO-26 production release LIVE VERIFIED
 

@@ -39,6 +39,18 @@ const GYM_HIGH_WHEY_NAME = "GYM HIGH Whey Pro Synergy Dynamic 600g";
 const GYM_HIGH_WHEY_SUMMARY =
   "GYM HIGH Whey Pro Synergy Dynamic is a 600 g protein powder made with 50% whey isolate and 50% micellar casein. It provides 20 servings and includes added probiotics.";
 
+// Owner-reviewed identity only: never apply the standard powder's buying copy
+// to another ABE product, a guessed slug match or a renamed catalogue identity.
+export function isStandardAbeProduct(
+  product: Pick<ProductPresentationInput, "id" | "name" | "brand" | "category" | "product_format"> & { slug: string | null }
+) {
+  return String(product.id) === "215" &&
+    product.slug === "applied-nutrition-abe-ultimate-pre-workout-315g" &&
+    product.name === "Applied Nutrition ABE Ultimate Pre-Workout 315g" &&
+    product.brand === "Applied Nutrition" && product.category === "Pre Workout" &&
+    (product.product_format === null || product.product_format === "powder");
+}
+
 function cleanText(value: string | null | undefined) {
   return (value || "").trim();
 }

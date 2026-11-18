@@ -69,6 +69,7 @@ const {
   buildProductKeyFacts,
   buildProductMetadataDescription,
   buildProductSummary,
+  isStandardAbeProduct,
   selectedVariantPresentation,
 } = loadProductPresentationModule();
 
@@ -92,6 +93,108 @@ function product(overrides = {}) {
     ...overrides,
   };
 }
+
+test("standard ABE buying context requires the exact owner-reviewed product identity", () => {
+  const abe = product({ id: "215", slug: "applied-nutrition-abe-ultimate-pre-workout-315g", name: "Applied Nutrition ABE Ultimate Pre-Workout 315g", brand: "Applied Nutrition", category: "Pre Workout", product_format: "powder" });
+  assert.equal(isStandardAbeProduct(abe), true);
+  assert.equal(isStandardAbeProduct({ ...abe, id: 215 }), true);
+  assert.equal(isStandardAbeProduct({ ...abe, product_format: null }), true, "the exact canonical product currently has a legacy null format; no catalogue write is needed");
+  for (const override of [
+    { id: "481", slug: "applied-nutrition-abe-pump-500g", name: "Applied Nutrition ABE Pump 500g" },
+    { id: "1467", slug: "applied-nutrition-abe-ultimate-pre-workout-shot" },
+    { id: "900", name: "Applied Nutrition ABE Energy RTD Drink" },
+    { slug: null }, { slug: "copied-abe-slug" }, { id: "999" },
+    { name: "Applied Nutrition ABE Ultimate Pre-Workout 330g" },
+    { brand: "Another brand" }, { category: "Whey Protein" }, { product_format: "liquid" },
+  ]) assert.equal(isStandardAbeProduct({ ...abe, ...override }), false, JSON.stringify(override));
+});
+
+// Exercise the actual async page and its existing offer/fact renderers. These
+// fixtures are synthetic regression inputs, never production price evidence.
+async function renderAbePage({ productOverrides = {}, variantId = "1672", offerOverrides = {}, empty = false, failure = false, facts = true } = {}) {
+  const base = product({ id: "215", slug: "applied-nutrition-abe-ultimate-pre-workout-315g", name: "Applied Nutrition ABE Ultimate Pre-Workout 315g", brand: "Applied Nutrition", category: "Pre Workout", product_format: "powder", net_weight_g: 315, is_active: true, merged_into_product_id: null, image: null, unit_pricing_verified: false, ...productOverrides });
+  const variant = { id: "1672", product_id: "215", display_name: "Baddy Berry / 315g", flavour_label: "Baddy Berry", size_value: 315, size_unit: "g", pack_count: 1, product_format: "powder", is_default: false, is_active: true, nutrition_override: {} };
+  const offer = { id: "11", retailer_product_id: "101", product_variant_id: "1672", retailer_id: "10", price: 17, shipping_cost: 4, in_stock: true, last_checked_at: new Date().toISOString(), url: "https://retailer.example/abe", retailer: { id: "10", name: "Fixture retailer", slug: "fixture", logo: null, website: "https://retailer.example" }, ...offerOverrides };
+  const reads = [];
+  const client = { from(table) {
+    reads.push(table);
+    const query = { select() { return this; }, eq() { return this; }, in() { return this; }, order() { return this; }, maybeSingle() { return Promise.resolve({ data: base, error: null }); }, then(resolve, reject) {
+      const data = table === "offers" ? (empty || failure ? [] : [offer]) : table === "product_variants" ? [variant] : table === "retailer_products" ? [{ id: "101", product_variant: variant }] : [];
+      return Promise.resolve({ data: failure && table !== "products" ? null : data, error: failure ? { message: "Fixture source failure" } : null }).then(resolve, reject);
+    } }; return query;
+  } };
+  const modules = new Map();
+  function compile(filename) {
+    if (modules.has(filename)) return modules.get(filename).exports;
+    const mod = new Module(filename, module); modules.set(filename, mod);
+    mod.filename = filename; mod.paths = Module._nodeModulePaths(path.dirname(filename));
+    mod.require = name => {
+      if (name === "server-only") return {};
+      if (name.endsWith("/supabase")) return { supabase: client };
+      if (name.endsWith("/supabaseAdmin")) return { supabaseAdmin: client };
+      if (name.endsWith("/betterValueAlternatives")) return { getBetterValueAlternatives: async () => ({ basis: null, rows: [] }) };
+      if (name.endsWith("/reviewedPreWorkoutFacts.server")) return { loadAppliedPreWorkoutFacts: async () => facts ? new Map([["1672", { productId: "215", productVariantId: "1672", caffeineFreeConfirmed: false, facts: [{ key: "caffeine", informationState: "present_with_amount", amountPerServingMg: 200, servingSizeValue: 10.5, servingSizeUnit: "g", servingBasisText: "Fixture exact-variant serving of 10.5 g", ingredientForm: null, ingredientRatio: null, sourceKinds: ["manufacturer_source"] }] }]]) : new Map() };
+      if (name.endsWith("/PriceHistoryChart") || name.endsWith("/SaveToMySupplementsButton")) return { __esModule: true, default: () => null };
+      if (name === "next/navigation") return { notFound() { throw new Error("404"); }, permanentRedirect() { throw new Error("redirect"); } };
+      if (name === "next/image") return { __esModule: true, default: () => null };
+      if (name === "next/link") return { __esModule: true, default: ({ href, children, ...props }) => React.createElement("a", { ...props, href: typeof href === "string" ? href : href.pathname + "?" + new URLSearchParams(href.query) }, children) };
+      if (name.startsWith(".")) {
+        const candidate = path.resolve(path.dirname(filename), name);
+        for (const ext of [".ts", ".tsx"]) if (fs.existsSync(candidate + ext)) return compile(candidate + ext);
+      }
+      return Module.prototype.require.call(mod, name);
+    };
+    mod._compile(ts.transpileModule(fs.readFileSync(filename, "utf8"), { fileName: filename, compilerOptions: { esModuleInterop: true, jsx: ts.JsxEmit.ReactJSX, module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, filename);
+    return mod.exports;
+  }
+  const page = compile(path.join(process.cwd(), "app/product/[id]/page.tsx"));
+  const props = { params: Promise.resolve({ id: base.slug }), searchParams: Promise.resolve({ variant: variantId }) };
+  const metadata = await page.generateMetadata(props);
+  return { html: renderToStaticMarkup(await page.default(props)), metadata, reads };
+}
+
+test("ABE buying copy preserves exact variant, dynamic delivered prices, tracked links and metadata", async () => {
+  const a = await renderAbePage();
+  assert.match(a.html, /Compare UK retailer offers for the standard ABE/);
+  assert.match(a.html, /Standard ABE or ABE Pump\?/);
+  assert.match(a.html, /Baddy Berry \/ 315g/);
+  assert.match(a.html, /200 mg[\s\S]*10\.5 g/);
+  assert.match(a.html, /£21\.00/);
+  assert.match(a.html, /\/go\/11\?source=product_best_offer/);
+  assert.match(a.html, /href="\/compare\?left=215&amp;right=481"/);
+  assert.match(a.html, /href="\/product\/applied-nutrition-abe-pump-500g"/);
+  assert.equal(a.metadata.title, "Applied Nutrition ABE Ultimate Pre-Workout 315g");
+  assert.equal(a.metadata.alternates.canonical, "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g");
+  assert.equal(a.metadata.robots, undefined);
+  assert.doesNotMatch(a.html, /£[\d.]+ per serving|30 verified servings/);
+  const b = await renderAbePage({ offerOverrides: { price: 23, shipping_cost: 5 } });
+  assert.match(b.html, /£28\.00/);
+  assert.equal(b.metadata.description, a.metadata.description);
+  assert.deepEqual(b.reads, a.reads, "copy adds no query or per-retailer query");
+});
+
+test("ABE content does not turn missing delivery, stale offers or failed sources into a current price", async () => {
+  const unknown = await renderAbePage({ offerOverrides: { shipping_cost: null }, facts: false });
+  assert.match(unknown.html, /[Dd]elivery[^<]*unknown|[Uu]nknown delivery/);
+  assert.match(unknown.html, /No reviewed ingredient facts are available for this exact/);
+  assert.doesNotMatch(unknown.html, /200 mg|£21\.00/);
+  for (const state of [{ empty: true }, { failure: true }, { offerOverrides: { last_checked_at: "2000-01-01T00:00:00Z" } }, { offerOverrides: { in_stock: false } }]) {
+    const { html } = await renderAbePage(state);
+    assert.match(html, /Price unavailable/);
+    assert.doesNotMatch(html, /href="\/go\/11|£21\.00|"@type":"Product"/);
+  }
+});
+
+test("ABE context cannot leak onto Pump or unrelated cards", async () => {
+  for (const overrides of [
+    { id: "481", slug: "applied-nutrition-abe-pump-500g", name: "Applied Nutrition ABE Pump 500g" },
+    { id: "12", slug: "per4m-whey-protein-2kg", name: "Per4m Whey Protein 2kg", brand: "Per4m", category: "Whey Protein" },
+    { id: "999", slug: "another-product", name: "Another product" },
+  ]) {
+    const { html } = await renderAbePage({ productOverrides: overrides, variantId: undefined, facts: false });
+    assert.doesNotMatch(html, /Standard ABE or ABE Pump\?|Compare UK retailer offers for the standard ABE|Compare ABE and ABE Pump/);
+  }
+});
 
 test("buildProductSummary uses only neutral identity and verified facts", () => {
   assert.equal(
