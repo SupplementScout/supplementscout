@@ -1,0 +1,1593 @@
+{
+  "capturedAt": "2026-11-17T21:50:29.643Z",
+  "source": "Existing latest successful authenticated Growth Analytics artifacts reused unchanged; no reports rerun",
+  "provenance": [
+    {
+      "id": 44166511050,
+      "attempt": 1,
+      "dir": "tmp/gsc-fresh-44166511050",
+      "file": "weekly-2026-10-25.json",
+      "period": {
+        "startDate": "2026-10-19",
+        "endDate": "2026-10-25"
+      },
+      "generatedAt": "2026-11-17T20:10:55.695Z",
+      "completeness": "NO_INCOMPLETE_DATA_REPORTED",
+      "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44166511050",
+      "sha256": "3b8aa7af5dc66ff9486342766fd4b31c384408dd8ef1ee6c8660561fa02f057f"
+    },
+    {
+      "id": 44166516255,
+      "attempt": 2,
+      "dir": "tmp/gsc-fresh-44166516255",
+      "file": "weekly-2026-11-01.json",
+      "period": {
+        "startDate": "2026-10-26",
+        "endDate": "2026-11-01"
+      },
+      "generatedAt": "2026-11-17T20:15:05.896Z",
+      "completeness": "NO_INCOMPLETE_DATA_REPORTED",
+      "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44166516255",
+      "sha256": "96b66921a3804aa02f1742c012c8b050c095129440d6c6fa5e5210f411f58ab9"
+    },
+    {
+      "id": 44166520996,
+      "attempt": 2,
+      "dir": "tmp/gsc-fresh-44166520996",
+      "file": "weekly-2026-11-08.json",
+      "period": {
+        "startDate": "2026-11-02",
+        "endDate": "2026-11-08"
+      },
+      "generatedAt": "2026-11-17T20:16:04.377Z",
+      "completeness": "NO_INCOMPLETE_DATA_REPORTED",
+      "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44166520996",
+      "sha256": "4528fccb7e818c4de3f4fe44aa88ed754110255b3c501a018dadd6eaeaa003db"
+    },
+    {
+      "id": 44166526954,
+      "attempt": 2,
+      "dir": "tmp/gsc-fresh-44166526954",
+      "file": "weekly-2026-11-15.json",
+      "period": {
+        "startDate": "2026-11-09",
+        "endDate": "2026-11-15"
+      },
+      "generatedAt": "2026-11-17T20:14:01.347Z",
+      "completeness": "NO_INCOMPLETE_DATA_REPORTED",
+      "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44166526954",
+      "sha256": "8d8ba3f98642730157799b091e3d141711fa7f1404142169502fbfa9094c0c8d"
+    }
+  ],
+  "window28": {
+    "startDate": "2026-10-19",
+    "endDate": "2026-11-15",
+    "completeDays": 28,
+    "clicks": 74,
+    "impressions": 9661,
+    "position": 32.88417348100611
+  },
+  "window7": {
+    "startDate": "2026-11-09",
+    "endDate": "2026-11-15",
+    "clicks": 21,
+    "impressions": 2496,
+    "position": 32.409855769230774
+  },
+  "excludedDay": "2026-11-16: original final/all discrepancy; not treated as complete",
+  "pages": [
+    {
+      "page": "/pre-workout",
+      "weekly": [
+        {
+          "period": {
+            "startDate": "2026-10-19",
+            "endDate": "2026-10-25"
+          },
+          "metrics": {
+            "clicks": 0,
+            "impressions": 26,
+            "position": 27.03846153846154
+          }
+        },
+        {
+          "period": {
+            "startDate": "2026-10-26",
+            "endDate": "2026-11-01"
+          },
+          "metrics": {
+            "clicks": 0,
+            "impressions": 18,
+            "position": 21.61111111111111
+          }
+        },
+        {
+          "period": {
+            "startDate": "2026-11-02",
+            "endDate": "2026-11-08"
+          },
+          "metrics": {
+            "clicks": 1,
+            "impressions": 29,
+            "position": 36.10344827586207
+          }
+        },
+        {
+          "period": {
+            "startDate": "2026-11-09",
+            "endDate": "2026-11-15"
+          },
+          "metrics": {
+            "clicks": 0,
+            "impressions": 31,
+            "position": 30.419354838709676
+          }
+        }
+      ],
+      "complete28": {
+        "clicks": 1,
+        "impressions": 104,
+        "position": 29.634615384615383
+      },
+      "observedReturnedWeeks": 4,
+      "last7": {
+        "clicks": 0,
+        "impressions": 31,
+        "position": 30.419354838709676
+      },
+      "queries": [
+        {
+          "query": "affordable pre workout",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 7,
+          "position": 55,
+          "returnedWeeklyRows": 3,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "cheap pre workout",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 6,
+          "position": 62.166666666666664,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "cheap pre workout supplement",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 6,
+          "position": 80.5,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "sports supplements price comparison",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 6,
+          "position": 40.166666666666664,
+          "returnedWeeklyRows": 3,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "pre workout price comparison",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 4,
+          "position": 5.5,
+          "returnedWeeklyRows": 3,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "best pre workout uk",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 2,
+          "position": 82.5,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "pre workout comparison",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 2,
+          "position": 20,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "pre workouts uk",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 2,
+          "position": 91,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "pre workouts",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 2,
+          "position": 60.5,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "who produces the most trusted pre-workout supplements at the moment? pricing",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 2,
+          "position": 9.5,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "pre workout supplier",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 50,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "pre workout wholesale",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 52,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "supplement price comparison",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 23,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "uk best pre workout",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 100,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "best pre workouts uk",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 65,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "bulk pre workout supplement",
+          "classification": "brand/product",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 79,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "links?",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 16,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "pre workout offers",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 31,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "pre workout uk",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 85,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "strongest pre workout uk",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 82,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        }
+      ]
+    },
+    {
+      "page": "/mass-gainer",
+      "weekly": [
+        {
+          "period": {
+            "startDate": "2026-10-19",
+            "endDate": "2026-10-25"
+          },
+          "metrics": {
+            "clicks": 0,
+            "impressions": 334,
+            "position": 47.08682634730539
+          }
+        },
+        {
+          "period": {
+            "startDate": "2026-10-26",
+            "endDate": "2026-11-01"
+          },
+          "metrics": {
+            "clicks": 0,
+            "impressions": 210,
+            "position": 50.352380952380955
+          }
+        },
+        {
+          "period": {
+            "startDate": "2026-11-02",
+            "endDate": "2026-11-08"
+          },
+          "metrics": {
+            "clicks": 0,
+            "impressions": 121,
+            "position": 59.18181818181818
+          }
+        },
+        {
+          "period": {
+            "startDate": "2026-11-09",
+            "endDate": "2026-11-15"
+          },
+          "metrics": {
+            "clicks": 0,
+            "impressions": 156,
+            "position": 55.61538461538461
+          }
+        }
+      ],
+      "complete28": {
+        "clicks": 0,
+        "impressions": 821,
+        "position": 51.3252131546894
+      },
+      "observedReturnedWeeks": 4,
+      "last7": {
+        "clicks": 0,
+        "impressions": 156,
+        "position": 55.61538461538461
+      },
+      "queries": [
+        {
+          "query": "mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 114,
+          "position": 38.675438596491226,
+          "returnedWeeklyRows": 4,
+          "complete28QueryCoverage": true
+        },
+        {
+          "query": "mass gainer protein",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 72,
+          "position": 49.93055555555556,
+          "returnedWeeklyRows": 4,
+          "complete28QueryCoverage": true
+        },
+        {
+          "query": "mass gainers",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 40,
+          "position": 66.95,
+          "returnedWeeklyRows": 4,
+          "complete28QueryCoverage": true
+        },
+        {
+          "query": "muscle gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 40,
+          "position": 43.225,
+          "returnedWeeklyRows": 4,
+          "complete28QueryCoverage": true
+        },
+        {
+          "query": "best mass gainers",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 38,
+          "position": 63.5,
+          "returnedWeeklyRows": 4,
+          "complete28QueryCoverage": true
+        },
+        {
+          "query": "best mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 37,
+          "position": 58.37837837837838,
+          "returnedWeeklyRows": 4,
+          "complete28QueryCoverage": true
+        },
+        {
+          "query": "best mass gainer uk",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 36,
+          "position": 61.611111111111114,
+          "returnedWeeklyRows": 4,
+          "complete28QueryCoverage": true
+        },
+        {
+          "query": "mass gainer uk",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 33,
+          "position": 60.60606060606061,
+          "returnedWeeklyRows": 4,
+          "complete28QueryCoverage": true
+        },
+        {
+          "query": "weight gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 31,
+          "position": 61.935483870967744,
+          "returnedWeeklyRows": 4,
+          "complete28QueryCoverage": true
+        },
+        {
+          "query": "weight gainers",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 20,
+          "position": 67.25,
+          "returnedWeeklyRows": 4,
+          "complete28QueryCoverage": true
+        },
+        {
+          "query": "cheap mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 18,
+          "position": 45.388888888888886,
+          "returnedWeeklyRows": 4,
+          "complete28QueryCoverage": true
+        },
+        {
+          "query": "mass gainer protein powder",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 18,
+          "position": 52.611111111111114,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass protein",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 17,
+          "position": 46.470588235294116,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass protein powder",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 14,
+          "position": 48.714285714285715,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass gain",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 12,
+          "position": 58.333333333333336,
+          "returnedWeeklyRows": 4,
+          "complete28QueryCoverage": true
+        },
+        {
+          "query": "best weight gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 11,
+          "position": 67.63636363636364,
+          "returnedWeeklyRows": 4,
+          "complete28QueryCoverage": true
+        },
+        {
+          "query": "mass gainer powder",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 11,
+          "position": 57.54545454545455,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass nutrition",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 9,
+          "position": 40.888888888888886,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "protein mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 9,
+          "position": 65.88888888888889,
+          "returnedWeeklyRows": 4,
+          "complete28QueryCoverage": true
+        },
+        {
+          "query": "whey gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 9,
+          "position": 36.44444444444444,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "gainer pro",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 8,
+          "position": 76.375,
+          "returnedWeeklyRows": 4,
+          "complete28QueryCoverage": true
+        },
+        {
+          "query": "muscle gainers",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 8,
+          "position": 83,
+          "returnedWeeklyRows": 3,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 7,
+          "position": 62.857142857142854,
+          "returnedWeeklyRows": 3,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "muscle gainer protein",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 7,
+          "position": 59.57142857142857,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass gainer supplements",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 6,
+          "position": 55.333333333333336,
+          "returnedWeeklyRows": 3,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "protein gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 6,
+          "position": 46.666666666666664,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "best weight gainer uk",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 5,
+          "position": 75.2,
+          "returnedWeeklyRows": 3,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "buy mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 5,
+          "position": 43.2,
+          "returnedWeeklyRows": 3,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass gainer mass",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 5,
+          "position": 57,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "best mass gainer in uk",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 4,
+          "position": 65.5,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "best mass gainers uk",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 4,
+          "position": 65.5,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "best weight gainer for men",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 4,
+          "position": 69.25,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "body gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 4,
+          "position": 69.5,
+          "returnedWeeklyRows": 3,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "bulk mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 4,
+          "position": 30.75,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "gainer protein",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 4,
+          "position": 43.25,
+          "returnedWeeklyRows": 3,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "lean mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 4,
+          "position": 67.75,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass gainer mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 4,
+          "position": 73,
+          "returnedWeeklyRows": 3,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "weight gainer for men",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 4,
+          "position": 54.25,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "best weight gainers",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 3,
+          "position": 80,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "bodybuilding mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 3,
+          "position": 32.66666666666667,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass gainer for sale",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 3,
+          "position": 34.666666666666664,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "weight gainer protein",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 3,
+          "position": 54.333333333333336,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "whey mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 3,
+          "position": 58.333333333333336,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "gold standard mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 3,
+          "position": 52.666666666666664,
+          "returnedWeeklyRows": 3,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass gain protein",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 3,
+          "position": 55,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "massgainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 3,
+          "position": 29.333333333333332,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "nutrition weight gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 3,
+          "position": 47.666666666666664,
+          "returnedWeeklyRows": 3,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "best muscle gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 2,
+          "position": 32.5,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "best rated weight gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 2,
+          "position": 61.5,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "cheap mass gainers",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 2,
+          "position": 43.5,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "gainer protein powder",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 2,
+          "position": 82,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass gain supplements",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 2,
+          "position": 64.5,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "massive gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 2,
+          "position": 44.5,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "protein weight gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 2,
+          "position": 49,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "weight gainer protein powder",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 2,
+          "position": 50,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "complete mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 2,
+          "position": 72,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "instant mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 2,
+          "position": 41,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "massive weight gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 2,
+          "position": 50.5,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "pro complex gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 2,
+          "position": 65,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "best lean mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 46,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "best lean mass gainer supplement",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 42,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "best mass gainer protein",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 46,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "best mass gainer supplement",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 43,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "bulk gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 33,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "cheapest mass gainers",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 30,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "fbn mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 31,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "gainer protein price",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 30,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "high-protein mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 48,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass gainer 7",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 23,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass gainer comparison",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 10,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass gainer online",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 40,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass gainer protein price",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 29,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass gainer whey",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 50,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass gainer whey protein",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 51,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass weight gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 36,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "muscle mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 59,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "nutrimed bulk mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 27,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "top 10 mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 45,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "top lean mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 42,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "whey protein gainer price",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 28,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "ynb mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 19,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "compare moi les prix",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 11,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "gainer weight",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 98,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass gain protein powder",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 47,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass powder",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 51,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass protein gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 45,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "nutrition gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 34,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "protein mass builder",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 42,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "weight gainer powder",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 57,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "cheapest mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 36,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mammoth mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 50,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass gainers protein powder",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 94,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass supplements",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 39,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "pro gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 53,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "total mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 79,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "body mass gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 41,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "bulk gainer price",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 25,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "gainer product",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 30,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "gainer uk",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 42,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "gainers protein",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 49,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass gainer best",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 66,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "mass gainer price",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 26,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "protein mass gainers",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 94,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "supplement weight gainer",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 48,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        }
+      ]
+    },
+    {
+      "page": "/whey-isolate",
+      "weekly": [
+        {
+          "period": {
+            "startDate": "2026-10-19",
+            "endDate": "2026-10-25"
+          },
+          "metrics": {
+            "clicks": 1,
+            "impressions": 170,
+            "position": 50.752941176470586
+          }
+        },
+        {
+          "period": {
+            "startDate": "2026-10-26",
+            "endDate": "2026-11-01"
+          },
+          "metrics": null
+        },
+        {
+          "period": {
+            "startDate": "2026-11-02",
+            "endDate": "2026-11-08"
+          },
+          "metrics": null
+        },
+        {
+          "period": {
+            "startDate": "2026-11-09",
+            "endDate": "2026-11-15"
+          },
+          "metrics": {
+            "clicks": 1,
+            "impressions": 126,
+            "position": 53.333333333333336
+          }
+        }
+      ],
+      "complete28": null,
+      "observedReturnedWeeks": 2,
+      "last7": {
+        "clicks": 1,
+        "impressions": 126,
+        "position": 53.333333333333336
+      },
+      "queries": []
+    },
+    {
+      "page": "/vegan-protein",
+      "weekly": [
+        {
+          "period": {
+            "startDate": "2026-10-19",
+            "endDate": "2026-10-25"
+          },
+          "metrics": null
+        },
+        {
+          "period": {
+            "startDate": "2026-10-26",
+            "endDate": "2026-11-01"
+          },
+          "metrics": null
+        },
+        {
+          "period": {
+            "startDate": "2026-11-02",
+            "endDate": "2026-11-08"
+          },
+          "metrics": null
+        },
+        {
+          "period": {
+            "startDate": "2026-11-09",
+            "endDate": "2026-11-15"
+          },
+          "metrics": null
+        }
+      ],
+      "complete28": null,
+      "observedReturnedWeeks": 0,
+      "last7": null,
+      "queries": []
+    },
+    {
+      "page": "/protein-bars",
+      "weekly": [
+        {
+          "period": {
+            "startDate": "2026-10-19",
+            "endDate": "2026-10-25"
+          },
+          "metrics": null
+        },
+        {
+          "period": {
+            "startDate": "2026-10-26",
+            "endDate": "2026-11-01"
+          },
+          "metrics": null
+        },
+        {
+          "period": {
+            "startDate": "2026-11-02",
+            "endDate": "2026-11-08"
+          },
+          "metrics": null
+        },
+        {
+          "period": {
+            "startDate": "2026-11-09",
+            "endDate": "2026-11-15"
+          },
+          "metrics": null
+        }
+      ],
+      "complete28": null,
+      "observedReturnedWeeks": 0,
+      "last7": null,
+      "queries": []
+    },
+    {
+      "page": "/multivitamins",
+      "weekly": [
+        {
+          "period": {
+            "startDate": "2026-10-19",
+            "endDate": "2026-10-25"
+          },
+          "metrics": {
+            "clicks": 0,
+            "impressions": 13,
+            "position": 7.538461538461538
+          }
+        },
+        {
+          "period": {
+            "startDate": "2026-10-26",
+            "endDate": "2026-11-01"
+          },
+          "metrics": {
+            "clicks": 0,
+            "impressions": 12,
+            "position": 12.25
+          }
+        },
+        {
+          "period": {
+            "startDate": "2026-11-02",
+            "endDate": "2026-11-08"
+          },
+          "metrics": {
+            "clicks": 0,
+            "impressions": 17,
+            "position": 10.411764705882353
+          }
+        },
+        {
+          "period": {
+            "startDate": "2026-11-09",
+            "endDate": "2026-11-15"
+          },
+          "metrics": {
+            "clicks": 0,
+            "impressions": 13,
+            "position": 9
+          }
+        }
+      ],
+      "complete28": {
+        "clicks": 0,
+        "impressions": 55,
+        "position": 9.8
+      },
+      "observedReturnedWeeks": 4,
+      "last7": {
+        "clicks": 0,
+        "impressions": 13,
+        "position": 9
+      },
+      "queries": [
+        {
+          "query": "multivitamin price comparison",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 4,
+          "position": 3.5,
+          "returnedWeeklyRows": 3,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "compare multivitamins",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 2,
+          "position": 19,
+          "returnedWeeklyRows": 2,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "multivitamin",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 11,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "multivitamins supplements",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 71,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "vitamin comparison",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 18,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        },
+        {
+          "query": "what store has the best multivitamin selection? pricing",
+          "classification": "generic",
+          "clicks": 0,
+          "impressions": 1,
+          "position": 6,
+          "returnedWeeklyRows": 1,
+          "complete28QueryCoverage": false
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "Weekly query cap100 and page-query cap250; missing rows mean unknown, not zero",
+    "Impressions are this site visibility, not market search volume; no UK country filter",
+    "Returned partial-week query aggregates are observations, not complete28-day query totals",
+    "No growth attribution to guides published after the measurement window",
+    "Brand/product observations remain separate from generic queries; classification has limits"
+  ],
+  "googleSubmissions": 0,
+  "productionWrites": 0,
+  "latestAvailabilityCheck": {
+    "run": 44186080465,
+    "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44186080465",
+    "generatedAt": "2026-11-17T22:03:05.086Z",
+    "period": {
+      "startDate": "2026-11-10",
+      "endDate": "2026-11-16"
+    },
+    "sha256": "de65e5b881484b4e9461d7abd54e3208fae08fac2fed2651acb8da3f99309ce1",
+    "status": "FINAL_AND_ALL_DIFFER_WITHOUT_METADATA",
+    "missingFinalDates": [
+      "2026-11-16"
+    ],
+    "finalTotals": {
+      "clicks": 15,
+      "impressions": 2131
+    },
+    "allTotals": {
+      "clicks": 17,
+      "impressions": 2402
+    },
+    "decision": "16Nov is still incomplete. Latest complete28/7-day evidence remains the reused four final artifacts ending15Nov; this overlapping six-final-day report is excluded from aggregates.",
+    "historicalReportsRerun": 0,
+    "googleSubmissions": 0
+  }
+}

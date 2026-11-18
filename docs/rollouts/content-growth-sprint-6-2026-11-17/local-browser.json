@@ -1,0 +1,1247 @@
+{
+  "capturedAt": "2026-11-17T22:09:15.755Z",
+  "environment": "local Next production build with guarded actual production-source reads",
+  "base": "http://127.0.0.1:3118",
+  "syntheticOffers": false,
+  "results": [
+    {
+      "route": "/guides/pre-workout-under-30",
+      "width": 1440,
+      "mobileTouchEmulation": false,
+      "result": "PASS",
+      "title": "Pre-Workout Under £30 UK: Compare Prices Including Delivery | SupplementScout",
+      "h1": "Which pre-workouts cost £30 or less including delivery?",
+      "viewport": 1440,
+      "visualWidth": 1425,
+      "scale": 1,
+      "documentWidth": 1425,
+      "canonical": "https://www.supplementscout.co.uk/guides/pre-workout-under-30",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "Warrior Rage Unleash Hell, Blazin Berry / 392g",
+          "href": "/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006"
+        },
+        {
+          "text": "Warrior Rage Unleash Hell",
+          "href": "/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006"
+        },
+        {
+          "text": "Applied Nutrition ABE Ultimate Pre-Workout",
+          "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1672"
+        },
+        {
+          "text": "Cellucor C4 Sport Pre-Workout",
+          "href": "/product/cellucor-c4-sport-pre-workout-powder?variant=4610"
+        },
+        {
+          "text": "Cellucor C4 Sport Pre-Workout",
+          "href": "/product/cellucor-c4-sport-pre-workout-powder?variant=4610"
+        },
+        {
+          "text": "Applied Nutrition ABE Ultimate Pre-Workout",
+          "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1672"
+        },
+        {
+          "text": "how delivery changes supplement prices",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "verified caffeine-free pre-workout guide",
+          "href": "/guides/caffeine-free-pre-workout"
+        },
+        {
+          "text": "the pre-workout comparison",
+          "href": "/pre-workout"
+        },
+        {
+          "text": "compare two products",
+          "href": "/compare"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Warrior Rage Unleash HellBrand: Warrior. Variant: Blazin Berry / 392g. One exact 392g pack.eBay UKProduct price£13.99Delivery£0.00Delivered total£13.99Offer checked 17 Nov 2026, 14:562026-11-17T14:56:56.868+00:00A verified serving count and cost per serving are not available for this exact variant. We do not turn its pack weight or a serving claim in its name into a verified count.",
+          "x": 288.5,
+          "y": 636,
+          "w": 269.328125,
+          "h": 476
+        },
+        {
+          "text": "Applied Nutrition ABE Ultimate Pre-WorkoutBrand: Applied Nutrition. Variant: Baddy Berry / 315g. One exact 315g pack.eBay UKProduct price£21.95Delivery£0.00Delivered total£21.95Offer checked 17 Nov 2026, 14:572026-11-17T14:57:48.215+00:00A verified serving count and cost per serving are not available for this exact variant. We do not turn its pack weight or a serving claim in its name into a verified count.",
+          "x": 577.828125,
+          "y": 636,
+          "w": 269.328125,
+          "h": 476
+        },
+        {
+          "text": "Cellucor C4 Sport Pre-WorkoutBrand: Cellucor. Variant: Icy Blue Raspberry / 270 g. One exact 270g pack.Holland & BarrettProduct price£19.99Delivery£3.49Delivered total£23.48Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00A verified serving count and cost per serving are not available for this exact variant. We do not turn its pack weight or a serving claim in its name into a verified count.",
+          "x": 867.15625,
+          "y": 636,
+          "w": 269.34375,
+          "h": 476
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 176,
+      "navigation": {
+        "name": "http://127.0.0.1:3118/guides/pre-workout-under-30?qa=1440",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 144,
+        "navigationId": 9286,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.7999999970197678,
+        "domainLookupStart": 0.7999999970197678,
+        "domainLookupEnd": 0.7999999970197678,
+        "connectStart": 0.7999999970197678,
+        "secureConnectionStart": 0,
+        "connectEnd": 0.7999999970197678,
+        "requestStart": 1.8999999910593033,
+        "responseStart": 14.099999994039536,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 14.099999994039536,
+        "responseEnd": 25.700000002980232,
+        "transferSize": 13180,
+        "encodedBodySize": 12880,
+        "decodedBodySize": 38355,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 0,
+        "unloadEventEnd": 0,
+        "domInteractive": 52,
+        "domContentLoadedEventStart": 52,
+        "domContentLoadedEventEnd": 52,
+        "domComplete": 144,
+        "loadEventStart": 144,
+        "loadEventEnd": 144,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2cbkh-q68zkh4.css",
+          "bytes": 81234,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/28qh04931zen5.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2l2ulm8p618lv.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3fimdsayf722k.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/1i1rpy1h2gb3u.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3h3s3iekxz53t.js",
+          "bytes": 26869,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/turbopack-11yb0rezww-mv.js",
+          "bytes": 10580,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/24s-3zig5w26s.js",
+          "bytes": 54645,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/11x499zfz9c0o.js",
+          "bytes": 946,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2vgozbv6c04s1.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/favicon.ico?favicon.32r4ylec7nel_.ico",
+          "bytes": 2774,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/cellucor-c4-sport-pre-workout-powder?variant=4610&_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 269,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1672&_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 280,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006&_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 275,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/cellucor-c4-sport-pre-workout-powder?variant=4610&_rsc=Xe56pu39FmUw0ymK",
+          "bytes": 2930,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1672&_rsc=Xe56pu39FmUw0ymK",
+          "bytes": 3078,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006&_rsc=Xe56pu39FmUw0ymK",
+          "bytes": 2986,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=-26vTCB3wYD9EVj-",
+          "bytes": 2565,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=HlN9APHfDE9f_iKN",
+          "bytes": 2383,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=dNibC0lSx5r7gNFn",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=Ih50Sxt7TqXak-OO",
+          "bytes": 1655,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/1s0h8mvj-70-1.js",
+          "bytes": 13699,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=Xe56pu39FmUw0ymK",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=-26vTCB3wYD9EVj-",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=BqF2e6RZ-hezh9ZO",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=YcNP9cYDvLDdZVER",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=Xe56pu39FmUw0ymK",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/cellucor-c4-sport-pre-workout-powder?_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 256,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-abe-ultimate-pre-workout-315g?_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 267,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/warrior-rage-unleash-hell-pre-workout-392g?_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 262,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/pre-workout-under-30",
+      "width": 390,
+      "mobileTouchEmulation": true,
+      "result": "PASS",
+      "title": "Pre-Workout Under £30 UK: Compare Prices Including Delivery | SupplementScout",
+      "h1": "Which pre-workouts cost £30 or less including delivery?",
+      "viewport": 390,
+      "visualWidth": 390,
+      "scale": 1,
+      "documentWidth": 390,
+      "canonical": "https://www.supplementscout.co.uk/guides/pre-workout-under-30",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "Warrior Rage Unleash Hell, Blazin Berry / 392g",
+          "href": "/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006"
+        },
+        {
+          "text": "Warrior Rage Unleash Hell",
+          "href": "/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006"
+        },
+        {
+          "text": "Applied Nutrition ABE Ultimate Pre-Workout",
+          "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1672"
+        },
+        {
+          "text": "Cellucor C4 Sport Pre-Workout",
+          "href": "/product/cellucor-c4-sport-pre-workout-powder?variant=4610"
+        },
+        {
+          "text": "Cellucor C4 Sport Pre-Workout",
+          "href": "/product/cellucor-c4-sport-pre-workout-powder?variant=4610"
+        },
+        {
+          "text": "Applied Nutrition ABE Ultimate Pre-Workout",
+          "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1672"
+        },
+        {
+          "text": "how delivery changes supplement prices",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "verified caffeine-free pre-workout guide",
+          "href": "/guides/caffeine-free-pre-workout"
+        },
+        {
+          "text": "the pre-workout comparison",
+          "href": "/pre-workout"
+        },
+        {
+          "text": "compare two products",
+          "href": "/compare"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "Warrior Rage Unleash HellBrand: Warrior. Variant: Blazin Berry / 392g. One exact 392g pack.eBay UKProduct price£13.99Delivery£0.00Delivered total£13.99Offer checked 17 Nov 2026, 14:562026-11-17T14:56:56.868+00:00A verified serving count and cost per serving are not available for this exact variant. We do not turn its pack weight or a serving claim in its name into a verified count.",
+          "x": 16,
+          "y": 888.5,
+          "w": 358,
+          "h": 384
+        },
+        {
+          "text": "Applied Nutrition ABE Ultimate Pre-WorkoutBrand: Applied Nutrition. Variant: Baddy Berry / 315g. One exact 315g pack.eBay UKProduct price£21.95Delivery£0.00Delivered total£21.95Offer checked 17 Nov 2026, 14:572026-11-17T14:57:48.215+00:00A verified serving count and cost per serving are not available for this exact variant. We do not turn its pack weight or a serving claim in its name into a verified count.",
+          "x": 16,
+          "y": 1292.5,
+          "w": 358,
+          "h": 412
+        },
+        {
+          "text": "Cellucor C4 Sport Pre-WorkoutBrand: Cellucor. Variant: Icy Blue Raspberry / 270 g. One exact 270g pack.Holland & BarrettProduct price£19.99Delivery£3.49Delivered total£23.48Offer checked 17 Nov 2026, 17:482026-11-17T17:48:48.656+00:00A verified serving count and cost per serving are not available for this exact variant. We do not turn its pack weight or a serving claim in its name into a verified count.",
+          "x": 16,
+          "y": 1724.5,
+          "w": 358,
+          "h": 384
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 64,
+      "navigation": {
+        "name": "http://127.0.0.1:3118/guides/pre-workout-under-30?qa=390",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 50.80000001192093,
+        "navigationId": 7401,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.7000000029802322,
+        "domainLookupStart": 0.7000000029802322,
+        "domainLookupEnd": 0.7000000029802322,
+        "connectStart": 0.7000000029802322,
+        "secureConnectionStart": 0,
+        "connectEnd": 0.7000000029802322,
+        "requestStart": 1.9000000059604645,
+        "responseStart": 16.30000001192093,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 16.30000001192093,
+        "responseEnd": 23.900000005960464,
+        "transferSize": 13179,
+        "encodedBodySize": 12879,
+        "decodedBodySize": 38352,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 26.80000001192093,
+        "unloadEventEnd": 26.80000001192093,
+        "domInteractive": 47.80000001192093,
+        "domContentLoadedEventStart": 47.80000001192093,
+        "domContentLoadedEventEnd": 47.900000005960464,
+        "domComplete": 50.70000000298023,
+        "loadEventStart": 50.80000001192093,
+        "loadEventEnd": 50.80000001192093,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2cbkh-q68zkh4.css",
+          "bytes": 81234,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/28qh04931zen5.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2l2ulm8p618lv.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3fimdsayf722k.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/1i1rpy1h2gb3u.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/turbopack-11yb0rezww-mv.js",
+          "bytes": 10580,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3h3s3iekxz53t.js",
+          "bytes": 26869,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/24s-3zig5w26s.js",
+          "bytes": 54645,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/11x499zfz9c0o.js",
+          "bytes": 946,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2vgozbv6c04s1.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006&_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 275,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=Xe56pu39FmUw0ymK",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=Xe56pu39FmUw0ymK",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006&_rsc=Xe56pu39FmUw0ymK",
+          "bytes": 2986,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=-26vTCB3wYD9EVj-",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=HlN9APHfDE9f_iKN",
+          "bytes": 2383,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=BqF2e6RZ-hezh9ZO",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=YcNP9cYDvLDdZVER",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/warrior-rage-unleash-hell-pre-workout-392g?_rsc=Gbj8xpWrhnUwOU-6",
+          "bytes": 262,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/mass-gainer-under-40",
+      "width": 1440,
+      "mobileTouchEmulation": false,
+      "result": "PASS",
+      "title": "Mass Gainer Under £40 UK: Compare Prices Including Delivery | SupplementScout",
+      "h1": "Which mass gainers cost £40 or less including delivery?",
+      "viewport": 1440,
+      "visualWidth": 1425,
+      "scale": 1,
+      "documentWidth": 1425,
+      "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-under-40",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "7Nutrition Bodybuilder, Cookies & Cream / 1.5kg",
+          "href": "/product/7nutrition-bodybuilder-15kg?variant=2009"
+        },
+        {
+          "text": "7Nutrition Bodybuilder",
+          "href": "/product/7nutrition-bodybuilder-15kg?variant=2009"
+        },
+        {
+          "text": "Mutant Mass",
+          "href": "/product/mutant-mass-mass-gainer-227kg?variant=1973"
+        },
+        {
+          "text": "Applied Nutrition Critical Mass Lean Mass Gainz",
+          "href": "/product/applied-nutrition-critical-mass-lean-mass-gainz-24kg?variant=1803"
+        },
+        {
+          "text": "7Nutrition Bodybuilder",
+          "href": "/product/7nutrition-bodybuilder-15kg?variant=2009"
+        },
+        {
+          "text": "Applied Nutrition Critical Mass Lean Mass Gainz",
+          "href": "/product/applied-nutrition-critical-mass-lean-mass-gainz-24kg?variant=1803"
+        },
+        {
+          "text": "the delivery-price guide",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "mass gainer versus whey protein",
+          "href": "/guides/mass-gainer-vs-whey-protein"
+        },
+        {
+          "text": "the mass gainer comparison",
+          "href": "/mass-gainer"
+        },
+        {
+          "text": "compare two exact products",
+          "href": "/compare"
+        },
+        {
+          "text": "the verified protein-cost method",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "7Nutrition BodybuilderBrand: 7Nutrition. Variant: Cookies & Cream / 1.5kg. One exact 1,500g pack.6 Pack SupplementsProduct price£19.99Delivery£4.99Delivered total£24.98Offer checked 17 Nov 2026, 11:452026-11-17T11:45:40.735+00:00Delivered powder cost: £16.65/kg. This measures powder bought, not protein or calories.",
+          "x": 288.5,
+          "y": 636,
+          "w": 269.328125,
+          "h": 484
+        },
+        {
+          "text": "Mutant MassBrand: Mutant. Variant: Vanilla Ice Cream / 2270g. One exact 2,270g pack.Fit HouseProduct price£31.99Delivery£3.99Delivered total£35.98Offer checked 17 Nov 2026, 11:112026-11-17T11:11:52.1+00:00Delivered powder cost: £15.85/kg. This measures powder bought, not protein or calories.",
+          "x": 577.828125,
+          "y": 636,
+          "w": 269.328125,
+          "h": 484
+        },
+        {
+          "text": "Applied Nutrition Critical Mass Lean Mass GainzBrand: Applied Nutrition. Variant: Chocolate / 2400g. One exact 2,400g pack.Whey OkayProduct price£33.57Delivery£3.99Delivered total£37.56Offer checked 17 Nov 2026, 10:482026-11-17T10:48:03.114+00:00Delivered powder cost: £15.65/kg. This measures powder bought, not protein or calories.",
+          "x": 867.15625,
+          "y": 636,
+          "w": 269.34375,
+          "h": 484
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 64,
+      "navigation": {
+        "name": "http://127.0.0.1:3118/guides/mass-gainer-under-40?qa=1440",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 62.099999994039536,
+        "navigationId": 1559,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.7999999970197678,
+        "domainLookupStart": 0.7999999970197678,
+        "domainLookupEnd": 0.7999999970197678,
+        "connectStart": 0.7999999970197678,
+        "secureConnectionStart": 0,
+        "connectEnd": 0.7999999970197678,
+        "requestStart": 1.7999999970197678,
+        "responseStart": 19.5,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 19.5,
+        "responseEnd": 27.700000002980232,
+        "transferSize": 12893,
+        "encodedBodySize": 12593,
+        "decodedBodySize": 38148,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 24.700000002980232,
+        "unloadEventEnd": 24.700000002980232,
+        "domInteractive": 37.599999994039536,
+        "domContentLoadedEventStart": 37.70000000298023,
+        "domContentLoadedEventEnd": 37.70000000298023,
+        "domComplete": 62,
+        "loadEventStart": 62.099999994039536,
+        "loadEventEnd": 62.099999994039536,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2cbkh-q68zkh4.css",
+          "bytes": 81234,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/28qh04931zen5.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2l2ulm8p618lv.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3fimdsayf722k.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/1i1rpy1h2gb3u.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/turbopack-11yb0rezww-mv.js",
+          "bytes": 10580,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3h3s3iekxz53t.js",
+          "bytes": 26869,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/24s-3zig5w26s.js",
+          "bytes": 54645,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/1r2oqc9p0el1v.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2vgozbv6c04s1.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-critical-mass-lean-mass-gainz-24kg?variant=1803&_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 285,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/mutant-mass-mass-gainer-227kg?variant=1973&_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 262,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/7nutrition-bodybuilder-15kg?variant=2009&_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 260,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=cBqyIE38pIK4X1OQ",
+          "bytes": 2565,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=lS5vb3chZS-KCw8a",
+          "bytes": 2383,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=xtmoHmQuOM_v8q8r",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/my-supplements?_rsc=y82rGYtjRjMc_TgI",
+          "bytes": 1655,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-critical-mass-lean-mass-gainz-24kg?variant=1803&_rsc=zE3zw4-dC2bpnLUn",
+          "bytes": 3289,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/mutant-mass-mass-gainer-227kg?variant=1973&_rsc=zE3zw4-dC2bpnLUn",
+          "bytes": 3031,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/7nutrition-bodybuilder-15kg?variant=2009&_rsc=zE3zw4-dC2bpnLUn",
+          "bytes": 2986,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/1s0h8mvj-70-1.js",
+          "bytes": 13699,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=zE3zw4-dC2bpnLUn",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=cBqyIE38pIK4X1OQ",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=0UphIc0EYDHBZCh5",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=oee2xvQZ01ma5yf3",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=zE3zw4-dC2bpnLUn",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/applied-nutrition-critical-mass-lean-mass-gainz-24kg?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 272,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/mutant-mass-mass-gainer-227kg?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 249,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/7nutrition-bodybuilder-15kg?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 247,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    },
+    {
+      "route": "/guides/mass-gainer-under-40",
+      "width": 390,
+      "mobileTouchEmulation": true,
+      "result": "PASS",
+      "title": "Mass Gainer Under £40 UK: Compare Prices Including Delivery | SupplementScout",
+      "h1": "Which mass gainers cost £40 or less including delivery?",
+      "viewport": 390,
+      "visualWidth": 390,
+      "scale": 1,
+      "documentWidth": 390,
+      "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-under-40",
+      "robots": "noindex, follow",
+      "clipped": [],
+      "links": [
+        {
+          "text": "Home",
+          "href": "/"
+        },
+        {
+          "text": "7Nutrition Bodybuilder, Cookies & Cream / 1.5kg",
+          "href": "/product/7nutrition-bodybuilder-15kg?variant=2009"
+        },
+        {
+          "text": "7Nutrition Bodybuilder",
+          "href": "/product/7nutrition-bodybuilder-15kg?variant=2009"
+        },
+        {
+          "text": "Mutant Mass",
+          "href": "/product/mutant-mass-mass-gainer-227kg?variant=1973"
+        },
+        {
+          "text": "Applied Nutrition Critical Mass Lean Mass Gainz",
+          "href": "/product/applied-nutrition-critical-mass-lean-mass-gainz-24kg?variant=1803"
+        },
+        {
+          "text": "7Nutrition Bodybuilder",
+          "href": "/product/7nutrition-bodybuilder-15kg?variant=2009"
+        },
+        {
+          "text": "Applied Nutrition Critical Mass Lean Mass Gainz",
+          "href": "/product/applied-nutrition-critical-mass-lean-mass-gainz-24kg?variant=1803"
+        },
+        {
+          "text": "the delivery-price guide",
+          "href": "/guides/supplement-prices-including-delivery"
+        },
+        {
+          "text": "mass gainer versus whey protein",
+          "href": "/guides/mass-gainer-vs-whey-protein"
+        },
+        {
+          "text": "the mass gainer comparison",
+          "href": "/mass-gainer"
+        },
+        {
+          "text": "compare two exact products",
+          "href": "/compare"
+        },
+        {
+          "text": "the verified protein-cost method",
+          "href": "/guides/cost-per-25g-protein"
+        },
+        {
+          "text": "How we compare prices",
+          "href": "/how-we-compare"
+        },
+        {
+          "text": "Data freshness",
+          "href": "/data-freshness"
+        }
+      ],
+      "cards": [
+        {
+          "text": "7Nutrition BodybuilderBrand: 7Nutrition. Variant: Cookies & Cream / 1.5kg. One exact 1,500g pack.6 Pack SupplementsProduct price£19.99Delivery£4.99Delivered total£24.98Offer checked 17 Nov 2026, 11:452026-11-17T11:45:40.735+00:00Delivered powder cost: £16.65/kg. This measures powder bought, not protein or calories.",
+          "x": 16,
+          "y": 916.5,
+          "w": 358,
+          "h": 344
+        },
+        {
+          "text": "Mutant MassBrand: Mutant. Variant: Vanilla Ice Cream / 2270g. One exact 2,270g pack.Fit HouseProduct price£31.99Delivery£3.99Delivered total£35.98Offer checked 17 Nov 2026, 11:112026-11-17T11:11:52.1+00:00Delivered powder cost: £15.85/kg. This measures powder bought, not protein or calories.",
+          "x": 16,
+          "y": 1280.5,
+          "w": 358,
+          "h": 344
+        },
+        {
+          "text": "Applied Nutrition Critical Mass Lean Mass GainzBrand: Applied Nutrition. Variant: Chocolate / 2400g. One exact 2,400g pack.Whey OkayProduct price£33.57Delivery£3.99Delivered total£37.56Offer checked 17 Nov 2026, 10:482026-11-17T10:48:03.114+00:00Delivered powder cost: £15.65/kg. This measures powder bought, not protein or calories.",
+          "x": 16,
+          "y": 1644.5,
+          "w": 358,
+          "h": 372
+        }
+      ],
+      "cls": 0,
+      "lcpMs": 48,
+      "navigation": {
+        "name": "http://127.0.0.1:3118/guides/mass-gainer-under-40?qa=390",
+        "entryType": "navigation",
+        "startTime": 0,
+        "duration": 33,
+        "navigationId": 9038,
+        "initiatorType": "navigation",
+        "deliveryType": "",
+        "nextHopProtocol": "http/1.1",
+        "renderBlockingStatus": "non-blocking",
+        "contentType": "text/html",
+        "contentEncoding": "gzip",
+        "workerStart": 0,
+        "workerRouterEvaluationStart": 0,
+        "workerCacheLookupStart": 0,
+        "workerMatchedSourceType": "",
+        "workerFinalSourceType": "",
+        "redirectStart": 0,
+        "redirectEnd": 0,
+        "fetchStart": 0.5,
+        "domainLookupStart": 0.5,
+        "domainLookupEnd": 0.5,
+        "connectStart": 0.5,
+        "secureConnectionStart": 0,
+        "connectEnd": 0.5,
+        "requestStart": 1.4000000059604645,
+        "responseStart": 14.299999997019768,
+        "firstInterimResponseStart": 0,
+        "finalResponseHeadersStart": 14.299999997019768,
+        "responseEnd": 20.900000005960464,
+        "transferSize": 12892,
+        "encodedBodySize": 12592,
+        "decodedBodySize": 38145,
+        "responseStatus": 200,
+        "serverTiming": [],
+        "unloadEventStart": 18.099999994039536,
+        "unloadEventEnd": 18.099999994039536,
+        "domInteractive": 29.799999997019768,
+        "domContentLoadedEventStart": 29.900000005960464,
+        "domContentLoadedEventEnd": 29.900000005960464,
+        "domComplete": 32.900000005960464,
+        "loadEventStart": 33,
+        "loadEventEnd": 33,
+        "type": "navigate",
+        "redirectCount": 0,
+        "activationStart": 0,
+        "criticalCHRestart": 0,
+        "notRestoredReasons": null,
+        "confidence": {}
+      },
+      "resources": [
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/797e433ab948586e-s.p.0r6juujl39pe6.woff2",
+          "bytes": 23108,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/media/caa3a2e1cccd8315-s.p.0wgildi0cnwt9.woff2",
+          "bytes": 29288,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2cbkh-q68zkh4.css",
+          "bytes": 81234,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/28qh04931zen5.js",
+          "bytes": 24944,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2l2ulm8p618lv.js",
+          "bytes": 44414,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3fimdsayf722k.js",
+          "bytes": 150333,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/1i1rpy1h2gb3u.js",
+          "bytes": 226355,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/turbopack-11yb0rezww-mv.js",
+          "bytes": 10580,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/3h3s3iekxz53t.js",
+          "bytes": 26869,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/24s-3zig5w26s.js",
+          "bytes": 54645,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/1r2oqc9p0el1v.js",
+          "bytes": 947,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/_next/static/chunks/2vgozbv6c04s1.js",
+          "bytes": 14474,
+          "type": "script"
+        },
+        {
+          "url": "http://127.0.0.1:3118/manifest.webmanifest",
+          "bytes": 425,
+          "type": "link"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/7nutrition-bodybuilder-15kg?variant=2009&_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 260,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 161,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 550,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 185,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/icons/icon-192.png",
+          "bytes": 5610,
+          "type": "other"
+        },
+        {
+          "url": "http://127.0.0.1:3118/?_rsc=zE3zw4-dC2bpnLUn",
+          "bytes": 2635,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/7nutrition-bodybuilder-15kg?variant=2009&_rsc=zE3zw4-dC2bpnLUn",
+          "bytes": 2986,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=cBqyIE38pIK4X1OQ",
+          "bytes": 2532,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=lS5vb3chZS-KCw8a",
+          "bytes": 2383,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=0UphIc0EYDHBZCh5",
+          "bytes": 445,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/how-we-compare?_rsc=oee2xvQZ01ma5yf3",
+          "bytes": 9069,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/search?_rsc=zE3zw4-dC2bpnLUn",
+          "bytes": 2444,
+          "type": "fetch"
+        },
+        {
+          "url": "http://127.0.0.1:3118/product/7nutrition-bodybuilder-15kg?_rsc=HyBeBAlF0bcFv8oi",
+          "bytes": 247,
+          "type": "fetch"
+        }
+      ],
+      "keyboardFocus": "PASS",
+      "runtimeExceptions": [],
+      "httpErrors": []
+    }
+  ]
+}

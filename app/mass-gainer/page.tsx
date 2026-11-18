@@ -187,6 +187,7 @@ export function MassGainerPageContent({ result, controlView }: { result: MassGai
       </section>
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
         <h2 className="text-2xl font-bold">Mass Gainer comparison questions</h2>
+        <p className="mt-4 leading-7 text-zinc-700">Already shopping for a gainer? Compare <Link href="/guides/mass-gainer-under-40" className="font-semibold underline">mass gainer packs under £40 including delivery</Link> and separate the upfront cost from verified powder cost per kilogram.</p>
         <p className="mt-4 leading-7 text-zinc-700">Still choosing the type of powder? Read <Link href="/guides/mass-gainer-vs-whey-protein" className="font-semibold underline">mass gainer vs whey protein</Link> before comparing pack prices and verified protein costs.</p>
         <div className="mt-6 grid gap-6 md:grid-cols-2">
           <div><h3 className="font-bold">Does the first result mean the best Mass Gainer?</h3><p className="mt-2 leading-7 text-zinc-700">No. Ordering favours current retailer and offer coverage. We do not make an unsupported quality, effectiveness or health ranking.</p></div>

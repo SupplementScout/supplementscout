@@ -1,0 +1,185 @@
+{
+  "capturedAt": "2026-11-17T21:57:26.252Z",
+  "deployment": {
+    "sha": "971527c3d6cc6062a823867b083465512ade3bdc",
+    "target": "production",
+    "githubDeploymentId": 7866859992,
+    "githubDeploymentState": "success",
+    "githubDeploymentCreatedAt": "2026-11-17T21:33:07Z",
+    "generatedDeploymentUrl": "https://supplementscout-1zrjz1ku2-supplement-scout.vercel.app",
+    "vercelCommitState": "success",
+    "vercelStatusUrl": "https://vercel.com/supplement-scout/supplementscout/9fwfHv4YfhqYQgQ3YrQPrMiFABw5",
+    "directVercelApi": "Prior403 retained; not retried or bypassed. Authorized GitHub/Vercel webhook and public build verification used.",
+    "id": "dpl_9fwfHv4YfhqYQgQ3YrQPrMiFABw5",
+    "state": "READY",
+    "ready": true,
+    "publicDomain": "https://www.supplementscout.co.uk",
+    "publicBuildId": "f0eussJ1uy3EC5Mh3knOb",
+    "previousPublicBuildId": null,
+    "publicDomainBuildTransition": null,
+    "samePublicBuildAcrossCheckedRoutes": true,
+    "checked": [
+      {
+        "path": "/guides/mass-gainer-vs-whey-protein",
+        "status": 200,
+        "buildId": "f0eussJ1uy3EC5Mh3knOb",
+        "indexFollow": true,
+        "selfCanonical": true
+      },
+      {
+        "path": "/guides/creatine-pack-size-value",
+        "status": 200,
+        "buildId": "f0eussJ1uy3EC5Mh3knOb",
+        "indexFollow": true,
+        "selfCanonical": true
+      }
+    ],
+    "readinessAuthority": "Vercel commit SUCCESS + exact latest GitHub Production deployment SUCCESS + public domain build fingerprint/content contracts; no private API READY claim"
+  },
+  "checks": [
+    {
+      "path": "/guides/supplement-prices-including-delivery",
+      "status": 200,
+      "robots": "index, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+      "title": "Supplement Prices Including Delivery: A UK Comparison | SupplementScout"
+    },
+    {
+      "path": "/guides/cost-per-25g-protein",
+      "status": 200,
+      "robots": "index, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+      "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout"
+    },
+    {
+      "path": "/guides/protein-powder-under-30",
+      "status": 200,
+      "robots": "index, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-under-30",
+      "title": "Protein Powder Under £30 UK: Compare Delivered Prices | SupplementScout"
+    },
+    {
+      "path": "/guides/caffeine-free-pre-workout",
+      "status": 200,
+      "robots": "index, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/caffeine-free-pre-workout",
+      "title": "Caffeine-Free Pre-Workout UK: How to Check and Compare | SupplementScout"
+    },
+    {
+      "path": "/guides/whey-isolate-vs-concentrate",
+      "status": 200,
+      "robots": "index, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/whey-isolate-vs-concentrate",
+      "title": "Whey Isolate vs Concentrate: Which Is Better Value in the UK? | SupplementScout"
+    },
+    {
+      "path": "/guides/protein-powder-pack-size-value",
+      "status": 200,
+      "robots": "index, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-pack-size-value",
+      "title": "Does Buying a Bigger Protein Bag Actually Save Money? | SupplementScout"
+    },
+    {
+      "path": "/guides/mass-gainer-vs-whey-protein",
+      "status": 200,
+      "robots": "index, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-vs-whey-protein",
+      "title": "Mass Gainer vs Whey Protein: Compare UK Buying Costs | SupplementScout"
+    },
+    {
+      "path": "/guides/creatine-pack-size-value",
+      "status": 200,
+      "robots": "index, follow",
+      "canonical": "https://www.supplementscout.co.uk/guides/creatine-pack-size-value",
+      "title": "Creatine Pack Sizes: Is a Bigger Tub Better Value? | SupplementScout"
+    },
+    {
+      "path": "/brands/per4m",
+      "status": 200,
+      "robots": "index, follow",
+      "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+      "title": "Compare PER4M Prices Across UK Retailers | SupplementScout"
+    },
+    {
+      "path": "/creatine",
+      "status": 200,
+      "robots": "index, follow",
+      "canonical": "https://www.supplementscout.co.uk/creatine",
+      "title": "Compare Creatine Supplements &amp; Prices UK | SupplementScout"
+    },
+    {
+      "path": "/pre-workout",
+      "status": 200,
+      "robots": "index, follow",
+      "canonical": "https://www.supplementscout.co.uk/pre-workout",
+      "title": "Compare Pre Workout Prices UK | SupplementScout"
+    },
+    {
+      "path": "/mass-gainer",
+      "status": 200,
+      "robots": "index, follow",
+      "canonical": "https://www.supplementscout.co.uk/mass-gainer",
+      "title": "Compare Mass Gainer Prices UK | SupplementScout"
+    },
+    {
+      "path": "/sitemap.xml",
+      "status": 200
+    },
+    {
+      "path": "/robots.txt",
+      "status": 200
+    }
+  ],
+  "newRoutes": [
+    {
+      "path": "/guides/pre-workout-under-30",
+      "status": 404,
+      "sitemapOccurrences": 0
+    },
+    {
+      "path": "/guides/mass-gainer-under-40",
+      "status": 404,
+      "sitemapOccurrences": 0
+    }
+  ],
+  "variants": [
+    {
+      "url": "/product/warrior-rage-unleash-hell-pre-workout-392g?variant=1006",
+      "variant": "Blazin Berry / 392g",
+      "status": 200,
+      "exactVariant": true
+    },
+    {
+      "url": "/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1672",
+      "variant": "Baddy Berry / 315g",
+      "status": 200,
+      "exactVariant": true
+    },
+    {
+      "url": "/product/cellucor-c4-sport-pre-workout-powder?variant=4610",
+      "variant": "Icy Blue Raspberry / 270 g",
+      "status": 200,
+      "exactVariant": true
+    },
+    {
+      "url": "/product/7nutrition-bodybuilder-15kg?variant=2009",
+      "variant": "Cookies & Cream / 1.5kg",
+      "status": 200,
+      "exactVariant": true
+    },
+    {
+      "url": "/product/mutant-mass-mass-gainer-227kg?variant=1973",
+      "variant": "Vanilla Ice Cream / 2270g",
+      "status": 200,
+      "exactVariant": true
+    },
+    {
+      "url": "/product/applied-nutrition-critical-mass-lean-mass-gainz-24kg?variant=1803",
+      "variant": "Chocolate / 2400g",
+      "status": 200,
+      "exactVariant": true
+    }
+  ],
+  "googleActions": 0,
+  "databaseWrites": 0
+}

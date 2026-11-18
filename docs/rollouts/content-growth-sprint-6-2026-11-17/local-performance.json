@@ -1,0 +1,446 @@
+{
+  "capturedAt": "2026-11-17T22:07:32.634Z",
+  "environment": "local Next production build with guarded actual production-source reads; loopback lab sample, not field CWV or old-version guide baseline",
+  "results": [
+    {
+      "route": "/how-we-compare",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 102.1,
+        "totalMs": 106.7,
+        "decodedBytes": 27940
+      },
+      "coldDatabaseReads": 0,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 9,
+          "totalMs": 12.5,
+          "decodedBytes": 27940
+        },
+        {
+          "status": 200,
+          "ttfbMs": 13.3,
+          "totalMs": 17.8,
+          "decodedBytes": 27940
+        },
+        {
+          "status": 200,
+          "ttfbMs": 7.7,
+          "totalMs": 11.5,
+          "decodedBytes": 27940
+        },
+        {
+          "status": 200,
+          "ttfbMs": 10.8,
+          "totalMs": 14.6,
+          "decodedBytes": 27940
+        },
+        {
+          "status": 200,
+          "ttfbMs": 4.9,
+          "totalMs": 8.7,
+          "decodedBytes": 27940
+        }
+      ],
+      "warmMedianTTFBms": 9,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/pre-workout-under-30",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 688.6,
+        "totalMs": 697.2,
+        "decodedBytes": 38356
+      },
+      "coldDatabaseReads": 2,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 24.2,
+          "totalMs": 32,
+          "decodedBytes": 38313
+        },
+        {
+          "status": 200,
+          "ttfbMs": 23.9,
+          "totalMs": 31,
+          "decodedBytes": 38313
+        },
+        {
+          "status": 200,
+          "ttfbMs": 15.8,
+          "totalMs": 22.8,
+          "decodedBytes": 38313
+        },
+        {
+          "status": 200,
+          "ttfbMs": 15.5,
+          "totalMs": 22.8,
+          "decodedBytes": 38313
+        },
+        {
+          "status": 200,
+          "ttfbMs": 19.1,
+          "totalMs": 26.2,
+          "decodedBytes": 38313
+        }
+      ],
+      "warmMedianTTFBms": 19.1,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/mass-gainer-under-40",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 289.8,
+        "totalMs": 297.2,
+        "decodedBytes": 38149
+      },
+      "coldDatabaseReads": 2,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 16.9,
+          "totalMs": 26.4,
+          "decodedBytes": 38106
+        },
+        {
+          "status": 200,
+          "ttfbMs": 14,
+          "totalMs": 20.3,
+          "decodedBytes": 38106
+        },
+        {
+          "status": 200,
+          "ttfbMs": 14.8,
+          "totalMs": 21,
+          "decodedBytes": 38106
+        },
+        {
+          "status": 200,
+          "ttfbMs": 14.3,
+          "totalMs": 21.1,
+          "decodedBytes": 38106
+        },
+        {
+          "status": 200,
+          "ttfbMs": 21.6,
+          "totalMs": 28.2,
+          "decodedBytes": 38106
+        }
+      ],
+      "warmMedianTTFBms": 14.8,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/mass-gainer-vs-whey-protein",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 275.7,
+        "totalMs": 282.8,
+        "decodedBytes": 35184
+      },
+      "coldDatabaseReads": 2,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 15.3,
+          "totalMs": 21.3,
+          "decodedBytes": 35098
+        },
+        {
+          "status": 200,
+          "ttfbMs": 19.2,
+          "totalMs": 25.3,
+          "decodedBytes": 35098
+        },
+        {
+          "status": 200,
+          "ttfbMs": 14.6,
+          "totalMs": 20.1,
+          "decodedBytes": 35098
+        },
+        {
+          "status": 200,
+          "ttfbMs": 9,
+          "totalMs": 14.4,
+          "decodedBytes": 35098
+        },
+        {
+          "status": 200,
+          "ttfbMs": 14.4,
+          "totalMs": 19.7,
+          "decodedBytes": 35098
+        }
+      ],
+      "warmMedianTTFBms": 14.6,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/creatine-pack-size-value",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 234.9,
+        "totalMs": 242,
+        "decodedBytes": 43667
+      },
+      "coldDatabaseReads": 2,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 10.1,
+          "totalMs": 16.2,
+          "decodedBytes": 43581
+        },
+        {
+          "status": 200,
+          "ttfbMs": 14.2,
+          "totalMs": 20.4,
+          "decodedBytes": 43581
+        },
+        {
+          "status": 200,
+          "ttfbMs": 14.4,
+          "totalMs": 21.2,
+          "decodedBytes": 43581
+        },
+        {
+          "status": 200,
+          "ttfbMs": 15.4,
+          "totalMs": 21.6,
+          "decodedBytes": 43581
+        },
+        {
+          "status": 200,
+          "ttfbMs": 21.5,
+          "totalMs": 27.9,
+          "decodedBytes": 43581
+        }
+      ],
+      "warmMedianTTFBms": 14.4,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/protein-powder-under-30",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 170.2,
+        "totalMs": 190.6,
+        "decodedBytes": 40241
+      },
+      "coldDatabaseReads": 2,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 15.1,
+          "totalMs": 21,
+          "decodedBytes": 40198
+        },
+        {
+          "status": 200,
+          "ttfbMs": 12.8,
+          "totalMs": 18.7,
+          "decodedBytes": 40198
+        },
+        {
+          "status": 200,
+          "ttfbMs": 23.8,
+          "totalMs": 30.6,
+          "decodedBytes": 40198
+        },
+        {
+          "status": 200,
+          "ttfbMs": 12.4,
+          "totalMs": 18.6,
+          "decodedBytes": 40198
+        },
+        {
+          "status": 200,
+          "ttfbMs": 14,
+          "totalMs": 21.8,
+          "decodedBytes": 40198
+        }
+      ],
+      "warmMedianTTFBms": 14,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/whey-isolate-vs-concentrate",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 226.6,
+        "totalMs": 232.1,
+        "decodedBytes": 38649
+      },
+      "coldDatabaseReads": 2,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 16.3,
+          "totalMs": 22.1,
+          "decodedBytes": 38563
+        },
+        {
+          "status": 200,
+          "ttfbMs": 13.9,
+          "totalMs": 19.2,
+          "decodedBytes": 38563
+        },
+        {
+          "status": 200,
+          "ttfbMs": 9.4,
+          "totalMs": 16.1,
+          "decodedBytes": 38563
+        },
+        {
+          "status": 200,
+          "ttfbMs": 12.5,
+          "totalMs": 17.9,
+          "decodedBytes": 38563
+        },
+        {
+          "status": 200,
+          "ttfbMs": 10.1,
+          "totalMs": 15.6,
+          "decodedBytes": 38563
+        }
+      ],
+      "warmMedianTTFBms": 12.5,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/protein-powder-pack-size-value",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 202.5,
+        "totalMs": 209.5,
+        "decodedBytes": 37179
+      },
+      "coldDatabaseReads": 2,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 23.2,
+          "totalMs": 29.3,
+          "decodedBytes": 37136
+        },
+        {
+          "status": 200,
+          "ttfbMs": 24.6,
+          "totalMs": 30.6,
+          "decodedBytes": 37136
+        },
+        {
+          "status": 200,
+          "ttfbMs": 23.3,
+          "totalMs": 29.5,
+          "decodedBytes": 37136
+        },
+        {
+          "status": 200,
+          "ttfbMs": 11.8,
+          "totalMs": 18,
+          "decodedBytes": 37136
+        },
+        {
+          "status": 200,
+          "ttfbMs": 16.5,
+          "totalMs": 22.4,
+          "decodedBytes": 37136
+        }
+      ],
+      "warmMedianTTFBms": 23.2,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/supplement-prices-including-delivery",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 150.3,
+        "totalMs": 156.3,
+        "decodedBytes": 32984
+      },
+      "coldDatabaseReads": 2,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 13.7,
+          "totalMs": 18.9,
+          "decodedBytes": 32941
+        },
+        {
+          "status": 200,
+          "ttfbMs": 11,
+          "totalMs": 16.4,
+          "decodedBytes": 32941
+        },
+        {
+          "status": 200,
+          "ttfbMs": 14.2,
+          "totalMs": 19.5,
+          "decodedBytes": 32941
+        },
+        {
+          "status": 200,
+          "ttfbMs": 9.1,
+          "totalMs": 15.9,
+          "decodedBytes": 32941
+        },
+        {
+          "status": 200,
+          "ttfbMs": 12.9,
+          "totalMs": 18.7,
+          "decodedBytes": 32941
+        }
+      ],
+      "warmMedianTTFBms": 12.9,
+      "warmDatabaseReads": 0
+    },
+    {
+      "route": "/guides/cost-per-25g-protein",
+      "cold": {
+        "status": 200,
+        "ttfbMs": 162.5,
+        "totalMs": 170.5,
+        "decodedBytes": 37449
+      },
+      "coldDatabaseReads": 2,
+      "warm": [
+        {
+          "status": 200,
+          "ttfbMs": 16.3,
+          "totalMs": 22.1,
+          "decodedBytes": 37363
+        },
+        {
+          "status": 200,
+          "ttfbMs": 16.3,
+          "totalMs": 22,
+          "decodedBytes": 37363
+        },
+        {
+          "status": 200,
+          "ttfbMs": 8.9,
+          "totalMs": 14.6,
+          "decodedBytes": 37363
+        },
+        {
+          "status": 200,
+          "ttfbMs": 16.8,
+          "totalMs": 31.4,
+          "decodedBytes": 37363
+        },
+        {
+          "status": 200,
+          "ttfbMs": 10.4,
+          "totalMs": 16.4,
+          "decodedBytes": 37363
+        }
+      ],
+      "warmMedianTTFBms": 16.3,
+      "warmDatabaseReads": 0
+    }
+  ]
+}

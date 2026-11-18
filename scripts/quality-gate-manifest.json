@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 368,
-    "sha256": "172d762d52924241c554442b0306b2722dbc34b360018435e46f516c06ca2810"
+    "count": 369,
+    "sha256": "2bfb325c9c18f95e45a4d596f7bd7c80a33199cbcef3dbc91c29d8518b0e27b8"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -148,6 +148,7 @@
     "scripts/buying-guides.test.js",
     "scripts/buying-guides-sprint3.test.js",
     "scripts/buying-guides-sprint4.test.js",
-    "scripts/buying-guides-sprint5.test.js"
+    "scripts/buying-guides-sprint5.test.js",
+    "scripts/buying-guides-sprint6.test.js"
   ]
 }

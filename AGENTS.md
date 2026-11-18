@@ -6,6 +6,39 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## SupplementScout project control
 
+**18 November 2026 SEO-26 production-release approval:** the owner explicitly
+authorizes PR #546, reviewed head3d5ccc21, the two prepared guide lifecycle
+transitions to launch_approved, necessary existing tests/docs, full gates,
+Ready for Review, guarded squash merge and automatic Vercel Production.
+Only `/guides/pre-workout-under-30` and `/guides/mass-gainer-under-40`
+are in scope. Earlier Draft-only/no-launch wording is historical for this
+approved release. SEO-26 stays CODE COMPLETE until positive public readback
+permits live_verified/LIVE VERIFIED closeout. Preserve frozen SEO-20, live
+SEO-21/22/23/24/25 and Stage3 disabled. Prices remain dynamic; dated snapshots
+are not values to force. No product/nutrition/mapping/history/importer/schema/
+migration/workflow/schedule or production-data write, Google submission or
+Sprint7. Retain API403/SSO protections and use the authorized exact GitHub/
+Vercel deployment plus public build/content proof if direct API is unavailable.
+
+**Sprint6 checkpoint:** SEO-26 is CODE COMPLETE after166 focused tests,
+quick1,330/full4,054, actual-source production-build HTTP/cache and1440/390px
+QA. One Draft PR is publication-review material only. Both routes remain
+planned/noindex. SEO-20 stays frozen/binding and SEO-21/22/23/24/25 live.
+See `docs/rollouts/content-growth-sprint-6-2026-11-17.md`.
+
+**17 November 2026 Content Growth Sprint6 owner approval:**
+Content Growth exception: SEO-26 beside frozen SEO-20; Draft PR only.
+The single bounded implementation covers `/guides/pre-workout-under-30`
+and `/guides/mass-gainer-under-40`, necessary existing mechanisms/tests/docs
+and one natural incoming category link per guide. SEO-21/22/23/24/25 remain
+LIVE VERIFIED; older Content Growth active-pair exceptions are retired.
+SEO-20 remains frozen and binding. New routes stay planned/noindex. No merge,
+production deployment/indexing, data/nutrition/mapping/history/importer or
+workflow change, Google submission, GYM HIGH hub or Sprint7 is authorized.
+This latest owner decision supersedes earlier no-next-sprint wording only
+for this Sprint6 Draft scope.
+
+
 **17 November 2026 SEO-25 LIVE VERIFIED closeout:** owner-approved PR #545
 squash merged release head `f6ef6f44759da7546bda22daffac2c0cc4328043` as
 `65983f24aadee1ec7e0f5f700800f6a10661ccb7` with identical tree. Main Quality Gate and Guardian pass.
