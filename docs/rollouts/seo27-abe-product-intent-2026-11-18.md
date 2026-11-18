@@ -1,13 +1,94 @@
 # SEO-27: standard ABE product buying intent
 
-Status: CODE COMPLETE — Draft publication-review package, not LIVE VERIFIED.
+Status: LIVE VERIFIED — owner-approved production release and public readback.
 Base: `71e29a79b70f728954b954062f890e64522b3202`.
-The final PR head is recorded on the Draft PR; no self-referential commit hash
-is embedded here.
+Approved head: `a321fc1a931c0ec6ed58a9a80185b23a72017d21`.
+The final documentation-only closeout main SHA/CI and deployment/readback are
+recorded on merged PR #547; no self-referential commit hash is embedded here.
 
-## Approved scope and implementation
+## Production release — 18 November 2026
 
-The18November owner instruction authorizes one Draft PR for
+The later explicit owner instruction authorizes squash merge, automatic
+Production and evidence-based closeout. Earlier Draft-only boundaries in the
+implementation record are historical for this release.
+
+- [PR #547](https://github.com/SupplementScout/supplementscout/pull/547) merged
+  at `2026-11-18T11:14:50Z` as `5e483e94fd6d044f162512d4d92a314338e448e5`.
+  Its tree is identical to the approved head; no runtime amendment was needed.
+- [Main Quality Gate](https://github.com/SupplementScout/supplementscout/actions/runs/44292931305)
+  and [Project Guardian](https://github.com/SupplementScout/supplementscout/actions/runs/44292931387)
+  pass. Fresh local quick1,330/full4,058 scheduled tests, TypeScript, ESLint and
+  Next16.2.9 production build complete with zero failures. Three existing legacy
+  10 Reps artifact-dependent cases retain their built-in skips when their input
+  files are absent; integration isolation is retained. No test or protection
+  was disabled by this release.
+- GitHub Production deployment `7881636613` and Vercel
+  `dpl_Ne7QEbAiCVEMiBBALdPvXyq6vaM1` report success at11:15:49Z. The public
+  custom-domain fingerprint changes from `lAMmMOJjK6sdUxAg21eq7` to
+  `cUA2uOSFCTHL4PrKVYSEZ`. Exact commit statuses plus public build/content
+  supply the authorized proof; private API403/SSO protections are preserved.
+- First positive public ABE readback: `2026-11-18T11:16:11.921Z`. Full public
+  contract readback covers21 routes; public Chrome QA completes at11:19:52Z
+  with14 desktop1440/mobile390 cases. Images were visually reviewed. No
+  horizontal overflow, clipped copy, overlapping sections, runtime exceptions
+  or HTTP errors were observed. Contextual links and keyboard order pass.
+- ABE base and `?variant=1672` return200 with the approved introduction and
+  Standard ABE or ABE Pump section in initial HTML. Pump has no standard-copy
+  leak. `/compare?left=215&right=481` returns200, noindex/follow and canonical
+  `/compare`; both products resolve. Existing title/description/H1, canonical,
+  robots and schema match baseline. Product schema remains exact-variant only.
+  Both product URLs and all ten guides occur once in the duplicate-free sitemap.
+- Source-bound public data rechecked at `2026-11-18T11:19:26.186Z`:
+
+| Exact variant | Retailer | Item + delivery = total | Source check UTC |
+| --- | --- | --- | --- |
+| ABE Baddy Berry1672,315g | eBay UK | £21.95 + £0 = £21.95 | 17Nov14:57:48.215 |
+| ABE Baddy Berry1672,315g | Gladiator Nutrition | £22.99 + £6.99 = £29.98 | 17Nov17:39:49.348 |
+| ABE Baddy Berry1672,315g | Whey Okay | £26.73 + £3.99 = £30.72 | 18Nov10:14:49.194 |
+| Pump Tigers Blood763,500g | eBay UK | £29.95 + £0 = £29.95 | 17Nov14:57:29.871 |
+| Pump Tigers Blood763,500g | 10 Reps | £28.99 + £3.99 = £32.98 | 18Nov10:47:00.534 |
+| Pump Tigers Blood763,500g | Gladiator Nutrition | £31.99 + £6.99 = £38.98 | 17Nov17:39:49.348 |
+| Pump Tigers Blood763,500g | Whey Okay | £37.81 + £3.99 = £41.80 | 18Nov10:14:49.194 |
+
+These are dated readback evidence, never constants in application code. Offer
+IDs/variant ownership, stock/freshness, sums, visible dates and exact Product
+offer prices match current source GETs. Existing approved/applied200mg/10.5g
+for1672 and confirmed_absent for763 match public per-variant facts. No serving
+count, cost per serving, other-flavour nutrition or absence of all stimulants
+was inferred. All seven tracked /go paths return204 to HEAD; no GET/click was
+used to insert outbound analytics. Retailer tracking source remains unchanged.
+
+Six same-method public warm-response comparisons, median TTFB in milliseconds:
+
+| Route | Before | Released |
+| --- | ---: | ---: |
+| ABE base | 890.4 | 1038.5 |
+| ABE1672 | 989.7 | 990.6 |
+| Pump base | 851.2 | 1044.4 |
+| Clear Whey | 964.8 | 1024.9 |
+| CNP Creatine | 724.4 | 808.2 |
+| PER4M hub | 212.8 | 187.4 |
+
+All pass the unchanged `after <= before * 1.5 + 100ms` guard. DNS errors:0;
+lookup/connect/TLS and request timings are retained separately. These are
+bounded lab observations, not proof of field CWV improvement. Source parity
+and prior instrumentation retain7→7 reads; no production DB instrumentation,
+new runtime read, N+1, cache change or dependency was added.
+
+Pump base/763, Clear Whey, CNP, PER4M product/hub, Gold Standard Whey, homepage,
+creatine/under-20 and all ten published guides pass public regression contracts.
+Only this standard ABE card gained copy. SEO-20 is frozen; SEO-21–26 retain
+LIVE VERIFIED; SEO-15 Stage3 stays disabled. No data, mapping, nutrition,
+history, importer, workflow, schedule or Google write occurred.
+
+Measurement clock uses the verified18November release. First complete UTC
+windows are19–25November and19November–16December; inspect only once GSC
+marks those dates complete. Keep existing metrics/limitations below and the
+unchanged SEO-20 clock. No automatic Google submission or next implementation.
+
+## Original Draft scope and implementation
+
+The original18November owner instruction authorized one Draft PR for
 `/product/applied-nutrition-abe-ultimate-pre-workout-315g`, its necessary tests
 and this minimal record. No merge, production deployment or next task.
 
@@ -112,13 +193,14 @@ This is not a preview/production deployment and fixtures are not live evidence.
 
 Raw readback/HTTP/Chrome evidence and screenshots remain ignored under
 `.worktrees/seo27-abe-product-intent-20261118/tmp/`; no secrets are committed.
-The final command results and exact head are recorded in the Draft PR.
+The final command results and exact head are recorded on merged PR #547.
 
 ## Release boundary
 
-Await separate owner publication approval. No production release/readback of
-these changes has occurred. Recheck freshness, required CI and exact head before
-any future merge, then verify real production before LIVE VERIFIED closeout.
+The later explicit owner production approval supersedes the original Draft-only
+restriction. The approved release and positive public readback are recorded
+above. This closeout edits documentation only; verify its final main deployment
+and public build/content again before handoff. It grants no next implementation.
 SEO-20 is frozen; SEO-21–26 remain LIVE VERIFIED; SEO-15 Stage3 stays disabled.
 No homepage, Clear Whey, importer, workflow, nutrition, mapping, offer or price
 history modification is included.

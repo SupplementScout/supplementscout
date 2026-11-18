@@ -1,5 +1,15 @@
 # SupplementScout SEO Execution Plan
 
+**18 November 2026 SEO-27 LIVE VERIFIED:** the later explicit owner decision
+authorized exact-head squash merge, automatic Production and verified closeout
+of PR #547. Squash `5e483e94fd6d044f162512d4d92a314338e448e5` has tree parity
+with approved `a321fc1a931c0ec6ed58a9a80185b23a72017d21`. PR/main checks,
+GitHub Production/Vercel SUCCESS, changed public build and public readback,
+actual-source arithmetic/facts, unchanged SEO contracts, 1440/390px QA and
+warm-response guard pass. Earlier Draft-only checkpoints are historical.
+SEO-20 remains frozen; SEO-21–26 remain LIVE VERIFIED. No next task, data,
+workflow, schedule or Google change. [Production evidence](rollouts/seo27-abe-product-intent-2026-11-18.md).
+
 **18 November 2026 SEO-27 owner-approved Draft checkpoint:** one existing
 standard ABE315g card is CODE COMPLETE for publication review. The owner
 authorizes its copy, exact-identity guard, regression tests, minimal evidence
@@ -509,15 +519,15 @@ Console evidence and user value.
 
 | SEO-26 | P1 | Content Growth Sprint6: /guides/pre-workout-under-30 and /guides/mass-gainer-under-40. | `LIVE VERIFIED` | Owner-approved PR #546 squash 318bff37157e1f02e40fdc5b8168b7b025a3644d preserves the reviewed tree. PR/main Quality Gate and Guardian pass. Exact GitHub Production/Vercel commit SUCCESS plus changed public build x6d6M-h4ZO-FddB0fktZ5 prove custom-domain deployment without API403/SSO bypass. Public HTTP200, indexability/canonical/sitemap/schema, current-source initial HTML, exact variants, delivered budgets/unit costs, links,1440/390px QA and unchanged warm-response guard pass. No unverified nutrition or production-data/Google write. SEO-20 frozen; SEO-21/22/23/24/25 live. |
 
-| SEO-27 | P1 | Improve buying-intent clarity on existing /product/applied-nutrition-abe-ultimate-pre-workout-315g only. | `CODE COMPLETE` | Owner-approved Draft-only scope; exact identity guard, SSR buying copy, contextual Pump and existing two-product links. Title/description, canonical/robots/sitemap/schema contracts and production data unchanged. Local actual-source HTTP,1440/390px QA and warm-response/read-count parity recorded in docs/rollouts/seo27-abe-product-intent-2026-11-18.md. Await separate publication approval; not LIVE VERIFIED. |
+| SEO-27 | P1 | Improve buying-intent clarity on existing /product/applied-nutrition-abe-ultimate-pre-workout-315g only. | `LIVE VERIFIED` | Owner-approved PR #547 squash5e483e94 preserves approved tree. PR/main Quality Gate and Guardian pass; exact GitHub Production/Vercel SUCCESS and new public build cUA2uOSFCTHL4PrKVYSEZ prove release. Public200, actual-source variant/delivered-price/date/caffeine and SEO/tracked-link contracts,1440/390px QA and unchanged warm-response guard pass. No product-data/Google write; SEO-20 frozen and SEO-21–26 live. Evidence: docs/rollouts/seo27-abe-product-intent-2026-11-18.md. |
 
 ## 6. Current active task
 
-**18 November SEO-27 checkpoint:** the latest owner decision authorized one
-bounded ABE315g implementation through a Draft PR. It is CODE COMPLETE and
-awaits publication review; no second implementation is active. SEO-20 remains
-the frozen/binding IN PROGRESS task. SEO-21–26 retain LIVE VERIFIED status.
-Earlier sprint permissions below are historical, not authority to reopen them.
+**18 November SEO-27 closeout:** the subsequent owner production approval has
+been executed and publicly verified. SEO-27 is LIVE VERIFIED; no implementation
+remains active. SEO-20 remains the frozen/binding IN PROGRESS measurement task.
+SEO-21–26 retain LIVE VERIFIED status. Earlier Draft/sprint permissions below
+are historical, not authority to reopen them or start another task.
 
 **17 November 2026 Content Growth Sprint6 owner approval:**
 Content Growth exception: SEO-26 beside frozen SEO-20; Draft PR only.
@@ -786,6 +796,34 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 18 November 2026 - SEO-27 production release LIVE VERIFIED
+
+- Owner-authorized exact head a321fc1a931c0ec6ed58a9a80185b23a72017d21
+  squash merged in PR #547 as5e483e94fd6d044f162512d4d92a314338e448e5
+  at11:14:50Z with identical tree. Required PR/main Quality Gate and Guardian,
+  fresh verify:quick/full, TypeScript, ESLint and production build pass.
+- Exact GitHub Production deployment7881636613 and Vercel
+  dpl_Ne7QEbAiCVEMiBBALdPvXyq6vaM1 report SUCCESS. Public build changed from
+  lAMmMOJjK6sdUxAg21eq7 to cUA2uOSFCTHL4PrKVYSEZ; the custom domain, ABE
+  and all checked routes agree. No private API/SSO bypass. First public ABE
+  verification2026-11-18T11:16:11.921Z; full readback and14 responsive cases pass.
+- Public HTTP200, new SSR copy and both contextual links, exact Baddy Berry1672
+  and Pump763, current-source delivered arithmetic/check dates/stock and
+  approved/applied caffeine attribution pass. HEAD /go checks return204 without
+  recording synthetic clicks. Canonical/robots/title/H1/schema and sitemap
+  contracts match baseline; no ambiguous Product aggregate was added.
+- Public controls cover Pump, Clear Whey, CNP, PER4M product/hub, another whey
+  card, homepage, creatine/under-20 and all ten SEO-22–26 guides. Warm exact-ABE
+  TTFB989.7→990.6ms; base890.4→1038.5ms; all six measured routes pass the existing
+  before*1.5+100ms guard. DNS errors0; DNS/connect traces are separate. Local
+  instrumented reads remain7→7; production DB counts and field CWV improvement
+  are not claimed. [Detailed release evidence](rollouts/seo27-abe-product-intent-2026-11-18.md).
+- SEO-27 is LIVE VERIFIED. Closeout changes documentation only; final main
+  SHA/CI and post-closeout deployment/readback are recorded on merged PR #547.
+  SEO-20 clock/thresholds, live SEO-21–26 and Stage3 disabled remain unchanged.
+  No catalogue/nutrition/mapping/offer/history/importer/workflow/schedule or
+  Google write, homepage/Clear Whey implementation or next task occurred.
 
 ### 18 November 2026 - SEO-27 ABE product intent CODE COMPLETE
 
