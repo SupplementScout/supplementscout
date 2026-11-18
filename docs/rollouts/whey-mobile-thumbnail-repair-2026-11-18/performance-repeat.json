@@ -1,0 +1,717 @@
+{
+  "at": "2026-11-18T21:12:44.103Z",
+  "environment": "Paired alternating local actual-source production builds; cache disabled, same Chrome, three observations per build and width. Initial eight-viewport samples are retained separately.",
+  "guard": "after median LCP <= before median*1.5+100ms",
+  "samples": [
+    {
+      "width": 1440,
+      "port": 3146,
+      "iteration": 0,
+      "lcpMs": 824,
+      "detail": {
+        "start": 824,
+        "size": 77082,
+        "url": "",
+        "tag": "P",
+        "text": "Compare current whey protein powder prices from UK retailers, including known delivery costs. Open a product to check th"
+      },
+      "cls": 0,
+      "ttfbMs": 227.19999998807907,
+      "downloadMs": 326.40000000596046,
+      "slowResources": [
+        {
+          "path": "/wp-content/uploads/2025/12/nxt-whey-iso-juice-.png",
+          "duration": 1785.4000000059605,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2025/04/nxt-whey-powder-deluxe.png",
+          "duration": 1778.699999988079,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2025/02/biotechusa-whey-protein-strawberry.png",
+          "duration": 1768.199999988079,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2025/03/efective-clear-whey-isolate-strawberry-watermelon-min.png",
+          "duration": 1767.0999999940395,
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "port": 3147,
+      "iteration": 0,
+      "lcpMs": 560,
+      "detail": {
+        "start": 560,
+        "size": 77082,
+        "url": "",
+        "tag": "P",
+        "text": "Compare current whey protein powder prices from UK retailers, including known delivery costs. Open a product to check th"
+      },
+      "cls": 0,
+      "ttfbMs": 157.2000000178814,
+      "downloadMs": 264.09999999403954,
+      "slowResources": [
+        {
+          "path": "/product/efectiv-whey-advanced-protein-complex-900g",
+          "duration": 245.2000000178814,
+          "bytes": 3022
+        },
+        {
+          "path": "/product/applied-nutrition-critical-whey-2kg",
+          "duration": 214.5,
+          "bytes": 3101
+        },
+        {
+          "path": "/product/applied-nutrition-millions-clear-protein-isolate-powder",
+          "duration": 205.40000000596046,
+          "bytes": 3048
+        },
+        {
+          "path": "/_next/static/chunks/1v6wgv0ja7pfc.js",
+          "duration": 167.30000001192093,
+          "bytes": 226355
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "port": 3147,
+      "iteration": 1,
+      "lcpMs": 572,
+      "detail": {
+        "start": 572,
+        "size": 77082,
+        "url": "",
+        "tag": "P",
+        "text": "Compare current whey protein powder prices from UK retailers, including known delivery costs. Open a product to check th"
+      },
+      "cls": 0,
+      "ttfbMs": 173,
+      "downloadMs": 259.30000001192093,
+      "slowResources": [
+        {
+          "path": "/product/applied-nutrition-millions-clear-protein-isolate-powder",
+          "duration": 162.69999998807907,
+          "bytes": 3048
+        },
+        {
+          "path": "/product/efectiv-whey-advanced-protein-complex-900g",
+          "duration": 157.7000000178814,
+          "bytes": 3022
+        },
+        {
+          "path": "/_next/static/chunks/1v6wgv0ja7pfc.js",
+          "duration": 156,
+          "bytes": 226355
+        },
+        {
+          "path": "/_next/static/chunks/2e8wbewyky9sm.js",
+          "duration": 144.89999997615814,
+          "bytes": 21841
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "port": 3146,
+      "iteration": 1,
+      "lcpMs": 820,
+      "detail": {
+        "start": 820,
+        "size": 77082,
+        "url": "",
+        "tag": "P",
+        "text": "Compare current whey protein powder prices from UK retailers, including known delivery costs. Open a product to check th"
+      },
+      "cls": 0,
+      "ttfbMs": 182.30000001192093,
+      "downloadMs": 333.89999997615814,
+      "slowResources": [
+        {
+          "path": "/wp-content/uploads/2025/03/efective-clear-whey-isolate-strawberry-watermelon-min.png",
+          "duration": 1038.5999999940395,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2026/02/PhD-Nutrition-Diet-Whey-2kg-belgian-chocolate.png",
+          "duration": 1020.4000000059605,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2026/03/ghost-clear-whey-iso.png",
+          "duration": 1019.8999999761581,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2025/02/warrior-whey-protein-vanilla-icecream-min.png",
+          "duration": 1018,
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "port": 3146,
+      "iteration": 2,
+      "lcpMs": 804,
+      "detail": {
+        "start": 804,
+        "size": 77082,
+        "url": "",
+        "tag": "P",
+        "text": "Compare current whey protein powder prices from UK retailers, including known delivery costs. Open a product to check th"
+      },
+      "cls": 0,
+      "ttfbMs": 154.59999999403954,
+      "downloadMs": 330.30000001192093,
+      "slowResources": [
+        {
+          "path": "/wp-content/uploads/2025/03/efective-clear-whey-isolate-strawberry-watermelon-min.png",
+          "duration": 1057.0999999940395,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2026/02/myprotein-whey-protein-2.5kg.png",
+          "duration": 1047.9000000059605,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2025/02/ghost-whey-protein-min.png",
+          "duration": 1041.2000000178814,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2026/03/PhD-whey-protein-1kg.png",
+          "duration": 1030.2000000178814,
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "port": 3147,
+      "iteration": 2,
+      "lcpMs": 652,
+      "detail": {
+        "start": 652,
+        "size": 77082,
+        "url": "",
+        "tag": "P",
+        "text": "Compare current whey protein powder prices from UK retailers, including known delivery costs. Open a product to check th"
+      },
+      "cls": 0,
+      "ttfbMs": 220.80000001192093,
+      "downloadMs": 316.40000000596046,
+      "slowResources": [
+        {
+          "path": "/product/applied-nutrition-critical-whey-2kg",
+          "duration": 260.7000000178814,
+          "bytes": 3101
+        },
+        {
+          "path": "/product/efectiv-whey-advanced-protein-complex-900g",
+          "duration": 258.09999999403954,
+          "bytes": 3022
+        },
+        {
+          "path": "/product/applied-nutrition-millions-clear-protein-isolate-powder",
+          "duration": 218.69999998807907,
+          "bytes": 3048
+        },
+        {
+          "path": "/_next/static/chunks/1v6wgv0ja7pfc.js",
+          "duration": 200.5,
+          "bytes": 226355
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "port": 3146,
+      "iteration": 0,
+      "lcpMs": 1036,
+      "detail": {
+        "start": 1036,
+        "size": 47614,
+        "url": "",
+        "tag": "P",
+        "text": "Compare current whey protein powder prices from UK retailers, including known delivery costs. Open a product to check th"
+      },
+      "cls": 0,
+      "ttfbMs": 247.7000000178814,
+      "downloadMs": 166.69999998807907,
+      "slowResources": [
+        {
+          "path": "/wp-content/uploads/2025/02/biotechusa-whey-protein-strawberry.png",
+          "duration": 1178.800000011921,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2025/03/efective-clear-whey-isolate-strawberry-watermelon-min.png",
+          "duration": 1166.9000000059605,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2026/03/ghost-clear-whey-iso.png",
+          "duration": 1161.2000000178814,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2026/02/PhD-Nutrition-Diet-Whey-2kg-belgian-chocolate.png",
+          "duration": 1160,
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "port": 3147,
+      "iteration": 0,
+      "lcpMs": 812,
+      "detail": {
+        "start": 812,
+        "size": 47614,
+        "url": "",
+        "tag": "P",
+        "text": "Compare current whey protein powder prices from UK retailers, including known delivery costs. Open a product to check th"
+      },
+      "cls": 0,
+      "ttfbMs": 207.30000001192093,
+      "downloadMs": 142.90000000596046,
+      "slowResources": [
+        {
+          "path": "/product/applied-nutrition-millions-clear-protein-isolate-powder",
+          "duration": 223.09999999403954,
+          "bytes": 3048
+        },
+        {
+          "path": "/_next/static/chunks/1v6wgv0ja7pfc.js",
+          "duration": 153.80000001192093,
+          "bytes": 226355
+        },
+        {
+          "path": "/_next/static/chunks/2e8wbewyky9sm.js",
+          "duration": 136.7999999821186,
+          "bytes": 21841
+        },
+        {
+          "path": "/_next/static/chunks/14mrh2-p_w84d.js",
+          "duration": 115.5,
+          "bytes": 54646
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "port": 3147,
+      "iteration": 1,
+      "lcpMs": 788,
+      "detail": {
+        "start": 788,
+        "size": 47614,
+        "url": "",
+        "tag": "P",
+        "text": "Compare current whey protein powder prices from UK retailers, including known delivery costs. Open a product to check th"
+      },
+      "cls": 0,
+      "ttfbMs": 209.10000002384186,
+      "downloadMs": 150,
+      "slowResources": [
+        {
+          "path": "/_next/static/chunks/1v6wgv0ja7pfc.js",
+          "duration": 164.40000000596046,
+          "bytes": 226355
+        },
+        {
+          "path": "/product/applied-nutrition-millions-clear-protein-isolate-powder",
+          "duration": 148.59999999403954,
+          "bytes": 3048
+        },
+        {
+          "path": "/_next/static/chunks/2e8wbewyky9sm.js",
+          "duration": 137.09999999403954,
+          "bytes": 21841
+        },
+        {
+          "path": "/_next/static/chunks/02pr0nvk0cko6.js",
+          "duration": 134.7999999821186,
+          "bytes": 947
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "port": 3146,
+      "iteration": 1,
+      "lcpMs": 932,
+      "detail": {
+        "start": 932,
+        "size": 47614,
+        "url": "",
+        "tag": "P",
+        "text": "Compare current whey protein powder prices from UK retailers, including known delivery costs. Open a product to check th"
+      },
+      "cls": 0,
+      "ttfbMs": 230.10000002384186,
+      "downloadMs": 159,
+      "slowResources": [
+        {
+          "path": "/wp-content/uploads/2026/02/PhD-Nutrition-Diet-Whey-2kg.png",
+          "duration": 965.8000000119209,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2026/03/PhD-whey-protein-1kg.png",
+          "duration": 965.8000000119209,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2025/02/biotechusa-whey-protein-strawberry.png",
+          "duration": 964.5,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2025/03/efective-clear-whey-isolate-strawberry-watermelon-min.png",
+          "duration": 957.8000000119209,
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "port": 3146,
+      "iteration": 2,
+      "lcpMs": 884,
+      "detail": {
+        "start": 884,
+        "size": 47614,
+        "url": "",
+        "tag": "P",
+        "text": "Compare current whey protein powder prices from UK retailers, including known delivery costs. Open a product to check th"
+      },
+      "cls": 0,
+      "ttfbMs": 163.80000001192093,
+      "downloadMs": 187.7999999821186,
+      "slowResources": [
+        {
+          "path": "/wp-content/uploads/2025/03/efective-clear-whey-isolate-strawberry-watermelon-min.png",
+          "duration": 1015.1999999880791,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2026/02/PhD-Nutrition-Diet-Whey-2kg-belgian-chocolate.png",
+          "duration": 1006.3000000119209,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2025/02/warrior-whey-protein-vanilla-icecream-min.png",
+          "duration": 1005.2000000178814,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2026/02/myprotein-whey-protein-2.5kg.png",
+          "duration": 997.6999999880791,
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "port": 3147,
+      "iteration": 2,
+      "lcpMs": 724,
+      "detail": {
+        "start": 724,
+        "size": 47614,
+        "url": "",
+        "tag": "P",
+        "text": "Compare current whey protein powder prices from UK retailers, including known delivery costs. Open a product to check th"
+      },
+      "cls": 0,
+      "ttfbMs": 132.7000000178814,
+      "downloadMs": 172.59999999403954,
+      "slowResources": [
+        {
+          "path": "/product/applied-nutrition-millions-clear-protein-isolate-powder",
+          "duration": 254.2000000178814,
+          "bytes": 3048
+        },
+        {
+          "path": "/_next/static/chunks/1v6wgv0ja7pfc.js",
+          "duration": 128,
+          "bytes": 226355
+        },
+        {
+          "path": "/_next/static/chunks/2e8wbewyky9sm.js",
+          "duration": 114.5,
+          "bytes": 21841
+        },
+        {
+          "path": "/_next/static/chunks/02pr0nvk0cko6.js",
+          "duration": 103.60000002384186,
+          "bytes": 947
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "port": 3146,
+      "iteration": 0,
+      "lcpMs": 956,
+      "detail": {
+        "start": 956,
+        "size": 45241,
+        "url": "",
+        "tag": "P",
+        "text": "Compare current whey protein powder prices from UK retailers, including known delivery costs. Open a product to check th"
+      },
+      "cls": 0,
+      "ttfbMs": 193.19999998807907,
+      "downloadMs": 146.10000002384186,
+      "slowResources": [
+        {
+          "path": "/wp-content/uploads/2026/02/PhD-Nutrition-Diet-Whey-2kg.png",
+          "duration": 1035.4000000059605,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2026/03/PhD-whey-protein-1kg.png",
+          "duration": 1035.0999999940395,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2026/02/myprotein-whey-protein-2.5kg.png",
+          "duration": 1032.9000000059605,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2025/02/ghost-whey-protein-min.png",
+          "duration": 1029.3999999761581,
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "port": 3147,
+      "iteration": 0,
+      "lcpMs": 740,
+      "detail": {
+        "start": 740,
+        "size": 45241,
+        "url": "",
+        "tag": "P",
+        "text": "Compare current whey protein powder prices from UK retailers, including known delivery costs. Open a product to check th"
+      },
+      "cls": 0,
+      "ttfbMs": 228.69999998807907,
+      "downloadMs": 138,
+      "slowResources": [
+        {
+          "path": "/_next/static/chunks/1v6wgv0ja7pfc.js",
+          "duration": 131.90000000596046,
+          "bytes": 226355
+        },
+        {
+          "path": "/_next/static/chunks/2e8wbewyky9sm.js",
+          "duration": 128.19999998807907,
+          "bytes": 21841
+        },
+        {
+          "path": "/_next/static/chunks/14mrh2-p_w84d.js",
+          "duration": 104.09999999403954,
+          "bytes": 54646
+        },
+        {
+          "path": "/_next/static/chunks/02pr0nvk0cko6.js",
+          "duration": 103.59999999403954,
+          "bytes": 947
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "port": 3147,
+      "iteration": 1,
+      "lcpMs": 616,
+      "detail": {
+        "start": 616,
+        "size": 45241,
+        "url": "",
+        "tag": "P",
+        "text": "Compare current whey protein powder prices from UK retailers, including known delivery costs. Open a product to check th"
+      },
+      "cls": 0,
+      "ttfbMs": 164.19999998807907,
+      "downloadMs": 91.30000001192093,
+      "slowResources": [
+        {
+          "path": "/_next/static/chunks/1v6wgv0ja7pfc.js",
+          "duration": 129.10000002384186,
+          "bytes": 226355
+        },
+        {
+          "path": "/_next/static/chunks/2e8wbewyky9sm.js",
+          "duration": 121.19999998807907,
+          "bytes": 21841
+        },
+        {
+          "path": "/_next/static/chunks/02pr0nvk0cko6.js",
+          "duration": 112.80000001192093,
+          "bytes": 947
+        },
+        {
+          "path": "/_next/static/chunks/14mrh2-p_w84d.js",
+          "duration": 107.69999998807907,
+          "bytes": 54646
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "port": 3146,
+      "iteration": 1,
+      "lcpMs": 844,
+      "detail": {
+        "start": 844,
+        "size": 45241,
+        "url": "",
+        "tag": "P",
+        "text": "Compare current whey protein powder prices from UK retailers, including known delivery costs. Open a product to check th"
+      },
+      "cls": 0,
+      "ttfbMs": 152.69999998807907,
+      "downloadMs": 125,
+      "slowResources": [
+        {
+          "path": "/wp-content/uploads/2025/03/efective-clear-whey-isolate-strawberry-watermelon-min.png",
+          "duration": 1057.5999999940395,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2025/02/warrior-whey-protein-vanilla-icecream-min.png",
+          "duration": 1054.7000000178814,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2026/02/myprotein-whey-protein-2.5kg.png",
+          "duration": 1032,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2026/03/PhD-whey-protein-1kg.png",
+          "duration": 1028.800000011921,
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "port": 3146,
+      "iteration": 2,
+      "lcpMs": 952,
+      "detail": {
+        "start": 952,
+        "size": 45241,
+        "url": "",
+        "tag": "P",
+        "text": "Compare current whey protein powder prices from UK retailers, including known delivery costs. Open a product to check th"
+      },
+      "cls": 0,
+      "ttfbMs": 224.59999999403954,
+      "downloadMs": 143.30000001192093,
+      "slowResources": [
+        {
+          "path": "/wp-content/uploads/2026/03/PhD-whey-protein-1kg.png",
+          "duration": 907,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2026/02/PhD-Nutrition-Diet-Whey-2kg.png",
+          "duration": 906.9000000059605,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2026/02/myprotein-whey-protein-2.5kg.png",
+          "duration": 902.3000000119209,
+          "bytes": 0
+        },
+        {
+          "path": "/wp-content/uploads/2026/07/NutriSport-Whey-Protein-Isolate-300g.webp",
+          "duration": 900.8000000119209,
+          "bytes": 0
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "port": 3147,
+      "iteration": 2,
+      "lcpMs": 776,
+      "detail": {
+        "start": 776,
+        "size": 45241,
+        "url": "",
+        "tag": "P",
+        "text": "Compare current whey protein powder prices from UK retailers, including known delivery costs. Open a product to check th"
+      },
+      "cls": 0,
+      "ttfbMs": 196.7999999821186,
+      "downloadMs": 154.80000001192093,
+      "slowResources": [
+        {
+          "path": "/_next/static/chunks/1v6wgv0ja7pfc.js",
+          "duration": 160.09999999403954,
+          "bytes": 226355
+        },
+        {
+          "path": "/_next/static/chunks/02pr0nvk0cko6.js",
+          "duration": 129.5,
+          "bytes": 947
+        },
+        {
+          "path": "/_next/static/chunks/14mrh2-p_w84d.js",
+          "duration": 128.69999998807907,
+          "bytes": 54646
+        },
+        {
+          "path": "/_next/static/chunks/2e8wbewyky9sm.js",
+          "duration": 126.30000001192093,
+          "bytes": 21841
+        }
+      ]
+    }
+  ],
+  "comparison": [
+    {
+      "width": 1440,
+      "beforeMedianLCPms": 820,
+      "afterMedianLCPms": 572,
+      "lcpGuardPass": true,
+      "beforeMedianTTFBms": 182.30000001192093,
+      "afterMedianTTFBms": 173
+    },
+    {
+      "width": 390,
+      "beforeMedianLCPms": 932,
+      "afterMedianLCPms": 788,
+      "lcpGuardPass": true,
+      "beforeMedianTTFBms": 230.10000002384186,
+      "afterMedianTTFBms": 207.30000001192093
+    },
+    {
+      "width": 320,
+      "beforeMedianLCPms": 952,
+      "afterMedianLCPms": 740,
+      "lcpGuardPass": true,
+      "beforeMedianTTFBms": 193.19999998807907,
+      "afterMedianTTFBms": 196.7999999821186
+    }
+  ]
+}

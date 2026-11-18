@@ -1,15 +1,16 @@
 import Link from "next/link";
 import { getImageProps } from "next/image";
+import ComparisonThumbnailImage from "./ComparisonThumbnailImage";
 import type { CategoryComparisonRow } from "../lib/categoryComparison";
 import { OFFER_PRESENTATION_LABELS } from "../lib/offerFreshness";
 
-function safeBackgroundImage(value: string | null) {
+function safeImageSource(value: string | null) {
   if (!value) return null;
 
   try {
     const url = new URL(value);
     if (url.protocol !== "https:" && url.protocol !== "http:") return null;
-    return `url("${url.href.replace(/["\\\n\r]/g, "")}")`;
+    return url.href;
   } catch {
     return null;
   }
@@ -99,7 +100,7 @@ export function ComparisonProductThumbnail({
   productUrl: string;
   nativeNavigation?: boolean;
 }) {
-  const backgroundImage = safeBackgroundImage(image);
+  const imageSource = safeImageSource(image);
   const ProductLink = nativeNavigation ? "a" : Link;
 
   return (
@@ -108,13 +109,8 @@ export function ComparisonProductThumbnail({
       aria-label={`View ${name}`}
       className="flex h-24 w-24 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 p-2 sm:h-28 sm:w-28 lg:h-32 lg:w-32"
     >
-      {backgroundImage ? (
-        <span
-          aria-label={`${name} product image`}
-          role="img"
-          className="h-full w-full bg-contain bg-center bg-no-repeat"
-          style={{ backgroundImage }}
-        />
+      {imageSource ? (
+        <ComparisonThumbnailImage key={imageSource} src={imageSource} name={name} />
       ) : (
         <span className="flex h-full w-full items-center justify-center rounded-lg border border-dashed border-zinc-300 bg-white px-2 text-center text-xs font-semibold text-zinc-500">
           No image

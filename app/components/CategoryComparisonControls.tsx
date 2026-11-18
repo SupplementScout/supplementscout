@@ -176,7 +176,7 @@ export default function CategoryComparisonControls({
           Showing <strong>{resultCount}</strong> of <strong>{totalCount}</strong>{" "}
           products
         </p>
-        <div className="flex items-center gap-2">
+        <div className="flex max-w-full flex-wrap items-center gap-2">
           {groups.length > 0 && (
             <button
               type="button"

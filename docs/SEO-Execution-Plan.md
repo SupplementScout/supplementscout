@@ -1,5 +1,15 @@
 # SupplementScout SEO Execution Plan
 
+**18 November 2026 targeted whey technical repairs CODE COMPLETE:** after
+SEO-31 LIVE VERIFIED, the owner separately authorizes only the existing narrow
+filter/sort overflow and failed Critical Whey2.27kg thumbnail. The shared control
+row now wraps; a small thumbnail client boundary handles real load failures while
+preserving exact source/name/link and frame. No catalogue or SEO change.
+Eight-width actual-source before/after QA,14 representative cases,quick/full and
+the existing response guard pass. One separate repair PR may release under the
+owner's stated gates; no SEO-32. SEO-20 frozen;SEO-21–31 LIVE VERIFIED;Stage3 off.
+[Repair evidence](rollouts/whey-mobile-thumbnail-repair-2026-11-18.md).
+
 **18 November 2026 SEO-31 LIVE VERIFIED:** explicit owner approval authorized
 PR#551 squash merge and automatic Production. Approved headd2bf2275 merged as
 `b3891dc1b952b5badf3e0361198e4cb5368343aa` with exact tree parity. Fresh quick/full, TypeScript/ESLint/build,
@@ -902,6 +912,24 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 18 November 2026 - owner-approved targeted whey technical repairs CODE COMPLETE
+
+- SEO-31 release is already verified/closed before this separate repair branch.
+  Basedfd0049b24531a118f9506fa18ca12a17c4892eb; no competing repair PR exists. No SEO-32 task is created.
+- Public DOM diagnosis: nowrap filter/sort group331.25px over254px available,
+  right364.25px at320px viewport. Existing row now wraps within its parent.
+- Product133 is Critical Whey2.27kg,products.image points to external404.
+  Product743/2kg has a different valid200 image and is not a replacement.
+  A small original-source thumbnail client handles real/cached load errors with
+  an identity-specific message; same frame,URL validation,keyed source,no retries.
+-38 focused tests,quick1341/full4078PASS,3 unchanged archive
+  skips,TypeScript/ESLint/build and Guardian pass. Eight viewports and14 shared
+  cases pass;local cold2→2/warm0→0,TTFB guard and repeated lab LCP guards pass.
+  SEO/data/cache/analytics and SEO-20–31 rows stay unchanged;Stage3 off.
+- One separate repair PR is conditionally owner-approved for normal protected
+  release after green exact-head checks. No data write or unrelated repair.
+  [Evidence](rollouts/whey-mobile-thumbnail-repair-2026-11-18.md).
 
 ### 18 November 2026 - SEO-31 production release LIVE VERIFIED
 
