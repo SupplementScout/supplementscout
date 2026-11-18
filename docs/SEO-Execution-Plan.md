@@ -1,5 +1,19 @@
 # SupplementScout SEO Execution Plan
 
+**18 November 2026 SEO-26 production-release approval:** the owner explicitly
+authorizes PR #546, reviewed head3d5ccc21, the two prepared guide lifecycle
+transitions to launch_approved, necessary existing tests/docs, full gates,
+Ready for Review, guarded squash merge and automatic Vercel Production.
+Only `/guides/pre-workout-under-30` and `/guides/mass-gainer-under-40`
+are in scope. Earlier Draft-only/no-launch wording is historical for this
+approved release. SEO-26 stays CODE COMPLETE until positive public readback
+permits live_verified/LIVE VERIFIED closeout. Preserve frozen SEO-20, live
+SEO-21/22/23/24/25 and Stage3 disabled. Prices remain dynamic; dated snapshots
+are not values to force. No product/nutrition/mapping/history/importer/schema/
+migration/workflow/schedule or production-data write, Google submission or
+Sprint7. Retain API403/SSO protections and use the authorized exact GitHub/
+Vercel deployment plus public build/content proof if direct API is unavailable.
+
 **Sprint6 checkpoint:** SEO-26 is CODE COMPLETE after166 focused tests,
 quick1,330/full4,054, actual-source production-build HTTP/cache and1440/390px
 QA. One Draft PR is publication-review material only. Both routes remain

@@ -103,9 +103,9 @@ test("empty, partial and aged-out selections keep useful buying steps without fi
     const partial=html(g,[product(g.targets[0])]);assert.match(partial,/Only 1 of the three selected products currently qualifies/);
     assert.equal(g.select(g.targets.map(t=>product(t)),new Date("2026-11-18T21:31:00Z")).length,0);}
 });
-test("metadata is database-free, planned/noindex, self-canonical and factual for base and parameters",async()=>{
+test("metadata is database-free, approved/indexable, self-canonical and parameters stay noindex",async()=>{
   for(const g of groups){const page=load(g.file),base=await page.generateMetadata(),parameter=await page.generateMetadata({searchParams:Promise.resolve({sort:"price",utm_source:"test"})});
-    assert.deepEqual(base.robots,{index:false,follow:true});assert.deepEqual(parameter.robots,base.robots);assert.equal(base.alternates.canonical,g.route);assert.equal(parameter.alternates.canonical,g.route);
+    assert.deepEqual(base.robots,{index:true,follow:true});assert.deepEqual(parameter.robots,{index:false,follow:true});assert.equal(base.alternates.canonical,g.route);assert.equal(parameter.alternates.canonical,g.route);
     const schema=JSON.parse(html(g,[]).match(/<script type="application\/ld\+json">(.*?)<\/script>/s)[1]);assert.deepEqual(schema['@graph'].map(n=>n['@type']),['WebPage','BreadcrumbList']);assert.equal(schema['@graph'][0].url,'https://www.supplementscout.co.uk'+g.route);}
 });
 test("source errors abort rather than rendering or caching a successful empty guide",async()=>{
@@ -117,9 +117,9 @@ test("each route makes one bounded shared loader call with its own cache version
   for(const g of groups){const page=load(g.file,{'../../lib/lifecycleDataCache':{createLifecycleDataLoader:(route,key,read)=>{keys.push({route,key});return read;}},'../../lib/buyingGuideData':{getBuyingGuideProducts:async slugs=>{calls.push(slugs);return{rows:[],error:false};}}});await page.default();assert.deepEqual(calls.at(-1),g.targets.map(t=>t.slug));}
   assert.equal(calls.length,2);assert.equal(new Set(keys.map(k=>k.key)).size,2);assert.deepEqual(keys.map(k=>k.route),groups.map(g=>g.route));
 });
-test("only the two new planned sitemap candidates are added and all eight prior guides stay live",()=>{
+test("only the two approved sitemap candidates are indexable and all eight prior guides stay live",()=>{
   const lifecycle=load('app/lib/indexabilityLifecycle.ts'),sitemap=fs.readFileSync(path.join(root,'app/sitemap.ts'),'utf8');
-  for(const g of groups){assert.equal(lifecycle.getLifecycleStatus(g.route),'planned');assert.equal(lifecycle.isLifecycleSitemapEligible(g.route),false);assert.equal(sitemap.split(g.route).length-1,1);}
+  for(const g of groups){assert.equal(lifecycle.getLifecycleStatus(g.route),'launch_approved');assert.equal(lifecycle.isLifecycleSitemapEligible(g.route),true);assert.equal(sitemap.split(g.route).length-1,1);}
   for(const route of ['/guides/supplement-prices-including-delivery','/guides/cost-per-25g-protein','/guides/protein-powder-under-30','/guides/caffeine-free-pre-workout','/guides/whey-isolate-vs-concentrate','/guides/protein-powder-pack-size-value','/guides/mass-gainer-vs-whey-protein','/guides/creatine-pack-size-value','/brands/per4m','/creatine'])assert.equal(lifecycle.getLifecycleStatus(route),'live_verified');
 });
 test("one contextual incoming link per category preserves product offer tracking and server components",()=>{
