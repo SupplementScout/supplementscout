@@ -51,6 +51,18 @@ export function isStandardAbeProduct(
     (product.product_format === null || product.product_format === "powder");
 }
 
+// The reviewed Clear Whey identity is a powder. Keep this copy off Impact
+// Whey, other brands' clear whey and any changed catalogue identity.
+export function isMyproteinClearWheyProduct(
+  product: Pick<ProductPresentationInput, "id" | "name" | "brand" | "category" | "product_format"> & { slug: string | null }
+) {
+  return String(product.id) === "1470" &&
+    product.slug === "myprotein-clear-whey-protein-isolate" &&
+    product.name === "Myprotein Clear Whey Protein Isolate" &&
+    product.brand === "Myprotein" && product.category === "Whey Protein" &&
+    product.product_format === "powder";
+}
+
 function cleanText(value: string | null | undefined) {
   return (value || "").trim();
 }
@@ -318,8 +330,11 @@ function truncateMetadataDescription(value: string, maxLength = 160) {
 }
 
 export function buildProductMetadataDescription(
-  product: ProductPresentationInput
+  product: ProductPresentationInput & { slug?: string | null }
 ) {
+  if (isMyproteinClearWheyProduct({ ...product, slug: product.slug ?? null })) {
+    return "Compare Myprotein Clear Whey Protein Isolate prices in the UK. Check available flavours, exact pack sizes, retailer offers and known delivery costs.";
+  }
   return truncateMetadataDescription(buildProductSummary(product));
 }
 

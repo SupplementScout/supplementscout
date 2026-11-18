@@ -159,7 +159,8 @@ test("cached raw offers age out at render time without changing route indexabili
   assert.deepEqual(budget.proteinBudgetExamples([product(budget.PROTEIN_BUDGET_PRODUCTS[0])], later), []);
   assert.deepEqual(caffeine.caffeineFreeExamples(caffeineResult(), later), []);
 });
-test("the caffeine loader batches its two exact fact bindings through the existing strict reader", async () => {
+test("the caffeine loader batches its two exact fact bindings through the existing strict reader", async (t) => {
+  t.mock.timers.enable({ apis: ["Date"], now: now.getTime() });
   const result = caffeineResult(); let productReads = 0, factReads = 0;
   const loader = load("app/lib/caffeineFreeGuideData.ts", {
     "./buyingGuideData": { getBuyingGuideProducts: async slugs => { productReads++; assert.equal(slugs.length, 2); return { rows: result.rows, error: false }; } },

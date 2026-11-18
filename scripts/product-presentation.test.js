@@ -69,6 +69,7 @@ const {
   buildProductKeyFacts,
   buildProductMetadataDescription,
   buildProductSummary,
+  isMyproteinClearWheyProduct,
   isStandardAbeProduct,
   selectedVariantPresentation,
 } = loadProductPresentationModule();
@@ -111,15 +112,18 @@ test("standard ABE buying context requires the exact owner-reviewed product iden
 
 // Exercise the actual async page and its existing offer/fact renderers. These
 // fixtures are synthetic regression inputs, never production price evidence.
-async function renderAbePage({ productOverrides = {}, variantId = "1672", offerOverrides = {}, empty = false, failure = false, facts = true } = {}) {
+async function renderProductPage({ productOverrides = {}, variantId = "1672", variantOverrides = {}, extraVariants = [], extraOffers = [], enrichmentOverrides = {}, offerOverrides = {}, empty = false, failure = false, facts = true } = {}) {
   const base = product({ id: "215", slug: "applied-nutrition-abe-ultimate-pre-workout-315g", name: "Applied Nutrition ABE Ultimate Pre-Workout 315g", brand: "Applied Nutrition", category: "Pre Workout", product_format: "powder", net_weight_g: 315, is_active: true, merged_into_product_id: null, image: null, unit_pricing_verified: false, ...productOverrides });
-  const variant = { id: "1672", product_id: "215", display_name: "Baddy Berry / 315g", flavour_label: "Baddy Berry", size_value: 315, size_unit: "g", pack_count: 1, product_format: "powder", is_default: false, is_active: true, nutrition_override: {} };
+  const variant = { id: "1672", product_id: "215", display_name: "Baddy Berry / 315g", flavour_label: "Baddy Berry", size_value: 315, size_unit: "g", pack_count: 1, product_format: "powder", is_default: false, is_active: true, nutrition_override: {}, ...variantOverrides };
   const offer = { id: "11", retailer_product_id: "101", product_variant_id: "1672", retailer_id: "10", price: 17, shipping_cost: 4, in_stock: true, last_checked_at: new Date().toISOString(), url: "https://retailer.example/abe", retailer: { id: "10", name: "Fixture retailer", slug: "fixture", logo: null, website: "https://retailer.example" }, ...offerOverrides };
   const reads = [];
+  const variants = [variant, ...extraVariants];
+  const pageOffers = [offer, ...extraOffers];
   const client = { from(table) {
     reads.push(table);
-    const query = { select() { return this; }, eq() { return this; }, in() { return this; }, order() { return this; }, maybeSingle() { return Promise.resolve({ data: base, error: null }); }, then(resolve, reject) {
-      const data = table === "offers" ? (empty || failure ? [] : [offer]) : table === "product_variants" ? [variant] : table === "retailer_products" ? [{ id: "101", product_variant: variant }] : [];
+    const filters = {};
+    const query = { select() { return this; }, eq(key, value) { filters[key] = value; return this; }, in() { return this; }, order() { return this; }, maybeSingle() { return Promise.resolve({ data: base, error: null }); }, then(resolve, reject) {
+      const data = table === "offers" ? (empty || failure ? [] : pageOffers) : table === "product_variants" ? variants.filter(v => filters.id === undefined || String(v.id) === String(filters.id)) : table === "retailer_products" ? pageOffers.map(o => ({ id: o.retailer_product_id, product_variant: { ...variants.find(v => String(v.id) === String(o.product_variant_id)), ...enrichmentOverrides } })) : [];
       return Promise.resolve({ data: failure && table !== "products" ? null : data, error: failure ? { message: "Fixture source failure" } : null }).then(resolve, reject);
     } }; return query;
   } };
@@ -154,7 +158,7 @@ async function renderAbePage({ productOverrides = {}, variantId = "1672", offerO
 }
 
 test("ABE buying copy preserves exact variant, dynamic delivered prices, tracked links and metadata", async () => {
-  const a = await renderAbePage();
+  const a = await renderProductPage();
   assert.match(a.html, /Compare UK retailer offers for the standard ABE/);
   assert.match(a.html, /Standard ABE or ABE Pump\?/);
   assert.match(a.html, /Baddy Berry \/ 315g/);
@@ -167,19 +171,19 @@ test("ABE buying copy preserves exact variant, dynamic delivered prices, tracked
   assert.equal(a.metadata.alternates.canonical, "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g");
   assert.equal(a.metadata.robots, undefined);
   assert.doesNotMatch(a.html, /£[\d.]+ per serving|30 verified servings/);
-  const b = await renderAbePage({ offerOverrides: { price: 23, shipping_cost: 5 } });
+  const b = await renderProductPage({ offerOverrides: { price: 23, shipping_cost: 5 } });
   assert.match(b.html, /£28\.00/);
   assert.equal(b.metadata.description, a.metadata.description);
   assert.deepEqual(b.reads, a.reads, "copy adds no query or per-retailer query");
 });
 
 test("ABE content does not turn missing delivery, stale offers or failed sources into a current price", async () => {
-  const unknown = await renderAbePage({ offerOverrides: { shipping_cost: null }, facts: false });
+  const unknown = await renderProductPage({ offerOverrides: { shipping_cost: null }, facts: false });
   assert.match(unknown.html, /[Dd]elivery[^<]*unknown|[Uu]nknown delivery/);
   assert.match(unknown.html, /No reviewed ingredient facts are available for this exact/);
   assert.doesNotMatch(unknown.html, /200 mg|£21\.00/);
   for (const state of [{ empty: true }, { failure: true }, { offerOverrides: { last_checked_at: "2000-01-01T00:00:00Z" } }, { offerOverrides: { in_stock: false } }]) {
-    const { html } = await renderAbePage(state);
+    const { html } = await renderProductPage(state);
     assert.match(html, /Price unavailable/);
     assert.doesNotMatch(html, /href="\/go\/11|£21\.00|"@type":"Product"/);
   }
@@ -191,8 +195,143 @@ test("ABE context cannot leak onto Pump or unrelated cards", async () => {
     { id: "12", slug: "per4m-whey-protein-2kg", name: "Per4m Whey Protein 2kg", brand: "Per4m", category: "Whey Protein" },
     { id: "999", slug: "another-product", name: "Another product" },
   ]) {
-    const { html } = await renderAbePage({ productOverrides: overrides, variantId: undefined, facts: false });
+    const { html } = await renderProductPage({ productOverrides: overrides, variantId: undefined, facts: false });
     assert.doesNotMatch(html, /Standard ABE or ABE Pump\?|Compare UK retailer offers for the standard ABE|Compare ABE and ABE Pump/);
+  }
+});
+
+const clearWheyIdentity = { id: "1470", slug: "myprotein-clear-whey-protein-isolate", name: "Myprotein Clear Whey Protein Isolate", brand: "Myprotein", category: "Whey Protein", product_format: "powder" };
+const clearWheyMetadataDescription = "Compare Myprotein Clear Whey Protein Isolate prices in the UK. Check available flavours, exact pack sizes, retailer offers and known delivery costs.";
+function renderClearWhey(options = {}) {
+  const { productOverrides, variantOverrides, offerOverrides, ...rest } = options;
+  return renderProductPage({
+    variantId: null, facts: false,
+    productOverrides: { ...clearWheyIdentity, net_weight_g: null, ...productOverrides },
+    variantOverrides: { id: "4649", product_id: "1470", display_name: "Peach Tea / 244 g", flavour_label: "Peach Tea", size_value: 244, ...variantOverrides },
+    offerOverrides: { product_variant_id: "4649", ...offerOverrides },
+    ...rest,
+  });
+}
+function clearWheySummary(html) {
+  return html.match(/<h2[^>]*>Product summary<\/h2>([\s\S]*?)<\/section>/)?.[1] || "";
+}
+
+test("Clear Whey copy requires every exact catalogue identity field, including powder format", () => {
+  assert.equal(isMyproteinClearWheyProduct(clearWheyIdentity), true);
+  assert.equal(isMyproteinClearWheyProduct({ ...clearWheyIdentity, id: 1470 }), true);
+  for (const override of [{ id: "1471" }, { slug: null }, { slug: "myprotein-impact-whey-protein" }, { name: "Myprotein Impact Whey Isolate" }, { brand: "Another brand" }, { category: "Vegan Protein" }, { product_format: "liquid" }, { product_format: null }]) {
+    assert.equal(isMyproteinClearWheyProduct({ ...clearWheyIdentity, ...override }), false, JSON.stringify(override));
+  }
+});
+
+test("Clear Whey server summary reports two exact packs as one retailer, without assuming 500g or nutrition", async () => {
+  const orange = { id: "4633", product_id: "1470", display_name: "Orange Mango / 261 g", flavour_label: "Orange Mango", size_value: 261, size_unit: "g", pack_count: 1, product_format: "powder", nutrition_override: {}, is_active: true, is_default: false };
+  const extra = { id: "12", retailer_product_id: "102", product_variant_id: "4633", retailer_id: "10", price: 19, shipping_cost: 4, in_stock: true, last_checked_at: new Date().toISOString(), retailer: { id: "10", name: "Fixture retailer", slug: "fixture" }, url: "https://retailer.example/orange" };
+  const result = await renderClearWhey({ extraVariants: [orange], extraOffers: [extra] });
+  const summary = clearWheySummary(result.html);
+  assert.match(summary, /whey isolate protein powder/);
+  assert.match(summary, /Peach Tea \/ 244 g; Orange Mango \/ 261 g/);
+  assert.match(summary, /1 tracked UK retailer\. This is a single-retailer listing/);
+  assert.match(summary, /Nutrition has not been verified for this exact flavour and pack/);
+  assert.match(summary, /href="\/whey-isolate"/);
+  assert.match(result.html, /href="\/go\/11\?source=product_best_offer"/);
+  assert.match(result.html, /href="\/go\/11\?source=product_offer_list"/);
+  const selectedOrange = await renderClearWhey({ variantId: "4633", extraVariants: [orange], extraOffers: [extra] });
+  assert.match(selectedOrange.html, /href="\/go\/12\?source=product_best_offer"/);
+  assert.doesNotMatch(clearWheySummary(selectedOrange.html), /Peach Tea \/ 244 g/);
+  assert.doesNotMatch(result.html, /500\s?g|£[\d.]+ per 25g|"@type":"Product"/);
+  assert.equal((result.html.match(/<h1\b/g) || []).length, 1);
+});
+
+test("Clear Whey copy reuses dynamic totals and preserves metadata while exact Product schema stays variant-bound", async () => {
+  const a = await renderClearWhey({ variantId: "4649" });
+  const b = await renderClearWhey({ variantId: "4649", offerOverrides: { price: 31, shipping_cost: 6 } });
+  assert.match(a.html, /£21\.00/);
+  assert.match(b.html, /£37\.00/);
+  assert.deepEqual(b.metadata, a.metadata);
+  assert.equal(a.metadata.title, clearWheyIdentity.name);
+  assert.equal(a.metadata.description, clearWheyMetadataDescription);
+  assert.equal(a.metadata.openGraph.description, clearWheyMetadataDescription);
+  assert.equal(a.metadata.twitter.description, clearWheyMetadataDescription);
+  assert.equal(a.metadata.alternates.canonical, "https://www.supplementscout.co.uk/product/myprotein-clear-whey-protein-isolate");
+  assert.equal(a.metadata.robots, undefined);
+  assert.match(a.html, /"@type":"Product"/);
+  assert.match(a.html, /is a whey isolate protein powder/);
+  assert.deepEqual(b.reads, a.reads, "copy adds no data call or per-retailer read");
+});
+
+test("Clear Whey approved metadata description requires the complete exact identity and leaves summary unchanged", () => {
+  const p = product(clearWheyIdentity);
+  assert.equal(buildProductMetadataDescription(p), clearWheyMetadataDescription);
+  assert.equal(buildProductSummary(p), "Myprotein Clear Whey Protein Isolate is a supplement.");
+  for (const override of [{ id: "999" }, { slug: undefined }, { slug: null }, { slug: "another-slug" }, { name: "Myprotein Impact Whey Isolate" }, { brand: "Another brand" }, { category: "Vegan Protein" }, { product_format: null }, { product_format: "liquid" }]) {
+    const other = { ...p, ...override };
+    assert.equal(buildProductMetadataDescription(other), buildProductSummary(other), JSON.stringify(override));
+  }
+});
+
+test("generateMetadata preserves ABE, PER4M and other products across description, Open Graph and Twitter", async () => {
+  for (const identity of [
+    { id: "215", slug: "applied-nutrition-abe-ultimate-pre-workout-315g", name: "Applied Nutrition ABE Ultimate Pre-Workout 315g", brand: "Applied Nutrition", category: "Pre Workout" },
+    { id: "12", slug: "per4m-whey-protein-2kg", name: "Per4m Whey Protein 2kg", brand: "Per4m" },
+    { id: "1469", slug: "myprotein-impact-whey-isolate-powder", name: "Myprotein Impact Whey Isolate Powder" },
+    { id: "338", slug: "applied-nutrition-clear-whey-protein-875g", name: "Applied Nutrition Clear Whey Protein 875g", brand: "Applied Nutrition" },
+    { id: "999", slug: "unrelated-product", name: "Unrelated Product", brand: "Example Nutrition" },
+  ]) {
+    const expected = buildProductSummary(product({ ...clearWheyIdentity, ...identity }));
+    const { metadata, html } = await renderClearWhey({ productOverrides: identity });
+    assert.equal(metadata.description, expected, identity.slug);
+    assert.equal(metadata.openGraph.description, expected);
+    assert.equal(metadata.twitter.description, expected);
+    assert.equal(metadata.title, identity.name);
+    assert.equal(metadata.alternates.canonical, `https://www.supplementscout.co.uk/product/${identity.slug}`);
+    assert.doesNotMatch(html, /Compare Myprotein Clear Whey Protein Isolate prices in the UK/);
+  }
+  const { html } = await renderClearWhey({ variantId: "4649" });
+  assert.match(clearWheySummary(html), /is a whey isolate protein powder/);
+  assert.doesNotMatch(html, /Compare Myprotein Clear Whey Protein Isolate prices in the UK/);
+});
+
+test("Clear Whey current coverage excludes stale, OOS, missing-price and failed-source offers", async () => {
+  for (const options of [{ empty: true }, { failure: true }, { offerOverrides: { in_stock: false } }, { offerOverrides: { last_checked_at: "2000-01-01T00:00:00Z" } }, { offerOverrides: { price: null } }]) {
+    const result = await renderClearWhey(options), summary = clearWheySummary(result.html);
+    assert.match(summary, /No current, identified flavour-and-pack offer is available/);
+    assert.doesNotMatch(summary, /Currently listed|1 tracked|Peach Tea \/ 244 g/);
+    assert.doesNotMatch(result.html, /£21\.00|"@type":"Product"/);
+    assert.match(summary, /whey isolate protein powder/);
+  }
+  const unknown = await renderClearWhey({ offerOverrides: { shipping_cost: null } });
+  assert.match(clearWheySummary(unknown.html), /When delivery is unknown/);
+  assert.match(unknown.html, /Product price/);
+  assert.doesNotMatch(unknown.html, /£21\.00|£[\d.]+ per 25g/);
+});
+
+test("Clear Whey summary never guesses a label from an unresolved, wrong or incomplete mapped pack", async () => {
+  for (const enrichmentOverrides of [{ id: "999" }, { size_value: null }, { size_unit: null }, { pack_count: null }, { product_format: "liquid" }, { is_default: true }]) {
+    const { html } = await renderClearWhey({ enrichmentOverrides });
+    assert.match(clearWheySummary(html), /No current, identified flavour-and-pack offer is available/);
+    assert.doesNotMatch(clearWheySummary(html), /Currently listed|1 tracked/);
+  }
+});
+
+test("Clear Whey selection does not borrow another pack and multiple retailers do not become a single-store claim", async () => {
+  const secondStore = { id: "12", retailer_product_id: "102", product_variant_id: "4649", retailer_id: "20", price: 22, shipping_cost: 4, in_stock: true, last_checked_at: new Date().toISOString(), retailer: { id: "20", name: "Second fixture retailer", slug: "second" }, url: "https://retailer.example/second" };
+  const result = await renderClearWhey({ variantId: "4649", extraOffers: [secondStore] });
+  assert.match(clearWheySummary(result.html), /2 tracked UK retailers/);
+  assert.doesNotMatch(clearWheySummary(result.html), /single-retailer|Orange Mango|261 g|500 g/);
+});
+
+test("Clear Whey description cannot leak to other Myprotein products, brands, ABE or PER4M", async () => {
+  for (const productOverrides of [
+    { id: "100", slug: "myprotein-impact-whey-protein", name: "Myprotein Impact Whey Protein" },
+    { id: "101", slug: "myprotein-impact-whey-isolate", name: "Myprotein Impact Whey Isolate" },
+    { id: "338", slug: "applied-nutrition-clear-whey-protein-875g", name: "Applied Nutrition Clear Whey Protein 875g", brand: "Applied Nutrition" },
+    { id: "215", slug: "applied-nutrition-abe-ultimate-pre-workout-315g", name: "Applied Nutrition ABE Ultimate Pre-Workout 315g", brand: "Applied Nutrition", category: "Pre Workout" },
+    { id: "12", slug: "per4m-whey-protein-2kg", name: "Per4m Whey Protein 2kg", brand: "Per4m" },
+    { product_format: null },
+  ]) {
+    const { html } = await renderClearWhey({ productOverrides });
+    assert.doesNotMatch(clearWheySummary(html), /Currently listed for this selection|This is a single-retailer listing|Flavours can have different pack weights/);
   }
 });
 
