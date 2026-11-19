@@ -5,9 +5,21 @@ Status: implementation prepared for owner review; NOT DEPLOYED. The companion
 results separately from production verification. This task does not reopen
 RA-001, RA-004, nutrition, discovery or the deferred GYM HIGH public hub.
 
+Header-only correction after the protected rehearsal STOP: the initial SQL
+comment now follows `begin;`. Executable SQL, final `commit;`, functions, index,
+ACL, parameters and applicator are unchanged. The real `unwrapTransaction()`
+accepts the actual pending files and rejects the original queue-reader header.
+The [original STOP receipt](evidence/PR556-PROTECTED-REHEARSAL-STOP-2026-11-19.json)
+is preserved unchanged; the
+[correction evidence](evidence/PR556-REHEARSAL-HEADER-2026-11-19.json) records the
+exact comparison and verification. The old approval for source `6afe2275` and
+migration hash `76dfc998…70adb8` does not approve this new revision. Status remains
+NEEDS_OWNER_APPROVAL; a new protected rehearsal has NOT_RUN.
+
 Final local gates: Project Guardian, baseline, Quick and Full PASS; Full runs
-4098 safe tests plus TypeScript, ESLint and the isolated production build.
-The complete 58-file Docker gate passes198 tests with zero failures/skips.
+4099 safe tests plus TypeScript, ESLint and the isolated production build.
+The original 58-file Docker gate passes198 tests with zero failures/skips; the
+header-only revision repeats the existing queue PostgreSQL tests (2 PASS,0 skips).
 Draft [PR556](https://github.com/SupplementScout/supplementscout/pull/556) holds
 the exact branch and current CI readback. These results do not authorize release.
 
@@ -92,7 +104,7 @@ publication and watchdog verification remain NOT_RUN for the new code.
 
 `supabase/migrations/20261119150000_read_automation_review_queue_page.sql`
 has normalized SHA-256
-`76dfc9989d6c24a8b3905a1bc41e09759ccbdcd7c97809e3dd2999b2cf70adb8`.
+`062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa`.
 It adds one current-page index and one STABLE SECURITY INVOKER function, callable
 only by service_role. Its function body reads existing tables and writes none.
 It is registered as pending through `environment-migrations`; no old SQL changes.
@@ -110,7 +122,7 @@ workflow in this order. Never run a blanket `supabase db push`.
    produce the unchanged catalogue-count/rollback proof. An isolated PostgreSQL
    rehearsal does not replace this protected applicator check.
 3. Only with owner approval, run the same applicator in `--mode=apply` using
-   `--confirm=adaa4f9df7b89a21`. Expected ledger transition: 268 → 269;
+   `--confirm=f637da643c74cd7e`. Expected ledger transition: 268 → 269;
    post fingerprint
    `f54057cd49ea4422a3b8b849ac15ce38b518496a44a8d4dceb2f480f8f97eb66`.
    Use its generated repository closeout to advance the current binding and

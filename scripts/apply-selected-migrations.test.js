@@ -94,6 +94,26 @@ test("transaction wrapper is required and removed", () => {
   );
 });
 
+test("real pending files satisfy the applicator and queue header correction preserves exact executable SQL", () => {
+  const pendingFiles = new Set(Object.values(PENDING_MIGRATIONS).flat().map(row => row.filename));
+  for (const filename of pendingFiles) {
+    const sql = fs.readFileSync(path.join(SOURCE, filename), "utf8");
+    assert.doesNotThrow(() => unwrapTransaction(sql, filename), filename);
+  }
+  const filename = "20261119150000_read_automation_review_queue_page.sql";
+  const sql = fs.readFileSync(path.join(SOURCE, filename), "utf8").replaceAll("\r\n", "\n");
+  const comment = "-- Additive admin read projection. Production apply requires owner approval.\n";
+  assert.ok(sql.startsWith("begin;\n" + comment));
+  assert.match(sql, /\ncommit;\s*$/);
+  const beforeStop = comment + "begin;\n" + sql.slice(("begin;\n" + comment).length);
+  assert.equal(crypto.createHash("sha256").update(beforeStop).digest("hex"),
+    "76dfc9989d6c24a8b3905a1bc41e09759ccbdcd7c97809e3dd2999b2cf70adb8");
+  assert.throws(() => unwrapTransaction(beforeStop, filename), /explicit begin\/commit wrapper/);
+  assert.equal(sql.replace(comment, ""), beforeStop.replace(comment, ""));
+  assert.equal(unwrapTransaction(sql, filename).slice(comment.length),
+    unwrapTransaction(beforeStop.slice(comment.length), filename));
+});
+
 test("planned-close migration uses the real applicator without changing approved SQL", () => {
   const filename = "20261107190000_extend_never_approved_planned_control_close.sql";
   const sql = fs.readFileSync(path.join(SOURCE, filename), "utf8");

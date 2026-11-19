@@ -32,6 +32,15 @@ rollback and held mapping-correction scope are in the
 [release packet](SHARED-REVIEW-RELIABILITY-2026-11-19.md).
 See [repair evidence](evidence/SHARED-REVIEW-RELIABILITY-2026-11-19.json).
 
+**19 November header-only rehearsal correction — NEEDS_OWNER_APPROVAL:** the
+protected rehearsal of source `6afe2275` stopped before DB connection because
+its initial comment preceded `begin;`. The owner authorizes only moving that
+comment, updating hash bindings and adding real-file applicator regression
+coverage. CURRENT268 and PENDING remain unchanged. No renewed production
+rehearsal, apply, merge or deployment is authorized. Original STOP history and
+the corrected hash/test evidence are retained in the
+[header correction record](evidence/PR556-REHEARSAL-HEADER-2026-11-19.json).
+
 **17 November H&B - DEPLOYED / ENABLED / CONTROLLED REVIEW VERIFIED / ORDINARY SCHEDULE PENDING:**
 PR539 merged at08:59:40Z as4d91fde9, with the same tree as approved feature heada124a7db.
 Main quality44051477879, Guardian44051478297 and baseline44051477923 passed;

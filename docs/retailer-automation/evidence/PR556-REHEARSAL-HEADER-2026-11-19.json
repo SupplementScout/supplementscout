@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "status": "NEEDS_OWNER_APPROVAL",
+  "scope": "PR556 header-only correction, hash references and existing regression tests; no runtime, workflow, applicator or executable SQL change.",
+  "prepared_from_source_sha": "6afe227520398abf490eacc0edd6c31656e3766f",
+  "migration": "20261119150000_read_automation_review_queue_page.sql",
+  "old_migration_sha256": "76dfc9989d6c24a8b3905a1bc41e09759ccbdcd7c97809e3dd2999b2cf70adb8",
+  "new_migration_sha256": "062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa",
+  "sql_comparison": {
+    "result": "PASS",
+    "difference": "Move the existing first-line comment immediately after begin; preserve every executable byte and final commit;.",
+    "executable_sql_identical": true,
+    "executable_sql_sha256": "676609acd16f1d650fb624c50fafefc2ccc1e58e33667f101de81f878864a57a",
+    "real_unwrapTransaction": "PASS",
+    "regression": "Every actual PENDING file uses the real applicator; reconstruct and reject the original queue header; verify its frozen old SHA and exact executable equality."
+  },
+  "original_stop": {
+    "receipt": "PR556-PROTECTED-REHEARSAL-STOP-2026-11-19.json",
+    "preserved_byte_for_byte": true,
+    "sha256": "a4b3f032861717699fc71a012aef2985daa055f4c552fa2f5029937cef3111e1",
+    "result": "BLOCKED",
+    "before_database_connect": true
+  },
+  "repository_binding": {
+    "ledger_count": 268,
+    "ledger_fingerprint": "4da87e64288e023969f69149f28e31090c8bccd840ee668d63b0dab35b38482a",
+    "pending": [
+      {
+        "filename": "20261119150000_read_automation_review_queue_page.sql",
+        "sha256": "062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa"
+      }
+    ],
+    "production_apply_confirmation": "f637da643c74cd7e"
+  },
+  "production_read_only_readback": {
+    "captured_at": "2026-11-19T16:02:14.253Z",
+    "result": "PASS",
+    "read_only": true,
+    "ledger_count": 268,
+    "ledger_fingerprint": "4da87e64288e023969f69149f28e31090c8bccd840ee668d63b0dab35b38482a",
+    "migration_pending": true,
+    "reader_objects": {
+      "reader": null,
+      "page_index": null
+    },
+    "production_writes": 0
+  },
+  "verification": {
+    "migration_tests": "PASS",
+    "migration_test_count": 92,
+    "verify_project": "PASS",
+    "verify_baseline": "PASS",
+    "verify_quick": "PASS",
+    "verify_full": "PASS",
+    "test_inventory": "Existing test file remains in the safe/Full gate; 371-file inventory and its seal are unchanged.",
+    "quick_test_count": 1355,
+    "full_safe_test_count": 4099,
+    "isolated_queue_postgres": "PASS",
+    "isolated_queue_postgres_tests": 2,
+    "isolated_queue_postgres_skips": 0,
+    "applicator_runtime_and_workflows_unchanged": true,
+    "scope_diff_review": "PASS",
+    "ci": "Exact final-head results are retained on PR556 and reported at handoff."
+  },
+  "protected_rehearsal_new_revision": "NOT_RUN",
+  "production_migration": "NOT_RUN",
+  "merge": "NOT_RUN",
+  "deployment": "NOT_RUN",
+  "production_writes": 0,
+  "identity_changes": 0,
+  "approval": "Previous source/hash approval does not transfer. Separate owner approval of the final new SHA and new migration hash is required.",
+  "ready_for_owner_authorized_protected_rehearsal": true
+}

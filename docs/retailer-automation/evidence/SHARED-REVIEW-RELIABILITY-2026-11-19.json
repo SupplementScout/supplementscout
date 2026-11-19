@@ -1148,7 +1148,7 @@
     "old_complete_read_limit": 5000,
     "old_loader_result": "Review Queue exceeds the bounded complete-read limit",
     "migration": "supabase/migrations/20261119150000_read_automation_review_queue_page.sql",
-    "migration_sha256": "76dfc9989d6c24a8b3905a1bc41e09759ccbdcd7c97809e3dd2999b2cf70adb8",
+    "migration_sha256": "062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa",
     "migration_selection": "PENDING; current production binding remains 268; exact production apply would advance to 269",
     "production_schema_status": "NOT_RUN",
     "isolated_postgres": "PASS",
@@ -1208,5 +1208,15 @@
   },
   "release_status": "NEEDS_OWNER_APPROVAL",
   "pull_request": "https://github.com/SupplementScout/supplementscout/pull/556",
-  "production_deployed": false
+  "production_deployed": false,
+  "rehearsal_header_correction": {
+    "status": "NEEDS_OWNER_APPROVAL",
+    "evidence": "PR556-REHEARSAL-HEADER-2026-11-19.json",
+    "original_stop_receipt": "PR556-PROTECTED-REHEARSAL-STOP-2026-11-19.json",
+    "old_source_sha": "6afe227520398abf490eacc0edd6c31656e3766f",
+    "old_migration_sha256": "76dfc9989d6c24a8b3905a1bc41e09759ccbdcd7c97809e3dd2999b2cf70adb8",
+    "new_migration_sha256": "062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa",
+    "protected_rehearsal_new_revision": "NOT_RUN",
+    "production_writes": 0
+  }
 }

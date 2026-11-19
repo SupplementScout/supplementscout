@@ -1,5 +1,5 @@
--- Additive admin read projection. Production apply requires owner approval.
 begin;
+-- Additive admin read projection. Production apply requires owner approval.
 set local lock_timeout = '5s';
 set local statement_timeout = '60s';
 
