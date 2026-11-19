@@ -1,5 +1,15 @@
 # SupplementScout SEO Execution Plan
 
+**19 November 2026 SEO-33 CODE COMPLETE:** owner-approved exact ABE Pump481 Draft
+adds a buying-intent description through productPresentation/generateMetadata and
+one SSR contextual paragraph below offers. Standard ABE215 and the existing
+comparison remain unchanged. Current-source six-variant/nine-offer proof, paired
+production builds,1440/768/390/320px QA,quick/full and unchanged warm-response guard
+pass. No merge,Production,data/Google write or SEO-34. This later instruction
+supersedes earlier no-SEO-33 wording only for this Draft. SEO-20 stays frozen
+IN PROGRESS; SEO-21–32 stay LIVE VERIFIED; Stage3 stays off. No Guardian exception
+or binding-sequence change. [Evidence](rollouts/seo33-abe-pump-intent-2026-11-19.md).
+
 **19 November 2026 SEO-32 LIVE VERIFIED:** owner-approved PR#554 squash
 `90a2931cb216e81d5a5cd4401b04dde13d857043` equals the approved0b043b71 tree. PR/main CI,Guardian and exact
 Production/Vercel SUCCESS pass;public build`cd-0UX-s_6rpH1XgNejd7` confirms the
@@ -689,6 +699,8 @@ Console evidence and user value.
 | SEO-31 | P1 | Clarify existing Whey Protein buying intent and delivered/unit-price evidence. | `LIVE VERIFIED` | Owner-approved PR#551 squashb3891dc1b952b5badf3e0361198e4cb5368343aa equals approvedd2bf2275 tree. Fresh quick1337/full4074PASS,3 historical skips; TypeScript/ESLint/build,PR/main CI and Guardian pass. Exact Production/Vercel SUCCESS and public buildjZ4U_EKZhqscdpdH1M1SI;18 routes,real current-source cards/prices/links,canonical/robots/schema/sitemap parity,four-width QA and warm guard pass. Existing320px overflow/image404 retained as baseline; separately approved repairs follow without data writes. SEO-20 frozen,SEO-21–30 live,Stage3 off. Evidence:docs/rollouts/seo31-whey-search-intent-2026-11-18.md. |
 
 | SEO-32 | P1 | Clarify existing /creatine UK price-comparison intent with bounded metadata and opening copy. | `LIVE VERIFIED` | Owner-approved PR#554 squash90a2931c equals approved0b043b71 tree. PR/main CI and Guardian pass;exact Production/Vercel SUCCESS plus new public build cd-0UX-s_6rpH1XgNejd7 bind deployment. Public metadata/social/CollectionPage,indexability/sitemap/current-source86-row and65-Product/Offer checks,seven-width QA,under-20/protected routes and existing warm guard pass. No production-data/Google write;SEO-20 frozen,SEO-21–31 live,Stage3 off. Evidence: docs/rollouts/seo32-creatine-price-intent-2026-11-19.md. |
+
+| SEO-33 | P1 | Improve exact existing Applied Nutrition ABE Pump481 product buying intent. | `CODE COMPLETE` | Owner-authorized Draft only: exact identity guard, shared metadata description and one SSR paragraph with missing standard-ABE/existing-pair links below offers. Actual-source six active variants/nine offers/four retailers, approved-applied caffeine provenance,17-route parity plus comparison, four-width paired QA and quick1344/full4086 scheduled tests pass with three unchanged historical skips. Cold/warm exact763 reads7→7; existing warm-response guard passes. Title/H1, schema, sitemap, standard ABE, nutrition/data/cache/tracking unchanged. SEO-20 frozen;SEO-21–32 live;Stage3 off. No merge,Production,data/Google write or SEO-34. Evidence: docs/rollouts/seo33-abe-pump-intent-2026-11-19.md. |
 
 ## 6. Current active task
 

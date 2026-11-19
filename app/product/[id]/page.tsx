@@ -33,6 +33,7 @@ import {
   buildProductKeyFacts,
   buildProductMetadataDescription,
   buildProductSummary,
+  isAbePumpProduct,
   isMyproteinClearWheyProduct,
   isStandardAbeProduct,
   selectedVariantPresentation,
@@ -527,6 +528,7 @@ export default async function ProductPage({
     }
   }
   const standardAbe = isStandardAbeProduct(product);
+  const abePump = isAbePumpProduct(product);
   const comparisonLink = comparisonLinkForProduct(product);
   const structuredData = buildProductStructuredData({
     categoryComparison: comparisonLink
@@ -911,6 +913,15 @@ export default async function ProductPage({
             <section className="mt-5 w-full min-w-0 max-w-full rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm sm:mt-7 sm:p-6 lg:mt-8 lg:rounded-3xl lg:p-8">
               <h2 className="text-2xl font-bold text-gray-900">Product summary</h2>
               <p className="mt-4 min-w-0 max-w-full break-words leading-8 text-gray-700 [overflow-wrap:anywhere]">{productSummary}</p>
+              {abePump && (
+                <p className="mt-4 min-w-0 text-sm leading-7 text-zinc-700 sm:text-base">
+                  ABE Pump is a separate product from the{" "}
+                  <Link href="/product/applied-nutrition-abe-ultimate-pre-workout-315g" className="font-semibold underline underline-offset-4">standard ABE pre-workout</Link>.
+                  {" "}Check the selected flavour and pack against the offers above, including known delivery and check dates.
+                  {" "}Caffeine facts apply only to the selected variant; missing information does not mean caffeine-free.
+                  {" "}<Link href={{ pathname: "/compare", query: { left: "215", right: "481" } }} className="font-semibold underline underline-offset-4">Compare ABE and ABE Pump</Link>.
+                </p>
+              )}
               {myproteinClearWhey && (
                 <div className="mt-4 min-w-0 space-y-4 text-sm leading-7 text-zinc-700 sm:text-base">
                   {clearWheyVariantLabels.size > 0 ? (

@@ -51,6 +51,18 @@ export function isStandardAbeProduct(
     (product.product_format === null || product.product_format === "powder");
 }
 
+// The canonical Pump record has a legacy null format; exact active 500 g
+// powder variants are resolved separately. This guard makes no nutrition claim.
+export function isAbePumpProduct(
+  product: Pick<ProductPresentationInput, "id" | "name" | "brand" | "category" | "product_format"> & { slug: string | null }
+) {
+  return String(product.id) === "481" &&
+    product.slug === "applied-nutrition-abe-pump-500g" &&
+    product.name === "Applied Nutrition ABE Pump 500g" &&
+    product.brand === "Applied Nutrition" && product.category === "Pre Workout" &&
+    (product.product_format === null || product.product_format === "powder");
+}
+
 // The reviewed Clear Whey identity is a powder. Keep this copy off Impact
 // Whey, other brands' clear whey and any changed catalogue identity.
 export function isMyproteinClearWheyProduct(
@@ -332,6 +344,9 @@ function truncateMetadataDescription(value: string, maxLength = 160) {
 export function buildProductMetadataDescription(
   product: ProductPresentationInput & { slug?: string | null }
 ) {
+  if (isAbePumpProduct({ ...product, slug: product.slug ?? null })) {
+    return "Compare Applied Nutrition ABE Pump 500g prices in the UK. Check flavours, retailer offers, known delivery costs and reviewed caffeine facts where available.";
+  }
   if (isMyproteinClearWheyProduct({ ...product, slug: product.slug ?? null })) {
     return "Compare Myprotein Clear Whey Protein Isolate prices in the UK. Check available flavours, exact pack sizes, retailer offers and known delivery costs.";
   }
