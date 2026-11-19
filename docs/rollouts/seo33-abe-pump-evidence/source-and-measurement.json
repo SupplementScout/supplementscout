@@ -1,0 +1,497 @@
+{
+  "capturedAt": "2026-11-19T11:42:49.627Z",
+  "base": "f5bf0a99ef2b61fd79b7f840a2398c276cf5c399",
+  "scope": "SEO-33 Draft, not Production",
+  "identity": {
+    "id": 481,
+    "slug": "applied-nutrition-abe-pump-500g",
+    "name": "Applied Nutrition ABE Pump 500g",
+    "brand": "Applied Nutrition",
+    "category": "Pre Workout",
+    "active": true,
+    "mergedInto": null,
+    "rootFormat": null,
+    "rootNetWeightG": null,
+    "note": "Legacy null root format/weight retained. Exact known flavour variants are 500 g powder; Default has no format/pack evidence."
+  },
+  "variants": [
+    {
+      "id": 475,
+      "label": "Default",
+      "format": null,
+      "weight": null,
+      "unit": null,
+      "isDefault": true,
+      "currentOffers": 0,
+      "caffeine": [],
+      "approvedCaffeineCandidateIds": []
+    },
+    {
+      "id": 760,
+      "label": "Blue Razz / 500g",
+      "format": "powder",
+      "weight": 500,
+      "unit": "g",
+      "isDefault": false,
+      "currentOffers": 1,
+      "caffeine": [
+        {
+          "key": "caffeine",
+          "informationState": "confirmed_absent",
+          "amountPerServingMg": null,
+          "servingSizeValue": null,
+          "servingSizeUnit": null,
+          "servingBasisText": null,
+          "ingredientForm": null,
+          "ingredientRatio": null,
+          "sourceKinds": [
+            "manufacturer_source"
+          ]
+        }
+      ],
+      "approvedCaffeineCandidateIds": [
+        707
+      ]
+    },
+    {
+      "id": 761,
+      "label": "Red Hawaiian / 500g",
+      "format": "powder",
+      "weight": 500,
+      "unit": "g",
+      "isDefault": false,
+      "currentOffers": 2,
+      "caffeine": [
+        {
+          "key": "caffeine",
+          "informationState": "confirmed_absent",
+          "amountPerServingMg": null,
+          "servingSizeValue": null,
+          "servingSizeUnit": null,
+          "servingBasisText": null,
+          "ingredientForm": null,
+          "ingredientRatio": null,
+          "sourceKinds": [
+            "manufacturer_source"
+          ]
+        }
+      ],
+      "approvedCaffeineCandidateIds": [
+        712
+      ]
+    },
+    {
+      "id": 762,
+      "label": "Slush Puppie / 500g",
+      "format": "powder",
+      "weight": 500,
+      "unit": "g",
+      "isDefault": false,
+      "currentOffers": 2,
+      "caffeine": [
+        {
+          "key": "caffeine",
+          "informationState": "confirmed_absent",
+          "amountPerServingMg": null,
+          "servingSizeValue": null,
+          "servingSizeUnit": null,
+          "servingBasisText": null,
+          "ingredientForm": null,
+          "ingredientRatio": null,
+          "sourceKinds": [
+            "manufacturer_source"
+          ]
+        }
+      ],
+      "approvedCaffeineCandidateIds": [
+        747
+      ]
+    },
+    {
+      "id": 763,
+      "label": "Tigers Blood / 500g",
+      "format": "powder",
+      "weight": 500,
+      "unit": "g",
+      "isDefault": false,
+      "currentOffers": 4,
+      "caffeine": [
+        {
+          "key": "caffeine",
+          "informationState": "confirmed_absent",
+          "amountPerServingMg": null,
+          "servingSizeValue": null,
+          "servingSizeUnit": null,
+          "servingBasisText": null,
+          "ingredientForm": null,
+          "ingredientRatio": null,
+          "sourceKinds": [
+            "manufacturer_source"
+          ]
+        }
+      ],
+      "approvedCaffeineCandidateIds": [
+        752
+      ]
+    },
+    {
+      "id": 3603,
+      "label": "Slush Puppie Twisted Citrus / 500g",
+      "format": "powder",
+      "weight": 500,
+      "unit": "g",
+      "isDefault": false,
+      "currentOffers": 0,
+      "caffeine": [
+        {
+          "key": "caffeine",
+          "informationState": "confirmed_absent",
+          "amountPerServingMg": null,
+          "servingSizeValue": null,
+          "servingSizeUnit": null,
+          "servingBasisText": null,
+          "ingredientForm": null,
+          "ingredientRatio": null,
+          "sourceKinds": [
+            "manufacturer_source"
+          ]
+        }
+      ],
+      "approvedCaffeineCandidateIds": [
+        757
+      ]
+    }
+  ],
+  "offers": [
+    {
+      "id": 1549,
+      "variantId": 760,
+      "resolvedVariantId": 760,
+      "productId": 481,
+      "label": "Blue Razz / 500g",
+      "retailer": {
+        "id": 3,
+        "name": "Whey Okay",
+        "slug": "whey-okay"
+      },
+      "price": 37.81,
+      "delivery": 3.99,
+      "total": 41.800000000000004,
+      "checked": "2026-11-19T10:26:35.005+00:00",
+      "url": "https://wheyokay.com/applied-nutrition-abe-pump-500g-3727-p.asp"
+    },
+    {
+      "id": 1550,
+      "variantId": 763,
+      "resolvedVariantId": 763,
+      "productId": 481,
+      "label": "Tigers Blood / 500g",
+      "retailer": {
+        "id": 3,
+        "name": "Whey Okay",
+        "slug": "whey-okay"
+      },
+      "price": 37.81,
+      "delivery": 3.99,
+      "total": 41.800000000000004,
+      "checked": "2026-11-19T10:26:35.005+00:00",
+      "url": "https://wheyokay.com/applied-nutrition-abe-pump-500g-3727-p.asp"
+    },
+    {
+      "id": 2631,
+      "variantId": 763,
+      "resolvedVariantId": 763,
+      "productId": 481,
+      "label": "Tigers Blood / 500g",
+      "retailer": {
+        "id": 12,
+        "name": "eBay UK",
+        "slug": "ebay-uk"
+      },
+      "price": 29.95,
+      "delivery": 0,
+      "total": 29.95,
+      "checked": "2026-11-18T14:37:32.27+00:00",
+      "url": "https://www.ebay.co.uk/itm/134686134724?var=434197535546&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+    },
+    {
+      "id": 485,
+      "variantId": 761,
+      "resolvedVariantId": 761,
+      "productId": 481,
+      "label": "Red Hawaiian / 500g",
+      "retailer": {
+        "id": 3,
+        "name": "Whey Okay",
+        "slug": "whey-okay"
+      },
+      "price": 37.81,
+      "delivery": 3.99,
+      "total": 41.800000000000004,
+      "checked": "2026-11-19T10:26:35.005+00:00",
+      "url": "https://wheyokay.com/applied-nutrition-abe-pump-500g-3727-p.asp"
+    },
+    {
+      "id": 3313,
+      "variantId": 761,
+      "resolvedVariantId": 761,
+      "productId": 481,
+      "label": "Red Hawaiian / 500g",
+      "retailer": {
+        "id": 14,
+        "name": "10 Reps",
+        "slug": "10-reps"
+      },
+      "price": 28.99,
+      "delivery": 3.99,
+      "total": 32.98,
+      "checked": "2026-11-19T10:48:28.614+00:00",
+      "url": "https://www.10reps.co.uk/product/applied-nutrition-abe-pump-zero-stim-pre-workout-500g/?attribute_pa_flavours=red-hawaiian"
+    },
+    {
+      "id": 3314,
+      "variantId": 762,
+      "resolvedVariantId": 762,
+      "productId": 481,
+      "label": "Slush Puppie / 500g",
+      "retailer": {
+        "id": 14,
+        "name": "10 Reps",
+        "slug": "10-reps"
+      },
+      "price": 28.99,
+      "delivery": 3.99,
+      "total": 32.98,
+      "checked": "2026-11-19T10:48:28.614+00:00",
+      "url": "https://www.10reps.co.uk/product/applied-nutrition-abe-pump-zero-stim-pre-workout-500g/?attribute_pa_flavours=slush-puppie"
+    },
+    {
+      "id": 3315,
+      "variantId": 763,
+      "resolvedVariantId": 763,
+      "productId": 481,
+      "label": "Tigers Blood / 500g",
+      "retailer": {
+        "id": 14,
+        "name": "10 Reps",
+        "slug": "10-reps"
+      },
+      "price": 28.99,
+      "delivery": 3.99,
+      "total": 32.98,
+      "checked": "2026-11-19T10:48:28.614+00:00",
+      "url": "https://www.10reps.co.uk/product/applied-nutrition-abe-pump-zero-stim-pre-workout-500g/?attribute_pa_flavours=tigers-blood"
+    },
+    {
+      "id": 4253,
+      "variantId": 763,
+      "resolvedVariantId": 763,
+      "productId": 481,
+      "label": "Tigers Blood / 500g",
+      "retailer": {
+        "id": 15,
+        "name": "Gladiator Nutrition",
+        "slug": "gladiator-nutrition"
+      },
+      "price": 31.99,
+      "delivery": 6.99,
+      "total": 38.98,
+      "checked": "2026-11-18T17:18:16.197+00:00",
+      "url": "https://gladiatornutrition.co.uk/products/applied-nutrition-abe-pump?variant=41714882641965&sca_ref=11968733.U3nlV04VwN4S"
+    },
+    {
+      "id": 4256,
+      "variantId": 762,
+      "resolvedVariantId": 762,
+      "productId": 481,
+      "label": "Slush Puppie / 500g",
+      "retailer": {
+        "id": 15,
+        "name": "Gladiator Nutrition",
+        "slug": "gladiator-nutrition"
+      },
+      "price": 31.99,
+      "delivery": 6.99,
+      "total": 38.98,
+      "checked": "2026-11-18T17:18:16.197+00:00",
+      "url": "https://gladiatornutrition.co.uk/products/applied-nutrition-abe-pump?variant=57400143708534&sca_ref=11968733.U3nlV04VwN4S"
+    }
+  ],
+  "readAudit": [
+    {
+      "table": "products",
+      "method": "GET",
+      "status": 200,
+      "ms": 963,
+      "bytes": 6829
+    },
+    {
+      "table": "product_variants",
+      "method": "GET",
+      "status": 200,
+      "ms": 187,
+      "bytes": 7180
+    },
+    {
+      "table": "retailer_products",
+      "method": "GET",
+      "status": 200,
+      "ms": 423,
+      "bytes": 25600
+    },
+    {
+      "table": "nutrition_candidates",
+      "method": "GET",
+      "status": 200,
+      "ms": 148,
+      "bytes": 29147
+    },
+    {
+      "table": "nutrition_candidates",
+      "method": "GET",
+      "status": 200,
+      "ms": 127,
+      "bytes": 1974
+    }
+  ],
+  "productionWrites": 0,
+  "nutritionApprovals": 0,
+  "measurement": {
+    "status": "PRE-RELEASE; no SEO-33 outcomes claimed",
+    "windows": [
+      {
+        "period": {
+          "startDate": "2026-10-19",
+          "endDate": "2026-10-25"
+        },
+        "generatedAt": "2026-11-17T20:10:55.695Z",
+        "completeness": "NO_INCOMPLETE_DATA_REPORTED",
+        "authenticatedRun": "https://github.com/SupplementScout/supplementscout/actions/runs/44166511050",
+        "rowCounts": {
+          "topPages": 100,
+          "topQueries": 100,
+          "pageQueryRows": 250
+        },
+        "pages": [
+          {
+            "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g",
+            "pageRows": [],
+            "pageQueryRows": [],
+            "interpretation": "Missing capped rows are UNKNOWN, not zero; query privacy can omit low-volume terms."
+          },
+          {
+            "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+            "pageRows": [],
+            "pageQueryRows": [],
+            "interpretation": "Missing capped rows are UNKNOWN, not zero; query privacy can omit low-volume terms."
+          }
+        ]
+      },
+      {
+        "period": {
+          "startDate": "2026-10-26",
+          "endDate": "2026-11-01"
+        },
+        "generatedAt": "2026-11-17T20:15:05.896Z",
+        "completeness": "NO_INCOMPLETE_DATA_REPORTED",
+        "authenticatedRun": "https://github.com/SupplementScout/supplementscout/actions/runs/44166516255",
+        "rowCounts": {
+          "topPages": 100,
+          "topQueries": 100,
+          "pageQueryRows": 250
+        },
+        "pages": [
+          {
+            "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g",
+            "pageRows": [],
+            "pageQueryRows": [],
+            "interpretation": "Missing capped rows are UNKNOWN, not zero; query privacy can omit low-volume terms."
+          },
+          {
+            "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+            "pageRows": [],
+            "pageQueryRows": [],
+            "interpretation": "Missing capped rows are UNKNOWN, not zero; query privacy can omit low-volume terms."
+          }
+        ]
+      },
+      {
+        "period": {
+          "startDate": "2026-11-02",
+          "endDate": "2026-11-08"
+        },
+        "generatedAt": "2026-11-17T20:16:04.377Z",
+        "completeness": "NO_INCOMPLETE_DATA_REPORTED",
+        "authenticatedRun": "https://github.com/SupplementScout/supplementscout/actions/runs/44166520996",
+        "rowCounts": {
+          "topPages": 100,
+          "topQueries": 100,
+          "pageQueryRows": 250
+        },
+        "pages": [
+          {
+            "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g",
+            "pageRows": [],
+            "pageQueryRows": [],
+            "interpretation": "Missing capped rows are UNKNOWN, not zero; query privacy can omit low-volume terms."
+          },
+          {
+            "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+            "pageRows": [],
+            "pageQueryRows": [],
+            "interpretation": "Missing capped rows are UNKNOWN, not zero; query privacy can omit low-volume terms."
+          }
+        ]
+      },
+      {
+        "period": {
+          "startDate": "2026-11-09",
+          "endDate": "2026-11-15"
+        },
+        "generatedAt": "2026-11-17T20:14:01.347Z",
+        "completeness": "NO_INCOMPLETE_DATA_REPORTED",
+        "authenticatedRun": "https://github.com/SupplementScout/supplementscout/actions/runs/44166526954",
+        "rowCounts": {
+          "topPages": 100,
+          "topQueries": 100,
+          "pageQueryRows": 250
+        },
+        "pages": [
+          {
+            "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g",
+            "pageRows": [],
+            "pageQueryRows": [],
+            "interpretation": "Missing capped rows are UNKNOWN, not zero; query privacy can omit low-volume terms."
+          },
+          {
+            "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+            "pageRows": [],
+            "pageQueryRows": [],
+            "interpretation": "Missing capped rows are UNKNOWN, not zero; query privacy can omit low-volume terms."
+          }
+        ]
+      }
+    ],
+    "exactPumpMetrics": {
+      "impressions": "UNKNOWN",
+      "clicks": "UNKNOWN",
+      "queryImpressions": "UNKNOWN",
+      "queryCTR": "UNKNOWN",
+      "queryPosition": "UNKNOWN",
+      "ga4OrganicLandingSessions": "UNKNOWN",
+      "retailerClicks": "UNKNOWN"
+    },
+    "exactStandardMetrics": {
+      "impressions": "UNKNOWN",
+      "clicks": "UNKNOWN",
+      "queryImpressions": "UNKNOWN",
+      "queryCTR": "UNKNOWN",
+      "queryPosition": "UNKNOWN",
+      "ga4OrganicLandingSessions": "UNKNOWN",
+      "retailerClicks": "UNKNOWN"
+    },
+    "ga4Limitation": "Existing reports have site/channel aggregate sessions/events, not reliable attribution to these exact product landing pages. Do not assign aggregate retailer clicks to Pump.",
+    "keywordEvidence": "Existing owner-authorized 18 November keyword-gap research only. Pump volume/KD UNKNOWN. Generic abe pre workout approximately 5400/KD13 must not be attributed to Pump; candidate query strings are not observed GSC queries.",
+    "future": "Only after separately approved release: review both exact product URLs after 7 complete settled days and evaluate after 28 complete settled days; monitor shifts together; no schedule changes or submissions; leave SEO-20 measurement intact."
+  }
+}

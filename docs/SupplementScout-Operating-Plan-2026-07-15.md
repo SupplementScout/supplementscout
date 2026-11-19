@@ -1,5 +1,15 @@
 # SupplementScout Operating Plan
 
+**19 November 2026 SEO-33 CODE COMPLETE:** the later owner instruction authorizes
+one bounded Draft for exact ABE Pump481 only, superseding earlier no-SEO-33 wording
+for this scope. Existing productPresentation metadata plus one SSR paragraph add
+buying context and missing standard-ABE/comparison links below offers. Title/H1,
+data, nutrition approvals and SEO contracts remain unchanged. Actual-source paired
+builds, six variants, four-width QA and quick/full gates pass. No merge, Production,
+data/Google write or SEO-34. SEO-20 stays frozen IN PROGRESS; SEO-21–32 stay
+LIVE VERIFIED; Stage3 stays off; Guardian/binding sequence unchanged.
+[Evidence](rollouts/seo33-abe-pump-intent-2026-11-19.md).
+
 **19 November 2026 SEO-32 LIVE VERIFIED:** owner-approved PR#554 squash
 `90a2931cb216e81d5a5cd4401b04dde13d857043` equals the approved0b043b71 tree. PR/main CI,Guardian and exact
 Production/Vercel SUCCESS pass;public build`cd-0UX-s_6rpH1XgNejd7` confirms the

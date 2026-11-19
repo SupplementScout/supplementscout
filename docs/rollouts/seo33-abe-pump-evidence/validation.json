@@ -1,0 +1,1410 @@
+{
+  "at": "2026-11-19T12:02:39.263Z",
+  "environment": "two local Next16.2.9 production builds, same existing actual catalogue sources through GET/HEAD-only transport, no production deployment; isolated quality gates never receive production-write credentials",
+  "base": "f5bf0a99ef2b61fd79b7f840a2398c276cf5c399",
+  "buildIds": {
+    "before": "n5rJvxNHU-xffO9TsdHhu",
+    "after": "ScsdAstC4abjJ7VnknIoR"
+  },
+  "gates": {
+    "focused": {
+      "tests": 43,
+      "pass": 43,
+      "fail": 0,
+      "skip": 0
+    },
+    "quick": {
+      "at": "2026-11-19T11:54:46.085Z",
+      "mode": "quick",
+      "code": 0,
+      "signal": null,
+      "log": "tmp/quick.log",
+      "tests": 1344,
+      "pass": 1341,
+      "fail": 0,
+      "skips": 3,
+      "logSha256": "0168b586040417abf4fc3ca590cf9375e438e631366b44717540befdc4449e69"
+    },
+    "full": {
+      "at": "2026-11-19T11:57:41.967Z",
+      "mode": "full",
+      "code": 0,
+      "signal": null,
+      "log": "tmp/full.log",
+      "tests": 4086,
+      "pass": 4083,
+      "fail": 0,
+      "skips": 3,
+      "logSha256": "1f2df4f4fd8ef7de51e6ee1d399485856a9d323b314e515464fd88a23993c676"
+    },
+    "inventory": {
+      "allFiles": 369,
+      "safe": 308,
+      "integration": 57,
+      "artifact": 4,
+      "smoke": 68,
+      "seal": "2bfb325c9c18f95e45a4d596f7bd7c80a33199cbcef3dbc91c29d8518b0e27b8",
+      "note": "Existing test file extended; file inventory and manifest unchanged; inventory verification PASS."
+    }
+  },
+  "browser": {
+    "rows": [
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g",
+        "width": 1440,
+        "result": "PASS",
+        "documentWidth": [
+          1425,
+          1425
+        ],
+        "bodyWidth": [
+          1425,
+          1425
+        ],
+        "hero": [
+          {
+            "top": 100,
+            "bottom": 769.65625
+          },
+          {
+            "top": 100,
+            "bottom": 769.65625
+          }
+        ],
+        "offerCount": [
+          5,
+          5
+        ],
+        "contextLinks": [
+          {
+            "text": "standard ABE pre-workout",
+            "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g"
+          },
+          {
+            "text": "Compare ABE and ABE Pump",
+            "href": "/compare?left=215&right=481"
+          }
+        ],
+        "images": [
+          {
+            "complete": true,
+            "ok": true,
+            "alt": "Applied Nutrition ABE Pump 500g"
+          }
+        ],
+        "lcpMs": [
+          1984,
+          1128
+        ],
+        "cls": [
+          0.00014291486611265003,
+          0
+        ],
+        "jsBytesIncludingExistingPrefetch": [
+          556909,
+          556910
+        ],
+        "cssBytes": [
+          81918,
+          81918
+        ],
+        "exceptions": [],
+        "httpErrors": []
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g",
+        "width": 768,
+        "result": "PASS",
+        "documentWidth": [
+          753,
+          753
+        ],
+        "bodyWidth": [
+          753,
+          753
+        ],
+        "hero": [
+          {
+            "top": 72,
+            "bottom": 853.65625
+          },
+          {
+            "top": 72,
+            "bottom": 853.65625
+          }
+        ],
+        "offerCount": [
+          5,
+          5
+        ],
+        "contextLinks": [
+          {
+            "text": "standard ABE pre-workout",
+            "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g"
+          },
+          {
+            "text": "Compare ABE and ABE Pump",
+            "href": "/compare?left=215&right=481"
+          }
+        ],
+        "images": [
+          {
+            "complete": true,
+            "ok": true,
+            "alt": "Applied Nutrition ABE Pump 500g"
+          }
+        ],
+        "lcpMs": [
+          1076,
+          884
+        ],
+        "cls": [
+          0,
+          0
+        ],
+        "jsBytesIncludingExistingPrefetch": [
+          543208,
+          543208
+        ],
+        "cssBytes": [
+          81918,
+          81918
+        ],
+        "exceptions": [],
+        "httpErrors": []
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g",
+        "width": 390,
+        "result": "PASS",
+        "documentWidth": [
+          390,
+          390
+        ],
+        "bodyWidth": [
+          390,
+          390
+        ],
+        "hero": [
+          {
+            "top": 60,
+            "bottom": 823.4375
+          },
+          {
+            "top": 60,
+            "bottom": 823.4375
+          }
+        ],
+        "offerCount": [
+          5,
+          5
+        ],
+        "contextLinks": [
+          {
+            "text": "standard ABE pre-workout",
+            "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g"
+          },
+          {
+            "text": "Compare ABE and ABE Pump",
+            "href": "/compare?left=215&right=481"
+          }
+        ],
+        "images": [
+          {
+            "complete": true,
+            "ok": true,
+            "alt": "Applied Nutrition ABE Pump 500g"
+          }
+        ],
+        "lcpMs": [
+          980,
+          892
+        ],
+        "cls": [
+          0,
+          0
+        ],
+        "jsBytesIncludingExistingPrefetch": [
+          543208,
+          543208
+        ],
+        "cssBytes": [
+          81918,
+          81918
+        ],
+        "exceptions": [],
+        "httpErrors": []
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g",
+        "width": 320,
+        "result": "PASS",
+        "documentWidth": [
+          320,
+          320
+        ],
+        "bodyWidth": [
+          320,
+          320
+        ],
+        "hero": [
+          {
+            "top": 60,
+            "bottom": 900.15625
+          },
+          {
+            "top": 60,
+            "bottom": 900.15625
+          }
+        ],
+        "offerCount": [
+          5,
+          5
+        ],
+        "contextLinks": [
+          {
+            "text": "standard ABE pre-workout",
+            "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g"
+          },
+          {
+            "text": "Compare ABE and ABE Pump",
+            "href": "/compare?left=215&right=481"
+          }
+        ],
+        "images": [
+          {
+            "complete": true,
+            "ok": true,
+            "alt": "Applied Nutrition ABE Pump 500g"
+          }
+        ],
+        "lcpMs": [
+          1112,
+          784
+        ],
+        "cls": [
+          0,
+          0
+        ],
+        "jsBytesIncludingExistingPrefetch": [
+          543208,
+          543208
+        ],
+        "cssBytes": [
+          81918,
+          81918
+        ],
+        "exceptions": [],
+        "httpErrors": []
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+        "width": 1440,
+        "result": "PASS",
+        "documentWidth": [
+          1425,
+          1425
+        ],
+        "bodyWidth": [
+          1425,
+          1425
+        ],
+        "hero": [
+          {
+            "top": 100,
+            "bottom": 769.65625
+          },
+          {
+            "top": 100,
+            "bottom": 769.65625
+          }
+        ],
+        "offerCount": [
+          5,
+          5
+        ],
+        "contextLinks": [
+          {
+            "text": "standard ABE pre-workout",
+            "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g"
+          },
+          {
+            "text": "Compare ABE and ABE Pump",
+            "href": "/compare?left=215&right=481"
+          }
+        ],
+        "images": [
+          {
+            "complete": true,
+            "ok": true,
+            "alt": "Applied Nutrition ABE Pump 500g"
+          }
+        ],
+        "lcpMs": [
+          1084,
+          828
+        ],
+        "cls": [
+          0,
+          0
+        ],
+        "jsBytesIncludingExistingPrefetch": [
+          556909,
+          556910
+        ],
+        "cssBytes": [
+          81918,
+          81918
+        ],
+        "exceptions": [],
+        "httpErrors": []
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+        "width": 768,
+        "result": "PASS",
+        "documentWidth": [
+          753,
+          753
+        ],
+        "bodyWidth": [
+          753,
+          753
+        ],
+        "hero": [
+          {
+            "top": 72,
+            "bottom": 853.65625
+          },
+          {
+            "top": 72,
+            "bottom": 853.65625
+          }
+        ],
+        "offerCount": [
+          5,
+          5
+        ],
+        "contextLinks": [
+          {
+            "text": "standard ABE pre-workout",
+            "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g"
+          },
+          {
+            "text": "Compare ABE and ABE Pump",
+            "href": "/compare?left=215&right=481"
+          }
+        ],
+        "images": [
+          {
+            "complete": true,
+            "ok": true,
+            "alt": "Applied Nutrition ABE Pump 500g"
+          }
+        ],
+        "lcpMs": [
+          900,
+          1424
+        ],
+        "cls": [
+          0,
+          0
+        ],
+        "jsBytesIncludingExistingPrefetch": [
+          543208,
+          543208
+        ],
+        "cssBytes": [
+          81918,
+          81918
+        ],
+        "exceptions": [],
+        "httpErrors": []
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+        "width": 390,
+        "result": "PASS",
+        "documentWidth": [
+          390,
+          390
+        ],
+        "bodyWidth": [
+          390,
+          390
+        ],
+        "hero": [
+          {
+            "top": 60,
+            "bottom": 823.4375
+          },
+          {
+            "top": 60,
+            "bottom": 823.4375
+          }
+        ],
+        "offerCount": [
+          5,
+          5
+        ],
+        "contextLinks": [
+          {
+            "text": "standard ABE pre-workout",
+            "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g"
+          },
+          {
+            "text": "Compare ABE and ABE Pump",
+            "href": "/compare?left=215&right=481"
+          }
+        ],
+        "images": [
+          {
+            "complete": true,
+            "ok": true,
+            "alt": "Applied Nutrition ABE Pump 500g"
+          }
+        ],
+        "lcpMs": [
+          976,
+          896
+        ],
+        "cls": [
+          0,
+          0
+        ],
+        "jsBytesIncludingExistingPrefetch": [
+          543208,
+          543208
+        ],
+        "cssBytes": [
+          81918,
+          81918
+        ],
+        "exceptions": [],
+        "httpErrors": []
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+        "width": 320,
+        "result": "PASS",
+        "documentWidth": [
+          320,
+          320
+        ],
+        "bodyWidth": [
+          320,
+          320
+        ],
+        "hero": [
+          {
+            "top": 60,
+            "bottom": 900.15625
+          },
+          {
+            "top": 60,
+            "bottom": 900.15625
+          }
+        ],
+        "offerCount": [
+          5,
+          5
+        ],
+        "contextLinks": [
+          {
+            "text": "standard ABE pre-workout",
+            "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g"
+          },
+          {
+            "text": "Compare ABE and ABE Pump",
+            "href": "/compare?left=215&right=481"
+          }
+        ],
+        "images": [
+          {
+            "complete": true,
+            "ok": true,
+            "alt": "Applied Nutrition ABE Pump 500g"
+          }
+        ],
+        "lcpMs": [
+          3052,
+          976
+        ],
+        "cls": [
+          0,
+          0
+        ],
+        "jsBytesIncludingExistingPrefetch": [
+          543208,
+          543208
+        ],
+        "cssBytes": [
+          81918,
+          81918
+        ],
+        "exceptions": [],
+        "httpErrors": []
+      }
+    ],
+    "additionalStates": [
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=475",
+        "width": 390,
+        "offers": [],
+        "result": "PASS"
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=760",
+        "width": 390,
+        "offers": [
+          "/go/1549?source=product_best_offer",
+          "/go/1549?source=product_offer_list"
+        ],
+        "result": "PASS"
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=3603",
+        "width": 390,
+        "offers": [],
+        "result": "PASS"
+      }
+    ],
+    "keyboardVariantNavigation": "PASS: Blue Razz760 to Tigers Blood763 via Enter on existing exact variant link",
+    "screenshots": "before/after base hero and exact763 context at 1440/768/390/320; visually reviewed",
+    "imageScope": "Existing canonical catalogue product photo preserved; no variant-specific photography claim.",
+    "labLcpUpperMiddleMedianMs": [
+      1084,
+      896
+    ],
+    "note": "Warm browser cache for both; analytics blocked to avoid recording test activity. Bounded lab observations, not field CWV. No new client component/dependency; document JS543208 bytes and CSS81918 bytes identical. Existing My Supplements prefetch13701 to13702 bytes differs only in generated numeric module IDs; normalized content identical."
+  },
+  "http": {
+    "at": "2026-11-19T11:58:57.549Z",
+    "environment": "paired local production builds; existing actual GET-only sources, not production deployment",
+    "results": [
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g",
+        "result": "PASS",
+        "status": 200,
+        "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g",
+        "robots": "implicit index/follow; no blocking directive",
+        "schemaTypes": [
+          "BreadcrumbList"
+        ],
+        "offerLinks": 5,
+        "beforeReads": [
+          "products",
+          "products",
+          "offers",
+          "product_variants",
+          "nutrition_candidates",
+          "retailer_products",
+          "price_history"
+        ],
+        "afterReads": [
+          "products",
+          "products",
+          "offers",
+          "product_variants",
+          "nutrition_candidates",
+          "retailer_products",
+          "price_history"
+        ]
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+        "result": "PASS",
+        "status": 200,
+        "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g",
+        "robots": "implicit index/follow; no blocking directive",
+        "schemaTypes": [
+          "Product",
+          "BreadcrumbList"
+        ],
+        "offerLinks": 5,
+        "beforeReads": [
+          "products",
+          "products",
+          "offers",
+          "product_variants",
+          "nutrition_candidates",
+          "retailer_products",
+          "price_history"
+        ],
+        "afterReads": [
+          "products",
+          "products",
+          "offers",
+          "product_variants",
+          "nutrition_candidates",
+          "retailer_products",
+          "price_history"
+        ]
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=475",
+        "result": "PASS",
+        "status": 200,
+        "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g",
+        "robots": "implicit index/follow; no blocking directive",
+        "schemaTypes": [
+          "BreadcrumbList"
+        ],
+        "offerLinks": 0,
+        "beforeReads": [
+          "products",
+          "products",
+          "offers",
+          "product_variants",
+          "nutrition_candidates"
+        ],
+        "afterReads": [
+          "products",
+          "offers",
+          "product_variants",
+          "products",
+          "nutrition_candidates"
+        ]
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=760",
+        "result": "PASS",
+        "status": 200,
+        "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g",
+        "robots": "implicit index/follow; no blocking directive",
+        "schemaTypes": [
+          "Product",
+          "BreadcrumbList"
+        ],
+        "offerLinks": 2,
+        "beforeReads": [
+          "products",
+          "products",
+          "offers",
+          "product_variants",
+          "nutrition_candidates",
+          "retailer_products",
+          "price_history"
+        ],
+        "afterReads": [
+          "products",
+          "products",
+          "offers",
+          "product_variants",
+          "nutrition_candidates",
+          "retailer_products",
+          "price_history"
+        ]
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=3603",
+        "result": "PASS",
+        "status": 200,
+        "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g",
+        "robots": "implicit index/follow; no blocking directive",
+        "schemaTypes": [
+          "BreadcrumbList"
+        ],
+        "offerLinks": 0,
+        "beforeReads": [
+          "products",
+          "products",
+          "offers",
+          "product_variants",
+          "nutrition_candidates",
+          "retailer_products"
+        ],
+        "afterReads": [
+          "products",
+          "products",
+          "offers",
+          "product_variants",
+          "nutrition_candidates",
+          "retailer_products"
+        ]
+      },
+      {
+        "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+        "result": "PASS",
+        "status": 200,
+        "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+        "robots": "implicit index/follow; no blocking directive",
+        "schemaTypes": [
+          "BreadcrumbList"
+        ],
+        "offerLinks": 4,
+        "beforeReads": [
+          "products",
+          "products",
+          "offers",
+          "product_variants",
+          "nutrition_candidates",
+          "retailer_products",
+          "price_history"
+        ],
+        "afterReads": [
+          "products",
+          "products",
+          "offers",
+          "product_variants",
+          "nutrition_candidates",
+          "retailer_products",
+          "price_history"
+        ]
+      },
+      {
+        "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1672",
+        "result": "PASS",
+        "status": 200,
+        "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+        "robots": "implicit index/follow; no blocking directive",
+        "schemaTypes": [
+          "Product",
+          "BreadcrumbList"
+        ],
+        "offerLinks": 4,
+        "beforeReads": [
+          "products",
+          "products",
+          "offers",
+          "product_variants",
+          "nutrition_candidates",
+          "retailer_products",
+          "price_history"
+        ],
+        "afterReads": [
+          "products",
+          "products",
+          "offers",
+          "product_variants",
+          "nutrition_candidates",
+          "retailer_products",
+          "price_history"
+        ]
+      },
+      {
+        "route": "/product/myprotein-clear-whey-protein-isolate",
+        "result": "PASS",
+        "status": 200,
+        "canonical": "https://www.supplementscout.co.uk/product/myprotein-clear-whey-protein-isolate",
+        "robots": "implicit index/follow; no blocking directive",
+        "schemaTypes": [
+          "BreadcrumbList"
+        ],
+        "offerLinks": 2,
+        "beforeReads": [
+          "products",
+          "products",
+          "offers",
+          "products",
+          "retailer_products",
+          "price_history",
+          "retailer_products"
+        ],
+        "afterReads": [
+          "products",
+          "products",
+          "offers",
+          "products",
+          "retailer_products",
+          "price_history",
+          "retailer_products"
+        ]
+      },
+      {
+        "route": "/product/per4m-whey-protein-2kg",
+        "result": "PASS",
+        "status": 200,
+        "canonical": "https://www.supplementscout.co.uk/product/per4m-whey-protein-2kg",
+        "robots": "implicit index/follow; no blocking directive",
+        "schemaTypes": [
+          "BreadcrumbList"
+        ],
+        "offerLinks": 3,
+        "beforeReads": [
+          "products",
+          "products",
+          "offers",
+          "retailer_products",
+          "products",
+          "price_history",
+          "retailer_products"
+        ],
+        "afterReads": [
+          "products",
+          "products",
+          "products",
+          "offers",
+          "retailer_products",
+          "retailer_products",
+          "price_history"
+        ]
+      },
+      {
+        "route": "/brands/per4m",
+        "result": "PASS",
+        "status": 200,
+        "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "CollectionPage",
+          "ItemList",
+          "BreadcrumbList"
+        ],
+        "offerLinks": 0,
+        "beforeReads": [
+          "products"
+        ],
+        "afterReads": [
+          "products"
+        ]
+      },
+      {
+        "route": "/guides/caffeine-free-pre-workout",
+        "result": "PASS",
+        "status": 200,
+        "canonical": "https://www.supplementscout.co.uk/guides/caffeine-free-pre-workout",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ],
+        "offerLinks": 0,
+        "beforeReads": [
+          "products",
+          "retailer_products",
+          "nutrition_candidates"
+        ],
+        "afterReads": [
+          "products",
+          "retailer_products",
+          "nutrition_candidates"
+        ]
+      },
+      {
+        "route": "/pre-workout",
+        "result": "PASS",
+        "status": 200,
+        "canonical": "https://www.supplementscout.co.uk/pre-workout",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "CollectionPage",
+          "ItemList",
+          "BreadcrumbList"
+        ],
+        "offerLinks": 0,
+        "beforeReads": [
+          "products"
+        ],
+        "afterReads": [
+          "products"
+        ]
+      },
+      {
+        "route": "/creatine",
+        "result": "PASS",
+        "status": 200,
+        "canonical": "https://www.supplementscout.co.uk/creatine",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "CollectionPage",
+          "ItemList",
+          "BreadcrumbList"
+        ],
+        "offerLinks": 0,
+        "beforeReads": [
+          "products",
+          "retailer_products"
+        ],
+        "afterReads": [
+          "products",
+          "retailer_products"
+        ]
+      },
+      {
+        "route": "/guides/cost-per-25g-protein",
+        "result": "PASS",
+        "status": 200,
+        "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ],
+        "offerLinks": 0,
+        "beforeReads": [
+          "products",
+          "retailer_products"
+        ],
+        "afterReads": [
+          "products",
+          "retailer_products"
+        ]
+      },
+      {
+        "route": "/guides/supplement-prices-including-delivery",
+        "result": "PASS",
+        "status": 200,
+        "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ],
+        "offerLinks": 0,
+        "beforeReads": [
+          "products",
+          "retailer_products"
+        ],
+        "afterReads": [
+          "products",
+          "retailer_products"
+        ]
+      },
+      {
+        "route": "/robots.txt",
+        "result": "PASS",
+        "status": 200
+      },
+      {
+        "route": "/sitemap.xml",
+        "result": "PASS",
+        "status": 200
+      }
+    ],
+    "compare": {
+      "status": 200,
+      "robots": "noindex, follow",
+      "canonical": "https://www.supplementscout.co.uk/compare"
+    },
+    "performance": {
+      "beforeMs": 756.5504000000001,
+      "afterMs": 810.6743999999962,
+      "guard": "after <= before * 1.5 + 100 ms",
+      "samples": [
+        {
+          "port": 3150,
+          "ttfb": 826.2968000000001,
+          "ms": 834.4010000000017,
+          "reads": 7,
+          "tables": [
+            "products",
+            "offers",
+            "products",
+            "product_variants",
+            "nutrition_candidates",
+            "retailer_products",
+            "price_history"
+          ]
+        },
+        {
+          "port": 3151,
+          "ttfb": 719.2983999999997,
+          "ms": 727.0974999999962,
+          "reads": 7,
+          "tables": [
+            "products",
+            "offers",
+            "products",
+            "product_variants",
+            "nutrition_candidates",
+            "retailer_products",
+            "price_history"
+          ]
+        },
+        {
+          "port": 3151,
+          "ttfb": 1372.532299999999,
+          "ms": 1381.8489000000045,
+          "reads": 7,
+          "tables": [
+            "products",
+            "products",
+            "offers",
+            "product_variants",
+            "nutrition_candidates",
+            "retailer_products",
+            "price_history"
+          ]
+        },
+        {
+          "port": 3150,
+          "ttfb": 720.0400999999983,
+          "ms": 728.8292000000001,
+          "reads": 7,
+          "tables": [
+            "products",
+            "products",
+            "offers",
+            "product_variants",
+            "nutrition_candidates",
+            "retailer_products",
+            "price_history"
+          ]
+        },
+        {
+          "port": 3150,
+          "ttfb": 1045.5382000000027,
+          "ms": 1054.2302999999956,
+          "reads": 7,
+          "tables": [
+            "products",
+            "products",
+            "offers",
+            "product_variants",
+            "nutrition_candidates",
+            "retailer_products",
+            "price_history"
+          ]
+        },
+        {
+          "port": 3151,
+          "ttfb": 738.7635999999984,
+          "ms": 747.5748999999996,
+          "reads": 7,
+          "tables": [
+            "products",
+            "products",
+            "offers",
+            "product_variants",
+            "nutrition_candidates",
+            "retailer_products",
+            "price_history"
+          ]
+        },
+        {
+          "port": 3151,
+          "ttfb": 810.6743999999962,
+          "ms": 822.4084000000003,
+          "reads": 7,
+          "tables": [
+            "products",
+            "products",
+            "offers",
+            "product_variants",
+            "nutrition_candidates",
+            "retailer_products",
+            "price_history"
+          ]
+        },
+        {
+          "port": 3150,
+          "ttfb": 680.5704000000042,
+          "ms": 691.3197,
+          "reads": 7,
+          "tables": [
+            "products",
+            "products",
+            "offers",
+            "product_variants",
+            "nutrition_candidates",
+            "retailer_products",
+            "price_history"
+          ]
+        },
+        {
+          "port": 3150,
+          "ttfb": 718.6006999999954,
+          "ms": 728.8669000000009,
+          "reads": 7,
+          "tables": [
+            "products",
+            "products",
+            "offers",
+            "product_variants",
+            "nutrition_candidates",
+            "retailer_products",
+            "price_history"
+          ]
+        },
+        {
+          "port": 3151,
+          "ttfb": 665.4712,
+          "ms": 674.2065000000002,
+          "reads": 7,
+          "tables": [
+            "products",
+            "products",
+            "offers",
+            "product_variants",
+            "nutrition_candidates",
+            "retailer_products",
+            "price_history"
+          ]
+        },
+        {
+          "port": 3151,
+          "ttfb": 981.0979000000007,
+          "ms": 990.7853000000032,
+          "reads": 7,
+          "tables": [
+            "products",
+            "products",
+            "offers",
+            "product_variants",
+            "nutrition_candidates",
+            "retailer_products",
+            "price_history"
+          ]
+        },
+        {
+          "port": 3150,
+          "ttfb": 756.5504000000001,
+          "ms": 766.5877999999939,
+          "reads": 7,
+          "tables": [
+            "products",
+            "products",
+            "offers",
+            "product_variants",
+            "nutrition_candidates",
+            "retailer_products",
+            "price_history"
+          ]
+        }
+      ]
+    },
+    "productionWrites": 0
+  },
+  "coldReads": {
+    "before": [
+      {
+        "at": "2026-11-19T11:50:35.475Z",
+        "method": "GET",
+        "table": "products",
+        "status": 200,
+        "ms": 649.7229999999981,
+        "bytes": 414
+      },
+      {
+        "at": "2026-11-19T11:50:35.480Z",
+        "method": "GET",
+        "table": "products",
+        "status": 200,
+        "ms": 664.1138999999966,
+        "bytes": 949
+      },
+      {
+        "at": "2026-11-19T11:50:35.701Z",
+        "method": "GET",
+        "table": "offers",
+        "status": 200,
+        "ms": 209.22399999998743,
+        "bytes": 8810
+      },
+      {
+        "at": "2026-11-19T11:50:36.002Z",
+        "method": "GET",
+        "table": "product_variants",
+        "status": 200,
+        "ms": 288.47649999998976,
+        "bytes": 7180
+      },
+      {
+        "at": "2026-11-19T11:50:36.376Z",
+        "method": "GET",
+        "table": "nutrition_candidates",
+        "status": 200,
+        "ms": 370.34070000000065,
+        "bytes": 29147
+      },
+      {
+        "at": "2026-11-19T11:50:36.592Z",
+        "method": "GET",
+        "table": "retailer_products",
+        "status": 200,
+        "ms": 197.9957000000286,
+        "bytes": 24854
+      },
+      {
+        "at": "2026-11-19T11:50:36.799Z",
+        "method": "GET",
+        "table": "price_history",
+        "status": 200,
+        "ms": 189.2946000000229,
+        "bytes": 781
+      }
+    ],
+    "after": [
+      {
+        "at": "2026-11-19T11:58:16.584Z",
+        "method": "GET",
+        "table": "products",
+        "status": 200,
+        "ms": 287.1363000000001,
+        "bytes": 414
+      },
+      {
+        "at": "2026-11-19T11:58:16.590Z",
+        "method": "GET",
+        "table": "products",
+        "status": 200,
+        "ms": 308.0073999999986,
+        "bytes": 949
+      },
+      {
+        "at": "2026-11-19T11:58:16.709Z",
+        "method": "GET",
+        "table": "offers",
+        "status": 200,
+        "ms": 106.08439999999973,
+        "bytes": 8810
+      },
+      {
+        "at": "2026-11-19T11:58:16.846Z",
+        "method": "GET",
+        "table": "product_variants",
+        "status": 200,
+        "ms": 122.2523000000001,
+        "bytes": 7180
+      },
+      {
+        "at": "2026-11-19T11:58:17.014Z",
+        "method": "GET",
+        "table": "nutrition_candidates",
+        "status": 200,
+        "ms": 161.88080000000082,
+        "bytes": 29147
+      },
+      {
+        "at": "2026-11-19T11:58:17.222Z",
+        "method": "GET",
+        "table": "retailer_products",
+        "status": 200,
+        "ms": 203.32300000000032,
+        "bytes": 24854
+      },
+      {
+        "at": "2026-11-19T11:58:17.406Z",
+        "method": "GET",
+        "table": "price_history",
+        "status": 200,
+        "ms": 165.06940000000031,
+        "bytes": 781
+      }
+    ],
+    "counts": [
+      7,
+      7
+    ],
+    "note": "First observed server request after each start; subsequent warmed exact763 samples remain7 to7, not zero. Existing data/cache paths unchanged."
+  },
+  "sourceHtml": {
+    "at": "2026-11-19T12:01:33.605Z",
+    "sourceAt": "2026-11-19T11:42:49.627Z",
+    "rows": [
+      {
+        "variantId": 475,
+        "label": "Default",
+        "status": 200,
+        "offerIds": [],
+        "ownApprovedAppliedCaffeine": "NONE",
+        "result": "PASS"
+      },
+      {
+        "variantId": 760,
+        "label": "Blue Razz / 500g",
+        "status": 200,
+        "offerIds": [
+          1549
+        ],
+        "ownApprovedAppliedCaffeine": "confirmed_absent",
+        "result": "PASS"
+      },
+      {
+        "variantId": 761,
+        "label": "Red Hawaiian / 500g",
+        "status": 200,
+        "offerIds": [
+          485,
+          3313
+        ],
+        "ownApprovedAppliedCaffeine": "confirmed_absent",
+        "result": "PASS"
+      },
+      {
+        "variantId": 762,
+        "label": "Slush Puppie / 500g",
+        "status": 200,
+        "offerIds": [
+          3314,
+          4256
+        ],
+        "ownApprovedAppliedCaffeine": "confirmed_absent",
+        "result": "PASS"
+      },
+      {
+        "variantId": 763,
+        "label": "Tigers Blood / 500g",
+        "status": 200,
+        "offerIds": [
+          1550,
+          2631,
+          3315,
+          4253
+        ],
+        "ownApprovedAppliedCaffeine": "confirmed_absent",
+        "result": "PASS"
+      },
+      {
+        "variantId": 3603,
+        "label": "Slush Puppie Twisted Citrus / 500g",
+        "status": 200,
+        "offerIds": [],
+        "ownApprovedAppliedCaffeine": "confirmed_absent",
+        "result": "PASS"
+      }
+    ],
+    "heads": [
+      {
+        "id": 1549,
+        "status": 204,
+        "note": "HEAD proves route availability only; does not navigate externally or record a retailer click. Destination/variant ownership checked from current catalogue mappings."
+      },
+      {
+        "id": 1550,
+        "status": 204,
+        "note": "HEAD proves route availability only; does not navigate externally or record a retailer click. Destination/variant ownership checked from current catalogue mappings."
+      },
+      {
+        "id": 2631,
+        "status": 204,
+        "note": "HEAD proves route availability only; does not navigate externally or record a retailer click. Destination/variant ownership checked from current catalogue mappings."
+      },
+      {
+        "id": 485,
+        "status": 204,
+        "note": "HEAD proves route availability only; does not navigate externally or record a retailer click. Destination/variant ownership checked from current catalogue mappings."
+      },
+      {
+        "id": 3313,
+        "status": 204,
+        "note": "HEAD proves route availability only; does not navigate externally or record a retailer click. Destination/variant ownership checked from current catalogue mappings."
+      },
+      {
+        "id": 3314,
+        "status": 204,
+        "note": "HEAD proves route availability only; does not navigate externally or record a retailer click. Destination/variant ownership checked from current catalogue mappings."
+      },
+      {
+        "id": 3315,
+        "status": 204,
+        "note": "HEAD proves route availability only; does not navigate externally or record a retailer click. Destination/variant ownership checked from current catalogue mappings."
+      },
+      {
+        "id": 4253,
+        "status": 204,
+        "note": "HEAD proves route availability only; does not navigate externally or record a retailer click. Destination/variant ownership checked from current catalogue mappings."
+      },
+      {
+        "id": 4256,
+        "status": 204,
+        "note": "HEAD proves route availability only; does not navigate externally or record a retailer click. Destination/variant ownership checked from current catalogue mappings."
+      }
+    ],
+    "productionWrites": 0
+  },
+  "productionDataWrites": 0,
+  "nutritionApprovals": 0,
+  "googleSubmissions": 0
+}
