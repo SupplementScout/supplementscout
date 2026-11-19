@@ -1,5 +1,16 @@
 # SupplementScout Operating Plan
 
+**19 November 2026 Creatine mobile repair CODE COMPLETE:** owner authorizes
+one separate bounded repair after live SEO-31/Whey releases. The absolute sr-only
+action-column label escaped the static table scroll wrapper and expanded root
+scrollWidth to1050px at320px. A local containing block fixes this; the redundant
+main overflow hiding is removed. Nine columns,table minimum width and all data/SEO
+logic remain. The labelled native scroll region supports keyboard and touch.
+Eight widths,14 control cases,32 focused tests and quick/full pass. Conditional
+owner approval permits normal protected release after green exact-head CI and
+requires public readback. No data write or SEO-32;SEO-20 frozen,SEO-21–31 live,
+Stage3 off. [Evidence](rollouts/creatine-mobile-overflow-repair-2026-11-19.md).
+
 **18 November 2026 targeted whey technical repairs LIVE VERIFIED:** owner-approved
 separate PR#552 squashc956a41408922d7857fd3894ccacaf7c580a10ff preserves exact reviewedaff1de66 tree.
 PR/main CI,Guardian and Production/Vercel SUCCESS pass. Public build
