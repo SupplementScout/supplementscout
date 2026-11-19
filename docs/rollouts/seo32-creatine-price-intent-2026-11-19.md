@@ -1,7 +1,94 @@
 # SEO-32: existing Creatine price-comparison intent
 
-**CODE COMPLETE — READY FOR PUBLICATION REVIEW.** One owner-approved Draft PR;
-no merge or Production release is authorized. Base main`9c4b527bad099df3370b141b7d9f20a09020d3bf`.
+## Owner-approved Production release — 19 November 2026
+
+**LIVE VERIFIED.** The subsequent explicit owner release instruction authorizes
+PR[#554](https://github.com/SupplementScout/supplementscout/pull/554), normal squash
+merge, automatic Production and this evidence closeout. Earlier Draft-only
+boundaries below are historical; no further SEO implementation is authorized.
+
+- Approved head: `0b043b718d43937b54aa1df9ac972e7dac7b7287`.
+- Squash: `90a2931cb216e81d5a5cd4401b04dde13d857043`, merged 2026-11-19T10:58:18Z; full tree equals the approved head.
+- PR/main Quality Gate and Guardian pass. Fresh quick1,341 PASS;32 Creatine plus
+  15 Guardian negative cases PASS. Exact-head full CI confirms TypeScript,ESLint,
+  all4,078 passing tests,migration baseline and Next16.2.9 production build.
+  Three historical archive skips and integration isolation remain unchanged.
+- GitHub Production 7911150167 and Vercel dpl_Fi4euivyhzjL9iJFmfJuztzhEMAF SUCCESS
+  at 2026-11-19T10:59:21Z; public build `cd-0UX-s_6rpH1XgNejd7`
+  replaces `NMdiGDIvjeOR2T5OqO4lw`. Latest deployment/commit status,
+  domain fingerprint and approved HTML bind the release without API403/SSO bypass.
+- Public readback 2026-11-19T11:03:37.710Z:20 HTTP200 routes, approved title/description/intro,
+  one unchanged H1, matching OG/Twitter/CollectionPage, canonical/base index-follow,
+  parameter noindex-follow and1,487 duplicate-free sitemap URLs; /creatine occurs once.
+  Title: “Compare Creatine Prices UK | SupplementScout”. Description: “Compare current creatine prices from UK retailers, including known delivery costs. Check exact products, pack sizes and verified unit costs where available.”. Product/Offer entities retain
+  their approved serialization and match65 current source rows;BreadcrumbList passes.
+
+|Public viewport|Document/client px|Body/client px|Table wrapper client/scroll|Columns|Lab CLS|Result|
+|---:|---:|---:|---:|---:|---:|---|
+|320|320/320|320/320|286/1142|9|0|PASS|
+|360|360/360|360/360|326/1142|9|0|PASS|
+|390|390/390|390/390|356/1142|9|0|PASS|
+|430|430/430|430/430|396/1142|9|0|PASS|
+|768|753/753|753/753|703/1142|9|0|PASS|
+|1024|1009/1009|1009/1009|959/1142|9|0|PASS|
+|1440|1425/1425|1425/1425|1230/1230|9|0|PASS|
+
+Native touch/keyboard scrolling stays inside the table; all9 columns and exact
+links remain accessible. Header/intro,focus,both sorts,brand/retailer/empty states,
+drawer/Escape and14 protected category/home/PER4M control cases pass. No new JS
+exception or HTTP5xx. Public screenshots for all seven widths and interaction
+states are production-*.webp in the existing evidence folder;[320](seo32-creatine-price-intent-2026-11-19/production-320.webp),
+[table end](seo32-creatine-price-intent-2026-11-19/production-320-table-right.webp),
+[1440](seo32-creatine-price-intent-2026-11-19/production-1440.webp).
+
+Independent GET-only source 2026-11-19T11:01:00.035Z:86 rows validated,129 current
+offers/9 retailers and57 stale offers excluded. These are dated observations,
+not application constants; the earlier126-offer snapshot was not forced.
+All row identities,prices,delivery sums,dates,availability and verified5g
+withholding match public HTML. Under£20 selector/stock/freshness/active exact-pack
+rules and fragment remain unchanged. Actual current examples:
+
+|Product/variant|Retailer|Item + known delivery = total|Verified cost/5g|Source check UTC|
+|---|---|---|---|---|
+|767/931: OstroVit Creatine Monohydrate 300g|Fit House|£9.99 + £3.99 = £13.98|£0.26|2026-11-19T10:47:00.763+00:00|
+|791/2881: Per4m Creatine Capsules / 30 Servings|eBay UK|£13.99 + £0.00 = £13.99|Not verified|2026-11-18T14:37:27.979+00:00|
+|1239/4634: MyProtein Creatine Monohydrate Unflavoured|Holland & Barrett|£12.00 + £3.49 = £15.49|Not verified|2026-11-18T17:27:34.236+00:00|
+
+Three exact-variant product pages return200; retailer HEAD checks204 without
+GET clicks or inserted analytics. Unknown delivery/missing nutrition/OOS/stale/
+empty/error cases retain existing isolated tests; fixtures are not live evidence.
+
+|Public warm median TTFB|Before ms|Released ms|Existing guard|
+|---|---:|---:|---|
+|/creatine|236.4|257.3|PASS|
+|/brands/per4m|190.8|183.3|PASS|
+|/whey-isolate|193.1|195.0|PASS|
+|/vegan-protein|171.2|173.6|PASS|
+
+All pass unchanged after≤before×1.5+100ms. Network/DNS errors:0;lookup/connect
+timings remain separate. Existing actual-source local cold reads2→2,warm0→0,
+loader/cache/revalidation and client-module/style source remain unchanged.
+No direct Production SQL telemetry or field CWV improvement is claimed. Public
+lab LCP/JS/CSS observations,source traces,AX/geometry and CI are retained in
+[production-proof.json](seo32-creatine-price-intent-2026-11-19/production-proof.json).
+
+SEO-20 frozen experiment/clock and SEO-21–31 LIVE VERIFIED rows are unchanged;
+Stage3 remains disabled. No catalogue/nutrition/mapping/offer/history/importer/
+workflow/schema/dependency/analytics-event write or Google submission. SEO-33
+is not started. The authorized documentation-only final main SHA,green CI and
+second Production/readback are recorded on merged PR#554 after this closeout.
+
+Measurement starts from the verified19November publication. First complete UTC
+window:20–26November;main window:20November–17December. Assess only after those
+seven/28 days settle in existing reporting. Preserve the committed450/3/0.667%/
+27.49 page baseline and127/1/35.54 latest complete week;exact query9/14.11 remains
+separate from page positions and capped projections. Exact-page organic sessions
+and attributable retailer clicks remain UNKNOWN. No schedules or SEO-20 changes.
+
+## Original Draft implementation and local QA — historical
+
+**Historical Draft checkpoint: CODE COMPLETE.** At that stage one Draft PR was
+authorized; merge and Production required the later separate owner instruction. Base main`9c4b527bad099df3370b141b7d9f20a09020d3bf`.
 The19November owner SEO-32 instruction supersedes earlier no-SEO-32 boundaries
 only for this existing-route Draft. SEO-20 remains the frozen IN PROGRESS
 measurement task;SEO-21–31 remain LIVE VERIFIED;Stage3 disabled. No SEO-33.
