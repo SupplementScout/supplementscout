@@ -1,5 +1,16 @@
 # Retailer Automation Consolidation Execution Plan
 
+**19 November 2026 owner-scoped hardening — NEEDS_OWNER_APPROVAL:**
+separate shared-watchdog Draft PR preparation uses main3a0ee9a/CURRENT269,
+pending=[]. Exact retailer jobs, immutable workflow-version skip proof,
+publication wrapper names and bounded scheduled history are corrected without
+changing existing limits, fingerprint checks or native historical FAIL receipts.
+Local/API verification does not earn ordinary observation credit or global
+LIVE VERIFIED. Simply publication and10Reps canonical review are independent
+Draft scopes; worker schedule investigation is read-only. No new runtime,
+table, migration, executor, publisher or production mutation is included.
+See the [scoped watchdog report](WATCHDOG-CORRELATION-HARDENING-2026-11-19.md).
+
 **19 November PR556 owner-approved controlled release — IN PROGRESS:** exact
 source `da4f591b` and migration06286512…187aa passed protected rehearsal, rollback
 readback and one production apply. Independent READ ONLY confirms CURRENT269,

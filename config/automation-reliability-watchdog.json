@@ -121,9 +121,10 @@
       "name": "Fit House",
       "artifact_name_prefix": "fit-house-offer-refresh-",
       "workflow": "fit-house-offer-refresh.yml",
+      "job_name": "fit-house-offer-refresh",
       "review_publication": {
         "job_name": "refresh-review-queue",
-        "step_name": "Publish fresh Fit House cards to Automation Review Queue"
+        "step_name": "Reconcile and publish fresh Fit House Review Queue source"
       },
       "stages": {
         "capture": ["Dry-run all approved Fit House offers"],
@@ -196,9 +197,10 @@
       "name": "10 Reps",
       "artifact_name_prefix": "10reps-offer-refresh-",
       "workflow": "fit-house-offer-refresh.yml",
+      "job_name": "ten-reps-offer-refresh",
       "review_publication": {
         "job_name": "refresh-review-queue",
-        "step_name": "Publish fresh 10 Reps cards to Automation Review Queue"
+        "step_name": "Reconcile and publish fresh 10 Reps Review Queue source"
       },
       "stages": {
         "capture": ["Dry-run all approved 10 Reps offers"],
@@ -212,6 +214,7 @@
       "name": "Gladiator Nutrition",
       "artifact_name_prefix": "gladiator-nutrition-offer-refresh-",
       "workflow": "fit-house-offer-refresh.yml",
+      "job_name": "gladiator-nutrition-offer-refresh",
       "review_publication": {
         "job_name": "refresh-review-queue",
         "step_name": "Reconcile and publish fresh Gladiator Nutrition Review Queue source"
@@ -229,6 +232,7 @@
       "enabled": true,
       "artifact_name_prefix": "holland-barrett-offer-refresh-",
       "workflow": "fit-house-offer-refresh.yml",
+      "job_name": "holland-barrett-offer-refresh",
       "review_publication": {
         "job_name": "refresh-review-queue",
         "step_name": "Reconcile and publish fresh Holland & Barrett Review Queue source"

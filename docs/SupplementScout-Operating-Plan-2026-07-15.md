@@ -1,5 +1,19 @@
 # SupplementScout Operating Plan
 
+**19 November 2026 final automation hardening — NEEDS_OWNER_APPROVAL:**
+the completed PR556 repair remains deployed at3a0ee9a/CURRENT269, pending=[].
+The owner authorized separate Draft PR preparation for shared watchdog correlation,
+Simply review publication and canonical10Reps review; no production writes,
+migration, merge or deployment. The watchdog correction preserves historical
+failures, ordinary/manual separation and all backlog limits; its scoped
+[implementation and evidence](retailer-automation/WATCHDOG-CORRELATION-HARDENING-2026-11-19.md)
+are independent of the two publication policies. Global monitoring stays BLOCKED;
+the worker still lacks a new natural schedule. Read-only21:07 verifies unchanged
+offer identities/mappings. History57254 includes one independently approved
+eBay2735 execution at20:24 before this task, not a repeated Gym/Discount update.
+Earlier PR556 monitoring receipts remain archived locally at40bea16f/2c6cd421;
+none of that old worktree's runtime was copied into the new branches.
+
 **19 November 2026 PR556 controlled release — IN PROGRESS / CURRENT269:** the
 owner approved exact source `da4f591b` plus queue-reader SHA `06286512…187aa`
 and the required repository closeout. Protected rehearsal and its independent

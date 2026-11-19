@@ -122,6 +122,7 @@ function loadConfig(file = CONFIG_PATH) {
     "Watchdog closeout queue counts do not reconcile",
   );
   for (const profile of config.retailers) {
+    invariant(profile.job_name === undefined || /^[a-z0-9-]+$/.test(profile.job_name), `Watchdog job binding is invalid for retailer ${profile.id}`);
     invariant(profile.enabled === undefined || typeof profile.enabled === "boolean", `Watchdog enabled flag is invalid for retailer ${profile.id}`);
     invariant(profile.artifact_name_prefix === undefined || (typeof profile.artifact_name_prefix === "string" && /^[a-z0-9-]+-$/.test(profile.artifact_name_prefix)), `Watchdog artifact prefix is invalid for retailer ${profile.id}`);
     invariant(
@@ -1024,12 +1025,14 @@ function workflowAttempt(profile, run, jobs) {
   if (!definitions.length) return null;
   const captureNames = new Set(configuredStage(profile, "capture"));
   const matchingJobs = (jobs || []).filter((job) => {
+    if (profile.job_name) return job.name === profile.job_name;
     const names = new Set((job.steps || []).map((step) => step.name));
     return [...captureNames].some((name) => names.has(name));
   });
   invariant(matchingJobs.length <= 1, `Multiple jobs match retailer profile ${profile.id}`);
   if (!matchingJobs.length) return null;
   const job = matchingJobs[0];
+  if (job.conclusion === "skipped" && !(job.steps || []).length) return null;
   const jobConclusion = job.conclusion || run.conclusion || null;
   const stages = {};
   for (const [stage, acceptedNames] of definitions) {
@@ -1169,26 +1172,28 @@ function ebaySplitStages(attempts) {
   };
 }
 
-async function workflowHistoryPage({ repository, workflow, token, page, snapshotKey, freshnessCutoff, cache, fetchJson = githubJson }) {
+async function workflowHistoryPage({ repository, workflow, token, page, event = null, snapshotKey, freshnessCutoff, cache, fetchJson = githubJson }) {
+  invariant(event === null || event === "schedule", "Workflow history event filter is invalid");
   invariant(typeof snapshotKey === "string" && /^[A-Za-z0-9_.:-]{1,100}$/.test(snapshotKey), "Workflow history snapshot key is invalid");
   invariant(
     typeof freshnessCutoff === "string" && Number.isFinite(Date.parse(freshnessCutoff)),
     "Workflow history freshness cutoff is invalid",
   );
   const historyCache = cache || new Map();
-  const cacheKey = `${snapshotKey}:${freshnessCutoff}:${workflow}:${page}`;
+  const cacheKey = `${snapshotKey}:${freshnessCutoff}:${workflow}:${event || "all"}:${page}`;
   if (!historyCache.has(cacheKey)) {
     historyCache.set(cacheKey, (async () => {
       const base = `https://api.github.com/repos/${repository}`;
       const encodedWorkflow = encodeURIComponent(workflow);
       const encodedSnapshot = encodeURIComponent(snapshotKey);
-      const listing = await fetchJson(`${base}/actions/workflows/${encodedWorkflow}/runs?status=completed&per_page=${WORKFLOW_RUNS_PER_PAGE}&page=${page}&watchdog_snapshot=${encodedSnapshot}`, token);
+      const eventQuery = event ? `event=${event}&` : "";
+      const listing = await fetchJson(`${base}/actions/workflows/${encodedWorkflow}/runs?${eventQuery}per_page=${WORKFLOW_RUNS_PER_PAGE}&page=${page}&watchdog_snapshot=${encodedSnapshot}`, token);
       invariant(Array.isArray(listing.workflow_runs), "Workflow history response is invalid");
       const listedRuns = listing.workflow_runs;
       let anchorRuns = [];
       if (page === 1) {
         const encodedCreated = encodeURIComponent(`>=${freshnessCutoff}`);
-        const anchor = await fetchJson(`${base}/actions/workflows/${encodedWorkflow}/runs?status=completed&created=${encodedCreated}&per_page=1&page=1&watchdog_snapshot=${encodedSnapshot}`, token);
+        const anchor = await fetchJson(`${base}/actions/workflows/${encodedWorkflow}/runs?${eventQuery}created=${encodedCreated}&per_page=1&page=1&watchdog_snapshot=${encodedSnapshot}`, token);
         invariant(Array.isArray(anchor.workflow_runs), "Workflow history freshness anchor response is invalid");
         invariant(anchor.workflow_runs.length <= 1, "Workflow history freshness anchor returned too many runs");
         anchorRuns = anchor.workflow_runs;
@@ -1216,7 +1221,10 @@ async function workflowHistoryPage({ repository, workflow, token, page, snapshot
       });
       const entries = [];
       for (const run of runs) {
-        const jobs = await fetchJson(`${base}/actions/runs/${run.id}/jobs?per_page=100&watchdog_snapshot=${encodedSnapshot}`, token);
+        invariant(event === null || run.event === event, "Workflow history returned an unrelated event");
+        const jobsKey = `jobs:${repository}:${snapshotKey}:${run.id}`;
+        if (!historyCache.has(jobsKey)) historyCache.set(jobsKey, fetchJson(`${base}/actions/runs/${run.id}/jobs?per_page=100&watchdog_snapshot=${encodedSnapshot}`, token));
+        const jobs = await historyCache.get(jobsKey);
         entries.push({ run, jobs: jobs.jobs || [] });
       }
       return {
@@ -1229,6 +1237,52 @@ async function workflowHistoryPage({ repository, workflow, token, page, snapshot
   return historyCache.get(cacheKey);
 }
 
+// Recognize only the existing disjoint schedule/dispatch condition. Unknown
+// expressions remain unresolved; never evaluate repository text as JavaScript.
+function scheduledJobCron(source, jobName) {
+  const lines = source.split(/\r?\n/);
+  const starts = lines.flatMap((line, index) => line === `  ${jobName}:` ? [index] : []);
+  if (starts.length !== 1) return null;
+  const start = starts[0] + 1;
+  const end = lines.findIndex((line, index) => index >= start && /^  [a-z0-9-]+:/.test(line));
+  const conditions = lines.slice(start, end < 0 ? undefined : end).filter(line => /^    if: /.test(line));
+  if (conditions.length !== 1) return null;
+  const match = conditions[0].match(/^    if: \$\{\{ (.*?)\(\(github\.event_name == 'schedule' && github\.event\.schedule == '([^']+)'\) \|\| \(github\.event_name == 'workflow_dispatch' && (.*)\)\) \}\}$/);
+  if (!match) return null;
+  const prefix = match[1].replace(/(?:inputs|vars)\.[a-zA-Z_]+ (?:==|!=) '[^']*'|github\.ref == 'refs\/heads\/main'|always\(\)/g, "");
+  if (!/^[\s&]+$/.test(prefix)) return null;
+  const manual = match[3].replace(/inputs\.[a-zA-Z_]+ (?:==|!=) '[^']*'/g, "");
+  if (!/^[\s&|()]+$/.test(manual)) return null;
+  let depth = 0;
+  for (const char of manual) {
+    if (char === "(") depth++;
+    if (char === ")" && --depth < 0) return null;
+  }
+  return depth === 0 ? match[2] : null;
+}
+
+async function workflowProfileSelection(profile, run, jobs, { repository, token, cache, fetchJson }) {
+  const candidates = jobs.filter(job => job.name === profile.job_name);
+  const job = candidates.length === 1 ? candidates[0] : null;
+  const unknown = { selection: "INCOMPLETE", expectation: "UNKNOWN", job_name: profile.job_name || null };
+  if (!job || job.conclusion !== "skipped" || (job.steps || []).length) return unknown;
+  if (run.event !== "schedule") return { ...unknown, selection: "NOT_SELECTED" };
+  if (!/^[a-f0-9]{40}$/.test(run.head_sha || "")) return unknown;
+  const key = `workflow-definition:${repository}:${profile.workflow}:${run.head_sha}`;
+  if (!cache.has(key)) cache.set(key, fetchJson(`https://api.github.com/repos/${repository}/contents/.github/workflows/${encodeURIComponent(profile.workflow)}?ref=${run.head_sha}`, token));
+  const file = await cache.get(key);
+  invariant(file.encoding === "base64" && file.size <= 256 * 1024 && typeof file.content === "string", "Workflow definition evidence is invalid");
+  const source = Buffer.from(file.content, "base64").toString("utf8");
+  const targetCron = scheduledJobCron(source, job.name);
+  if (!targetCron) return unknown;
+  const selected = jobs.filter(row => row.conclusion !== "skipped" && (row.steps || []).length)
+    .map(row => ({ job_id: String(row.id), job_name: row.name, cron: scheduledJobCron(source, row.name) }))
+    .filter(row => row.cron !== null);
+  const crons = new Set(selected.map(row => row.cron));
+  if (crons.size !== 1 || crons.has(targetCron)) return { ...unknown, expected_cron: targetCron, selected_jobs: selected };
+  return { selection: "EXPECTED_SKIP", expectation: "NOT_SELECTED", job_name: job.name, job_id: String(job.id), expected_cron: targetCron, selected_jobs: selected, head_sha: run.head_sha, workflow_blob_sha: file.sha, workflow_definition_sha256: canonicalHash(source) };
+}
+
 async function runStages(profile, repository, token, options = {}) {
   const emptyStages = { capture: null, apply: null, db_postflight: null, idempotency: null };
   if (!profile.workflow) return { stages: emptyStages, applyRunId: null, latestAttempt: null, lastCompleteSuccess: null, latestOrdinaryAttempt: null, lastCompleteOrdinarySuccess: null, latestListedRun: null, latestListedOrdinaryRun: null, unmatchedRecentRuns: [], scannedRunCount: 0, historyTruncated: false, historyRecoveredRunIds: [] };
@@ -1237,36 +1291,55 @@ async function runStages(profile, repository, token, options = {}) {
   const historyFreshnessCutoff = options.historyFreshnessCutoff || new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
   const fetchJson = options.fetchJson || githubJson;
   const attempts = [];
+  const seen = new Set();
   const unmatchedRecentRuns = [];
   const historyRecoveredRunIds = [];
-  let latestListedRun = null;
-  let latestListedOrdinaryRun = null;
+  const listedRuns = [];
+  const ordinaryRuns = [];
   let scannedRunCount = 0;
   let historyTruncated = false;
-  for (let page = 1; page <= MAX_WORKFLOW_RUN_PAGES; page++) {
-    const historyPage = await workflowHistoryPage({ repository, workflow: profile.workflow, token, page, snapshotKey: historySnapshotKey, freshnessCutoff: historyFreshnessCutoff, cache: workflowHistoryCache, fetchJson });
+  let event = null;
+  let page = 1;
+  for (let request = 1; request <= MAX_WORKFLOW_RUN_PAGES; request++) {
+    const historyPage = await workflowHistoryPage({ repository, workflow: profile.workflow, token, page, event, snapshotKey: historySnapshotKey, freshnessCutoff: historyFreshnessCutoff, cache: workflowHistoryCache, fetchJson });
     const { entries } = historyPage;
     historyRecoveredRunIds.push(...historyPage.recoveredRunIds);
     for (const { run, jobs } of entries) {
+      if (seen.has(String(run.id))) continue;
+      seen.add(String(run.id));
       scannedRunCount += 1;
-      latestListedRun ||= workflowRunSummary(run);
-      if (!latestListedOrdinaryRun && run.event === "schedule") latestListedOrdinaryRun = workflowRunSummary(run);
+      listedRuns.push(workflowRunSummary(run));
       const attempt = workflowAttempt(profile, run, jobs);
+      const selection = !attempt && profile.job_name
+        ? await workflowProfileSelection(profile, run, jobs, { repository, token, cache: workflowHistoryCache, fetchJson }) : null;
+      if (run.event === "schedule" && selection?.selection !== "EXPECTED_SKIP") ordinaryRuns.push(workflowRunSummary(run));
       if (attempt) attempts.push(attempt);
       else if (unmatchedRecentRuns.length < 10) {
         unmatchedRecentRuns.push({
           ...workflowRunSummary(run),
           job_count: jobs.length,
           job_names: jobs.map((job) => job.name || null),
+          ...(selection ? { profile_selection: selection } : {}),
         });
       }
     }
     const selected = selectWorkflowAttempts(attempts);
-    if (selected.latestAttempt && selected.lastCompleteSuccess && selected.latestOrdinaryAttempt && selected.lastCompleteOrdinarySuccess) break;
-    if (historyPage.listedRunCount < WORKFLOW_RUNS_PER_PAGE) break;
-    if (page === MAX_WORKFLOW_RUN_PAGES) historyTruncated = true;
+    if (selected.latestAttempt && selected.lastCompleteSuccess && selected.latestOrdinaryAttempt && selected.lastCompleteOrdinarySuccess
+      && (event === "schedule" || selected.latestAttempt.event === "schedule")) break;
+    // Spend the existing four-page budget on ordinary history once the latest
+    // actual attempt/success are known, rather than walking manual-run noise.
+    if (!event && selected.latestAttempt && selected.lastCompleteSuccess) {
+      event = "schedule";
+      page = 1;
+    } else {
+      if (historyPage.listedRunCount < WORKFLOW_RUNS_PER_PAGE) break;
+      page++;
+    }
+    if (request === MAX_WORKFLOW_RUN_PAGES) historyTruncated = true;
   }
   const selected = selectWorkflowAttempts(attempts);
+  const latestListedRun = selectWorkflowAttempts(listedRuns).latestAttempt;
+  const latestListedOrdinaryRun = selectWorkflowAttempts(ordinaryRuns).latestAttempt;
   let stages = successfulStages(selected.lastCompleteSuccess);
   let correlationModel = "SAME_RUN";
   if (String(profile.id) === "12" && !selected.lastCompleteSuccess) {
@@ -1594,6 +1667,8 @@ module.exports = {
   stageDefinitions,
   summarizeWatchdogResult,
   workflowAttempt,
+  workflowProfileSelection,
+  scheduledJobCron,
   workflowRunSummary,
   workflowHistoryPage,
   workflowLivenessCheck,
