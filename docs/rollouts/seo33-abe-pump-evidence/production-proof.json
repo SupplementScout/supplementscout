@@ -1,0 +1,3182 @@
+{
+  "at": "2026-11-19T12:37:34.815Z",
+  "status": "LIVE VERIFIED",
+  "approvedHead": "e30b283c7d81915db237136d92416538f4104f54",
+  "base": "f5bf0a99ef2b61fd79b7f840a2398c276cf5c399",
+  "squash": {
+    "headRefOid": "e30b283c7d81915db237136d92416538f4104f54",
+    "mergeCommit": {
+      "oid": "044d6a5da9abd42f720bd60223d7507f10eaf14c"
+    },
+    "mergedAt": "2026-11-19T12:30:29Z",
+    "state": "MERGED",
+    "url": "https://github.com/SupplementScout/supplementscout/pull/555",
+    "verifiedAt": "2026-11-19T12:30:33.988Z",
+    "treeParity": true
+  },
+  "production": {
+    "sha": "044d6a5da9abd42f720bd60223d7507f10eaf14c",
+    "target": "production",
+    "githubDeploymentId": 7913152039,
+    "githubDeploymentState": "success",
+    "githubDeploymentCreatedAt": "2026-11-19T12:31:30Z",
+    "generatedDeploymentUrl": "https://supplementscout-ohcwmtw88-supplement-scout.vercel.app",
+    "vercelCommitState": "success",
+    "vercelStatusUrl": "https://vercel.com/supplement-scout/supplementscout/5J3RPsF1eYgPcv2vUkGmexbiMuBJ",
+    "directVercelApi": "Prior403 retained; not retried or bypassed. Authorized GitHub/Vercel webhook and public build verification used.",
+    "id": "dpl_5J3RPsF1eYgPcv2vUkGmexbiMuBJ",
+    "state": "READY",
+    "ready": true,
+    "publicDomain": "https://www.supplementscout.co.uk",
+    "publicBuildId": "k7pJ6kBckaZlc_Hfxs5Zs",
+    "previousPublicBuildId": "aiWBr9_FgrgzoucVXMn1E",
+    "publicDomainBuildTransition": true,
+    "samePublicBuildAcrossCheckedRoutes": true,
+    "checked": [],
+    "readinessAuthority": "Vercel commit SUCCESS + exact latest GitHub Production deployment SUCCESS + public domain build fingerprint/content contracts; no private API READY claim",
+    "githubProductionSuccessAt": "2026-11-19T12:31:31Z",
+    "firstVerifiedAt": "2026-11-19T12:31:53.600Z"
+  },
+  "mainCI": {
+    "sha": "044d6a5da9abd42f720bd60223d7507f10eaf14c",
+    "at": "2026-11-19T12:34:58.482Z",
+    "result": "PASS",
+    "checks": [
+      {
+        "name": "full",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44524524717/job/135561460901",
+        "completedAt": "2026-11-19T12:34:43Z"
+      },
+      {
+        "name": "verify-project-control",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44524524379/job/135561460620",
+        "completedAt": "2026-11-19T12:30:43Z"
+      }
+    ]
+  },
+  "publicReadback": {
+    "at": "2026-11-19T12:32:53.767Z",
+    "result": "PASS",
+    "sha": "044d6a5da9abd42f720bd60223d7507f10eaf14c",
+    "build": "k7pJ6kBckaZlc_Hfxs5Zs",
+    "pages": [
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g",
+        "status": 200,
+        "build": "k7pJ6kBckaZlc_Hfxs5Zs",
+        "title": "Applied Nutrition ABE Pump 500g | SupplementScout",
+        "description": "Compare Applied Nutrition ABE Pump 500g prices in the UK. Check flavours, retailer offers, known delivery costs and reviewed caffeine facts where available.",
+        "h1": [
+          "Applied Nutrition ABE Pump 500g"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g",
+        "robots": "implicit index/follow; no blocking directive",
+        "xRobots": null,
+        "schemaTypes": [
+          "BreadcrumbList"
+        ],
+        "productSchemas": [],
+        "cache": "MISS",
+        "offerLinks": [
+          "/go/2631?source=product_best_offer",
+          "/go/2631?source=product_offer_list",
+          "/go/3313?source=product_offer_list",
+          "/go/4256?source=product_offer_list",
+          "/go/1549?source=product_offer_list"
+        ],
+        "result": "PASS"
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+        "status": 200,
+        "build": "k7pJ6kBckaZlc_Hfxs5Zs",
+        "title": "Applied Nutrition ABE Pump 500g | SupplementScout",
+        "description": "Compare Applied Nutrition ABE Pump 500g prices in the UK. Check flavours, retailer offers, known delivery costs and reviewed caffeine facts where available.",
+        "h1": [
+          "Applied Nutrition ABE Pump 500g"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g",
+        "robots": "implicit index/follow; no blocking directive",
+        "xRobots": null,
+        "schemaTypes": [
+          "Product",
+          "BreadcrumbList"
+        ],
+        "productSchemas": [
+          {
+            "@type": "Product",
+            "@id": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g#product",
+            "description": "Applied Nutrition ABE Pump 500g is a pre-workout powder. Its verified net weight is 500 g.",
+            "name": "Applied Nutrition ABE Pump 500g",
+            "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g",
+            "brand": {
+              "@type": "Brand",
+              "name": "Applied Nutrition"
+            },
+            "image": [
+              "https://files.ekmcdn.com/2ab763/images/applied-nutrition-abe-pump-500g-3727-p.jpg"
+            ],
+            "offers": {
+              "@type": "AggregateOffer",
+              "availability": "https://schema.org/InStock",
+              "highPrice": 37.81,
+              "lowPrice": 28.99,
+              "offerCount": 4,
+              "priceCurrency": "GBP",
+              "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g"
+            }
+          }
+        ],
+        "cache": "MISS",
+        "offerLinks": [
+          "/go/2631?source=product_best_offer",
+          "/go/2631?source=product_offer_list",
+          "/go/3315?source=product_offer_list",
+          "/go/4253?source=product_offer_list",
+          "/go/1550?source=product_offer_list"
+        ],
+        "result": "PASS"
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=760",
+        "status": 200,
+        "build": "k7pJ6kBckaZlc_Hfxs5Zs",
+        "title": "Applied Nutrition ABE Pump 500g | SupplementScout",
+        "description": "Compare Applied Nutrition ABE Pump 500g prices in the UK. Check flavours, retailer offers, known delivery costs and reviewed caffeine facts where available.",
+        "h1": [
+          "Applied Nutrition ABE Pump 500g"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g",
+        "robots": "implicit index/follow; no blocking directive",
+        "xRobots": null,
+        "schemaTypes": [
+          "Product",
+          "BreadcrumbList"
+        ],
+        "productSchemas": [
+          {
+            "@type": "Product",
+            "@id": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g#product",
+            "description": "Applied Nutrition ABE Pump 500g is a pre-workout powder. Its verified net weight is 500 g.",
+            "name": "Applied Nutrition ABE Pump 500g",
+            "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g",
+            "brand": {
+              "@type": "Brand",
+              "name": "Applied Nutrition"
+            },
+            "image": [
+              "https://files.ekmcdn.com/2ab763/images/applied-nutrition-abe-pump-500g-3727-p.jpg"
+            ],
+            "offers": {
+              "@type": "AggregateOffer",
+              "availability": "https://schema.org/InStock",
+              "highPrice": 37.81,
+              "lowPrice": 37.81,
+              "offerCount": 1,
+              "priceCurrency": "GBP",
+              "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g"
+            }
+          }
+        ],
+        "cache": "MISS",
+        "offerLinks": [
+          "/go/1549?source=product_best_offer",
+          "/go/1549?source=product_offer_list"
+        ],
+        "result": "PASS"
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=475",
+        "status": 200,
+        "build": "k7pJ6kBckaZlc_Hfxs5Zs",
+        "title": "Applied Nutrition ABE Pump 500g | SupplementScout",
+        "description": "Compare Applied Nutrition ABE Pump 500g prices in the UK. Check flavours, retailer offers, known delivery costs and reviewed caffeine facts where available.",
+        "h1": [
+          "Applied Nutrition ABE Pump 500g"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g",
+        "robots": "implicit index/follow; no blocking directive",
+        "xRobots": null,
+        "schemaTypes": [
+          "BreadcrumbList"
+        ],
+        "productSchemas": [],
+        "cache": "MISS",
+        "offerLinks": [],
+        "result": "PASS"
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=3603",
+        "status": 200,
+        "build": "k7pJ6kBckaZlc_Hfxs5Zs",
+        "title": "Applied Nutrition ABE Pump 500g | SupplementScout",
+        "description": "Compare Applied Nutrition ABE Pump 500g prices in the UK. Check flavours, retailer offers, known delivery costs and reviewed caffeine facts where available.",
+        "h1": [
+          "Applied Nutrition ABE Pump 500g"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g",
+        "robots": "implicit index/follow; no blocking directive",
+        "xRobots": null,
+        "schemaTypes": [
+          "BreadcrumbList"
+        ],
+        "productSchemas": [],
+        "cache": "MISS",
+        "offerLinks": [],
+        "result": "PASS"
+      },
+      {
+        "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+        "status": 200,
+        "build": "k7pJ6kBckaZlc_Hfxs5Zs",
+        "title": "Applied Nutrition ABE Ultimate Pre-Workout 315g | SupplementScout",
+        "description": "Applied Nutrition ABE Ultimate Pre-Workout 315g is a pre-workout supplement.",
+        "h1": [
+          "Applied Nutrition ABE Ultimate Pre-Workout 315g"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+        "robots": "implicit index/follow; no blocking directive",
+        "xRobots": null,
+        "schemaTypes": [
+          "BreadcrumbList"
+        ],
+        "productSchemas": [],
+        "cache": "MISS",
+        "offerLinks": [
+          "/go/2673?source=product_best_offer",
+          "/go/2673?source=product_offer_list",
+          "/go/4290?source=product_offer_list",
+          "/go/1678?source=product_offer_list"
+        ],
+        "result": "PASS"
+      },
+      {
+        "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g?variant=1672",
+        "status": 200,
+        "build": "k7pJ6kBckaZlc_Hfxs5Zs",
+        "title": "Applied Nutrition ABE Ultimate Pre-Workout 315g | SupplementScout",
+        "description": "Applied Nutrition ABE Ultimate Pre-Workout 315g is a pre-workout supplement.",
+        "h1": [
+          "Applied Nutrition ABE Ultimate Pre-Workout 315g"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+        "robots": "implicit index/follow; no blocking directive",
+        "xRobots": null,
+        "schemaTypes": [
+          "Product",
+          "BreadcrumbList"
+        ],
+        "productSchemas": [
+          {
+            "@type": "Product",
+            "@id": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g#product",
+            "description": "Applied Nutrition ABE Ultimate Pre-Workout 315g is a pre-workout powder. Its verified net weight is 315 g.",
+            "name": "Applied Nutrition ABE Ultimate Pre-Workout 315g",
+            "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+            "brand": {
+              "@type": "Brand",
+              "name": "Applied Nutrition"
+            },
+            "image": [
+              "https://files.ekmcdn.com/2ab763/images/applied-nutrition-abe-ultimate-pre-workout-315g-1358-p.jpg"
+            ],
+            "offers": {
+              "@type": "AggregateOffer",
+              "availability": "https://schema.org/InStock",
+              "highPrice": 26.73,
+              "lowPrice": 21.95,
+              "offerCount": 3,
+              "priceCurrency": "GBP",
+              "url": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g"
+            }
+          }
+        ],
+        "cache": "MISS",
+        "offerLinks": [
+          "/go/2673?source=product_best_offer",
+          "/go/2673?source=product_offer_list",
+          "/go/4290?source=product_offer_list",
+          "/go/1678?source=product_offer_list"
+        ],
+        "result": "PASS"
+      },
+      {
+        "route": "/guides/caffeine-free-pre-workout",
+        "status": 200,
+        "build": "k7pJ6kBckaZlc_Hfxs5Zs",
+        "title": "Caffeine-Free Pre-Workout UK: How to Check and Compare | SupplementScout",
+        "description": "Compare checked caffeine-free pre-workout variants using approved confirmed-absence facts, exact flavours and packs, current UK prices and known delivery.",
+        "h1": [
+          "How can I find and compare a pre-workout without caffeine?"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/caffeine-free-pre-workout",
+        "robots": "index, follow",
+        "xRobots": null,
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ],
+        "productSchemas": [],
+        "cache": "MISS",
+        "offerLinks": [],
+        "result": "PASS"
+      },
+      {
+        "route": "/pre-workout",
+        "status": 200,
+        "build": "k7pJ6kBckaZlc_Hfxs5Zs",
+        "title": "Compare Pre Workout Prices UK | SupplementScout",
+        "description": "Compare current Pre Workout prices from UK supplement retailers, with recently checked offers, known delivery costs, retailer coverage and verified value metrics.",
+        "h1": [
+          "Compare Pre Workout Prices UK"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/pre-workout",
+        "robots": "index, follow",
+        "xRobots": null,
+        "schemaTypes": [
+          "CollectionPage",
+          "ItemList",
+          "BreadcrumbList"
+        ],
+        "productSchemas": [],
+        "cache": "MISS",
+        "offerLinks": [],
+        "result": "PASS"
+      },
+      {
+        "route": "/product/myprotein-clear-whey-protein-isolate",
+        "status": 200,
+        "build": "k7pJ6kBckaZlc_Hfxs5Zs",
+        "title": "Myprotein Clear Whey Protein Isolate | SupplementScout",
+        "description": "Compare Myprotein Clear Whey Protein Isolate prices in the UK. Check available flavours, exact pack sizes, retailer offers and known delivery costs.",
+        "h1": [
+          "Myprotein Clear Whey Protein Isolate"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/product/myprotein-clear-whey-protein-isolate",
+        "robots": "implicit index/follow; no blocking directive",
+        "xRobots": null,
+        "schemaTypes": [
+          "BreadcrumbList"
+        ],
+        "productSchemas": [],
+        "cache": "MISS",
+        "offerLinks": [
+          "/go/4631?source=product_best_offer",
+          "/go/4631?source=product_offer_list"
+        ],
+        "result": "PASS"
+      },
+      {
+        "route": "/creatine",
+        "status": 200,
+        "build": "k7pJ6kBckaZlc_Hfxs5Zs",
+        "title": "Compare Creatine Prices UK | SupplementScout",
+        "description": "Compare current creatine prices from UK retailers, including known delivery costs. Check exact products, pack sizes and verified unit costs where available.",
+        "h1": [
+          "Compare Creatine Supplements UK"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/creatine",
+        "robots": "index, follow",
+        "xRobots": null,
+        "schemaTypes": [
+          "CollectionPage",
+          "ItemList",
+          "BreadcrumbList"
+        ],
+        "productSchemas": [],
+        "cache": "MISS",
+        "offerLinks": [],
+        "result": "PASS"
+      },
+      {
+        "route": "/whey-protein",
+        "status": 200,
+        "build": "k7pJ6kBckaZlc_Hfxs5Zs",
+        "title": "Compare Whey Protein Prices UK | SupplementScout",
+        "description": "Compare current Whey Protein prices from UK supplement retailers, including known delivery, retailer coverage and verified value metrics.",
+        "h1": [
+          "Compare Whey Protein Prices UK"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/whey-protein",
+        "robots": "index, follow",
+        "xRobots": null,
+        "schemaTypes": [
+          "CollectionPage",
+          "ItemList",
+          "BreadcrumbList"
+        ],
+        "productSchemas": [],
+        "cache": "MISS",
+        "offerLinks": [],
+        "result": "PASS"
+      },
+      {
+        "route": "/brands/per4m",
+        "status": 200,
+        "build": "k7pJ6kBckaZlc_Hfxs5Zs",
+        "title": "Compare PER4M Prices Across UK Retailers | SupplementScout",
+        "description": "Compare current Per4m product prices from UK supplement retailers, including known delivery, retailer coverage and recently checked offers.",
+        "h1": [
+          "Per4m Products & Prices UK"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+        "robots": "index, follow",
+        "xRobots": null,
+        "schemaTypes": [
+          "CollectionPage",
+          "ItemList",
+          "BreadcrumbList"
+        ],
+        "productSchemas": [],
+        "cache": "MISS",
+        "offerLinks": [],
+        "result": "PASS"
+      },
+      {
+        "route": "/product/per4m-whey-protein-2kg",
+        "status": 200,
+        "build": "k7pJ6kBckaZlc_Hfxs5Zs",
+        "title": "Per4m Whey Protein 2kg | SupplementScout",
+        "description": "Per4m Whey Protein 2kg is a supplement. This 2.01 kg product contains 67 verified servings.",
+        "h1": [
+          "Per4m Whey Protein 2kg"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/product/per4m-whey-protein-2kg",
+        "robots": "implicit index/follow; no blocking directive",
+        "xRobots": null,
+        "schemaTypes": [
+          "BreadcrumbList"
+        ],
+        "productSchemas": [],
+        "cache": "MISS",
+        "offerLinks": [
+          "/go/1025?source=product_best_offer",
+          "/go/1059?source=product_offer_list",
+          "/go/4236?source=product_offer_list"
+        ],
+        "result": "PASS"
+      },
+      {
+        "route": "/compare?left=215&right=481",
+        "status": 200,
+        "build": "k7pJ6kBckaZlc_Hfxs5Zs",
+        "title": "Compare Two Supplements Side by Side | SupplementScout",
+        "description": "Compare two supplement products side by side using recently checked UK prices, exact pack identity and verified nutrition metrics.",
+        "h1": [
+          "Compare two supplements side by side"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/compare",
+        "robots": "noindex, follow",
+        "xRobots": null,
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ],
+        "productSchemas": [],
+        "cache": "MISS",
+        "offerLinks": [],
+        "result": "PASS"
+      },
+      {
+        "route": "/guides/cost-per-25g-protein",
+        "status": 200,
+        "build": "k7pJ6kBckaZlc_Hfxs5Zs",
+        "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout",
+        "description": "Understand delivered cost per 25 g of protein with checked whey examples, verified serving data and clear limits on missing information.",
+        "h1": [
+          "How to compare protein powders by cost per 25g of protein"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+        "robots": "index, follow",
+        "xRobots": null,
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ],
+        "productSchemas": [],
+        "cache": "MISS",
+        "offerLinks": [],
+        "result": "PASS"
+      },
+      {
+        "route": "/guides/supplement-prices-including-delivery",
+        "status": 200,
+        "build": "k7pJ6kBckaZlc_Hfxs5Zs",
+        "title": "Supplement Prices Including Delivery: A UK Comparison | SupplementScout",
+        "description": "Compare checked UK supplement offers for the same variant and pack, with product price, delivery and the final delivered total shown apart.",
+        "h1": [
+          "Can a higher product price be cheaper after delivery?"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+        "robots": "index, follow",
+        "xRobots": null,
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ],
+        "productSchemas": [],
+        "cache": "MISS",
+        "offerLinks": [],
+        "result": "PASS"
+      }
+    ],
+    "sitemapCount": 1487,
+    "sitemapUnchanged": true,
+    "exactPumpSitemapCount": 1,
+    "robotsTxtUnchanged": true,
+    "allProtectedStaticContentAndLinksUnchanged": true,
+    "standardCaffeineSource": {
+      "at": "2026-11-19T12:35:46.446Z",
+      "result": "PASS",
+      "productId": 215,
+      "variantId": 1672,
+      "label": "Baddy Berry / 315g",
+      "weightG": 315,
+      "caffeine": {
+        "key": "caffeine",
+        "informationState": "present_with_amount",
+        "amountPerServingMg": 200,
+        "servingSizeValue": 10.5,
+        "servingSizeUnit": "g",
+        "servingBasisText": "Mix 1 scoop (10.5g); 315G | 30 SERVINGS",
+        "ingredientForm": null,
+        "ingredientRatio": null,
+        "sourceKinds": [
+          "manufacturer_source"
+        ]
+      },
+      "reads": [
+        {
+          "table": "product_variants",
+          "method": "GET",
+          "status": 200,
+          "ms": 560,
+          "bytes": 1602
+        },
+        {
+          "table": "nutrition_candidates",
+          "method": "GET",
+          "status": 200,
+          "ms": 223,
+          "bytes": 97418
+        }
+      ],
+      "productionWrites": 0
+    }
+  },
+  "currentSource": {
+    "at": "2026-11-19T12:32:23.887Z",
+    "identity": {
+      "id": 481,
+      "slug": "applied-nutrition-abe-pump-500g",
+      "name": "Applied Nutrition ABE Pump 500g",
+      "brand": "Applied Nutrition",
+      "category": "Pre Workout",
+      "active": true,
+      "mergedInto": null,
+      "rootFormat": null,
+      "rootNetWeight": null
+    },
+    "variants": [
+      {
+        "id": 475,
+        "label": "Default",
+        "format": null,
+        "size": null,
+        "unit": null,
+        "isDefault": true,
+        "currentOfferCount": 0,
+        "caffeine": [],
+        "approvedCaffeineCandidateIds": []
+      },
+      {
+        "id": 760,
+        "label": "Blue Razz / 500g",
+        "format": "powder",
+        "size": 500,
+        "unit": "g",
+        "isDefault": false,
+        "currentOfferCount": 1,
+        "caffeine": [
+          {
+            "key": "caffeine",
+            "informationState": "confirmed_absent",
+            "amountPerServingMg": null,
+            "servingSizeValue": null,
+            "servingSizeUnit": null,
+            "servingBasisText": null,
+            "ingredientForm": null,
+            "ingredientRatio": null,
+            "sourceKinds": [
+              "manufacturer_source"
+            ]
+          }
+        ],
+        "approvedCaffeineCandidateIds": [
+          707
+        ]
+      },
+      {
+        "id": 761,
+        "label": "Red Hawaiian / 500g",
+        "format": "powder",
+        "size": 500,
+        "unit": "g",
+        "isDefault": false,
+        "currentOfferCount": 2,
+        "caffeine": [
+          {
+            "key": "caffeine",
+            "informationState": "confirmed_absent",
+            "amountPerServingMg": null,
+            "servingSizeValue": null,
+            "servingSizeUnit": null,
+            "servingBasisText": null,
+            "ingredientForm": null,
+            "ingredientRatio": null,
+            "sourceKinds": [
+              "manufacturer_source"
+            ]
+          }
+        ],
+        "approvedCaffeineCandidateIds": [
+          712
+        ]
+      },
+      {
+        "id": 762,
+        "label": "Slush Puppie / 500g",
+        "format": "powder",
+        "size": 500,
+        "unit": "g",
+        "isDefault": false,
+        "currentOfferCount": 2,
+        "caffeine": [
+          {
+            "key": "caffeine",
+            "informationState": "confirmed_absent",
+            "amountPerServingMg": null,
+            "servingSizeValue": null,
+            "servingSizeUnit": null,
+            "servingBasisText": null,
+            "ingredientForm": null,
+            "ingredientRatio": null,
+            "sourceKinds": [
+              "manufacturer_source"
+            ]
+          }
+        ],
+        "approvedCaffeineCandidateIds": [
+          747
+        ]
+      },
+      {
+        "id": 763,
+        "label": "Tigers Blood / 500g",
+        "format": "powder",
+        "size": 500,
+        "unit": "g",
+        "isDefault": false,
+        "currentOfferCount": 4,
+        "caffeine": [
+          {
+            "key": "caffeine",
+            "informationState": "confirmed_absent",
+            "amountPerServingMg": null,
+            "servingSizeValue": null,
+            "servingSizeUnit": null,
+            "servingBasisText": null,
+            "ingredientForm": null,
+            "ingredientRatio": null,
+            "sourceKinds": [
+              "manufacturer_source"
+            ]
+          }
+        ],
+        "approvedCaffeineCandidateIds": [
+          752
+        ]
+      },
+      {
+        "id": 3603,
+        "label": "Slush Puppie Twisted Citrus / 500g",
+        "format": "powder",
+        "size": 500,
+        "unit": "g",
+        "isDefault": false,
+        "currentOfferCount": 0,
+        "caffeine": [
+          {
+            "key": "caffeine",
+            "informationState": "confirmed_absent",
+            "amountPerServingMg": null,
+            "servingSizeValue": null,
+            "servingSizeUnit": null,
+            "servingBasisText": null,
+            "ingredientForm": null,
+            "ingredientRatio": null,
+            "sourceKinds": [
+              "manufacturer_source"
+            ]
+          }
+        ],
+        "approvedCaffeineCandidateIds": [
+          757
+        ]
+      }
+    ],
+    "offers": [
+      {
+        "id": 1549,
+        "variantId": 760,
+        "resolvedVariantId": 760,
+        "productId": 481,
+        "label": "Blue Razz / 500g",
+        "retailer": {
+          "id": 3,
+          "name": "Whey Okay",
+          "slug": "whey-okay"
+        },
+        "price": 37.81,
+        "delivery": 3.99,
+        "total": 41.800000000000004,
+        "checked": "2026-11-19T10:26:35.005+00:00",
+        "url": "https://wheyokay.com/applied-nutrition-abe-pump-500g-3727-p.asp"
+      },
+      {
+        "id": 1550,
+        "variantId": 763,
+        "resolvedVariantId": 763,
+        "productId": 481,
+        "label": "Tigers Blood / 500g",
+        "retailer": {
+          "id": 3,
+          "name": "Whey Okay",
+          "slug": "whey-okay"
+        },
+        "price": 37.81,
+        "delivery": 3.99,
+        "total": 41.800000000000004,
+        "checked": "2026-11-19T10:26:35.005+00:00",
+        "url": "https://wheyokay.com/applied-nutrition-abe-pump-500g-3727-p.asp"
+      },
+      {
+        "id": 2631,
+        "variantId": 763,
+        "resolvedVariantId": 763,
+        "productId": 481,
+        "label": "Tigers Blood / 500g",
+        "retailer": {
+          "id": 12,
+          "name": "eBay UK",
+          "slug": "ebay-uk"
+        },
+        "price": 29.95,
+        "delivery": 0,
+        "total": 29.95,
+        "checked": "2026-11-18T14:37:32.27+00:00",
+        "url": "https://www.ebay.co.uk/itm/134686134724?var=434197535546&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050"
+      },
+      {
+        "id": 485,
+        "variantId": 761,
+        "resolvedVariantId": 761,
+        "productId": 481,
+        "label": "Red Hawaiian / 500g",
+        "retailer": {
+          "id": 3,
+          "name": "Whey Okay",
+          "slug": "whey-okay"
+        },
+        "price": 37.81,
+        "delivery": 3.99,
+        "total": 41.800000000000004,
+        "checked": "2026-11-19T10:26:35.005+00:00",
+        "url": "https://wheyokay.com/applied-nutrition-abe-pump-500g-3727-p.asp"
+      },
+      {
+        "id": 3313,
+        "variantId": 761,
+        "resolvedVariantId": 761,
+        "productId": 481,
+        "label": "Red Hawaiian / 500g",
+        "retailer": {
+          "id": 14,
+          "name": "10 Reps",
+          "slug": "10-reps"
+        },
+        "price": 28.99,
+        "delivery": 3.99,
+        "total": 32.98,
+        "checked": "2026-11-19T10:48:28.614+00:00",
+        "url": "https://www.10reps.co.uk/product/applied-nutrition-abe-pump-zero-stim-pre-workout-500g/?attribute_pa_flavours=red-hawaiian"
+      },
+      {
+        "id": 3314,
+        "variantId": 762,
+        "resolvedVariantId": 762,
+        "productId": 481,
+        "label": "Slush Puppie / 500g",
+        "retailer": {
+          "id": 14,
+          "name": "10 Reps",
+          "slug": "10-reps"
+        },
+        "price": 28.99,
+        "delivery": 3.99,
+        "total": 32.98,
+        "checked": "2026-11-19T10:48:28.614+00:00",
+        "url": "https://www.10reps.co.uk/product/applied-nutrition-abe-pump-zero-stim-pre-workout-500g/?attribute_pa_flavours=slush-puppie"
+      },
+      {
+        "id": 3315,
+        "variantId": 763,
+        "resolvedVariantId": 763,
+        "productId": 481,
+        "label": "Tigers Blood / 500g",
+        "retailer": {
+          "id": 14,
+          "name": "10 Reps",
+          "slug": "10-reps"
+        },
+        "price": 28.99,
+        "delivery": 3.99,
+        "total": 32.98,
+        "checked": "2026-11-19T10:48:28.614+00:00",
+        "url": "https://www.10reps.co.uk/product/applied-nutrition-abe-pump-zero-stim-pre-workout-500g/?attribute_pa_flavours=tigers-blood"
+      },
+      {
+        "id": 4253,
+        "variantId": 763,
+        "resolvedVariantId": 763,
+        "productId": 481,
+        "label": "Tigers Blood / 500g",
+        "retailer": {
+          "id": 15,
+          "name": "Gladiator Nutrition",
+          "slug": "gladiator-nutrition"
+        },
+        "price": 31.99,
+        "delivery": 6.99,
+        "total": 38.98,
+        "checked": "2026-11-18T17:18:16.197+00:00",
+        "url": "https://gladiatornutrition.co.uk/products/applied-nutrition-abe-pump?variant=41714882641965&sca_ref=11968733.U3nlV04VwN4S"
+      },
+      {
+        "id": 4256,
+        "variantId": 762,
+        "resolvedVariantId": 762,
+        "productId": 481,
+        "label": "Slush Puppie / 500g",
+        "retailer": {
+          "id": 15,
+          "name": "Gladiator Nutrition",
+          "slug": "gladiator-nutrition"
+        },
+        "price": 31.99,
+        "delivery": 6.99,
+        "total": 38.98,
+        "checked": "2026-11-18T17:18:16.197+00:00",
+        "url": "https://gladiatornutrition.co.uk/products/applied-nutrition-abe-pump?variant=57400143708534&sca_ref=11968733.U3nlV04VwN4S"
+      }
+    ],
+    "reads": [
+      {
+        "table": "products",
+        "method": "GET",
+        "status": 200,
+        "ms": 590,
+        "bytes": 6829
+      },
+      {
+        "table": "product_variants",
+        "method": "GET",
+        "status": 200,
+        "ms": 96,
+        "bytes": 7180
+      },
+      {
+        "table": "retailer_products",
+        "method": "GET",
+        "status": 200,
+        "ms": 156,
+        "bytes": 25600
+      },
+      {
+        "table": "nutrition_candidates",
+        "method": "GET",
+        "status": 200,
+        "ms": 192,
+        "bytes": 29147
+      },
+      {
+        "table": "nutrition_candidates",
+        "method": "GET",
+        "status": 200,
+        "ms": 200,
+        "bytes": 1974
+      }
+    ],
+    "publicValidation": {
+      "at": "2026-11-19T12:32:35.186Z",
+      "sourceAt": "2026-11-19T12:32:23.887Z",
+      "rows": [
+        {
+          "variantId": 475,
+          "label": "Default",
+          "status": 200,
+          "offerIds": [],
+          "ownApprovedAppliedCaffeine": "NONE",
+          "result": "PASS"
+        },
+        {
+          "variantId": 760,
+          "label": "Blue Razz / 500g",
+          "status": 200,
+          "offerIds": [
+            1549
+          ],
+          "ownApprovedAppliedCaffeine": "confirmed_absent",
+          "result": "PASS"
+        },
+        {
+          "variantId": 761,
+          "label": "Red Hawaiian / 500g",
+          "status": 200,
+          "offerIds": [
+            485,
+            3313
+          ],
+          "ownApprovedAppliedCaffeine": "confirmed_absent",
+          "result": "PASS"
+        },
+        {
+          "variantId": 762,
+          "label": "Slush Puppie / 500g",
+          "status": 200,
+          "offerIds": [
+            3314,
+            4256
+          ],
+          "ownApprovedAppliedCaffeine": "confirmed_absent",
+          "result": "PASS"
+        },
+        {
+          "variantId": 763,
+          "label": "Tigers Blood / 500g",
+          "status": 200,
+          "offerIds": [
+            1550,
+            2631,
+            3315,
+            4253
+          ],
+          "ownApprovedAppliedCaffeine": "confirmed_absent",
+          "result": "PASS"
+        },
+        {
+          "variantId": 3603,
+          "label": "Slush Puppie Twisted Citrus / 500g",
+          "status": 200,
+          "offerIds": [],
+          "ownApprovedAppliedCaffeine": "confirmed_absent",
+          "result": "PASS"
+        }
+      ],
+      "heads": [
+        {
+          "id": 1549,
+          "status": 204,
+          "note": "HEAD proves route availability only; does not navigate externally or record a retailer click. Destination/variant ownership checked from current catalogue mappings."
+        },
+        {
+          "id": 1550,
+          "status": 204,
+          "note": "HEAD proves route availability only; does not navigate externally or record a retailer click. Destination/variant ownership checked from current catalogue mappings."
+        },
+        {
+          "id": 2631,
+          "status": 204,
+          "note": "HEAD proves route availability only; does not navigate externally or record a retailer click. Destination/variant ownership checked from current catalogue mappings."
+        },
+        {
+          "id": 485,
+          "status": 204,
+          "note": "HEAD proves route availability only; does not navigate externally or record a retailer click. Destination/variant ownership checked from current catalogue mappings."
+        },
+        {
+          "id": 3313,
+          "status": 204,
+          "note": "HEAD proves route availability only; does not navigate externally or record a retailer click. Destination/variant ownership checked from current catalogue mappings."
+        },
+        {
+          "id": 3314,
+          "status": 204,
+          "note": "HEAD proves route availability only; does not navigate externally or record a retailer click. Destination/variant ownership checked from current catalogue mappings."
+        },
+        {
+          "id": 3315,
+          "status": 204,
+          "note": "HEAD proves route availability only; does not navigate externally or record a retailer click. Destination/variant ownership checked from current catalogue mappings."
+        },
+        {
+          "id": 4253,
+          "status": 204,
+          "note": "HEAD proves route availability only; does not navigate externally or record a retailer click. Destination/variant ownership checked from current catalogue mappings."
+        },
+        {
+          "id": 4256,
+          "status": 204,
+          "note": "HEAD proves route availability only; does not navigate externally or record a retailer click. Destination/variant ownership checked from current catalogue mappings."
+        }
+      ],
+      "productionWrites": 0
+    },
+    "note": "No raw candidate/override snapshots committed. Dated offer proof, not runtime constants. Existing canonical product photo preserved; no variant-specific photo claim."
+  },
+  "browser": {
+    "at": "2026-11-19T12:34:19.236Z",
+    "environment": "public Production; warm browser cache for both phases; analytics and outbound /go navigation blocked",
+    "layouts": [
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g",
+        "width": 1440,
+        "result": "PASS",
+        "docWidth": 1425,
+        "bodyWidth": 1425,
+        "clipped": [],
+        "hero": {
+          "top": 100,
+          "bottom": 769.65625
+        },
+        "offerLinks": [
+          {
+            "href": "/go/2631?source=product_best_offer",
+            "text": "Go to eBay UK"
+          },
+          {
+            "href": "/go/2631?source=product_offer_list",
+            "text": "Go to retailer · Tigers Blood / 500g"
+          },
+          {
+            "href": "/go/3313?source=product_offer_list",
+            "text": "Go to retailer · Red Hawaiian / 500g"
+          },
+          {
+            "href": "/go/4256?source=product_offer_list",
+            "text": "Go to retailer · Slush Puppie / 500g"
+          },
+          {
+            "href": "/go/1549?source=product_offer_list",
+            "text": "Go to retailer · Blue Razz / 500g"
+          }
+        ],
+        "links": [
+          {
+            "text": "standard ABE pre-workout",
+            "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g"
+          },
+          {
+            "text": "Compare ABE and ABE Pump",
+            "href": "/compare?left=215&right=481"
+          }
+        ],
+        "images": [
+          {
+            "complete": true,
+            "ok": true,
+            "alt": "Applied Nutrition ABE Pump 500g"
+          }
+        ],
+        "lcpMs": 1812,
+        "cls": 0,
+        "jsBytesIncludingOptionalPrefetch": 543667,
+        "cssBytes": 81920,
+        "exceptions": [],
+        "httpErrors": []
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g",
+        "width": 768,
+        "result": "PASS",
+        "docWidth": 753,
+        "bodyWidth": 753,
+        "clipped": [],
+        "hero": {
+          "top": 72,
+          "bottom": 853.65625
+        },
+        "offerLinks": [
+          {
+            "href": "/go/2631?source=product_best_offer",
+            "text": "Go to eBay UK"
+          },
+          {
+            "href": "/go/2631?source=product_offer_list",
+            "text": "Go to retailer · Tigers Blood / 500g"
+          },
+          {
+            "href": "/go/3313?source=product_offer_list",
+            "text": "Go to retailer · Red Hawaiian / 500g"
+          },
+          {
+            "href": "/go/4256?source=product_offer_list",
+            "text": "Go to retailer · Slush Puppie / 500g"
+          },
+          {
+            "href": "/go/1549?source=product_offer_list",
+            "text": "Go to retailer · Blue Razz / 500g"
+          }
+        ],
+        "links": [
+          {
+            "text": "standard ABE pre-workout",
+            "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g"
+          },
+          {
+            "text": "Compare ABE and ABE Pump",
+            "href": "/compare?left=215&right=481"
+          }
+        ],
+        "images": [
+          {
+            "complete": true,
+            "ok": true,
+            "alt": "Applied Nutrition ABE Pump 500g"
+          }
+        ],
+        "lcpMs": 1600,
+        "cls": 0,
+        "jsBytesIncludingOptionalPrefetch": 543667,
+        "cssBytes": 81920,
+        "exceptions": [],
+        "httpErrors": []
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g",
+        "width": 390,
+        "result": "PASS",
+        "docWidth": 390,
+        "bodyWidth": 390,
+        "clipped": [],
+        "hero": {
+          "top": 60,
+          "bottom": 823.4375
+        },
+        "offerLinks": [
+          {
+            "href": "/go/2631?source=product_best_offer",
+            "text": "Go to eBay UK"
+          },
+          {
+            "href": "/go/2631?source=product_offer_list",
+            "text": "Go to retailer · Tigers Blood / 500g"
+          },
+          {
+            "href": "/go/3313?source=product_offer_list",
+            "text": "Go to retailer · Red Hawaiian / 500g"
+          },
+          {
+            "href": "/go/4256?source=product_offer_list",
+            "text": "Go to retailer · Slush Puppie / 500g"
+          },
+          {
+            "href": "/go/1549?source=product_offer_list",
+            "text": "Go to retailer · Blue Razz / 500g"
+          }
+        ],
+        "links": [
+          {
+            "text": "standard ABE pre-workout",
+            "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g"
+          },
+          {
+            "text": "Compare ABE and ABE Pump",
+            "href": "/compare?left=215&right=481"
+          }
+        ],
+        "images": [
+          {
+            "complete": true,
+            "ok": true,
+            "alt": "Applied Nutrition ABE Pump 500g"
+          }
+        ],
+        "lcpMs": 1192,
+        "cls": 0,
+        "jsBytesIncludingOptionalPrefetch": 543667,
+        "cssBytes": 81920,
+        "exceptions": [],
+        "httpErrors": []
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g",
+        "width": 320,
+        "result": "PASS",
+        "docWidth": 320,
+        "bodyWidth": 320,
+        "clipped": [],
+        "hero": {
+          "top": 60,
+          "bottom": 900.15625
+        },
+        "offerLinks": [
+          {
+            "href": "/go/2631?source=product_best_offer",
+            "text": "Go to eBay UK"
+          },
+          {
+            "href": "/go/2631?source=product_offer_list",
+            "text": "Go to retailer · Tigers Blood / 500g"
+          },
+          {
+            "href": "/go/3313?source=product_offer_list",
+            "text": "Go to retailer · Red Hawaiian / 500g"
+          },
+          {
+            "href": "/go/4256?source=product_offer_list",
+            "text": "Go to retailer · Slush Puppie / 500g"
+          },
+          {
+            "href": "/go/1549?source=product_offer_list",
+            "text": "Go to retailer · Blue Razz / 500g"
+          }
+        ],
+        "links": [
+          {
+            "text": "standard ABE pre-workout",
+            "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g"
+          },
+          {
+            "text": "Compare ABE and ABE Pump",
+            "href": "/compare?left=215&right=481"
+          }
+        ],
+        "images": [
+          {
+            "complete": true,
+            "ok": true,
+            "alt": "Applied Nutrition ABE Pump 500g"
+          }
+        ],
+        "lcpMs": 1192,
+        "cls": 0,
+        "jsBytesIncludingOptionalPrefetch": 543667,
+        "cssBytes": 81920,
+        "exceptions": [],
+        "httpErrors": []
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+        "width": 1440,
+        "result": "PASS",
+        "docWidth": 1425,
+        "bodyWidth": 1425,
+        "clipped": [],
+        "hero": {
+          "top": 100,
+          "bottom": 769.65625
+        },
+        "offerLinks": [
+          {
+            "href": "/go/2631?source=product_best_offer",
+            "text": "Go to eBay UK"
+          },
+          {
+            "href": "/go/2631?source=product_offer_list",
+            "text": "Go to retailer · Tigers Blood / 500g"
+          },
+          {
+            "href": "/go/3315?source=product_offer_list",
+            "text": "Go to retailer · Tigers Blood / 500g"
+          },
+          {
+            "href": "/go/4253?source=product_offer_list",
+            "text": "Go to retailer · Tigers Blood / 500g"
+          },
+          {
+            "href": "/go/1550?source=product_offer_list",
+            "text": "Go to retailer · Tigers Blood / 500g"
+          }
+        ],
+        "links": [
+          {
+            "text": "standard ABE pre-workout",
+            "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g"
+          },
+          {
+            "text": "Compare ABE and ABE Pump",
+            "href": "/compare?left=215&right=481"
+          }
+        ],
+        "images": [
+          {
+            "complete": true,
+            "ok": true,
+            "alt": "Applied Nutrition ABE Pump 500g"
+          }
+        ],
+        "lcpMs": 1596,
+        "cls": 0,
+        "jsBytesIncludingOptionalPrefetch": 557367,
+        "cssBytes": 81920,
+        "exceptions": [],
+        "httpErrors": []
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+        "width": 768,
+        "result": "PASS",
+        "docWidth": 753,
+        "bodyWidth": 753,
+        "clipped": [],
+        "hero": {
+          "top": 72,
+          "bottom": 853.65625
+        },
+        "offerLinks": [
+          {
+            "href": "/go/2631?source=product_best_offer",
+            "text": "Go to eBay UK"
+          },
+          {
+            "href": "/go/2631?source=product_offer_list",
+            "text": "Go to retailer · Tigers Blood / 500g"
+          },
+          {
+            "href": "/go/3315?source=product_offer_list",
+            "text": "Go to retailer · Tigers Blood / 500g"
+          },
+          {
+            "href": "/go/4253?source=product_offer_list",
+            "text": "Go to retailer · Tigers Blood / 500g"
+          },
+          {
+            "href": "/go/1550?source=product_offer_list",
+            "text": "Go to retailer · Tigers Blood / 500g"
+          }
+        ],
+        "links": [
+          {
+            "text": "standard ABE pre-workout",
+            "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g"
+          },
+          {
+            "text": "Compare ABE and ABE Pump",
+            "href": "/compare?left=215&right=481"
+          }
+        ],
+        "images": [
+          {
+            "complete": true,
+            "ok": true,
+            "alt": "Applied Nutrition ABE Pump 500g"
+          }
+        ],
+        "lcpMs": 1548,
+        "cls": 0,
+        "jsBytesIncludingOptionalPrefetch": 543667,
+        "cssBytes": 81920,
+        "exceptions": [],
+        "httpErrors": []
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+        "width": 390,
+        "result": "PASS",
+        "docWidth": 390,
+        "bodyWidth": 390,
+        "clipped": [],
+        "hero": {
+          "top": 60,
+          "bottom": 823.4375
+        },
+        "offerLinks": [
+          {
+            "href": "/go/2631?source=product_best_offer",
+            "text": "Go to eBay UK"
+          },
+          {
+            "href": "/go/2631?source=product_offer_list",
+            "text": "Go to retailer · Tigers Blood / 500g"
+          },
+          {
+            "href": "/go/3315?source=product_offer_list",
+            "text": "Go to retailer · Tigers Blood / 500g"
+          },
+          {
+            "href": "/go/4253?source=product_offer_list",
+            "text": "Go to retailer · Tigers Blood / 500g"
+          },
+          {
+            "href": "/go/1550?source=product_offer_list",
+            "text": "Go to retailer · Tigers Blood / 500g"
+          }
+        ],
+        "links": [
+          {
+            "text": "standard ABE pre-workout",
+            "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g"
+          },
+          {
+            "text": "Compare ABE and ABE Pump",
+            "href": "/compare?left=215&right=481"
+          }
+        ],
+        "images": [
+          {
+            "complete": true,
+            "ok": true,
+            "alt": "Applied Nutrition ABE Pump 500g"
+          }
+        ],
+        "lcpMs": 1848,
+        "cls": 0,
+        "jsBytesIncludingOptionalPrefetch": 543667,
+        "cssBytes": 81920,
+        "exceptions": [],
+        "httpErrors": []
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+        "width": 320,
+        "result": "PASS",
+        "docWidth": 320,
+        "bodyWidth": 320,
+        "clipped": [],
+        "hero": {
+          "top": 60,
+          "bottom": 900.15625
+        },
+        "offerLinks": [
+          {
+            "href": "/go/2631?source=product_best_offer",
+            "text": "Go to eBay UK"
+          },
+          {
+            "href": "/go/2631?source=product_offer_list",
+            "text": "Go to retailer · Tigers Blood / 500g"
+          },
+          {
+            "href": "/go/3315?source=product_offer_list",
+            "text": "Go to retailer · Tigers Blood / 500g"
+          },
+          {
+            "href": "/go/4253?source=product_offer_list",
+            "text": "Go to retailer · Tigers Blood / 500g"
+          },
+          {
+            "href": "/go/1550?source=product_offer_list",
+            "text": "Go to retailer · Tigers Blood / 500g"
+          }
+        ],
+        "links": [
+          {
+            "text": "standard ABE pre-workout",
+            "href": "/product/applied-nutrition-abe-ultimate-pre-workout-315g"
+          },
+          {
+            "text": "Compare ABE and ABE Pump",
+            "href": "/compare?left=215&right=481"
+          }
+        ],
+        "images": [
+          {
+            "complete": true,
+            "ok": true,
+            "alt": "Applied Nutrition ABE Pump 500g"
+          }
+        ],
+        "lcpMs": 1736,
+        "cls": 0,
+        "jsBytesIncludingOptionalPrefetch": 543667,
+        "cssBytes": 81920,
+        "exceptions": [],
+        "httpErrors": []
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=475",
+        "width": 390,
+        "result": "PASS",
+        "docWidth": 390,
+        "offerLinks": [],
+        "links": [
+          "/product/applied-nutrition-abe-pump-500g?variant=760",
+          "/product/applied-nutrition-abe-pump-500g?variant=475",
+          "/product/applied-nutrition-abe-pump-500g?variant=761",
+          "/product/applied-nutrition-abe-pump-500g?variant=762",
+          "/product/applied-nutrition-abe-pump-500g?variant=3603",
+          "/product/applied-nutrition-abe-pump-500g?variant=763"
+        ],
+        "exceptions": [],
+        "httpErrors": []
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=760",
+        "width": 390,
+        "result": "PASS",
+        "docWidth": 390,
+        "offerLinks": [
+          "/go/1549?source=product_best_offer",
+          "/go/1549?source=product_offer_list"
+        ],
+        "links": [
+          "/product/applied-nutrition-abe-pump-500g?variant=760",
+          "/product/applied-nutrition-abe-pump-500g?variant=475",
+          "/product/applied-nutrition-abe-pump-500g?variant=761",
+          "/product/applied-nutrition-abe-pump-500g?variant=762",
+          "/product/applied-nutrition-abe-pump-500g?variant=3603",
+          "/product/applied-nutrition-abe-pump-500g?variant=763"
+        ],
+        "exceptions": [],
+        "httpErrors": []
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=3603",
+        "width": 390,
+        "result": "PASS",
+        "docWidth": 390,
+        "offerLinks": [],
+        "links": [
+          "/product/applied-nutrition-abe-pump-500g?variant=760",
+          "/product/applied-nutrition-abe-pump-500g?variant=475",
+          "/product/applied-nutrition-abe-pump-500g?variant=761",
+          "/product/applied-nutrition-abe-pump-500g?variant=762",
+          "/product/applied-nutrition-abe-pump-500g?variant=3603",
+          "/product/applied-nutrition-abe-pump-500g?variant=763"
+        ],
+        "exceptions": [],
+        "httpErrors": []
+      }
+    ],
+    "controls": {
+      "at": "2026-11-19T12:34:49.943Z",
+      "result": "PASS",
+      "variantKeyboard": "760 to763 via Enter; exact763 reviewed caffeine shown",
+      "contextKeyboard": "standard link, Tab to pair, visible focus, Enter loads existing215 vs481 comparison",
+      "focus": {
+        "text": "Compare ABE and ABE Pump",
+        "visible": true,
+        "outline": "auto"
+      },
+      "errors": [],
+      "httpErrors": [],
+      "outboundRetailerGets": 0,
+      "productionWrites": 0
+    },
+    "screenshots": [
+      "public-before-base-1440-hero.webp",
+      "public-before-763-1440-summary.webp",
+      "public-before-base-768-hero.webp",
+      "public-before-763-768-summary.webp",
+      "public-before-base-390-hero.webp",
+      "public-before-763-390-summary.webp",
+      "public-before-base-320-hero.webp",
+      "public-before-763-320-summary.webp",
+      "public-after-base-1440-hero.webp",
+      "public-after-763-1440-summary.webp",
+      "public-after-base-768-hero.webp",
+      "public-after-763-768-summary.webp",
+      "public-after-base-390-hero.webp",
+      "public-after-763-390-summary.webp",
+      "public-after-base-320-hero.webp",
+      "public-after-763-320-summary.webp"
+    ],
+    "beforeLabLcpMs": [
+      2820,
+      1188,
+      1296,
+      1128,
+      1212,
+      1680,
+      1096,
+      1436
+    ],
+    "afterLabLcpMs": [
+      1812,
+      1600,
+      1192,
+      1192,
+      1596,
+      1548,
+      1848,
+      1736
+    ],
+    "beforeAfterUpperMiddleMedianLabLcpMs": [
+      1296,
+      1600
+    ],
+    "note": "Warm browser cache both phases; analytics/outbound clicks blocked; no new error or layout regression. Lab LCP/CLS are not field CWV evidence."
+  },
+  "performance": {
+    "at": "2026-11-19T12:33:29.694Z",
+    "result": "PASS",
+    "comparisons": [
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g",
+        "beforeMs": 1283.3719999999998,
+        "afterMs": 1444.884,
+        "guard": "after <= before * 1.5 +100ms",
+        "pass": true,
+        "beforeAfterTlsMs": 1095.0739999999998,
+        "afterAfterTlsMs": 1303.75
+      },
+      {
+        "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+        "beforeMs": 1229.407,
+        "afterMs": 1494.41,
+        "guard": "after <= before * 1.5 +100ms",
+        "pass": true,
+        "beforeAfterTlsMs": 1023.5729999999999,
+        "afterAfterTlsMs": 1327.981
+      },
+      {
+        "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+        "beforeMs": 1340.88,
+        "afterMs": 1425.9930000000002,
+        "guard": "after <= before * 1.5 +100ms",
+        "pass": true,
+        "beforeAfterTlsMs": 1174.3680000000002,
+        "afterAfterTlsMs": 1259.7269999999999
+      },
+      {
+        "route": "/brands/per4m",
+        "beforeMs": 406.30100000000004,
+        "afterMs": 452.015,
+        "guard": "after <= before * 1.5 +100ms",
+        "pass": true,
+        "beforeAfterTlsMs": 220.544,
+        "afterAfterTlsMs": 248.303
+      }
+    ],
+    "dnsErrorsKeptSeparately": false,
+    "fieldCWVClaim": false,
+    "beforeSamples": {
+      "at": "2026-11-19T12:27:19.895Z",
+      "method": "six sequential curl samples per route; normal certificate validation; DNS/connect/TLS separate",
+      "samples": [
+        {
+          "phase": "before",
+          "route": "/product/applied-nutrition-abe-pump-500g",
+          "at": "2026-11-19T12:26:48.891Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 143.937,
+          "connectMs": 194.208,
+          "tlsMs": 327.10499999999996,
+          "ttfbMs": 1939.5469999999998,
+          "afterTlsMs": 1612.442,
+          "totalMs": 2130.329,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+          "at": "2026-11-19T12:26:50.712Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 12.192,
+          "connectMs": 51.49,
+          "tlsMs": 159.297,
+          "ttfbMs": 1614.825,
+          "afterTlsMs": 1455.528,
+          "totalMs": 1786.413,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+          "at": "2026-11-19T12:26:52.383Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 131.355,
+          "connectMs": 72.963,
+          "tlsMs": 166.512,
+          "ttfbMs": 1340.88,
+          "afterTlsMs": 1174.3680000000002,
+          "totalMs": 1637.189,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/brands/per4m",
+          "at": "2026-11-19T12:26:53.136Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 24.655,
+          "connectMs": 50.689,
+          "tlsMs": 181.869,
+          "ttfbMs": 402.413,
+          "afterTlsMs": 220.544,
+          "totalMs": 708.515,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/product/applied-nutrition-abe-pump-500g",
+          "at": "2026-11-19T12:26:54.221Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 24.787,
+          "connectMs": 82.052,
+          "tlsMs": 175.627,
+          "ttfbMs": 971.813,
+          "afterTlsMs": 796.186,
+          "totalMs": 1057.661,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+          "at": "2026-11-19T12:26:55.900Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 9.671000000000001,
+          "connectMs": 345.021,
+          "tlsMs": 456.70500000000004,
+          "ttfbMs": 1564.489,
+          "afterTlsMs": 1107.784,
+          "totalMs": 1651.4869999999999,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+          "at": "2026-11-19T12:26:57.526Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 23.123,
+          "connectMs": 85.7,
+          "tlsMs": 195.745,
+          "ttfbMs": 1290.785,
+          "afterTlsMs": 1095.04,
+          "totalMs": 1596.281,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/brands/per4m",
+          "at": "2026-11-19T12:26:58.647Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 29.572999999999997,
+          "connectMs": 493.811,
+          "tlsMs": 611.553,
+          "ttfbMs": 837.554,
+          "afterTlsMs": 226.001,
+          "totalMs": 1083.239,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/product/applied-nutrition-abe-pump-500g",
+          "at": "2026-11-19T12:26:59.850Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 10.113000000000001,
+          "connectMs": 50.021,
+          "tlsMs": 144.959,
+          "ttfbMs": 982.153,
+          "afterTlsMs": 837.194,
+          "totalMs": 1175.251,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+          "at": "2026-11-19T12:27:01.130Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 16.85,
+          "connectMs": 69.569,
+          "tlsMs": 165.28300000000002,
+          "ttfbMs": 1054.7740000000001,
+          "afterTlsMs": 889.491,
+          "totalMs": 1250.834,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+          "at": "2026-11-19T12:27:02.417Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 14.592,
+          "connectMs": 48.01,
+          "tlsMs": 164.50500000000002,
+          "ttfbMs": 1059.193,
+          "afterTlsMs": 894.688,
+          "totalMs": 1260.8,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/brands/per4m",
+          "at": "2026-11-19T12:27:03.087Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 25.337,
+          "connectMs": 54.434999999999995,
+          "tlsMs": 141.24200000000002,
+          "ttfbMs": 362.379,
+          "afterTlsMs": 221.137,
+          "totalMs": 640.335,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/product/applied-nutrition-abe-pump-500g",
+          "at": "2026-11-19T12:27:04.407Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 10.966,
+          "connectMs": 53.648,
+          "tlsMs": 147.154,
+          "ttfbMs": 960.349,
+          "afterTlsMs": 813.195,
+          "totalMs": 1294.541,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+          "at": "2026-11-19T12:27:05.774Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 16.855999999999998,
+          "connectMs": 63.971000000000004,
+          "tlsMs": 150.651,
+          "ttfbMs": 1158.025,
+          "afterTlsMs": 1007.374,
+          "totalMs": 1326.504,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+          "at": "2026-11-19T12:27:07.361Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 19.965,
+          "connectMs": 49.046,
+          "tlsMs": 163.426,
+          "ttfbMs": 1214.634,
+          "afterTlsMs": 1051.2079999999999,
+          "totalMs": 1553.0049999999999,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/brands/per4m",
+          "at": "2026-11-19T12:27:08.159Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 28.895,
+          "connectMs": 159.006,
+          "tlsMs": 273.48,
+          "ttfbMs": 487.93399999999997,
+          "afterTlsMs": 214.45399999999998,
+          "totalMs": 737.965,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/product/applied-nutrition-abe-pump-500g",
+          "at": "2026-11-19T12:27:09.641Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 13.695,
+          "connectMs": 72.771,
+          "tlsMs": 188.298,
+          "ttfbMs": 1283.3719999999998,
+          "afterTlsMs": 1095.0739999999998,
+          "totalMs": 1415.36,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+          "at": "2026-11-19T12:27:11.101Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 17.576,
+          "connectMs": 90.50800000000001,
+          "tlsMs": 205.834,
+          "ttfbMs": 1229.407,
+          "afterTlsMs": 1023.5729999999999,
+          "totalMs": 1430.917,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+          "at": "2026-11-19T12:27:12.849Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 22.758,
+          "connectMs": 78.987,
+          "tlsMs": 170.72799999999998,
+          "ttfbMs": 1474.6109999999999,
+          "afterTlsMs": 1303.8829999999998,
+          "totalMs": 1706.302,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/brands/per4m",
+          "at": "2026-11-19T12:27:13.518Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 149.07899999999998,
+          "connectMs": 58.419,
+          "tlsMs": 154.576,
+          "ttfbMs": 364.828,
+          "afterTlsMs": 210.25199999999998,
+          "totalMs": 606.643,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/product/applied-nutrition-abe-pump-500g",
+          "at": "2026-11-19T12:27:15.082Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 24.794,
+          "connectMs": 64.751,
+          "tlsMs": 175.852,
+          "ttfbMs": 1323.89,
+          "afterTlsMs": 1148.038,
+          "totalMs": 1530.0510000000002,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+          "at": "2026-11-19T12:27:16.425Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 18.429000000000002,
+          "connectMs": 143.633,
+          "tlsMs": 345.572,
+          "ttfbMs": 1142.082,
+          "afterTlsMs": 796.5100000000001,
+          "totalMs": 1302.0339999999999,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+          "at": "2026-11-19T12:27:19.158Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 18.921,
+          "connectMs": 1169.21,
+          "tlsMs": 1277.145,
+          "ttfbMs": 2528.2309999999998,
+          "afterTlsMs": 1251.086,
+          "totalMs": 2702.0480000000002,
+          "error": null
+        },
+        {
+          "phase": "before",
+          "route": "/brands/per4m",
+          "at": "2026-11-19T12:27:19.895Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 162.70399999999998,
+          "connectMs": 92.965,
+          "tlsMs": 197.27,
+          "ttfbMs": 406.30100000000004,
+          "afterTlsMs": 209.03100000000003,
+          "totalMs": 704.456,
+          "error": null
+        }
+      ]
+    },
+    "afterSamples": {
+      "at": "2026-11-19T12:33:29.686Z",
+      "method": "six sequential curl samples per route; normal certificate validation; DNS/connect/TLS separate",
+      "samples": [
+        {
+          "phase": "after",
+          "route": "/product/applied-nutrition-abe-pump-500g",
+          "at": "2026-11-19T12:32:55.957Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 53.303000000000004,
+          "connectMs": 87.112,
+          "tlsMs": 184.274,
+          "ttfbMs": 1733.995,
+          "afterTlsMs": 1549.721,
+          "totalMs": 2033.7939999999999,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+          "at": "2026-11-19T12:32:58.518Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 16.521,
+          "connectMs": 85.555,
+          "tlsMs": 187.136,
+          "ttfbMs": 2029.22,
+          "afterTlsMs": 1842.084,
+          "totalMs": 2527.682,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+          "at": "2026-11-19T12:33:00.405Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 22.041,
+          "connectMs": 108.901,
+          "tlsMs": 244.78900000000002,
+          "ttfbMs": 1595.966,
+          "afterTlsMs": 1351.1770000000001,
+          "totalMs": 1858.608,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/brands/per4m",
+          "at": "2026-11-19T12:33:01.095Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 27.373,
+          "connectMs": 132.268,
+          "tlsMs": 233.961,
+          "ttfbMs": 485.19,
+          "afterTlsMs": 251.22900000000004,
+          "totalMs": 655.78,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/product/applied-nutrition-abe-pump-500g",
+          "at": "2026-11-19T12:33:02.514Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 10.301,
+          "connectMs": 39.117,
+          "tlsMs": 99.763,
+          "ttfbMs": 1120.516,
+          "afterTlsMs": 1020.753,
+          "totalMs": 1388.58,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+          "at": "2026-11-19T12:33:04.370Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 18.578999999999997,
+          "connectMs": 141.23,
+          "tlsMs": 227.118,
+          "ttfbMs": 1659.875,
+          "afterTlsMs": 1432.757,
+          "totalMs": 1825.1889999999999,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+          "at": "2026-11-19T12:33:06.096Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 19.470000000000002,
+          "connectMs": 52.224,
+          "tlsMs": 141.269,
+          "ttfbMs": 1400.9959999999999,
+          "afterTlsMs": 1259.7269999999999,
+          "totalMs": 1694.297,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/brands/per4m",
+          "at": "2026-11-19T12:33:06.828Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 24.279,
+          "connectMs": 107.73,
+          "tlsMs": 214.233,
+          "ttfbMs": 449.326,
+          "afterTlsMs": 235.093,
+          "totalMs": 705.447,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/product/applied-nutrition-abe-pump-500g",
+          "at": "2026-11-19T12:33:09.001Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 20.198,
+          "connectMs": 91.134,
+          "tlsMs": 280.50399999999996,
+          "ttfbMs": 1890.7849999999999,
+          "afterTlsMs": 1610.2810000000002,
+          "totalMs": 2145.181,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+          "at": "2026-11-19T12:33:10.611Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 21.273,
+          "connectMs": 196.609,
+          "tlsMs": 288.711,
+          "ttfbMs": 1433.565,
+          "afterTlsMs": 1144.854,
+          "totalMs": 1581.209,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+          "at": "2026-11-19T12:33:12.371Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 21.597,
+          "connectMs": 88.188,
+          "tlsMs": 186.083,
+          "ttfbMs": 1425.9930000000002,
+          "afterTlsMs": 1239.91,
+          "totalMs": 1724.249,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/brands/per4m",
+          "at": "2026-11-19T12:33:13.162Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 15.198,
+          "connectMs": 86.38,
+          "tlsMs": 191.334,
+          "ttfbMs": 429.445,
+          "afterTlsMs": 238.11100000000002,
+          "totalMs": 762.2520000000001,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/product/applied-nutrition-abe-pump-500g",
+          "at": "2026-11-19T12:33:14.488Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 11.658,
+          "connectMs": 65.042,
+          "tlsMs": 205.93,
+          "ttfbMs": 1149.9969999999998,
+          "afterTlsMs": 944.067,
+          "totalMs": 1292.133,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+          "at": "2026-11-19T12:33:16.502Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 21.047,
+          "connectMs": 68.527,
+          "tlsMs": 166.429,
+          "ttfbMs": 1494.41,
+          "afterTlsMs": 1327.981,
+          "totalMs": 1984.359,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+          "at": "2026-11-19T12:33:18.409Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 21.494,
+          "connectMs": 84.48,
+          "tlsMs": 195.093,
+          "ttfbMs": 1574.87,
+          "afterTlsMs": 1379.777,
+          "totalMs": 1879.456,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/brands/per4m",
+          "at": "2026-11-19T12:33:19.072Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 11.932,
+          "connectMs": 58.213,
+          "tlsMs": 165.652,
+          "ttfbMs": 434.31199999999995,
+          "afterTlsMs": 268.66,
+          "totalMs": 630.319,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/product/applied-nutrition-abe-pump-500g",
+          "at": "2026-11-19T12:33:20.689Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 20.031,
+          "connectMs": 75.203,
+          "tlsMs": 141.13400000000001,
+          "ttfbMs": 1444.884,
+          "afterTlsMs": 1303.75,
+          "totalMs": 1590.9070000000002,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+          "at": "2026-11-19T12:33:22.240Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 17.22,
+          "connectMs": 98.655,
+          "tlsMs": 198.887,
+          "ttfbMs": 1331.435,
+          "afterTlsMs": 1132.5479999999998,
+          "totalMs": 1521.367,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+          "at": "2026-11-19T12:33:23.604Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 20.894,
+          "connectMs": 67.208,
+          "tlsMs": 167.638,
+          "ttfbMs": 1066.5849999999998,
+          "afterTlsMs": 898.9469999999999,
+          "totalMs": 1320.116,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/brands/per4m",
+          "at": "2026-11-19T12:33:24.344Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 31.267000000000003,
+          "connectMs": 138.775,
+          "tlsMs": 237.829,
+          "ttfbMs": 452.015,
+          "afterTlsMs": 214.18599999999998,
+          "totalMs": 708.291,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/product/applied-nutrition-abe-pump-500g",
+          "at": "2026-11-19T12:33:25.865Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 25.231,
+          "connectMs": 102.978,
+          "tlsMs": 203.593,
+          "ttfbMs": 1257.26,
+          "afterTlsMs": 1053.6670000000001,
+          "totalMs": 1482.115,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+          "at": "2026-11-19T12:33:27.320Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 20.344,
+          "connectMs": 97.261,
+          "tlsMs": 215.126,
+          "ttfbMs": 1240.249,
+          "afterTlsMs": 1025.123,
+          "totalMs": 1424.25,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+          "at": "2026-11-19T12:33:28.818Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 22.305,
+          "connectMs": 94.742,
+          "tlsMs": 236.035,
+          "ttfbMs": 1173.084,
+          "afterTlsMs": 937.049,
+          "totalMs": 1469.741,
+          "error": null
+        },
+        {
+          "phase": "after",
+          "route": "/brands/per4m",
+          "at": "2026-11-19T12:33:29.686Z",
+          "status": 200,
+          "exit": 0,
+          "dnsMs": 19.094,
+          "connectMs": 97.69500000000001,
+          "tlsMs": 219.312,
+          "ttfbMs": 467.615,
+          "afterTlsMs": 248.303,
+          "totalMs": 840.536,
+          "error": null
+        }
+      ]
+    },
+    "transportErrors": [],
+    "assets": {
+      "at": "2026-11-19T12:34:45.986Z",
+      "result": "PASS",
+      "before": [
+        "/_next/static/chunks/27jktro2p5rq9.js",
+        "/_next/static/chunks/07u_h6i539_wj.js",
+        "/_next/static/chunks/3j9pm5otqxm82.js",
+        "/_next/static/chunks/turbopack-05o9g6l_1hb89.js",
+        "/_next/static/chunks/2qss5m6h08xun.js",
+        "/_next/static/chunks/1xdsaumin0uei.js",
+        "/_next/static/chunks/2ylz9wja_rd-e.js",
+        "/_next/static/chunks/0cz1d0mv5g_q7.js",
+        "/_next/static/chunks/26f16j0dplny0.js"
+      ],
+      "after": [
+        "/_next/static/chunks/27jktro2p5rq9.js",
+        "/_next/static/chunks/07u_h6i539_wj.js",
+        "/_next/static/chunks/3j9pm5otqxm82.js",
+        "/_next/static/chunks/turbopack-05o9g6l_1hb89.js",
+        "/_next/static/chunks/2qss5m6h08xun.js",
+        "/_next/static/chunks/1xdsaumin0uei.js",
+        "/_next/static/chunks/2ylz9wja_rd-e.js",
+        "/_next/static/chunks/0cz1d0mv5g_q7.js",
+        "/_next/static/chunks/26f16j0dplny0.js"
+      ],
+      "beforeBytes": 681205,
+      "afterBytes": 681205,
+      "sizes": [
+        {
+          "path": "/_next/static/chunks/27jktro2p5rq9.js",
+          "status": 200,
+          "bytes": 44414
+        },
+        {
+          "path": "/_next/static/chunks/07u_h6i539_wj.js",
+          "status": 200,
+          "bytes": 150333
+        },
+        {
+          "path": "/_next/static/chunks/3j9pm5otqxm82.js",
+          "status": 200,
+          "bytes": 226355
+        },
+        {
+          "path": "/_next/static/chunks/turbopack-05o9g6l_1hb89.js",
+          "status": 200,
+          "bytes": 11041
+        },
+        {
+          "path": "/_next/static/chunks/2qss5m6h08xun.js",
+          "status": 200,
+          "bytes": 26871
+        },
+        {
+          "path": "/_next/static/chunks/1xdsaumin0uei.js",
+          "status": 200,
+          "bytes": 54645
+        },
+        {
+          "path": "/_next/static/chunks/2ylz9wja_rd-e.js",
+          "status": 200,
+          "bytes": 30008
+        },
+        {
+          "path": "/_next/static/chunks/0cz1d0mv5g_q7.js",
+          "status": 200,
+          "bytes": 112594
+        },
+        {
+          "path": "/_next/static/chunks/26f16j0dplny0.js",
+          "status": 200,
+          "bytes": 24944
+        }
+      ],
+      "note": "Initial HTML-declared framework/route chunks measured separately from existing optional My Supplements prefetch and browser module-cache reuse; no new client component/dependency."
+    },
+    "runtime": {
+      "at": "2026-11-19T12:29:38.367Z",
+      "result": "PASS",
+      "environment": "approved local production build, exact source, guarded GET/HEAD only; production not instrumented",
+      "coldBaseReads": 7,
+      "warmBaseAnd763Reads": 7,
+      "default475Reads": 5,
+      "priorPairedApprovedReads": "7 to7 cold and warm, unchanged approved application tree",
+      "samples": [
+        {
+          "route": "/product/applied-nutrition-abe-pump-500g",
+          "round": 0,
+          "firstProcessRequest": true,
+          "reads": [
+            {
+              "at": "2026-11-19T12:29:26.206Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 440.5496000000003,
+              "bytes": 949
+            },
+            {
+              "at": "2026-11-19T12:29:26.243Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 459.5006999999987,
+              "bytes": 414
+            },
+            {
+              "at": "2026-11-19T12:29:26.371Z",
+              "method": "GET",
+              "table": "offers",
+              "status": 200,
+              "ms": 149.20070000000123,
+              "bytes": 8810
+            },
+            {
+              "at": "2026-11-19T12:29:26.636Z",
+              "method": "GET",
+              "table": "product_variants",
+              "status": 200,
+              "ms": 255.41769999999997,
+              "bytes": 7180
+            },
+            {
+              "at": "2026-11-19T12:29:26.813Z",
+              "method": "GET",
+              "table": "nutrition_candidates",
+              "status": 200,
+              "ms": 172.0663999999997,
+              "bytes": 29147
+            },
+            {
+              "at": "2026-11-19T12:29:26.945Z",
+              "method": "GET",
+              "table": "retailer_products",
+              "status": 200,
+              "ms": 124.74750000000131,
+              "bytes": 24854
+            },
+            {
+              "at": "2026-11-19T12:29:27.215Z",
+              "method": "GET",
+              "table": "price_history",
+              "status": 200,
+              "ms": 242.4323000000004,
+              "bytes": 781
+            }
+          ],
+          "ms": 1723.2377
+        },
+        {
+          "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+          "round": 0,
+          "firstProcessRequest": false,
+          "reads": [
+            {
+              "at": "2026-11-19T12:29:27.578Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 259.59610000000066,
+              "bytes": 949
+            },
+            {
+              "at": "2026-11-19T12:29:27.589Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 269.15759999999864,
+              "bytes": 414
+            },
+            {
+              "at": "2026-11-19T12:29:27.751Z",
+              "method": "GET",
+              "table": "offers",
+              "status": 200,
+              "ms": 170.17029999999977,
+              "bytes": 8810
+            },
+            {
+              "at": "2026-11-19T12:29:27.877Z",
+              "method": "GET",
+              "table": "product_variants",
+              "status": 200,
+              "ms": 122.70230000000083,
+              "bytes": 7180
+            },
+            {
+              "at": "2026-11-19T12:29:28.039Z",
+              "method": "GET",
+              "table": "nutrition_candidates",
+              "status": 200,
+              "ms": 153.40259999999944,
+              "bytes": 29147
+            },
+            {
+              "at": "2026-11-19T12:29:28.279Z",
+              "method": "GET",
+              "table": "retailer_products",
+              "status": 200,
+              "ms": 229.97789999999986,
+              "bytes": 7300
+            },
+            {
+              "at": "2026-11-19T12:29:28.569Z",
+              "method": "GET",
+              "table": "price_history",
+              "status": 200,
+              "ms": 287.15840000000026,
+              "bytes": 341
+            }
+          ],
+          "ms": 1302.0458999999998
+        },
+        {
+          "route": "/product/applied-nutrition-abe-pump-500g?variant=475",
+          "round": 0,
+          "firstProcessRequest": false,
+          "reads": [
+            {
+              "at": "2026-11-19T12:29:28.772Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 145.36470000000008,
+              "bytes": 414
+            },
+            {
+              "at": "2026-11-19T12:29:28.782Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 155.8024000000005,
+              "bytes": 949
+            },
+            {
+              "at": "2026-11-19T12:29:28.944Z",
+              "method": "GET",
+              "table": "offers",
+              "status": 200,
+              "ms": 155.66709999999875,
+              "bytes": 8810
+            },
+            {
+              "at": "2026-11-19T12:29:29.072Z",
+              "method": "GET",
+              "table": "product_variants",
+              "status": 200,
+              "ms": 117.38780000000042,
+              "bytes": 7180
+            },
+            {
+              "at": "2026-11-19T12:29:29.299Z",
+              "method": "GET",
+              "table": "nutrition_candidates",
+              "status": 200,
+              "ms": 219.2869000000028,
+              "bytes": 29147
+            }
+          ],
+          "ms": 714.0495000000001
+        },
+        {
+          "route": "/product/applied-nutrition-abe-pump-500g",
+          "round": 1,
+          "firstProcessRequest": false,
+          "reads": [
+            {
+              "at": "2026-11-19T12:29:29.488Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 157.62360000000263,
+              "bytes": 414
+            },
+            {
+              "at": "2026-11-19T12:29:29.523Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 192.4323000000004,
+              "bytes": 949
+            },
+            {
+              "at": "2026-11-19T12:29:29.625Z",
+              "method": "GET",
+              "table": "offers",
+              "status": 200,
+              "ms": 95.59689999999682,
+              "bytes": 8810
+            },
+            {
+              "at": "2026-11-19T12:29:29.754Z",
+              "method": "GET",
+              "table": "product_variants",
+              "status": 200,
+              "ms": 122.8080000000009,
+              "bytes": 7180
+            },
+            {
+              "at": "2026-11-19T12:29:29.934Z",
+              "method": "GET",
+              "table": "nutrition_candidates",
+              "status": 200,
+              "ms": 177.45380000000296,
+              "bytes": 29147
+            },
+            {
+              "at": "2026-11-19T12:29:30.212Z",
+              "method": "GET",
+              "table": "retailer_products",
+              "status": 200,
+              "ms": 275.09230000000025,
+              "bytes": 24854
+            },
+            {
+              "at": "2026-11-19T12:29:30.337Z",
+              "method": "GET",
+              "table": "price_history",
+              "status": 200,
+              "ms": 115.6221000000005,
+              "bytes": 781
+            }
+          ],
+          "ms": 1051.1976
+        },
+        {
+          "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+          "round": 1,
+          "firstProcessRequest": false,
+          "reads": [
+            {
+              "at": "2026-11-19T12:29:30.558Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 166.1235000000015,
+              "bytes": 414
+            },
+            {
+              "at": "2026-11-19T12:29:30.562Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 171.68410000000222,
+              "bytes": 949
+            },
+            {
+              "at": "2026-11-19T12:29:30.720Z",
+              "method": "GET",
+              "table": "offers",
+              "status": 200,
+              "ms": 152.17569999999978,
+              "bytes": 8810
+            },
+            {
+              "at": "2026-11-19T12:29:30.884Z",
+              "method": "GET",
+              "table": "product_variants",
+              "status": 200,
+              "ms": 156.56229999999778,
+              "bytes": 7180
+            },
+            {
+              "at": "2026-11-19T12:29:31.070Z",
+              "method": "GET",
+              "table": "nutrition_candidates",
+              "status": 200,
+              "ms": 179.28869999999733,
+              "bytes": 29147
+            },
+            {
+              "at": "2026-11-19T12:29:31.169Z",
+              "method": "GET",
+              "table": "retailer_products",
+              "status": 200,
+              "ms": 95.87379999999757,
+              "bytes": 7300
+            },
+            {
+              "at": "2026-11-19T12:29:31.306Z",
+              "method": "GET",
+              "table": "price_history",
+              "status": 200,
+              "ms": 135.45180000000255,
+              "bytes": 341
+            }
+          ],
+          "ms": 966.5726999999997
+        },
+        {
+          "route": "/product/applied-nutrition-abe-pump-500g?variant=475",
+          "round": 1,
+          "firstProcessRequest": false,
+          "reads": [
+            {
+              "at": "2026-11-19T12:29:31.833Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 482.7383000000009,
+              "bytes": 949
+            },
+            {
+              "at": "2026-11-19T12:29:31.890Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 538.5139999999992,
+              "bytes": 414
+            },
+            {
+              "at": "2026-11-19T12:29:32.302Z",
+              "method": "GET",
+              "table": "offers",
+              "status": 200,
+              "ms": 466.83740000000034,
+              "bytes": 8810
+            },
+            {
+              "at": "2026-11-19T12:29:32.390Z",
+              "method": "GET",
+              "table": "product_variants",
+              "status": 200,
+              "ms": 85.9800000000032,
+              "bytes": 7180
+            },
+            {
+              "at": "2026-11-19T12:29:32.585Z",
+              "method": "GET",
+              "table": "nutrition_candidates",
+              "status": 200,
+              "ms": 187.74889999999868,
+              "bytes": 29147
+            }
+          ],
+          "ms": 1265.8588999999993
+        },
+        {
+          "route": "/product/applied-nutrition-abe-pump-500g",
+          "round": 2,
+          "firstProcessRequest": false,
+          "reads": [
+            {
+              "at": "2026-11-19T12:29:32.791Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 171.38440000000264,
+              "bytes": 949
+            },
+            {
+              "at": "2026-11-19T12:29:32.860Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 239.14890000000014,
+              "bytes": 414
+            },
+            {
+              "at": "2026-11-19T12:29:32.974Z",
+              "method": "GET",
+              "table": "offers",
+              "status": 200,
+              "ms": 179.55489999999918,
+              "bytes": 8810
+            },
+            {
+              "at": "2026-11-19T12:29:33.434Z",
+              "method": "GET",
+              "table": "product_variants",
+              "status": 200,
+              "ms": 457.0183999999972,
+              "bytes": 7180
+            },
+            {
+              "at": "2026-11-19T12:29:33.566Z",
+              "method": "GET",
+              "table": "nutrition_candidates",
+              "status": 200,
+              "ms": 130.3114999999998,
+              "bytes": 29147
+            },
+            {
+              "at": "2026-11-19T12:29:33.756Z",
+              "method": "GET",
+              "table": "retailer_products",
+              "status": 200,
+              "ms": 180.95839999999953,
+              "bytes": 24854
+            },
+            {
+              "at": "2026-11-19T12:29:33.899Z",
+              "method": "GET",
+              "table": "price_history",
+              "status": 200,
+              "ms": 138.83140000000276,
+              "bytes": 781
+            }
+          ],
+          "ms": 1346.7173000000003
+        },
+        {
+          "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+          "round": 2,
+          "firstProcessRequest": false,
+          "reads": [
+            {
+              "at": "2026-11-19T12:29:34.128Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 157.79019999999946,
+              "bytes": 949
+            },
+            {
+              "at": "2026-11-19T12:29:34.129Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 158.29939999999988,
+              "bytes": 414
+            },
+            {
+              "at": "2026-11-19T12:29:34.324Z",
+              "method": "GET",
+              "table": "offers",
+              "status": 200,
+              "ms": 190.3237999999983,
+              "bytes": 8810
+            },
+            {
+              "at": "2026-11-19T12:29:34.493Z",
+              "method": "GET",
+              "table": "product_variants",
+              "status": 200,
+              "ms": 167.34989999999743,
+              "bytes": 7180
+            },
+            {
+              "at": "2026-11-19T12:29:34.653Z",
+              "method": "GET",
+              "table": "nutrition_candidates",
+              "status": 200,
+              "ms": 155.65030000000115,
+              "bytes": 29147
+            },
+            {
+              "at": "2026-11-19T12:29:34.796Z",
+              "method": "GET",
+              "table": "retailer_products",
+              "status": 200,
+              "ms": 140.7085999999981,
+              "bytes": 7300
+            },
+            {
+              "at": "2026-11-19T12:29:34.951Z",
+              "method": "GET",
+              "table": "price_history",
+              "status": 200,
+              "ms": 151.41719999999987,
+              "bytes": 341
+            }
+          ],
+          "ms": 1025.5703999999987
+        },
+        {
+          "route": "/product/applied-nutrition-abe-pump-500g?variant=475",
+          "round": 2,
+          "firstProcessRequest": false,
+          "reads": [
+            {
+              "at": "2026-11-19T12:29:35.151Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 155.30289999999877,
+              "bytes": 949
+            },
+            {
+              "at": "2026-11-19T12:29:35.173Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 176.1411999999982,
+              "bytes": 414
+            },
+            {
+              "at": "2026-11-19T12:29:35.369Z",
+              "method": "GET",
+              "table": "offers",
+              "status": 200,
+              "ms": 215.0594999999994,
+              "bytes": 8810
+            },
+            {
+              "at": "2026-11-19T12:29:35.578Z",
+              "method": "GET",
+              "table": "product_variants",
+              "status": 200,
+              "ms": 205.78619999999864,
+              "bytes": 7180
+            },
+            {
+              "at": "2026-11-19T12:29:35.747Z",
+              "method": "GET",
+              "table": "nutrition_candidates",
+              "status": 200,
+              "ms": 161.99139999999898,
+              "bytes": 29147
+            }
+          ],
+          "ms": 794.7260000000006
+        },
+        {
+          "route": "/product/applied-nutrition-abe-pump-500g",
+          "round": 3,
+          "firstProcessRequest": false,
+          "reads": [
+            {
+              "at": "2026-11-19T12:29:35.970Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 179.60250000000087,
+              "bytes": 949
+            },
+            {
+              "at": "2026-11-19T12:29:35.972Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 181.7605999999978,
+              "bytes": 414
+            },
+            {
+              "at": "2026-11-19T12:29:36.140Z",
+              "method": "GET",
+              "table": "offers",
+              "status": 200,
+              "ms": 167.7435000000005,
+              "bytes": 8810
+            },
+            {
+              "at": "2026-11-19T12:29:36.313Z",
+              "method": "GET",
+              "table": "product_variants",
+              "status": 200,
+              "ms": 171.056700000001,
+              "bytes": 7180
+            },
+            {
+              "at": "2026-11-19T12:29:36.470Z",
+              "method": "GET",
+              "table": "nutrition_candidates",
+              "status": 200,
+              "ms": 138.85290000000168,
+              "bytes": 29147
+            },
+            {
+              "at": "2026-11-19T12:29:36.688Z",
+              "method": "GET",
+              "table": "retailer_products",
+              "status": 200,
+              "ms": 214.6860000000015,
+              "bytes": 24854
+            },
+            {
+              "at": "2026-11-19T12:29:36.838Z",
+              "method": "GET",
+              "table": "price_history",
+              "status": 200,
+              "ms": 138.97509999999966,
+              "bytes": 781
+            }
+          ],
+          "ms": 1104.1337999999996
+        },
+        {
+          "route": "/product/applied-nutrition-abe-pump-500g?variant=763",
+          "round": 3,
+          "firstProcessRequest": false,
+          "reads": [
+            {
+              "at": "2026-11-19T12:29:36.992Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 97.16400000000067,
+              "bytes": 414
+            },
+            {
+              "at": "2026-11-19T12:29:36.998Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 104.1762000000017,
+              "bytes": 949
+            },
+            {
+              "at": "2026-11-19T12:29:37.154Z",
+              "method": "GET",
+              "table": "offers",
+              "status": 200,
+              "ms": 151.78670000000056,
+              "bytes": 8810
+            },
+            {
+              "at": "2026-11-19T12:29:37.284Z",
+              "method": "GET",
+              "table": "product_variants",
+              "status": 200,
+              "ms": 122.46990000000005,
+              "bytes": 7180
+            },
+            {
+              "at": "2026-11-19T12:29:37.538Z",
+              "method": "GET",
+              "table": "nutrition_candidates",
+              "status": 200,
+              "ms": 250.8796000000002,
+              "bytes": 29147
+            },
+            {
+              "at": "2026-11-19T12:29:37.641Z",
+              "method": "GET",
+              "table": "retailer_products",
+              "status": 200,
+              "ms": 99.47890000000189,
+              "bytes": 7300
+            },
+            {
+              "at": "2026-11-19T12:29:37.811Z",
+              "method": "GET",
+              "table": "price_history",
+              "status": 200,
+              "ms": 161.26770000000033,
+              "bytes": 341
+            }
+          ],
+          "ms": 976.2204000000002
+        },
+        {
+          "route": "/product/applied-nutrition-abe-pump-500g?variant=475",
+          "round": 3,
+          "firstProcessRequest": false,
+          "reads": [
+            {
+              "at": "2026-11-19T12:29:37.965Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 96.82600000000093,
+              "bytes": 949
+            },
+            {
+              "at": "2026-11-19T12:29:37.997Z",
+              "method": "GET",
+              "table": "products",
+              "status": 200,
+              "ms": 128.1900999999998,
+              "bytes": 414
+            },
+            {
+              "at": "2026-11-19T12:29:38.059Z",
+              "method": "GET",
+              "table": "offers",
+              "status": 200,
+              "ms": 85.04969999999958,
+              "bytes": 8810
+            },
+            {
+              "at": "2026-11-19T12:29:38.197Z",
+              "method": "GET",
+              "table": "product_variants",
+              "status": 200,
+              "ms": 126.96299999999974,
+              "bytes": 7180
+            },
+            {
+              "at": "2026-11-19T12:29:38.337Z",
+              "method": "GET",
+              "table": "nutrition_candidates",
+              "status": 200,
+              "ms": 130.4458999999988,
+              "bytes": 29147
+            }
+          ],
+          "ms": 507.66699999999946
+        }
+      ],
+      "productionWrites": 0
+    }
+  },
+  "quality": {
+    "freshQuick": {
+      "at": "2026-11-19T12:27:35.819Z",
+      "mode": "quick",
+      "code": 0,
+      "signal": null,
+      "log": "tmp/quick.log"
+    },
+    "focusedPass": 43,
+    "quickPass": 1341,
+    "fullPass": 4083,
+    "historicalSkips": 3,
+    "newSkips": 0,
+    "typeScript": "PASS",
+    "eslint": "PASS",
+    "nextBuild": "PASS",
+    "migrationBaseline": "PASS",
+    "exactHeadFullCI": "https://github.com/SupplementScout/supplementscout/actions/runs/44520713038/job/135548273491",
+    "security": "Exact approved-head GitGuardian SUCCESS",
+    "guardian": "PASS before closeout edits; rerun after edits"
+  },
+  "measurement": {
+    "publishedAt": "2026-11-19T12:31:31Z",
+    "firstPositiveReadback": "2026-11-19T12:31:53.600Z",
+    "firstSevenCompleteUtcDays": [
+      "2026-11-20",
+      "2026-11-26"
+    ],
+    "first28CompleteUtcDays": [
+      "2026-11-20",
+      "2026-12-17"
+    ],
+    "review": "Only once GSC marks these dates complete/settled; use existing reports and both exact product URLs, no new scheduled task.",
+    "exactPumpAndStandardMetrics": "UNKNOWN in capped existing reports; not zero, no release outcome or Google indexing claim"
+  },
+  "boundaries": {
+    "seo20": "FROZEN IN PROGRESS",
+    "seo21to32": "LIVE VERIFIED unchanged",
+    "seo15Stage3": "disabled",
+    "productionDataWrites": 0,
+    "nutritionApprovals": 0,
+    "retailerGetClicks": 0,
+    "googleSubmissions": 0,
+    "newSchedules": 0,
+    "seo34": false
+  }
+}
