@@ -1,5 +1,15 @@
 # SupplementScout Operating Plan
 
+**19 November 2026 SEO-32 Draft checkpoint:** owner-approved existing /creatine
+price-comparison intent is CODE COMPLETE for publication review. Concise title,
+shared description/OG/Twitter/CollectionPage identity and one shorter opening
+paragraph change;H1,data,ranking,under£20 and PR553 mobile containment stay intact.
+Actual-source paired builds,seven-width QA and quick/full gates pass. This later
+owner instruction supersedes earlier no-SEO-32 wording only for this one Draft.
+No merge,Production,data/Google write or SEO-33. SEO-20 stays frozen IN PROGRESS;
+SEO-21–31 stay LIVE VERIFIED;Stage3 off. Guardian/binding sequence unchanged.
+[Evidence](rollouts/seo32-creatine-price-intent-2026-11-19.md).
+
 **19 November 2026 Creatine mobile repair LIVE VERIFIED:** owner-approved
 PR#553 squash5f42239e15131a2676404ca3b73b0cb0421dc531 equals tested0fcaf1c3 tree. PR/main CI,Guardian
 and exact Production/Vercel SUCCESS pass. Public build`XvzanNudUjSsz1P5zkpTa`
