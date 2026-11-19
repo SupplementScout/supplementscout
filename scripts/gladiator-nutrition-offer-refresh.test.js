@@ -214,7 +214,7 @@ test("environment binding freezes the classifier, reader, executor and Phase-B g
   const immutable = {
     // Source identity and delivery quarantine are explicit policy capabilities;
     // existing Shopify profiles retain their original classifier behavior.
-    "scripts/lib/retailer-offer-sync/classifier.js": "02bb818e6ed08f81e853832f74f64a21bdb675444fe3758679103c0f389c7ff2",
+    "scripts/lib/retailer-offer-sync/classifier.js": "a195a9034d2e2ed1707913b1611e13186c911f54a1d2437831d5fdcfff9849d6",
     "scripts/lib/shopify-snapshot-reader.js": "06d93e363ee95e4bbd73a17bd2292d9d258efb677634fa148685c42277811fce",
     // All sealed plans now pass read-only identity validation before any approval.
     "scripts/reviewed-catalogue-package-executor.js": "0fde4978ab74f479bb25ff2956d304ba2df4e0caabb7a5769e0afc558208db0f",
@@ -332,11 +332,11 @@ test("Gladiator scheduled refresh reuses the shared guarded flow while manual ap
     .replaceAll("$RETAILER_REFRESH_PROFILE", parsedJob.env.RETAILER_REFRESH_PROFILE)
     .replaceAll("env.RETAILER_REFRESH_CRON", `'${parsedJob.env.RETAILER_REFRESH_CRON}'`);
   assert.equal((runtime.match(/gladiator-nutrition/g) || []).length, 4);
-  // Resealed for deny-only Fit stock identity/HOLD checks and active diagnostic counts.
+  // Reviewed reseal: generic Default/sibling quarantine, exact partition accounting and safe SQL diagnostics.
   // Other profiles keep the shared pre-source owner-policy gate and generic path.
   // The source-kind adapter and preparation guard add no retailer condition to core.
   // Generic environment aliases retain precedence of every existing profile value.
-  assert.equal(sha256Text(path.join(ROOT, "scripts/fit-house-offer-refresh.js")), "22a08b5f6a6ea66cf7909f94244310cb75cc88cf4cdfcd6c79f6cd597917e82b");
+  assert.equal(sha256Text(path.join(ROOT, "scripts/fit-house-offer-refresh.js")), "ad17267f5bfba9ed3470c1ccd9ec3d10cc7b0aae94d7a1759c1046601ff2c3b9");
   assert.doesNotMatch(runtime, /retailer_id\s*={2,3}\s*15|config\.retailer_id\s*={2,3}\s*15/);
   assert.match(gladiatorJob, /github\.event_name == 'workflow_dispatch'/);
   assert.match(gladiatorJob, /inputs\.operation == 'dry-run'[\s\S]*inputs\.operation == 'review-only'/);

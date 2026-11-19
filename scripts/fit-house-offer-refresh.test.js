@@ -489,7 +489,12 @@ test("validator diagnostics expose only safe database code, summary, and bounded
   const databaseError={code:"P0001",message:JSON.stringify({code:"RSBI_GUARDRAIL_EXCEEDED",summary:"Read-only mass OOS guard blocked the batch",detail:{database_url:"postgres://secret",source_url:"https://private.example"}})};
   assert.deepEqual(safeRetailerCatalogueError(databaseError),{validator_code:"RSBI_GUARDRAIL_EXCEEDED",validator_summary:"Read-only mass OOS guard blocked the batch"});
   assert.deepEqual(safeRetailerCatalogueError({code:"P0001",message:JSON.stringify({code:"RSBI_GUARDRAIL_EXCEEDED",summary:"postgres://secret"})}),{validator_code:"RSBI_GUARDRAIL_EXCEEDED",validator_summary:"validator rejected the batch"});
-  assert.deepEqual(safeRetailerCatalogueError({code:"P0001",message:"not JSON"}),{validator_code:null,validator_summary:"validator rejected the batch"});
+  const unstructured=safeRetailerCatalogueError({code:"P0001",message:"not JSON"});
+  assert.deepEqual(unstructured,{validator_code:null,validator_summary:"validator rejected the batch",sqlstate:"P0001",
+    database_error_fingerprint:require("node:crypto").createHash("sha256").update(require("./lib/canonical-json").canonicalJson({code:"P0001",message:"not JSON"})).digest("hex"),diagnostic_code:"UNSTRUCTURED_DATABASE_EXCEPTION"});
+  const identity=safeRetailerCatalogueError({code:"P0001",message:"variant evidence does not match default product variant"});
+  assert.equal(identity.database_message,"variant evidence does not match default product variant");
+  assert.equal(identity.diagnostic_code,"UNSTRUCTURED_DATABASE_EXCEPTION");
   assert.deepEqual(safeValidatorResult({valid:false,status:"BLOCKED",row_count:22,secret:"private"}),{valid:false,status:"BLOCKED",row_count:22});
   assert.deepEqual(safeValidatorResult({valid:false,status:"postgres://secret",row_count:"bad"}),{valid:false,status:null,row_count:null});
 });
@@ -677,10 +682,10 @@ const automation = fs.readFileSync(
 
 test("KIOR, Discount Supplements, and Gladiator share the corrected production migration binding", () => {
   const binding = migrationBinding("PRODUCTION");
-  assert.equal(binding.versions.length, 268);
+  assert.equal(binding.versions.length, 269);
   assert.equal(
     binding.fingerprint,
-    "4da87e64288e023969f69149f28e31090c8bccd840ee668d63b0dab35b38482a",
+    "f54057cd49ea4422a3b8b849ac15ce38b518496a44a8d4dceb2f480f8f97eb66",
   );
   for (const identifier of [
     "20261104120000_allow_automation_review_hard_price_anomaly",

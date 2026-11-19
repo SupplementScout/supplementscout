@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "kind": "selected-migration-repository-closeout-v1",
+  "environment": "PRODUCTION",
+  "project_ref": "aftboxmrdgyhizicfsfu",
+  "pre_state": {
+    "ledger_count": 268,
+    "ledger_fingerprint": "4da87e64288e023969f69149f28e31090c8bccd840ee668d63b0dab35b38482a"
+  },
+  "consumed_pending": {
+    "count": 1,
+    "ordered_filenames": [
+      "20261119150000_read_automation_review_queue_page.sql"
+    ],
+    "ordered_identifiers": [
+      "20261119150000_read_automation_review_queue_page"
+    ],
+    "ordered_sha256": [
+      "062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa"
+    ]
+  },
+  "post_state": {
+    "ledger_count": 269,
+    "ledger_fingerprint": "f54057cd49ea4422a3b8b849ac15ce38b518496a44a8d4dceb2f480f8f97eb66"
+  },
+  "repository_updates": [
+    {
+      "file": "scripts/lib/environment-migrations.js",
+      "field": "PENDING_MIGRATIONS.PRODUCTION",
+      "from": [
+        {
+          "filename": "20261119150000_read_automation_review_queue_page.sql",
+          "sha256": "062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa"
+        }
+      ],
+      "to": []
+    },
+    {
+      "file": "scripts/supabase-migration-selector.js",
+      "field": "CONTRACTS.PRODUCTION.ledgerCount",
+      "from": 268,
+      "to": 269
+    },
+    {
+      "file": "scripts/supabase-migration-selector.js",
+      "field": "CONTRACTS.PRODUCTION.ledgerFingerprint",
+      "from": "4da87e64288e023969f69149f28e31090c8bccd840ee668d63b0dab35b38482a",
+      "to": "f54057cd49ea4422a3b8b849ac15ce38b518496a44a8d4dceb2f480f8f97eb66"
+    }
+  ],
+  "status": "CLOSEOUT_REQUIRED",
+  "database_writes": {
+    "migration_apply_count": 1
+  }
+}

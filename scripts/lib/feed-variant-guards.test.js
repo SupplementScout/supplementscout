@@ -20,6 +20,28 @@ const POWDER_FAMILY_CASES = [
   ["Applied Nutrition Critical Whey Protein Powder Vanilla 825g", "Applied Nutrition Critical Whey 2kg", "Vanilla Ice Cream", 825],
 ];
 
+test("exact serving variants inherit the independent physical count from their canonical parent", () => {
+  for (const [id, variantId, name, servings] of [
+    [508, 2975, "GYM HIGH Shred Mode 60 Capsules", 60],
+    [413, 2970, "GYM HIGH ZMB 60 Capsules", 60],
+    [427, 2968, "GYM HIGH BCAA 120 Capsules", 30],
+    [429, 2967, "GYM HIGH Testo Pro 180 Capsules", 60],
+  ]) {
+    const product = { id, name, brand: "GYM HIGH", product_format: "capsule" };
+    const variant = { id: variantId, product_id: id, display_name: `${servings} Servings`, size_value: servings,
+      size_unit: "servings", pack_count: 1, product_format: null, is_active: true, is_default: false };
+    const row = { product_id: String(id), product_variant_id: String(variantId), product_name: name,
+      brand: "GYM HIGH", product_format: "capsule", size: String(servings), size_unit: "servings", pack_count: "1" };
+    assert.equal(assessVariantCompatibility(row, product, variant).compatible, true, name);
+    for (const patch of [{ product_id: "999" }, { product_variant_id: "999" }, { pack_count: "2" },
+      { size: String(servings * 2) }, { product_format: "tablet" }, { product_name: name.replace(/\d+ Capsules/, "999 Capsules") }]) {
+      assert.equal(assessVariantCompatibility({ ...row, ...patch }, product, variant).compatible, false, JSON.stringify(patch));
+    }
+    assert.equal(assessVariantCompatibility(row, { ...product, name: name.replace(/\d+ Capsules/, "Capsules") }, variant).compatible, false);
+    assert.equal(assessVariantCompatibility(row, product, { ...variant, display_name: "60 Tablets", size_unit: "tablets" }).compatible, false);
+  }
+});
+
 test("counted tablet and capsule families ignore only the bottle count", () => {
   for (const brand of ["Solgar", "Example"]) {
     for (const [left, right] of [

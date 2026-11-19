@@ -10,6 +10,7 @@ on:
         type: choice
         options:
           - dry-run
+          - review-only
           - apply
       validation_context:
         description: "Diagnostic trigger context; schedule safely emulates the scheduled source path"
@@ -32,6 +33,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: creatine-offer-refresh
@@ -39,6 +41,10 @@ concurrency:
 
 jobs:
   creatine-offer-refresh:
+    outputs:
+      review_artifact_id: ${{ steps.review_evidence.outputs.artifact-id }}
+      review_artifact_digest: ${{ steps.review_evidence.outputs.artifact-digest }}
+      review_contract_sha256: ${{ steps.review_source.outputs.contract_sha256 }}
     if: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || github.event_name == 'workflow_dispatch') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -90,11 +96,24 @@ jobs:
           node scripts/creatine-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true $SCOPE_ARG
 
       - name: Capture Discount Supplements DB baseline read-only
-        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'review-only' }}
         env:
           DISCOUNT_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
         run: node scripts/retailer-offer-refresh-postflight.js --profile=discount-supplements --mode=baseline --output=tmp/discount-supplements-offer-refresh/production-db-baseline.json
 
+      - name: Bind fresh Review Queue source
+        id: review_source
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'review-only' }}
+        run: node scripts/shared-retailer-automation-review-source.js --mode=bind --profile=discount-supplements --source-artifact-dir=tmp/discount-supplements-offer-refresh
+      - name: Upload immutable Review Queue source
+        id: review_evidence
+        if: ${{ steps.review_source.outcome == 'success' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: discount-supplements-offer-refresh-review-source-${{ github.run_id }}-${{ github.run_attempt }}
+          path: tmp/discount-supplements-offer-refresh/automation-review-*
+          retention-days: 14
+          if-no-files-found: error
       - name: Apply safe authorised Discount refresh
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
         env:
@@ -147,3 +166,41 @@ jobs:
           retention-days: 14
           if-no-files-found: warn
           path: tmp/discount-supplements-offer-refresh/*.json
+
+  refresh-review-queue:
+    needs: [creatine-offer-refresh]
+    if: ${{ always() && github.ref == 'refs/heads/main' && needs.creatine-offer-refresh.outputs.review_artifact_id != '' && needs.creatine-offer-refresh.outputs.review_artifact_digest != '' && needs.creatine-offer-refresh.outputs.review_contract_sha256 != '' }}
+    runs-on: ubuntu-latest
+    environment: production-readonly
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Publish verified conflicts to Automation Review Queue
+        uses: ./.github/actions/publish-automation-review-queue
+        with:
+          display-name: discount-supplements
+          profile: discount-supplements
+          artifact-id: ${{ needs.creatine-offer-refresh.outputs.review_artifact_id }}
+          artifact-digest: ${{ needs.creatine-offer-refresh.outputs.review_artifact_digest }}
+          source-contract-sha256: ${{ needs.creatine-offer-refresh.outputs.review_contract_sha256 }}
+          source-directory: tmp/discount-supplements-offer-refresh/review-publication-source
+          evidence-prefix: discount-supplements
+          source-run-id: ${{ github.run_id }}
+          source-commit-sha: ${{ github.sha }}
+          github-token: ${{ github.token }}
+          supabase-url: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          service-role-key: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          durable-sealed-artifacts-enforcement: ${{ vars.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT }}
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: discount-supplements-automation-review-publication-${{ github.run_id }}-${{ github.run_attempt }}
+          path: tmp/automation-review-reconciliation/*.json
+          retention-days: 14
+          if-no-files-found: warn

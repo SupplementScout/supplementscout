@@ -1,7 +1,8 @@
 const fs = require("node:fs");
 const path = require("node:path");
 
-const { writeDryRunArtifact } = require("./import-products");
+const { writeDryRunArtifact, loadDryRunArtifact } = require("./import-products");
+const { partitionExecutableRows } = require("./lib/retailer-offer-sync/classifier");
 const {
   MAPPING_KEYS, OFFER_KEYS, PRODUCT_KEYS, RETAILER_KEYS, VARIANT_KEYS,
   buildVerifiedNoChangePlan,
@@ -38,8 +39,10 @@ function exactState(value, keys) {
 }
 
 function buildRefreshArtifact(options, dependencies = {}) {
-  const builderReport = dependencies.report || JSON.parse(fs.readFileSync(options.report, "utf8"));
-  const validated = validateInputs({ report: options.report, artifact: options.artifact }, dependencies);
+  const originalReport = dependencies.report || JSON.parse(fs.readFileSync(options.report, "utf8"));
+  const originalLoaded = dependencies.loaded || loadDryRunArtifact(options.artifact);
+  const { report: builderReport, loaded } = partitionImporterRows(originalReport, originalLoaded);
+  const validated = validateInputs({ report: options.report, artifact: options.artifact }, { ...dependencies, report: builderReport, loaded });
   if (builderReport.source_identity_fingerprint == null || builderReport.source_captured_at == null) fail("Source evidence is incomplete");
 
   const approvedRows = [];
@@ -125,6 +128,11 @@ function buildRefreshArtifact(options, dependencies = {}) {
     offer_create_count: builderReport.offer_create_count,
     verified_no_change_count: verifiedNoChangeCount,
     standard_change_count: standardChangeCount,
+    source: { fingerprint: builderReport.source_identity_fingerprint },
+    mode: "dry-run", target: "production", approved_mapping_count: builderReport.approved_row_count,
+    executable_plan_count: approvedRows.length,
+    executed_plan_count: 0, blocked_row_count: 0,
+    execution_offer_ids: approvedRows.map(item => String(item.importPlan.expected_state.offer.id)),
     artifact_sha256: written.artifactSha256,
     source_file_sha256: written.artifact.source_file_sha256,
   };
@@ -138,4 +146,46 @@ if (require.main === module) {
   catch (error) { console.error(error.message); process.exitCode = 1; }
 }
 
-module.exports = { buildRefreshArtifact, parseArgs, sameBusinessOffer };
+function partitionImporterRows(report, loaded) {
+  const artifact = loaded.artifact;
+  if (!artifact.blocked_rows.length) {
+    const scope=report.approved_scope_rows;
+    const review=(report.review_rows||[]).map(row=>{const binding=scope?.find(item=>String(item.external_product_id)===String(row.external_product_id)&&row.external_variant_ids?.includes(String(item.external_variant_id)));return binding?{...row,offer_id:binding.offer_id,retailer_product_id:binding.mapping_id,external_variant_id:binding.external_variant_id}:row;});
+    return { report: {...report,review_rows:review}, loaded };
+  }
+  const scope = report.approved_scope_rows;
+  if (!Array.isArray(scope) || scope.length !== report.approved_row_count || scope.some(row => !row.offer_id || !row.mapping_id)) fail("Approved import partition identities are missing");
+  const byKey = new Map(scope.map(row => [`${row.external_product_id}:${row.external_variant_id}`, row]));
+  if (byKey.size !== scope.length || artifact.source_rows.length !== report.executable_row_count ||
+      artifact.plans.length + artifact.blocked_rows.length !== report.executable_row_count) fail("Import partition is incomplete");
+  const reasons = new Set(["unit-count conflict", "brand conflict", "format conflict", "size conflict", "pack-count conflict", "product family conflict", "ambiguous product family", "reviewed target conflict"]);
+  const review = (report.review_rows || []).map(row => {
+    const binding = byKey.get(`${row.external_product_id}:${row.external_variant_ids?.[0]}`);
+    if (!binding) fail("Unapproved source review identity");
+    return { ...row, offer_id: binding.offer_id, retailer_product_id: binding.mapping_id, external_variant_id: binding.external_variant_id };
+  });
+  const plannedNumbers = new Set(artifact.plans.map(plan => String(plan.row_number)));
+  for (const blocked of artifact.blocked_rows) {
+    const source = artifact.source_rows.find(row => String(row.row_number) === String(blocked.rowNumber));
+    const row = source?.normalized_source_row;
+    const binding = row && byKey.get(`${row.external_product_id}:${row.external_variant_id}`);
+    if (!binding || source.status !== "blocked" || plannedNumbers.has(String(blocked.rowNumber)) ||
+        !blocked.reasons?.length || blocked.reasons.some(reason => !reasons.has(reason))) fail("Unclassified importer failure must remain globally blocked");
+    review.push({ ...binding, retailer_product_id: binding.mapping_id, external_variant_ids: [binding.external_variant_id],
+      reason: "CANONICAL_IDENTITY_CONFLICT", source_captured_at: report.source_captured_at,
+      source_record_evidence: { reasons: blocked.reasons, source_row_fingerprint: source.source_row_fingerprint, source_row: row } });
+  }
+  const rows = artifact.plans.map(plan => {
+    const source = artifact.source_rows.find(row => String(row.row_number) === String(plan.row_number))?.normalized_source_row;
+    const binding = source && byKey.get(`${source.external_product_id}:${source.external_variant_id}`);
+    if (!binding) fail("Unapproved executable import identity");
+    return { offer_id: binding.offer_id };
+  });
+  partitionExecutableRows({ rows, quarantined_rows: review }, { approvedOfferIds: scope.map(row => row.offer_id) });
+  return { report: { ...report, result: "PASS_WITH_REVIEW", executable_row_count: rows.length, row_artifact_count: rows.length,
+    review_row_count: review.length, review_rows: review },
+    loaded: { ...loaded, artifact: { ...artifact, row_count: String(rows.length), blocked_rows: [],
+      source_rows: artifact.source_rows.filter(row => plannedNumbers.has(String(row.row_number))) } } };
+}
+
+module.exports = { buildRefreshArtifact, partitionImporterRows, parseArgs, sameBusinessOffer };

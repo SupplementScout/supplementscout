@@ -1,5 +1,58 @@
 # Retailer Automation Consolidation Execution Plan
 
+**19 November PR556 owner-approved controlled release — IN PROGRESS:** exact
+source `da4f591b` and migration06286512…187aa passed protected rehearsal, rollback
+readback and one production apply. Independent READ ONLY confirms CURRENT269,
+fingerprintf54057cd, unchanged1494/4228/4580/4580/57204 catalogue counts, exact
+function body and service-role-only ACL. The generated
+[repository closeout](evidence/PR556-QUEUE-READER-PRODUCTION-269-CLOSEOUT-2026-11-19.json)
+is authoritative for production pending=[] and269; staging remains120/pending3.
+The existing worker is temporarily paused for cutover; code release and genuine
+retailer/UI/postflight/idempotency/watchdog evidence remain pending. No Discount
+identity correction or discovery expansion is authorized. Follow
+[controlled release evidence](evidence/PR556-CONTROLLED-RELEASE-2026-11-19.json).
+
+**19 November shared retailer / Review Queue repair — NEEDS_OWNER_APPROVAL:** the owner
+authorized one implementation and Draft PR covering quantity identity, early
+canonical quarantine, complete scope accounting, the existing shared review
+publisher and bounded admin reads. Baseline is `00da6c17`. RA-001 is reused;
+RA-004 and unrelated catalogue/SEO work are unchanged. No merge, production SQL,
+business write, review publication or mapping correction is authorized here.
+
+Read-only replay of source run `44528441465` against current canonical GYM HIGH
+data now builds 65 freshness plans and one existing source-identity review across
+66 offers. Discount source `44341714238` and current DB state produce 106 plans
+and three canonical reviews (`762`, `2537`, `2538`); all six executable batches
+pass the existing production READ ONLY SQL validator. The additional two latent
+Default mappings are deliberately held even when their current price is unchanged.
+No mapping is guessed. The admin defect reproduces at 6694 eligible historical
+rows versus the old 5000 complete-read bound. The proposed service-role-only
+read function passes isolated PostgreSQL at 5000/6694/10000/20000 rows, latest
+execution, history, permissions and revision-change cases. The additive reader
+migration is registered as pending in the existing selected applicator; current
+production bindings remain CURRENT268. Local Project Guardian, baseline, Quick
+and Full gates PASS (4098 safe tests), and the complete 58-file Docker gate PASS
+(198 tests, zero failures/skips). Fresh Discount capture at15:16:29Z also proves
+106 executable (90 freshness/16 stock) plus3 reviews in6 native READ ONLY batches;
+a later local request returns429 again. All65 GYM HIGH atomic plans pass native
+READ ONLY SQL; common publication accounting and renamed sidecar replay PASS.
+Draft [PR556](https://github.com/SupplementScout/supplementscout/pull/556) carries
+the current code and CI checks. Production activation, review publication,
+postflight, idempotency and watchdog after release are NOT_RUN; this is not a
+production success declaration. The exact release order,
+rollback and held mapping-correction scope are in the
+[release packet](SHARED-REVIEW-RELIABILITY-2026-11-19.md).
+See [repair evidence](evidence/SHARED-REVIEW-RELIABILITY-2026-11-19.json).
+
+**19 November header-only rehearsal correction — NEEDS_OWNER_APPROVAL:** the
+protected rehearsal of source `6afe2275` stopped before DB connection because
+its initial comment preceded `begin;`. The owner authorizes only moving that
+comment, updating hash bindings and adding real-file applicator regression
+coverage. CURRENT268 and PENDING remain unchanged. No renewed production
+rehearsal, apply, merge or deployment is authorized. Original STOP history and
+the corrected hash/test evidence are retained in the
+[header correction record](evidence/PR556-REHEARSAL-HEADER-2026-11-19.json).
+
 **17 November H&B - DEPLOYED / ENABLED / CONTROLLED REVIEW VERIFIED / ORDINARY SCHEDULE PENDING:**
 PR539 merged at08:59:40Z as4d91fde9, with the same tree as approved feature heada124a7db.
 Main quality44051477879, Guardian44051478297 and baseline44051477923 passed;

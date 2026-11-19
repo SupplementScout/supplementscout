@@ -1620,7 +1620,8 @@ test("watchdog rejects a freshness anchor older than the requested cutoff", asyn
 
 test("watchdog configuration binds exact stage alternatives for every retailer", () => {
   const profiles = new Map(loadWatchdogConfig().retailers.map((profile) => [String(profile.id), profile.stages]));
-  assert.deepEqual(profiles.get("1").idempotency, []);
+  assert.deepEqual(profiles.get("1").idempotency, ["Verify complete live postcondition"]);
+  assert.deepEqual(profiles.get("1").db_postflight, ["Verify guarded catalogue DB postflight read-only"]);
   assert.deepEqual(profiles.get("13").idempotency, []);
   assert.deepEqual(profiles.get("9").idempotency, ["Verify idempotency with a fresh source capture"]);
   assert.deepEqual(profiles.get("11").idempotency, ["Verify idempotency against a fresh source capture"]);
@@ -1633,7 +1634,7 @@ test("watchdog configuration binds exact stage alternatives for every retailer",
     db_postflight: ["Verify Gladiator Nutrition DB postflight read-only"],
     idempotency: ["Verify Gladiator Nutrition idempotency with a fresh source capture"],
   });
-  assert.equal([...profiles.values()].filter((stages) => stages.idempotency.length > 0).length, 12);
+  assert.equal([...profiles.values()].filter((stages) => stages.idempotency.length > 0).length, 13);
 });
 
 test("Gladiator watchdog binds the live scheduled job and publication without changing its debt policy", () => {
@@ -1859,6 +1860,7 @@ test("shared DB postflight covers exact retailer scopes", () => {
     "ebay-uk": [237, 237],
     "fit-house": [284, 284],
     "gladiator-nutrition": [603, 603],
+    "gym-high": [66, null],
     "holland-barrett": [219, 219],
     "jons-supplements": [506, null],
     "kior-health": [11, 11],
@@ -1877,6 +1879,7 @@ test("shared DB postflight covers exact retailer scopes", () => {
 
 test("adopted retailer workflows place read-only DB evidence around apply", () => {
   const workflows = [
+    ["gym-high-full-catalogue-apply.yml", "Capture guarded catalogue DB baseline read-only", "Validate and optionally apply exact catalogue", "Verify guarded catalogue DB postflight read-only"],
     ["creatine-offer-refresh.yml", "Capture Discount Supplements DB baseline read-only", "Apply safe authorised Discount refresh", "Verify Discount Supplements DB postflight read-only"],
     ["dolphin-vegan-protein-offer-refresh.yml", "Capture Dolphin Fitness DB baseline read-only", "Apply the one approved existing Dolphin offer refresh", "Verify Dolphin Fitness DB postflight read-only"],
     ["ebay-offer-refresh.yml", "Capture eBay UK DB baseline read-only", "Apply exact approved existing-offer refresh", "Verify eBay UK DB postflight read-only"],

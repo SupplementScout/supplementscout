@@ -30,6 +30,10 @@ concurrency:
 
 jobs:
   catalogue:
+    outputs:
+      review_artifact_id: ${{ steps.review_evidence.outputs.artifact-id }}
+      review_artifact_digest: ${{ steps.review_evidence.outputs.artifact-digest }}
+      review_contract_sha256: ${{ steps.review_source.outputs.contract_sha256 }}
     if: ${{ github.ref == 'refs/heads/main' && ((github.event_name == 'workflow_dispatch' && inputs.approval_fingerprint == 'b5886eda9300b9cfb5319f868ad5b87e7e6b01b0b77d3d7c4ac270681c101919' && (inputs.operation != 'apply' || inputs.owner_confirmation == 'OWNER_APPROVED_GYM_HIGH_SHIPPING_POLICY_2026_08_21_EXACT_66' || inputs.owner_confirmation == 'OWNER_APPROVED_GYM_HIGH_REFRESH_65_WITH_REVIEW_701_2026_09_10')) || github.event_name == 'schedule') }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -38,6 +42,7 @@ jobs:
       NODE_OPTIONS: --use-system-ca
       NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      GYM_HIGH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
       GYM_HIGH_APPROVER_DATABASE_URL: ${{ secrets.JONS_SYNC_APPROVER_DATABASE_URL }}
       GYM_HIGH_EXECUTOR_DATABASE_URL: ${{ secrets.JONS_SYNC_EXECUTOR_DATABASE_URL }}
       GYM_HIGH_APPROVAL_FINGERPRINT: ${{ inputs.approval_fingerprint || 'b5886eda9300b9cfb5319f868ad5b87e7e6b01b0b77d3d7c4ac270681c101919' }}
@@ -73,21 +78,81 @@ jobs:
         run: node scripts/import-products.js --mode=feed --dry-run --csv=tmp/gym-high-reviewed-catalogue/full-catalogue.csv --artifact=tmp/gym-high-reviewed-catalogue/full-catalogue-artifact.json
       - name: Convert unchanged rows into freshness confirmations
         run: node scripts/gym-high-refresh-artifact.js --report=tmp/gym-high-reviewed-catalogue/full-catalogue-builder-report.json --artifact=tmp/gym-high-reviewed-catalogue/full-catalogue-artifact.json --output=tmp/gym-high-reviewed-catalogue/refresh-artifact.json --output-report=tmp/gym-high-reviewed-catalogue/refresh-report.json
+      - name: Capture guarded catalogue DB baseline read-only
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        run: node scripts/retailer-offer-refresh-postflight.js --profile=gym-high --mode=baseline --output=tmp/gym-high-reviewed-catalogue/production-db-baseline.json
+      - name: Bind fresh Review Queue source
+        id: review_source
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        run: node scripts/shared-retailer-automation-review-source.js --mode=bind --profile=gym-high --source-artifact-dir=tmp/gym-high-reviewed-catalogue
+      - name: Upload immutable Review Queue source
+        id: review_evidence
+        if: ${{ steps.review_source.outcome == 'success' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: gym-high-full-catalogue-review-source-${{ github.run_id }}-${{ github.run_attempt }}
+          path: tmp/gym-high-reviewed-catalogue/automation-review-*
+          retention-days: 14
+          if-no-files-found: error
       - name: Validate and optionally apply exact catalogue
         run: node scripts/gym-high-full-catalogue-executor.js --mode=${{ github.event_name == 'schedule' && 'apply' || (inputs.operation == 'apply' && 'apply' || 'validate') }} --report=tmp/gym-high-reviewed-catalogue/refresh-report.json --artifact=tmp/gym-high-reviewed-catalogue/refresh-artifact.json --output=tmp/gym-high-reviewed-catalogue/full-catalogue-execution.json
+      - name: Verify guarded catalogue DB postflight read-only
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        run: node scripts/retailer-offer-refresh-postflight.js --profile=gym-high --mode=postflight --baseline=tmp/gym-high-reviewed-catalogue/production-db-baseline.json --execution=tmp/gym-high-reviewed-catalogue/full-catalogue-execution.json --output=tmp/gym-high-reviewed-catalogue/production-db-postflight.json
       - name: Verify complete live postcondition
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'postflight' }}
         run: |
-          node scripts/gym-high-full-catalogue-feed-builder.js --source=tmp/gym-high-source-monitor/approved-catalogue-report.json --output=tmp/gym-high-reviewed-catalogue/post-apply.csv
+          node scripts/gym-high-catalogue-audit.js --output=tmp/gym-high-source-monitor/post-apply-catalogue-report.json
+          node scripts/gym-high-full-catalogue-feed-builder.js --source=tmp/gym-high-source-monitor/post-apply-catalogue-report.json --output=tmp/gym-high-reviewed-catalogue/post-apply.csv
           node -e "const r=require('./tmp/gym-high-reviewed-catalogue/post-apply-builder-report.json');if(!['PASS','PASS_WITH_REVIEW'].includes(r.result)||r.approved_row_count!==66||r.executable_row_count+r.review_row_count!==66||r.existing_mapping_count!==66||r.mapping_create_count!==0||r.existing_offer_count!==66||r.offer_create_count!==0)process.exit(1)"
           node scripts/import-products.js --mode=feed --dry-run --csv=tmp/gym-high-reviewed-catalogue/post-apply.csv --artifact=tmp/gym-high-reviewed-catalogue/post-apply-artifact.json
-          node -e "const a=require('./tmp/gym-high-reviewed-catalogue/post-apply-artifact.json');const r=require('./tmp/gym-high-reviewed-catalogue/post-apply-builder-report.json');if(a.plans.length!==r.executable_row_count||a.plans.some(x=>Date.parse(x.resolved_plan.expected_state.offer.last_checked_at)<Date.parse(r.source_captured_at)))process.exit(1)"
+          node scripts/gym-high-refresh-artifact.js --report=tmp/gym-high-reviewed-catalogue/post-apply-builder-report.json --artifact=tmp/gym-high-reviewed-catalogue/post-apply-artifact.json --output=tmp/gym-high-reviewed-catalogue/post-refresh-artifact.json --output-report=tmp/gym-high-reviewed-catalogue/post-refresh-report.json
+          node -e "const a=require('./tmp/gym-high-reviewed-catalogue/post-refresh-artifact.json');const r=require('./tmp/gym-high-reviewed-catalogue/post-refresh-report.json');const pre=require('./tmp/gym-high-reviewed-catalogue/refresh-report.json');const ids=v=>JSON.stringify(v.map(String).sort());if(r.standard_change_count!==0||r.verified_no_change_count!==r.executable_row_count||a.plans.length!==r.executable_row_count||ids(r.execution_offer_ids)!==ids(pre.execution_offer_ids)||ids(r.review_rows.map(x=>x.offer_id))!==ids(pre.review_rows.map(x=>x.offer_id))||a.plans.some(x=>Date.parse(x.resolved_plan.expected_state.offer.last_checked_at)<Date.parse(pre.source_captured_at)))process.exit(1)"
       - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: gym-high-full-catalogue-${{ github.run_id }}-${{ github.run_attempt }}
           path: |
             tmp/gym-high-reviewed-catalogue/**/*.json
+            tmp/gym-high-reviewed-catalogue/**/*.sha256
             tmp/gym-high-source-monitor/*.json
           if-no-files-found: warn
           retention-days: 30
+
+  refresh-review-queue:
+    needs: [catalogue]
+    if: ${{ always() && github.ref == 'refs/heads/main' && needs.catalogue.outputs.review_artifact_id != '' && needs.catalogue.outputs.review_artifact_digest != '' && needs.catalogue.outputs.review_contract_sha256 != '' }}
+    runs-on: ubuntu-latest
+    environment: production-readonly
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Publish verified conflicts to Automation Review Queue
+        uses: ./.github/actions/publish-automation-review-queue
+        with:
+          display-name: gym-high
+          profile: gym-high
+          artifact-id: ${{ needs.catalogue.outputs.review_artifact_id }}
+          artifact-digest: ${{ needs.catalogue.outputs.review_artifact_digest }}
+          source-contract-sha256: ${{ needs.catalogue.outputs.review_contract_sha256 }}
+          source-directory: tmp/gym-high-reviewed-catalogue/review-publication-source
+          evidence-prefix: gym-high
+          source-run-id: ${{ github.run_id }}
+          source-commit-sha: ${{ github.sha }}
+          github-token: ${{ github.token }}
+          supabase-url: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          service-role-key: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          durable-sealed-artifacts-enforcement: ${{ vars.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT }}
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: gym-high-automation-review-publication-${{ github.run_id }}-${{ github.run_attempt }}
+          path: tmp/automation-review-reconciliation/*.json
+          retention-days: 14
+          if-no-files-found: warn

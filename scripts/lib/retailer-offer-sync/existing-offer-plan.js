@@ -54,4 +54,17 @@ function buildExistingOfferUpdatePlan(input) {
   return {record:sourceRecord,plan:serializeImportPlan(serialized),changed:{price:priceChanged,stock:stockChanged,url:urlChanged}};
 }
 
-module.exports={buildExistingOfferUpdatePlan,normalizeState};
+// Mirrors the standard atomic validator's Default-versus-explicit boundary.
+// This is an observation, never a choice of a replacement variant.
+function canonicalIdentityConflict(record, variants) {
+  if (!record.variant.is_default) return null;
+  const siblings = variants.filter(variant => String(variant.product_id) === String(record.product.id) && variant.is_active && !variant.is_default);
+  if (record.variant.flavour_code || record.variant.flavour_label || record.variant.size_value != null || siblings.length) {
+    return { reason: "CANONICAL_IDENTITY_CONFLICT", product_id: String(record.product.id),
+      variant_id: String(record.variant.id), default_variant: true,
+      active_explicit_variant_ids: siblings.map(variant => String(variant.id)).sort((a,b) => Number(a)-Number(b)) };
+  }
+  return null;
+}
+
+module.exports={buildExistingOfferUpdatePlan,normalizeState,canonicalIdentityConflict};

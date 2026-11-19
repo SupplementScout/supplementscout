@@ -12,6 +12,7 @@ const ROOT = path.resolve(__dirname, "..");
 const VALIDATOR_LOGIN = "supplementscout_production_validator_login";
 const VALIDATOR_ROLE = "retailer_catalogue_production_validator";
 const PROFILES = Object.freeze({
+  "gym-high": { retailerId:"1",retailerName:"GYM HIGH",credential:"GYM_HIGH_VALIDATOR_DATABASE_URL",approvedMappingCount:66 },
   "holland-barrett": {
     retailerId: String(sourceProfile.retailer_id),
     retailerName: sourceProfile.retailer_name,

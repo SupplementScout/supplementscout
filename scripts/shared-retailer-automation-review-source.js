@@ -225,8 +225,10 @@ async function verifyGithubBinding(options, env = process.env, fetchImpl = fetch
   const sameRun = env.GITHUB_ACTIONS === "true" && String(env.GITHUB_RUN_ID) === options.sourceRunId && run.status === "in_progress";
   invariant((run.status === "completed" && run.conclusion === "success") || sameRun, `${label} source run is not usable`);
   invariant(["schedule", "workflow_dispatch"].includes(run.event) && run.head_branch === "main" && run.head_sha === options.sourceCommitSha, `${label} source branch or commit mismatch`);
+  const attempt=String(env.GITHUB_RUN_ATTEMPT || "1");
+  invariant(/^[1-9][0-9]*$/.test(attempt) && String(run.run_attempt || "1")===attempt, `${label} source run attempt mismatch`);
   const artifact = await githubJson(`${api}/repos/${REPOSITORY}/actions/artifacts/${options.sourceArtifactId}`, env.GITHUB_TOKEN, fetchImpl);
-  invariant(String(artifact.id) === options.sourceArtifactId && String(artifact.workflow_run?.id) === options.sourceRunId && artifact.name === `${profile.artifactPrefix}-${options.sourceRunId}-1` && artifact.expired === false, `${label} source artifact binding mismatch`);
+  invariant(String(artifact.id) === options.sourceArtifactId && String(artifact.workflow_run?.id) === options.sourceRunId && artifact.name === `${profile.artifactPrefix}-${options.sourceRunId}-${attempt}` && artifact.expired === false, `${label} source artifact binding mismatch`);
   invariant(artifact.digest === `sha256:${options.sourceArtifactDigest}`, `${label} source artifact digest mismatch`);
 }
 
@@ -282,7 +284,7 @@ function buildManifestRows(source, baseline, options) {
     const proposedState = card.proposedState;
     const semanticIdentity = card.identityEvidence ? { ...card.identityEvidence } : null;
     if (semanticIdentity) delete semanticIdentity.source_captured_at;
-    const sourceRowFingerprint = sha256({ contract: `${profile.key}-automation-review-row-v1`, retailer_id: retailer.id, offer_id: changed.offer_id, source_fingerprint: source.contract.source_fingerprint, before_state: beforeState, proposed_state: proposedState, ...(semanticIdentity ? { identity_evidence: semanticIdentity, review_reason: card.evidenceReason } : {}) });
+    const sourceRowFingerprint = sha256({ contract: `${profile.key}-automation-review-row-v1`, retailer_id: retailer.id, offer_id: changed.offer_id, source_fingerprint: source.contract.source_fingerprint, before_state: beforeState, proposed_state: proposedState, ...(semanticIdentity ? { identity_evidence: semanticIdentity, review_reason: card.evidenceReason } : {}), ...(card.sourceRecordEvidence ? {source_record_evidence:card.sourceRecordEvidence,review_reason:card.evidenceReason} : {}) });
     return {
       snapshot_id: `automation-review-${retailer.id}-${options.sourceRunId}`,
       review_item_id: `${retailer.id}:${changed.offer_id}:${options.sourceRunId}:${sourceRowFingerprint}`,
@@ -344,7 +346,7 @@ function buildOutput(source, baseline, rows, options, env = process.env) {
     retailer,
     production_writes: 0,
     direct_rest_writes: 0,
-    source: { run_id: options.sourceRunId, artifact_id: options.sourceArtifactId, artifact_name: `${profile.artifactPrefix}-${options.sourceRunId}-1`, commit_sha: options.sourceCommitSha, artifact_digest: options.sourceArtifactDigest, contract_sha256: options.sourceContractSha256, review_scope_fingerprint: source.contract.review_scope_fingerprint, contract_expires_at: source.contract.expires_at, review_offer_ids: source.contract.review_offer_ids },
+    source: { run_id: options.sourceRunId, artifact_id: options.sourceArtifactId, artifact_name: `${profile.artifactPrefix}-${options.sourceRunId}-${source.contract.run_attempt}`, commit_sha: options.sourceCommitSha, artifact_digest: options.sourceArtifactDigest, contract_sha256: options.sourceContractSha256, review_scope_fingerprint: source.contract.review_scope_fingerprint, contract_expires_at: source.contract.expires_at, review_offer_ids: source.contract.review_offer_ids },
     github_context: { run_id: env.GITHUB_RUN_ID || null, run_attempt: env.GITHUB_RUN_ATTEMPT || null, commit_sha: env.GITHUB_SHA || null, event_name: env.GITHUB_EVENT_NAME || null, ref: env.GITHUB_REF || null },
     baseline: { catalogue_counts: baseline.catalogueCounts, active_review_count: baseline.activeRows.length },
     operations,
@@ -378,6 +380,7 @@ async function reconcile(options, dependencies = {}) {
   invariant(env.GITHUB_ACTIONS === "true" && ["schedule", "workflow_dispatch"].includes(env.GITHUB_EVENT_NAME) && env.GITHUB_REF === "refs/heads/main" && env.GITHUB_REPOSITORY === REPOSITORY && String(env.GITHUB_RUN_ID) === options.sourceRunId && env.GITHUB_SHA === options.sourceCommitSha, "RETAILER_RECONCILIATION_CONTEXT_INVALID");
   await verifyGithubBinding(options, env, dependencies.fetchImpl || fetch);
   const source = verifySourceContract(options);
+  invariant(source.contract.run_attempt===String(env.GITHUB_RUN_ATTEMPT || "1"), "RETAILER_RECONCILIATION_SOURCE_ATTEMPT_MISMATCH");
   const baseline = await fetchPublicationBaseline(dependencies.client || database(env), source);
   const rows = buildManifestRows(source, baseline, options);
   const output = buildOutput(source, baseline, rows, options, env);

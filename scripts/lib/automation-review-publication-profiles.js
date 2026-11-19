@@ -2,6 +2,7 @@ const { reasonList } = require("./automation-review-publisher");
 const stockIdentity = require("./fit-house-stock-identity");
 const sourceProfile = require("../../config/retailers/holland-barrett-offer-sync.json");
 const SOURCE_REVIEW_POLICIES = Object.freeze({
+  CANONICAL_IDENTITY_CONFLICT: Object.freeze({ reasonCode: "IDENTITY_CONFLICT", reviewKind: "IDENTITY_CONFLICT", operation: "MANUAL_REVIEW_IDENTITY" }),
   SOURCE_RECORD_INVALID: Object.freeze({ reasonCode: "SOURCE_FAILURE", reviewKind: "SOURCE_FAILURE", operation: "MANUAL_REVIEW" }),
   SOURCE_IDENTITY_DRIFT: Object.freeze({ reasonCode: "IDENTITY_CONFLICT", reviewKind: "IDENTITY_CONFLICT", operation: "MANUAL_REVIEW_IDENTITY" }),
   SHIPPING_POLICY_DRIFT: Object.freeze({ reasonCode: "POLICY_REVIEW", reviewKind: "POLICY_REVIEW", operation: "MANUAL_REVIEW" }),
@@ -460,7 +461,37 @@ function profile(values) {
   });
 }
 
+function validateCatalogueCapture(profile, { report, files, invariant }) {
+  invariant(report.kind === "gym-high-guarded-existing-offer-refresh" && report.database_writes === 0, "Guarded catalogue capture is invalid");
+  invariant(report.mode === "dry-run" && report.target === "production" && report.approved_mapping_count === profile.approvedMappingCount
+    && report.executable_plan_count === report.executable_row_count && Number.isInteger(report.executable_plan_count)
+    && report.executed_plan_count === 0 && report.blocked_row_count === 0, "Guarded catalogue shared publication contract is incomplete");
+  require("../gym-high-full-catalogue-executor").validateInputs({report:files.report,artifact:files.artifact});
+}
+function validateCataloguePartition(profile, { report, baselineByOffer, invariant, sortedIds }) {
+  const executionIds = sortedIds(report.execution_offer_ids || []);
+  const reviewIds = sortedIds(report.review_rows.map(row => row.offer_id));
+  invariant(executionIds.length === report.executable_row_count && executionIds.length + reviewIds.length === profile.approvedMappingCount
+    && new Set([...executionIds,...reviewIds]).size === profile.approvedMappingCount
+    && [...executionIds,...reviewIds].every(id => baselineByOffer.has(id)), "Guarded catalogue partition is incomplete");
+  const changedRows = normalizeMissingRows(report,baselineByOffer,profile.retailer.name,invariant,
+    ["SOURCE_IDENTITY_DRIFT","CANONICAL_IDENTITY_CONFLICT"],profile.readOnlyReviewPolicies);
+  return { executionIds, reviewIds, changedRows };
+}
+
 const PROFILES = Object.freeze({
+  "discount-supplements": profile({ key:"discount-supplements", retailer:Object.freeze({id:"4",name:"Discount Supplements",slug:"discount-supplements"}),
+    approvedMappingCount:109, sourceDirectory:"discount-supplements-offer-refresh",artifactPrefix:"discount-supplements-offer-refresh-review-source",
+    reconciliationFile:"discount-supplements-reconciliation-dry-run.json",contractName:"discount-supplements-automation-review-source-v1",
+    workflow:".github/workflows/creatine-offer-refresh.yml",workflowName:"Discount Supplements Offer Refresh",reviewType:"mixed",readOnlyReviewPolicies:SOURCE_REVIEW_POLICIES }),
+  "gym-high": profile({ key:"gym-high",retailer:Object.freeze({id:"1",name:"GYM HIGH",slug:"gym-high"}),approvedMappingCount:66,
+    sourceDirectory:"gym-high-reviewed-catalogue",artifactPrefix:"gym-high-full-catalogue-review-source",reconciliationFile:"gym-high-reconciliation-dry-run.json",
+    contractName:"gym-high-automation-review-source-v1",workflow:".github/workflows/gym-high-full-catalogue-apply.yml",workflowName:"GYM HIGH reviewed full catalogue apply",
+    reviewType:"mixed",readOnlyReviewPolicies:SOURCE_REVIEW_POLICIES,
+    captureFiles:{report:"refresh-report.json",artifact:"refresh-artifact.json",artifactSha:"refresh-artifact.json.sha256",baseline:"production-db-baseline.json"},
+    sealedFiles:{report:"automation-review-classification.json",artifact:"automation-review-executable-artifact.json",artifactSha:"automation-review-executable-artifact.json.sha256",baseline:"automation-review-db-baseline.json"},
+    sourceFingerprint:report=>report.source_identity_fingerprint,captureTimestamp:source=>source.report.source_captured_at,
+    validateCapture:validateCatalogueCapture,validate:validateCataloguePartition }),
   "holland-barrett": profile({ key: "holland-barrett", retailer: Object.freeze({ id: String(sourceProfile.retailer_id), name: sourceProfile.retailer_name, slug: sourceProfile.retailer_slug }), approvedMappingCount: sourceProfile.approved_mapping_count,
     sourceDirectory: sourceProfile.output_directory, artifactPrefix: sourceProfile.output_directory, reconciliationFile: "holland-barrett-reconciliation-dry-run.json", contractName: "holland-barrett-automation-review-source-v1",
     workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition",

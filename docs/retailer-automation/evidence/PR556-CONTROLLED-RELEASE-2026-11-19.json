@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "status": "IN_PROGRESS",
+  "approved_source_sha": "da4f591b33056de7aa5570bc9faf6006cc1ce70e",
+  "authorization": "Owner explicitly approved the exact source, single reader migration, generated repository closeout, guarded merge/deployment and production verification. No identity correction for762/2537/2538, other migration, discovery or Predators change.",
+  "migration_sha256": "062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa",
+  "preflight": {
+    "captured_at": "2026-11-19T16:33:44.197Z",
+    "result": "PASS",
+    "source_sha": "da4f591b33056de7aa5570bc9faf6006cc1ce70e",
+    "read_only": true,
+    "ledger_count": 268,
+    "ledger_fingerprint": "4da87e64288e023969f69149f28e31090c8bccd840ee668d63b0dab35b38482a",
+    "database_target": {
+      "project_ref": "aftboxmrdgyhizicfsfu",
+      "database_oid": "5",
+      "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu",
+      "target_environment": "PRODUCTION",
+      "database_system_identifier": "7642734024280108049"
+    },
+    "pending": [
+      "20261119150000_read_automation_review_queue_page.sql"
+    ],
+    "migration_sha256": "062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa",
+    "catalogue_counts": {
+      "products": "1494",
+      "product_variants": "4228",
+      "retailer_products": "4580",
+      "offers": "4580",
+      "price_history": "57204"
+    },
+    "all_open_control_statuses": [],
+    "affected_control_plans": [],
+    "reader_objects": {
+      "reader": null,
+      "page_index": null
+    },
+    "other_open_transactions": [],
+    "production_writes": 0
+  },
+  "rehearsal": {
+    "result": "PASS",
+    "mode": "rehearse",
+    "environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "pending": [
+      "20261119150000_read_automation_review_queue_page"
+    ],
+    "confirmation": "f637da643c74cd7e",
+    "catalogue_counts_before": {
+      "products": "1494",
+      "product_variants": "4228",
+      "retailer_products": "4580",
+      "offers": "4580",
+      "price_history": "57204"
+    },
+    "catalogue_counts_expected": {
+      "products": "1494",
+      "product_variants": "4228",
+      "retailer_products": "4580",
+      "offers": "4580",
+      "price_history": "57204"
+    },
+    "catalogue_counts_after": {
+      "products": "1494",
+      "product_variants": "4228",
+      "retailer_products": "4580",
+      "offers": "4580",
+      "price_history": "57204"
+    },
+    "schema_checks": {
+      "queue_exists": true,
+      "duplicate_decision_exists": true,
+      "anon_cannot_read_queue": true,
+      "authenticated_cannot_read_queue": true
+    },
+    "committed": false,
+    "committed_state": null,
+    "closeout_status": "NOT_REQUIRED_REHEARSAL",
+    "closeout_evidence_path": null,
+    "post_ledger_count": null,
+    "post_ledger_fingerprint": null,
+    "consumed_pending_count": 0
+  },
+  "rehearsal_independent_readback": {
+    "captured_at": "2026-11-19T16:35:46.961Z",
+    "result": "PASS",
+    "ledger_count": 268,
+    "ledger_fingerprint": "4da87e64288e023969f69149f28e31090c8bccd840ee668d63b0dab35b38482a",
+    "catalogue_counts": {
+      "products": "1494",
+      "product_variants": "4228",
+      "retailer_products": "4580",
+      "offers": "4580",
+      "price_history": "57204"
+    },
+    "reader_objects": {
+      "reader": null,
+      "page_index": null
+    },
+    "rehearsal_rolled_back": true,
+    "production_writes": 0
+  },
+  "apply": {
+    "result": "PASS",
+    "mode": "apply",
+    "environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "pending": [
+      "20261119150000_read_automation_review_queue_page"
+    ],
+    "confirmation": "f637da643c74cd7e",
+    "catalogue_counts_before": {
+      "products": "1494",
+      "product_variants": "4228",
+      "retailer_products": "4580",
+      "offers": "4580",
+      "price_history": "57204"
+    },
+    "catalogue_counts_expected": {
+      "products": "1494",
+      "product_variants": "4228",
+      "retailer_products": "4580",
+      "offers": "4580",
+      "price_history": "57204"
+    },
+    "catalogue_counts_after": {
+      "products": "1494",
+      "product_variants": "4228",
+      "retailer_products": "4580",
+      "offers": "4580",
+      "price_history": "57204"
+    },
+    "schema_checks": {
+      "queue_exists": true,
+      "duplicate_decision_exists": true,
+      "anon_cannot_read_queue": true,
+      "authenticated_cannot_read_queue": true
+    },
+    "committed": true,
+    "committed_state": {
+      "ledger_count": 269,
+      "ledger_fingerprint": "f54057cd49ea4422a3b8b849ac15ce38b518496a44a8d4dceb2f480f8f97eb66",
+      "applied": [
+        "20261119150000_read_automation_review_queue_page"
+      ],
+      "catalogue_counts": {
+        "products": "1494",
+        "product_variants": "4228",
+        "retailer_products": "4580",
+        "offers": "4580",
+        "price_history": "57204"
+      }
+    },
+    "closeout_status": "CLOSEOUT_REQUIRED",
+    "closeout_evidence_path": "tmp/selected-migrations/production-f54057cd49ea4422a3b8b849ac15ce38b518496a44a8d4dceb2f480f8f97eb66-repository-closeout.json",
+    "post_ledger_count": 269,
+    "post_ledger_fingerprint": "f54057cd49ea4422a3b8b849ac15ce38b518496a44a8d4dceb2f480f8f97eb66",
+    "consumed_pending_count": 1
+  },
+  "independent_migration_readback": {
+    "captured_at": "2026-11-19T16:38:45.168Z",
+    "result": "PASS",
+    "read_only": true,
+    "ledger_count": 269,
+    "ledger_fingerprint": "f54057cd49ea4422a3b8b849ac15ce38b518496a44a8d4dceb2f480f8f97eb66",
+    "applied_migration": {
+      "version": "20261119150000",
+      "name": "read_automation_review_queue_page",
+      "sha256": "062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa"
+    },
+    "catalogue_counts": {
+      "products": "1494",
+      "product_variants": "4228",
+      "retailer_products": "4580",
+      "offers": "4580",
+      "price_history": "57204"
+    },
+    "function": {
+      "stable": true,
+      "security_invoker": true,
+      "exact_source_body": true,
+      "acl": "{postgres=X/postgres,service_role=X/postgres}",
+      "service_execute": true,
+      "anon_execute": false,
+      "authenticated_execute": false,
+      "no_public_execute": true
+    },
+    "index": {
+      "indisvalid": true,
+      "indisready": true,
+      "definition": "CREATE INDEX product_match_review_queue_current_page_idx ON public.product_match_review_queue USING btree (retailer_id, offer_id, (\nCASE\n    WHEN (offer_id IS NULL) THEN id\n    ELSE NULL::bigint\nEND), updated_at DESC, id DESC) WHERE ((review_status IS NOT NULL) AND (superseded_by_review_id IS NULL))"
+    },
+    "reader_smoke": {
+      "page_size": 10,
+      "rows": 10,
+      "total": 1090,
+      "roundtrip_ms": 1040,
+      "capability_projection": "Empty map for non-authorizing smoke only"
+    },
+    "business_writes": 0
+  },
+  "repository_closeout": "PR556-QUEUE-READER-PRODUCTION-269-CLOSEOUT-2026-11-19.json",
+  "worker_window": {
+    "workflow": "automation-review-queue-worker.yml",
+    "original_state": "active",
+    "temporary_state": "disabled_manually",
+    "reason": "Protect the scheduled8/38-minute writer during268-to269 code/schema cutover; all other retailer write crons are outside this window and no writers were running.",
+    "restored": false
+  },
+  "merge": "NOT_RUN",
+  "deployment": "NOT_RUN",
+  "gym_high": "NOT_RUN",
+  "discount_supplements": "NOT_RUN",
+  "review_publication": "NOT_RUN",
+  "postflight": "NOT_RUN",
+  "idempotency": "NOT_RUN",
+  "watchdog_after_release": "NOT_RUN",
+  "production_business_writes": 0,
+  "production_migrations": 1,
+  "production_identity_changes": 0,
+  "closeout_verification": {
+    "project": "PASS",
+    "quick": "PASS",
+    "quick_tests": 1355,
+    "full": "PASS",
+    "safe_tests": 4100,
+    "migration_and_binding_tests": 186,
+    "isolated_postgres_tests": 2,
+    "isolated_postgres_skips": 0,
+    "approved_application_workflows_sql_unchanged": true,
+    "actual_applicator_receipt_preserved": true,
+    "production_pending": [],
+    "staging_pending_count": 3
+  }
+}

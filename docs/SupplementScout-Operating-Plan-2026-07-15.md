@@ -1,5 +1,31 @@
 # SupplementScout Operating Plan
 
+**19 November 2026 PR556 controlled release — IN PROGRESS / CURRENT269:** the
+owner approved exact source `da4f591b` plus queue-reader SHA `06286512…187aa`
+and the required repository closeout. Protected rehearsal and its independent
+rollback readback PASS. The single approved migration committed; independent
+READ ONLY confirms269/f54057cd, unchanged catalogue counts, exact function body,
+service-role-only execution and valid index. Repository binding now consumes
+only that production pending entry. The existing Review Queue worker is paused
+for the code/schema cutover and must be restored after release compatibility.
+Application merge/deployment, retailer execution and final LIVE VERIFIED proof
+are still pending. [Release evidence](retailer-automation/evidence/PR556-CONTROLLED-RELEASE-2026-11-19.json).
+
+**19 November 2026 owner-scoped automation reliability repair — NEEDS_OWNER_APPROVAL:**
+the existing retailer-offer-sync / atomic write / shared Review Queue path is
+has been repaired locally for quantity identity, canonical Default conflicts, complete
+execution/review partitions and scalable admin reads. Work is isolated from SEO,
+nutrition and Predators Gear. Production SQL, mapping correction, merge and
+release remain gated by the owner's exact final approval. Project/baseline/Quick/
+Full and the198-test isolated Docker gate PASS. Draft PR556 is prepared; new-code
+production publication/postflight/idempotency remain NOT_RUN. Current evidence and
+remaining checks are in the [automation ledger](retailer-automation/EXECUTION-PLAN.md)
+and [repair evidence](retailer-automation/evidence/SHARED-REVIEW-RELIABILITY-2026-11-19.json).
+The later protected rehearsal STOP is retained; only the migration comment
+placement and required hash/test/document references are corrected. The new
+revision needs separate approval, with CURRENT268/PENDING and production intact.
+See [header correction evidence](retailer-automation/evidence/PR556-REHEARSAL-HEADER-2026-11-19.json).
+
 **19 November 2026 SEO-33 LIVE VERIFIED:** owner-approved PR#555 squash
 `044d6a5da9abd42f720bd60223d7507f10eaf14c` equals approvede30b283c tree.
 PR/main CI,Guardian and exact Production/Vercel SUCCESS pass. Public build

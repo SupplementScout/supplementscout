@@ -1,0 +1,1224 @@
+{
+  "schema_version": 1,
+  "status": "NEEDS_OWNER_APPROVAL",
+  "baseline_sha": "00da6c17f62dba1febbed33a6356b2657915e662",
+  "branch": "fix/shared-retailer-review-reliability-20261119",
+  "authorization": "Owner task of 19 November: implementation, local and READ ONLY verification, commits and Draft PR; no production SQL, data write, merge or release.",
+  "existing_partial_work_reviewed": {
+    "pr": 532,
+    "scope": "Reviewed V2 Default preflight, not the existing-offer refresh path",
+    "disposition": "Kept separate; not merged or replayed. Existing SQL Default boundary remains authoritative."
+  },
+  "gym_high": {
+    "source_run": "44528441465",
+    "source_captured_at": "2026-11-19T12:56:40.728Z",
+    "live_canonical_readback_at": "2026-11-19T14:33:22.791Z",
+    "approved": 66,
+    "executable": 65,
+    "review": 1,
+    "freshness_plans": 65,
+    "commercial_plans": 0,
+    "importer_blocked_rows": 0,
+    "result": "PASS_WITH_REVIEW",
+    "boundary": "Archived source plus current canonical data; local immutable dry-run and guarded artifact validation only.",
+    "native_atomic_read_only_receipt": {
+      "kind": "gym-high-atomic-readonly-proof",
+      "captured_at": "2026-11-19T15:13:10.739Z",
+      "result": "PASS",
+      "validated_plan_count": 65,
+      "source_identity_fingerprint": "2a1a65f4026403dfefc59ea299042c4ae0f2421aaa47f767944f3f3e77750f04",
+      "results": [
+        {
+          "offer_id": "554",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "553",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2491",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "538",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2492",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2493",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2494",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "552",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "551",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "550",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "549",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2495",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2496",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2497",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2498",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2499",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "548",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2500",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2501",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2502",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2503",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2504",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "547",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2505",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2506",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2507",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2508",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "546",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "545",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2509",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2510",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "544",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "543",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2511",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2512",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "542",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "540",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "5",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2513",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2514",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "539",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2515",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2516",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "4",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2517",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2518",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2519",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2520",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2521",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2522",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2523",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2524",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "537",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2525",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2526",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2527",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2528",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2529",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "6",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2530",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2531",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "2532",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "536",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "535",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        },
+        {
+          "offer_id": "1",
+          "valid": true,
+          "operation_type": "verify_offer_no_change"
+        }
+      ],
+      "business_writes": 0,
+      "approvals": 0,
+      "applies": 0
+    },
+    "guarded_artifact_sha256": "e957991448e48a5220a8cd5dc2ef40af513d28081276c2ccba381f3fe34b2a5d",
+    "publication_baseline_evidence_hash": "f92a12f71573fa7189c868622114fe03ef62afdb4a515f048f55169f72768293",
+    "final_publication_contract_receipt": {
+      "result": "PASS",
+      "executable": 65,
+      "review": 1,
+      "shared_contract_accounting": true,
+      "sealed_names_and_sidecar_validated": true,
+      "original_native_validated_atomic_plans_unchanged": true,
+      "production_writes": 0
+    },
+    "final_guarded_artifact_sha256": "c7897da6c364233189df5f98a0e61ab32ee407cb6eb354d5681233e4d822d7ce"
+  },
+  "discount_supplements": {
+    "source_run": "44341714238",
+    "source_fingerprint": "06e79003f58d401e8ba3487692dcf89c0bf68bc1d3cf5affaf946ca3ef72161b",
+    "readback_at": "2026-11-19T14:44:07.156Z",
+    "approved": 109,
+    "executable": 106,
+    "review_offer_ids": [
+      "762",
+      "2537",
+      "2538"
+    ],
+    "production_read_only_validator_batches": 6,
+    "result": "PASS_WITH_REVIEW",
+    "outside_approved_scope": 47,
+    "mapping_762": {
+      "mapping_id": "948",
+      "canonical_product_id": "407",
+      "before_variant_id": "386",
+      "candidate_variant_id": "2015",
+      "external_product_id": "6788065329348",
+      "external_variant_id": "54879874810234",
+      "sku": "CNP-0508",
+      "external_gtin": null,
+      "recorded_options": {
+        "Size": "250g",
+        "Flavour": "Unflavoured"
+      },
+      "status": "NEEDS_OWNER_APPROVAL",
+      "fresh_source_status": "PASS",
+      "boundary": "Fresh standard capture confirms the source tuple. Candidate 2015 remains an owner identity decision; no rebind is approved, and a new live preflight is required at execution time.",
+      "fresh_source_captured_at": "2026-11-19T15:16:29.931Z",
+      "subsequent_live_request": "BLOCKED_HTTP_429",
+      "fresh_source_price": "9.99"
+    },
+    "native_read_only_receipt": {
+      "kind": "archived-source-live-state-readonly-validator",
+      "readback_at": "2026-11-19T14:44:07.156Z",
+      "source_run": "44341714238",
+      "source_fingerprint": "06e79003f58d401e8ba3487692dcf89c0bf68bc1d3cf5affaf946ca3ef72161b",
+      "source_captured_at": "2026-11-18T15:59:10.5Z",
+      "approved": 109,
+      "executable": 106,
+      "review": [
+        {
+          "offer_id": "762",
+          "reason": "CANONICAL_IDENTITY_CONFLICT"
+        },
+        {
+          "offer_id": "2537",
+          "reason": "CANONICAL_IDENTITY_CONFLICT"
+        },
+        {
+          "offer_id": "2538",
+          "reason": "CANONICAL_IDENTITY_CONFLICT"
+        }
+      ],
+      "validator_batches": 6,
+      "result": "PASS_WITH_REVIEW",
+      "database_writes": 0,
+      "approvals": 0,
+      "applies": 0,
+      "boundary": "Historical diagnostic replay with reconstructed source timestamp, not fresh source or execution authority."
+    },
+    "fresh_read_only_receipt": {
+      "kind": "fresh-capture-live-state-native-readonly-replay",
+      "readback_at": "2026-11-19T15:18:59.603Z",
+      "code_commit": "868626779319eddc79c2dcb7bf40f6c887adf841",
+      "source_fingerprint": "30f563aa986ec64c6c6670da492816542da6de5ce1d003b808c0601039f9e2da",
+      "source_captured_at": "2026-11-19T15:16:29.931Z",
+      "source_products": 343,
+      "source_variants": 999,
+      "approved": 109,
+      "executable": 106,
+      "review": [
+        {
+          "offer_id": "762",
+          "reason": "CANONICAL_IDENTITY_CONFLICT"
+        },
+        {
+          "offer_id": "2537",
+          "reason": "CANONICAL_IDENTITY_CONFLICT"
+        },
+        {
+          "offer_id": "2538",
+          "reason": "CANONICAL_IDENTITY_CONFLICT"
+        }
+      ],
+      "validator_batches": [
+        {
+          "identity": {
+            "current_user": "retailer_catalogue_production_validator",
+            "session_user": "supplementscout_production_validator_login",
+            "ro": "on",
+            "safe_update": null
+          },
+          "result": {
+            "valid": true,
+            "status": "DRY_RUN_VALIDATED",
+            "row_count": 18,
+            "actions": {
+              "UPDATE_STOCK": 3,
+              "VERIFY_NO_CHANGE": 15
+            },
+            "business_writes": 0,
+            "control_writes": 0,
+            "artifact_fingerprint": "88ef7544a67175f7c783c07354755500f3d7622e0bef4d64f58e6b3ddd3d9393",
+            "actual_migration_fingerprint": "4da87e64288e023969f69149f28e31090c8bccd840ee668d63b0dab35b38482a",
+            "validation_expires_at": "2026-11-19T15:32:48.555Z",
+            "rows": [
+              {
+                "offer_id": "763",
+                "valid": true,
+                "action": "UPDATE_STOCK"
+              },
+              {
+                "offer_id": "779",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "785",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "790",
+                "valid": true,
+                "action": "UPDATE_STOCK"
+              },
+              {
+                "offer_id": "795",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "802",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "809",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "827",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "833",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "834",
+                "valid": true,
+                "action": "UPDATE_STOCK"
+              },
+              {
+                "offer_id": "840",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "844",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "863",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "877",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "887",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "902",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "903",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "1501",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              }
+            ]
+          }
+        },
+        {
+          "identity": {
+            "current_user": "retailer_catalogue_production_validator",
+            "session_user": "supplementscout_production_validator_login",
+            "ro": "on",
+            "safe_update": null
+          },
+          "result": {
+            "valid": true,
+            "status": "DRY_RUN_VALIDATED",
+            "row_count": 18,
+            "actions": {
+              "UPDATE_STOCK": 3,
+              "VERIFY_NO_CHANGE": 15
+            },
+            "business_writes": 0,
+            "control_writes": 0,
+            "artifact_fingerprint": "19aca7941b654893d0b56723acc9cda3515ecd5bfd746bd498e627ef2ebb4153",
+            "actual_migration_fingerprint": "4da87e64288e023969f69149f28e31090c8bccd840ee668d63b0dab35b38482a",
+            "validation_expires_at": "2026-11-19T15:32:51.300Z",
+            "rows": [
+              {
+                "offer_id": "765",
+                "valid": true,
+                "action": "UPDATE_STOCK"
+              },
+              {
+                "offer_id": "771",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "780",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "786",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "791",
+                "valid": true,
+                "action": "UPDATE_STOCK"
+              },
+              {
+                "offer_id": "797",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "803",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "810",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "828",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "836",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "845",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "864",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "867",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "868",
+                "valid": true,
+                "action": "UPDATE_STOCK"
+              },
+              {
+                "offer_id": "880",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "888",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "904",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "1503",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              }
+            ]
+          }
+        },
+        {
+          "identity": {
+            "current_user": "retailer_catalogue_production_validator",
+            "session_user": "supplementscout_production_validator_login",
+            "ro": "on",
+            "safe_update": null
+          },
+          "result": {
+            "valid": true,
+            "status": "DRY_RUN_VALIDATED",
+            "row_count": 18,
+            "actions": {
+              "UPDATE_STOCK": 3,
+              "VERIFY_NO_CHANGE": 15
+            },
+            "business_writes": 0,
+            "control_writes": 0,
+            "artifact_fingerprint": "ecf7a9822d15c6e52a0c9c1db1fdd84bab864805f49cbcf5d3f88afbb730211a",
+            "actual_migration_fingerprint": "4da87e64288e023969f69149f28e31090c8bccd840ee668d63b0dab35b38482a",
+            "validation_expires_at": "2026-11-19T15:32:53.368Z",
+            "rows": [
+              {
+                "offer_id": "766",
+                "valid": true,
+                "action": "UPDATE_STOCK"
+              },
+              {
+                "offer_id": "772",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "781",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "787",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "796",
+                "valid": true,
+                "action": "UPDATE_STOCK"
+              },
+              {
+                "offer_id": "798",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "804",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "813",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "829",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "837",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "846",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "866",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "882",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "889",
+                "valid": true,
+                "action": "UPDATE_STOCK"
+              },
+              {
+                "offer_id": "890",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "894",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "905",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "1504",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              }
+            ]
+          }
+        },
+        {
+          "identity": {
+            "current_user": "retailer_catalogue_production_validator",
+            "session_user": "supplementscout_production_validator_login",
+            "ro": "on",
+            "safe_update": null
+          },
+          "result": {
+            "valid": true,
+            "status": "DRY_RUN_VALIDATED",
+            "row_count": 18,
+            "actions": {
+              "UPDATE_STOCK": 3,
+              "VERIFY_NO_CHANGE": 15
+            },
+            "business_writes": 0,
+            "control_writes": 0,
+            "artifact_fingerprint": "ea5234116375d7cbcc29182fd071a5e09680c5df91f4d170d05b227e3b24c3c3",
+            "actual_migration_fingerprint": "4da87e64288e023969f69149f28e31090c8bccd840ee668d63b0dab35b38482a",
+            "validation_expires_at": "2026-11-19T15:32:54.770Z",
+            "rows": [
+              {
+                "offer_id": "774",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "775",
+                "valid": true,
+                "action": "UPDATE_STOCK"
+              },
+              {
+                "offer_id": "782",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "788",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "799",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "805",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "808",
+                "valid": true,
+                "action": "UPDATE_STOCK"
+              },
+              {
+                "offer_id": "814",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "830",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "841",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "847",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "869",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "883",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "892",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "895",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "906",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "1499",
+                "valid": true,
+                "action": "UPDATE_STOCK"
+              },
+              {
+                "offer_id": "1505",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              }
+            ]
+          }
+        },
+        {
+          "identity": {
+            "current_user": "retailer_catalogue_production_validator",
+            "session_user": "supplementscout_production_validator_login",
+            "ro": "on",
+            "safe_update": null
+          },
+          "result": {
+            "valid": true,
+            "status": "DRY_RUN_VALIDATED",
+            "row_count": 17,
+            "actions": {
+              "UPDATE_STOCK": 2,
+              "VERIFY_NO_CHANGE": 15
+            },
+            "business_writes": 0,
+            "control_writes": 0,
+            "artifact_fingerprint": "11bc2bf537f62a74b47735f1ccd4daab9fe327978458e03f128d67af99dd3b17",
+            "actual_migration_fingerprint": "4da87e64288e023969f69149f28e31090c8bccd840ee668d63b0dab35b38482a",
+            "validation_expires_at": "2026-11-19T15:32:56.209Z",
+            "rows": [
+              {
+                "offer_id": "776",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "777",
+                "valid": true,
+                "action": "UPDATE_STOCK"
+              },
+              {
+                "offer_id": "783",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "792",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "793",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "800",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "806",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "811",
+                "valid": true,
+                "action": "UPDATE_STOCK"
+              },
+              {
+                "offer_id": "815",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "831",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "842",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "861",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "874",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "884",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "896",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "897",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "1498",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              }
+            ]
+          }
+        },
+        {
+          "identity": {
+            "current_user": "retailer_catalogue_production_validator",
+            "session_user": "supplementscout_production_validator_login",
+            "ro": "on",
+            "safe_update": null
+          },
+          "result": {
+            "valid": true,
+            "status": "DRY_RUN_VALIDATED",
+            "row_count": 17,
+            "actions": {
+              "UPDATE_STOCK": 2,
+              "VERIFY_NO_CHANGE": 15
+            },
+            "business_writes": 0,
+            "control_writes": 0,
+            "artifact_fingerprint": "3f092680952e6777b9bce0ddb62567af321795c6cd44928d5422d63452e36fe5",
+            "actual_migration_fingerprint": "4da87e64288e023969f69149f28e31090c8bccd840ee668d63b0dab35b38482a",
+            "validation_expires_at": "2026-11-19T15:32:57.922Z",
+            "rows": [
+              {
+                "offer_id": "778",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "784",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "789",
+                "valid": true,
+                "action": "UPDATE_STOCK"
+              },
+              {
+                "offer_id": "794",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "801",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "807",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "812",
+                "valid": true,
+                "action": "UPDATE_STOCK"
+              },
+              {
+                "offer_id": "816",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "832",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "839",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "843",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "862",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "876",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "885",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "898",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "900",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              },
+              {
+                "offer_id": "1500",
+                "valid": true,
+                "action": "VERIFY_NO_CHANGE"
+              }
+            ]
+          }
+        }
+      ],
+      "result": "PASS_WITH_REVIEW",
+      "business_writes": 0,
+      "control_writes": 0,
+      "approvals": 0,
+      "applies": 0,
+      "boundary": "Local READ ONLY replay of the real 15:16 standard full capture; no second capture synthesized. A subsequent live request returned 429. Not a protected workflow execution or execution authority."
+    }
+  },
+  "review_queue": {
+    "readback_at": "2026-11-19T13:29:19.950Z",
+    "historical_rows_matching_old_loader": 6694,
+    "old_complete_read_limit": 5000,
+    "old_loader_result": "Review Queue exceeds the bounded complete-read limit",
+    "migration": "supabase/migrations/20261119150000_read_automation_review_queue_page.sql",
+    "migration_sha256": "062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa",
+    "migration_selection": "PENDING; current production binding remains 268; exact production apply would advance to 269",
+    "production_schema_status": "NOT_RUN",
+    "isolated_postgres": "PASS",
+    "tested_history_sizes": [
+      5000,
+      6694,
+      10000,
+      20000
+    ],
+    "publication_integration": "Existing profiles/action/reconciliation/sealed registration only; native GYM HIGH capture+baseline validation PASS; policy, full Discount contract and exact retry-attempt/digest/branch tests PASS.",
+    "isolated_exact_projection_20k_execution_ms": 494.508
+  },
+  "production_release_preflight": {
+    "captured_at": "2026-11-19T15:01:45.680Z",
+    "read_only": true,
+    "ledger_count": 268,
+    "ledger_fingerprint": "4da87e64288e023969f69149f28e31090c8bccd840ee668d63b0dab35b38482a",
+    "active_control_plans_retailers_1_4": [],
+    "existing_indexes_inspected": true,
+    "current_ranking_query_explain_execution_ms": 9.343,
+    "mapping_762_price_history_count": 1,
+    "mapping_762_price_history_offer_id": "762",
+    "boundary": "READ ONLY owner transaction, rolled back; the new function/index were not applied."
+  },
+  "verification": {
+    "verify_project": "PASS",
+    "verify_quick": "PASS",
+    "verify_full": "PASS",
+    "verify_integration": "PASS",
+    "production_postflight": "NOT_RUN",
+    "production_idempotency": "NOT_RUN",
+    "production_watchdog_after_release": "NOT_RUN",
+    "verify_baseline": "PASS",
+    "safe_test_assertions": 4098,
+    "quick_test_assertions": 1355,
+    "integration_progress": "Complete 58-file isolated Docker gate PASS; final registered reader regression separately PASS (2/0/0).",
+    "integration_tests": 198,
+    "integration_failures": 0,
+    "integration_skips": 0,
+    "reporting_followup": "Final common GYM HIGH executable_plan_count added; sealed-name/sidecar contract replay PASS; repeated Quick and Full gates PASS.",
+    "prior_verified_ci": {
+      "code_sha": "868626779319eddc79c2dcb7bf40f6c887adf841",
+      "full": "PASS",
+      "full_run": "44552596379",
+      "guardian": "PASS",
+      "baseline": "PASS"
+    },
+    "current_ci_readback": "Current exact-head checks are retained on Draft PR556 and must pass before release; final handoff reports their actual result."
+  },
+  "writes_by_this_task": {
+    "production_business": 0,
+    "production_control": 0,
+    "production_review_publication": 0,
+    "production_migrations": 1,
+    "approvals": 0,
+    "applies": 0
+  },
+  "release_status": "IN_PROGRESS",
+  "pull_request": "https://github.com/SupplementScout/supplementscout/pull/556",
+  "production_deployed": false,
+  "rehearsal_header_correction": {
+    "status": "NEEDS_OWNER_APPROVAL",
+    "evidence": "PR556-REHEARSAL-HEADER-2026-11-19.json",
+    "original_stop_receipt": "PR556-PROTECTED-REHEARSAL-STOP-2026-11-19.json",
+    "old_source_sha": "6afe227520398abf490eacc0edd6c31656e3766f",
+    "old_migration_sha256": "76dfc9989d6c24a8b3905a1bc41e09759ccbdcd7c97809e3dd2999b2cf70adb8",
+    "new_migration_sha256": "062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa",
+    "protected_rehearsal_new_revision": "NOT_RUN",
+    "production_writes": 0
+  },
+  "latest_release_evidence": "PR556-CONTROLLED-RELEASE-2026-11-19.json",
+  "production_schema_deployed": true
+}

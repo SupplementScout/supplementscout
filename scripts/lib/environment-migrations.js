@@ -265,6 +265,10 @@ const PENDING_MIGRATIONS = Object.freeze({
       filename: "20261105100000_refresh_pending_review_execution_binding.sql",
       sha256: "015f0de7448c10fcca10174e74dfbf7ca9e3150951f49090d01cd6eee869024c",
     }),
+    Object.freeze({
+      filename: "20261119150000_read_automation_review_queue_page.sql",
+      sha256: "062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa",
+    }),
   ]),
   PRODUCTION: Object.freeze([]),
 });
