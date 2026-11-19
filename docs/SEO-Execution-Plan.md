@@ -1,5 +1,16 @@
 # SupplementScout SEO Execution Plan
 
+**19 November 2026 Creatine mobile repair LIVE VERIFIED:** owner-approved
+PR#553 squash5f42239e15131a2676404ca3b73b0cb0421dc531 equals tested0fcaf1c3 tree. PR/main CI,Guardian
+and exact Production/Vercel SUCCESS pass. Public build`XvzanNudUjSsz1P5zkpTa`
+proves document/body containment at eight widths with native touch/keyboard
+table scroll,nine accessible columns,filters/sorts/drawer and unchanged under£20.
+Independent actual-source86-row readback and20-route SEO/data parity pass;
+existing public warm guard passes. No data write or new JS/query. SEO-20 frozen,
+SEO-21–31 LIVE VERIFIED,Stage3 off. Only a short read-only next-priority selection
+from existing evidence follows;no SEO-32 implementation or registration.
+[Evidence](rollouts/creatine-mobile-overflow-repair-2026-11-19.md).
+
 **19 November 2026 Creatine mobile repair CODE COMPLETE:** owner authorizes
 one separate bounded repair after live SEO-31/Whey releases. The absolute sr-only
 action-column label escaped the static table scroll wrapper and expanded root
@@ -933,6 +944,28 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 19 November 2026 - Creatine mobile repair LIVE VERIFIED
+
+- Owner-approved PR#553 exact head0fcaf1c3b0b3e317deb1857e361b945258f94ccd
+  squash5f42239e15131a2676404ca3b73b0cb0421dc531,merged2026-11-19T09:02:13Z;full tree parity confirmed.
+  Local quick1341/full4078PASS,3 unchanged archive skips,32 focused cases,
+  TypeScript/ESLint/build,Guardian and PR/main CI pass.
+- Latest Production7908660373/Verceldpl_DvNYm2bUHYKrk94zK7yNUBSDZDQVSUCCESS,
+  public buildXvzanNudUjSsz1P5zkpTa;readback2026-11-19T09:04:39.485Z.
+- All eight public widths keep root/body scrollWidth<=clientWidth. Relative
+  scroll wrapper contains absolute accessibility labels;main clipping removed.
+  Native touch/keyboard scroll,nine named headers/caption,last-column access,
+  both sorts,brand/retailer/empty states,drawer/Escape/focus and14 controls pass.
+- Independent GET-only source2026-11-19T09:04:17.300Z matches86 table rows and exact
+  under£20 variants/prices/check dates.20 public routes,sitemap1487,canonical,
+  robots,schema,links and analytics remain unchanged. Public warm guard passes;
+  unchanged loaders/cache plus local cold2→2/warm0→0 evidence prove no new query.
+  No Production DB telemetry,field CWV or traffic-uplift claim.
+- SEO-20–31 ledger rows unchanged;Stage3 off,no data write/retailer test click.
+  Only the owner-requested short read-only next-opportunity selection follows,
+  without SEO-32 registration,implementation or another PR.
+  [Evidence](rollouts/creatine-mobile-overflow-repair-2026-11-19.md).
 
 ### 19 November 2026 - owner-approved Creatine mobile repair CODE COMPLETE
 

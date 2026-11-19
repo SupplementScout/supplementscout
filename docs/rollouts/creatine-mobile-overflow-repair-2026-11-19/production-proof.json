@@ -1,0 +1,1981 @@
+{
+  "at": "2026-11-19T09:08:16.346Z",
+  "status": "LIVE VERIFIED",
+  "merge": {
+    "headRefOid": "0fcaf1c3b0b3e317deb1857e361b945258f94ccd",
+    "mergeCommit": {
+      "oid": "5f42239e15131a2676404ca3b73b0cb0421dc531"
+    },
+    "mergedAt": "2026-11-19T09:02:13Z",
+    "state": "MERGED",
+    "url": "https://github.com/SupplementScout/supplementscout/pull/553",
+    "treeParity": true,
+    "verifiedAt": "2026-11-19T09:02:16.006Z"
+  },
+  "ready": {
+    "sha": "5f42239e15131a2676404ca3b73b0cb0421dc531",
+    "target": "production",
+    "githubDeploymentId": 7908660373,
+    "githubDeploymentState": "success",
+    "githubDeploymentCreatedAt": "2026-11-19T09:03:17Z",
+    "generatedDeploymentUrl": "https://supplementscout-n0ua6lg57-supplement-scout.vercel.app",
+    "vercelCommitState": "success",
+    "vercelStatusUrl": "https://vercel.com/supplement-scout/supplementscout/DvNYm2bUHYKrk94zK7yNUBSDZDQV",
+    "directVercelApi": "Prior403 retained; not retried or bypassed. Authorized GitHub/Vercel webhook and public build verification used.",
+    "id": "dpl_DvNYm2bUHYKrk94zK7yNUBSDZDQV",
+    "state": "READY",
+    "ready": true,
+    "publicDomain": "https://www.supplementscout.co.uk",
+    "publicBuildId": "XvzanNudUjSsz1P5zkpTa",
+    "previousPublicBuildId": "I_1bORjEemnfWYfRI9h1O",
+    "publicDomainBuildTransition": true,
+    "samePublicBuildAcrossCheckedRoutes": true,
+    "checked": [],
+    "readinessAuthority": "Vercel commit SUCCESS + exact latest GitHub Production deployment SUCCESS + public domain build fingerprint/content contracts; no private API READY claim",
+    "githubProductionSuccessAt": "2026-11-19T09:03:18Z",
+    "firstVerifiedAt": "2026-11-19T09:03:30.450Z"
+  },
+  "ci": {
+    "sha": "5f42239e15131a2676404ca3b73b0cb0421dc531",
+    "at": "2026-11-19T09:05:51.131Z",
+    "result": "PASS",
+    "checks": [
+      {
+        "name": "full",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44492738631/job/135452193245",
+        "completedAt": "2026-11-19T09:05:43Z"
+      },
+      {
+        "name": "verify-project-control",
+        "status": "completed",
+        "conclusion": "success",
+        "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44492738810/job/135452194032",
+        "completedAt": "2026-11-19T09:02:28Z"
+      }
+    ]
+  },
+  "currentSource": {
+    "at": "2026-11-19T09:04:18.010Z",
+    "sourceAt": "2026-11-19T09:04:17.300Z",
+    "base": "https://www.supplementscout.co.uk",
+    "source": "Independent existing getCreatineComparison/selectCreatineUnder20 via authorized GET/HEAD-only clients; actual catalogue, not synthetic examples",
+    "result": "PASS",
+    "summary": {
+      "activeProducts": 86,
+      "activeOffers": 126,
+      "retailers": 9,
+      "productsWithMultipleRetailers": 13,
+      "latestOfferCheckedAt": "2026-11-18T17:27:34.236+00:00",
+      "staleOffersExcluded": 60
+    },
+    "validatedRows": 86,
+    "rowStateCounts": {
+      "knownDelivery": 64,
+      "unknownDelivery": 0,
+      "unavailable": 22,
+      "missingNutrition": 46
+    },
+    "under20": [
+      {
+        "id": "767",
+        "name": "OstroVit Creatine Monohydrate 300g",
+        "url": "/product/ostrovit-creatine-monohydrate-300g?variant=931",
+        "offer": {
+          "id": "942",
+          "retailer": {
+            "id": "9",
+            "name": "Fit House",
+            "slug": "fit-house"
+          },
+          "productPrice": 9.99,
+          "shippingCost": 3.99,
+          "deliveredPrice": {
+            "productPrice": 9.99,
+            "shippingCost": 3.99,
+            "totalPrice": 13.98
+          },
+          "lastCheckedAt": "2026-11-18T10:46:25.491+00:00",
+          "variantId": "931",
+          "variantLabel": "Unflavored / 300g",
+          "packLabel": "300 g",
+          "verifiedCostPer5g": 0.26477272727272727
+        }
+      },
+      {
+        "id": "791",
+        "name": "Per4m Creatine Capsules | 30 Servings",
+        "url": "/product/per4m-creatine-capsules-30-servings?variant=2881",
+        "offer": {
+          "id": "2624",
+          "retailer": {
+            "id": "12",
+            "name": "eBay UK",
+            "slug": "ebay-uk"
+          },
+          "productPrice": 13.99,
+          "shippingCost": 0,
+          "deliveredPrice": {
+            "productPrice": 13.99,
+            "shippingCost": 0,
+            "totalPrice": 13.99
+          },
+          "lastCheckedAt": "2026-11-18T14:37:27.979+00:00",
+          "variantId": "2881",
+          "variantLabel": "30 Servings",
+          "packLabel": "30 servings",
+          "verifiedCostPer5g": null
+        }
+      },
+      {
+        "id": "1239",
+        "name": "MyProtein Creatine Monohydrate Unflavoured",
+        "url": "/product/myprotein-creatine-monohydrate-unflavoured?variant=4634",
+        "offer": {
+          "id": "4632",
+          "retailer": {
+            "id": "16",
+            "name": "Holland & Barrett",
+            "slug": "holland-barrett"
+          },
+          "productPrice": 12,
+          "shippingCost": 3.49,
+          "deliveredPrice": {
+            "productPrice": 12,
+            "shippingCost": 3.49,
+            "totalPrice": 15.49
+          },
+          "lastCheckedAt": "2026-11-18T17:27:34.236+00:00",
+          "variantId": "4634",
+          "variantLabel": "Unflavoured / 150 g",
+          "packLabel": "150 g",
+          "verifiedCostPer5g": null
+        }
+      }
+    ],
+    "reads": [
+      {
+        "table": "products",
+        "method": "GET",
+        "status": 200,
+        "ms": 274,
+        "bytes": 108351
+      },
+      {
+        "table": "retailer_products",
+        "method": "GET",
+        "status": 200,
+        "ms": 83,
+        "bytes": 56892
+      }
+    ],
+    "productionDataWrites": 0,
+    "syntheticData": false
+  },
+  "publicReadback": {
+    "at": "2026-11-19T09:04:39.485Z",
+    "pages": [
+      {
+        "path": "/creatine",
+        "status": 200,
+        "build": "XvzanNudUjSsz1P5zkpTa",
+        "title": "Compare Creatine Supplements & Prices UK | SupplementScout",
+        "description": "Compare creatine supplement prices, delivery costs and retailer availability from UK supplement retailers.",
+        "h1": [
+          "Compare Creatine Supplements UK"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/creatine",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "CollectionPage",
+          "ItemList",
+          "BreadcrumbList"
+        ]
+      },
+      {
+        "path": "/guides/supplement-prices-including-delivery",
+        "status": 200,
+        "build": "XvzanNudUjSsz1P5zkpTa",
+        "title": "Supplement Prices Including Delivery: A UK Comparison | SupplementScout",
+        "description": "Compare checked UK supplement offers for the same variant and pack, with product price, delivery and the final delivered total shown apart.",
+        "h1": [
+          "Can a higher product price be cheaper after delivery?"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/supplement-prices-including-delivery",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ]
+      },
+      {
+        "path": "/guides/cost-per-25g-protein",
+        "status": 200,
+        "build": "XvzanNudUjSsz1P5zkpTa",
+        "title": "Cost per 25g Protein: Compare UK Whey Prices Fairly | SupplementScout",
+        "description": "Understand delivered cost per 25 g of protein with checked whey examples, verified serving data and clear limits on missing information.",
+        "h1": [
+          "How to compare protein powders by cost per 25g of protein"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/cost-per-25g-protein",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ]
+      },
+      {
+        "path": "/guides/protein-powder-under-30",
+        "status": 200,
+        "build": "XvzanNudUjSsz1P5zkpTa",
+        "title": "Protein Powder Under £30 UK: Compare Delivered Prices | SupplementScout",
+        "description": "Check selected UK protein powders against a £30 delivered budget, with exact flavours, pack sizes, shipping, check times and honest nutrition limits.",
+        "h1": [
+          "Which protein powders cost £30 or less including delivery?"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-under-30",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ]
+      },
+      {
+        "path": "/guides/caffeine-free-pre-workout",
+        "status": 200,
+        "build": "XvzanNudUjSsz1P5zkpTa",
+        "title": "Caffeine-Free Pre-Workout UK: How to Check and Compare | SupplementScout",
+        "description": "Compare checked caffeine-free pre-workout variants using approved confirmed-absence facts, exact flavours and packs, current UK prices and known delivery.",
+        "h1": [
+          "How can I find and compare a pre-workout without caffeine?"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/caffeine-free-pre-workout",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ]
+      },
+      {
+        "path": "/guides/whey-isolate-vs-concentrate",
+        "status": 200,
+        "build": "XvzanNudUjSsz1P5zkpTa",
+        "title": "Whey Isolate vs Concentrate: Which Is Better Value in the UK? | SupplementScout",
+        "description": "Compare whey isolate and concentrate using checked exact-flavour examples, delivered prices and approved protein costs, with clear limits where nutrition is missing.",
+        "h1": [
+          "Should I buy whey isolate or whey concentrate?"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/whey-isolate-vs-concentrate",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ]
+      },
+      {
+        "path": "/guides/protein-powder-pack-size-value",
+        "status": 200,
+        "build": "XvzanNudUjSsz1P5zkpTa",
+        "title": "Does Buying a Bigger Protein Bag Actually Save Money? | SupplementScout",
+        "description": "Compare matched UK protein pack sizes using real delivered prices and verified cost per kilogram. See the extra upfront spend and limits on protein-unit comparisons.",
+        "h1": [
+          "Is a bigger protein pack better value after delivery?"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/protein-powder-pack-size-value",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ]
+      },
+      {
+        "path": "/guides/mass-gainer-vs-whey-protein",
+        "status": 200,
+        "build": "XvzanNudUjSsz1P5zkpTa",
+        "title": "Mass Gainer vs Whey Protein: Compare UK Buying Costs | SupplementScout",
+        "description": "Compare a carbohydrate-and-protein blend with whey using exact UK packs, checked delivery costs and protein pricing only where verified nutrition supports it.",
+        "h1": [
+          "Should I buy mass gainer or whey protein?"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-vs-whey-protein",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ]
+      },
+      {
+        "path": "/guides/creatine-pack-size-value",
+        "status": 200,
+        "build": "XvzanNudUjSsz1P5zkpTa",
+        "title": "Creatine Pack Sizes: Is a Bigger Tub Better Value? | SupplementScout",
+        "description": "Compare matched unflavoured creatine pack sizes using current UK delivered prices, verified cost per kilogram and the extra upfront spend.",
+        "h1": [
+          "Should I buy a bigger tub of creatine?"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/creatine-pack-size-value",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ]
+      },
+      {
+        "path": "/guides/pre-workout-under-30",
+        "status": 200,
+        "build": "XvzanNudUjSsz1P5zkpTa",
+        "title": "Pre-Workout Under £30 UK: Compare Prices Including Delivery | SupplementScout",
+        "description": "Check selected UK pre-workouts against a £30 delivered budget: exact flavours, packs, stock, shipping and check dates, with serving costs only when verified.",
+        "h1": [
+          "Which pre-workouts cost £30 or less including delivery?"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/pre-workout-under-30",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ]
+      },
+      {
+        "path": "/guides/mass-gainer-under-40",
+        "status": 200,
+        "build": "XvzanNudUjSsz1P5zkpTa",
+        "title": "Mass Gainer Under £40 UK: Compare Prices Including Delivery | SupplementScout",
+        "description": "Compare selected UK mass gainer packs within a £40 delivered budget, with exact flavours, shipping, check dates and powder cost per kilogram only when verified.",
+        "h1": [
+          "Which mass gainers cost £40 or less including delivery?"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/guides/mass-gainer-under-40",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "WebPage",
+          "BreadcrumbList"
+        ]
+      },
+      {
+        "path": "/brands/per4m",
+        "status": 200,
+        "build": "XvzanNudUjSsz1P5zkpTa",
+        "title": "Compare PER4M Prices Across UK Retailers | SupplementScout",
+        "description": "Compare current Per4m product prices from UK supplement retailers, including known delivery, retailer coverage and recently checked offers.",
+        "h1": [
+          "Per4m Products & Prices UK"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/brands/per4m",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "CollectionPage",
+          "ItemList",
+          "BreadcrumbList"
+        ]
+      },
+      {
+        "path": "/whey-protein",
+        "status": 200,
+        "build": "XvzanNudUjSsz1P5zkpTa",
+        "title": "Compare Whey Protein Prices UK | SupplementScout",
+        "description": "Compare current Whey Protein prices from UK supplement retailers, including known delivery, retailer coverage and verified value metrics.",
+        "h1": [
+          "Compare Whey Protein Prices UK"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/whey-protein",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "CollectionPage",
+          "ItemList",
+          "BreadcrumbList"
+        ]
+      },
+      {
+        "path": "/",
+        "status": 200,
+        "build": "XvzanNudUjSsz1P5zkpTa",
+        "title": "SupplementScout | Compare UK Supplement Prices",
+        "description": "Compare supplement prices from UK retailers. Check delivery costs, price history, cost per serving and find the best real price.",
+        "h1": [
+          "Find the right supplement at the right price."
+        ],
+        "canonical": "https://www.supplementscout.co.uk",
+        "schemaTypes": []
+      },
+      {
+        "path": "/whey-isolate",
+        "status": 200,
+        "build": "XvzanNudUjSsz1P5zkpTa",
+        "title": "Whey Isolate Prices UK – Delivered Cost | SupplementScout",
+        "description": "Compare Whey Isolate prices across UK supplement retailers. See the lowest known delivered cost, fresh offers and verified protein value when available.",
+        "h1": [
+          "Whey Isolate Prices UK – Compare Delivered Cost"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/whey-isolate",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "CollectionPage",
+          "ItemList",
+          "BreadcrumbList"
+        ]
+      },
+      {
+        "path": "/vegan-protein",
+        "status": 200,
+        "build": "XvzanNudUjSsz1P5zkpTa",
+        "title": "Compare Vegan Protein Prices UK | SupplementScout",
+        "description": "Compare current Vegan Protein prices from UK supplement retailers using recently checked offers, known delivery and verified value metrics.",
+        "h1": [
+          "Compare Vegan Protein Prices UK"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/vegan-protein",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "CollectionPage",
+          "ItemList",
+          "BreadcrumbList"
+        ]
+      },
+      {
+        "path": "/pre-workout",
+        "status": 200,
+        "build": "XvzanNudUjSsz1P5zkpTa",
+        "title": "Compare Pre Workout Prices UK | SupplementScout",
+        "description": "Compare current Pre Workout prices from UK supplement retailers, with recently checked offers, known delivery costs, retailer coverage and verified value metrics.",
+        "h1": [
+          "Compare Pre Workout Prices UK"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/pre-workout",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "CollectionPage",
+          "ItemList",
+          "BreadcrumbList"
+        ]
+      },
+      {
+        "path": "/mass-gainer",
+        "status": 200,
+        "build": "XvzanNudUjSsz1P5zkpTa",
+        "title": "Compare Mass Gainer Prices UK | SupplementScout",
+        "description": "Compare current Mass Gainer prices from UK supplement retailers using recently checked offers, known delivery and verified value metrics.",
+        "h1": [
+          "Compare Mass Gainer Prices UK"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/mass-gainer",
+        "robots": "index, follow",
+        "schemaTypes": [
+          "CollectionPage",
+          "ItemList",
+          "BreadcrumbList"
+        ]
+      },
+      {
+        "path": "/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+        "status": 200,
+        "build": "XvzanNudUjSsz1P5zkpTa",
+        "title": "Applied Nutrition ABE Ultimate Pre-Workout 315g | SupplementScout",
+        "description": "Applied Nutrition ABE Ultimate Pre-Workout 315g is a pre-workout supplement.",
+        "h1": [
+          "Applied Nutrition ABE Ultimate Pre-Workout 315g"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-ultimate-pre-workout-315g",
+        "schemaTypes": [
+          "BreadcrumbList"
+        ]
+      },
+      {
+        "path": "/product/myprotein-clear-whey-protein-isolate",
+        "status": 200,
+        "build": "XvzanNudUjSsz1P5zkpTa",
+        "title": "Myprotein Clear Whey Protein Isolate | SupplementScout",
+        "description": "Compare Myprotein Clear Whey Protein Isolate prices in the UK. Check available flavours, exact pack sizes, retailer offers and known delivery costs.",
+        "h1": [
+          "Myprotein Clear Whey Protein Isolate"
+        ],
+        "canonical": "https://www.supplementscout.co.uk/product/myprotein-clear-whey-protein-isolate",
+        "schemaTypes": [
+          "BreadcrumbList"
+        ]
+      }
+    ],
+    "parameters": [
+      {
+        "path": "/creatine?sort=delivered_total",
+        "status": 200,
+        "robots": "noindex, follow",
+        "canonical": "https://www.supplementscout.co.uk/creatine"
+      },
+      {
+        "path": "/creatine?sort=verified_value",
+        "status": 200,
+        "robots": "noindex, follow",
+        "canonical": "https://www.supplementscout.co.uk/creatine"
+      },
+      {
+        "path": "/creatine?brand=5%25+nutrition&retailer=14",
+        "status": 200,
+        "robots": "noindex, follow",
+        "canonical": "https://www.supplementscout.co.uk/creatine"
+      },
+      {
+        "path": "/creatine?utm_source=qa",
+        "status": 200,
+        "robots": "noindex, follow",
+        "canonical": "https://www.supplementscout.co.uk/creatine"
+      }
+    ],
+    "sitemapCount": 1487,
+    "performance": [
+      {
+        "path": "/creatine",
+        "beforeMs": 188.69380000000092,
+        "medianTTFBms": 194.9447,
+        "guardPass": true,
+        "samples": [
+          {
+            "path": "/creatine",
+            "ttfbMs": 194.9447,
+            "dnsMs": 0,
+            "totalMs": 367.89979999999923
+          },
+          {
+            "path": "/creatine",
+            "ttfbMs": 306.21879999999874,
+            "dnsMs": 0,
+            "totalMs": 485.8721000000005
+          },
+          {
+            "path": "/creatine",
+            "ttfbMs": 226.57359999999971,
+            "dnsMs": 0,
+            "totalMs": 265.4557999999997
+          },
+          {
+            "path": "/creatine",
+            "ttfbMs": 168.51020000000062,
+            "dnsMs": 0,
+            "totalMs": 208.6234000000004
+          },
+          {
+            "path": "/creatine",
+            "ttfbMs": 173.7462000000014,
+            "dnsMs": 0,
+            "totalMs": 348.85280000000057
+          }
+        ]
+      },
+      {
+        "path": "/brands/per4m",
+        "beforeMs": 146.56589999999778,
+        "medianTTFBms": 147.0540000000001,
+        "guardPass": true,
+        "samples": [
+          {
+            "path": "/brands/per4m",
+            "ttfbMs": 147.0540000000001,
+            "dnsMs": 0,
+            "totalMs": 242.80309999999736
+          },
+          {
+            "path": "/brands/per4m",
+            "ttfbMs": 170.61859999999797,
+            "dnsMs": 0,
+            "totalMs": 188.9966999999997
+          },
+          {
+            "path": "/brands/per4m",
+            "ttfbMs": 226.28960000000006,
+            "dnsMs": 0,
+            "totalMs": 327.09690000000046
+          },
+          {
+            "path": "/brands/per4m",
+            "ttfbMs": 142.09549999999945,
+            "dnsMs": 0,
+            "totalMs": 164.2964000000029
+          },
+          {
+            "path": "/brands/per4m",
+            "ttfbMs": 140.90279999999984,
+            "dnsMs": 0,
+            "totalMs": 240.76650000000154
+          }
+        ]
+      },
+      {
+        "path": "/whey-isolate",
+        "beforeMs": 146.77180000000226,
+        "medianTTFBms": 146.1150000000016,
+        "guardPass": true,
+        "samples": [
+          {
+            "path": "/whey-isolate",
+            "ttfbMs": 149.02170000000115,
+            "dnsMs": 0,
+            "totalMs": 238.25440000000162
+          },
+          {
+            "path": "/whey-isolate",
+            "ttfbMs": 135.17599999999948,
+            "dnsMs": 0,
+            "totalMs": 228.13720000000103
+          },
+          {
+            "path": "/whey-isolate",
+            "ttfbMs": 239.36759999999776,
+            "dnsMs": 0,
+            "totalMs": 319.6984999999986
+          },
+          {
+            "path": "/whey-isolate",
+            "ttfbMs": 130.33050000000003,
+            "dnsMs": 0,
+            "totalMs": 232.04269999999815
+          },
+          {
+            "path": "/whey-isolate",
+            "ttfbMs": 146.1150000000016,
+            "dnsMs": 0,
+            "totalMs": 236.8643000000011
+          }
+        ]
+      },
+      {
+        "path": "/vegan-protein",
+        "beforeMs": 134.92339999999967,
+        "medianTTFBms": 143.71949999999924,
+        "guardPass": true,
+        "samples": [
+          {
+            "path": "/vegan-protein",
+            "ttfbMs": 167.0712999999996,
+            "dnsMs": 0,
+            "totalMs": 180.41699999999764
+          },
+          {
+            "path": "/vegan-protein",
+            "ttfbMs": 138.75670000000173,
+            "dnsMs": 0,
+            "totalMs": 151.9184000000023
+          },
+          {
+            "path": "/vegan-protein",
+            "ttfbMs": 143.71949999999924,
+            "dnsMs": 0,
+            "totalMs": 230.10699999999997
+          },
+          {
+            "path": "/vegan-protein",
+            "ttfbMs": 125.52599999999802,
+            "dnsMs": 0,
+            "totalMs": 139.78960000000006
+          },
+          {
+            "path": "/vegan-protein",
+            "ttfbMs": 176.38110000000233,
+            "dnsMs": 0,
+            "totalMs": 196.6049000000021
+          }
+        ]
+      }
+    ],
+    "networkErrors": []
+  },
+  "browser": {
+    "at": "2026-11-19T09:05:49.330Z",
+    "phase": "after",
+    "base": "https://www.supplementscout.co.uk",
+    "sourceAt": "2026-11-19T08:36:40.101Z",
+    "environment": "Actual-source production build; analytics collection blocked; no retailer clicks or catalogue writes",
+    "results": [
+      {
+        "requestedWidth": 320,
+        "client": 320,
+        "document": 320,
+        "bodyClient": 320,
+        "body": 320,
+        "innerWidth": 320,
+        "visualWidth": 320,
+        "visualScale": 1,
+        "devicePixelRatio": 1,
+        "metaViewport": "width=device-width, initial-scale=1",
+        "mainOverflow": "visible",
+        "mainWidth": 320,
+        "wrapper": {
+          "client": 286,
+          "scroll": 1142,
+          "left": 16,
+          "right": 304,
+          "position": "relative",
+          "overflow": "auto",
+          "tabIndex": 0,
+          "role": "region",
+          "label": "comparison-heading"
+        },
+        "table": {
+          "width": 1142.28125,
+          "minWidth": "1120px",
+          "columns": 9,
+          "caption": "Creatine supplement retailer and delivered-price comparison",
+          "headers": [
+            "Product",
+            "Brand",
+            "Best available retailer",
+            "Product price",
+            "Delivered price",
+            "Retailer count",
+            "Cost per 5 g",
+            "Stock/status",
+            "Compare or view details"
+          ],
+          "rows": 86
+        },
+        "hiddenLabels": [
+          {
+            "tag": "CAPTION",
+            "text": "Creatine supplement retailer and delivered-price comparison",
+            "offsetParentIsWrapper": true,
+            "right": 17
+          },
+          {
+            "tag": "SPAN",
+            "text": "Compare or view details",
+            "offsetParentIsWrapper": true,
+            "right": 1050.484375
+          }
+        ],
+        "h1": 1,
+        "breadcrumbWidth": 304,
+        "clippedOutsideTable": [],
+        "cls": 0,
+        "lcp": 696,
+        "jsBytes": 536049,
+        "cssBytes": 81920,
+        "budget": {
+          "heading": "Creatine under £20: check the delivered cost",
+          "links": [
+            "/product/ostrovit-creatine-monohydrate-300g?variant=931",
+            "/product/per4m-creatine-capsules-30-servings?variant=2881",
+            "/product/myprotein-creatine-monohydrate-unflavoured?variant=4634"
+          ],
+          "times": [
+            "2026-11-18T10:46:25.491+00:00",
+            "2026-11-18T14:37:27.979+00:00",
+            "2026-11-18T17:27:34.236+00:00"
+          ],
+          "costs": [
+            "Retailer\nFit House\nProduct price\n£9.99\nDelivery\n£3.99\nDelivered total\n£13.98\nCost per 5 g\n£0.26",
+            "Retailer\neBay UK\nProduct price\n£13.99\nDelivery\n£0.00\nDelivered total\n£13.99\nCost per 5 g\nNot yet verified",
+            "Retailer\nHolland & Barrett\nProduct price\n£12.00\nDelivery\n£3.49\nDelivered total\n£15.49\nCost per 5 g\nNot yet verified"
+          ],
+          "htmlSha256": "e9c89c575b38946c1efc672cd84c418ccfcda3ded873096155e1d128efc4621b"
+        },
+        "scroll": {
+          "needed": true,
+          "keyboard": {
+            "left": 40,
+            "focused": true,
+            "visible": true,
+            "outline": "auto",
+            "outlineWidth": "1px",
+            "rootX": 0
+          },
+          "touch": {
+            "table": 110,
+            "rootX": 0
+          },
+          "end": {
+            "left": 856,
+            "max": 856,
+            "rootX": 0,
+            "lastColumnRight": 303.28125,
+            "wrapperRight": 304,
+            "firstDetailsLink": "/product/xo-fitness-creatine-chewable",
+            "columns": 9
+          }
+        },
+        "states": {
+          "delivered_total": {
+            "count": 86,
+            "orderPass": true
+          },
+          "verified_value": {
+            "count": 86,
+            "orderPass": true
+          },
+          "brand": {
+            "params": {
+              "brand": "5% nutrition"
+            },
+            "count": 1,
+            "orderPass": true
+          },
+          "retailer": {
+            "params": {
+              "retailer": "14"
+            },
+            "count": 26,
+            "orderPass": true
+          }
+        },
+        "empty": {
+          "safe": true,
+          "table": false,
+          "clear": "/creatine",
+          "client": 320,
+          "document": 320,
+          "budgetSha256": "e9c89c575b38946c1efc672cd84c418ccfcda3ded873096155e1d128efc4621b"
+        },
+        "runtimeErrors": [],
+        "httpErrors": [],
+        "result": "PASS"
+      },
+      {
+        "requestedWidth": 360,
+        "client": 360,
+        "document": 360,
+        "bodyClient": 360,
+        "body": 360,
+        "innerWidth": 360,
+        "visualWidth": 360,
+        "visualScale": 1,
+        "devicePixelRatio": 1,
+        "metaViewport": "width=device-width, initial-scale=1",
+        "mainOverflow": "visible",
+        "mainWidth": 360,
+        "wrapper": {
+          "client": 326,
+          "scroll": 1142,
+          "left": 16,
+          "right": 344,
+          "position": "relative",
+          "overflow": "auto",
+          "tabIndex": 0,
+          "role": "region",
+          "label": "comparison-heading"
+        },
+        "table": {
+          "width": 1142.28125,
+          "minWidth": "1120px",
+          "columns": 9,
+          "caption": "Creatine supplement retailer and delivered-price comparison",
+          "headers": [
+            "Product",
+            "Brand",
+            "Best available retailer",
+            "Product price",
+            "Delivered price",
+            "Retailer count",
+            "Cost per 5 g",
+            "Stock/status",
+            "Compare or view details"
+          ],
+          "rows": 86
+        },
+        "hiddenLabels": [
+          {
+            "tag": "CAPTION",
+            "text": "Creatine supplement retailer and delivered-price comparison",
+            "offsetParentIsWrapper": true,
+            "right": 17
+          },
+          {
+            "tag": "SPAN",
+            "text": "Compare or view details",
+            "offsetParentIsWrapper": true,
+            "right": 1050.484375
+          }
+        ],
+        "h1": 1,
+        "breadcrumbWidth": 344,
+        "clippedOutsideTable": [],
+        "cls": 0,
+        "lcp": 484,
+        "jsBytes": 536049,
+        "cssBytes": 81920,
+        "budget": {
+          "heading": "Creatine under £20: check the delivered cost",
+          "links": [
+            "/product/ostrovit-creatine-monohydrate-300g?variant=931",
+            "/product/per4m-creatine-capsules-30-servings?variant=2881",
+            "/product/myprotein-creatine-monohydrate-unflavoured?variant=4634"
+          ],
+          "times": [
+            "2026-11-18T10:46:25.491+00:00",
+            "2026-11-18T14:37:27.979+00:00",
+            "2026-11-18T17:27:34.236+00:00"
+          ],
+          "costs": [
+            "Retailer\nFit House\nProduct price\n£9.99\nDelivery\n£3.99\nDelivered total\n£13.98\nCost per 5 g\n£0.26",
+            "Retailer\neBay UK\nProduct price\n£13.99\nDelivery\n£0.00\nDelivered total\n£13.99\nCost per 5 g\nNot yet verified",
+            "Retailer\nHolland & Barrett\nProduct price\n£12.00\nDelivery\n£3.49\nDelivered total\n£15.49\nCost per 5 g\nNot yet verified"
+          ],
+          "htmlSha256": "e9c89c575b38946c1efc672cd84c418ccfcda3ded873096155e1d128efc4621b"
+        },
+        "scroll": {
+          "needed": true,
+          "keyboard": {
+            "left": 40,
+            "focused": true,
+            "visible": true,
+            "outline": "auto",
+            "outlineWidth": "1px",
+            "rootX": 0
+          },
+          "touch": {
+            "table": 110,
+            "rootX": 0
+          },
+          "end": {
+            "left": 816,
+            "max": 816,
+            "rootX": 0,
+            "lastColumnRight": 343.28125,
+            "wrapperRight": 344,
+            "firstDetailsLink": "/product/xo-fitness-creatine-chewable",
+            "columns": 9
+          }
+        },
+        "states": {
+          "delivered_total": {
+            "count": 86,
+            "orderPass": true
+          },
+          "verified_value": {
+            "count": 86,
+            "orderPass": true
+          },
+          "brand": {
+            "params": {
+              "brand": "5% nutrition"
+            },
+            "count": 1,
+            "orderPass": true
+          },
+          "retailer": {
+            "params": {
+              "retailer": "14"
+            },
+            "count": 26,
+            "orderPass": true
+          }
+        },
+        "empty": {
+          "safe": true,
+          "table": false,
+          "clear": "/creatine",
+          "client": 360,
+          "document": 360,
+          "budgetSha256": "e9c89c575b38946c1efc672cd84c418ccfcda3ded873096155e1d128efc4621b"
+        },
+        "runtimeErrors": [],
+        "httpErrors": [],
+        "result": "PASS"
+      },
+      {
+        "requestedWidth": 375,
+        "client": 375,
+        "document": 375,
+        "bodyClient": 375,
+        "body": 375,
+        "innerWidth": 375,
+        "visualWidth": 375,
+        "visualScale": 1,
+        "devicePixelRatio": 1,
+        "metaViewport": "width=device-width, initial-scale=1",
+        "mainOverflow": "visible",
+        "mainWidth": 375,
+        "wrapper": {
+          "client": 341,
+          "scroll": 1142,
+          "left": 16,
+          "right": 359,
+          "position": "relative",
+          "overflow": "auto",
+          "tabIndex": 0,
+          "role": "region",
+          "label": "comparison-heading"
+        },
+        "table": {
+          "width": 1142.28125,
+          "minWidth": "1120px",
+          "columns": 9,
+          "caption": "Creatine supplement retailer and delivered-price comparison",
+          "headers": [
+            "Product",
+            "Brand",
+            "Best available retailer",
+            "Product price",
+            "Delivered price",
+            "Retailer count",
+            "Cost per 5 g",
+            "Stock/status",
+            "Compare or view details"
+          ],
+          "rows": 86
+        },
+        "hiddenLabels": [
+          {
+            "tag": "CAPTION",
+            "text": "Creatine supplement retailer and delivered-price comparison",
+            "offsetParentIsWrapper": true,
+            "right": 17
+          },
+          {
+            "tag": "SPAN",
+            "text": "Compare or view details",
+            "offsetParentIsWrapper": true,
+            "right": 1050.484375
+          }
+        ],
+        "h1": 1,
+        "breadcrumbWidth": 359,
+        "clippedOutsideTable": [],
+        "cls": 0,
+        "lcp": 452,
+        "jsBytes": 536049,
+        "cssBytes": 81920,
+        "budget": {
+          "heading": "Creatine under £20: check the delivered cost",
+          "links": [
+            "/product/ostrovit-creatine-monohydrate-300g?variant=931",
+            "/product/per4m-creatine-capsules-30-servings?variant=2881",
+            "/product/myprotein-creatine-monohydrate-unflavoured?variant=4634"
+          ],
+          "times": [
+            "2026-11-18T10:46:25.491+00:00",
+            "2026-11-18T14:37:27.979+00:00",
+            "2026-11-18T17:27:34.236+00:00"
+          ],
+          "costs": [
+            "Retailer\nFit House\nProduct price\n£9.99\nDelivery\n£3.99\nDelivered total\n£13.98\nCost per 5 g\n£0.26",
+            "Retailer\neBay UK\nProduct price\n£13.99\nDelivery\n£0.00\nDelivered total\n£13.99\nCost per 5 g\nNot yet verified",
+            "Retailer\nHolland & Barrett\nProduct price\n£12.00\nDelivery\n£3.49\nDelivered total\n£15.49\nCost per 5 g\nNot yet verified"
+          ],
+          "htmlSha256": "e9c89c575b38946c1efc672cd84c418ccfcda3ded873096155e1d128efc4621b"
+        },
+        "scroll": {
+          "needed": true,
+          "keyboard": {
+            "left": 40,
+            "focused": true,
+            "visible": true,
+            "outline": "auto",
+            "outlineWidth": "1px",
+            "rootX": 0
+          },
+          "touch": {
+            "table": 110,
+            "rootX": 0
+          },
+          "end": {
+            "left": 801,
+            "max": 801,
+            "rootX": 0,
+            "lastColumnRight": 358.28125,
+            "wrapperRight": 359,
+            "firstDetailsLink": "/product/xo-fitness-creatine-chewable",
+            "columns": 9
+          }
+        },
+        "states": {
+          "delivered_total": {
+            "count": 86,
+            "orderPass": true
+          },
+          "verified_value": {
+            "count": 86,
+            "orderPass": true
+          },
+          "brand": {
+            "params": {
+              "brand": "5% nutrition"
+            },
+            "count": 1,
+            "orderPass": true
+          },
+          "retailer": {
+            "params": {
+              "retailer": "14"
+            },
+            "count": 26,
+            "orderPass": true
+          }
+        },
+        "empty": {
+          "safe": true,
+          "table": false,
+          "clear": "/creatine",
+          "client": 375,
+          "document": 375,
+          "budgetSha256": "e9c89c575b38946c1efc672cd84c418ccfcda3ded873096155e1d128efc4621b"
+        },
+        "runtimeErrors": [],
+        "httpErrors": [],
+        "result": "PASS"
+      },
+      {
+        "requestedWidth": 390,
+        "client": 390,
+        "document": 390,
+        "bodyClient": 390,
+        "body": 390,
+        "innerWidth": 390,
+        "visualWidth": 390,
+        "visualScale": 1,
+        "devicePixelRatio": 1,
+        "metaViewport": "width=device-width, initial-scale=1",
+        "mainOverflow": "visible",
+        "mainWidth": 390,
+        "wrapper": {
+          "client": 356,
+          "scroll": 1142,
+          "left": 16,
+          "right": 374,
+          "position": "relative",
+          "overflow": "auto",
+          "tabIndex": 0,
+          "role": "region",
+          "label": "comparison-heading"
+        },
+        "table": {
+          "width": 1142.28125,
+          "minWidth": "1120px",
+          "columns": 9,
+          "caption": "Creatine supplement retailer and delivered-price comparison",
+          "headers": [
+            "Product",
+            "Brand",
+            "Best available retailer",
+            "Product price",
+            "Delivered price",
+            "Retailer count",
+            "Cost per 5 g",
+            "Stock/status",
+            "Compare or view details"
+          ],
+          "rows": 86
+        },
+        "hiddenLabels": [
+          {
+            "tag": "CAPTION",
+            "text": "Creatine supplement retailer and delivered-price comparison",
+            "offsetParentIsWrapper": true,
+            "right": 17
+          },
+          {
+            "tag": "SPAN",
+            "text": "Compare or view details",
+            "offsetParentIsWrapper": true,
+            "right": 1050.484375
+          }
+        ],
+        "h1": 1,
+        "breadcrumbWidth": 374,
+        "clippedOutsideTable": [],
+        "cls": 0,
+        "lcp": 420,
+        "jsBytes": 536049,
+        "cssBytes": 81920,
+        "budget": {
+          "heading": "Creatine under £20: check the delivered cost",
+          "links": [
+            "/product/ostrovit-creatine-monohydrate-300g?variant=931",
+            "/product/per4m-creatine-capsules-30-servings?variant=2881",
+            "/product/myprotein-creatine-monohydrate-unflavoured?variant=4634"
+          ],
+          "times": [
+            "2026-11-18T10:46:25.491+00:00",
+            "2026-11-18T14:37:27.979+00:00",
+            "2026-11-18T17:27:34.236+00:00"
+          ],
+          "costs": [
+            "Retailer\nFit House\nProduct price\n£9.99\nDelivery\n£3.99\nDelivered total\n£13.98\nCost per 5 g\n£0.26",
+            "Retailer\neBay UK\nProduct price\n£13.99\nDelivery\n£0.00\nDelivered total\n£13.99\nCost per 5 g\nNot yet verified",
+            "Retailer\nHolland & Barrett\nProduct price\n£12.00\nDelivery\n£3.49\nDelivered total\n£15.49\nCost per 5 g\nNot yet verified"
+          ],
+          "htmlSha256": "e9c89c575b38946c1efc672cd84c418ccfcda3ded873096155e1d128efc4621b"
+        },
+        "scroll": {
+          "needed": true,
+          "keyboard": {
+            "left": 40,
+            "focused": true,
+            "visible": true,
+            "outline": "auto",
+            "outlineWidth": "1px",
+            "rootX": 0
+          },
+          "touch": {
+            "table": 110,
+            "rootX": 0
+          },
+          "end": {
+            "left": 786,
+            "max": 786,
+            "rootX": 0,
+            "lastColumnRight": 373.28125,
+            "wrapperRight": 374,
+            "firstDetailsLink": "/product/xo-fitness-creatine-chewable",
+            "columns": 9
+          }
+        },
+        "states": {
+          "delivered_total": {
+            "count": 86,
+            "orderPass": true
+          },
+          "verified_value": {
+            "count": 86,
+            "orderPass": true
+          },
+          "brand": {
+            "params": {
+              "brand": "5% nutrition"
+            },
+            "count": 1,
+            "orderPass": true
+          },
+          "retailer": {
+            "params": {
+              "retailer": "14"
+            },
+            "count": 26,
+            "orderPass": true
+          }
+        },
+        "empty": {
+          "safe": true,
+          "table": false,
+          "clear": "/creatine",
+          "client": 390,
+          "document": 390,
+          "budgetSha256": "e9c89c575b38946c1efc672cd84c418ccfcda3ded873096155e1d128efc4621b"
+        },
+        "runtimeErrors": [],
+        "httpErrors": [],
+        "result": "PASS"
+      },
+      {
+        "requestedWidth": 430,
+        "client": 430,
+        "document": 430,
+        "bodyClient": 430,
+        "body": 430,
+        "innerWidth": 430,
+        "visualWidth": 430,
+        "visualScale": 1,
+        "devicePixelRatio": 1,
+        "metaViewport": "width=device-width, initial-scale=1",
+        "mainOverflow": "visible",
+        "mainWidth": 430,
+        "wrapper": {
+          "client": 396,
+          "scroll": 1142,
+          "left": 16,
+          "right": 414,
+          "position": "relative",
+          "overflow": "auto",
+          "tabIndex": 0,
+          "role": "region",
+          "label": "comparison-heading"
+        },
+        "table": {
+          "width": 1142.28125,
+          "minWidth": "1120px",
+          "columns": 9,
+          "caption": "Creatine supplement retailer and delivered-price comparison",
+          "headers": [
+            "Product",
+            "Brand",
+            "Best available retailer",
+            "Product price",
+            "Delivered price",
+            "Retailer count",
+            "Cost per 5 g",
+            "Stock/status",
+            "Compare or view details"
+          ],
+          "rows": 86
+        },
+        "hiddenLabels": [
+          {
+            "tag": "CAPTION",
+            "text": "Creatine supplement retailer and delivered-price comparison",
+            "offsetParentIsWrapper": true,
+            "right": 17
+          },
+          {
+            "tag": "SPAN",
+            "text": "Compare or view details",
+            "offsetParentIsWrapper": true,
+            "right": 1050.484375
+          }
+        ],
+        "h1": 1,
+        "breadcrumbWidth": 414,
+        "clippedOutsideTable": [],
+        "cls": 0,
+        "lcp": 348,
+        "jsBytes": 536049,
+        "cssBytes": 81920,
+        "budget": {
+          "heading": "Creatine under £20: check the delivered cost",
+          "links": [
+            "/product/ostrovit-creatine-monohydrate-300g?variant=931",
+            "/product/per4m-creatine-capsules-30-servings?variant=2881",
+            "/product/myprotein-creatine-monohydrate-unflavoured?variant=4634"
+          ],
+          "times": [
+            "2026-11-18T10:46:25.491+00:00",
+            "2026-11-18T14:37:27.979+00:00",
+            "2026-11-18T17:27:34.236+00:00"
+          ],
+          "costs": [
+            "Retailer\nFit House\nProduct price\n£9.99\nDelivery\n£3.99\nDelivered total\n£13.98\nCost per 5 g\n£0.26",
+            "Retailer\neBay UK\nProduct price\n£13.99\nDelivery\n£0.00\nDelivered total\n£13.99\nCost per 5 g\nNot yet verified",
+            "Retailer\nHolland & Barrett\nProduct price\n£12.00\nDelivery\n£3.49\nDelivered total\n£15.49\nCost per 5 g\nNot yet verified"
+          ],
+          "htmlSha256": "e9c89c575b38946c1efc672cd84c418ccfcda3ded873096155e1d128efc4621b"
+        },
+        "scroll": {
+          "needed": true,
+          "keyboard": {
+            "left": 40,
+            "focused": true,
+            "visible": true,
+            "outline": "auto",
+            "outlineWidth": "1px",
+            "rootX": 0
+          },
+          "touch": {
+            "table": 110,
+            "rootX": 0
+          },
+          "end": {
+            "left": 746,
+            "max": 746,
+            "rootX": 0,
+            "lastColumnRight": 413.28125,
+            "wrapperRight": 414,
+            "firstDetailsLink": "/product/xo-fitness-creatine-chewable",
+            "columns": 9
+          }
+        },
+        "states": {
+          "delivered_total": {
+            "count": 86,
+            "orderPass": true
+          },
+          "verified_value": {
+            "count": 86,
+            "orderPass": true
+          },
+          "brand": {
+            "params": {
+              "brand": "5% nutrition"
+            },
+            "count": 1,
+            "orderPass": true
+          },
+          "retailer": {
+            "params": {
+              "retailer": "14"
+            },
+            "count": 26,
+            "orderPass": true
+          }
+        },
+        "empty": {
+          "safe": true,
+          "table": false,
+          "clear": "/creatine",
+          "client": 430,
+          "document": 430,
+          "budgetSha256": "e9c89c575b38946c1efc672cd84c418ccfcda3ded873096155e1d128efc4621b"
+        },
+        "runtimeErrors": [],
+        "httpErrors": [],
+        "result": "PASS"
+      },
+      {
+        "requestedWidth": 768,
+        "client": 753,
+        "document": 753,
+        "bodyClient": 753,
+        "body": 753,
+        "innerWidth": 768,
+        "visualWidth": 753,
+        "visualScale": 1,
+        "devicePixelRatio": 1,
+        "metaViewport": "width=device-width, initial-scale=1",
+        "mainOverflow": "visible",
+        "mainWidth": 753,
+        "wrapper": {
+          "client": 703,
+          "scroll": 1142,
+          "left": 24,
+          "right": 729,
+          "position": "relative",
+          "overflow": "auto",
+          "tabIndex": 0,
+          "role": "region",
+          "label": "comparison-heading"
+        },
+        "table": {
+          "width": 1142.28125,
+          "minWidth": "1120px",
+          "columns": 9,
+          "caption": "Creatine supplement retailer and delivered-price comparison",
+          "headers": [
+            "Product",
+            "Brand",
+            "Best available retailer",
+            "Product price",
+            "Delivered price",
+            "Retailer count",
+            "Cost per 5 g",
+            "Stock/status",
+            "Compare or view details"
+          ],
+          "rows": 86
+        },
+        "hiddenLabels": [
+          {
+            "tag": "CAPTION",
+            "text": "Creatine supplement retailer and delivered-price comparison",
+            "offsetParentIsWrapper": true,
+            "right": 25
+          },
+          {
+            "tag": "SPAN",
+            "text": "Compare or view details",
+            "offsetParentIsWrapper": true,
+            "right": 1058.484375
+          }
+        ],
+        "h1": 1,
+        "breadcrumbWidth": 729,
+        "clippedOutsideTable": [],
+        "cls": 0,
+        "lcp": 432,
+        "jsBytes": 536049,
+        "cssBytes": 81920,
+        "budget": {
+          "heading": "Creatine under £20: check the delivered cost",
+          "links": [
+            "/product/ostrovit-creatine-monohydrate-300g?variant=931",
+            "/product/per4m-creatine-capsules-30-servings?variant=2881",
+            "/product/myprotein-creatine-monohydrate-unflavoured?variant=4634"
+          ],
+          "times": [
+            "2026-11-18T10:46:25.491+00:00",
+            "2026-11-18T14:37:27.979+00:00",
+            "2026-11-18T17:27:34.236+00:00"
+          ],
+          "costs": [
+            "Retailer\nFit House\nProduct price\n£9.99\nDelivery\n£3.99\nDelivered total\n£13.98\nCost per 5 g\n£0.26",
+            "Retailer\neBay UK\nProduct price\n£13.99\nDelivery\n£0.00\nDelivered total\n£13.99\nCost per 5 g\nNot yet verified",
+            "Retailer\nHolland & Barrett\nProduct price\n£12.00\nDelivery\n£3.49\nDelivered total\n£15.49\nCost per 5 g\nNot yet verified"
+          ],
+          "htmlSha256": "e9c89c575b38946c1efc672cd84c418ccfcda3ded873096155e1d128efc4621b"
+        },
+        "scroll": {
+          "needed": true,
+          "keyboard": {
+            "left": 40,
+            "focused": true,
+            "visible": true,
+            "outline": "auto",
+            "outlineWidth": "1px",
+            "rootX": 0
+          },
+          "end": {
+            "left": 439,
+            "max": 439,
+            "rootX": 0,
+            "lastColumnRight": 728.28125,
+            "wrapperRight": 729,
+            "firstDetailsLink": "/product/xo-fitness-creatine-chewable",
+            "columns": 9
+          }
+        },
+        "states": {
+          "delivered_total": {
+            "count": 86,
+            "orderPass": true
+          },
+          "verified_value": {
+            "count": 86,
+            "orderPass": true
+          },
+          "brand": {
+            "params": {
+              "brand": "5% nutrition"
+            },
+            "count": 1,
+            "orderPass": true
+          },
+          "retailer": {
+            "params": {
+              "retailer": "14"
+            },
+            "count": 26,
+            "orderPass": true
+          }
+        },
+        "empty": {
+          "safe": true,
+          "table": false,
+          "clear": "/creatine",
+          "client": 753,
+          "document": 753,
+          "budgetSha256": "e9c89c575b38946c1efc672cd84c418ccfcda3ded873096155e1d128efc4621b"
+        },
+        "runtimeErrors": [],
+        "httpErrors": [],
+        "result": "PASS"
+      },
+      {
+        "requestedWidth": 1024,
+        "client": 1009,
+        "document": 1009,
+        "bodyClient": 1009,
+        "body": 1009,
+        "innerWidth": 1024,
+        "visualWidth": 1009,
+        "visualScale": 1,
+        "devicePixelRatio": 1,
+        "metaViewport": "width=device-width, initial-scale=1",
+        "mainOverflow": "visible",
+        "mainWidth": 1009,
+        "wrapper": {
+          "client": 959,
+          "scroll": 1142,
+          "left": 24,
+          "right": 985,
+          "position": "relative",
+          "overflow": "auto",
+          "tabIndex": 0,
+          "role": "region",
+          "label": "comparison-heading"
+        },
+        "table": {
+          "width": 1142.28125,
+          "minWidth": "1120px",
+          "columns": 9,
+          "caption": "Creatine supplement retailer and delivered-price comparison",
+          "headers": [
+            "Product",
+            "Brand",
+            "Best available retailer",
+            "Product price",
+            "Delivered price",
+            "Retailer count",
+            "Cost per 5 g",
+            "Stock/status",
+            "Compare or view details"
+          ],
+          "rows": 86
+        },
+        "hiddenLabels": [
+          {
+            "tag": "CAPTION",
+            "text": "Creatine supplement retailer and delivered-price comparison",
+            "offsetParentIsWrapper": true,
+            "right": 25
+          },
+          {
+            "tag": "SPAN",
+            "text": "Compare or view details",
+            "offsetParentIsWrapper": true,
+            "right": 1058.484375
+          }
+        ],
+        "h1": 1,
+        "breadcrumbWidth": 985,
+        "clippedOutsideTable": [],
+        "cls": 0,
+        "lcp": 484,
+        "jsBytes": 536049,
+        "cssBytes": 81920,
+        "budget": {
+          "heading": "Creatine under £20: check the delivered cost",
+          "links": [
+            "/product/ostrovit-creatine-monohydrate-300g?variant=931",
+            "/product/per4m-creatine-capsules-30-servings?variant=2881",
+            "/product/myprotein-creatine-monohydrate-unflavoured?variant=4634"
+          ],
+          "times": [
+            "2026-11-18T10:46:25.491+00:00",
+            "2026-11-18T14:37:27.979+00:00",
+            "2026-11-18T17:27:34.236+00:00"
+          ],
+          "costs": [
+            "Retailer\nFit House\nProduct price\n£9.99\nDelivery\n£3.99\nDelivered total\n£13.98\nCost per 5 g\n£0.26",
+            "Retailer\neBay UK\nProduct price\n£13.99\nDelivery\n£0.00\nDelivered total\n£13.99\nCost per 5 g\nNot yet verified",
+            "Retailer\nHolland & Barrett\nProduct price\n£12.00\nDelivery\n£3.49\nDelivered total\n£15.49\nCost per 5 g\nNot yet verified"
+          ],
+          "htmlSha256": "e9c89c575b38946c1efc672cd84c418ccfcda3ded873096155e1d128efc4621b"
+        },
+        "scroll": {
+          "needed": true,
+          "keyboard": {
+            "left": 40,
+            "focused": true,
+            "visible": true,
+            "outline": "auto",
+            "outlineWidth": "1px",
+            "rootX": 0
+          },
+          "end": {
+            "left": 183,
+            "max": 183,
+            "rootX": 0,
+            "lastColumnRight": 984.28125,
+            "wrapperRight": 985,
+            "firstDetailsLink": "/product/xo-fitness-creatine-chewable",
+            "columns": 9
+          }
+        },
+        "states": {
+          "delivered_total": {
+            "count": 86,
+            "orderPass": true
+          },
+          "verified_value": {
+            "count": 86,
+            "orderPass": true
+          },
+          "brand": {
+            "params": {
+              "brand": "5% nutrition"
+            },
+            "count": 1,
+            "orderPass": true
+          },
+          "retailer": {
+            "params": {
+              "retailer": "14"
+            },
+            "count": 26,
+            "orderPass": true
+          }
+        },
+        "empty": {
+          "safe": true,
+          "table": false,
+          "clear": "/creatine",
+          "client": 1009,
+          "document": 1009,
+          "budgetSha256": "e9c89c575b38946c1efc672cd84c418ccfcda3ded873096155e1d128efc4621b"
+        },
+        "runtimeErrors": [],
+        "httpErrors": [],
+        "result": "PASS"
+      },
+      {
+        "requestedWidth": 1440,
+        "client": 1425,
+        "document": 1425,
+        "bodyClient": 1425,
+        "body": 1425,
+        "innerWidth": 1440,
+        "visualWidth": 1425,
+        "visualScale": 1,
+        "devicePixelRatio": 1,
+        "metaViewport": "width=device-width, initial-scale=1",
+        "mainOverflow": "visible",
+        "mainWidth": 1425,
+        "wrapper": {
+          "client": 1230,
+          "scroll": 1230,
+          "left": 96.5,
+          "right": 1328.5,
+          "position": "relative",
+          "overflow": "auto",
+          "tabIndex": 0,
+          "role": "region",
+          "label": "comparison-heading"
+        },
+        "table": {
+          "width": 1230,
+          "minWidth": "1120px",
+          "columns": 9,
+          "caption": "Creatine supplement retailer and delivered-price comparison",
+          "headers": [
+            "Product",
+            "Brand",
+            "Best available retailer",
+            "Product price",
+            "Delivered price",
+            "Retailer count",
+            "Cost per 5 g",
+            "Stock/status",
+            "Compare or view details"
+          ],
+          "rows": 86
+        },
+        "hiddenLabels": [
+          {
+            "tag": "CAPTION",
+            "text": "Creatine supplement retailer and delivered-price comparison",
+            "offsetParentIsWrapper": true,
+            "right": 97.5
+          },
+          {
+            "tag": "SPAN",
+            "text": "Compare or view details",
+            "offsetParentIsWrapper": true,
+            "right": 1214.4375
+          }
+        ],
+        "h1": 1,
+        "breadcrumbWidth": 1328.5,
+        "clippedOutsideTable": [],
+        "cls": 0,
+        "lcp": 356,
+        "jsBytes": 549749,
+        "cssBytes": 81920,
+        "budget": {
+          "heading": "Creatine under £20: check the delivered cost",
+          "links": [
+            "/product/ostrovit-creatine-monohydrate-300g?variant=931",
+            "/product/per4m-creatine-capsules-30-servings?variant=2881",
+            "/product/myprotein-creatine-monohydrate-unflavoured?variant=4634"
+          ],
+          "times": [
+            "2026-11-18T10:46:25.491+00:00",
+            "2026-11-18T14:37:27.979+00:00",
+            "2026-11-18T17:27:34.236+00:00"
+          ],
+          "costs": [
+            "Retailer\nFit House\nProduct price\n£9.99\nDelivery\n£3.99\nDelivered total\n£13.98\nCost per 5 g\n£0.26",
+            "Retailer\neBay UK\nProduct price\n£13.99\nDelivery\n£0.00\nDelivered total\n£13.99\nCost per 5 g\nNot yet verified",
+            "Retailer\nHolland & Barrett\nProduct price\n£12.00\nDelivery\n£3.49\nDelivered total\n£15.49\nCost per 5 g\nNot yet verified"
+          ],
+          "htmlSha256": "e9c89c575b38946c1efc672cd84c418ccfcda3ded873096155e1d128efc4621b"
+        },
+        "scroll": {
+          "needed": false,
+          "keyboard": {
+            "left": 0,
+            "focused": true,
+            "visible": true,
+            "outline": "auto",
+            "outlineWidth": "1px",
+            "rootX": 0
+          },
+          "end": {
+            "left": 0,
+            "max": 0,
+            "rootX": 0,
+            "lastColumnRight": 1327.5,
+            "wrapperRight": 1328.5,
+            "firstDetailsLink": "/product/xo-fitness-creatine-chewable",
+            "columns": 9
+          }
+        },
+        "states": {
+          "delivered_total": {
+            "count": 86,
+            "orderPass": true
+          },
+          "verified_value": {
+            "count": 86,
+            "orderPass": true
+          },
+          "brand": {
+            "params": {
+              "brand": "5% nutrition"
+            },
+            "count": 1,
+            "orderPass": true
+          },
+          "retailer": {
+            "params": {
+              "retailer": "14"
+            },
+            "count": 26,
+            "orderPass": true
+          }
+        },
+        "empty": {
+          "safe": true,
+          "table": false,
+          "clear": "/creatine",
+          "client": 1425,
+          "document": 1425,
+          "budgetSha256": "e9c89c575b38946c1efc672cd84c418ccfcda3ded873096155e1d128efc4621b"
+        },
+        "runtimeErrors": [],
+        "httpErrors": [],
+        "result": "PASS"
+      }
+    ],
+    "controls": [
+      {
+        "route": "/whey-protein",
+        "width": 320,
+        "client": 320,
+        "document": 320,
+        "bodyClient": 320,
+        "body": 320,
+        "h1": 1,
+        "result": "PASS"
+      },
+      {
+        "route": "/whey-protein",
+        "width": 1440,
+        "client": 1425,
+        "document": 1425,
+        "bodyClient": 1425,
+        "body": 1425,
+        "h1": 1,
+        "result": "PASS"
+      },
+      {
+        "route": "/whey-isolate",
+        "width": 320,
+        "client": 320,
+        "document": 320,
+        "bodyClient": 320,
+        "body": 320,
+        "h1": 1,
+        "result": "PASS"
+      },
+      {
+        "route": "/whey-isolate",
+        "width": 1440,
+        "client": 1425,
+        "document": 1425,
+        "bodyClient": 1425,
+        "body": 1425,
+        "h1": 1,
+        "result": "PASS"
+      },
+      {
+        "route": "/vegan-protein",
+        "width": 320,
+        "client": 320,
+        "document": 320,
+        "bodyClient": 320,
+        "body": 320,
+        "h1": 1,
+        "result": "PASS"
+      },
+      {
+        "route": "/vegan-protein",
+        "width": 1440,
+        "client": 1425,
+        "document": 1425,
+        "bodyClient": 1425,
+        "body": 1425,
+        "h1": 1,
+        "result": "PASS"
+      },
+      {
+        "route": "/pre-workout",
+        "width": 320,
+        "client": 320,
+        "document": 320,
+        "bodyClient": 320,
+        "body": 320,
+        "h1": 1,
+        "result": "PASS"
+      },
+      {
+        "route": "/pre-workout",
+        "width": 1440,
+        "client": 1425,
+        "document": 1425,
+        "bodyClient": 1425,
+        "body": 1425,
+        "h1": 1,
+        "result": "PASS"
+      },
+      {
+        "route": "/mass-gainer",
+        "width": 320,
+        "client": 320,
+        "document": 320,
+        "bodyClient": 320,
+        "body": 320,
+        "h1": 1,
+        "result": "PASS"
+      },
+      {
+        "route": "/mass-gainer",
+        "width": 1440,
+        "client": 1425,
+        "document": 1425,
+        "bodyClient": 1425,
+        "body": 1425,
+        "h1": 1,
+        "result": "PASS"
+      },
+      {
+        "route": "/",
+        "width": 320,
+        "client": 320,
+        "document": 320,
+        "bodyClient": 320,
+        "body": 320,
+        "h1": 1,
+        "result": "PASS"
+      },
+      {
+        "route": "/",
+        "width": 1440,
+        "client": 1425,
+        "document": 1425,
+        "bodyClient": 1425,
+        "body": 1425,
+        "h1": 1,
+        "result": "PASS"
+      },
+      {
+        "route": "/brands/per4m",
+        "width": 320,
+        "client": 320,
+        "document": 320,
+        "bodyClient": 320,
+        "body": 320,
+        "h1": 1,
+        "result": "PASS"
+      },
+      {
+        "route": "/brands/per4m",
+        "width": 1440,
+        "client": 1425,
+        "document": 1425,
+        "bodyClient": 1425,
+        "body": 1425,
+        "h1": 1,
+        "result": "PASS"
+      }
+    ]
+  },
+  "accessibility": {
+    "tables": [
+      "Creatine supplement retailer and delivered-price comparison"
+    ],
+    "headers": [
+      "PRODUCT",
+      "BRAND",
+      "BEST AVAILABLE RETAILER",
+      "PRODUCT PRICE",
+      "DELIVERED PRICE",
+      "RETAILER COUNT",
+      "COST PER 5 G",
+      "STOCK/STATUS",
+      "COMPARE OR VIEW DETAILS"
+    ],
+    "regions": [
+      "Your quickest answers, using only verified current data",
+      "Creatine under £20: check the delivered cost",
+      "Creatine prices and availability",
+      "Creatine prices and availability"
+    ]
+  },
+  "productionDataWrites": 0,
+  "retailerNavigations": 0
+}

@@ -1,5 +1,16 @@
 # SupplementScout Operating Plan
 
+**19 November 2026 Creatine mobile repair LIVE VERIFIED:** owner-approved
+PR#553 squash5f42239e15131a2676404ca3b73b0cb0421dc531 equals tested0fcaf1c3 tree. PR/main CI,Guardian
+and exact Production/Vercel SUCCESS pass. Public build`XvzanNudUjSsz1P5zkpTa`
+proves document/body containment at eight widths with native touch/keyboard
+table scroll,nine accessible columns,filters/sorts/drawer and unchanged under£20.
+Independent actual-source86-row readback and20-route SEO/data parity pass;
+existing public warm guard passes. No data write or new JS/query. SEO-20 frozen,
+SEO-21–31 LIVE VERIFIED,Stage3 off. Only a short read-only next-priority selection
+from existing evidence follows;no SEO-32 implementation or registration.
+[Evidence](rollouts/creatine-mobile-overflow-repair-2026-11-19.md).
+
 **19 November 2026 Creatine mobile repair CODE COMPLETE:** owner authorizes
 one separate bounded repair after live SEO-31/Whey releases. The absolute sr-only
 action-column label escaped the static table scroll wrapper and expanded root

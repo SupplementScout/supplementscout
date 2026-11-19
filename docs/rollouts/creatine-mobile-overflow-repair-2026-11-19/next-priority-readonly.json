@@ -1,0 +1,232 @@
+{
+  "at": "2026-11-19T09:15:02.543Z",
+  "mode": "READ ONLY; no report/workflow rerun, competitor research, implementation, SEO-32 or new PR",
+  "research": {
+    "date": "2026-11-18",
+    "source": "../content-growth-sprint6-20261117/tmp/keyword-gap-20261118/opportunity-matrix.json",
+    "sha256": "4f26b4812b4d0f0bd2d75f450d450417fe4d17efcda381d4ce053b8331b0e306",
+    "capturedAt": "2026-11-18T08:18:19.096Z"
+  },
+  "gsc": {
+    "completePeriod": {
+      "startDate": "2026-11-09",
+      "endDate": "2026-11-15"
+    },
+    "completeStatus": "NO_INCOMPLETE_DATA_REPORTED",
+    "completeRun": "https://github.com/SupplementScout/supplementscout/actions/runs/44166526954",
+    "existingCompleteArtifactId": 14364609794,
+    "latestExistingRun": "https://github.com/SupplementScout/supplementscout/actions/runs/44186080465",
+    "excludedLatestPeriod": {
+      "startDate": "2026-11-10",
+      "endDate": "2026-11-16"
+    },
+    "excludedLatestStatus": "FINAL_AND_ALL_DIFFER_WITHOUT_METADATA",
+    "caps": {
+      "topPages": 100,
+      "topQueries": 100,
+      "pageQueryRows": 250
+    },
+    "limitations": "Missing capped rows are UNKNOWN, not zero. Page average position is not an exact keyword rank. Report periods predate18November releases and do not measure their effect. No inferred keyword volume/KD, attributed retailer clicks, traffic uplift or field CWV."
+  },
+  "selection": "Reuse the remaining original heuristic ranking: Creatine82.5; Pump80; ISO-XP80. Protein bars also80 but lower current exact-pack/nutrition evidence in the existing research; not preferred over these verified live offer paths. Existing SEO-21 under-20 and SEO-25 pack-size work are excluded from the proposed Creatine scope. SEO-27/30 do not constitute Pump/ISO-XP product-page optimization.",
+  "choices": [
+    {
+      "keyword": "creatine monohydrate price comparison",
+      "intent": "Compare current UK delivered creatine prices before choosing an exact product/pack.",
+      "readiness": "Public current-source QA: 86 products,126 fresh offers,9 retailers;64 products with eligible known-delivery offers. Existing verified cost/5g and variant links are available; missing evidence stays withheld.",
+      "clickPath": "/creatine -> exact product/variant -> existing retailer offer /go -> retailer",
+      "cannibalisation": "Low if broad comparison stays on /creatine; preserve SEO-21 under-20 verbatim and leave pack-size explanation to the existing guide. No new landing page.",
+      "engineeringEffort": "0.5-1 engineering day including regression gates (estimate, not a traffic forecast).",
+      "smallestChange": "Review the existing title/description and short opening copy for explicit creatine monohydrate price-comparison intent; explain powder/capsule/gummy choices and delivered total versus verified cost/5g only where current copy leaves a gap. Reuse current table and guide link; no new data/query/widget, no duplicate under-20 content.",
+      "recommendation": "NEXT PRIORITY; recommendation only, not authorized implementation.",
+      "path": "/creatine",
+      "research": {
+        "capturedAt": "2026-11-18T08:18:19.096Z",
+        "heuristicScore": 82.5,
+        "UKVolume": "UNKNOWN",
+        "KD": "UNKNOWN",
+        "fourCompleteWeekPageBaseline": {
+          "path": "/creatine",
+          "weekly": [
+            {
+              "i": 143,
+              "c": 1,
+              "p": 25.57
+            },
+            {
+              "i": 85,
+              "c": 0,
+              "p": 16.01
+            },
+            {
+              "i": 95,
+              "c": 1,
+              "p": 29.89
+            },
+            {
+              "i": 127,
+              "c": 1,
+              "p": 35.54
+            }
+          ],
+          "totalImpressions": 450,
+          "totalClicks": 3
+        },
+        "historicalExactPageQueryObservations": [
+          {
+            "query": "creatine monohydrate price comparison",
+            "path": "/creatine",
+            "clicks": 0,
+            "impressions": 1,
+            "weeks": [
+              1
+            ],
+            "position": 13
+          }
+        ]
+      },
+      "latestCompleteGsc": {
+        "page": {
+          "page": "https://www.supplementscout.co.uk/creatine",
+          "clicks": 1,
+          "impressions": 127,
+          "ctr": 0.007874015748031496,
+          "position": 35.54330708661417
+        },
+        "exactPageQueryRows": [
+          {
+            "page": "https://www.supplementscout.co.uk/creatine",
+            "query": "creatine prices",
+            "clicks": 0,
+            "impressions": 9,
+            "ctr": 0,
+            "position": 14.11111111111111
+          }
+        ]
+      },
+      "currentPublic": {
+        "at": "2026-11-19T09:13:16.280Z",
+        "status": 200,
+        "title": "Compare Creatine Supplements & Prices UK | SupplementScout",
+        "description": "Compare creatine supplement prices, delivery costs and retailer availability from UK supplement retailers.",
+        "h1": [
+          "Compare Creatine Supplements UK"
+        ],
+        "excerpt": "SupplementScout Search creatine Home / Creatine Creatine comparison Compare Creatine Supplements UK This page compares creatine products available from UK supplement retailers. Where retailer data allows, delivered prices include both the product price and delivery. Cost per 5 g is shown only when the product weight and creatine data meet our verification rules. Prices, delivery charges and stock can change, so check the retailer before buying. Current coverage: 86 active products, 126 recently verified in-stock offers and 9 current retailers. 60 older in-stock offers are excluded from current-price ranking until refreshed. Quick decision Your quickest answers, using only verified current data One product can earn more than one answer. We show fewer cards when the evidence does not support three different products. Lowest delivered total: £13.48 XO Fitness XO Fitness Creatine Chewable 1 current retailer and 1 recently checked offer. Offer checked 18 Nov 2026, 10:47 See product Add to comparison Save product Best verified value: £0.14 per 5 g creatine Conteh Sports Conteh Sports Creatine Monohydrate 1kg 1 current retailer and 1 recently checked offer. Offer checked 18 Nov 2026, 13:30 See product Add to comparison Save product Broadest coverage: 3 retailers Applied Nutrition Creatine Gummies 400g 80 Gummies Applied Nutrition 3 current retailers and 8 recently checked offers. Offer checked 18 Nov 2026, 17:27 See product Add to comparison Save product Creatine under £20: check the delivered cost These checked creatine offers cost £20 or less including known delivery. Compare the exact pack and the delivered total before choosing. A product price below £20 can exceed your budget once delivery is added. OstroVit Creatine Monohydrate 300g Variant: Unflavored / 300g. Pack: 300 g. Retailer Fit House Product price £9.99 Delivery £3.99 Delivered total £13.98 Cost per 5 g £0.26 Offer checked: 18 Nov 2026, 10:46 (UK time) Per4m Creatine Capsules | 30 Servings Variant: 30 Servings. Pack: 30 servings. Retailer eBay UK Product price £13.99 Delivery £0.00 Delivered total £13.99 Cost per 5 g Not yet verified Offer checked: 18 Nov 2026, 14:37 (UK time) MyProtein Creatine Monohydrate Unflavoured Variant: Unflavoured / 150 g. Pack: 150 g. Retailer Holland & Barrett Product price £12.00 Delivery £3.49 Delivered total £15.49 Cost per 5 g Not yet verified Offer checked: 18 Nov 2026, 17:27 (UK time) We show up to three products ordered by delivered price from our covered retailers, using only in-stock offers checked within our freshness window and linked to an active, exact variant with a known pack. Offers that age out are excluded. Cost per 5 g uses verified creatine and pack data for that variant; it is a price comparison unit, not a serving recommendation or an effectiveness score. Missing data is not estimated. Coverage is limited to tracked offers. Delivery can vary by address, basket or retailer terms; discounts and membership benefits may differ. Confirm the selected variant, stock and final checkout total before buying. Help me choose creatine under £20 Retailer comparison Creatine prices and availability Latest retailer check: 18 Nov 2026, 17:27 Showing 86 of 86 products Filters Sort Recommended order Lowest delivered total Best verified value Widest reta",
+        "exactVariantAndRetailerLinks": [
+          "/product/ostrovit-creatine-monohydrate-300g?variant=931",
+          "/product/per4m-creatine-capsules-30-servings?variant=2881",
+          "/product/myprotein-creatine-monohydrate-unflavoured?variant=4634"
+        ]
+      }
+    },
+    {
+      "keyword": "abe pump",
+      "intent": "Branded product/price purchase intent, distinct from standard ABE and shot/RTD products.",
+      "readiness": "Public readback has9 fresh in-stock offers from4 retailers and a selected Tigers Blood/500g variant; current shown total29.95GBP. Confirmed-absent caffeine is visible for that exact variant only. The description remains generic. SEO-27 changed standard ABE215, not Pump481.",
+      "clickPath": "/product/applied-nutrition-abe-pump-500g?variant=<exact> -> existing /go offer -> retailer",
+      "cannibalisation": "Low with exact product481 guard; separate Pump from standard ABE and the existing caffeine-free buying guide. Do not claim every flavour is caffeine-free.",
+      "engineeringEffort": "0.5-1 engineering day including regression gates.",
+      "smallestChange": "Reuse productPresentation/generateMetadata for concise product481 buying-intent copy and metadata: exact flavour/pack, delivered retailer offers and variant-specific reviewed caffeine. No hardcoded price or new guide.",
+      "recommendation": "SECOND; capped GSC has no attributable row, so traffic evidence is UNKNOWN.",
+      "path": "/product/applied-nutrition-abe-pump-500g",
+      "research": {
+        "capturedAt": "2026-11-18T08:18:19.096Z",
+        "heuristicScore": 80,
+        "UKVolume": "UNKNOWN",
+        "KD": "UNKNOWN",
+        "fourCompleteWeekPageBaseline": {
+          "path": "/product/applied-nutrition-abe-pump-500g",
+          "weekly": [
+            "UNKNOWN",
+            "UNKNOWN",
+            "UNKNOWN",
+            "UNKNOWN"
+          ],
+          "totalImpressions": "UNKNOWN",
+          "totalClicks": "UNKNOWN"
+        },
+        "historicalExactPageQueryObservations": []
+      },
+      "latestCompleteGsc": {
+        "page": "UNKNOWN; absent from capped report",
+        "exactPageQueryRows": []
+      },
+      "currentPublic": {
+        "at": "2026-11-19T09:13:16.280Z",
+        "status": 200,
+        "title": "Applied Nutrition ABE Pump 500g | SupplementScout",
+        "description": "Applied Nutrition ABE Pump 500g is a pre-workout supplement.",
+        "h1": [
+          "Applied Nutrition ABE Pump 500g"
+        ],
+        "excerpt": "SupplementScout / Pre Workout / Applied Nutrition ABE Pump 500g Applied Nutrition Applied Nutrition ABE Pump 500g Variant: Tigers Blood / 500g Net weight 500 g Lowest delivered price £29.95 £29.95 product + free delivery eBay UK Price checked 18 November 2026 9 in-stock offers from 4 retailers You’ll continue to the retailer’s external store. Go to eBay UK Compare Keep track of this supplement Saved only in this browser. No account needed. Save to My Supplements Compare retailers Retailer offers 9 fresh in-stock offers from 4 retailers. Every displayed offer has a known delivered total. Compare tracked eBay UK offers with other retailers eBay UK Tigers Blood / 500g Lowest delivered price Save £3.03 In stock Product £29.95 Delivery £0.00 Total £29.95 Lowest product price: £29.95 Lowest delivered price: £29.95 Price checked: 18 November 2026 Go to retailer · Tigers Blood / 500g 10 Reps 3 available variants In stock Product £28.99 Delivery £3.99 Total £32.98 Available flavours Red Hawaiian / 500g Slush Puppie / 500g Tigers Blood / 500g Selected: Red Hawaiian / 500g Lowest product price: £28.99 Lowest delivered price: £32.98 Price checked: 18 November 2026 Go to retailer · Red Hawaiian / 500g Gladiator Nutrition 2 available variants In stock Product £31.99 Delivery £6.99 Total £38.98 Available flavours Slush Puppie / 500g Tigers Blood / 500g Selected: Slush Puppie / 500g Lowest product price: £31.99 Lowest delivered price: £38.98 Price checked: 18 November 2026 Go to retailer · Slush Puppie / 500g Whey Okay 3 available variants In stock Product £37.81 Delivery £3.99 Total £41.80 Available flavours Blue Razz / 500g £37.81 · £41.80 delivered Red Hawaiian / 500g £37.81 · £41.80 delivered Tigers Blood / 500g £37.81 · £41.80 delivered Selected: Blue Razz / 500g Lowest product price: £37.81 Lowest delivered price: £41.80 Price checked: 18 November 2026 Go to retailer · Blue Razz / 500g What these prices mean Recently checked Only fresh in-stock offers are ranked as current. Delivery stays explicit Unknown delivery is never assumed to be free. Verified unit costs Per-serving and per-unit values appear only with supporting data. How we compare prices Data freshness Product summary Applied Nutrition ABE Pump 500g is a pre-workout powder. Its verified net weight is 500 g. Key facts Brand Applied Nutrition Category Pre Workout Product format Powder Net weight 500 g Serving size 25 g Choose a variant Blue Razz / 500g Default Red Hawaiian / 500g Slush Puppie / 500g Slush Puppie Twisted Citrus / 500g Tigers Blood / 500g Reviewed facts for this exact variant Pre-workout ingredients Variant: Tigers Blood / 500g Serving Serving Size: 2 Scoops (25 g) Source: Product label Caffeine Confirmed absent Source: Manufacturer source Beta-alanine 3,000 mg per Serving Size: 2 Scoops (25 g) Source: Product label Citrulline 10,000 mg of Citrulline malate 2:1 (declared malate mass) per Serving Size: 2 Scoops (25 g) Source: Product label Creatine 3,000 mg of Creatine monohydrate (declared form mass) per Serving Size: 2 Scoops (25 g) Source: Product label Each shown fact matches an approved candidate and the value applied to this variant. This does not verify the entire formulation. Compound amounts describe the named form on the source, not an inferred pure ingredient amount.",
+        "exactVariantAndRetailerLinks": [
+          "/go/2631?source=product_best_offer",
+          "/go/2631?source=product_offer_list",
+          "/go/3313?source=product_offer_list",
+          "/go/4256?source=product_offer_list",
+          "/go/1549?source=product_offer_list",
+          "/product/applied-nutrition-abe-pump-500g?variant=760",
+          "/product/applied-nutrition-abe-pump-500g?variant=475",
+          "/product/applied-nutrition-abe-pump-500g?variant=761",
+          "/product/applied-nutrition-abe-pump-500g?variant=762",
+          "/product/applied-nutrition-abe-pump-500g?variant=3603",
+          "/product/applied-nutrition-abe-pump-500g?variant=763"
+        ]
+      }
+    },
+    {
+      "keyword": "applied nutrition iso xp",
+      "intent": "Compare an identified branded whey isolate and its exact pack/flavour before buying.",
+      "readiness": "Public readback has7 fresh in-stock offers from3 retailers. The legacy 1.8kg base URL/name currently selects Chocolate Dessert450g at30GBP delivered, alongside1.8kg offers. Some1.8kg variants had approved nutrition in existing research; do not transfer it to450g or other flavours. Copy must respect the selected exact pack. No conclusion of a new catalogue regression is made from this pre-existing naming context.",
+      "clickPath": "/product/applied-nutrition-iso-xp-18kg -> exact selected pack/flavour -> existing /go offer -> retailer",
+      "cannibalisation": "Medium: avoid duplicating /whey-isolate and isolate-versus-concentrate; clarify exact pack before targeting the legacy1.8kg name. SEO-30 uses an ISO-XP example but did not optimize this product page.",
+      "engineeringEffort": "1-2 engineering days including exact-variant presentation review/gates; no catalogue write authorized.",
+      "smallestChange": "After verifying selected-variant presentation, reuse existing productPresentation for pack-aware branded comparison copy and metadata. Never describe all offers as1.8kg or borrow nutrition across variants; hold launch if existing display contracts cannot be met without owner-approved data work.",
+      "recommendation": "THIRD, conditional on exact-pack presentation; not chosen for the next sprint.",
+      "path": "/product/applied-nutrition-iso-xp-18kg",
+      "research": {
+        "capturedAt": "2026-11-18T08:18:19.096Z",
+        "heuristicScore": 80,
+        "UKVolume": "UNKNOWN",
+        "KD": "UNKNOWN",
+        "fourCompleteWeekPageBaseline": {
+          "path": "/product/applied-nutrition-iso-xp-18kg",
+          "weekly": [
+            "UNKNOWN",
+            "UNKNOWN",
+            "UNKNOWN",
+            "UNKNOWN"
+          ],
+          "totalImpressions": "UNKNOWN",
+          "totalClicks": "UNKNOWN"
+        },
+        "historicalExactPageQueryObservations": []
+      },
+      "latestCompleteGsc": {
+        "page": "UNKNOWN; absent from capped report",
+        "exactPageQueryRows": []
+      },
+      "currentPublic": {
+        "at": "2026-11-19T09:13:16.280Z",
+        "status": 200,
+        "title": "Applied Nutrition ISO-XP 1.8kg | SupplementScout",
+        "description": "Applied Nutrition ISO-XP 1.8kg is a protein powder. This 1.8 kg product contains 72 verified servings.",
+        "h1": [
+          "Applied Nutrition ISO-XP 1.8kg"
+        ],
+        "excerpt": "SupplementScout / Whey Isolate / Applied Nutrition ISO-XP 1.8kg Applied Nutrition Applied Nutrition ISO-XP 1.8kg Variant: Chocolate Dessert / 450g Net weight 450 g Lowest delivered price £30.00 £30.00 product + free delivery Holland & Barrett Price checked 18 November 2026 7 in-stock offers from 3 retailers You’ll continue to the retailer’s external store. Go to Holland & Barrett Compare Keep track of this supplement Saved only in this browser. No account needed. Save to My Supplements Compare retailers Retailer offers 7 fresh in-stock offers from 3 retailers. Every displayed offer has a known delivered total. Compare tracked eBay UK offers with other retailers Holland & Barrett 2 available variants Lowest delivered price Save £55.52 In stock Product £30.00 Delivery £0.00 Total £30.00 Available flavours Chocolate Dessert / 450g Vanilla / 450 g Selected: Chocolate Dessert / 450g Lowest product price: £30.00 Lowest delivered price: £30.00 Price checked: 18 November 2026 Go to retailer · Chocolate Dessert / 450g Whey Okay 4 available variants In stock Product £81.53 Delivery £3.99 Total £85.52 Available flavours Banana / 1.8kg Cafe Latte / 1.8kg Strawberry / 1.8kg Vanilla / 1.8kg Selected: Banana / 1.8kg Lowest product price: £81.53 Lowest delivered price: £85.52 Price checked: 18 November 2026 Go to retailer · Banana / 1.8kg eBay UK Cafe Latte / 1.8kg In stock Product £108.77 Delivery £0.00 Total £108.77 Lowest product price: £108.77 Lowest delivered price: £108.77 Price checked: 18 November 2026 Go to retailer · Cafe Latte / 1.8kg What these prices mean Recently checked Only fresh in-stock offers are ranked as current. Delivery stays explicit Unknown delivery is never assumed to be free. Verified unit costs Per-serving and per-unit values appear only with supporting data. How we compare prices Data freshness Product summary Applied Nutrition ISO-XP 1.8kg is a protein powder. Its verified net weight is 450 g. Key facts Brand Applied Nutrition Category Whey Protein Product format Powder Net weight 450 g £66.67 per kg Verified price per kilogram Better-value alternatives Lower verified delivered cost per kg among current offers for the same category and product format. Compare ingredients and serving directions before choosing. Per4m PER4M Plant Protein 2kg £19.99 per kg 70.0% lower than this product on the same verified basis View alternative Mountain Joe's Mountain Joe's Shake A Whey 1.8kg £22.21 per kg 66.7% lower than this product on the same verified basis View alternative CNP CNP Premium Whey 2kg £23.49 per kg 64.8% lower than this product on the same verified basis View alternative Recorded prices Price history Current delivered price £30.00 Lowest recorded £30.00 Recorded trend £55.52 lower History period 23 Jul–15 Nov Recorded delivered total Recorded delivered price history 5 daily price records from 23 Jul to 15 Nov. 23 Jul: £85.52 14 Aug: £84.81 05 Nov: £108.77 14 Nov: £30.00 15 Nov: £30.00 23 Jul 15 Nov Price history uses recorded delivered totals where both product price and delivery were known.",
+        "exactVariantAndRetailerLinks": [
+          "/go/4566?source=product_best_offer",
+          "/go/4566?source=product_offer_list",
+          "/go/1534?source=product_offer_list",
+          "/go/2544?source=product_offer_list"
+        ]
+      }
+    }
+  ],
+  "recommendedPath": "/creatine",
+  "productionDataWrites": 0,
+  "googleWrites": 0
+}
