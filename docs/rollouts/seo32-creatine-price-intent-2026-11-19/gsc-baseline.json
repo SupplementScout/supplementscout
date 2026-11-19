@@ -1,0 +1,274 @@
+{
+  "capturedAt": "2026-11-19T09:36:51.031Z",
+  "source": "Existing completed authenticated read-only reports; no report rerun or analytics integration",
+  "target": "https://www.supplementscout.co.uk/creatine",
+  "period": {
+    "start": "2026-10-19",
+    "end": "2026-11-15"
+  },
+  "page": {
+    "clicks": 3,
+    "impressions": 450,
+    "ctr": 0.006666666666666667,
+    "averagePagePosition": 27.49111111111111,
+    "interpretation": "Page average position across all page queries, not one keyword rank"
+  },
+  "weeks": [
+    {
+      "runId": 44166511050,
+      "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44166511050",
+      "period": {
+        "startDate": "2026-10-19",
+        "endDate": "2026-10-25"
+      },
+      "sha256": "3b8aa7af5dc66ff9486342766fd4b31c384408dd8ef1ee6c8660561fa02f057f",
+      "completeness": "NO_INCOMPLETE_DATA_REPORTED",
+      "page": {
+        "page": "https://www.supplementscout.co.uk/creatine",
+        "clicks": 1,
+        "impressions": 143,
+        "ctr": 0.006993006993006993,
+        "position": 25.566433566433567
+      },
+      "topCreatinePricesQuery": [],
+      "pageQueries": [
+        {
+          "page": "https://www.supplementscout.co.uk/creatine",
+          "query": "creatine prices",
+          "clicks": 0,
+          "impressions": 19,
+          "ctr": 0,
+          "position": 11.736842105263158
+        }
+      ]
+    },
+    {
+      "runId": 44166516255,
+      "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44166516255",
+      "period": {
+        "startDate": "2026-10-26",
+        "endDate": "2026-11-01"
+      },
+      "sha256": "96b66921a3804aa02f1742c012c8b050c095129440d6c6fa5e5210f411f58ab9",
+      "completeness": "NO_INCOMPLETE_DATA_REPORTED",
+      "page": {
+        "page": "https://www.supplementscout.co.uk/creatine",
+        "clicks": 0,
+        "impressions": 85,
+        "ctr": 0,
+        "position": 16.011764705882353
+      },
+      "topCreatinePricesQuery": [
+        {
+          "query": "creatine prices",
+          "clicks": 0,
+          "impressions": 12,
+          "ctr": 0,
+          "position": 13.083333333333334
+        }
+      ],
+      "pageQueries": [
+        {
+          "page": "https://www.supplementscout.co.uk/creatine",
+          "query": "creatine monohydrate price comparison",
+          "clicks": 0,
+          "impressions": 1,
+          "ctr": 0,
+          "position": 13
+        },
+        {
+          "page": "https://www.supplementscout.co.uk/creatine",
+          "query": "creatine prices",
+          "clicks": 0,
+          "impressions": 12,
+          "ctr": 0,
+          "position": 13.083333333333334
+        }
+      ]
+    },
+    {
+      "runId": 44166520996,
+      "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44166520996",
+      "period": {
+        "startDate": "2026-11-02",
+        "endDate": "2026-11-08"
+      },
+      "sha256": "4528fccb7e818c4de3f4fe44aa88ed754110255b3c501a018dadd6eaeaa003db",
+      "completeness": "NO_INCOMPLETE_DATA_REPORTED",
+      "page": {
+        "page": "https://www.supplementscout.co.uk/creatine",
+        "clicks": 1,
+        "impressions": 95,
+        "ctr": 0.010526315789473684,
+        "position": 29.894736842105264
+      },
+      "topCreatinePricesQuery": [
+        {
+          "query": "creatine prices",
+          "clicks": 0,
+          "impressions": 12,
+          "ctr": 0,
+          "position": 13.666666666666666
+        }
+      ],
+      "pageQueries": [
+        {
+          "page": "https://www.supplementscout.co.uk/creatine",
+          "query": "creatine price comparison",
+          "clicks": 0,
+          "impressions": 1,
+          "ctr": 0,
+          "position": 5
+        },
+        {
+          "page": "https://www.supplementscout.co.uk/creatine",
+          "query": "creatine prices",
+          "clicks": 0,
+          "impressions": 12,
+          "ctr": 0,
+          "position": 13.666666666666666
+        }
+      ]
+    },
+    {
+      "runId": 44166526954,
+      "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44166526954",
+      "period": {
+        "startDate": "2026-11-09",
+        "endDate": "2026-11-15"
+      },
+      "sha256": "8d8ba3f98642730157799b091e3d141711fa7f1404142169502fbfa9094c0c8d",
+      "completeness": "NO_INCOMPLETE_DATA_REPORTED",
+      "page": {
+        "page": "https://www.supplementscout.co.uk/creatine",
+        "clicks": 1,
+        "impressions": 127,
+        "ctr": 0.007874015748031496,
+        "position": 35.54330708661417
+      },
+      "topCreatinePricesQuery": [],
+      "pageQueries": [
+        {
+          "page": "https://www.supplementscout.co.uk/creatine",
+          "query": "creatine prices",
+          "clicks": 0,
+          "impressions": 9,
+          "ctr": 0,
+          "position": 14.11111111111111
+        }
+      ]
+    }
+  ],
+  "latestCompleteWeek": {
+    "runId": 44166526954,
+    "url": "https://github.com/SupplementScout/supplementscout/actions/runs/44166526954",
+    "period": {
+      "startDate": "2026-11-09",
+      "endDate": "2026-11-15"
+    },
+    "sha256": "8d8ba3f98642730157799b091e3d141711fa7f1404142169502fbfa9094c0c8d",
+    "completeness": "NO_INCOMPLETE_DATA_REPORTED",
+    "page": {
+      "page": "https://www.supplementscout.co.uk/creatine",
+      "clicks": 1,
+      "impressions": 127,
+      "ctr": 0.007874015748031496,
+      "position": 35.54330708661417
+    },
+    "topCreatinePricesQuery": [],
+    "pageQueries": [
+      {
+        "page": "https://www.supplementscout.co.uk/creatine",
+        "query": "creatine prices",
+        "clicks": 0,
+        "impressions": 9,
+        "ctr": 0,
+        "position": 14.11111111111111
+      }
+    ]
+  },
+  "returnedCreatinePricesQuery": {
+    "rows": [
+      {
+        "page": "https://www.supplementscout.co.uk/creatine",
+        "query": "creatine prices",
+        "clicks": 0,
+        "impressions": 19,
+        "ctr": 0,
+        "position": 11.736842105263158,
+        "period": {
+          "startDate": "2026-10-19",
+          "endDate": "2026-10-25"
+        }
+      },
+      {
+        "page": "https://www.supplementscout.co.uk/creatine",
+        "query": "creatine prices",
+        "clicks": 0,
+        "impressions": 12,
+        "ctr": 0,
+        "position": 13.083333333333334,
+        "period": {
+          "startDate": "2026-10-26",
+          "endDate": "2026-11-01"
+        }
+      },
+      {
+        "page": "https://www.supplementscout.co.uk/creatine",
+        "query": "creatine prices",
+        "clicks": 0,
+        "impressions": 12,
+        "ctr": 0,
+        "position": 13.666666666666666,
+        "period": {
+          "startDate": "2026-11-02",
+          "endDate": "2026-11-08"
+        }
+      },
+      {
+        "page": "https://www.supplementscout.co.uk/creatine",
+        "query": "creatine prices",
+        "clicks": 0,
+        "impressions": 9,
+        "ctr": 0,
+        "position": 14.11111111111111,
+        "period": {
+          "startDate": "2026-11-09",
+          "endDate": "2026-11-15"
+        }
+      }
+    ],
+    "returnedImpressions": 52,
+    "returnedClicks": 0,
+    "weightedPosition": 12.903846153846153,
+    "returnedWeeks": 4,
+    "coverage": "CAPPED PARTIAL; not exhaustive28-day query totals or UK search volume"
+  },
+  "caps": {
+    "topPages": 100,
+    "topQueries": 100,
+    "pageQueryRows": 250
+  },
+  "excludedNewerReport": {
+    "period": {
+      "startDate": "2026-11-10",
+      "endDate": "2026-11-16"
+    },
+    "completeness": "FINAL_AND_ALL_DIFFER_WITHOUT_METADATA",
+    "run": "https://github.com/SupplementScout/supplementscout/actions/runs/44186080465"
+  },
+  "exactPageGoogleCredentialsReadilyAvailable": false,
+  "organicLandingSessionsForExactPage": "UNKNOWN; saved organic projection is sitewide",
+  "retailerOfferClicksAttributedToExactPage": "UNKNOWN; saved projection does not support source/page attribution",
+  "reviewClock": "After future separately approved release: first review after7 complete settled days; principal review after28 complete settled days. SEO-20 independent clock unchanged.",
+  "productionDataWrites": 0,
+  "googleWrites": 0,
+  "reportReruns": 0,
+  "previousTopQueryProjection": {
+    "query": "creatine prices",
+    "returnedImpressions": 24,
+    "weightedPosition": 13.375,
+    "returnedWeeks": 2,
+    "coverage": "Separate capped topQueries projection; do not conflate with exact-page pageQueryRows or an exhaustive28-day total"
+  }
+}

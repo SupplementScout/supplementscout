@@ -243,17 +243,29 @@ test("the /creatine route exists and is a Server Component", () => {
 test("Creatine metadata is unique, canonical and stable after live verification", async () => {
   const { page } = loadPage();
   const metadata = await page.generateMetadata();
-  assert.equal(metadata.title, "Compare Creatine Supplements & Prices UK");
+  assert.equal(metadata.title, "Compare Creatine Prices UK");
   assert.equal(
     metadata.description,
-    "Compare creatine supplement prices, delivery costs and retailer availability from UK supplement retailers.",
+    "Compare current creatine prices from UK retailers, including known delivery costs. Check exact products, pack sizes and verified unit costs where available.",
   );
   assert.equal(metadata.alternates.canonical, "/creatine");
   assert.deepEqual(metadata.robots, { index: true, follow: true });
   assert.equal(metadata.openGraph.url, "/creatine");
   assert.equal(metadata.twitter.card, "summary");
-  const parameterized = await page.generateMetadata({ searchParams: Promise.resolve({ sort: "price" }) });
-  assert.deepEqual(parameterized.robots, { index: false, follow: true });
+  assert.equal(metadata.openGraph.title, "Compare Creatine Prices UK | SupplementScout");
+  assert.equal(metadata.twitter.title, metadata.openGraph.title);
+  assert.equal(metadata.openGraph.description, metadata.description);
+  assert.equal(metadata.twitter.description, metadata.description);
+  const layout = fs.readFileSync(path.join(process.cwd(), "app/layout.tsx"), "utf8");
+  assert.match(layout, /template: "%s \| SupplementScout"/);
+  assert.ok(metadata.openGraph.title.length <= 60, "keep the generated branded title concise");
+  for (const params of [{ sort: "delivered_total" }, { sort: "verified_value" }, { brand: "example" }, { retailer: "1" }, { utm_source: "example" }]) {
+    const parameterized = await page.generateMetadata({ searchParams: Promise.resolve(params) });
+    assert.deepEqual(parameterized, { ...metadata, robots: { index: false, follow: true } });
+  }
+  const collection = page.buildCreatineStructuredData([], null)["@graph"][0];
+  assert.equal(collection.name, metadata.title);
+  assert.equal(collection.description, metadata.description);
 });
 
 test("fresh-offer launch status includes Creatine in the sitemap", () => {
@@ -493,8 +505,9 @@ test("budget SSR contains exact variant links, delivered breakdown, checked time
   assert.doesNotMatch(empty, /£20\.00|£3\.99|<dl/);
 });
 
-test("the shared variant resolver is called once for the existing category batch", async () => {
-  const mock = queryMock({ data: [budgetProduct({}, { last_checked_at: new Date().toISOString() })], error: null });
+test("the shared variant resolver is called once for the existing category batch", async (t) => {
+  t.mock.timers.enable({ apis: ["Date"], now: FIXTURE_NOW.getTime() });
+  const mock = queryMock({ data: [budgetProduct({}, { last_checked_at: FIXTURE_NOW.toISOString() })], error: null });
   let batches = 0;
   const { getCreatineComparison } = loadComparison({ from: () => mock.query }, async (products) => {
     batches += 1;
@@ -508,7 +521,8 @@ test("the shared variant resolver is called once for the existing category batch
   assert.match(mock.calls.find((call) => call[0] === "select")[1], /retailer_product_id/);
 });
 
-test("a variant read error preserves the comparison but never produces inferred budget examples", async () => {
+test("a variant read error preserves the comparison but never produces inferred budget examples", async (t) => {
+  t.mock.timers.enable({ apis: ["Date"], now: FIXTURE_NOW.getTime() });
   const resolve = compileModule(path.join(process.cwd(), "app/lib/categoryComparisonVariants.ts"), {
     mocks: {
       "server-only": {},
@@ -517,7 +531,7 @@ test("a variant read error preserves the comparison but never produces inferred 
       } },
     },
   });
-  const mock = queryMock({ data: [budgetProduct({}, { last_checked_at: new Date().toISOString() })], error: null });
+  const mock = queryMock({ data: [budgetProduct({}, { last_checked_at: FIXTURE_NOW.toISOString() })], error: null });
   const comparison = loadComparison({ from: () => mock.query }, resolve.resolveCategoryComparisonVariants);
   const result = await comparison.getCreatineComparison();
   assert.equal(result.error, false);
@@ -605,7 +619,11 @@ test("SSR content includes quick decisions, comparison fields, stale catalogue r
   const html = renderToStaticMarkup(React.createElement(page.CreatinePageContent, { result: comparisonFixture() }));
 
   assert.match(html, /Compare Creatine Supplements UK/);
-  assert.match(html, /This page compares creatine products available from UK supplement retailers/);
+  assert.equal((html.match(/<h1\b/g) || []).length, 1);
+  assert.match(html, /Compare current creatine prices from UK retailers, including known delivery costs/);
+  assert.match(html, /Check the exact variant, pack and formulation, including for creatine monohydrate/);
+  assert.match(html, /Powders, capsules, gummies and blends can differ/);
+  assert.match(html, /Cost per 5 g needs verified pack and creatine data/);
   assert.match(html, /Quick decision 1/);
   assert.match(html, /href="\/product\/verified-creatine"/);
   for (const heading of ["Product", "Brand", "Best available retailer", "Product price", "Delivered price", "Retailer count", "Cost per 5 g", "Stock\/status"]) {

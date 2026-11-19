@@ -1,5 +1,15 @@
 # SupplementScout SEO Execution Plan
 
+**19 November 2026 SEO-32 Draft checkpoint:** owner-approved existing /creatine
+price-comparison intent is CODE COMPLETE for publication review. Concise title,
+shared description/OG/Twitter/CollectionPage identity and one shorter opening
+paragraph change;H1,data,ranking,under£20 and PR553 mobile containment stay intact.
+Actual-source paired builds,seven-width QA and quick/full gates pass. This later
+owner instruction supersedes earlier no-SEO-32 wording only for this one Draft.
+No merge,Production,data/Google write or SEO-33. SEO-20 stays frozen IN PROGRESS;
+SEO-21–31 stay LIVE VERIFIED;Stage3 off. Guardian/binding sequence unchanged.
+[Evidence](rollouts/seo32-creatine-price-intent-2026-11-19.md).
+
 **19 November 2026 Creatine mobile repair LIVE VERIFIED:** owner-approved
 PR#553 squash5f42239e15131a2676404ca3b73b0cb0421dc531 equals tested0fcaf1c3 tree. PR/main CI,Guardian
 and exact Production/Vercel SUCCESS pass. Public build`XvzanNudUjSsz1P5zkpTa`
@@ -669,6 +679,8 @@ Console evidence and user value.
 
 | SEO-31 | P1 | Clarify existing Whey Protein buying intent and delivered/unit-price evidence. | `LIVE VERIFIED` | Owner-approved PR#551 squashb3891dc1b952b5badf3e0361198e4cb5368343aa equals approvedd2bf2275 tree. Fresh quick1337/full4074PASS,3 historical skips; TypeScript/ESLint/build,PR/main CI and Guardian pass. Exact Production/Vercel SUCCESS and public buildjZ4U_EKZhqscdpdH1M1SI;18 routes,real current-source cards/prices/links,canonical/robots/schema/sitemap parity,four-width QA and warm guard pass. Existing320px overflow/image404 retained as baseline; separately approved repairs follow without data writes. SEO-20 frozen,SEO-21–30 live,Stage3 off. Evidence:docs/rollouts/seo31-whey-search-intent-2026-11-18.md. |
 
+| SEO-32 | P1 | Clarify existing /creatine UK price-comparison intent with bounded metadata and opening copy. | `CODE COMPLETE` | One owner-approved Draft only. Actual-source paired production builds,seven-width QA,quick/full,TypeScript/ESLint/build and Guardian pass. H1,under-20,mobile containment,data/ranking,canonical/robots/sitemap/Product offers and protected routes remain intact. Existing GSC baseline and limits recorded. No merge,Production,data/Google write or SEO-33. Evidence: docs/rollouts/seo32-creatine-price-intent-2026-11-19.md. |
+
 ## 6. Current active task
 
 **18 November SEO-27 closeout:** the subsequent owner production approval has
@@ -944,6 +956,18 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 19 November 2026 - SEO-32 existing Creatine comparison CODE COMPLETE
+
+- Owner approves one bounded Draft PR from9c4b527b. Title/shared metadata and
+  one shorter SSR paragraph clarify broad UK price-comparison intent. H1,Product/
+  Offer data,under£20,mobile scroll region and protected routes remain unchanged.
+- Local quick/full,TypeScript,ESLint,Next build,seven-width actual-source QA,
+  source-bound prices/variants,SEO contracts and existing warm-response guard pass.
+  Existing GSC projections and UNKNOWN attribution are separated in the evidence.
+- SEO-32 CODE COMPLETE,not LIVE VERIFIED. No merge,Production,data/Google write
+  or SEO-33. SEO-20 frozen IN PROGRESS;SEO-21–31 live;Stage3 disabled.
+  [Evidence](rollouts/seo32-creatine-price-intent-2026-11-19.md).
 
 ### 19 November 2026 - Creatine mobile repair LIVE VERIFIED
 

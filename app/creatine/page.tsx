@@ -31,8 +31,9 @@ import { OFFER_PRESENTATION_LABELS } from "../lib/offerFreshness";
 const siteUrl = "https://www.supplementscout.co.uk";
 const pagePath = "/creatine";
 const pageUrl = `${siteUrl}${pagePath}`;
+const title = "Compare Creatine Prices UK";
 const description =
-  "Compare creatine supplement prices, delivery costs and retailer availability from UK supplement retailers.";
+  "Compare current creatine prices from UK retailers, including known delivery costs. Check exact products, pack sizes and verified unit costs where available.";
 const getCachedCreatineComparison = createLifecycleDataLoader(
   pagePath,
   "creatine-comparison-v3",
@@ -47,19 +48,19 @@ type PageProps = { searchParams?: Promise<RouteSearchParams> };
 export async function generateMetadata({ searchParams }: PageProps = {}): Promise<Metadata> {
   const params = await (searchParams || Promise.resolve({}));
   return {
-    title: "Compare Creatine Supplements & Prices UK",
+    title,
     description,
     robots: getLifecycleRobots(pagePath, params),
     alternates: { canonical: pagePath },
     openGraph: {
-      title: "Compare Creatine Supplements & Prices UK | SupplementScout",
+      title: `${title} | SupplementScout`,
       description,
       url: pagePath,
       type: "website",
     },
     twitter: {
       card: "summary",
-      title: "Compare Creatine Supplements & Prices UK | SupplementScout",
+      title: `${title} | SupplementScout`,
       description,
     },
   };
@@ -102,7 +103,7 @@ export function buildCreatineStructuredData(rows: CreatineComparisonRow[], lastU
     "@type": "CollectionPage",
     "@id": pageUrl,
     url: pageUrl,
-    name: "Compare Creatine Supplements & Prices UK",
+    name: title,
     description,
     mainEntity: { "@id": itemListId },
     breadcrumb: { "@id": breadcrumbId },
@@ -285,7 +286,7 @@ export function CreatinePageContent({ result, controlView, budgetRows = result.r
           <p className="text-sm font-semibold uppercase tracking-wide text-zinc-500">Creatine comparison</p>
           <h1 className="mt-3 text-4xl font-bold tracking-tight sm:text-5xl">Compare Creatine Supplements UK</h1>
           <p className="mt-5 text-base leading-7 text-zinc-700 sm:text-lg sm:leading-8">
-            This page compares creatine products available from UK supplement retailers. Where retailer data allows, delivered prices include both the product price and delivery. Cost per 5 g is shown only when the product weight and creatine data meet our verification rules. Prices, delivery charges and stock can change, so check the retailer before buying.
+            Compare current creatine prices from UK retailers, including known delivery costs. Check the exact variant, pack and formulation, including for creatine monohydrate. Powders, capsules, gummies and blends can differ. Cost per 5 g needs verified pack and creatine data. Confirm stock and the final checkout total with the retailer.
           </p>
           {!result.error && (
             <p className="mt-4 text-sm leading-6 text-zinc-600">
