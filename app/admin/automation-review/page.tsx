@@ -5,22 +5,18 @@ import { resolveReviewAdapter, reviewQueueConfigured } from "../../lib/automatio
 import { capabilityForReview, confidenceForReview, decisionGroupForReview } from "../../lib/automationReviewCapabilityMatrix";
 import { supabaseAdmin } from "../../lib/supabaseAdmin";
 import {
-  attachReviewExecutionState,
-  currentReviewRows,
-  filterAndPaginateReviewRows,
   normalizeReviewQueueDisplay,
   normalizeReviewQueueScope,
   normalizeReviewQueueWorkBucket,
   reviewQueuePageHref,
   reviewQueueLifecycle,
   reviewQueueWorkBucket,
-  summarizeReviewQueue,
   REVIEW_QUEUE_PAGE_SIZE,
   REVIEW_QUEUE_WORK_PAGE_SIZE,
   type ReviewQueueFilters,
   type ReviewQueueRow,
 } from "../lib/automationReviewQueue";
-import { loadCompleteReviewQueue, loadCompleteReviewExecutions, type ReviewExecutionRow } from "../lib/automationReviewQueueData";
+import { loadReviewQueuePage, type ReviewExecutionRow } from "../lib/automationReviewQueueData";
 import { reviewWorkflowDispatchConfigured } from "../lib/automationReviewWorkflowDispatch";
 import { ReviewQueueDashboard, ReviewQueueSearch, ReviewQueueViewSwitch } from "./components";
 
@@ -98,17 +94,16 @@ export default async function AutomationReviewPage({ searchParams }: { searchPar
   const bucket = normalizeReviewQueueWorkBucket(inferredBucket);
   const display = normalizeReviewQueueDisplay(value(params.display) || (["DECIDE", "EXECUTE"].includes(bucket) ? "WORK" : "LIST"));
   const retailer = value(params.retailer), kind = value(params.kind), group = value(params.group), confidence = value(params.confidence), capability = value(params.capability);
-  const filters: ReviewQueueFilters = { status, retailer, kind, group, confidence, capability, query, scope: normalizeReviewQueueScope(value(params.scope)), bucket, display, history: value(params.history) === "1" };
+  const filters: ReviewQueueFilters = { status, retailer, kind, group, confidence, capability, query, scope: normalizeReviewQueueScope(value(params.scope)), bucket, display, history: value(params.history) === "1", revision: value(params.revision), reviewId: /^\d+$/.test(value(params.review)) ? value(params.review) : undefined };
   const requestedPage = Math.max(1, Number.parseInt(value(params.page) || "1", 10) || 1);
-  const [loadedResult, executionResult] = await Promise.all([loadCompleteReviewQueue("ALL"), loadCompleteReviewExecutions()]);
-  const error = loadedResult.error || executionResult.error;
-  const queueRows = error ? [] : attachReviewExecutionState(loadedResult.rows, executionResult.rows);
-  const currentRows = currentReviewRows(queueRows);
-  const summary = summarizeReviewQueue(currentRows);
-  const visibleSourceRows = filters.history ? queueRows : currentRows;
-  const filtered = filterAndPaginateReviewRows(visibleSourceRows, filters, requestedPage, display === "WORK" ? REVIEW_QUEUE_WORK_PAGE_SIZE : REVIEW_QUEUE_PAGE_SIZE);
-  const { rows, total, page, totalPages } = filtered;
-  const allRetailers = Array.from(new Set(loadedResult.rows.map((row) => row.retailer))).sort((left, right) => left.localeCompare(right, "pl"));
+  const loadedResult = await loadReviewQueuePage(filters, requestedPage);
+  const error = loadedResult.error;
+  const result = loadedResult.data;
+  const rows = result?.rows || [];
+  const total = result?.total || 0, page = result?.page || 1, totalPages = result?.total_pages || 1;
+  if (result) filters.revision = result.revision;
+  const summary = result?.summary || { decide: 0, execute: 0, processing: 0, technical: 0, completed: 0, completedToday: 0, submittedToday: 0, ownerRemaining: 0, total: 0, retailers: [] };
+  const allRetailers = result?.retailers || [];
   const productIds = Array.from(new Set(rows.map((row) => row.current_product_id).filter((id): id is string | number => id !== null)));
   const variantIds = Array.from(new Set(rows.map((row) => row.current_variant_id).filter((id): id is string | number => id !== null)));
   const [{ data: productData }, { data: variantData }] = await Promise.all([
@@ -116,7 +111,7 @@ export default async function AutomationReviewPage({ searchParams }: { searchPar
     variantIds.length ? supabaseAdmin.from("product_variants").select("id,display_name").in("id", variantIds) : Promise.resolve({ data: [] }),
   ]);
   const executionByReview = new Map<string, ExecutionRow>();
-  for (const execution of executionResult.rows) if (!executionByReview.has(String(execution.review_id))) executionByReview.set(String(execution.review_id), execution);
+  for (const row of rows) { const execution = row.execution_request; if (execution) executionByReview.set(String(row.id), execution); }
   const productById = new Map((productData || []).map((product) => [String(product.id), product as ProductRow]));
   const variantById = new Map((variantData || []).map((variant) => [String(variant.id), variant as VariantRow]));
   const queueConfigured = reviewQueueConfigured();
@@ -155,9 +150,7 @@ export default async function AutomationReviewPage({ searchParams }: { searchPar
     <section className="mt-4 space-y-5">{rows.map((row) => {
       const workflow = safeUrl(row.workflow_run_url), artifact = safeUrl(row.artifact_url), sourceUrl = safeUrl(row.source_url) || safeUrl(String(beforeValue(row, "url") || "")), current = reviewQueueLifecycle(row), resolved = resolveReviewAdapter(row.retailer_id, row.operation_type, row.reason_codes), execution = executionByReview.get(String(row.id)), adapterReady = Boolean(resolved.adapter && queueConfigured && row.plan_fingerprint), driftScope = String(row.source_evidence?.drift_scope || row.impact_summary?.drift_scope || "REVIEW_ROW"), rowGroup = decisionGroupForReview(row.operation_type, row.review_kind, row.reason_codes), rowConfidence = confidenceForReview(row.source_evidence, row.impact_summary), rowCapability = capabilityForReview(row.retailer_id, row.operation_type, row.review_kind), advice = recommendation(rowCapability.capability, current), catalogueProduct = row.current_product_id === null ? null : productById.get(String(row.current_product_id)), catalogueVariant = row.current_variant_id === null ? null : variantById.get(String(row.current_variant_id)), productHref = row.current_product_id === null ? null : `/product/${catalogueProduct?.slug || row.current_product_id}`, currentPrice = money(beforeValue(row, "price")), sourcePrice = money(row.source_price), rowBucket = reviewQueueWorkBucket(row);
       const workFilters: ReviewQueueFilters = { ...filters, status: "ALL", bucket: rowBucket, display: "WORK" };
-      const workRows = filterAndPaginateReviewRows(visibleSourceRows, workFilters, 1, Math.max(1, visibleSourceRows.length)).rows;
-      const workPage = Math.max(1, workRows.findIndex((candidate) => String(candidate.id) === String(row.id)) + 1);
-      const workHref = reviewQueuePageHref(workFilters, workPage);
+      const workHref = reviewQueuePageHref({ ...workFilters, reviewId: String(row.id), revision: undefined }, 1);
       if (display === "LIST") return <article key={row.id} className="rounded-xl border bg-white p-4 shadow-sm"><div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between"><div className="min-w-0"><p className="text-sm font-semibold text-zinc-500">{row.retailer} · oferta {row.offer_id || "bez numeru"}</p><h2 className="mt-1 truncate text-lg font-bold">{row.product_title}</h2><p className="text-sm text-zinc-600">{row.variant_title || "Wariant nie został podany"}</p></div><div className="flex flex-wrap items-center gap-2"><span className="rounded-full border px-3 py-1 text-sm font-semibold">{label(STATUS_LABELS, current, current)}</span><span className="rounded-full border px-3 py-1 text-sm">{advice.title}</span><Link href={workHref} className="rounded-lg bg-zinc-950 px-4 py-2 text-sm font-bold text-white">Otwórz</Link></div></div></article>;
       return <article key={row.id} className="rounded-xl border bg-white p-5 shadow-sm">
         <div className="flex flex-wrap items-start justify-between gap-3"><div><p className="text-sm font-semibold text-zinc-500">{row.retailer} · oferta {row.offer_id || "bez numeru"}</p><h2 className="mt-1 text-xl font-bold">{row.product_title}</h2><p className="text-sm text-zinc-600">{row.variant_title || "Wariant nie został podany"}</p></div><div className="flex flex-wrap gap-2"><span className="rounded-full border px-3 py-1 text-sm font-semibold">{label(STATUS_LABELS, current, current)}</span><span className="rounded-full border px-3 py-1 text-sm">{label(KIND_LABELS, row.review_kind)}</span></div></div>

@@ -5,6 +5,7 @@ const { postgresClientConfig } = require("./lib/secure-postgres");
 const { loadDryRunArtifact } = require("./import-products");
 const { assertApproval, inspectVariants } = require("./gym-high-reviewed-catalogue-bootstrap");
 const { shippingCostForPrice } = require("./gym-high-shipping-policy");
+const { deltasForExistingOfferPlan, sumDeltas } = require("./lib/retailer-offer-sync/action-contract");
 
 const ROOT = path.resolve(__dirname, "..");
 const PROJECT_REF = "aftboxmrdgyhizicfsfu";
@@ -230,7 +231,12 @@ async function run(options) {
     await Promise.allSettled(Object.values(clients).map((client) => client.end()));
   }
   const reviewRows = builderReport.review_rows || [];
-  const report = { schema_version: 1, kind: "gym-high-reviewed-full-catalogue-execution", result: reviewRows.length ? "PASS_WITH_REVIEW" : "PASS", mode: options.mode, target_project_ref: PROJECT_REF, approval_fingerprint: APPROVAL_FINGERPRINT, approved_mapping_count: 66, executable_plan_count: validated.plans.length, review_row_count: reviewRows.length, review_rows: reviewRows, validated_plan_count: validated.plans.length, executed_plan_count: rows.length, rows, completed_at: new Date().toISOString() };
+  const report = { schema_version: 1, kind: "gym-high-reviewed-full-catalogue-execution", result: reviewRows.length ? "PASS_WITH_REVIEW" : "PASS", mode: options.mode, target_project_ref: PROJECT_REF, approval_fingerprint: APPROVAL_FINGERPRINT, approved_mapping_count: 66, executable_plan_count: validated.plans.length, review_row_count: reviewRows.length, review_rows: reviewRows, validated_plan_count: validated.plans.length, executed_plan_count: rows.length, rows, completed_at: new Date().toISOString(),
+    ...(builderReport.kind === "gym-high-guarded-existing-offer-refresh" ? {
+      blocked_row_count: 0, execution_offer_ids: rows.length ? validated.plans.map(entry => String(entry.resolved_plan.expected_state.offer.id)) : [],
+      expected_deltas: sumDeltas(validated.plans.map(entry => ({ expected_deltas: deltasForExistingOfferPlan(entry.resolved_plan) }))),
+    } : {}),
+  };
   fs.mkdirSync(path.dirname(options.output), { recursive: true });
   fs.writeFileSync(options.output, `${JSON.stringify(report, null, 2)}\n`);
   return report;

@@ -463,7 +463,9 @@ function assessVariantCompatibility(row, product, canonicalVariant = null) {
     : null;
   const comparisonRowIdentity = exactRowSize
     ? { ...rowIdentity, size: exactRowSize }
-    : rowIdentity;
+    : { ...rowIdentity };
+  const explicitRowPackCount = row.pack_count == null || String(row.pack_count).trim() === "" ? null : Number(row.pack_count);
+  if (explicitRowPackCount !== null) comparisonRowIdentity.packCount = explicitRowPackCount;
   const reviewedCanonicalSize = reviewedExistingVariantIdentity
     ? parseSize(
         `${reviewedExistingVariantIdentity.size_value || ""}${
@@ -515,6 +517,8 @@ function assessVariantCompatibility(row, product, canonicalVariant = null) {
   const productFallbackFormat = parseVariantIdentity(product.name || "").productFormat;
   const reasons = [];
   const warnings = [];
+  if (explicitRowPackCount !== null && (!Number.isSafeInteger(explicitRowPackCount) || explicitRowPackCount < 1 ||
+      valuesConflict(explicitRowPackCount, rowIdentity.packCount))) reasons.push("pack-count conflict");
 
   if (
     normalizeComparableText(row.brand) &&
@@ -543,9 +547,19 @@ function assessVariantCompatibility(row, product, canonicalVariant = null) {
   }
 
   const rowUnits = countedUnitIdentity(rowName);
-  const targetUnits = countedUnitIdentity(exactCanonicalVariant
+  let targetUnits = countedUnitIdentity(exactCanonicalVariant
     ? canonicalVariant.display_name || String(canonicalVariant.variant_key || "").replace(/[-_]/g, " ")
     : product.name);
+  // A serving-labelled variant does not redefine the number of physical units
+  // in its approved parent. Inherit that independent axis only for an exact
+  // supplied parent/variant binding; never infer units from servings or dosage.
+  if (!targetUnits && exactCanonicalVariant &&
+      String(row.product_id || "") === String(product.id) &&
+      String(row.product_variant_id || "") === String(exactCanonicalVariant.id) &&
+      String(exactCanonicalVariant.product_id) === String(product.id) &&
+      String(exactCanonicalVariant.size_unit).toLowerCase() === "servings") {
+    targetUnits = countedUnitIdentity(product.name);
+  }
   if (rowUnits && (!targetUnits || rowUnits.count !== targetUnits.count || rowUnits.type !== targetUnits.type)) {
     reasons.push("unit-count conflict");
   }

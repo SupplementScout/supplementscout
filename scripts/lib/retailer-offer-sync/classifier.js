@@ -37,14 +37,14 @@ function sourceRecordFailure(source, target, policy) {
 }
 
 function sourceReviewRow(target, source, reason, capturedAt) {
-  const identity = reason === "SOURCE_IDENTITY_DRIFT";
+  const identity = reason === "SOURCE_IDENTITY_DRIFT" || reason === "CANONICAL_IDENTITY_CONFLICT";
   const changed = { price: false, stock: false, url: false, blocked: true };
   return {
     offer_id: String(target.offer_id), retailer_product_id: String(target.retailer_product_id),
     external_product_id: String(target.external_product_id), external_variant_id: String(target.external_variant_id),
     action: identity ? "BLOCK_IDENTITY_DRIFT" : "BLOCK_SOURCE_ANOMALY", reason, changed_fields: changed,
     source_captured_at: capturedAt, source, target,
-    source_record_evidence: { validation: source.source_validation || null, external_gtin: source.external_gtin ?? null,
+    source_record_evidence: { ...(target.canonical_identity_conflict ? { canonical_identity: target.canonical_identity_conflict } : {}), validation: source.source_validation || null, external_gtin: source.external_gtin ?? null,
       expected_external_gtin: target.external_gtin ?? null, expected_identity_sha256: target.source_identity_sha256 || null,
       expected_identity: target.source_identity || null, observed_identity: source.source_identity || null,
       expected_offer: { price: target.price, shipping_cost: target.shipping_cost, total_price: target.total_price, in_stock: target.in_stock, url: target.external_url },
@@ -212,6 +212,11 @@ function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapture
       quarantinedRows.push(sourceReviewRow(target, source, invalidSource, sourceCapturedAt));
       continue;
     }
+    if (target.canonical_identity_conflict) {
+      if (!quarantineUnsafeRows) return block("CANONICAL_IDENTITY_CONFLICT", { offer_id: target.offer_id });
+      quarantinedRows.push(sourceReviewRow(target, source, "CANONICAL_IDENTITY_CONFLICT", sourceCapturedAt));
+      continue;
+    }
     let sourceUrl;
     try {
       sourceUrl = policy.preserve_existing_urls
@@ -317,7 +322,7 @@ function classifyExistingOffers({ targets, sourceVariants, policy, sourceCapture
   };
 }
 
-function partitionExecutableRows(classification) {
+function partitionExecutableRows(classification, { approvedOfferIds } = {}) {
   if (!classification || !Array.isArray(classification.rows) || !Array.isArray(classification.quarantined_rows)) {
     throw new Error("CLASSIFICATION_PARTITION_INVALID");
   }
@@ -330,6 +335,13 @@ function partitionExecutableRows(classification) {
   const executableRows = classification.rows.filter((row) => !reviewOfferIds.has(String(row.offer_id)));
   if (new Set(executableRows.map((row) => String(row.offer_id))).size !== executableRows.length) {
     throw new Error("CLASSIFICATION_EXECUTION_SCOPE_INVALID");
+  }
+  if (approvedOfferIds) {
+    const approved = new Set(approvedOfferIds.map(String));
+    const actual = [...executableRows.map(row => String(row.offer_id)), ...reviewOfferIds];
+    if (approved.size !== approvedOfferIds.length || actual.length !== approved.size || actual.some(id => !approved.has(id))) {
+      throw new Error("CLASSIFICATION_APPROVED_SCOPE_INCOMPLETE");
+    }
   }
   return {
     executable_rows: executableRows,

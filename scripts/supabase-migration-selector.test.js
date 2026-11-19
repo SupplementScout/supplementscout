@@ -100,8 +100,9 @@ const PENDING_REFRESH_BINDING_MIGRATION = "20261105100000_refresh_pending_review
 const PENDING_REFRESH_BINDING_MIGRATION_SHA256 = "015f0de7448c10fcca10174e74dfbf7ca9e3150951f49090d01cd6eee869024c";
 const PENDING_REFRESH_BINDING = Object.freeze({ filename: PENDING_REFRESH_BINDING_MIGRATION, sha256: PENDING_REFRESH_BINDING_MIGRATION_SHA256 });
 const PLANNED_CONTROL_CLOSE_PENDING = Object.freeze({ filename: "20261107190000_extend_never_approved_planned_control_close.sql", sha256: "0c6a7ef27021c0ba2dc5ef38eea3289b8238e4dc3220ede03de6210336263ddf" });
-const STAGING_PENDING = Object.freeze([...HARD_PRICE_ANOMALY_PENDING, PENDING_REFRESH_BINDING]);
-const PRODUCTION_PENDING = Object.freeze([]);
+const QUEUE_READER_PENDING = Object.freeze({filename:"20261119150000_read_automation_review_queue_page.sql",sha256:"76dfc9989d6c24a8b3905a1bc41e09759ccbdcd7c97809e3dd2999b2cf70adb8"});
+const STAGING_PENDING = Object.freeze([...HARD_PRICE_ANOMALY_PENDING, PENDING_REFRESH_BINDING, QUEUE_READER_PENDING]);
+const PRODUCTION_PENDING = Object.freeze([QUEUE_READER_PENDING]);
 const NEW_PRODUCT_IDENTITY_MIGRATION = "20261114213000_enforce_reviewed_new_product_identity.sql";
 const NEW_PRODUCT_IDENTITY_SHA256 = "343425521c09d402e7dd59f4d49964ad3803630481864fcc02adccf0e118c590";
 const REVIEWED_GTIN_MIGRATION = "20261112130000_align_reviewed_catalogue_gtin_identity.sql";
@@ -459,21 +460,21 @@ test.after(() => {
   }
 });
 
-test("staging records ledger 120 and selects both unapplied Review Queue contract migrations", () => {
+test("staging records ledger 120 and selects the three pending Review Queue migrations", () => {
   const result = validateSelection(validInput());
   assert.equal(result.ledger_count, 120);
   assert.equal(result.ledger_fingerprint, CONTRACT.ledgerFingerprint);
   assert.deepEqual(result.pending_files, STAGING_PENDING.map(({ filename }) => filename));
   assert.deepEqual(result.pending_sha256s, Object.fromEntries(STAGING_PENDING.map(({ filename, sha256 }) => [filename, sha256])));
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.equal(result.pending_file, result.pending_files.length===1 ? result.pending_files[0] : null);
+  assert.equal(result.pending_sha256, result.pending_files.length===1 ? result.pending_sha256s[result.pending_files[0]] : null);
   assert.ok(result.selected_files.includes(PRODUCT_PACK_CORRECTION_MIGRATION));
   assert.ok(result.excluded_files.includes(PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION));
   assert.ok(!result.selected_files.includes(PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION));
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_GUARD_MIGRATION)), TIMESTAMP_GUARD_SHA256);
   assert.equal(sha256File(path.join(SOURCE, TIMESTAMP_OPERATOR_MIGRATION)), TIMESTAMP_OPERATOR_SHA256);
   assert.equal(sha256File(path.join(SOURCE, REVIEW_QUEUE_PUBLICATION_MIGRATION)), REVIEW_QUEUE_PUBLICATION_SHA256);
-  assert.equal(result.selected_files.length, 122);
+  assert.equal(result.selected_files.length, 123);
   assert.ok(result.selected_files.includes(REVIEWED_V3_CANONICAL_EVIDENCE_MIGRATION));
   assert.ok(result.selected_files.includes(SEO15_INVENTORY_OPTIMIZATION_MIGRATION));
   assert.ok(result.selected_files.includes(RA004_FIXTURE_MIGRATION));
@@ -873,7 +874,7 @@ test("materialization preserves every original migration byte-for-byte", () => {
     workdir: path.join(allowedRoot, "selected"),
     allowedWorkdirRoot: allowedRoot,
   });
-  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 122);
+  assert.equal(fs.readdirSync(path.join(workdir, "supabase", "migrations")).length, 123);
   for (const [filename, hash] of before) {
     assert.equal(sha256File(path.join(SOURCE, filename)), hash);
   }
@@ -923,8 +924,8 @@ test("production records ledger 268 with reviewed identity, URL and GTIN migrati
   assert.ok(migrationBinding("PRODUCTION").versions.includes(OWNER_WITHDRAWAL_MIGRATION.slice(0,-4)));
   assert.deepEqual(result.pending_files, PRODUCTION_PENDING.map(({ filename }) => filename));
   assert.deepEqual(result.pending_sha256s, Object.fromEntries(PRODUCTION_PENDING.map(({filename, sha256}) => [filename, sha256])));
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.equal(result.pending_file, result.pending_files.length===1 ? result.pending_files[0] : null);
+  assert.equal(result.pending_sha256, result.pending_files.length===1 ? result.pending_sha256s[result.pending_files[0]] : null);
   assert.ok(result.selected_files.includes(PENDING_REFRESH_BINDING_MIGRATION));
   assert.ok(result.selected_files.includes(PRODUCT_PACK_CORRECTION_REISSUE_MIGRATION));
   assert.ok(result.excluded_files.includes(PRODUCT_PACK_CORRECTION_MIGRATION));
@@ -1817,8 +1818,8 @@ test("shared production binding includes hard-price and refresh-binding migratio
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.pending_file, null);
-  assert.equal(result.pending_sha256, null);
+  assert.equal(result.pending_file, result.pending_files.length===1 ? result.pending_files[0] : null);
+  assert.equal(result.pending_sha256, result.pending_files.length===1 ? result.pending_sha256s[result.pending_files[0]] : null);
   assert.deepEqual(result.pending_files, PRODUCTION_PENDING.map(({ filename }) => filename));
   assert.deepEqual(result.pending_sha256s, Object.fromEntries(PRODUCTION_PENDING.map(({filename, sha256}) => [filename, sha256])));
   assert.ok(result.selected_files.includes(HARD_PRICE_ANOMALY_MIGRATION));
@@ -1992,7 +1993,7 @@ test("reviewed URL migration is applied once in production and remains excluded 
     if (production) {
       assert.deepEqual(contract.pending, PRODUCTION_PENDING);
       assert.deepEqual(result.pending_files, PRODUCTION_PENDING.map(({ filename }) => filename));
-      assert.equal(result.pending_sha256, null);
+      assert.equal(result.pending_sha256, result.pending_files.length===1 ? result.pending_sha256s[result.pending_files[0]] : null);
     } else {
       assert.equal(contract.excluded[filename], sha256File(path.join(SOURCE, filename)));
     }
@@ -2052,7 +2053,7 @@ test("historical new-parent pending selection retains its exact 264-to-265 bindi
   const pending = {filename:NEW_PRODUCT_IDENTITY_MIGRATION,sha256:NEW_PRODUCT_IDENTITY_SHA256};
   assert.equal(sha256File(path.join(SOURCE, pending.filename)), pending.sha256);
   const laterHbReceipt = JSON.parse(fs.readFileSync(path.join(ROOT, "docs/retailer-automation/evidence/HB-SHARED-AUTOMATION-PRODUCTION-268-CLOSEOUT-2026-11-17.json"), "utf8"));
-  const migrationFiles = fs.readdirSync(SOURCE).filter(file => !laterHbReceipt.consumed_pending.ordered_filenames.includes(file));
+  const migrationFiles = fs.readdirSync(SOURCE).filter(file => file < QUEUE_READER_PENDING.filename && !laterHbReceipt.consumed_pending.ordered_filenames.includes(file));
   const historical = derivePostApplyMigrationBinding("PRODUCTION", {pendingMigrations:[pending], migrationFiles});
   assert.equal(historical.pre_ledger_count, 264);
   assert.equal(historical.pre_ledger_fingerprint, "63b783c65666e95231ec613abf403fead03c474eaa8149cc89739c992c3e8cda");
@@ -2063,7 +2064,7 @@ test("historical new-parent pending selection retains its exact 264-to-265 bindi
 });
 
 test("identity closeout selects migration exactly once and keeps staging unchanged", () => {
-  assert.deepEqual(CONTRACTS.PRODUCTION.pending, []);
+  assert.deepEqual(CONTRACTS.PRODUCTION.pending, PRODUCTION_PENDING);
   assert.equal(migrationBinding("PRODUCTION").versions.filter(id=>id===NEW_PRODUCT_IDENTITY_MIGRATION.slice(0,-4)).length,1);
   assert.equal(CONTRACTS.PRODUCTION.ledgerCount,268);
   assert.equal(migrationBinding("PRODUCTION").fingerprint,CONTRACTS.PRODUCTION.ledgerFingerprint);

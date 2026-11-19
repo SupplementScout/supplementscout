@@ -1,5 +1,29 @@
 # Retailer Automation Consolidation Execution Plan
 
+**19 November shared retailer / Review Queue repair — IN_PROGRESS:** the owner
+authorized one implementation and Draft PR covering quantity identity, early
+canonical quarantine, complete scope accounting, the existing shared review
+publisher and bounded admin reads. Baseline is `00da6c17`. RA-001 is reused;
+RA-004 and unrelated catalogue/SEO work are unchanged. No merge, production SQL,
+business write, review publication or mapping correction is authorized here.
+
+Read-only replay of source run `44528441465` against current canonical GYM HIGH
+data now builds 65 freshness plans and one existing source-identity review across
+66 offers. Discount source `44341714238` and current DB state produce 106 plans
+and three canonical reviews (`762`, `2537`, `2538`); all six executable batches
+pass the existing production READ ONLY SQL validator. The additional two latent
+Default mappings are deliberately held even when their current price is unchanged.
+No mapping is guessed. The admin defect reproduces at 6694 eligible historical
+rows versus the old 5000 complete-read bound. The proposed service-role-only
+read function passes isolated PostgreSQL at 5000/6694/10000/20000 rows, latest
+execution, history, permissions and revision-change cases. The additive reader
+migration is registered as pending in the existing selected applicator; current
+production bindings remain CURRENT268. Full gates and release verification are
+pending; this is not a production success declaration. The exact release order,
+rollback and held mapping-correction scope are in the
+[release packet](SHARED-REVIEW-RELIABILITY-2026-11-19.md).
+See [repair evidence](evidence/SHARED-REVIEW-RELIABILITY-2026-11-19.json).
+
 **17 November H&B - DEPLOYED / ENABLED / CONTROLLED REVIEW VERIFIED / ORDINARY SCHEDULE PENDING:**
 PR539 merged at08:59:40Z as4d91fde9, with the same tree as approved feature heada124a7db.
 Main quality44051477879, Guardian44051478297 and baseline44051477923 passed;

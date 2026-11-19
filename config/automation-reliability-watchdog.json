@@ -53,8 +53,8 @@
       "stages": {
         "capture": ["Capture fresh approved source and verify canonical variants"],
         "apply": ["Validate and optionally apply exact catalogue"],
-        "db_postflight": [],
-        "idempotency": []
+        "db_postflight": ["Verify guarded catalogue DB postflight read-only"],
+        "idempotency": ["Verify complete live postcondition"]
       }
     },
     {

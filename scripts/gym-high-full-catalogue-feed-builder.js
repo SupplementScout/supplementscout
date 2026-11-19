@@ -178,6 +178,14 @@ async function run(options, dependencies = {}) {
     approved_row_count: 66, executable_row_count: rows.length, review_row_count: sourceByKey.reviewRows.length, review_rows: sourceByKey.reviewRows,
     existing_mapping_count: mappingByKey.size, mapping_create_count: 66 - mappingByKey.size,
     existing_offer_count: offerByMapping.size, offer_create_count: 66 - offerByMapping.size,
+    approved_scope_rows: bindings.map(binding => {
+      const key = `${binding.family.external_product_id}:${binding.reviewed.external_variant_id}`;
+      const mapping = mappingByKey.get(key);
+      const offer = mapping ? offerByMapping.get(String(mapping.id)) : null;
+      return { external_product_id: String(binding.family.external_product_id), external_variant_id: String(binding.reviewed.external_variant_id),
+        mapping_id: mapping ? String(mapping.id) : null, offer_id: offer ? String(offer.id) : null,
+        product_id: String(binding.product.id), product_variant_id: String(binding.variant.id) };
+    }),
     csv_sha256: sha256(csv), output: path.relative(ROOT, options.output), row_artifact_count: rowArtifacts.length,
     row_artifacts_directory: path.relative(ROOT, rowsDirectory), row_artifacts: rowArtifacts,
   };

@@ -1,11 +1,12 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 369,
-    "sha256": "2bfb325c9c18f95e45a4d596f7bd7c80a33199cbcef3dbc91c29d8518b0e27b8"
+    "count": 371,
+    "sha256": "06960cca86beefb8efc409f43c416aaf03a37dbbf8eaedb597a2a7eb3af59c83"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
+    "scripts/automation-review-queue-pagination.integration.test.js",
     "scripts/batch-a-canonical-variants-data-migration.test.js",
     "scripts/batch-b-canonical-variants-data-migration.test.js",
     "scripts/batch-c-canonical-variants-data-migration.test.js",
@@ -149,6 +150,7 @@
     "scripts/buying-guides-sprint3.test.js",
     "scripts/buying-guides-sprint4.test.js",
     "scripts/buying-guides-sprint5.test.js",
-    "scripts/buying-guides-sprint6.test.js"
+    "scripts/buying-guides-sprint6.test.js",
+    "scripts/shared-retailer-review-reliability.test.js"
   ]
 }

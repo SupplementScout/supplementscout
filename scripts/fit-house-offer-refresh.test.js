@@ -489,7 +489,12 @@ test("validator diagnostics expose only safe database code, summary, and bounded
   const databaseError={code:"P0001",message:JSON.stringify({code:"RSBI_GUARDRAIL_EXCEEDED",summary:"Read-only mass OOS guard blocked the batch",detail:{database_url:"postgres://secret",source_url:"https://private.example"}})};
   assert.deepEqual(safeRetailerCatalogueError(databaseError),{validator_code:"RSBI_GUARDRAIL_EXCEEDED",validator_summary:"Read-only mass OOS guard blocked the batch"});
   assert.deepEqual(safeRetailerCatalogueError({code:"P0001",message:JSON.stringify({code:"RSBI_GUARDRAIL_EXCEEDED",summary:"postgres://secret"})}),{validator_code:"RSBI_GUARDRAIL_EXCEEDED",validator_summary:"validator rejected the batch"});
-  assert.deepEqual(safeRetailerCatalogueError({code:"P0001",message:"not JSON"}),{validator_code:null,validator_summary:"validator rejected the batch"});
+  const unstructured=safeRetailerCatalogueError({code:"P0001",message:"not JSON"});
+  assert.deepEqual(unstructured,{validator_code:null,validator_summary:"validator rejected the batch",sqlstate:"P0001",
+    database_error_fingerprint:require("node:crypto").createHash("sha256").update(require("./lib/canonical-json").canonicalJson({code:"P0001",message:"not JSON"})).digest("hex"),diagnostic_code:"UNSTRUCTURED_DATABASE_EXCEPTION"});
+  const identity=safeRetailerCatalogueError({code:"P0001",message:"variant evidence does not match default product variant"});
+  assert.equal(identity.database_message,"variant evidence does not match default product variant");
+  assert.equal(identity.diagnostic_code,"UNSTRUCTURED_DATABASE_EXCEPTION");
   assert.deepEqual(safeValidatorResult({valid:false,status:"BLOCKED",row_count:22,secret:"private"}),{valid:false,status:"BLOCKED",row_count:22});
   assert.deepEqual(safeValidatorResult({valid:false,status:"postgres://secret",row_count:"bad"}),{valid:false,status:null,row_count:null});
 });

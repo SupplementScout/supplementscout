@@ -40,4 +40,19 @@ function sumDeltas(rows) {
   return result;
 }
 
-module.exports = { ACTIONS, BLOCKING_ACTIONS, EXECUTABLE_ACTIONS, ZERO_FIELDS, ZERO_ROWS, actionForChanges, deltasForChanges, sumDeltas };
+// Project a frozen atomic plan into the shared reporting contract. This is
+// evidence about expected deltas, never classification or execution authority.
+function deltasForExistingOfferPlan(plan) {
+  const before=plan.expected_state?.offer, after=plan.offer?.values;
+  if (!before || !after || !["update","verify_no_change","noop"].includes(plan.offer.action)) throw new Error("EXISTING_OFFER_DELTA_PLAN_INVALID");
+  const moneyEqual=(a,b)=>a==null||b==null?a==null&&b==null:Number(a)===Number(b);
+  return { row_count_deltas:{...ZERO_ROWS,price_history:plan.price_history.action==="create"?1:0}, logical_field_deltas:{
+    ...ZERO_FIELDS,offer_price_updates:Number(!moneyEqual(before.price,after.price)),
+    offer_shipping_updates:Number(!moneyEqual(before.shipping_cost,after.shipping_cost)),
+    offer_total_updates:Number(!moneyEqual(before.total_price,after.total_price)),offer_stock_updates:Number(before.in_stock!==after.in_stock),
+    offer_url_updates:Number(before.url!==after.url),mapping_url_updates:Number(plan.expected_state.retailer_product.external_url!==plan.retailer_product.values.external_url),
+    mapping_updated_at_updates:Number(plan.retailer_product.action!=="noop"),last_checked_at_updates:Number(plan.offer.action!=="noop"),
+  }};
+}
+
+module.exports = { ACTIONS, BLOCKING_ACTIONS, EXECUTABLE_ACTIONS, ZERO_FIELDS, ZERO_ROWS, actionForChanges, deltasForChanges, deltasForExistingOfferPlan, sumDeltas };

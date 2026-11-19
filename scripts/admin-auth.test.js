@@ -673,14 +673,15 @@ test("automation review queue is admin-only, paginated and exposes bounded evide
   const components = fs.readFileSync(path.join(process.cwd(), "app", "admin", "automation-review", "components.tsx"), "utf8");
   const data = fs.readFileSync(path.join(process.cwd(), "app", "admin", "lib", "automationReviewQueueData.ts"), "utf8");
   assert.match(page, /await requireAdminPage\(\)/);
-  assert.match(page, /loadCompleteReviewQueue\("ALL"\)/);
-  assert.match(data, /REVIEW_QUEUE_MAX_ROWS/);
-  assert.match(data, /REVIEW_QUEUE_READ_BATCH_SIZE/);
-  assert.match(data, /Review Queue exceeds the bounded complete-read limit/);
-  assert.match(data, /Review Queue changed during the complete read/);
-  assert.match(data, /Review Queue complete read contained a duplicate row/);
-  assert.match(data, /order\("updated_at", \{ ascending: false \}\)\.order\("id", \{ ascending: false \}\)/);
-  assert.match(page, /filterAndPaginateReviewRows/);
+  assert.match(page, /loadReviewQueuePage\(filters, requestedPage\)/);
+  assert.match(data, /rpc\("read_automation_review_queue_page_v1"/);
+  assert.match(data, /AUTOMATION_REVIEW_CAPABILITY_MATRIX/);
+  assert.match(data, /data\.rows\.length > pageSize/);
+  assert.match(data, /revision_changed/);
+  assert.match(data, /new Set\(data\.rows\.map/);
+  assert.match(data, /incomplete or invalid page/);
+  assert.doesNotMatch(page, /loadCompleteReviewQueue|loadCompleteReviewExecutions|filterAndPaginateReviewRows/);
+  assert.match(page, /row\.execution_request/);
   assert.match(page, /PENDING.*APPROVED.*REJECTED.*IGNORED.*EXPIRED.*EXECUTING.*EXECUTED.*FAILED/s);
   assert.match(page, /Freshness-only.*Stock and price.*Identity.*Source problems/s);
   assert.match(page, /AUTONOMOUS.*REVIEW_EXECUTABLE.*REVIEW_ONLY.*UNSUPPORTED/s);
@@ -721,7 +722,8 @@ test("automation review queue is admin-only, paginated and exposes bounded evide
   assert.match(components, /Pokaż również starsze, zastąpione wersje z historii/);
   assert.match(page, /ReviewQueueViewSwitch/);
   assert.match(page, /summary\.ownerRemaining/);
-  assert.match(data, /source_price,source_url,current_product_id,current_variant_id/);
+  const readProjection = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20261119150000_read_automation_review_queue_page.sql"), "utf8");
+  assert.match(readProjection, /q\.source_price,q\.source_url,\s*q\.current_product_id,q\.current_variant_id/);
   assert.match(page, /from\("products"\)\.select\("id,name,slug"\)/);
   assert.match(page, /from\("product_variants"\)\.select\("id,display_name"\)/);
   assert.match(page, /Porównaj te dwie strony przed decyzją/);
@@ -855,29 +857,22 @@ test("Queued execution leaves owner work immediately and next remaining offer op
   assert.equal(secondWorkingSet.rows.length, 2);
 });
 
-test("Execution read refuses truncation, count drift and duplicates instead of showing false remaining work", async () => {
-  const fakeFile = require.resolve("../app/lib/supabaseAdmin.ts");
-  const previous = require.cache[fakeFile];
-  let results;
-  const query = { select() { return this; }, order() { return this; }, range() { return Promise.resolve(results.shift()); } };
-  require.cache[fakeFile] = { id: fakeFile, filename: fakeFile, loaded: true, exports: { supabaseAdmin: { from() { return query; } } } };
+test("Paged execution projection refuses truncation, revision drift and duplicate rows", async () => {
+  const fakeFile = require.resolve("../app/lib/supabaseAdmin.ts"), previous = require.cache[fakeFile];
+  let response;
+  require.cache[fakeFile] = { id: fakeFile, filename: fakeFile, loaded: true, exports: { supabaseAdmin: { rpc: async () => ({data:response,error:null}) } } };
   try {
-    const { loadCompleteReviewExecutions } = loadTsModule("app/admin/lib/automationReviewQueueData.ts");
-    results = [{ data: [{ id: "one" }], count: 2, error: null }];
-    assert.ok((await loadCompleteReviewExecutions()).error);
-    const batch = Array.from({ length: 1000 }, (_, index) => ({ id: String(index) }));
-    results = [{ data: batch, count: 1001, error: null }, { data: [{ id: "new" }], count: 1002, error: null }];
-    assert.ok((await loadCompleteReviewExecutions()).error);
-    results = [{ data: batch, count: 1001, error: null }, { data: [{ id: "0" }], count: 1001, error: null }];
-    assert.ok((await loadCompleteReviewExecutions()).error);
-    results = [{ data: batch, count: 1001, error: null }, { data: [{ id: "1000" }], count: 1001, error: null }];
-    const complete = await loadCompleteReviewExecutions();
-    assert.equal(complete.error, null);
-    assert.equal(complete.rows.length, 1001);
-  } finally {
-    if (previous) require.cache[fakeFile] = previous;
-    else delete require.cache[fakeFile];
-  }
+    const { loadReviewQueuePage } = loadTsModule("app/admin/lib/automationReviewQueueData.ts");
+    const filters={display:"WORK"};
+    response={schema_version:1,revision:"a".repeat(32),revision_changed:false,page:1,page_size:10,total:2,total_pages:1,rows:[{id:"one"}],retailers:[],summary:{}};
+    assert.ok((await loadReviewQueuePage(filters,1)).error);
+    response.rows=[{id:"one"},{id:"two"}];response.revision_changed=true;
+    assert.ok((await loadReviewQueuePage(filters,1)).error);
+    response.revision_changed=false;response.rows=[{id:"one"},{id:"one"}];
+    assert.ok((await loadReviewQueuePage(filters,1)).error);
+    response.rows=[{id:"one"},{id:"two"}];
+    const complete=await loadReviewQueuePage(filters,1);assert.equal(complete.error,null);assert.equal(complete.data.rows.length,2);
+  } finally { if(previous)require.cache[fakeFile]=previous;else delete require.cache[fakeFile]; }
 });
 
 test("automation review capability matrix exposes only registered execution paths", () => {
@@ -1144,7 +1139,9 @@ test("automation review UI exposes executable versus review drift scope", () => 
   const data = fs.readFileSync(path.join(process.cwd(), "app", "admin", "lib", "automationReviewQueueData.ts"), "utf8");
   assert.match(source, /source_evidence\?\.drift_scope/);
   assert.match(source, /Drift scope: \{driftScope\}/);
-  assert.match(data, /request\.gt\("expires_at"/);
+  assert.match(data, /read_automation_review_queue_page_v1/);
+  const reader = fs.readFileSync(path.join(process.cwd(), "supabase/migrations/20261119150000_read_automation_review_queue_page.sql"), "utf8");
+  assert.match(reader, /expires_at<=now\(\) and review_status in/);
   assert.match(source, /current === "FAILED".*execution\?\.database_writes/s);
 });
 

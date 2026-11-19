@@ -27,6 +27,8 @@ export type ReviewQueueFilters = {
   bucket?: ReviewQueueWorkBucket;
   display?: ReviewQueueDisplay;
   history?: boolean;
+  revision?: string;
+  reviewId?: string;
 };
 
 export type ReviewQueueFilterableRow = {
@@ -231,6 +233,7 @@ export function filterAndPaginateReviewRows<T extends ReviewQueueFilterableRow>(
 export function reviewQueuePageHref(filters: ReviewQueueFilters, page: number) {
   const params = new URLSearchParams();
   if (filters.query) params.set("q", filters.query);
+  if (filters.reviewId) params.set("review", filters.reviewId);
   if (filters.status && !["PENDING", "ALL"].includes(filters.status)) params.set("status", filters.status);
   if (filters.retailer) params.set("retailer", filters.retailer);
   if (filters.kind) params.set("kind", filters.kind);
@@ -241,7 +244,7 @@ export function reviewQueuePageHref(filters: ReviewQueueFilters, page: number) {
   if (filters.bucket && filters.bucket !== "DECIDE") params.set("queue", filters.bucket);
   if (filters.display === "LIST") params.set("display", "LIST");
   if (filters.history) params.set("history", "1");
-  if (page > 1) params.set("page", String(page));
+  if (page > 1) { params.set("page", String(page)); if (filters.revision) params.set("revision", filters.revision); }
   const query = params.toString();
   return query ? `?${query}` : "?";
 }

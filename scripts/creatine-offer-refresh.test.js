@@ -154,7 +154,11 @@ test("workflow uses isolated role-separated execution and never invokes the lega
   assert.match(workflow, /DISCOUNT_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL/);
   assert.match(workflow, /DISCOUNT_SUPPLEMENTS_REFRESH_APPROVER_DATABASE_URL/);
   assert.match(workflow, /DISCOUNT_SUPPLEMENTS_REFRESH_EXECUTOR_DATABASE_URL/);
-  assert.doesNotMatch(workflow, /SUPABASE_SERVICE_ROLE_KEY/);
+  const refreshJob = workflow.split("  refresh-review-queue:")[0];
+  assert.doesNotMatch(refreshJob, /SUPABASE_SERVICE_ROLE_KEY/);
+  assert.match(workflow, /refresh-review-queue:[\s\S]+needs: \[creatine-offer-refresh\]/);
+  assert.match(workflow, /uses: \.\/\.github\/actions\/publish-automation-review-queue/);
+  assert.match(workflow, /always\(\).*review_contract_sha256/);
   assert.doesNotMatch(workflow, /creatine-offer-refresh\.js --(?:dry-run|apply)(?:\s|$)/);
   assert.equal(config.approved_mapping_count, 109);
   assert.match(workflow, /scope_segment:/);
