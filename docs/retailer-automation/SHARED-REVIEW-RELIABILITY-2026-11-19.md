@@ -1,6 +1,8 @@
 # Shared retailer and Review Queue repair — 19 November 2026
 
-Status: implementation prepared for owner review; NOT DEPLOYED. The companion
+Status: owner-approved release IN PROGRESS; SQL CURRENT269 applied, application
+not yet deployed. The [controlled release evidence](evidence/PR556-CONTROLLED-RELEASE-2026-11-19.json)
+supersedes the historical pre-release boundaries below. The companion
 [evidence record](evidence/SHARED-REVIEW-RELIABILITY-2026-11-19.json) records test
 results separately from production verification. This task does not reopen
 RA-001, RA-004, nutrition, discovery or the deferred GYM HIGH public hub.
@@ -96,8 +98,9 @@ Existing decision/execute routes still revalidate status and fingerprints.
   Existing indexes were inspected. The current-ranking query's production
   EXPLAIN ANALYZE took 9.343 ms. The new function/index were not applied there.
 
-No production business/control/queue writes, approvals, applies or migrations
-were performed by this task. Production postflight, idempotency, queue
+Historical implementation boundary through `da4f591b`: no production
+business/control/queue writes, approvals, applies or migrations were performed.
+The later owner-approved single SQL activation is recorded above. Retailer postflight, idempotency, queue
 publication and watchdog verification remain NOT_RUN for the new code.
 
 ## Exact additive migration and release order
@@ -107,8 +110,10 @@ has normalized SHA-256
 `062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa`.
 It adds one current-page index and one STABLE SECURITY INVOKER function, callable
 only by service_role. Its function body reads existing tables and writes none.
-It is registered as pending through `environment-migrations`; no old SQL changes.
-Current business migration bindings remain CURRENT268 until actual activation.
+It has now committed in production and its generated repository closeout records
+CURRENT269/pending=[]. Staging remains CURRENT120 with its three pending entries.
+No historical SQL is changed. Protected rehearsal/apply and independent readback
+are PASS; application release and production retailer verification remain pending.
 
 After explicit owner release approval, use the existing selected-migration
 workflow in this order. Never run a blanket `supabase db push`.

@@ -682,10 +682,10 @@ const automation = fs.readFileSync(
 
 test("KIOR, Discount Supplements, and Gladiator share the corrected production migration binding", () => {
   const binding = migrationBinding("PRODUCTION");
-  assert.equal(binding.versions.length, 268);
+  assert.equal(binding.versions.length, 269);
   assert.equal(
     binding.fingerprint,
-    "4da87e64288e023969f69149f28e31090c8bccd840ee668d63b0dab35b38482a",
+    "f54057cd49ea4422a3b8b849ac15ce38b518496a44a8d4dceb2f480f8f97eb66",
   );
   for (const identifier of [
     "20261104120000_allow_automation_review_hard_price_anomaly",

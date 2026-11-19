@@ -509,7 +509,7 @@ test("authoritative H&B migration receipt closes CURRENT268 and retains exact 26
   const receipt = JSON.parse(fs.readFileSync(path.join(ROOT,
     "docs/retailer-automation/evidence/HB-SHARED-AUTOMATION-PRODUCTION-268-CLOSEOUT-2026-11-17.json"), "utf8"));
   const migrationFiles=fs.readdirSync(SOURCE).filter(file=>file<"20261119150000_read_automation_review_queue_page.sql");
-  const historicalContract={...CONTRACTS.PRODUCTION,pending:[]};
+  const historicalContract={...CONTRACTS.PRODUCTION,ledgerCount:receipt.post_state.ledger_count,ledgerFingerprint:receipt.post_state.ledger_fingerprint,pending:[]};
   const current = derivePostApplyMigrationBinding("PRODUCTION",{pendingMigrations:[],migrationFiles});
   assert.equal(current.status, "ALREADY_CLOSED");
   assert.equal(current.pending_count, 0);
@@ -528,4 +528,20 @@ test("authoritative H&B migration receipt closes CURRENT268 and retains exact 26
     remoteLedger:ledgerRows(current.post_identifiers)});
   assert.equal(closed.closeout_status, "ALREADY_CLOSED");
   assert.equal(closed.evidence, null);
+});
+
+test("queue reader receipt closes CURRENT269 while preserving the exact historical 268-to-269 selection", () => {
+  const receipt=JSON.parse(fs.readFileSync(path.join(ROOT,"docs/retailer-automation/evidence/PR556-QUEUE-READER-PRODUCTION-269-CLOSEOUT-2026-11-19.json"),"utf8"));
+  const current=derivePostApplyMigrationBinding("PRODUCTION");
+  assert.equal(current.status,"ALREADY_CLOSED");assert.equal(current.pending_count,0);
+  assertDerivationMatchesContract(current,CONTRACTS.PRODUCTION);
+  assert.equal(current.post_ledger_count,receipt.post_state.ledger_count);
+  assert.equal(current.post_ledger_fingerprint,receipt.post_state.ledger_fingerprint);
+  const pending=receipt.consumed_pending.ordered_filenames.map((filename,index)=>({filename,sha256:receipt.consumed_pending.ordered_sha256[index]}));
+  const historical=derivePostApplyMigrationBinding("PRODUCTION",{pendingMigrations:pending,migrationFiles:fs.readdirSync(SOURCE).filter(file=>file<=pending[0].filename)});
+  assert.equal(historical.pre_ledger_count,receipt.pre_state.ledger_count);
+  assert.equal(historical.pre_ledger_fingerprint,receipt.pre_state.ledger_fingerprint);
+  assert.equal(historical.post_ledger_count,receipt.post_state.ledger_count);
+  assert.equal(historical.post_ledger_fingerprint,receipt.post_state.ledger_fingerprint);
+  assert.equal(pendingConfirmation({pending}),"f637da643c74cd7e");
 });

@@ -1,5 +1,17 @@
 # Retailer Automation Consolidation Execution Plan
 
+**19 November PR556 owner-approved controlled release — IN PROGRESS:** exact
+source `da4f591b` and migration06286512…187aa passed protected rehearsal, rollback
+readback and one production apply. Independent READ ONLY confirms CURRENT269,
+fingerprintf54057cd, unchanged1494/4228/4580/4580/57204 catalogue counts, exact
+function body and service-role-only ACL. The generated
+[repository closeout](evidence/PR556-QUEUE-READER-PRODUCTION-269-CLOSEOUT-2026-11-19.json)
+is authoritative for production pending=[] and269; staging remains120/pending3.
+The existing worker is temporarily paused for cutover; code release and genuine
+retailer/UI/postflight/idempotency/watchdog evidence remain pending. No Discount
+identity correction or discovery expansion is authorized. Follow
+[controlled release evidence](evidence/PR556-CONTROLLED-RELEASE-2026-11-19.json).
+
 **19 November shared retailer / Review Queue repair — NEEDS_OWNER_APPROVAL:** the owner
 authorized one implementation and Draft PR covering quantity identity, early
 canonical quarantine, complete scope accounting, the existing shared review

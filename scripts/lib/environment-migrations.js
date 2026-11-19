@@ -270,12 +270,7 @@ const PENDING_MIGRATIONS = Object.freeze({
       sha256: "062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa",
     }),
   ]),
-  PRODUCTION: Object.freeze([
-    Object.freeze({
-      filename: "20261119150000_read_automation_review_queue_page.sql",
-      sha256: "062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa",
-    }),
-  ]),
+  PRODUCTION: Object.freeze([]),
 });
 
 function migrationIdentifier(filename) {

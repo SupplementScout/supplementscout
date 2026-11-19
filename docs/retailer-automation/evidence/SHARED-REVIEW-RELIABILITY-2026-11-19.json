@@ -1202,11 +1202,11 @@
     "production_business": 0,
     "production_control": 0,
     "production_review_publication": 0,
-    "production_migrations": 0,
+    "production_migrations": 1,
     "approvals": 0,
     "applies": 0
   },
-  "release_status": "NEEDS_OWNER_APPROVAL",
+  "release_status": "IN_PROGRESS",
   "pull_request": "https://github.com/SupplementScout/supplementscout/pull/556",
   "production_deployed": false,
   "rehearsal_header_correction": {
@@ -1218,5 +1218,7 @@
     "new_migration_sha256": "062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa",
     "protected_rehearsal_new_revision": "NOT_RUN",
     "production_writes": 0
-  }
+  },
+  "latest_release_evidence": "PR556-CONTROLLED-RELEASE-2026-11-19.json",
+  "production_schema_deployed": true
 }

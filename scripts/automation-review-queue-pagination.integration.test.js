@@ -10,7 +10,7 @@ const PROPOSAL = "supabase/migrations/20261119150000_read_automation_review_queu
 const proposal = fs.readFileSync(path.join(ROOT, PROPOSAL), "utf8");
 const run = args => spawnSync("docker", args, { encoding:"utf8",timeout:120000,windowsHide:true });
 
-test("queue projection is SELECT-only, service-role-only and registered as pending without changing current bindings", () => {
+test("queue projection is SELECT-only, service-role-only, applied in production and pending in staging", () => {
   const body=proposal.slice(proposal.indexOf("returns jsonb"),proposal.indexOf("end $$;"));
   assert.match(body,/stable security invoker/);
   assert.match(body,/current_user <> 'service_role'/);
@@ -22,8 +22,14 @@ test("queue projection is SELECT-only, service-role-only and registered as pendi
   const {PENDING_MIGRATIONS,migrationBinding,sha256File}=require("./lib/environment-migrations");
   for(const environment of ["STAGING","PRODUCTION"]){
     const pending=PENDING_MIGRATIONS[environment].find(row=>row.filename===path.basename(PROPOSAL));
-    assert.equal(pending.sha256,sha256File(path.join(ROOT,PROPOSAL)));
-    assert.ok(!migrationBinding(environment).versions.includes(path.basename(PROPOSAL,".sql")));
+    if(environment==="PRODUCTION"){
+      assert.equal(pending,undefined);
+      assert.ok(migrationBinding(environment).versions.includes(path.basename(PROPOSAL,".sql")));
+      assert.equal(sha256File(path.join(ROOT,PROPOSAL)),"062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa");
+    }else{
+      assert.equal(pending.sha256,sha256File(path.join(ROOT,PROPOSAL)));
+      assert.ok(!migrationBinding(environment).versions.includes(path.basename(PROPOSAL,".sql")));
+    }
   }
 });
 
