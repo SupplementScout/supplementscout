@@ -1,11 +1,13 @@
 # SupplementScout Operating Plan
 
-**19 November 2026 owner-scoped automation reliability repair — IN PROGRESS:**
+**19 November 2026 owner-scoped automation reliability repair — NEEDS_OWNER_APPROVAL:**
 the existing retailer-offer-sync / atomic write / shared Review Queue path is
-being repaired for quantity identity, canonical Default conflicts, complete
+has been repaired locally for quantity identity, canonical Default conflicts, complete
 execution/review partitions and scalable admin reads. Work is isolated from SEO,
 nutrition and Predators Gear. Production SQL, mapping correction, merge and
-release remain gated by the owner's exact final approval. Current evidence and
+release remain gated by the owner's exact final approval. Project/baseline/Quick/
+Full and the198-test isolated Docker gate PASS. Draft PR556 is prepared; new-code
+production publication/postflight/idempotency remain NOT_RUN. Current evidence and
 remaining checks are in the [automation ledger](retailer-automation/EXECUTION-PLAN.md)
 and [repair evidence](retailer-automation/evidence/SHARED-REVIEW-RELIABILITY-2026-11-19.json).
 

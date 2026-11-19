@@ -463,6 +463,9 @@ function profile(values) {
 
 function validateCatalogueCapture(profile, { report, files, invariant }) {
   invariant(report.kind === "gym-high-guarded-existing-offer-refresh" && report.database_writes === 0, "Guarded catalogue capture is invalid");
+  invariant(report.mode === "dry-run" && report.target === "production" && report.approved_mapping_count === profile.approvedMappingCount
+    && report.executable_plan_count === report.executable_row_count && Number.isInteger(report.executable_plan_count)
+    && report.executed_plan_count === 0 && report.blocked_row_count === 0, "Guarded catalogue shared publication contract is incomplete");
   require("../gym-high-full-catalogue-executor").validateInputs({report:files.report,artifact:files.artifact});
 }
 function validateCataloguePartition(profile, { report, baselineByOffer, invariant, sortedIds }) {

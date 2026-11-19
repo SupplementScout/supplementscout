@@ -1,6 +1,6 @@
 # Retailer Automation Consolidation Execution Plan
 
-**19 November shared retailer / Review Queue repair — IN_PROGRESS:** the owner
+**19 November shared retailer / Review Queue repair — NEEDS_OWNER_APPROVAL:** the owner
 authorized one implementation and Draft PR covering quantity identity, early
 canonical quarantine, complete scope accounting, the existing shared review
 publisher and bounded admin reads. Baseline is `00da6c17`. RA-001 is reused;
@@ -18,8 +18,16 @@ rows versus the old 5000 complete-read bound. The proposed service-role-only
 read function passes isolated PostgreSQL at 5000/6694/10000/20000 rows, latest
 execution, history, permissions and revision-change cases. The additive reader
 migration is registered as pending in the existing selected applicator; current
-production bindings remain CURRENT268. Full gates and release verification are
-pending; this is not a production success declaration. The exact release order,
+production bindings remain CURRENT268. Local Project Guardian, baseline, Quick
+and Full gates PASS (4098 safe tests), and the complete 58-file Docker gate PASS
+(198 tests, zero failures/skips). Fresh Discount capture at15:16:29Z also proves
+106 executable (90 freshness/16 stock) plus3 reviews in6 native READ ONLY batches;
+a later local request returns429 again. All65 GYM HIGH atomic plans pass native
+READ ONLY SQL; common publication accounting and renamed sidecar replay PASS.
+Draft [PR556](https://github.com/SupplementScout/supplementscout/pull/556) carries
+the current code and CI checks. Production activation, review publication,
+postflight, idempotency and watchdog after release are NOT_RUN; this is not a
+production success declaration. The exact release order,
 rollback and held mapping-correction scope are in the
 [release packet](SHARED-REVIEW-RELIABILITY-2026-11-19.md).
 See [repair evidence](evidence/SHARED-REVIEW-RELIABILITY-2026-11-19.json).

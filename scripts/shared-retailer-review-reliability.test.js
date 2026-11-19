@@ -137,6 +137,13 @@ test("both incident adapters reuse the shared publisher and closed review-only i
   }
 });
 
+test("guarded catalogue publication rejects a legacy report lacking shared executable-plan accounting", () => {
+  const profile=PROFILES["gym-high"],invariant=(ok,message)=>{if(!ok)throw Error(message);};
+  const report={kind:"gym-high-guarded-existing-offer-refresh",database_writes:0,mode:"dry-run",target:"production",
+    approved_mapping_count:66,executable_row_count:65,executed_plan_count:0,blocked_row_count:0};
+  assert.throws(()=>profile.validateCapture(profile,{report,files:{},invariant}),/shared publication contract is incomplete/);
+});
+
 test("shared source binding verifies the exact review artifact and retry attempt for both incident workflows", async () => {
   const {verifyGithubBinding}=require("./shared-retailer-automation-review-source");
   for(const key of ["gym-high","discount-supplements"]){

@@ -5,6 +5,12 @@ Status: implementation prepared for owner review; NOT DEPLOYED. The companion
 results separately from production verification. This task does not reopen
 RA-001, RA-004, nutrition, discovery or the deferred GYM HIGH public hub.
 
+Final local gates: Project Guardian, baseline, Quick and Full PASS; Full runs
+4098 safe tests plus TypeScript, ESLint and the isolated production build.
+The complete 58-file Docker gate passes198 tests with zero failures/skips.
+Draft [PR556](https://github.com/SupplementScout/supplementscout/pull/556) holds
+the exact branch and current CI readback. These results do not authorize release.
+
 ## Findings and implementation
 
 The existing path remains:
@@ -51,12 +57,21 @@ Existing decision/execute routes still revalidate status and fingerprints.
 * Archived GYM HIGH capture of 19 November plus current canonical READ ONLY data:
   66 approved = 65 freshness plans + one existing source-identity review, zero
   importer blocks. Shared publication capture validation also passes against a
-  freshly read 66-offer DB baseline. Executed offers: **0**.
+  freshly read 66-offer DB baseline. All 65 also pass the existing native atomic
+  READ ONLY SQL validator at 15:13:10Z. Executed offers: **0**.
 * Archived Discount capture of 18 November plus current DB: 109 approved = 106
   executable + three reviews. All six batches pass the existing native production
   READ ONLY validator. This is an archived-source diagnostic replay, not a
   newly captured store feed or permission to execute. Fresh Shopify requests
-  returned HTTP 429. The other 47 offers remain outside automatic scope.
+  returned HTTP 429. The historical diagnostic uses a reconstructed source time
+  and is not execution evidence. A later real standard full capture succeeded
+  at 15:16:29.931Z: 343 products / 999 variants, fingerprint
+  `30f563aa986ec64c6c6670da492816542da6de5ce1d003b808c0601039f9e2da`.
+  Its local immutable replay against current DB passes all six native READ ONLY
+  SQL batches at 15:18:59Z: 90 freshness plans, 16 stock plans and the same three
+  reviews. No second confirmation capture is synthesized. The next live request
+  returned 429 again, so protected release still requires a new successful
+  preflight. The other 47 offers remain outside automatic scope.
 * Isolated PostgreSQL tests cover 5000, 6694, 10000 and 20000 rows, filters,
   current/history counters, latest execution, fingerprint mismatch, supersession,
   concurrent publication, capability drift, role denial and invalid requests.
@@ -127,15 +142,17 @@ known 5000-row defect, so rollback restores prior behavior, not a healthy queue.
 Do not delete cards/history, reverse prices, rewrite old SQL or reset approvals.
 Any later SQL correction is another reviewed forward-only migration.
 
-## Offer 762 correction packet — held for fresh evidence and owner identity decision
+## Offer 762 correction packet — held for owner identity decision
 
 Current approved tuple: retailer 4, mapping 948, offer 762, canonical product 407,
 variant 386 Default. Candidate: existing active variant 2015, Unflavoured / 250g.
 Shopify product `6788065329348`, variant `54879874810234`, SKU `CNP-0508`, recorded
 options Size=250g / Flavour=Unflavoured, GTIN absent. URL:
 `https://www.discount-supplements.co.uk/products/cnp-pro-creatine-250g?variant=54879874810234`.
-Stored commerce is £12.99 + £4.99 = £17.98, in stock; £9.99 belongs to the archived
-18 November capture. The 14:59:21Z readback finds one historical price row 764,
+Stored commerce is £12.99 + £4.99 = £17.98, in stock. The real full source capture
+at 15:16:29.931Z independently confirms title CNP Creatine Monohydrate 250g,
+variant title 250g / Unflavoured, the same Shopify IDs and SKU, price £9.99 and
+availability true. The 14:59:21Z readback finds one historical price row 764,
 linked through `offer_id=762`; its identity_series_id is null.
 
 The existing generic reviewed-create packages do not authorize rebind to an
@@ -149,8 +166,9 @@ manifest plus its registration hash. Preserve offer/mapping IDs, commercial
 fields and the complete history digest/count/FK associations. READ ONLY
 postflight must prove only the intended two identity references changed.
 
-That correction is **not executable or approved** now: fresh source is blocked,
-and target 2015 is a candidate, not an agent identity decision. Offers 2537/2538
+That correction is **not executable or approved** now: target 2015 is a candidate,
+not an agent identity decision, and a new successful live preflight is required
+at execution time because retrieval is intermittent. Offers 2537/2538
 need their own evidence and exact owner decisions. The prepared shared repair
 can restore independent updates while keeping all three in review. No runtime
 product/retailer exception or automatic Default replacement is introduced.

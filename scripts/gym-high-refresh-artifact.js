@@ -130,6 +130,7 @@ function buildRefreshArtifact(options, dependencies = {}) {
     standard_change_count: standardChangeCount,
     source: { fingerprint: builderReport.source_identity_fingerprint },
     mode: "dry-run", target: "production", approved_mapping_count: builderReport.approved_row_count,
+    executable_plan_count: approvedRows.length,
     executed_plan_count: 0, blocked_row_count: 0,
     execution_offer_ids: approvedRows.map(item => String(item.importPlan.expected_state.offer.id)),
     artifact_sha256: written.artifactSha256,
