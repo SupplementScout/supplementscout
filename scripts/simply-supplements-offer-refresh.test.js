@@ -28,6 +28,31 @@ test("Simply schedule isolates unsafe rows", () => {
   assert.match(automation, /executed_plan_count:appliedRows/);
 });
 
+test("Simply review-only operation reuses exact sealed source and the common publisher without applying offers", () => {
+  const parsed = require("js-yaml").load(workflow);
+  const refresh = parsed.jobs["simply-supplements-offer-refresh"];
+  assert.equal(parsed.on.schedule[0].cron, "7 5 * * *");
+  assert.equal(parsed.on.workflow_dispatch.inputs.operation.default, "dry-run");
+  assert.ok(parsed.on.workflow_dispatch.inputs.operation.options.includes("review-only"));
+  const bind = refresh.steps.findIndex(step => step.id === "review_source");
+  const baseline = refresh.steps.findIndex(step => step.name === "Capture Simply Supplements DB baseline read-only");
+  const apply = refresh.steps.findIndex(step => step.name === "Apply approved Simply Supplements offer refresh");
+  assert.ok(baseline < bind && bind < apply);
+  assert.match(refresh.steps[baseline].if, /review-only/);
+  assert.doesNotMatch(refresh.steps[apply].if, /review-only/);
+  assert.equal(refresh.steps.find(step => step.id === "source_artifact")["continue-on-error"], undefined);
+  const publisher = parsed.jobs["refresh-review-queue"];
+  assert.deepEqual(publisher.needs, ["simply-supplements-offer-refresh"]);
+  assert.match(publisher.if, /artifact_digest != ''/);
+  assert.match(publisher.if, /source_contract_sha256 != ''/);
+  assert.match(publisher.if, /review_scope_fingerprint != ''/);
+  const action = publisher.steps.find(step => step.uses === "./.github/actions/publish-automation-review-queue");
+  assert.equal(action.with.profile, "simply-supplements");
+  assert.equal(action.with["durable-sealed-artifacts-enforcement"], "${{ vars.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT }}");
+  const monitor = require("../config/automation-reliability-watchdog.json").retailers.find(row => row.id === 7);
+  assert.equal(action.name, monitor.review_publication.step_name);
+});
+
 test("Simply build start does not inherit the Fit House stable OOS exception", () => {
   const engine = require("./simply-supplements-offer-refresh");
   assert.equal(config.approved_stable_oos_baseline, undefined);

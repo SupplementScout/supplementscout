@@ -11,6 +11,7 @@ on:
         options:
           - dry-run
           - apply
+          - review-only
       validation_context:
         description: "Diagnostic trigger context; schedule safely emulates the scheduled source path"
         required: true
@@ -24,6 +25,7 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: retailer-offer-production-write
@@ -36,6 +38,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     environment: production-readonly
+    outputs:
+      artifact_id: ${{ steps.source_artifact.outputs.artifact-id }}
+      artifact_digest: ${{ steps.source_artifact.outputs.artifact-digest }}
+      source_contract_sha256: ${{ steps.review_source.outputs.contract_sha256 }}
+      review_scope_fingerprint: ${{ steps.review_source.outputs.review_scope_fingerprint }}
 
     steps:
       - name: Validate protected execution context
@@ -70,6 +77,7 @@ jobs:
           scripts/simply-supplements-offer-refresh.test.js
           scripts/simply-supplements-offer-sync-registration.test.js
           scripts/retailer-offer-sync.test.js
+          scripts/automation-review-reconciliation-dry-run.test.js
 
       - name: Dry-run all approved Simply Supplements offers
         env:
@@ -83,10 +91,15 @@ jobs:
         run: node scripts/simply-supplements-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
 
       - name: Capture Simply Supplements DB baseline read-only
-        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'review-only' }}
         env:
           SIMPLY_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
         run: node scripts/retailer-offer-refresh-postflight.js --profile=simply-supplements --mode=baseline --output=tmp/simply-supplements-offer-refresh/production-db-baseline.json
+
+      - name: Bind fresh Simply Supplements Review Queue source
+        id: review_source
+        if: ${{ success() && (github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'review-only') }}
+        run: node scripts/shared-retailer-automation-review-source.js --mode=bind --profile=simply-supplements --source-artifact-dir=tmp/simply-supplements-offer-refresh
 
       - name: Apply approved Simply Supplements offer refresh
         if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
@@ -129,11 +142,51 @@ jobs:
           fi
 
       - name: Upload Simply Supplements refresh evidence
+        id: source_artifact
         if: always()
-        continue-on-error: true
         uses: actions/upload-artifact@v7
         with:
           name: simply-supplements-offer-refresh-${{ github.run_id }}-${{ github.run_attempt }}
           retention-days: 14
           if-no-files-found: warn
           path: tmp/simply-supplements-offer-refresh/*.json
+
+  refresh-review-queue:
+    needs: [simply-supplements-offer-refresh]
+    if: ${{ always() && github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (inputs.operation == 'apply' || inputs.operation == 'review-only'))) && needs.simply-supplements-offer-refresh.outputs.artifact_id != '' && needs.simply-supplements-offer-refresh.outputs.artifact_digest != '' && needs.simply-supplements-offer-refresh.outputs.source_contract_sha256 != '' && needs.simply-supplements-offer-refresh.outputs.review_scope_fingerprint != '' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production-readonly
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --ignore-scripts
+      - name: Reconcile and publish fresh Simply Supplements Review Queue source
+        uses: ./.github/actions/publish-automation-review-queue
+        with:
+          display-name: Simply Supplements
+          profile: simply-supplements
+          artifact-id: ${{ needs.simply-supplements-offer-refresh.outputs.artifact_id }}
+          artifact-digest: ${{ needs.simply-supplements-offer-refresh.outputs.artifact_digest }}
+          source-contract-sha256: ${{ needs.simply-supplements-offer-refresh.outputs.source_contract_sha256 }}
+          source-directory: tmp/automation-review-reconciliation/simply-source
+          evidence-prefix: simply-supplements
+          source-run-id: ${{ github.run_id }}
+          source-commit-sha: ${{ github.sha }}
+          github-token: ${{ github.token }}
+          supabase-url: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          service-role-key: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          durable-sealed-artifacts-enforcement: ${{ vars.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT }}
+      - name: Upload Simply Supplements queue evidence
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: simply-supplements-review-queue-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 30
+          if-no-files-found: error
+          path: tmp/automation-review-reconciliation/*.json

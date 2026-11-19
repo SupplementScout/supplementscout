@@ -7,7 +7,7 @@ const {
   buildPublicationRpcRequest,
   sha256,
 } = require("./lib/automation-review-publisher");
-const { bindDurableArtifactContract } = require("./lib/sealed-artifacts");
+const { bindDurableArtifactContract, rolloutState } = require("./lib/sealed-artifacts");
 const {
   PROFILES,
   profileFor: publicationProfileFor,
@@ -330,6 +330,8 @@ function buildManifestRows(source, baseline, options) {
 
 function buildOutput(source, baseline, rows, options, env = process.env) {
   const profile = source.profile;
+  invariant(!profile.requireDurableReviewRegistration || rolloutState(env).enabled,
+    "Review publication requires the existing durable sealed-artifact rollout; enforcement was not changed");
   const retailer = source.retailer;
   const priorReviewIds = baseline.activeRows.filter((row) => String(row.retailer_id) === retailer.id && profile.matchesActiveReview(row)).map((row) => String(row.offer_id));
   const observedOfferIds = sortedIds([...source.contract.review_offer_ids, ...priorReviewIds]);

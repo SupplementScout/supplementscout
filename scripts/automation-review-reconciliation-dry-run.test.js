@@ -1269,6 +1269,100 @@ function publicationBaseline(fixture, retailerId) {
   };
 }
 
+function writeSimplyReviewFixture() {
+  const fixture = writeTenRepsFixture({ profileKey: "simply-supplements", reviewIds: ["1001", "1002", "1003"] });
+  const reportFile = path.join(fixture.directory, "production-dry-run.json");
+  const diagnosticFile = path.join(fixture.directory, "production-preflight-diagnostic.json");
+  const baselineFile = path.join(fixture.directory, "production-db-baseline.json");
+  const report = JSON.parse(fs.readFileSync(reportFile, "utf8"));
+  const diagnostic = JSON.parse(fs.readFileSync(diagnosticFile, "utf8"));
+  const baseline = JSON.parse(fs.readFileSync(baselineFile, "utf8"));
+  for (const row of baseline.snapshot.rows) {
+    row.url = row.external_url = `https://www.simplysupplements.co.uk/products/test-${row.offer_id}?variant=${row.external_variant_id}`;
+  }
+  fixture.baselineRows = baseline.snapshot.rows;
+  report.source.diagnostic = { pagination_completed: true, final_http_status: 200 };
+  report.discovery = { catalogue_creates: 0, missing_variants: 3, missing_variants_review_only: 3, missing_variants_marked_unavailable: 0 };
+  diagnostic.guard_results = [
+    { guard: "SOURCE_HEALTH", result: "PASS" },
+    { guard: "APPROVED_MAPPING_COVERAGE", result: "REVIEW_ISOLATED", expected: 120, matched: 117, source_absent_review_rows: 3, source_absent_marked_unavailable: 0 },
+    { guard: "VALIDATOR", result: "PASS" },
+  ];
+  diagnostic.validator_result = "PASS";
+  writeJson(reportFile, report); writeJson(diagnosticFile, diagnostic); writeJson(baselineFile, baseline);
+  return { ...fixture, report, diagnostic, reportFile, diagnosticFile };
+}
+
+test("Simply publication policy v1 seals 117 executable and three missing-source manual reviews without changing BLOCK/0", async () => {
+  const fixture = writeSimplyReviewFixture();
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "123456", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit, DURABLE_SEALED_ARTIFACTS_ENFORCEMENT: "ON" };
+  const contract = buildFitHouseSourceContract(fixture.directory, env, "simply-supplements");
+  assert.equal(contract.approved_mapping_count, 120);
+  assert.equal(contract.executable_plan_count, 117);
+  assert.equal(contract.review_row_count, 3);
+  writeJson(path.join(fixture.directory, "automation-review-source-contract.json"), contract);
+  const options = { profile: "simply-supplements", sourceArtifactDir: fixture.directory, sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "999999", sourceCommitSha: env.GITHUB_SHA, sourceArtifactDigest: "c".repeat(64), sourceContractSha256: fileSha(path.join(fixture.directory, "automation-review-source-contract.json")), output: path.join(fixture.directory, "output.json") };
+  const source = verifyFitHouseSourceContract(options, new Date("2026-10-05T18:00:00Z"));
+  const baseline = publicationBaseline(fixture, "7");
+  const rows = buildFitHouseManifestRows(source, baseline, options);
+  for (const mode of [undefined, "OFF"]) {
+    assert.throws(() => buildFitHouseOutput(source, baseline, rows, options, { ...env, DURABLE_SEALED_ARTIFACTS_ENFORCEMENT: mode }), /requires the existing durable sealed-artifact rollout/);
+  }
+  const output = buildFitHouseOutput(source, baseline, rows, options, env);
+  assert.equal(output.durable_sealed_artifact_contract.requirement, "DURABLE_REQUIRED");
+  assert.equal(output.durable_sealed_artifact_contract.artifact_kind, "REVIEW_REGISTRATION");
+  assert.equal(output.operations.CREATE, 3);
+  assert.equal(output.expected.catalogue_writes, 0);
+  assert.equal(output.production_writes, 0);
+  assert.ok(rows.every(row => row.reason_codes === "SOURCE_MISSING"
+    && row.operation_type === "MANUAL_REVIEW_IDENTITY" && row.source_price === null
+    && row.proposed_state.catalogue_action === "KEEP_UNCHANGED" && row.proposed_state.automatic_action === false));
+  assert.deepEqual(buildFitHouseOutput(source, baseline, rows, options, env).request, output.request);
+  const existing = { ...baseline, activeRows: rows.map((row, index) => ({ ...row, id: String(index + 1) })) };
+  assert.equal(buildFitHouseOutput(source, existing, rows, options, env).operations.CREATE || 0, 0);
+  const { guardDependentMutation, createSealedArtifactsService } = require("./lib/sealed-artifacts");
+  const { createInMemorySealedArtifactAdapters } = require("./lib/sealed-artifacts/testing");
+  for (const failure of [{ failWrite: true }, { failRegistryInsert: true }]) {
+    let mutationCalls = 0;
+    const adapters = createInMemorySealedArtifactAdapters(failure);
+    await assert.rejects(guardDependentMutation({ artifact: output, exactBytes: Buffer.from(JSON.stringify(output)), serviceFactory: () => createSealedArtifactsService(adapters), mutation: () => { mutationCalls++; } }), /injected/);
+    assert.equal(mutationCalls, 0);
+  }
+  const adapters = createInMemorySealedArtifactAdapters();
+  const verifyBeforeMutation = () => guardDependentMutation({ artifact: output, exactBytes: Buffer.from(JSON.stringify(output)), serviceFactory: () => createSealedArtifactsService(adapters), mutation: ({ durableIdentity }) => {
+    assert.equal(durableIdentity.status, "DURABLY_SEALED");
+    assert.equal(adapters.controls.registryCount(), 1);
+  } });
+  await verifyBeforeMutation(); await verifyBeforeMutation();
+  assert.equal(adapters.controls.objectCount(), 1);
+  assert.equal(adapters.controls.registryCount(), 1);
+  const policy = require("../config/retailers/simply-supplements-offer-sync.json").discovery_policy;
+  assert.equal(policy.missing_mapped_variant_mode, "BLOCK");
+  assert.equal(policy.maximum_missing_mapped_variants, 0);
+  assert.equal(policy.maximum_missing_mapped_variant_ratio, 0);
+});
+
+test("Simply publication refuses incomplete or unhealthy sources, synthetic OOS, changed scope and unverified conflict types", () => {
+  const mutations = [
+    f => { f.report.source.diagnostic.pagination_completed = false; },
+    f => { f.report.source.diagnostic.final_http_status = 429; },
+    f => { f.diagnostic.guard_results[0].result = "BLOCK"; },
+    f => { f.diagnostic.validator_result = "FAIL"; },
+    f => { f.diagnostic.guard_results.pop(); },
+    f => { f.report.discovery.missing_variants_marked_unavailable = 1; },
+    f => { f.report.discovery.catalogue_creates = 1; },
+    f => { f.diagnostic.guard_results[1].matched = 116; },
+    f => { f.report.review_rows[0].reason = "CANONICAL_IDENTITY_CONFLICT"; },
+    f => { f.report.review_rows.pop(); },
+    f => { f.diagnostic.database_writes_attempted = 1; },
+  ];
+  for (const mutate of mutations) {
+    const fixture = writeSimplyReviewFixture(); mutate(fixture);
+    writeJson(fixture.reportFile, fixture.report); writeJson(fixture.diagnosticFile, fixture.diagnostic);
+    assert.throws(() => buildFitHouseSourceContract(fixture.directory, { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "123456", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit }, "simply-supplements"), /source-missing publication|review (reason|row count) drifted|contains writes/);
+  }
+});
+
 function writeJonsFixture(reviewCount = 5) {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "jons-review-source-"));
   const capturedAt = "2026-10-07T04:48:00.000Z";

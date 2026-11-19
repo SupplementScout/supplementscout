@@ -1,0 +1,444 @@
+{
+  "schema_version": 1,
+  "kind": "simply-shared-review-publication-hardening",
+  "status": "NEEDS_OWNER_APPROVAL",
+  "base_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+  "production_ledger": 269,
+  "production_pending": [],
+  "publication_policy": "simply-supplements-automation-review-source-v1",
+  "approved_scope": 120,
+  "discovery_policy_unchanged": {
+    "missing_mapped_variant_mode": "BLOCK",
+    "maximum_missing_mapped_variants": 0
+  },
+  "fresh_public_source_audit": {
+    "captured_at": "2026-11-19T21:21:24.796Z",
+    "source_product_count": 264,
+    "source_diagnostic": {
+      "source_url": "https://www.simplysupplements.co.uk/products.json",
+      "source_type": "SHOPIFY_PRODUCTS_JSON",
+      "request_headers": {
+        "accept": "application/json",
+        "cache_control": "no-cache",
+        "pragma": "no-cache",
+        "user_agent": "SupplementScout-Simply-Supplements-Refresh/1.0"
+      },
+      "redirect_policy": "error",
+      "pages": [
+        {
+          "page": 1,
+          "attempt": 1,
+          "url": "https://www.simplysupplements.co.uk/products.json?limit=250&page=1&country=GB&_ss_no_cache=1795123284801-1",
+          "response_url": "https://www.simplysupplements.co.uk/products.json?limit=250&page=1&country=GB&_ss_no_cache=1795123284801-1",
+          "redirected": false,
+          "duration_ms": 1035,
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "declared_bytes": 106166,
+          "bytes_received": 668216,
+          "result": "PASS",
+          "product_count": 140
+        },
+        {
+          "page": 2,
+          "attempt": 1,
+          "url": "https://www.simplysupplements.co.uk/products.json?limit=250&page=2&country=GB&_ss_no_cache=1795123285963-2",
+          "response_url": "https://www.simplysupplements.co.uk/products.json?limit=250&page=2&country=GB&_ss_no_cache=1795123285963-2",
+          "redirected": false,
+          "duration_ms": 385,
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "declared_bytes": 39059,
+          "bytes_received": 229888,
+          "result": "PASS",
+          "product_count": 44
+        },
+        {
+          "page": 3,
+          "attempt": 1,
+          "url": "https://www.simplysupplements.co.uk/products.json?limit=250&page=3&country=GB&_ss_no_cache=1795123286398-3",
+          "response_url": "https://www.simplysupplements.co.uk/products.json?limit=250&page=3&country=GB&_ss_no_cache=1795123286398-3",
+          "redirected": false,
+          "duration_ms": 381,
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "declared_bytes": 63003,
+          "bytes_received": 373836,
+          "result": "PASS",
+          "product_count": 80
+        },
+        {
+          "page": 4,
+          "attempt": 1,
+          "url": "https://www.simplysupplements.co.uk/products.json?limit=250&page=4&country=GB&_ss_no_cache=1795123286883-4",
+          "response_url": "https://www.simplysupplements.co.uk/products.json?limit=250&page=4&country=GB&_ss_no_cache=1795123286883-4",
+          "redirected": false,
+          "duration_ms": 128,
+          "status": 200,
+          "content_type": "application/json; charset=utf-8",
+          "declared_bytes": 19,
+          "bytes_received": 15,
+          "result": "PASS",
+          "product_count": 0
+        }
+      ],
+      "pages_fetched": 4,
+      "bytes_received": 1271955,
+      "pagination_completed": true,
+      "pagination_completion": "empty-page",
+      "retry_count": 0,
+      "final_http_status": 200,
+      "final_content_type": "application/json; charset=utf-8"
+    },
+    "rows": [
+      {
+        "offer_id": 596,
+        "title": "Vegan Vitamin D3 400iu Tablets",
+        "mapped_product_id": "15934273716573",
+        "mapped_variant_id": "64643276996957",
+        "exact_product_in_complete_feed": false,
+        "exact_variant_in_complete_feed": false,
+        "candidates": [],
+        "pages": [
+          {
+            "original": "https://www.simplysupplements.co.uk/products/vegan-d3-400iu?variant=64643276996957",
+            "chain": [
+              {
+                "url": "https://www.simplysupplements.co.uk/products/vegan-d3-400iu?variant=64643276996957",
+                "status": 429,
+                "content_type": "application/json",
+                "sha256": "7b34482ac7231f4e1ecf503812bfcff69161077c6da8302bbb4ea0dcc6397fed",
+                "bytes": 169,
+                "location": null
+              }
+            ]
+          },
+          {
+            "original": "https://www.simplysupplements.co.uk/products/vegan-d3-400iu.json",
+            "chain": [
+              {
+                "url": "https://www.simplysupplements.co.uk/products/vegan-d3-400iu.json",
+                "status": 429,
+                "content_type": "application/json",
+                "sha256": "7b34482ac7231f4e1ecf503812bfcff69161077c6da8302bbb4ea0dcc6397fed",
+                "bytes": 169,
+                "location": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "offer_id": 669,
+        "title": "Vitamin B6 Tablets 50mg",
+        "mapped_product_id": "16212558479709",
+        "mapped_variant_id": "64756981727581",
+        "exact_product_in_complete_feed": false,
+        "exact_variant_in_complete_feed": false,
+        "candidates": [
+          {
+            "id": 15934231511389,
+            "title": "Super Magnesium 250mg with Vitamin B Complex",
+            "handle": "super-magnesium-250mg-vitamin-b-complex",
+            "variants": [
+              {
+                "id": 63499201773917,
+                "title": "120 tablets / [Multibuy 1]",
+                "sku": "C418"
+              },
+              {
+                "id": 65389037584733,
+                "title": "120 tablets / [Multibuy 2]",
+                "sku": "C418"
+              }
+            ]
+          }
+        ],
+        "pages": [
+          {
+            "original": "https://www.simplysupplements.co.uk/products/vitamin-b6-50mg?variant=64756981727581",
+            "chain": [
+              {
+                "url": "https://www.simplysupplements.co.uk/products/vitamin-b6-50mg?variant=64756981727581",
+                "status": 429,
+                "content_type": "application/json",
+                "sha256": "7b34482ac7231f4e1ecf503812bfcff69161077c6da8302bbb4ea0dcc6397fed",
+                "bytes": 169,
+                "location": null
+              }
+            ]
+          },
+          {
+            "original": "https://www.simplysupplements.co.uk/products/vitamin-b6-50mg.json",
+            "chain": [
+              {
+                "url": "https://www.simplysupplements.co.uk/products/vitamin-b6-50mg.json",
+                "status": 429,
+                "content_type": "application/json",
+                "sha256": "7b34482ac7231f4e1ecf503812bfcff69161077c6da8302bbb4ea0dcc6397fed",
+                "bytes": 169,
+                "location": null
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "offer_id": 670,
+        "title": "Ginkgo Biloba Tablets 1,500mg",
+        "mapped_product_id": "15934241440093",
+        "mapped_variant_id": "63499230052701",
+        "exact_product_in_complete_feed": false,
+        "exact_variant_in_complete_feed": false,
+        "candidates": [
+          {
+            "id": 15934240194909,
+            "title": "Ginkgo Biloba Tablets 6,000mg",
+            "handle": "ginkgo-biloba-6000mg",
+            "variants": [
+              {
+                "id": 64643257925981,
+                "title": "180 tablets / [Multibuy 1]",
+                "sku": "C808"
+              },
+              {
+                "id": 64643257958749,
+                "title": "180 tablets / [Multibuy 2]",
+                "sku": "C808"
+              }
+            ]
+          },
+          {
+            "id": 15934243275101,
+            "title": "Ginkgo Biloba Capsules 10,000mg",
+            "handle": "ginkgo-biloba-10000mg",
+            "variants": [
+              {
+                "id": 64643256549725,
+                "title": "60 capsules / [Multibuy 1]",
+                "sku": "C636"
+              },
+              {
+                "id": 64643256582493,
+                "title": "60 capsules / [Multibuy 2]",
+                "sku": "C636"
+              }
+            ]
+          }
+        ],
+        "pages": [
+          {
+            "original": "https://www.simplysupplements.co.uk/products/ginkgo-biloba-1500mg?variant=63499230052701",
+            "chain": [
+              {
+                "url": "https://www.simplysupplements.co.uk/products/ginkgo-biloba-1500mg?variant=63499230052701",
+                "status": 429,
+                "content_type": "application/json",
+                "sha256": "7b34482ac7231f4e1ecf503812bfcff69161077c6da8302bbb4ea0dcc6397fed",
+                "bytes": 169,
+                "location": null
+              }
+            ]
+          },
+          {
+            "original": "https://www.simplysupplements.co.uk/products/ginkgo-biloba-1500mg.json",
+            "chain": [
+              {
+                "url": "https://www.simplysupplements.co.uk/products/ginkgo-biloba-1500mg.json",
+                "status": 429,
+                "content_type": "application/json",
+                "sha256": "7b34482ac7231f4e1ecf503812bfcff69161077c6da8302bbb4ea0dcc6397fed",
+                "bytes": 169,
+                "location": null
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "real_production_evidence_local_validation": {
+    "captured_at": "2026-11-19T22:01:42.602Z",
+    "result": "PASS",
+    "mode": "LOCAL_VALIDATION_OF_READONLY_PRODUCTION_EVIDENCE",
+    "native_run_id": "44595008949",
+    "native_source_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+    "profile": "simply-supplements",
+    "source_captured_at": "2026-11-19T19:08:10.067Z",
+    "baseline_captured_at": "2026-11-19T21:06:58.723Z",
+    "source_fingerprint": "c556c86c6994833add99f9d4eec389afc6e4324b06a907b751e48e068543405f",
+    "approved": 120,
+    "executable": 117,
+    "reviews": 3,
+    "old_contract_rejection": "Unknown retailer review profile simply-supplements",
+    "selected_cards": [
+      {
+        "offer_id": "596",
+        "proposedState": {
+          "catalogue_action": "KEEP_UNCHANGED",
+          "identity_review": "READ_ONLY",
+          "automatic_action": false
+        },
+        "reasonCodes": "SOURCE_MISSING",
+        "confidence": "LOW",
+        "sourcePrice": null,
+        "reviewKind": "IDENTITY_CONFLICT",
+        "operationType": "MANUAL_REVIEW_IDENTITY",
+        "evidenceReason": "SOURCE_VARIANT_MISSING"
+      },
+      {
+        "offer_id": "669",
+        "proposedState": {
+          "catalogue_action": "KEEP_UNCHANGED",
+          "identity_review": "READ_ONLY",
+          "automatic_action": false
+        },
+        "reasonCodes": "SOURCE_MISSING",
+        "confidence": "LOW",
+        "sourcePrice": null,
+        "reviewKind": "IDENTITY_CONFLICT",
+        "operationType": "MANUAL_REVIEW_IDENTITY",
+        "evidenceReason": "SOURCE_VARIANT_MISSING"
+      },
+      {
+        "offer_id": "670",
+        "proposedState": {
+          "catalogue_action": "KEEP_UNCHANGED",
+          "identity_review": "READ_ONLY",
+          "automatic_action": false
+        },
+        "reasonCodes": "SOURCE_MISSING",
+        "confidence": "LOW",
+        "sourcePrice": null,
+        "reviewKind": "IDENTITY_CONFLICT",
+        "operationType": "MANUAL_REVIEW_IDENTITY",
+        "evidenceReason": "SOURCE_VARIANT_MISSING"
+      }
+    ],
+    "code_sha256": "73bb659363b848bf73eb554fa04b2147cf423ac1cf5ce55794b320d1db721c8a",
+    "input_sha256": {
+      "production-dry-run.json": "b043e0e3764cc0a783a7e2b9db78d478a0b8347c5a9e133828f8a4f4a34d49c2",
+      "production-preflight-diagnostic.json": "c5b332a26f63a6ed00e4e51aa21065e0e085d4b81f23f82fe3b81207310a253a",
+      "production-db-baseline.json": "3bf83244c5ddcd0bce44fe273a34d972d0d652470c7aa2b887aa79d8cc5ac349"
+    },
+    "database_writes": 0,
+    "publication_rpc_calls": 0,
+    "protected_binding_of_proposed_revision": "NOT_RUN",
+    "production_publication": "NOT_RUN"
+  },
+  "existing_production_prerequisites": {
+    "captured_at": "2026-11-19T22:03:19.672Z",
+    "read_only": true,
+    "database_writes": 0,
+    "durable_enforcement": {
+      "repository_variable": "ABSENT",
+      "production_readonly_environment_variable": "ABSENT",
+      "effective_existing_mode": "OFF",
+      "changed": false
+    },
+    "sealed_registry": [
+      {
+        "relation": "sealed_artifacts",
+        "relrowsecurity": true,
+        "service_select": true,
+        "service_insert": true
+      }
+    ],
+    "bucket": [
+      {
+        "id": "sealed-artifacts",
+        "public": false,
+        "file_size_limit": "10485760",
+        "allowed_mime_types": [
+          "application/json",
+          "application/x-ndjson",
+          "application/sql",
+          "text/csv",
+          "text/markdown",
+          "text/plain"
+        ]
+      }
+    ],
+    "publication_rpc": [
+      {
+        "signature": "publish_automation_review_queue_changes(jsonb)",
+        "security_definer": true,
+        "service_execute": true,
+        "anon_execute": false,
+        "authenticated_execute": false,
+        "sha256": "09dd34b96dec68c88a5c16bf63820f0d39ca02f6eb3329c5f1586b9feacc38ab",
+        "manual_identity_operation_present": true
+      }
+    ],
+    "positive_durable_write_rehearsal": "NOT_RUN",
+    "activation": "NEEDS_OWNER_APPROVAL"
+  },
+  "production_activation": "BLOCKED_ON_SEPARATELY_APPROVED_EXISTING_DURABLE_ROLLOUT",
+  "implementation_sha256": {
+    ".github/workflows/simply-supplements-offer-refresh.yml": "3fcb83a3adba79eefed14952c1b4e336a129d3c77414fd828a73c1526139113f",
+    "app/lib/automationReviewCapabilityMatrix.ts": "e35ba0a8f05d29454dac78ac23dc8a06d76a968ce4e9c042df6f278d73651e6a",
+    "config/automation-reliability-watchdog.json": "ed304a4af9ce46984e0899cd7d6e19d16d37c5ce95ea99cda73c356a73b278d3",
+    "scripts/lib/automation-review-publication-profiles.js": "73bb659363b848bf73eb554fa04b2147cf423ac1cf5ce55794b320d1db721c8a",
+    "scripts/shared-retailer-automation-review-source.js": "e71267461eac7ba1296efcc5fc6d6696a489c430eab661bd23e911baff2c703f",
+    "scripts/automation-review-publisher.test.js": "3b81894a59e519e0b20b367c271ec467e0ef51ab19746166e8ce40177de587b2",
+    "scripts/automation-review-reconciliation-dry-run.test.js": "5b74642d96ae10271a1e0dc358c209ad1866270c18649d5df29195968a776e36",
+    "scripts/simply-supplements-offer-refresh.test.js": "1b3e4ba51e36f1de8c7f37b1a14d7c7b488abd5300a92ddf93d3a779ef94d07b"
+  },
+  "gates": [
+    {
+      "gate": "verify:project",
+      "result": "PASS",
+      "exit_code": 0,
+      "started_at": "2026-11-19T22:10:25.957Z",
+      "completed_at": "2026-11-19T22:10:28.136Z",
+      "log": "tmp/hardening/verify-project.log",
+      "log_sha256": "ac7e996732fb3467a54d7d54d782066c3545ecd4d4673552c66abdc642e9e5cd"
+    },
+    {
+      "gate": "verify:baseline",
+      "result": "PASS",
+      "exit_code": 0,
+      "started_at": "2026-11-19T22:10:28.138Z",
+      "completed_at": "2026-11-19T22:10:30.598Z",
+      "log": "tmp/hardening/verify-baseline.log",
+      "log_sha256": "4950ab89ac5ad9a525dc5393f2477ac9dee290375b7aaddf36c221f674bc5cb0"
+    },
+    {
+      "gate": "verify:quick",
+      "result": "PASS",
+      "exit_code": 0,
+      "started_at": "2026-11-19T22:10:30.599Z",
+      "completed_at": "2026-11-19T22:15:05.714Z",
+      "log": "tmp/hardening/verify-quick.log",
+      "log_sha256": "c3d99976753195ac771421fd88ce335003a4c2cb822bd804ce66efffbd75d4fe"
+    },
+    {
+      "gate": "verify:full",
+      "result": "PASS",
+      "exit_code": 0,
+      "started_at": "2026-11-19T22:20:32.075Z",
+      "completed_at": "2026-11-19T22:29:23.978Z",
+      "log": "tmp/hardening/verify-full.log",
+      "log_sha256": "ae7e9516facb307ad7af52d32cc388c49af8cce200ceb42886a85cc7f1cfa8da"
+    }
+  ],
+  "full_safe_test_counts": {
+    "tests": 4104,
+    "passed": 4101,
+    "failed": 0,
+    "skipped": 3
+  },
+  "test_inventory_count": 371,
+  "test_inventory_seal_unchanged": true,
+  "new_migrations": 0,
+  "new_tables": 0,
+  "new_executors": 0,
+  "new_publisher": 0,
+  "production_writes": 0,
+  "sealed_enforcement_changed": false,
+  "protected_binding_of_proposed_revision": "NOT_RUN",
+  "positive_production_seal_verify": "NOT_RUN",
+  "review_publication": "NOT_RUN",
+  "merge": "NOT_RUN",
+  "production_deployment": "NOT_RUN"
+}
