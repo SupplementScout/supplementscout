@@ -1,5 +1,16 @@
 # SupplementScout SEO Execution Plan
 
+**19 November 2026 Creatine mobile repair CODE COMPLETE:** owner authorizes
+one separate bounded repair after live SEO-31/Whey releases. The absolute sr-only
+action-column label escaped the static table scroll wrapper and expanded root
+scrollWidth to1050px at320px. A local containing block fixes this; the redundant
+main overflow hiding is removed. Nine columns,table minimum width and all data/SEO
+logic remain. The labelled native scroll region supports keyboard and touch.
+Eight widths,14 control cases,32 focused tests and quick/full pass. Conditional
+owner approval permits normal protected release after green exact-head CI and
+requires public readback. No data write or SEO-32;SEO-20 frozen,SEO-21–31 live,
+Stage3 off. [Evidence](rollouts/creatine-mobile-overflow-repair-2026-11-19.md).
+
 **18 November 2026 targeted whey technical repairs LIVE VERIFIED:** owner-approved
 separate PR#552 squashc956a41408922d7857fd3894ccacaf7c580a10ff preserves exact reviewedaff1de66 tree.
 PR/main CI,Guardian and Production/Vercel SUCCESS pass. Public build
@@ -922,6 +933,25 @@ SEO-07 manual evidence queue is now complete:
 - Preserve the existing catalogue, merge, import and automation safety rules.
 
 ## 11. Execution evidence
+
+### 19 November 2026 - owner-approved Creatine mobile repair CODE COMPLETE
+
+- Base366d0687474392beb1d4fc0cb781cb7b3014eee4; no competing repair PR. Root/non-task worktrees untouched.
+- Local/public mobile and desktop320px confirm real root1050px overflow despite
+  meta viewport width=device-width/initial-scale1 and body320px. The absolute
+  sr-only action label atx1049.48px used BODY as containing block. Wrapper itself
+  was correctly286px with1142px internal table; its static position leaked labels.
+- Relative wrapper contains labels;main overflow-x-hidden is removed. Native
+  focusable labelled scroll region preserves all nine columns/caption/headers.
+  No shared component,client JS,query,cache,pricing,nutrition or SEO change.
+-32 focused tests,quick1341/full4078PASS,3 existing archive
+  skips,TypeScript/ESLint/build and Guardian pass. Eight widths,actual native
+  touch/keyboard scrolling,both sorts,brand/retailer/empty states,AX tree and14
+  shared control cases pass. Actual-source86-row and exact under£20 readback
+  matches;local cold2→2/warm0→0 and existing response guard pass.
+- Separate conditional owner-approved PR only;public evidence required before
+  LIVE VERIFIED. SEO-20 frozen,SEO-21–31 rows unchanged,Stage3 off;no data writes,
+  retailer test click or SEO-32. [Evidence](rollouts/creatine-mobile-overflow-repair-2026-11-19.md).
 
 ### 18 November 2026 - targeted whey technical repairs LIVE VERIFIED
 

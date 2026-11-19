@@ -253,7 +253,7 @@ export function CreatinePageContent({ result, controlView, budgetRows = result.r
   );
 
   return (
-    <main className="min-h-screen w-full overflow-x-hidden bg-zinc-50 text-zinc-950">
+    <main className="min-h-screen w-full bg-zinc-50 text-zinc-950">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -333,7 +333,13 @@ export function CreatinePageContent({ result, controlView, budgetRows = result.r
         )}
 
         {!result.error && result.rows.length > 0 && (
-          <div className="mt-6 overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-sm" data-mobile-overflow="controlled">
+          <div
+            className="relative mt-6 overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-sm"
+            data-mobile-overflow="controlled"
+            role="region"
+            aria-labelledby="comparison-heading"
+            tabIndex={0}
+          >
             <table className="w-full min-w-[1120px] border-collapse text-left text-sm">
               <caption className="sr-only">Creatine supplement retailer and delivered-price comparison</caption>
               <thead className="bg-zinc-100 text-xs uppercase tracking-wide text-zinc-600">

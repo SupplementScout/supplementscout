@@ -744,13 +744,23 @@ test("empty and degraded states remain useful and do not expose prices", () => {
   assert.doesNotMatch(failedHtml, /£0/);
 });
 
-test("comparison table has an explicit mobile overflow guard", () => {
+test("comparison scroll region contains absolute accessibility labels without clipping the page", () => {
   const { page } = loadPage();
   const html = renderToStaticMarkup(React.createElement(page.CreatinePageContent, { result: comparisonFixture() }));
-  assert.match(html, /overflow-x-auto/);
-  assert.match(html, /data-mobile-overflow="controlled"/);
-  assert.match(html, /<table/);
-  assert.match(html, /<caption/);
+  const main = html.match(/<main\b[^>]*>/)[0];
+  const region = html.match(/<div\b[^>]*data-mobile-overflow="controlled"[^>]*>/)[0];
+  const classes = region.match(/class="([^"]+)"/)[1].split(" ");
+  assert.ok(classes.includes("relative"), "absolute sr-only labels must use the scrolling region as their containing block");
+  assert.ok(classes.includes("overflow-x-auto"));
+  assert.match(region, /role="region"/);
+  assert.match(region, /aria-labelledby="comparison-heading"/);
+  assert.match(region, /tabindex="0"/i);
+  assert.match(html, /id="comparison-heading"/);
+  assert.doesNotMatch(main, /overflow-(?:x-)?hidden|clip-path|scale-/);
+  assert.match(html, /<table[^>]*min-w-\[1120px\]/);
+  assert.equal((html.match(/<th\s+scope="col"/g) || []).length, 9);
+  assert.match(html, /<caption[^>]*class="sr-only"[^>]*>Creatine supplement retailer and delivered-price comparison<\/caption>/);
+  assert.match(html, /<span class="sr-only">Compare or view details<\/span>/);
 });
 
 test("homepage provides contextual discovery links to /creatine", () => {

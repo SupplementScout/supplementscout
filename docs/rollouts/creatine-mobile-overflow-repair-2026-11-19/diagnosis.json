@@ -1,0 +1,1283 @@
+{
+  "at": "2026-11-19T08:32:07.834Z",
+  "cases": [
+    {
+      "base": "http://127.0.0.1:3146",
+      "mobile": true,
+      "requestedWidth": 320,
+      "deviceScaleFactor": 1,
+      "geometry": {
+        "metaViewport": "width=device-width, initial-scale=1",
+        "innerWidth": 1050,
+        "screenWidth": 320,
+        "devicePixelRatio": 1,
+        "visualViewport": {
+          "width": 320,
+          "height": 1000,
+          "scale": 1,
+          "offsetLeft": 0
+        },
+        "document": {
+          "client": 320,
+          "scroll": 1050
+        },
+        "body": {
+          "tag": "BODY",
+          "id": "",
+          "class": "min-h-full flex flex-col",
+          "text": "SupplementScout\nSearch creatine\nHome\n/\nCreatine\n\nCREATINE COMPARISON\n\nCompare Creatine Supplements UK\n\nThis pa",
+          "rect": {
+            "left": 0,
+            "right": 320,
+            "top": 0,
+            "width": 320,
+            "height": 19320
+          },
+          "client": 320,
+          "scroll": 320,
+          "width": "320px",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "position": "static",
+          "flex": "0 1 auto",
+          "flexWrap": "nowrap",
+          "grid": "none",
+          "gap": "normal",
+          "padding": "0px"
+        },
+        "main": [
+          {
+            "tag": "MAIN",
+            "id": "",
+            "class": "min-h-screen w-full overflow-x-hidden bg-zinc-50 text-zinc-950",
+            "text": "SupplementScout\nSearch creatine\nHome\n/\nCreatine\n\nCREATINE COMPARISON\n\nCompare Creatine Supplements UK\n\nThis pa",
+            "rect": {
+              "left": 0,
+              "right": 320,
+              "top": 0,
+              "width": 320,
+              "height": 19244
+            },
+            "client": 320,
+            "scroll": 320,
+            "width": "320px",
+            "minWidth": "auto",
+            "maxWidth": "none",
+            "display": "block",
+            "overflowX": "hidden",
+            "overflowY": "auto",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px"
+          }
+        ],
+        "wrapper": {
+          "tag": "DIV",
+          "id": "",
+          "class": "mt-6 overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-sm",
+          "text": "Creatine supplement retailer and delivered-price comparison\nPRODUCT\tBRAND\tBEST AVAILABLE RETAILER\tPRODUCT PRIC",
+          "rect": {
+            "left": 16,
+            "right": 304,
+            "top": 4715,
+            "width": 288,
+            "height": 12133
+          },
+          "client": 286,
+          "scroll": 1142,
+          "width": "288px",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "display": "block",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "position": "static",
+          "flex": "0 1 auto",
+          "flexWrap": "nowrap",
+          "grid": "none",
+          "gap": "normal",
+          "padding": "0px"
+        },
+        "table": {
+          "tag": "TABLE",
+          "id": "",
+          "class": "w-full min-w-[1120px] border-collapse text-left text-sm",
+          "text": "Creatine supplement retailer and delivered-price comparison\nPRODUCT\tBRAND\tBEST AVAILABLE RETAILER\tPRODUCT PRIC",
+          "rect": {
+            "left": 17,
+            "right": 1159.28125,
+            "top": 4716,
+            "width": 1142.28125,
+            "height": 12131
+          },
+          "client": 1142,
+          "scroll": 1142,
+          "width": "1142.28px",
+          "minWidth": "1120px",
+          "maxWidth": "none",
+          "display": "table",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "position": "static",
+          "flex": "0 1 auto",
+          "flexWrap": "nowrap",
+          "grid": "none",
+          "gap": "normal",
+          "padding": "0px"
+        },
+        "wrapperAncestors": [
+          {
+            "tag": "DIV",
+            "id": "",
+            "class": "mt-6 overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-sm",
+            "text": "Creatine supplement retailer and delivered-price comparison\nPRODUCT\tBRAND\tBEST AVAILABLE RETAILER\tPRODUCT PRIC",
+            "rect": {
+              "left": 16,
+              "right": 304,
+              "top": 4715,
+              "width": 288,
+              "height": 12133
+            },
+            "client": 286,
+            "scroll": 1142,
+            "width": "288px",
+            "minWidth": "0px",
+            "maxWidth": "none",
+            "display": "block",
+            "overflowX": "auto",
+            "overflowY": "auto",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px"
+          },
+          {
+            "tag": "SECTION",
+            "id": "",
+            "class": "mx-auto max-w-7xl px-4 pb-10 sm:px-6 sm:pb-14",
+            "text": "RETAILER COMPARISON\n\nCreatine prices and availability\n\nLatest retailer check: 18 Nov 2026, 17:27\n\nShowing 86 o",
+            "rect": {
+              "left": 0,
+              "right": 320,
+              "top": 4377,
+              "width": 320,
+              "height": 12511
+            },
+            "client": 320,
+            "scroll": 320,
+            "width": "320px",
+            "minWidth": "0px",
+            "maxWidth": "1280px",
+            "display": "block",
+            "overflowX": "visible",
+            "overflowY": "visible",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px 16px 40px"
+          },
+          {
+            "tag": "MAIN",
+            "id": "",
+            "class": "min-h-screen w-full overflow-x-hidden bg-zinc-50 text-zinc-950",
+            "text": "SupplementScout\nSearch creatine\nHome\n/\nCreatine\n\nCREATINE COMPARISON\n\nCompare Creatine Supplements UK\n\nThis pa",
+            "rect": {
+              "left": 0,
+              "right": 320,
+              "top": 0,
+              "width": 320,
+              "height": 19244
+            },
+            "client": 320,
+            "scroll": 320,
+            "width": "320px",
+            "minWidth": "auto",
+            "maxWidth": "none",
+            "display": "block",
+            "overflowX": "hidden",
+            "overflowY": "auto",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px"
+          },
+          {
+            "tag": "BODY",
+            "id": "",
+            "class": "min-h-full flex flex-col",
+            "text": "SupplementScout\nSearch creatine\nHome\n/\nCreatine\n\nCREATINE COMPARISON\n\nCompare Creatine Supplements UK\n\nThis pa",
+            "rect": {
+              "left": 0,
+              "right": 320,
+              "top": 0,
+              "width": 320,
+              "height": 19320
+            },
+            "client": 320,
+            "scroll": 320,
+            "width": "320px",
+            "minWidth": "0px",
+            "maxWidth": "none",
+            "display": "flex",
+            "overflowX": "visible",
+            "overflowY": "visible",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px"
+          },
+          {
+            "tag": "HTML",
+            "id": "",
+            "class": "geist_a71539c9-module__T19VSG__variable geist_mono_8d43a2aa-module__8Li5zG__variable h-full antialiased",
+            "text": "SupplementScout\nSearch creatine\nHome\n/\nCreatine\n\nCREATINE COMPARISON\n\nCompare Creatine Supplements UK\n\nThis pa",
+            "rect": {
+              "left": 0,
+              "right": 320,
+              "top": 0,
+              "width": 320,
+              "height": 1000
+            },
+            "client": 320,
+            "scroll": 1050,
+            "width": "320px",
+            "minWidth": "0px",
+            "maxWidth": "none",
+            "display": "block",
+            "overflowX": "visible",
+            "overflowY": "visible",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px"
+          }
+        ]
+      }
+    },
+    {
+      "base": "http://127.0.0.1:3146",
+      "mobile": false,
+      "requestedWidth": 320,
+      "deviceScaleFactor": 1,
+      "geometry": {
+        "metaViewport": "width=device-width, initial-scale=1",
+        "innerWidth": 320,
+        "screenWidth": 320,
+        "devicePixelRatio": 1,
+        "visualViewport": {
+          "width": 305,
+          "height": 985,
+          "scale": 1,
+          "offsetLeft": 0
+        },
+        "document": {
+          "client": 305,
+          "scroll": 1050
+        },
+        "body": {
+          "tag": "BODY",
+          "id": "",
+          "class": "min-h-full flex flex-col",
+          "text": "SupplementScout\nSearch creatine\nHome\n/\nCreatine\n\nCREATINE COMPARISON\n\nCompare Creatine Supplements UK\n\nThis pa",
+          "rect": {
+            "left": 0,
+            "right": 305,
+            "top": 0,
+            "width": 305,
+            "height": 19723
+          },
+          "client": 305,
+          "scroll": 305,
+          "width": "305px",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "position": "static",
+          "flex": "0 1 auto",
+          "flexWrap": "nowrap",
+          "grid": "none",
+          "gap": "normal",
+          "padding": "0px"
+        },
+        "main": [
+          {
+            "tag": "MAIN",
+            "id": "",
+            "class": "min-h-screen w-full overflow-x-hidden bg-zinc-50 text-zinc-950",
+            "text": "SupplementScout\nSearch creatine\nHome\n/\nCreatine\n\nCREATINE COMPARISON\n\nCompare Creatine Supplements UK\n\nThis pa",
+            "rect": {
+              "left": 0,
+              "right": 305,
+              "top": 0,
+              "width": 305,
+              "height": 19647
+            },
+            "client": 305,
+            "scroll": 305,
+            "width": "305px",
+            "minWidth": "auto",
+            "maxWidth": "none",
+            "display": "block",
+            "overflowX": "hidden",
+            "overflowY": "auto",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px"
+          }
+        ],
+        "wrapper": {
+          "tag": "DIV",
+          "id": "",
+          "class": "mt-6 overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-sm",
+          "text": "Creatine supplement retailer and delivered-price comparison\nPRODUCT\tBRAND\tBEST AVAILABLE RETAILER\tPRODUCT PRIC",
+          "rect": {
+            "left": 16,
+            "right": 289,
+            "top": 4991,
+            "width": 273,
+            "height": 12148
+          },
+          "client": 271,
+          "scroll": 1142,
+          "width": "273px",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "display": "block",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "position": "static",
+          "flex": "0 1 auto",
+          "flexWrap": "nowrap",
+          "grid": "none",
+          "gap": "normal",
+          "padding": "0px"
+        },
+        "table": {
+          "tag": "TABLE",
+          "id": "",
+          "class": "w-full min-w-[1120px] border-collapse text-left text-sm",
+          "text": "Creatine supplement retailer and delivered-price comparison\nPRODUCT\tBRAND\tBEST AVAILABLE RETAILER\tPRODUCT PRIC",
+          "rect": {
+            "left": 17,
+            "right": 1159.28125,
+            "top": 4992,
+            "width": 1142.28125,
+            "height": 12131
+          },
+          "client": 1142,
+          "scroll": 1142,
+          "width": "1142.28px",
+          "minWidth": "1120px",
+          "maxWidth": "none",
+          "display": "table",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "position": "static",
+          "flex": "0 1 auto",
+          "flexWrap": "nowrap",
+          "grid": "none",
+          "gap": "normal",
+          "padding": "0px"
+        },
+        "wrapperAncestors": [
+          {
+            "tag": "DIV",
+            "id": "",
+            "class": "mt-6 overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-sm",
+            "text": "Creatine supplement retailer and delivered-price comparison\nPRODUCT\tBRAND\tBEST AVAILABLE RETAILER\tPRODUCT PRIC",
+            "rect": {
+              "left": 16,
+              "right": 289,
+              "top": 4991,
+              "width": 273,
+              "height": 12148
+            },
+            "client": 271,
+            "scroll": 1142,
+            "width": "273px",
+            "minWidth": "0px",
+            "maxWidth": "none",
+            "display": "block",
+            "overflowX": "auto",
+            "overflowY": "auto",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px"
+          },
+          {
+            "tag": "SECTION",
+            "id": "",
+            "class": "mx-auto max-w-7xl px-4 pb-10 sm:px-6 sm:pb-14",
+            "text": "RETAILER COMPARISON\n\nCreatine prices and availability\n\nLatest retailer check: 18 Nov 2026, 17:27\n\nShowing 86 o",
+            "rect": {
+              "left": 0,
+              "right": 305,
+              "top": 4653,
+              "width": 305,
+              "height": 12526
+            },
+            "client": 305,
+            "scroll": 305,
+            "width": "305px",
+            "minWidth": "0px",
+            "maxWidth": "1280px",
+            "display": "block",
+            "overflowX": "visible",
+            "overflowY": "visible",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px 16px 40px"
+          },
+          {
+            "tag": "MAIN",
+            "id": "",
+            "class": "min-h-screen w-full overflow-x-hidden bg-zinc-50 text-zinc-950",
+            "text": "SupplementScout\nSearch creatine\nHome\n/\nCreatine\n\nCREATINE COMPARISON\n\nCompare Creatine Supplements UK\n\nThis pa",
+            "rect": {
+              "left": 0,
+              "right": 305,
+              "top": 0,
+              "width": 305,
+              "height": 19647
+            },
+            "client": 305,
+            "scroll": 305,
+            "width": "305px",
+            "minWidth": "auto",
+            "maxWidth": "none",
+            "display": "block",
+            "overflowX": "hidden",
+            "overflowY": "auto",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px"
+          },
+          {
+            "tag": "BODY",
+            "id": "",
+            "class": "min-h-full flex flex-col",
+            "text": "SupplementScout\nSearch creatine\nHome\n/\nCreatine\n\nCREATINE COMPARISON\n\nCompare Creatine Supplements UK\n\nThis pa",
+            "rect": {
+              "left": 0,
+              "right": 305,
+              "top": 0,
+              "width": 305,
+              "height": 19723
+            },
+            "client": 305,
+            "scroll": 305,
+            "width": "305px",
+            "minWidth": "0px",
+            "maxWidth": "none",
+            "display": "flex",
+            "overflowX": "visible",
+            "overflowY": "visible",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px"
+          },
+          {
+            "tag": "HTML",
+            "id": "",
+            "class": "geist_a71539c9-module__T19VSG__variable geist_mono_8d43a2aa-module__8Li5zG__variable h-full antialiased",
+            "text": "SupplementScout\nSearch creatine\nHome\n/\nCreatine\n\nCREATINE COMPARISON\n\nCompare Creatine Supplements UK\n\nThis pa",
+            "rect": {
+              "left": 0,
+              "right": 305,
+              "top": 0,
+              "width": 305,
+              "height": 985
+            },
+            "client": 305,
+            "scroll": 1050,
+            "width": "305px",
+            "minWidth": "0px",
+            "maxWidth": "none",
+            "display": "block",
+            "overflowX": "visible",
+            "overflowY": "visible",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px"
+          }
+        ]
+      }
+    },
+    {
+      "base": "https://www.supplementscout.co.uk",
+      "mobile": true,
+      "requestedWidth": 320,
+      "deviceScaleFactor": 1,
+      "geometry": {
+        "metaViewport": "width=device-width, initial-scale=1",
+        "innerWidth": 1050,
+        "screenWidth": 320,
+        "devicePixelRatio": 1,
+        "visualViewport": {
+          "width": 320,
+          "height": 1000,
+          "scale": 1,
+          "offsetLeft": 0
+        },
+        "document": {
+          "client": 320,
+          "scroll": 1050
+        },
+        "body": {
+          "tag": "BODY",
+          "id": "",
+          "class": "min-h-full flex flex-col",
+          "text": "SupplementScout\nSearch creatine\nHome\n/\nCreatine\n\nCREATINE COMPARISON\n\nCompare Creatine Supplements UK\n\nThis pa",
+          "rect": {
+            "left": 0,
+            "right": 320,
+            "top": 0,
+            "width": 320,
+            "height": 19320
+          },
+          "client": 320,
+          "scroll": 320,
+          "width": "320px",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "position": "static",
+          "flex": "0 1 auto",
+          "flexWrap": "nowrap",
+          "grid": "none",
+          "gap": "normal",
+          "padding": "0px"
+        },
+        "main": [
+          {
+            "tag": "MAIN",
+            "id": "",
+            "class": "min-h-screen w-full overflow-x-hidden bg-zinc-50 text-zinc-950",
+            "text": "SupplementScout\nSearch creatine\nHome\n/\nCreatine\n\nCREATINE COMPARISON\n\nCompare Creatine Supplements UK\n\nThis pa",
+            "rect": {
+              "left": 0,
+              "right": 320,
+              "top": 0,
+              "width": 320,
+              "height": 19244
+            },
+            "client": 320,
+            "scroll": 320,
+            "width": "320px",
+            "minWidth": "auto",
+            "maxWidth": "none",
+            "display": "block",
+            "overflowX": "hidden",
+            "overflowY": "auto",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px"
+          }
+        ],
+        "wrapper": {
+          "tag": "DIV",
+          "id": "",
+          "class": "mt-6 overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-sm",
+          "text": "Creatine supplement retailer and delivered-price comparison\nPRODUCT\tBRAND\tBEST AVAILABLE RETAILER\tPRODUCT PRIC",
+          "rect": {
+            "left": 16,
+            "right": 304,
+            "top": 4715,
+            "width": 288,
+            "height": 12133
+          },
+          "client": 286,
+          "scroll": 1142,
+          "width": "288px",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "display": "block",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "position": "static",
+          "flex": "0 1 auto",
+          "flexWrap": "nowrap",
+          "grid": "none",
+          "gap": "normal",
+          "padding": "0px"
+        },
+        "table": {
+          "tag": "TABLE",
+          "id": "",
+          "class": "w-full min-w-[1120px] border-collapse text-left text-sm",
+          "text": "Creatine supplement retailer and delivered-price comparison\nPRODUCT\tBRAND\tBEST AVAILABLE RETAILER\tPRODUCT PRIC",
+          "rect": {
+            "left": 17,
+            "right": 1159.28125,
+            "top": 4716,
+            "width": 1142.28125,
+            "height": 12131
+          },
+          "client": 1142,
+          "scroll": 1142,
+          "width": "1142.28px",
+          "minWidth": "1120px",
+          "maxWidth": "none",
+          "display": "table",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "position": "static",
+          "flex": "0 1 auto",
+          "flexWrap": "nowrap",
+          "grid": "none",
+          "gap": "normal",
+          "padding": "0px"
+        },
+        "wrapperAncestors": [
+          {
+            "tag": "DIV",
+            "id": "",
+            "class": "mt-6 overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-sm",
+            "text": "Creatine supplement retailer and delivered-price comparison\nPRODUCT\tBRAND\tBEST AVAILABLE RETAILER\tPRODUCT PRIC",
+            "rect": {
+              "left": 16,
+              "right": 304,
+              "top": 4715,
+              "width": 288,
+              "height": 12133
+            },
+            "client": 286,
+            "scroll": 1142,
+            "width": "288px",
+            "minWidth": "0px",
+            "maxWidth": "none",
+            "display": "block",
+            "overflowX": "auto",
+            "overflowY": "auto",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px"
+          },
+          {
+            "tag": "SECTION",
+            "id": "",
+            "class": "mx-auto max-w-7xl px-4 pb-10 sm:px-6 sm:pb-14",
+            "text": "RETAILER COMPARISON\n\nCreatine prices and availability\n\nLatest retailer check: 18 Nov 2026, 17:27\n\nShowing 86 o",
+            "rect": {
+              "left": 0,
+              "right": 320,
+              "top": 4377,
+              "width": 320,
+              "height": 12511
+            },
+            "client": 320,
+            "scroll": 320,
+            "width": "320px",
+            "minWidth": "0px",
+            "maxWidth": "1280px",
+            "display": "block",
+            "overflowX": "visible",
+            "overflowY": "visible",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px 16px 40px"
+          },
+          {
+            "tag": "MAIN",
+            "id": "",
+            "class": "min-h-screen w-full overflow-x-hidden bg-zinc-50 text-zinc-950",
+            "text": "SupplementScout\nSearch creatine\nHome\n/\nCreatine\n\nCREATINE COMPARISON\n\nCompare Creatine Supplements UK\n\nThis pa",
+            "rect": {
+              "left": 0,
+              "right": 320,
+              "top": 0,
+              "width": 320,
+              "height": 19244
+            },
+            "client": 320,
+            "scroll": 320,
+            "width": "320px",
+            "minWidth": "auto",
+            "maxWidth": "none",
+            "display": "block",
+            "overflowX": "hidden",
+            "overflowY": "auto",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px"
+          },
+          {
+            "tag": "BODY",
+            "id": "",
+            "class": "min-h-full flex flex-col",
+            "text": "SupplementScout\nSearch creatine\nHome\n/\nCreatine\n\nCREATINE COMPARISON\n\nCompare Creatine Supplements UK\n\nThis pa",
+            "rect": {
+              "left": 0,
+              "right": 320,
+              "top": 0,
+              "width": 320,
+              "height": 19320
+            },
+            "client": 320,
+            "scroll": 320,
+            "width": "320px",
+            "minWidth": "0px",
+            "maxWidth": "none",
+            "display": "flex",
+            "overflowX": "visible",
+            "overflowY": "visible",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px"
+          },
+          {
+            "tag": "HTML",
+            "id": "",
+            "class": "geist_a71539c9-module__T19VSG__variable geist_mono_8d43a2aa-module__8Li5zG__variable h-full antialiased",
+            "text": "SupplementScout\nSearch creatine\nHome\n/\nCreatine\n\nCREATINE COMPARISON\n\nCompare Creatine Supplements UK\n\nThis pa",
+            "rect": {
+              "left": 0,
+              "right": 320,
+              "top": 0,
+              "width": 320,
+              "height": 1000
+            },
+            "client": 320,
+            "scroll": 1050,
+            "width": "320px",
+            "minWidth": "0px",
+            "maxWidth": "none",
+            "display": "block",
+            "overflowX": "visible",
+            "overflowY": "visible",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px"
+          }
+        ]
+      }
+    },
+    {
+      "base": "https://www.supplementscout.co.uk",
+      "mobile": false,
+      "requestedWidth": 320,
+      "deviceScaleFactor": 1,
+      "geometry": {
+        "metaViewport": "width=device-width, initial-scale=1",
+        "innerWidth": 320,
+        "screenWidth": 320,
+        "devicePixelRatio": 1,
+        "visualViewport": {
+          "width": 305,
+          "height": 985,
+          "scale": 1,
+          "offsetLeft": 0
+        },
+        "document": {
+          "client": 305,
+          "scroll": 1050
+        },
+        "body": {
+          "tag": "BODY",
+          "id": "",
+          "class": "min-h-full flex flex-col",
+          "text": "SupplementScout\nSearch creatine\nHome\n/\nCreatine\n\nCREATINE COMPARISON\n\nCompare Creatine Supplements UK\n\nThis pa",
+          "rect": {
+            "left": 0,
+            "right": 305,
+            "top": 0,
+            "width": 305,
+            "height": 19723
+          },
+          "client": 305,
+          "scroll": 305,
+          "width": "305px",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "display": "flex",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "position": "static",
+          "flex": "0 1 auto",
+          "flexWrap": "nowrap",
+          "grid": "none",
+          "gap": "normal",
+          "padding": "0px"
+        },
+        "main": [
+          {
+            "tag": "MAIN",
+            "id": "",
+            "class": "min-h-screen w-full overflow-x-hidden bg-zinc-50 text-zinc-950",
+            "text": "SupplementScout\nSearch creatine\nHome\n/\nCreatine\n\nCREATINE COMPARISON\n\nCompare Creatine Supplements UK\n\nThis pa",
+            "rect": {
+              "left": 0,
+              "right": 305,
+              "top": 0,
+              "width": 305,
+              "height": 19647
+            },
+            "client": 305,
+            "scroll": 305,
+            "width": "305px",
+            "minWidth": "auto",
+            "maxWidth": "none",
+            "display": "block",
+            "overflowX": "hidden",
+            "overflowY": "auto",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px"
+          }
+        ],
+        "wrapper": {
+          "tag": "DIV",
+          "id": "",
+          "class": "mt-6 overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-sm",
+          "text": "Creatine supplement retailer and delivered-price comparison\nPRODUCT\tBRAND\tBEST AVAILABLE RETAILER\tPRODUCT PRIC",
+          "rect": {
+            "left": 16,
+            "right": 289,
+            "top": 4991,
+            "width": 273,
+            "height": 12148
+          },
+          "client": 271,
+          "scroll": 1142,
+          "width": "273px",
+          "minWidth": "0px",
+          "maxWidth": "none",
+          "display": "block",
+          "overflowX": "auto",
+          "overflowY": "auto",
+          "position": "static",
+          "flex": "0 1 auto",
+          "flexWrap": "nowrap",
+          "grid": "none",
+          "gap": "normal",
+          "padding": "0px"
+        },
+        "table": {
+          "tag": "TABLE",
+          "id": "",
+          "class": "w-full min-w-[1120px] border-collapse text-left text-sm",
+          "text": "Creatine supplement retailer and delivered-price comparison\nPRODUCT\tBRAND\tBEST AVAILABLE RETAILER\tPRODUCT PRIC",
+          "rect": {
+            "left": 17,
+            "right": 1159.28125,
+            "top": 4992,
+            "width": 1142.28125,
+            "height": 12131
+          },
+          "client": 1142,
+          "scroll": 1142,
+          "width": "1142.28px",
+          "minWidth": "1120px",
+          "maxWidth": "none",
+          "display": "table",
+          "overflowX": "visible",
+          "overflowY": "visible",
+          "position": "static",
+          "flex": "0 1 auto",
+          "flexWrap": "nowrap",
+          "grid": "none",
+          "gap": "normal",
+          "padding": "0px"
+        },
+        "wrapperAncestors": [
+          {
+            "tag": "DIV",
+            "id": "",
+            "class": "mt-6 overflow-x-auto rounded-xl border border-zinc-200 bg-white shadow-sm",
+            "text": "Creatine supplement retailer and delivered-price comparison\nPRODUCT\tBRAND\tBEST AVAILABLE RETAILER\tPRODUCT PRIC",
+            "rect": {
+              "left": 16,
+              "right": 289,
+              "top": 4991,
+              "width": 273,
+              "height": 12148
+            },
+            "client": 271,
+            "scroll": 1142,
+            "width": "273px",
+            "minWidth": "0px",
+            "maxWidth": "none",
+            "display": "block",
+            "overflowX": "auto",
+            "overflowY": "auto",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px"
+          },
+          {
+            "tag": "SECTION",
+            "id": "",
+            "class": "mx-auto max-w-7xl px-4 pb-10 sm:px-6 sm:pb-14",
+            "text": "RETAILER COMPARISON\n\nCreatine prices and availability\n\nLatest retailer check: 18 Nov 2026, 17:27\n\nShowing 86 o",
+            "rect": {
+              "left": 0,
+              "right": 305,
+              "top": 4653,
+              "width": 305,
+              "height": 12526
+            },
+            "client": 305,
+            "scroll": 305,
+            "width": "305px",
+            "minWidth": "0px",
+            "maxWidth": "1280px",
+            "display": "block",
+            "overflowX": "visible",
+            "overflowY": "visible",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px 16px 40px"
+          },
+          {
+            "tag": "MAIN",
+            "id": "",
+            "class": "min-h-screen w-full overflow-x-hidden bg-zinc-50 text-zinc-950",
+            "text": "SupplementScout\nSearch creatine\nHome\n/\nCreatine\n\nCREATINE COMPARISON\n\nCompare Creatine Supplements UK\n\nThis pa",
+            "rect": {
+              "left": 0,
+              "right": 305,
+              "top": 0,
+              "width": 305,
+              "height": 19647
+            },
+            "client": 305,
+            "scroll": 305,
+            "width": "305px",
+            "minWidth": "auto",
+            "maxWidth": "none",
+            "display": "block",
+            "overflowX": "hidden",
+            "overflowY": "auto",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px"
+          },
+          {
+            "tag": "BODY",
+            "id": "",
+            "class": "min-h-full flex flex-col",
+            "text": "SupplementScout\nSearch creatine\nHome\n/\nCreatine\n\nCREATINE COMPARISON\n\nCompare Creatine Supplements UK\n\nThis pa",
+            "rect": {
+              "left": 0,
+              "right": 305,
+              "top": 0,
+              "width": 305,
+              "height": 19723
+            },
+            "client": 305,
+            "scroll": 305,
+            "width": "305px",
+            "minWidth": "0px",
+            "maxWidth": "none",
+            "display": "flex",
+            "overflowX": "visible",
+            "overflowY": "visible",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px"
+          },
+          {
+            "tag": "HTML",
+            "id": "",
+            "class": "geist_a71539c9-module__T19VSG__variable geist_mono_8d43a2aa-module__8Li5zG__variable h-full antialiased",
+            "text": "SupplementScout\nSearch creatine\nHome\n/\nCreatine\n\nCREATINE COMPARISON\n\nCompare Creatine Supplements UK\n\nThis pa",
+            "rect": {
+              "left": 0,
+              "right": 305,
+              "top": 0,
+              "width": 305,
+              "height": 985
+            },
+            "client": 305,
+            "scroll": 1050,
+            "width": "305px",
+            "minWidth": "0px",
+            "maxWidth": "none",
+            "display": "block",
+            "overflowX": "visible",
+            "overflowY": "visible",
+            "position": "static",
+            "flex": "0 1 auto",
+            "flexWrap": "nowrap",
+            "grid": "none",
+            "gap": "normal",
+            "padding": "0px"
+          }
+        ]
+      }
+    }
+  ],
+  "containment": {
+    "at": "2026-11-19T08:33:26.446Z",
+    "environment": "Local actual-source production build; temporary DOM-only diagnostic overrides, no repo or catalogue mutation",
+    "absoluteTableNodes": [
+      {
+        "tag": "CAPTION",
+        "text": "Creatine supplement retailer and delivered-price comparison",
+        "class": "sr-only",
+        "rect": {
+          "left": 16,
+          "right": 17,
+          "width": 1
+        },
+        "client": 1,
+        "scroll": 387,
+        "offsetParent": "BODY",
+        "offsetParentClass": "min-h-full flex flex-col",
+        "position": "absolute",
+        "clip": "auto",
+        "whiteSpace": "nowrap"
+      },
+      {
+        "tag": "SPAN",
+        "text": "Compare or view details",
+        "class": "sr-only",
+        "rect": {
+          "left": 1049.484375,
+          "right": 1050.484375,
+          "width": 1
+        },
+        "client": 1,
+        "scroll": 174,
+        "offsetParent": "BODY",
+        "offsetParentClass": "min-h-full flex flex-col",
+        "position": "absolute",
+        "clip": "auto",
+        "whiteSpace": "nowrap"
+      }
+    ],
+    "cases": [
+      {
+        "name": "baseline",
+        "relative": false,
+        "unclip": false,
+        "client": 320,
+        "document": 1050,
+        "bodyClient": 320,
+        "body": 320,
+        "innerWidth": 1050,
+        "visualWidth": 320,
+        "visualScale": 1,
+        "main": {
+          "client": 320,
+          "scroll": 320,
+          "overflowX": "hidden"
+        },
+        "wrapper": {
+          "client": 286,
+          "scroll": 1142,
+          "position": "static"
+        },
+        "table": {
+          "width": 1142.28125,
+          "columns": 9
+        },
+        "hiddenHeaders": [
+          {
+            "tag": "CAPTION",
+            "text": "Creatine supplement retailer and delivered-price comparison",
+            "right": 17,
+            "offsetParent": null
+          },
+          {
+            "tag": "SPAN",
+            "text": "Compare or view details",
+            "right": 1050.484375,
+            "offsetParent": null
+          }
+        ]
+      },
+      {
+        "name": "main unclipped alone",
+        "relative": false,
+        "unclip": true,
+        "client": 320,
+        "document": 1050,
+        "bodyClient": 320,
+        "body": 320,
+        "innerWidth": 1050,
+        "visualWidth": 320,
+        "visualScale": 1,
+        "main": {
+          "client": 320,
+          "scroll": 320,
+          "overflowX": "visible"
+        },
+        "wrapper": {
+          "client": 286,
+          "scroll": 1142,
+          "position": "static"
+        },
+        "table": {
+          "width": 1142.28125,
+          "columns": 9
+        },
+        "hiddenHeaders": [
+          {
+            "tag": "CAPTION",
+            "text": "Creatine supplement retailer and delivered-price comparison",
+            "right": 17,
+            "offsetParent": null
+          },
+          {
+            "tag": "SPAN",
+            "text": "Compare or view details",
+            "right": 1050.484375,
+            "offsetParent": null
+          }
+        ]
+      },
+      {
+        "name": "wrapper containing block",
+        "relative": true,
+        "unclip": false,
+        "client": 320,
+        "document": 320,
+        "bodyClient": 320,
+        "body": 320,
+        "innerWidth": 320,
+        "visualWidth": 320,
+        "visualScale": 1,
+        "main": {
+          "client": 320,
+          "scroll": 320,
+          "overflowX": "hidden"
+        },
+        "wrapper": {
+          "client": 286,
+          "scroll": 1142,
+          "position": "relative"
+        },
+        "table": {
+          "width": 1142.28125,
+          "columns": 9
+        },
+        "hiddenHeaders": [
+          {
+            "tag": "CAPTION",
+            "text": "Creatine supplement retailer and delivered-price comparison",
+            "right": 17,
+            "offsetParent": "controlled"
+          },
+          {
+            "tag": "SPAN",
+            "text": "Compare or view details",
+            "right": 1050.484375,
+            "offsetParent": "controlled"
+          }
+        ]
+      },
+      {
+        "name": "wrapper containing block; main unclipped",
+        "relative": true,
+        "unclip": true,
+        "client": 320,
+        "document": 320,
+        "bodyClient": 320,
+        "body": 320,
+        "innerWidth": 320,
+        "visualWidth": 320,
+        "visualScale": 1,
+        "main": {
+          "client": 320,
+          "scroll": 320,
+          "overflowX": "visible"
+        },
+        "wrapper": {
+          "client": 286,
+          "scroll": 1142,
+          "position": "relative"
+        },
+        "table": {
+          "width": 1142.28125,
+          "columns": 9
+        },
+        "hiddenHeaders": [
+          {
+            "tag": "CAPTION",
+            "text": "Creatine supplement retailer and delivered-price comparison",
+            "right": 17,
+            "offsetParent": "controlled"
+          },
+          {
+            "tag": "SPAN",
+            "text": "Compare or view details",
+            "right": 1050.484375,
+            "offsetParent": "controlled"
+          }
+        ]
+      }
+    ]
+  }
+}
