@@ -343,6 +343,7 @@ function buildOutput(source, baseline, rows, options, env = process.env) {
     kind: "automation-review-queue-reconciliation-dry-run",
     result: "PASS",
     mode: "dry-run",
+    publication_mode: profile.publicationMode,
     retailer,
     production_writes: 0,
     direct_rest_writes: 0,
@@ -386,6 +387,7 @@ async function reconcile(options, dependencies = {}) {
   const output = buildOutput(source, baseline, rows, options, env);
   fs.mkdirSync(path.dirname(options.output), { recursive: true });
   fs.writeFileSync(options.output, `${JSON.stringify(output, null, 2)}\n`, { flag: "wx" });
+  if (env.GITHUB_OUTPUT) fs.appendFileSync(env.GITHUB_OUTPUT, `publication_mode=${source.profile.publicationMode}\n`);
   return output;
 }
 

@@ -1,5 +1,19 @@
 # SupplementScout Operating Plan
 
+**20 November 2026 PR558 safe publication boundary — NEEDS_OWNER_APPROVAL:**
+existing Draft558 is synchronized with main857847ab/CURRENT269/pending=[]. Fresh
+READ ONLY44712746385 confirms950=836+114; full reconciliation remains259 operations.
+All109 supersessions version unchanged problems solely because global source
+binding changed;36 resolutions have explicit fresh VERIFY_NO_CHANGE proof.
+No historical fingerprint is rewritten. A generic owner-only artifact mode for
+10Reps prepares the full request and blocks automatic apply, while other profiles
+remain automatic and commercial refresh is unchanged. Exact future writes reuse
+the existing authorized-artifact retry, with decision/execution protection.
+No merge/deploy/publication/migration/business write/durable change or PR559 work.
+See [safe boundary and release/rollback plan](retailer-automation/PR558-SAFE-PUBLICATION-BOUNDARY-2026-11-20.md).
+PR556/557 are completed scoped repairs, not reopened work. Earlier paragraphs
+below are historical; current production and data were independently read back.
+
 **19 November 2026 final automation hardening — NEEDS_OWNER_APPROVAL:**
 the completed PR556 repair remains deployed at3a0ee9a/CURRENT269, pending=[].
 The owner authorized separate Draft PR preparation for shared watchdog correlation,

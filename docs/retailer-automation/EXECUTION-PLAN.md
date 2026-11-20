@@ -1,5 +1,16 @@
 # Retailer Automation Consolidation Execution Plan
 
+**20 November 2026 PR558 safe publication boundary — NEEDS_OWNER_APPROVAL:**
+one owner-scoped follow-up reuses the shared publisher/RPC, immutable source and
+existing exact authorized-artifact retry. Generic owner-only profile policy keeps
+10Reps scheduled publication in preparation, preserving its commercial path and
+other retailers' automatic publication. Fresh44712746385 verifies950=836+114 and
+259 full-request operations;109 are evidence-only versions,36 explicit source
+resolutions. Decisions/executions are protected; no operation list is filtered.
+This remains Draft-only code on main857847ab/269/pending=[], not production proof.
+No PR559, durable rollout, migration or data write. Existing371-test-file inventory
+is preserved. See [implementation, evidence and controlled next decision](PR558-SAFE-PUBLICATION-BOUNDARY-2026-11-20.md).
+
 **19 November 2026 owner-scoped hardening — NEEDS_OWNER_APPROVAL:**
 separate shared-watchdog Draft PR preparation uses main3a0ee9a/CURRENT269,
 pending=[]. Exact retailer jobs, immutable workflow-version skip proof,

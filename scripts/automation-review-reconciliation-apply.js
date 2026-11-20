@@ -241,6 +241,29 @@ async function readProductionBaseline(client, request) {
   return { catalogueCounts: counts, activeRows: activeResponse.data || [] };
 }
 
+// Existing row locks/expected PENDING state prevent an approval racing the RPC.
+// Read live execution/control state as well: never retire an unfinished decision.
+async function readPublicationProtection(client, request) {
+  const ids = request.operations.filter(op => op.expected.review_id != null).map(op => String(op.expected.review_id));
+  const requests = ids.length ? await supabaseResult(client.from("automation_review_execution_requests")
+    .select("id,review_id,status").in("review_id", ids).in("status", ["QUEUED", "DISPATCHED", "EXECUTING", "FAILED"]),
+  "PUBLICATION_EXECUTION_PROTECTION_READ_FAILED") : { data: [] };
+  const reviews = ids.length ? await supabaseResult(client.from("product_match_review_queue")
+    .select("id,review_status,decision,decision_at,reviewed_at,execution_id").in("id", ids), "PUBLICATION_DECISION_PROTECTION_READ_FAILED") : { data: [] };
+  if (reviews.data?.length !== new Set(ids).size) fail("PUBLICATION_PROTECTED_REVIEW_MISSING");
+  return { executionRequests: requests.data || [], decidedReviews: (reviews.data || [])
+    .filter(row => row.review_status !== "PENDING" || ![null, "PENDING"].includes(row.decision) || row.decision_at != null
+      || row.reviewed_at != null || row.execution_id != null) };
+}
+
+function validatePublicationProtection(request, protection) {
+  if (request.operations.some(op => op.expected.review_id != null && op.expected.review_status !== "PENDING")) {
+    fail("PUBLICATION_OWNER_DECISION_PROTECTED");
+  }
+  if (!Array.isArray(protection?.executionRequests) || !Array.isArray(protection?.decidedReviews)) fail("PUBLICATION_PROTECTION_MISSING");
+  if (protection.executionRequests.length || protection.decidedReviews.length) fail("PUBLICATION_UNFINISHED_EXECUTION_PROTECTED");
+}
+
 function validateSealRows(rows, request, expectedRequestHash) {
   if (!Array.isArray(rows) || rows.length > 1) fail("RETRY_PUBLICATION_SEAL_COUNT_INVALID");
   if (rows.length === 0) return null;
@@ -355,6 +378,10 @@ async function runAuthorizedRetry(parsed, report, exactBytes, env, dependencies)
 
   const baseline = await (dependencies.readProductionBaseline || readProductionBaseline)(client, report.request);
   const baselineEvidence = validateProductionBaseline(baseline, report.request);
+  if (profileForRetailerId(report.request.retailer.id)?.publicationMode === "OWNER_AUTHORIZED_ARTIFACT_ONLY") {
+    const protection = await (dependencies.readPublicationProtection || readPublicationProtection)(client, report.request);
+    validatePublicationProtection(report.request, protection);
+  }
   let mutationAttempts = 0;
   let data;
   try {
@@ -399,6 +426,9 @@ async function run(options, dependencies = {}) {
   const report = JSON.parse(exactBytes.toString("utf8"));
   const publicationProfile = profileForRetailerId(report.request?.retailer?.id);
   if (publicationProfile?.publicationEnabled === false) fail("REVIEW_PUBLICATION_PROFILE_NOT_ACTIVATED");
+  if (publicationProfile?.publicationMode === "OWNER_AUTHORIZED_ARTIFACT_ONLY" && parsed.mode !== RETRY_MODE) {
+    fail("REVIEW_PUBLICATION_OWNER_AUTHORIZED_ARTIFACT_REQUIRED");
+  }
   const env = dependencies.env || process.env;
   return parsed.mode === RETRY_MODE
     ? runAuthorizedRetry(parsed, report, exactBytes, env, dependencies)
@@ -418,10 +448,12 @@ module.exports = {
   ownerConfirmationFor,
   parseArgs,
   readProductionBaseline,
+  readPublicationProtection,
   requestHash,
   retryAuthorizationFromEnv,
   run,
   validateProductionBaseline,
+  validatePublicationProtection,
   validateSealRows,
   verifyRetryArtifactMetadata,
 };

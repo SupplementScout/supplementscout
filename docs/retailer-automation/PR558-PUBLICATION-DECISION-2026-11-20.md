@@ -1,5 +1,10 @@
 # PR558 — whole-profile publication decision
 
+Historical analysis at1e348491. The later
+[safe publication boundary](PR558-SAFE-PUBLICATION-BOUNDARY-2026-11-20.md)
+supersedes the automatic-exposure limitation below with an owner-only artifact
+policy. This259-operation scenario remains evidence, not publication authority.
+
 Status: **NEEDS_OWNER_APPROVAL / BLOCKED for production publication**.
 PR557 alone was authorized for release. PR558 remains Draft and must not be
 merged on the assumption that it merely creates two cards. No runtime change,

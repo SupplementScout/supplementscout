@@ -67,6 +67,26 @@ function validateStandardCapture(profile, { report, diagnostic, invariant }) {
   invariant(report.result === expectedResult && report.mode === "dry-run" && report.target === "production", `${label} pre-execution report is not publishable`);
   invariant(report.approved_mapping_count === profile.approvedMappingCount && report.blocked_row_count === 0, `${label} apply scope drifted`);
   invariant(diagnostic && diagnostic.approved_mapping_count === profile.approvedMappingCount && profile.sourceFingerprint({ source: diagnostic.source }) === profile.sourceFingerprint(report), `${label} preflight source binding drifted`);
+  if (profile.publicationMode === "OWNER_AUTHORIZED_ARTIFACT_ONLY") {
+    const guards = diagnostic.guard_results || [];
+    const passed = name => {
+      const results = guards.filter(row => row.guard === name);
+      return results.length === 1 && results[0].result === "PASS";
+    };
+    const coverage = guards.filter(row => row.guard === "APPROVED_MAPPING_COVERAGE");
+    invariant(report.source?.diagnostic?.final_http_status === 200 && report.source.diagnostic.pagination_completed === true
+      && diagnostic.source?.http_status === 200 && diagnostic.source.pagination_completed === true
+      && passed("SOURCE_HEALTH") && passed("VALIDATOR") && diagnostic.validator_result === "PASS",
+    `${label} owner-reviewed publication requires complete healthy SQL-validated source`);
+    invariant(coverage.length === 1 && ["PASS", "REVIEW_ISOLATED"].includes(coverage[0].result)
+      && coverage[0].expected === profile.approvedMappingCount
+      && coverage[0].matched + coverage[0].source_absent_review_rows === profile.approvedMappingCount
+      && coverage[0].source_absent_review_rows === report.discovery?.missing_variants
+      && coverage[0].source_absent_marked_unavailable === 0
+      && report.discovery.missing_variants_review_only === report.discovery.missing_variants
+      && report.discovery.missing_variants_marked_unavailable === 0 && report.discovery.catalogue_creates === 0,
+    `${label} owner-reviewed publication requires full approved source coverage`);
+  }
 }
 
 function validateJonsCapture(profile, { report, diagnostic, invariant }) {
@@ -465,8 +485,11 @@ function matchesActiveReview(profile, row) {
 }
 
 function profile(values) {
+  const publicationMode = values.publicationMode || "AUTOMATIC";
+  if (!["AUTOMATIC", "OWNER_AUTHORIZED_ARTIFACT_ONLY"].includes(publicationMode)) throw new Error("Invalid publication mode");
   return Object.freeze({
     ...values,
+    publicationMode,
     postflightProfile: values.postflightProfile || values.retailer.slug,
     captureFiles: values.captureFiles || STANDARD_CAPTURE_FILES,
     sealedFiles: values.sealedFiles || STANDARD_SEALED_FILES,
@@ -517,7 +540,7 @@ const PROFILES = Object.freeze({
     classifierReviewReasons: Object.freeze(["MASS_OOS", "MASS_PRICE", "MASS_CHANGE"]), readOnlyReviewPolicies: SOURCE_REVIEW_POLICIES, publicationEnabled: sourceProfile.preparation_only !== true }),
   "fit-house": profile({ key: "fit-house", retailer: Object.freeze({ id: "9", name: "Fit House", slug: "fit-house" }), approvedMappingCount: 284, sourceDirectory: "fit-house-offer-refresh", artifactPrefix: "fit-house-offer-refresh", reconciliationFile: "fit-house-reconciliation-dry-run.json", contractName: "fit-house-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", stockOnlyCommercialChanges: true, identityReviewReasons: stockIdentity.IDENTITY_REASONS, reviewCard: stockIdentity.reviewCard, classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS", "OWNER_DEFERRED_STOCK_REVIEW", ...stockIdentity.IDENTITY_REASONS]) }),
   "gladiator-nutrition": profile({ key: "gladiator-nutrition", retailer: Object.freeze({ id: "15", name: "Gladiator Nutrition", slug: "gladiator-nutrition" }), approvedMappingCount: 603, sourceDirectory: "gladiator-nutrition-offer-refresh", artifactPrefix: "gladiator-nutrition-offer-refresh", reconciliationFile: "gladiator-nutrition-reconciliation-dry-run.json", contractName: "gladiator-nutrition-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS"]) }),
-  "10-reps": profile({ key: "10-reps", retailer: Object.freeze({ id: "14", name: "10 Reps", slug: "10-reps" }), approvedMappingCount: 950, sourceDirectory: "10reps-offer-refresh", artifactPrefix: "10reps-offer-refresh", reconciliationFile: "10reps-reconciliation-dry-run.json", contractName: "10-reps-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS"]), readOnlyReviewPolicies: Object.freeze({ CANONICAL_IDENTITY_CONFLICT: SOURCE_REVIEW_POLICIES.CANONICAL_IDENTITY_CONFLICT }) }),
+  "10-reps": profile({ key: "10-reps", retailer: Object.freeze({ id: "14", name: "10 Reps", slug: "10-reps" }), publicationMode: "OWNER_AUTHORIZED_ARTIFACT_ONLY", approvedMappingCount: 950, sourceDirectory: "10reps-offer-refresh", artifactPrefix: "10reps-offer-refresh", reconciliationFile: "10reps-reconciliation-dry-run.json", contractName: "10-reps-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS"]), readOnlyReviewPolicies: Object.freeze({ CANONICAL_IDENTITY_CONFLICT: SOURCE_REVIEW_POLICIES.CANONICAL_IDENTITY_CONFLICT }) }),
   "whey-okay": profile({ key: "whey-okay", retailer: Object.freeze({ id: "3", name: "Whey Okay", slug: "whey-okay" }), approvedMappingCount: 589, sourceDirectory: "whey-okay-offer-refresh", artifactPrefix: "whey-okay-offer-refresh", reconciliationFile: "whey-okay-reconciliation-dry-run.json", contractName: "whey-okay-automation-review-source-v1", workflow: ".github/workflows/whey-okay-offer-refresh.yml", workflowName: "Whey Okay Offer Refresh", reviewType: "source-missing", captureFiles: WHEY_CAPTURE_FILES, sealedFiles: WHEY_SEALED_FILES, sourceFingerprint: (report) => report.source?.semantic_fingerprint, validate: validateWhey }),
   "jons-supplements": profile({ key: "jons-supplements", retailer: Object.freeze({ id: "10", name: "Jon's Supplements", slug: "jon-s-supplements" }), postflightProfile: "jons-supplements", approvedMappingCount: 506, sourceDirectory: "jons-offer-refresh", artifactPrefix: "jons-offer-refresh", reconciliationFile: "jons-reconciliation-dry-run.json", contractName: "jons-automation-review-source-v1", workflow: ".github/workflows/jons-offer-refresh.yml", workflowName: "Jon's Offer Refresh", reviewType: "source-missing", validateCapture: validateJonsCapture, validate: validateJons }),
   "six-pack-supplements": profile({ key: "six-pack-supplements", retailer: Object.freeze({ id: "11", name: "6 Pack Supplements", slug: "6-pack-supplements" }), postflightProfile: "six-pack-supplements", approvedMappingCount: 504, sourceDirectory: "six-pack-offer-refresh", artifactPrefix: "six-pack-offer-refresh", reconciliationFile: "six-pack-reconciliation-dry-run.json", contractName: "six-pack-automation-review-source-v1", workflow: ".github/workflows/six-pack-offer-refresh.yml", workflowName: "6 Pack Supplements Offer Refresh", reviewType: "mixed-policy", captureFiles: SIX_PACK_CAPTURE_FILES, sealedFiles: SIX_PACK_SEALED_FILES, sourceFingerprint: (report) => report.source_snapshot_fingerprint, captureTimestamp: (source) => source.report.source_captured_at, validateCapture: validateSixPackCapture, validate: validateSixPack, validateChangedRows: validateSixPackChangedRows, reviewCard: sixPackReviewCard, matchesActiveReview: sixPackMatchesActiveReview }),
