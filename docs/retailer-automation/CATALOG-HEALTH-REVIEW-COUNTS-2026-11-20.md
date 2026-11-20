@@ -1,5 +1,11 @@
 # Catalog Health review counters — SQL design approval
 
+**Later owner-approved implementation checkpoint:** design4348460a was approved
+for code, one pending migration and tests on this same Draft. See the
+[implementation and controlled release plan](CATALOG-HEALTH-REVIEW-COUNTS-IMPLEMENTATION-2026-11-20.md).
+The design-only STOP and measurements below are retained as history; they do
+not describe the new revision or authorize production apply/merge/deployment.
+
 **Status: NEEDS_OWNER_APPROVAL / implementation STOP.** This Draft contains a
 read-only diagnosis and a tested SELECT-only design, not an implemented fix.
 Production still displays Unavailable. No application code, historical migration,

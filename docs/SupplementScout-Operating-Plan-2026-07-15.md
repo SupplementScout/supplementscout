@@ -1,5 +1,15 @@
 # SupplementScout Operating Plan
 
+**20 November 2026 Catalog Health repair — CODE COMPLETE / NEEDS_OWNER_APPROVAL:**
+owner-approved design4348460a is implemented on existing Draft560: one additive
+existing-reader migration and one bounded health-loader call with complete
+counter validation. No new system/cache/reader or automation change. Actual
+isolated PostgreSQL migration/rollback, ACL/data invariance, old/new app-SQL
+compatibility and14-retailer1k/5k/10k/20k counters pass. READ ONLY15:08 confirms
+production269/old SQL and current494/9/0 expectations; new loader on old SQL
+fails closed. One production migration remains PENDING; no apply, merge or
+production deployment. [Implementation and guarded release plan](retailer-automation/CATALOG-HEALTH-REVIEW-COUNTS-IMPLEMENTATION-2026-11-20.md).
+
 **20 November 2026 Catalog Health counters — NEEDS_OWNER_APPROVAL / SQL design STOP:**
 owner-scoped dashboard diagnosis on deployed81349995/CURRENT269 confirms7082
 queue rows trigger the old1000-row null fallback. The existing reader lacks

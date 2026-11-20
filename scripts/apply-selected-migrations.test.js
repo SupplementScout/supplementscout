@@ -532,9 +532,9 @@ test("authoritative H&B migration receipt closes CURRENT268 and retains exact 26
 
 test("queue reader receipt closes CURRENT269 while preserving the exact historical 268-to-269 selection", () => {
   const receipt=JSON.parse(fs.readFileSync(path.join(ROOT,"docs/retailer-automation/evidence/PR556-QUEUE-READER-PRODUCTION-269-CLOSEOUT-2026-11-19.json"),"utf8"));
-  const current=derivePostApplyMigrationBinding("PRODUCTION");
+  const current=derivePostApplyMigrationBinding("PRODUCTION",{pendingMigrations:[],migrationFiles:fs.readdirSync(SOURCE).filter(file=>file<="20261119150000_read_automation_review_queue_page.sql")});
   assert.equal(current.status,"ALREADY_CLOSED");assert.equal(current.pending_count,0);
-  assertDerivationMatchesContract(current,CONTRACTS.PRODUCTION);
+  assertDerivationMatchesContract(current,{...CONTRACTS.PRODUCTION,pending:[]});
   assert.equal(current.post_ledger_count,receipt.post_state.ledger_count);
   assert.equal(current.post_ledger_fingerprint,receipt.post_state.ledger_fingerprint);
   const pending=receipt.consumed_pending.ordered_filenames.map((filename,index)=>({filename,sha256:receipt.consumed_pending.ordered_sha256[index]}));
@@ -544,4 +544,25 @@ test("queue reader receipt closes CURRENT269 while preserving the exact historic
   assert.equal(historical.post_ledger_count,receipt.post_state.ledger_count);
   assert.equal(historical.post_ledger_fingerprint,receipt.post_state.ledger_fingerprint);
   assert.equal(pendingConfirmation({pending}),"f637da643c74cd7e");
+});
+
+test("Catalog Health pending migration preserves CURRENT269 and derives the exact next binding", () => {
+  const { migrationBinding, sha256File } = require("./lib/environment-migrations");
+  const filename = "20261120150000_add_catalog_health_review_counts.sql";
+  const pending = PENDING_MIGRATIONS.PRODUCTION;
+  assert.equal(pending.length, 1); assert.equal(pending[0].filename, filename);
+  assert.equal(pending[0].sha256, sha256File(path.join(SOURCE, filename)));
+  const sql = fs.readFileSync(path.join(SOURCE, filename), "utf8");
+  assert.match(sql, /^BEGIN;\r?\n/); assert.match(sql, /COMMIT;\s*$/);
+  assert.doesNotThrow(() => unwrapTransaction(sql, filename));
+  const derivation = derivePostApplyMigrationBinding("PRODUCTION");
+  assertDerivationMatchesContract(derivation, CONTRACTS.PRODUCTION);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 269);
+  assert.equal(derivation.pre_ledger_count, 269); assert.equal(derivation.post_ledger_count, 270);
+  assert.equal(derivation.pre_ledger_fingerprint, CONTRACTS.PRODUCTION.ledgerFingerprint);
+  assert.equal(migrationBinding("PRODUCTION").fingerprint, CONTRACTS.PRODUCTION.ledgerFingerprint);
+  assert.equal(derivation.post_identifiers.at(-1), filename.slice(0, -4));
+  assert.equal(CONTRACTS.STAGING.excluded[filename], pending[0].sha256);
+  assert.equal(migrationBinding("STAGING").versions.length, 120);
+  assert.equal(PENDING_MIGRATIONS.STAGING.length, 3);
 });

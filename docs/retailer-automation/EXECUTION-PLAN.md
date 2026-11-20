@@ -1,5 +1,15 @@
 # Retailer Automation Consolidation Execution Plan
 
+**20 November 2026 Catalog Health implementation — NEEDS_OWNER_APPROVAL:**
+approved4348460a design is implemented in Draft560. The existing queue reader
+adds four retailer-summary fields; health reuses one bounded page reader and
+rejects missing/invalid summaries. Exact SQL migration is pending production;
+CURRENT269/f54057cd and staging120/pending3 remain unchanged. Actual isolated
+SQL rollback/apply, unchanged ACL/data,14-retailer status/scale tests and client
+compatibility pass. Current production readback yields494/9/0; no hardcoded
+reference counts or business/queue writes. Controlled270 is only tool-derived
+future closeout, not an applied state. See [implementation evidence and release order](CATALOG-HEALTH-REVIEW-COUNTS-IMPLEMENTATION-2026-11-20.md).
+
 **20 November 2026 Catalog Health counter incident — NEEDS_OWNER_APPROVAL:**
 READ ONLY on main81349995/269 reproduces7082>1000 and all-retailer Unavailable.
 Existing reader/available functions do not expose the required three aggregates;
