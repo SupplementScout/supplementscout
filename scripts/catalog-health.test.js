@@ -77,6 +77,8 @@ const {
   validateEbayApplyArtifacts,
   validateEbayIdempotencyArtifacts,
   workflowAttempt,
+  workflowProfileSelection,
+  scheduledJobCron,
   workflowHistoryPage,
   workflowLivenessCheck,
   workflowLivenessResult,
@@ -1618,6 +1620,132 @@ test("watchdog rejects a freshness anchor older than the requested cutoff", asyn
   );
 });
 
+test("watchdog proves expected scheduled skips against the workflow at the run SHA", async () => {
+  const source = fs.readFileSync(path.join(process.cwd(), ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
+  const profile = loadWatchdogConfig().retailers.find(row => row.id === 9);
+  const run = { ...watchdogRun(80), head_sha: "a".repeat(40) };
+  const skipped = { id: 1, name: profile.job_name, conclusion: "skipped", steps: [] };
+  const other = { id: 2, name: "gladiator-nutrition-offer-refresh", conclusion: "success", steps: [{ name: "Set up job", conclusion: "success" }] };
+  const calls = [];
+  const options = { repository: "owner/repo", token: "test", cache: new Map(), fetchJson: async url => {
+    calls.push(url);
+    assert.ok(url.endsWith(`?ref=${run.head_sha}`));
+    return { encoding: "base64", size: Buffer.byteLength(source), content: Buffer.from(source).toString("base64"), sha: "blob-sha" };
+  } };
+  assert.equal(scheduledJobCron(source, profile.job_name), "47 2 * * *");
+  assert.equal(scheduledJobCron(source, other.name), "17 8 * * *");
+  const result = await workflowProfileSelection(profile, run, [skipped, other], options);
+  assert.equal(result.selection, "EXPECTED_SKIP");
+  assert.equal(result.head_sha, run.head_sha);
+  assert.equal(result.workflow_blob_sha, "blob-sha");
+  assert.equal(result.workflow_definition_sha256.length, 64);
+  assert.equal((await workflowProfileSelection(profile, run, [skipped, other], options)).selection, "EXPECTED_SKIP");
+  assert.equal(calls.length, 1);
+  // A same-schedule peer means the skipped profile should have run.
+  const sameSchedule = { ...other, name: "ten-reps-offer-refresh" };
+  assert.equal((await workflowProfileSelection(profile, run, [skipped, sameSchedule], options)).selection, "INCOMPLETE");
+  for (const jobs of [[skipped], [other], [skipped, skipped, other]]) {
+    assert.equal((await workflowProfileSelection(profile, run, jobs, options)).selection, "INCOMPLETE");
+  }
+  const manual = await workflowProfileSelection(profile, { ...run, event: "workflow_dispatch" }, [skipped, other], options);
+  assert.equal(manual.selection, "NOT_SELECTED");
+  assert.equal(manual.expectation, "UNKNOWN");
+  assert.equal(scheduledJobCron(source.replace("github.event_name == 'workflow_dispatch'", "github.event_name == 'schedule'"), profile.job_name), null);
+  assert.equal(scheduledJobCron(source.replace("inputs.retailer == 'all'", "always()"), profile.job_name), null);
+});
+
+test("watchdog keeps missing stages and failed selected jobs incomplete, never adopting another executor", () => {
+  const profile = { ...watchdogProfile, job_name: "target" };
+  const run = watchdogRun(11);
+  const impostor = watchdogJob(profile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" }, "other");
+  assert.equal(workflowAttempt(profile, run, [impostor]), null);
+  const failed = workflowAttempt(profile, run, [impostor, { id: 2, name: "target", conclusion: "failure", steps: [] }]);
+  assert.equal(failed.result, "FAILED_OR_INCOMPLETE");
+  assert.equal(failed.job_name, "target");
+  assert.equal(failed.stages.apply, null);
+  assert.equal(workflowAttempt(profile, { ...run, status: "queued", conclusion: null }, [{ id: 2, name: "target", status: "queued", conclusion: null, steps: [] }]).result, "FAILED_OR_INCOMPLETE");
+  assert.equal(workflowAttempt(profile, run, [{ id: 2, name: "target", conclusion: "skipped", steps: [] }]), null);
+});
+
+test("watchdog ignores only a proved other-schedule skip and retains the actual ordinary attempt", async () => {
+  const profile = loadWatchdogConfig().retailers.find(row => row.id === 9);
+  const oldRun = { ...watchdogRun(10), head_sha: "a".repeat(40) };
+  const laterRun = { ...watchdogRun(11), head_sha: "a".repeat(40) };
+  const source = fs.readFileSync(path.join(process.cwd(), ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
+  const fetchJson = async url => {
+    if (url.includes("/contents/")) return { encoding: "base64", size: Buffer.byteLength(source), content: Buffer.from(source).toString("base64"), sha: "blob" };
+    if (url.includes("created=")) return { workflow_runs: [laterRun] };
+    if (url.includes("/actions/workflows/")) return { workflow_runs: [laterRun, oldRun] };
+    if (url.includes("/11/jobs")) return { jobs: [
+      { id: 1, name: profile.job_name, conclusion: "skipped", steps: [] },
+      { id: 2, name: "gladiator-nutrition-offer-refresh", conclusion: "success", steps: [{ name: "Set up job" }] },
+    ] };
+    return { jobs: [watchdogJob(profile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" }, profile.job_name)] };
+  };
+  const result = await runStages(profile, "owner/repo", "test", { fetchJson, historyFreshnessCutoff: "2026-08-31T00:00:00Z" });
+  assert.equal(result.latestListedRun.run_id, "11");
+  assert.equal(result.latestListedOrdinaryRun.run_id, "10");
+  assert.equal(result.latestOrdinaryAttempt.run_id, "10");
+  assert.equal(result.unmatchedRecentRuns[0].profile_selection.selection, "EXPECTED_SKIP");
+});
+
+test("watchdog uses bounded schedule filtering without replacing a scheduled failure with manual READ ONLY", async () => {
+  const profile = { ...watchdogProfile, workflow: "shared.yml" };
+  const manual = { ...watchdogRun(12), event: "workflow_dispatch" };
+  const failed = { ...watchdogRun(11), conclusion: "failure" };
+  const success = watchdogRun(10);
+  const oldManualSuccess = { ...watchdogRun(9), event: "workflow_dispatch" };
+  const calls = [];
+  const fetchJson = async url => {
+    calls.push(url);
+    if (url.includes("/actions/workflows/")) {
+      const schedule = url.includes("event=schedule");
+      return { workflow_runs: url.includes("created=") ? [schedule ? failed : manual] : schedule ? [failed, success] : [manual, oldManualSuccess] };
+    }
+    const id = Number(url.match(/runs\/(\d+)\/jobs/)[1]);
+    return { jobs: [watchdogJob(profile, id === 12
+      ? { capture: "success", apply: "skipped", db_postflight: "skipped", idempotency: "skipped" }
+      : id === 11 ? { capture: "failure", apply: "skipped", db_postflight: "skipped", idempotency: "skipped" }
+        : { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" })] };
+  };
+  // No ordinary success in the initial mixed listing: the schedule query must
+  // recover the latest ordinary failure even when manual activity crowds it out.
+  const result = await runStages(profile, "owner/repo", "test", { fetchJson, historyFreshnessCutoff: "2026-08-31T00:00:00Z" });
+  assert.equal(result.latestAttempt.run_id, "12");
+  assert.equal(result.latestAttempt.result, "READ_ONLY_COMPLETE");
+  assert.equal(result.latestOrdinaryAttempt.run_id, "11");
+  assert.equal(result.latestOrdinaryAttempt.result, "FAILED_OR_INCOMPLETE");
+  assert.equal(result.lastCompleteOrdinarySuccess.run_id, "10");
+  assert.equal(result.historyTruncated, false);
+  assert.ok(calls.some(url => url.includes("event=schedule")));
+  assert.ok(calls.every(url => !url.includes("status=completed")));
+  assert.ok(calls.filter(url => url.includes("/actions/workflows/") && !url.includes("created=")).length <= 4);
+});
+
+test("watchdog retains exhausted history and missing contracts as failures within the original page budget", async () => {
+  const profile = { ...watchdogProfile, workflow: "shared.yml" };
+  const calls = [];
+  const fetchJson = async url => {
+    calls.push(url);
+    if (url.includes("created=")) return { workflow_runs: [] };
+    if (url.includes("/actions/workflows/")) {
+      const page = Number(new URL(url).searchParams.get("page"));
+      return { workflow_runs: Array.from({ length: 25 }, (_, i) => ({ ...watchdogRun(page * 25 + i), created_at: "2026-09-01T00:00:00Z", updated_at: "2026-09-01T00:00:00Z" })) };
+    }
+    return { jobs: [watchdogJob(profile, { capture: "failure", apply: "skipped", db_postflight: "skipped", idempotency: "skipped" })] };
+  };
+  const result = await runStages(profile, "owner/repo", "test", { fetchJson, historyFreshnessCutoff: "2026-08-31T00:00:00Z" });
+  assert.equal(result.scannedRunCount, 100);
+  assert.equal(result.historyTruncated, true);
+  assert.equal(result.lastCompleteSuccess, null);
+  assert.equal(calls.filter(url => url.includes("/actions/workflows/") && !url.includes("created=")).length, 4);
+  const evaluation = evaluateRetailer({ profile, stages: { ...result.stages, latest_attempt: result.latestAttempt, latest_ordinary_attempt: result.latestOrdinaryAttempt, history_truncated: result.historyTruncated }, contract: null, database: { offers_older_than_48h: 0 } }, new Date("2026-09-01T01:00:00Z"), 48);
+  assert.equal(evaluation.result, "FAIL");
+  assert.ok(evaluation.failures.includes("WORKFLOW_HISTORY_TRUNCATED"));
+  assert.ok(evaluation.failures.includes("EXECUTION_CONTRACT_EVIDENCE_MISSING"));
+  assert.ok(evaluation.failures.includes("LATEST_ORDINARY_ATTEMPT_INCOMPLETE"));
+});
+
 test("watchdog configuration binds exact stage alternatives for every retailer", () => {
   const profiles = new Map(loadWatchdogConfig().retailers.map((profile) => [String(profile.id), profile.stages]));
   assert.deepEqual(profiles.get("1").idempotency, ["Verify complete live postcondition"]);
@@ -1655,15 +1783,17 @@ test("Gladiator watchdog binds the live scheduled job and publication without ch
 test("shared workflow watchdog stages match real step names and retailer artifacts cannot cross profiles", () => {
   const config = loadWatchdogConfig();
   const workflow = require("js-yaml").load(fs.readFileSync(path.join(process.cwd(), ".github/workflows/fit-house-offer-refresh.yml"), "utf8"));
-  for (const id of [15, 16]) {
+  for (const id of [9, 14, 15, 16]) {
     const profile = config.retailers.find(row => row.id === id);
-    const slug = id === 15 ? "gladiator-nutrition" : "holland-barrett";
+    const slug = { 9: "fit-house", 14: "ten-reps", 15: "gladiator-nutrition", 16: "holland-barrett" }[id];
     const job = workflow.jobs[`${slug}-offer-refresh`];
+    assert.equal(profile.job_name, `${slug}-offer-refresh`);
     const names = job.steps.map(step => (step.name || "").replaceAll("${{ env.RETAILER_DISPLAY_NAME }}", profile.name));
     for (const name of Object.values(profile.stages).flat()) assert.ok(names.includes(name), name);
     assert.ok(workflow.jobs[profile.review_publication.job_name].steps.some(step => step.name === profile.review_publication.step_name));
-    assert.equal(artifactBelongsToProfile(profile, { name: `${slug}-offer-refresh-123-1` }), true);
-    for (const other of ["fit-house", "10reps", id === 15 ? "holland-barrett" : "gladiator-nutrition"]) {
+    const artifactSlug = id === 14 ? "10reps" : slug;
+    assert.equal(artifactBelongsToProfile(profile, { name: `${artifactSlug}-offer-refresh-123-1` }), true);
+    for (const other of ["fit-house", "10reps", "gladiator-nutrition", "holland-barrett"].filter(other => other !== (id === 14 ? "10reps" : slug))) {
       assert.equal(artifactBelongsToProfile(profile, { name: `${other}-offer-refresh-123-1` }), false);
     }
   }

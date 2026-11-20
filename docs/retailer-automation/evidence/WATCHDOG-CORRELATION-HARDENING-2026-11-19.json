@@ -1,0 +1,1445 @@
+{
+  "schema_version": 1,
+  "kind": "shared-watchdog-correlation-draft-evidence",
+  "status": "NEEDS_OWNER_APPROVAL",
+  "base_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+  "production_ledger": 269,
+  "production_pending": [],
+  "implementation_files": {
+    "scripts/automation-reliability-watchdog.js": "3d0b7e2845da45cba1b2cc0decf4777f075c3ffa3b019130b65b7bbf75852deb",
+    "config/automation-reliability-watchdog.json": "d1ff8f11bcbd0402bdfe6e80efe920932c4cc47730bd07ce1e798476701d9352",
+    "scripts/catalog-health.test.js": "7723010464d2e39c5c315b926feb3c123f1e853468aeb83b07b8d6847b965d40"
+  },
+  "backlog_policy_unchanged": true,
+  "test_inventory_count": 371,
+  "test_inventory_seal_unchanged": true,
+  "gates": [
+    {
+      "gate": "verify:project",
+      "result": "PASS",
+      "exit_code": 0,
+      "started_at": "2026-11-19T21:35:28.135Z",
+      "completed_at": "2026-11-19T21:35:31.915Z",
+      "log": "tmp/hardening/verify-project.log",
+      "log_sha256": "ac7e996732fb3467a54d7d54d782066c3545ecd4d4673552c66abdc642e9e5cd"
+    },
+    {
+      "gate": "verify:baseline",
+      "result": "PASS",
+      "exit_code": 0,
+      "started_at": "2026-11-19T21:35:31.919Z",
+      "completed_at": "2026-11-19T21:35:36.852Z",
+      "log": "tmp/hardening/verify-baseline.log",
+      "log_sha256": "4950ab89ac5ad9a525dc5393f2477ac9dee290375b7aaddf36c221f674bc5cb0"
+    },
+    {
+      "gate": "verify:quick",
+      "result": "PASS",
+      "exit_code": 0,
+      "started_at": "2026-11-19T21:35:36.855Z",
+      "completed_at": "2026-11-19T21:44:17.538Z",
+      "log": "tmp/hardening/verify-quick.log",
+      "log_sha256": "0050e602082e25cc05224827f33f7f6df2e443809aa0d4c03200cf06d4b171d9"
+    },
+    {
+      "gate": "verify:full",
+      "result": "PASS",
+      "exit_code": 0,
+      "started_at": "2026-11-19T21:44:17.541Z",
+      "completed_at": "2026-11-19T21:50:19.924Z",
+      "log": "tmp/hardening/verify-full.log",
+      "log_sha256": "7034eae2d164028800da9e089394a7846a9fd2df0c608e8628b0448c6593e61e"
+    }
+  ],
+  "full_safe_test_counts": {
+    "tests": 4105,
+    "passed": 4102,
+    "failed": 0,
+    "skipped": 3
+  },
+  "read_only_api_replay": {
+    "captured_at": "2026-11-19T21:38:46.284Z",
+    "read_only": true,
+    "database_writes": 0,
+    "github_api_calls": 132,
+    "native_watchdog": false,
+    "code_under_review": true,
+    "profiles": [
+      {
+        "retailer_id": 9,
+        "latest_attempt": {
+          "run_id": "44576110206",
+          "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44576110206",
+          "event": "workflow_dispatch",
+          "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+          "run_conclusion": "success",
+          "job_conclusion": "success",
+          "created_at": "2026-11-19T17:20:28Z",
+          "updated_at": "2026-11-19T17:31:28Z",
+          "job_id": "135749481071",
+          "job_name": "fit-house-offer-refresh",
+          "operation": "READ_ONLY",
+          "result": "READ_ONLY_COMPLETE",
+          "stages": {
+            "capture": {
+              "run_id": "44576110206",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44576110206",
+              "job_id": "135749481071",
+              "job_name": "fit-house-offer-refresh",
+              "step_name": "Dry-run all approved Fit House offers",
+              "completed_at": "2026-11-19T17:30:52Z",
+              "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+              "conclusion": "success"
+            },
+            "apply": {
+              "run_id": "44576110206",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44576110206",
+              "job_id": "135749481071",
+              "job_name": "fit-house-offer-refresh",
+              "step_name": "Apply all approved Fit House offer refresh",
+              "completed_at": "2026-11-19T17:30:52Z",
+              "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+              "conclusion": "skipped"
+            },
+            "db_postflight": {
+              "run_id": "44576110206",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44576110206",
+              "job_id": "135749481071",
+              "job_name": "fit-house-offer-refresh",
+              "step_name": "Verify Fit House DB postflight read-only",
+              "completed_at": "2026-11-19T17:30:52Z",
+              "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+              "conclusion": "skipped"
+            },
+            "idempotency": {
+              "run_id": "44576110206",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44576110206",
+              "job_id": "135749481071",
+              "job_name": "fit-house-offer-refresh",
+              "step_name": "Verify idempotency with a fresh source capture",
+              "completed_at": "2026-11-19T17:30:52Z",
+              "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+              "conclusion": "skipped"
+            }
+          },
+          "review_publication": {
+            "run_id": "44576110206",
+            "job_id": "135750956874",
+            "job_name": "refresh-review-queue",
+            "job_conclusion": "skipped",
+            "step_name": null,
+            "conclusion": null
+          }
+        },
+        "latest_ordinary_attempt": {
+          "run_id": "44508522817",
+          "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+          "event": "schedule",
+          "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+          "run_conclusion": "success",
+          "job_conclusion": "success",
+          "created_at": "2026-11-19T10:44:59Z",
+          "updated_at": "2026-11-19T11:00:31Z",
+          "job_id": "135506345702",
+          "job_name": "fit-house-offer-refresh",
+          "operation": "APPLY_ATTEMPT",
+          "result": "COMPLETE_SUCCESS",
+          "stages": {
+            "capture": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345702",
+              "job_name": "fit-house-offer-refresh",
+              "step_name": "Dry-run all approved Fit House offers",
+              "completed_at": "2026-11-19T10:46:49Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            },
+            "apply": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345702",
+              "job_name": "fit-house-offer-refresh",
+              "step_name": "Apply all approved Fit House offer refresh",
+              "completed_at": "2026-11-19T10:49:13Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            },
+            "db_postflight": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345702",
+              "job_name": "fit-house-offer-refresh",
+              "step_name": "Verify Fit House DB postflight read-only",
+              "completed_at": "2026-11-19T10:49:16Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            },
+            "idempotency": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345702",
+              "job_name": "fit-house-offer-refresh",
+              "step_name": "Verify idempotency with a fresh source capture",
+              "completed_at": "2026-11-19T10:49:53Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            }
+          },
+          "review_publication": {
+            "run_id": "44508522817",
+            "job_id": "135513681381",
+            "job_name": "refresh-review-queue",
+            "job_conclusion": "success",
+            "step_name": "Reconcile and publish fresh Fit House Review Queue source",
+            "conclusion": "success"
+          }
+        },
+        "last_complete_success": {
+          "run_id": "44508522817",
+          "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+          "event": "schedule",
+          "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+          "run_conclusion": "success",
+          "job_conclusion": "success",
+          "created_at": "2026-11-19T10:44:59Z",
+          "updated_at": "2026-11-19T11:00:31Z",
+          "job_id": "135506345702",
+          "job_name": "fit-house-offer-refresh",
+          "operation": "APPLY_ATTEMPT",
+          "result": "COMPLETE_SUCCESS",
+          "stages": {
+            "capture": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345702",
+              "job_name": "fit-house-offer-refresh",
+              "step_name": "Dry-run all approved Fit House offers",
+              "completed_at": "2026-11-19T10:46:49Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            },
+            "apply": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345702",
+              "job_name": "fit-house-offer-refresh",
+              "step_name": "Apply all approved Fit House offer refresh",
+              "completed_at": "2026-11-19T10:49:13Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            },
+            "db_postflight": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345702",
+              "job_name": "fit-house-offer-refresh",
+              "step_name": "Verify Fit House DB postflight read-only",
+              "completed_at": "2026-11-19T10:49:16Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            },
+            "idempotency": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345702",
+              "job_name": "fit-house-offer-refresh",
+              "step_name": "Verify idempotency with a fresh source capture",
+              "completed_at": "2026-11-19T10:49:53Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            }
+          },
+          "review_publication": {
+            "run_id": "44508522817",
+            "job_id": "135513681381",
+            "job_name": "refresh-review-queue",
+            "job_conclusion": "success",
+            "step_name": "Reconcile and publish fresh Fit House Review Queue source",
+            "conclusion": "success"
+          }
+        },
+        "last_complete_ordinary_success": {
+          "run_id": "44508522817",
+          "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+          "event": "schedule",
+          "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+          "run_conclusion": "success",
+          "job_conclusion": "success",
+          "created_at": "2026-11-19T10:44:59Z",
+          "updated_at": "2026-11-19T11:00:31Z",
+          "job_id": "135506345702",
+          "job_name": "fit-house-offer-refresh",
+          "operation": "APPLY_ATTEMPT",
+          "result": "COMPLETE_SUCCESS",
+          "stages": {
+            "capture": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345702",
+              "job_name": "fit-house-offer-refresh",
+              "step_name": "Dry-run all approved Fit House offers",
+              "completed_at": "2026-11-19T10:46:49Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            },
+            "apply": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345702",
+              "job_name": "fit-house-offer-refresh",
+              "step_name": "Apply all approved Fit House offer refresh",
+              "completed_at": "2026-11-19T10:49:13Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            },
+            "db_postflight": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345702",
+              "job_name": "fit-house-offer-refresh",
+              "step_name": "Verify Fit House DB postflight read-only",
+              "completed_at": "2026-11-19T10:49:16Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            },
+            "idempotency": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345702",
+              "job_name": "fit-house-offer-refresh",
+              "step_name": "Verify idempotency with a fresh source capture",
+              "completed_at": "2026-11-19T10:49:53Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            }
+          },
+          "review_publication": {
+            "run_id": "44508522817",
+            "job_id": "135513681381",
+            "job_name": "refresh-review-queue",
+            "job_conclusion": "success",
+            "step_name": "Reconcile and publish fresh Fit House Review Queue source",
+            "conclusion": "success"
+          }
+        },
+        "latest_listed_run": {
+          "run_id": "44617220470",
+          "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44617220470",
+          "event": "workflow_dispatch",
+          "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+          "run_conclusion": "success",
+          "created_at": "2026-11-19T21:17:12Z",
+          "updated_at": "2026-11-19T21:19:34Z"
+        },
+        "latest_listed_ordinary_run": {
+          "run_id": "44508522817",
+          "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+          "event": "schedule",
+          "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+          "run_conclusion": "success",
+          "created_at": "2026-11-19T10:44:59Z",
+          "updated_at": "2026-11-19T11:00:31Z"
+        },
+        "unmatched_recent_runs": [
+          {
+            "run_id": "44617220470",
+            "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44617220470",
+            "event": "workflow_dispatch",
+            "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+            "run_conclusion": "success",
+            "created_at": "2026-11-19T21:17:12Z",
+            "updated_at": "2026-11-19T21:19:34Z",
+            "job_count": 6,
+            "job_names": [
+              "ten-reps-offer-refresh",
+              "gladiator-nutrition-offer-refresh",
+              "expired-control-plan-recovery",
+              "fit-house-offer-refresh",
+              "holland-barrett-offer-refresh",
+              "refresh-review-queue"
+            ],
+            "profile_selection": {
+              "selection": "NOT_SELECTED",
+              "expectation": "UNKNOWN",
+              "job_name": "fit-house-offer-refresh"
+            }
+          },
+          {
+            "run_id": "44576527715",
+            "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44576527715",
+            "event": "schedule",
+            "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+            "run_conclusion": "success",
+            "created_at": "2026-11-19T17:22:43Z",
+            "updated_at": "2026-11-19T17:47:41Z",
+            "job_count": 6,
+            "job_names": [
+              "gladiator-nutrition-offer-refresh",
+              "fit-house-offer-refresh",
+              "expired-control-plan-recovery",
+              "ten-reps-offer-refresh",
+              "holland-barrett-offer-refresh",
+              "refresh-review-queue"
+            ],
+            "profile_selection": {
+              "selection": "EXPECTED_SKIP",
+              "expectation": "NOT_SELECTED",
+              "job_name": "fit-house-offer-refresh",
+              "job_id": "135753579213",
+              "expected_cron": "47 2 * * *",
+              "selected_jobs": [
+                {
+                  "job_id": "135753576381",
+                  "job_name": "gladiator-nutrition-offer-refresh",
+                  "cron": "17 8 * * *"
+                },
+                {
+                  "job_id": "135758518126",
+                  "job_name": "holland-barrett-offer-refresh",
+                  "cron": "17 8 * * *"
+                }
+              ],
+              "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+              "workflow_blob_sha": "32bf4411bff99e288d2b34c527fbd9260ab99b20",
+              "workflow_definition_sha256": "849fbfa93986863d31269c3415b3911f85ac577a435b16d895d3e5e4d7bcd618"
+            }
+          },
+          {
+            "run_id": "44576177052",
+            "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44576177052",
+            "event": "workflow_dispatch",
+            "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+            "run_conclusion": "success",
+            "created_at": "2026-11-19T17:20:49Z",
+            "updated_at": "2026-11-19T17:35:32Z",
+            "job_count": 6,
+            "job_names": [
+              "holland-barrett-offer-refresh",
+              "gladiator-nutrition-offer-refresh",
+              "expired-control-plan-recovery",
+              "ten-reps-offer-refresh",
+              "fit-house-offer-refresh",
+              "refresh-review-queue"
+            ],
+            "profile_selection": {
+              "selection": "NOT_SELECTED",
+              "expectation": "UNKNOWN",
+              "job_name": "fit-house-offer-refresh"
+            }
+          },
+          {
+            "run_id": "44576153086",
+            "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44576153086",
+            "event": "workflow_dispatch",
+            "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+            "run_conclusion": "success",
+            "created_at": "2026-11-19T17:20:41Z",
+            "updated_at": "2026-11-19T17:34:01Z",
+            "job_count": 6,
+            "job_names": [
+              "gladiator-nutrition-offer-refresh",
+              "expired-control-plan-recovery",
+              "fit-house-offer-refresh",
+              "ten-reps-offer-refresh",
+              "holland-barrett-offer-refresh",
+              "refresh-review-queue"
+            ],
+            "profile_selection": {
+              "selection": "NOT_SELECTED",
+              "expectation": "UNKNOWN",
+              "job_name": "fit-house-offer-refresh"
+            }
+          },
+          {
+            "run_id": "44356599832",
+            "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44356599832",
+            "event": "schedule",
+            "head_sha": "8ec90b4b09e79c7cd38678b120524e350dfd35b2",
+            "run_conclusion": "success",
+            "created_at": "2026-11-18T17:15:22Z",
+            "updated_at": "2026-11-18T17:31:18Z",
+            "job_count": 6,
+            "job_names": [
+              "gladiator-nutrition-offer-refresh",
+              "ten-reps-offer-refresh",
+              "fit-house-offer-refresh",
+              "expired-control-plan-recovery",
+              "holland-barrett-offer-refresh",
+              "refresh-review-queue"
+            ],
+            "profile_selection": {
+              "selection": "EXPECTED_SKIP",
+              "expectation": "NOT_SELECTED",
+              "job_name": "fit-house-offer-refresh",
+              "job_id": "134986272224",
+              "expected_cron": "47 2 * * *",
+              "selected_jobs": [
+                {
+                  "job_id": "134986269340",
+                  "job_name": "gladiator-nutrition-offer-refresh",
+                  "cron": "17 8 * * *"
+                },
+                {
+                  "job_id": "134993351176",
+                  "job_name": "holland-barrett-offer-refresh",
+                  "cron": "17 8 * * *"
+                }
+              ],
+              "head_sha": "8ec90b4b09e79c7cd38678b120524e350dfd35b2",
+              "workflow_blob_sha": "32bf4411bff99e288d2b34c527fbd9260ab99b20",
+              "workflow_definition_sha256": "849fbfa93986863d31269c3415b3911f85ac577a435b16d895d3e5e4d7bcd618"
+            }
+          },
+          {
+            "run_id": "44138971181",
+            "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44138971181",
+            "event": "schedule",
+            "head_sha": "73f3c473e665df5862eb0fe92a5eefa4c1658656",
+            "run_conclusion": "success",
+            "created_at": "2026-11-17T17:37:08Z",
+            "updated_at": "2026-11-17T17:52:42Z",
+            "job_count": 6,
+            "job_names": [
+              "gladiator-nutrition-offer-refresh",
+              "expired-control-plan-recovery",
+              "fit-house-offer-refresh",
+              "ten-reps-offer-refresh",
+              "holland-barrett-offer-refresh",
+              "refresh-review-queue"
+            ],
+            "profile_selection": {
+              "selection": "EXPECTED_SKIP",
+              "expectation": "NOT_SELECTED",
+              "job_name": "fit-house-offer-refresh",
+              "job_id": "134236181532",
+              "expected_cron": "47 2 * * *",
+              "selected_jobs": [
+                {
+                  "job_id": "134236178762",
+                  "job_name": "gladiator-nutrition-offer-refresh",
+                  "cron": "17 8 * * *"
+                },
+                {
+                  "job_id": "134242745153",
+                  "job_name": "holland-barrett-offer-refresh",
+                  "cron": "17 8 * * *"
+                }
+              ],
+              "head_sha": "73f3c473e665df5862eb0fe92a5eefa4c1658656",
+              "workflow_blob_sha": "32bf4411bff99e288d2b34c527fbd9260ab99b20",
+              "workflow_definition_sha256": "849fbfa93986863d31269c3415b3911f85ac577a435b16d895d3e5e4d7bcd618"
+            }
+          },
+          {
+            "run_id": "44055630899",
+            "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44055630899",
+            "event": "workflow_dispatch",
+            "head_sha": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+            "run_conclusion": "success",
+            "created_at": "2026-11-17T09:26:43Z",
+            "updated_at": "2026-11-17T09:29:35Z",
+            "job_count": 6,
+            "job_names": [
+              "holland-barrett-offer-refresh",
+              "gladiator-nutrition-offer-refresh",
+              "fit-house-offer-refresh",
+              "ten-reps-offer-refresh",
+              "expired-control-plan-recovery",
+              "refresh-review-queue"
+            ],
+            "profile_selection": {
+              "selection": "NOT_SELECTED",
+              "expectation": "UNKNOWN",
+              "job_name": "fit-house-offer-refresh"
+            }
+          },
+          {
+            "run_id": "44051880896",
+            "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44051880896",
+            "event": "workflow_dispatch",
+            "head_sha": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+            "run_conclusion": "success",
+            "created_at": "2026-11-17T09:02:19Z",
+            "updated_at": "2026-11-17T09:07:39Z",
+            "job_count": 6,
+            "job_names": [
+              "gladiator-nutrition-offer-refresh",
+              "fit-house-offer-refresh",
+              "ten-reps-offer-refresh",
+              "expired-control-plan-recovery",
+              "holland-barrett-offer-refresh",
+              "refresh-review-queue"
+            ],
+            "profile_selection": {
+              "selection": "NOT_SELECTED",
+              "expectation": "UNKNOWN",
+              "job_name": "fit-house-offer-refresh"
+            }
+          },
+          {
+            "run_id": "43929759455",
+            "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/43929759455",
+            "event": "schedule",
+            "head_sha": "9ec8b2264fee6a453be46555dab0e500ff65feb1",
+            "run_conclusion": "success",
+            "created_at": "2026-11-16T18:31:43Z",
+            "updated_at": "2026-11-16T18:43:33Z",
+            "job_count": 5,
+            "job_names": [
+              "gladiator-nutrition-offer-refresh",
+              "ten-reps-offer-refresh",
+              "expired-control-plan-recovery",
+              "fit-house-offer-refresh",
+              "refresh-review-queue"
+            ],
+            "profile_selection": {
+              "selection": "EXPECTED_SKIP",
+              "expectation": "NOT_SELECTED",
+              "job_name": "fit-house-offer-refresh",
+              "job_id": "133518714087",
+              "expected_cron": "47 2 * * *",
+              "selected_jobs": [
+                {
+                  "job_id": "133518711389",
+                  "job_name": "gladiator-nutrition-offer-refresh",
+                  "cron": "17 8 * * *"
+                }
+              ],
+              "head_sha": "9ec8b2264fee6a453be46555dab0e500ff65feb1",
+              "workflow_blob_sha": "b240d6f4a5809145bbf4111533ddce002653067c",
+              "workflow_definition_sha256": "a6b8e58bccb69a25dc43d85c0e0922837b2a74c33c36ef616cd0abce603e2c6e"
+            }
+          },
+          {
+            "run_id": "43731077507",
+            "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/43731077507",
+            "event": "schedule",
+            "head_sha": "9ec8b2264fee6a453be46555dab0e500ff65feb1",
+            "run_conclusion": "success",
+            "created_at": "2026-11-15T15:39:16Z",
+            "updated_at": "2026-11-15T15:47:39Z",
+            "job_count": 5,
+            "job_names": [
+              "gladiator-nutrition-offer-refresh",
+              "expired-control-plan-recovery",
+              "ten-reps-offer-refresh",
+              "fit-house-offer-refresh",
+              "refresh-review-queue"
+            ],
+            "profile_selection": {
+              "selection": "EXPECTED_SKIP",
+              "expectation": "NOT_SELECTED",
+              "job_name": "fit-house-offer-refresh",
+              "job_id": "132863416762",
+              "expected_cron": "47 2 * * *",
+              "selected_jobs": [
+                {
+                  "job_id": "132863415452",
+                  "job_name": "gladiator-nutrition-offer-refresh",
+                  "cron": "17 8 * * *"
+                }
+              ],
+              "head_sha": "9ec8b2264fee6a453be46555dab0e500ff65feb1",
+              "workflow_blob_sha": "b240d6f4a5809145bbf4111533ddce002653067c",
+              "workflow_definition_sha256": "a6b8e58bccb69a25dc43d85c0e0922837b2a74c33c36ef616cd0abce603e2c6e"
+            }
+          }
+        ],
+        "scanned": 32,
+        "truncated": false
+      },
+      {
+        "retailer_id": 14,
+        "latest_attempt": {
+          "run_id": "44617220470",
+          "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44617220470",
+          "event": "workflow_dispatch",
+          "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+          "run_conclusion": "success",
+          "job_conclusion": "success",
+          "created_at": "2026-11-19T21:17:12Z",
+          "updated_at": "2026-11-19T21:19:34Z",
+          "job_id": "135889046904",
+          "job_name": "ten-reps-offer-refresh",
+          "operation": "READ_ONLY",
+          "result": "READ_ONLY_COMPLETE",
+          "stages": {
+            "capture": {
+              "run_id": "44617220470",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44617220470",
+              "job_id": "135889046904",
+              "job_name": "ten-reps-offer-refresh",
+              "step_name": "Dry-run all approved 10 Reps offers",
+              "completed_at": "2026-11-19T21:19:30Z",
+              "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+              "conclusion": "success"
+            },
+            "apply": {
+              "run_id": "44617220470",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44617220470",
+              "job_id": "135889046904",
+              "job_name": "ten-reps-offer-refresh",
+              "step_name": "Apply all approved 10 Reps offer refresh",
+              "completed_at": "2026-11-19T21:19:30Z",
+              "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+              "conclusion": "skipped"
+            },
+            "db_postflight": {
+              "run_id": "44617220470",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44617220470",
+              "job_id": "135889046904",
+              "job_name": "ten-reps-offer-refresh",
+              "step_name": "Verify 10 Reps DB postflight read-only",
+              "completed_at": "2026-11-19T21:19:30Z",
+              "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+              "conclusion": "skipped"
+            },
+            "idempotency": {
+              "run_id": "44617220470",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44617220470",
+              "job_id": "135889046904",
+              "job_name": "ten-reps-offer-refresh",
+              "step_name": "Verify 10 Reps idempotency with a fresh source capture",
+              "completed_at": "2026-11-19T21:19:30Z",
+              "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+              "conclusion": "skipped"
+            }
+          },
+          "review_publication": {
+            "run_id": "44617220470",
+            "job_id": "135890392543",
+            "job_name": "refresh-review-queue",
+            "job_conclusion": "skipped",
+            "step_name": null,
+            "conclusion": null
+          }
+        },
+        "latest_ordinary_attempt": {
+          "run_id": "44508522817",
+          "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+          "event": "schedule",
+          "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+          "run_conclusion": "success",
+          "job_conclusion": "success",
+          "created_at": "2026-11-19T10:44:59Z",
+          "updated_at": "2026-11-19T11:00:31Z",
+          "job_id": "135506345248",
+          "job_name": "ten-reps-offer-refresh",
+          "operation": "APPLY_ATTEMPT",
+          "result": "COMPLETE_SUCCESS",
+          "stages": {
+            "capture": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345248",
+              "job_name": "ten-reps-offer-refresh",
+              "step_name": "Dry-run all approved 10 Reps offers",
+              "completed_at": "2026-11-19T10:48:21Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            },
+            "apply": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345248",
+              "job_name": "ten-reps-offer-refresh",
+              "step_name": "Apply all approved 10 Reps offer refresh",
+              "completed_at": "2026-11-19T10:56:52Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            },
+            "db_postflight": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345248",
+              "job_name": "ten-reps-offer-refresh",
+              "step_name": "Verify 10 Reps DB postflight read-only",
+              "completed_at": "2026-11-19T10:56:55Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            },
+            "idempotency": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345248",
+              "job_name": "ten-reps-offer-refresh",
+              "step_name": "Verify 10 Reps idempotency with a fresh source capture",
+              "completed_at": "2026-11-19T10:59:02Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            }
+          },
+          "review_publication": {
+            "run_id": "44508522817",
+            "job_id": "135513681381",
+            "job_name": "refresh-review-queue",
+            "job_conclusion": "success",
+            "step_name": "Reconcile and publish fresh 10 Reps Review Queue source",
+            "conclusion": "success"
+          }
+        },
+        "last_complete_success": {
+          "run_id": "44508522817",
+          "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+          "event": "schedule",
+          "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+          "run_conclusion": "success",
+          "job_conclusion": "success",
+          "created_at": "2026-11-19T10:44:59Z",
+          "updated_at": "2026-11-19T11:00:31Z",
+          "job_id": "135506345248",
+          "job_name": "ten-reps-offer-refresh",
+          "operation": "APPLY_ATTEMPT",
+          "result": "COMPLETE_SUCCESS",
+          "stages": {
+            "capture": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345248",
+              "job_name": "ten-reps-offer-refresh",
+              "step_name": "Dry-run all approved 10 Reps offers",
+              "completed_at": "2026-11-19T10:48:21Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            },
+            "apply": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345248",
+              "job_name": "ten-reps-offer-refresh",
+              "step_name": "Apply all approved 10 Reps offer refresh",
+              "completed_at": "2026-11-19T10:56:52Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            },
+            "db_postflight": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345248",
+              "job_name": "ten-reps-offer-refresh",
+              "step_name": "Verify 10 Reps DB postflight read-only",
+              "completed_at": "2026-11-19T10:56:55Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            },
+            "idempotency": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345248",
+              "job_name": "ten-reps-offer-refresh",
+              "step_name": "Verify 10 Reps idempotency with a fresh source capture",
+              "completed_at": "2026-11-19T10:59:02Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            }
+          },
+          "review_publication": {
+            "run_id": "44508522817",
+            "job_id": "135513681381",
+            "job_name": "refresh-review-queue",
+            "job_conclusion": "success",
+            "step_name": "Reconcile and publish fresh 10 Reps Review Queue source",
+            "conclusion": "success"
+          }
+        },
+        "last_complete_ordinary_success": {
+          "run_id": "44508522817",
+          "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+          "event": "schedule",
+          "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+          "run_conclusion": "success",
+          "job_conclusion": "success",
+          "created_at": "2026-11-19T10:44:59Z",
+          "updated_at": "2026-11-19T11:00:31Z",
+          "job_id": "135506345248",
+          "job_name": "ten-reps-offer-refresh",
+          "operation": "APPLY_ATTEMPT",
+          "result": "COMPLETE_SUCCESS",
+          "stages": {
+            "capture": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345248",
+              "job_name": "ten-reps-offer-refresh",
+              "step_name": "Dry-run all approved 10 Reps offers",
+              "completed_at": "2026-11-19T10:48:21Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            },
+            "apply": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345248",
+              "job_name": "ten-reps-offer-refresh",
+              "step_name": "Apply all approved 10 Reps offer refresh",
+              "completed_at": "2026-11-19T10:56:52Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            },
+            "db_postflight": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345248",
+              "job_name": "ten-reps-offer-refresh",
+              "step_name": "Verify 10 Reps DB postflight read-only",
+              "completed_at": "2026-11-19T10:56:55Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            },
+            "idempotency": {
+              "run_id": "44508522817",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+              "job_id": "135506345248",
+              "job_name": "ten-reps-offer-refresh",
+              "step_name": "Verify 10 Reps idempotency with a fresh source capture",
+              "completed_at": "2026-11-19T10:59:02Z",
+              "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+              "conclusion": "success"
+            }
+          },
+          "review_publication": {
+            "run_id": "44508522817",
+            "job_id": "135513681381",
+            "job_name": "refresh-review-queue",
+            "job_conclusion": "success",
+            "step_name": "Reconcile and publish fresh 10 Reps Review Queue source",
+            "conclusion": "success"
+          }
+        },
+        "latest_listed_run": {
+          "run_id": "44617220470",
+          "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44617220470",
+          "event": "workflow_dispatch",
+          "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+          "run_conclusion": "success",
+          "created_at": "2026-11-19T21:17:12Z",
+          "updated_at": "2026-11-19T21:19:34Z"
+        },
+        "latest_listed_ordinary_run": {
+          "run_id": "44508522817",
+          "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44508522817",
+          "event": "schedule",
+          "head_sha": "9c4b527bad099df3370b141b7d9f20a09020d3bf",
+          "run_conclusion": "success",
+          "created_at": "2026-11-19T10:44:59Z",
+          "updated_at": "2026-11-19T11:00:31Z"
+        },
+        "unmatched_recent_runs": [
+          {
+            "run_id": "44576527715",
+            "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44576527715",
+            "event": "schedule",
+            "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+            "run_conclusion": "success",
+            "created_at": "2026-11-19T17:22:43Z",
+            "updated_at": "2026-11-19T17:47:41Z",
+            "job_count": 6,
+            "job_names": [
+              "gladiator-nutrition-offer-refresh",
+              "fit-house-offer-refresh",
+              "expired-control-plan-recovery",
+              "ten-reps-offer-refresh",
+              "holland-barrett-offer-refresh",
+              "refresh-review-queue"
+            ],
+            "profile_selection": {
+              "selection": "EXPECTED_SKIP",
+              "expectation": "NOT_SELECTED",
+              "job_name": "ten-reps-offer-refresh",
+              "job_id": "135753658015",
+              "expected_cron": "47 2 * * *",
+              "selected_jobs": [
+                {
+                  "job_id": "135753576381",
+                  "job_name": "gladiator-nutrition-offer-refresh",
+                  "cron": "17 8 * * *"
+                },
+                {
+                  "job_id": "135758518126",
+                  "job_name": "holland-barrett-offer-refresh",
+                  "cron": "17 8 * * *"
+                }
+              ],
+              "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+              "workflow_blob_sha": "32bf4411bff99e288d2b34c527fbd9260ab99b20",
+              "workflow_definition_sha256": "849fbfa93986863d31269c3415b3911f85ac577a435b16d895d3e5e4d7bcd618"
+            }
+          },
+          {
+            "run_id": "44576177052",
+            "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44576177052",
+            "event": "workflow_dispatch",
+            "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+            "run_conclusion": "success",
+            "created_at": "2026-11-19T17:20:49Z",
+            "updated_at": "2026-11-19T17:35:32Z",
+            "job_count": 6,
+            "job_names": [
+              "holland-barrett-offer-refresh",
+              "gladiator-nutrition-offer-refresh",
+              "expired-control-plan-recovery",
+              "ten-reps-offer-refresh",
+              "fit-house-offer-refresh",
+              "refresh-review-queue"
+            ],
+            "profile_selection": {
+              "selection": "NOT_SELECTED",
+              "expectation": "UNKNOWN",
+              "job_name": "ten-reps-offer-refresh"
+            }
+          },
+          {
+            "run_id": "44576153086",
+            "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44576153086",
+            "event": "workflow_dispatch",
+            "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+            "run_conclusion": "success",
+            "created_at": "2026-11-19T17:20:41Z",
+            "updated_at": "2026-11-19T17:34:01Z",
+            "job_count": 6,
+            "job_names": [
+              "gladiator-nutrition-offer-refresh",
+              "expired-control-plan-recovery",
+              "fit-house-offer-refresh",
+              "ten-reps-offer-refresh",
+              "holland-barrett-offer-refresh",
+              "refresh-review-queue"
+            ],
+            "profile_selection": {
+              "selection": "NOT_SELECTED",
+              "expectation": "UNKNOWN",
+              "job_name": "ten-reps-offer-refresh"
+            }
+          },
+          {
+            "run_id": "44356599832",
+            "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44356599832",
+            "event": "schedule",
+            "head_sha": "8ec90b4b09e79c7cd38678b120524e350dfd35b2",
+            "run_conclusion": "success",
+            "created_at": "2026-11-18T17:15:22Z",
+            "updated_at": "2026-11-18T17:31:18Z",
+            "job_count": 6,
+            "job_names": [
+              "gladiator-nutrition-offer-refresh",
+              "ten-reps-offer-refresh",
+              "fit-house-offer-refresh",
+              "expired-control-plan-recovery",
+              "holland-barrett-offer-refresh",
+              "refresh-review-queue"
+            ],
+            "profile_selection": {
+              "selection": "EXPECTED_SKIP",
+              "expectation": "NOT_SELECTED",
+              "job_name": "ten-reps-offer-refresh",
+              "job_id": "134986272113",
+              "expected_cron": "47 2 * * *",
+              "selected_jobs": [
+                {
+                  "job_id": "134986269340",
+                  "job_name": "gladiator-nutrition-offer-refresh",
+                  "cron": "17 8 * * *"
+                },
+                {
+                  "job_id": "134993351176",
+                  "job_name": "holland-barrett-offer-refresh",
+                  "cron": "17 8 * * *"
+                }
+              ],
+              "head_sha": "8ec90b4b09e79c7cd38678b120524e350dfd35b2",
+              "workflow_blob_sha": "32bf4411bff99e288d2b34c527fbd9260ab99b20",
+              "workflow_definition_sha256": "849fbfa93986863d31269c3415b3911f85ac577a435b16d895d3e5e4d7bcd618"
+            }
+          },
+          {
+            "run_id": "44138971181",
+            "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44138971181",
+            "event": "schedule",
+            "head_sha": "73f3c473e665df5862eb0fe92a5eefa4c1658656",
+            "run_conclusion": "success",
+            "created_at": "2026-11-17T17:37:08Z",
+            "updated_at": "2026-11-17T17:52:42Z",
+            "job_count": 6,
+            "job_names": [
+              "gladiator-nutrition-offer-refresh",
+              "expired-control-plan-recovery",
+              "fit-house-offer-refresh",
+              "ten-reps-offer-refresh",
+              "holland-barrett-offer-refresh",
+              "refresh-review-queue"
+            ],
+            "profile_selection": {
+              "selection": "EXPECTED_SKIP",
+              "expectation": "NOT_SELECTED",
+              "job_name": "ten-reps-offer-refresh",
+              "job_id": "134236181583",
+              "expected_cron": "47 2 * * *",
+              "selected_jobs": [
+                {
+                  "job_id": "134236178762",
+                  "job_name": "gladiator-nutrition-offer-refresh",
+                  "cron": "17 8 * * *"
+                },
+                {
+                  "job_id": "134242745153",
+                  "job_name": "holland-barrett-offer-refresh",
+                  "cron": "17 8 * * *"
+                }
+              ],
+              "head_sha": "73f3c473e665df5862eb0fe92a5eefa4c1658656",
+              "workflow_blob_sha": "32bf4411bff99e288d2b34c527fbd9260ab99b20",
+              "workflow_definition_sha256": "849fbfa93986863d31269c3415b3911f85ac577a435b16d895d3e5e4d7bcd618"
+            }
+          },
+          {
+            "run_id": "44055630899",
+            "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44055630899",
+            "event": "workflow_dispatch",
+            "head_sha": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+            "run_conclusion": "success",
+            "created_at": "2026-11-17T09:26:43Z",
+            "updated_at": "2026-11-17T09:29:35Z",
+            "job_count": 6,
+            "job_names": [
+              "holland-barrett-offer-refresh",
+              "gladiator-nutrition-offer-refresh",
+              "fit-house-offer-refresh",
+              "ten-reps-offer-refresh",
+              "expired-control-plan-recovery",
+              "refresh-review-queue"
+            ],
+            "profile_selection": {
+              "selection": "NOT_SELECTED",
+              "expectation": "UNKNOWN",
+              "job_name": "ten-reps-offer-refresh"
+            }
+          },
+          {
+            "run_id": "44051880896",
+            "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44051880896",
+            "event": "workflow_dispatch",
+            "head_sha": "4d91fde98032e81f6b0f68c00be39b07260e8312",
+            "run_conclusion": "success",
+            "created_at": "2026-11-17T09:02:19Z",
+            "updated_at": "2026-11-17T09:07:39Z",
+            "job_count": 6,
+            "job_names": [
+              "gladiator-nutrition-offer-refresh",
+              "fit-house-offer-refresh",
+              "ten-reps-offer-refresh",
+              "expired-control-plan-recovery",
+              "holland-barrett-offer-refresh",
+              "refresh-review-queue"
+            ],
+            "profile_selection": {
+              "selection": "NOT_SELECTED",
+              "expectation": "UNKNOWN",
+              "job_name": "ten-reps-offer-refresh"
+            }
+          },
+          {
+            "run_id": "43929759455",
+            "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/43929759455",
+            "event": "schedule",
+            "head_sha": "9ec8b2264fee6a453be46555dab0e500ff65feb1",
+            "run_conclusion": "success",
+            "created_at": "2026-11-16T18:31:43Z",
+            "updated_at": "2026-11-16T18:43:33Z",
+            "job_count": 5,
+            "job_names": [
+              "gladiator-nutrition-offer-refresh",
+              "ten-reps-offer-refresh",
+              "expired-control-plan-recovery",
+              "fit-house-offer-refresh",
+              "refresh-review-queue"
+            ],
+            "profile_selection": {
+              "selection": "EXPECTED_SKIP",
+              "expectation": "NOT_SELECTED",
+              "job_name": "ten-reps-offer-refresh",
+              "job_id": "133518713764",
+              "expected_cron": "47 2 * * *",
+              "selected_jobs": [
+                {
+                  "job_id": "133518711389",
+                  "job_name": "gladiator-nutrition-offer-refresh",
+                  "cron": "17 8 * * *"
+                }
+              ],
+              "head_sha": "9ec8b2264fee6a453be46555dab0e500ff65feb1",
+              "workflow_blob_sha": "b240d6f4a5809145bbf4111533ddce002653067c",
+              "workflow_definition_sha256": "a6b8e58bccb69a25dc43d85c0e0922837b2a74c33c36ef616cd0abce603e2c6e"
+            }
+          },
+          {
+            "run_id": "43731077507",
+            "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/43731077507",
+            "event": "schedule",
+            "head_sha": "9ec8b2264fee6a453be46555dab0e500ff65feb1",
+            "run_conclusion": "success",
+            "created_at": "2026-11-15T15:39:16Z",
+            "updated_at": "2026-11-15T15:47:39Z",
+            "job_count": 5,
+            "job_names": [
+              "gladiator-nutrition-offer-refresh",
+              "expired-control-plan-recovery",
+              "ten-reps-offer-refresh",
+              "fit-house-offer-refresh",
+              "refresh-review-queue"
+            ],
+            "profile_selection": {
+              "selection": "EXPECTED_SKIP",
+              "expectation": "NOT_SELECTED",
+              "job_name": "ten-reps-offer-refresh",
+              "job_id": "132863416643",
+              "expected_cron": "47 2 * * *",
+              "selected_jobs": [
+                {
+                  "job_id": "132863415452",
+                  "job_name": "gladiator-nutrition-offer-refresh",
+                  "cron": "17 8 * * *"
+                }
+              ],
+              "head_sha": "9ec8b2264fee6a453be46555dab0e500ff65feb1",
+              "workflow_blob_sha": "b240d6f4a5809145bbf4111533ddce002653067c",
+              "workflow_definition_sha256": "a6b8e58bccb69a25dc43d85c0e0922837b2a74c33c36ef616cd0abce603e2c6e"
+            }
+          },
+          {
+            "run_id": "43608186658",
+            "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/43608186658",
+            "event": "schedule",
+            "head_sha": "515bda7805cc4b78d2ab3fedb68c7346e9d591fd",
+            "run_conclusion": "success",
+            "created_at": "2026-11-14T15:04:34Z",
+            "updated_at": "2026-11-14T15:14:39Z",
+            "job_count": 5,
+            "job_names": [
+              "gladiator-nutrition-offer-refresh",
+              "expired-control-plan-recovery",
+              "fit-house-offer-refresh",
+              "ten-reps-offer-refresh",
+              "refresh-review-queue"
+            ],
+            "profile_selection": {
+              "selection": "EXPECTED_SKIP",
+              "expectation": "NOT_SELECTED",
+              "job_name": "ten-reps-offer-refresh",
+              "job_id": "132487285733",
+              "expected_cron": "47 2 * * *",
+              "selected_jobs": [
+                {
+                  "job_id": "132487247607",
+                  "job_name": "gladiator-nutrition-offer-refresh",
+                  "cron": "17 8 * * *"
+                }
+              ],
+              "head_sha": "515bda7805cc4b78d2ab3fedb68c7346e9d591fd",
+              "workflow_blob_sha": "b240d6f4a5809145bbf4111533ddce002653067c",
+              "workflow_definition_sha256": "a6b8e58bccb69a25dc43d85c0e0922837b2a74c33c36ef616cd0abce603e2c6e"
+            }
+          }
+        ],
+        "scanned": 32,
+        "truncated": false
+      },
+      {
+        "retailer_id": 1,
+        "latest_attempt": {
+          "run_id": "44581293779",
+          "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44581293779",
+          "event": "workflow_dispatch",
+          "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+          "run_conclusion": "success",
+          "job_conclusion": "success",
+          "created_at": "2026-11-19T17:49:32Z",
+          "updated_at": "2026-11-19T17:56:02Z",
+          "job_id": "135762335446",
+          "job_name": "catalogue",
+          "operation": "APPLY_ATTEMPT",
+          "result": "COMPLETE_SUCCESS",
+          "stages": {
+            "capture": {
+              "run_id": "44581293779",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44581293779",
+              "job_id": "135762335446",
+              "job_name": "catalogue",
+              "step_name": "Capture fresh approved source and verify canonical variants",
+              "completed_at": "2026-11-19T17:51:50Z",
+              "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+              "conclusion": "success"
+            },
+            "apply": {
+              "run_id": "44581293779",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44581293779",
+              "job_id": "135762335446",
+              "job_name": "catalogue",
+              "step_name": "Validate and optionally apply exact catalogue",
+              "completed_at": "2026-11-19T17:53:54Z",
+              "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+              "conclusion": "success"
+            },
+            "db_postflight": {
+              "run_id": "44581293779",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44581293779",
+              "job_id": "135762335446",
+              "job_name": "catalogue",
+              "step_name": "Verify guarded catalogue DB postflight read-only",
+              "completed_at": "2026-11-19T17:53:56Z",
+              "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+              "conclusion": "success"
+            },
+            "idempotency": {
+              "run_id": "44581293779",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44581293779",
+              "job_id": "135762335446",
+              "job_name": "catalogue",
+              "step_name": "Verify complete live postcondition",
+              "completed_at": "2026-11-19T17:55:05Z",
+              "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+              "conclusion": "success"
+            }
+          },
+          "review_publication": null
+        },
+        "latest_ordinary_attempt": {
+          "run_id": "44528441465",
+          "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44528441465",
+          "event": "schedule",
+          "head_sha": "00da6c17f62dba1febbed33a6356b2657915e662",
+          "run_conclusion": "failure",
+          "job_conclusion": "failure",
+          "created_at": "2026-11-19T12:55:40Z",
+          "updated_at": "2026-11-19T12:59:00Z",
+          "job_id": "135575103309",
+          "job_name": "catalogue",
+          "operation": "READ_ONLY",
+          "result": "FAILED_OR_INCOMPLETE",
+          "stages": {
+            "capture": {
+              "run_id": "44528441465",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44528441465",
+              "job_id": "135575103309",
+              "job_name": "catalogue",
+              "step_name": "Capture fresh approved source and verify canonical variants",
+              "completed_at": "2026-11-19T12:58:19Z",
+              "head_sha": "00da6c17f62dba1febbed33a6356b2657915e662",
+              "conclusion": "success"
+            },
+            "apply": {
+              "run_id": "44528441465",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44528441465",
+              "job_id": "135575103309",
+              "job_name": "catalogue",
+              "step_name": "Validate and optionally apply exact catalogue",
+              "completed_at": "2026-11-19T12:58:58Z",
+              "head_sha": "00da6c17f62dba1febbed33a6356b2657915e662",
+              "conclusion": "skipped"
+            },
+            "db_postflight": null,
+            "idempotency": {
+              "run_id": "44528441465",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44528441465",
+              "job_id": "135575103309",
+              "job_name": "catalogue",
+              "step_name": "Verify complete live postcondition",
+              "completed_at": "2026-11-19T12:58:58Z",
+              "head_sha": "00da6c17f62dba1febbed33a6356b2657915e662",
+              "conclusion": "skipped"
+            }
+          },
+          "review_publication": null
+        },
+        "last_complete_success": {
+          "run_id": "44581293779",
+          "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44581293779",
+          "event": "workflow_dispatch",
+          "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+          "run_conclusion": "success",
+          "job_conclusion": "success",
+          "created_at": "2026-11-19T17:49:32Z",
+          "updated_at": "2026-11-19T17:56:02Z",
+          "job_id": "135762335446",
+          "job_name": "catalogue",
+          "operation": "APPLY_ATTEMPT",
+          "result": "COMPLETE_SUCCESS",
+          "stages": {
+            "capture": {
+              "run_id": "44581293779",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44581293779",
+              "job_id": "135762335446",
+              "job_name": "catalogue",
+              "step_name": "Capture fresh approved source and verify canonical variants",
+              "completed_at": "2026-11-19T17:51:50Z",
+              "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+              "conclusion": "success"
+            },
+            "apply": {
+              "run_id": "44581293779",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44581293779",
+              "job_id": "135762335446",
+              "job_name": "catalogue",
+              "step_name": "Validate and optionally apply exact catalogue",
+              "completed_at": "2026-11-19T17:53:54Z",
+              "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+              "conclusion": "success"
+            },
+            "db_postflight": {
+              "run_id": "44581293779",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44581293779",
+              "job_id": "135762335446",
+              "job_name": "catalogue",
+              "step_name": "Verify guarded catalogue DB postflight read-only",
+              "completed_at": "2026-11-19T17:53:56Z",
+              "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+              "conclusion": "success"
+            },
+            "idempotency": {
+              "run_id": "44581293779",
+              "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44581293779",
+              "job_id": "135762335446",
+              "job_name": "catalogue",
+              "step_name": "Verify complete live postcondition",
+              "completed_at": "2026-11-19T17:55:05Z",
+              "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+              "conclusion": "success"
+            }
+          },
+          "review_publication": null
+        },
+        "last_complete_ordinary_success": null,
+        "latest_listed_run": {
+          "run_id": "44581293779",
+          "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44581293779",
+          "event": "workflow_dispatch",
+          "head_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+          "run_conclusion": "success",
+          "created_at": "2026-11-19T17:49:32Z",
+          "updated_at": "2026-11-19T17:56:02Z"
+        },
+        "latest_listed_ordinary_run": {
+          "run_id": "44528441465",
+          "run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44528441465",
+          "event": "schedule",
+          "head_sha": "00da6c17f62dba1febbed33a6356b2657915e662",
+          "run_conclusion": "failure",
+          "created_at": "2026-11-19T12:55:40Z",
+          "updated_at": "2026-11-19T12:59:00Z"
+        },
+        "unmatched_recent_runs": [],
+        "scanned": 77,
+        "truncated": true
+      }
+    ]
+  },
+  "production_writes": 0,
+  "native_watchdog_of_proposed_revision": "NOT_RUN",
+  "merge": "NOT_RUN",
+  "deployment": "NOT_RUN",
+  "historical_evidence_local_commits": [
+    "40bea16fb42400af56c2e2d6b7b5bf986dd22acb",
+    "2c6cd421"
+  ],
+  "release_requirement": "Owner approval of final Draft PR SHA; native production verification remains separate."
+}
