@@ -12,6 +12,8 @@ const {
   retryAuthorizationFromEnv,
   run,
   verifyRetryArtifactMetadata,
+  readPublicationProtection,
+  validatePublicationProtection,
 } = require("./automation-review-reconciliation-apply");
 const { sha256 } = require("./lib/automation-review-publisher");
 
@@ -138,6 +140,82 @@ function files(value = report()) {
   fs.writeFileSync(input, `${JSON.stringify(value, null, 2)}\n`);
   return { directory, input, output, cleanup: () => fs.rmSync(directory, { recursive: true, force: true }) };
 }
+
+test("owner-only publication refuses scheduled, delayed and manual same-run paths before any credentials or RPC", async t => {
+  const value = report(); value.request.retailer = { id: "14", slug: "10-reps" };
+  value.publication_mode = "AUTOMATIC"; // An artifact cannot override the deployed profile policy.
+  const fixture = files(value); t.after(fixture.cleanup);
+  for (const event of ["schedule", "workflow_dispatch"]) {
+    await assert.rejects(run({ mode: "same-run", input: fixture.input, output: fixture.output }, {
+      env: { ...retryEnv(value), GITHUB_EVENT_NAME: event, GITHUB_SHA: SOURCE_SHA },
+      client: new Proxy({}, { get() { assert.fail("same-run must stop before database access"); } }),
+    }), /REVIEW_PUBLICATION_OWNER_AUTHORIZED_ARTIFACT_REQUIRED/);
+  }
+});
+
+test("exact owner authorization submits the entire 259-operation request once and sealed retry makes no mutation", async t => {
+  const value = report(); value.request.retailer = { id: "14", slug: "10-reps" };
+  const activeRows = Array.from({ length: 145 }, (_, i) => ({ id: String(8000 + i), retailer_id: "14", offer_id: String(3000 + i), review_status: "PENDING", source_row_fingerprint: "e".repeat(64), superseded_by_review_id: null }));
+  value.request.operations = [
+    ...Array.from({ length: 114 }, (_, i) => ({ op: "CREATE", expected: { review_id: null }, row: { retailer_id: "14", offer_id: String(3000 + i), source_row_fingerprint: "f".repeat(64), expires_at: EXPIRY } })),
+    ...activeRows.map((r, i) => ({ op: i < 109 ? "SUPERSEDE" : "RESOLVE_BY_SOURCE", expected: { review_id: r.id, review_status: "PENDING", source_row_fingerprint: r.source_row_fingerprint, superseded_by_review_id: null }, row: null, replacement_row: i < 109 ? { offer_id: r.offer_id } : null })),
+  ];
+  value.request.expected_baseline.active_review_count = 145;
+  value.request_summary.operation_count = 259;
+  const result = { ...rpcResult(value), created_count: 114, superseded_count: 109, resolved_by_source_count: 36 };
+  const seal = publicationSeal(value, result);
+  let calls = 0, protectionReads = 0;
+  const setup = retryDependencies(value, {
+    client: { async rpc(name, args) { assert.equal(name, "publish_automation_review_queue_changes"); assert.deepEqual(args.p_request, value.request); calls++; return { data: result }; } },
+    readProductionBaseline: async () => ({ catalogueCounts: { ...COUNTS }, activeRows }),
+    readPublicationSeal: async () => calls ? [seal] : [],
+    readPublicationProtection: async () => { protectionReads++; return { executionRequests: [], decidedReviews: [] }; },
+  });
+  const fixture = files(value); t.after(fixture.cleanup);
+  const first = await run({ mode: RETRY_MODE, input: fixture.input, output: fixture.output }, setup.dependencies);
+  assert.equal(first.rpc_mutation_attempts, 1);
+  const second = await run({ mode: RETRY_MODE, input: fixture.input, output: fixture.output }, setup.dependencies);
+  assert.equal(second.publication_status, "ALREADY_APPLIED");
+  assert.equal(second.database_writes, 0);
+  assert.equal(calls, 1); assert.equal(protectionReads, 1);
+});
+
+test("owner-only initial mutation protects approved decisions, active requests and unresolved failed execution", async t => {
+  const value = report(); value.request.retailer = { id: "14", slug: "10-reps" };
+  const fixture = files(value); t.after(fixture.cleanup);
+  for (const protection of [
+    { executionRequests: [{ id: "queued", status: "QUEUED" }], decidedReviews: [] },
+    { executionRequests: [{ id: "running", status: "EXECUTING" }], decidedReviews: [] },
+    { executionRequests: [{ id: "needs-accounting", status: "FAILED" }], decidedReviews: [] },
+    { executionRequests: [], decidedReviews: [{ id: "owner", review_status: "APPROVED" }] },
+  ]) {
+    const setup = retryDependencies(value, { readPublicationProtection: async () => protection });
+    await assert.rejects(run({ mode: RETRY_MODE, input: fixture.input, output: fixture.output }, setup.dependencies), /PUBLICATION_UNFINISHED_EXECUTION_PROTECTED/);
+    assert.equal(setup.state.rpcCalls, 0);
+  }
+  assert.throws(() => validatePublicationProtection({ operations: [{ expected: { review_id: "1", review_status: "APPROVED" } }] }, { executionRequests: [], decidedReviews: [] }), /PUBLICATION_OWNER_DECISION_PROTECTED/);
+});
+
+test("live decision protection uses existing allowed readers and fails closed on missing rows or read errors", async () => {
+  const request = { retailer: { id: "14" }, operations: [{ expected: { review_id: "1", review_status: "PENDING" } }] };
+  function client(review, error = null) {
+    return { from(table) {
+      assert.ok(["automation_review_execution_requests", "product_match_review_queue"].includes(table));
+      const response = { data: table === "product_match_review_queue" ? review : [], error };
+      const query = { select() { return query; }, in() { return query; }, then(resolve) { return Promise.resolve(response).then(resolve); } };
+      return query;
+    } };
+  }
+  const pending = { id: "1", review_status: "PENDING", decision: "PENDING", decision_at: null, reviewed_at: null, execution_id: null };
+  const clear = await readPublicationProtection(client([pending]), request);
+  validatePublicationProtection(request, clear);
+  for (const mutation of [{ decision: "APPROVED" }, { decision_at: "2026-11-05T09:00:00Z" }, { execution_id: "linked-plan" }, { review_status: "EXECUTING" }]) {
+    const protection = await readPublicationProtection(client([{ ...pending, ...mutation }]), request);
+    assert.throws(() => validatePublicationProtection(request, protection), /PUBLICATION_UNFINISHED_EXECUTION_PROTECTED/);
+  }
+  await assert.rejects(readPublicationProtection(client([]), request), /PUBLICATION_PROTECTED_REVIEW_MISSING/);
+  await assert.rejects(readPublicationProtection(client([], { message: "denied" }), request), /PUBLICATION_EXECUTION_PROTECTION_READ_FAILED/);
+});
 
 function retryDependencies(value = report(), overrides = {}) {
   const result = rpcResult(value);

@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "kind": "shared-canonical-review-publication-hardening",
+  "status": "NEEDS_OWNER_APPROVAL",
+  "base_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+  "production_ledger": 269,
+  "production_pending": [],
+  "approved_manifest_sha256": "5b5c4583fc456a0cc2d1348bcada5e07faa18be3fadd8bafb8de01b9dcf7c4f8",
+  "approved_manifest_bindings": [
+    {
+      "mapping_id": "3586",
+      "offer_id": "3399",
+      "external_product_id": "10999",
+      "external_variant_id": "10999",
+      "canonical_product_id": "1213",
+      "canonical_variant_id": "3635",
+      "external_url": "https://www.10reps.co.uk/product/refined-nutrition-ultra-vitamin-c-1000mg-90-tablets/"
+    },
+    {
+      "mapping_id": "3732",
+      "offer_id": "3545",
+      "external_product_id": "3953",
+      "external_variant_id": "9368",
+      "canonical_product_id": "1301",
+      "canonical_variant_id": "3781",
+      "external_url": "https://www.10reps.co.uk/product/naughty-boy-creatine-monohydrate/?attribute_size=150g"
+    }
+  ],
+  "real_production_evidence_local_validation": {
+    "captured_at": "2026-11-19T22:01:42.488Z",
+    "result": "PASS",
+    "mode": "LOCAL_VALIDATION_OF_READONLY_PRODUCTION_EVIDENCE",
+    "native_run_id": "44617220470",
+    "native_source_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+    "profile": "10-reps",
+    "source_captured_at": "2026-11-19T21:18:07.401Z",
+    "baseline_captured_at": "2026-11-19T21:06:58.824Z",
+    "source_fingerprint": "5b4f287a537c5cc61d05fbfbfae615726e6ffa1b1cd5eacedb249219c0121c97",
+    "approved": 950,
+    "executable": 836,
+    "reviews": 114,
+    "old_contract_rejection": "10 Reps review reason drifted for offer 3399",
+    "selected_cards": [
+      {
+        "offer_id": "3399",
+        "proposedState": {
+          "catalogue_action": "KEEP_UNCHANGED",
+          "review_only": true,
+          "automatic_action": false
+        },
+        "reasonCodes": "IDENTITY_CONFLICT",
+        "reviewKind": "IDENTITY_CONFLICT",
+        "operationType": "MANUAL_REVIEW_IDENTITY",
+        "confidence": "LOW",
+        "sourcePrice": null,
+        "evidenceReason": "CANONICAL_IDENTITY_CONFLICT",
+        "sourceRecordEvidence": {
+          "canonical_identity": {
+            "reason": "CANONICAL_IDENTITY_CONFLICT",
+            "product_id": "1213",
+            "variant_id": "3635",
+            "default_variant": true,
+            "active_explicit_variant_ids": [
+              "4313",
+              "4314",
+              "4315",
+              "4316",
+              "4317",
+              "4318",
+              "4319",
+              "4320",
+              "4321",
+              "4322",
+              "4323"
+            ]
+          },
+          "validation": null,
+          "external_gtin": null,
+          "expected_external_gtin": null,
+          "expected_identity_sha256": null,
+          "expected_identity": null,
+          "observed_identity": null,
+          "expected_offer": {
+            "price": "8.99",
+            "shipping_cost": "3.99",
+            "total_price": "12.98",
+            "in_stock": true,
+            "url": "https://www.10reps.co.uk/product/refined-nutrition-ultra-vitamin-c-1000mg-90-tablets/"
+          },
+          "observed_offer": {
+            "price": "8.99",
+            "shipping_cost": "3.99",
+            "total_price": null,
+            "in_stock": true,
+            "url": "https://www.10reps.co.uk/product/refined-nutrition-ultra-vitamin-c-1000mg-90-tablets/"
+          }
+        }
+      },
+      {
+        "offer_id": "3545",
+        "proposedState": {
+          "catalogue_action": "KEEP_UNCHANGED",
+          "review_only": true,
+          "automatic_action": false
+        },
+        "reasonCodes": "IDENTITY_CONFLICT",
+        "reviewKind": "IDENTITY_CONFLICT",
+        "operationType": "MANUAL_REVIEW_IDENTITY",
+        "confidence": "LOW",
+        "sourcePrice": null,
+        "evidenceReason": "CANONICAL_IDENTITY_CONFLICT",
+        "sourceRecordEvidence": {
+          "canonical_identity": {
+            "reason": "CANONICAL_IDENTITY_CONFLICT",
+            "product_id": "1301",
+            "variant_id": "3781",
+            "default_variant": true,
+            "active_explicit_variant_ids": [
+              "4438"
+            ]
+          },
+          "validation": null,
+          "external_gtin": null,
+          "expected_external_gtin": null,
+          "expected_identity_sha256": null,
+          "expected_identity": null,
+          "observed_identity": null,
+          "expected_offer": {
+            "price": "9.99",
+            "shipping_cost": "3.99",
+            "total_price": "13.98",
+            "in_stock": true,
+            "url": "https://www.10reps.co.uk/product/naughty-boy-creatine-monohydrate/?attribute_size=150g"
+          },
+          "observed_offer": {
+            "price": "9.99",
+            "shipping_cost": "3.99",
+            "total_price": null,
+            "in_stock": true,
+            "url": "https://www.10reps.co.uk/product/naughty-boy-creatine-monohydrate/?attribute_size=150g"
+          }
+        }
+      }
+    ],
+    "code_sha256": "6cfde256f82816f8a8843310f434c03e344eb77fb0c3d8ecddfc615c0508a660",
+    "input_sha256": {
+      "production-dry-run.json": "afc1c689d433cc59962488dc5fb7e7403f51d10b772b60a01b38ffc3c02f7193",
+      "production-preflight-diagnostic.json": "f7fa222234da9351c5727454f78064ab94e762bde6bc5621dce557d68c6339b8",
+      "production-db-baseline.json": "d0aaada626d0c20a5c8c2af78cbfdae5e8b7b2f6ba3d60e867176413299a972e"
+    },
+    "database_writes": 0,
+    "publication_rpc_calls": 0,
+    "protected_binding_of_proposed_revision": "NOT_RUN",
+    "production_publication": "NOT_RUN"
+  },
+  "completed_pr556_publication_contract_regression": [
+    {
+      "profile": "discount-supplements",
+      "result": "PASS",
+      "approved": 109,
+      "review": 3,
+      "database_writes": 0
+    },
+    {
+      "profile": "gym-high",
+      "result": "PASS",
+      "approved": 66,
+      "review": 1,
+      "database_writes": 0
+    }
+  ],
+  "implementation_sha256": {
+    "scripts/lib/automation-review-publication-profiles.js": "6cfde256f82816f8a8843310f434c03e344eb77fb0c3d8ecddfc615c0508a660",
+    "scripts/automation-review-reconciliation-dry-run.test.js": "5dc62d5c9ec71cdf846828c7fa580bf3ca48f0257355ee9974244e1ab038144e",
+    "scripts/shared-retailer-review-reliability.test.js": "a06f7d56f4b78743cdec9699ea6b5c08a34c81f886a8bcb8cde4dde0039f49c2"
+  },
+  "classifier_review_reasons_unchanged": [
+    "MASS_OOS"
+  ],
+  "new_read_only_reason": "CANONICAL_IDENTITY_CONFLICT",
+  "gates": [
+    {
+      "gate": "verify:project",
+      "result": "PASS",
+      "exit_code": 0,
+      "started_at": "2026-11-19T21:44:39.827Z",
+      "completed_at": "2026-11-19T21:44:42.649Z",
+      "log": "tmp/hardening/verify-project.log",
+      "log_sha256": "ac7e996732fb3467a54d7d54d782066c3545ecd4d4673552c66abdc642e9e5cd"
+    },
+    {
+      "gate": "verify:baseline",
+      "result": "PASS",
+      "exit_code": 0,
+      "started_at": "2026-11-19T21:44:42.651Z",
+      "completed_at": "2026-11-19T21:44:52.076Z",
+      "log": "tmp/hardening/verify-baseline.log",
+      "log_sha256": "4950ab89ac5ad9a525dc5393f2477ac9dee290375b7aaddf36c221f674bc5cb0"
+    },
+    {
+      "gate": "verify:quick",
+      "result": "PASS",
+      "exit_code": 0,
+      "started_at": "2026-11-19T21:44:52.078Z",
+      "completed_at": "2026-11-19T21:48:08.278Z",
+      "log": "tmp/hardening/verify-quick.log",
+      "log_sha256": "73531d8b91e994039232ad6bcbe9d70ddae14e72122c08f9fae87b1f86749d16"
+    },
+    {
+      "gate": "verify:full",
+      "result": "PASS",
+      "exit_code": 0,
+      "started_at": "2026-11-19T22:01:39.362Z",
+      "completed_at": "2026-11-19T22:11:58.454Z",
+      "log": "tmp/hardening/verify-full.log",
+      "log_sha256": "936c843427c92837b5d9e186e1977f43350dc333d0a45e42d7dd6a21831c0c73"
+    }
+  ],
+  "full_safe_test_counts": {
+    "tests": 4102,
+    "passed": 4099,
+    "failed": 0,
+    "skipped": 3
+  },
+  "test_inventory_count": 371,
+  "test_inventory_seal_unchanged": true,
+  "new_migrations": 0,
+  "new_tables": 0,
+  "new_executors": 0,
+  "new_publisher": 0,
+  "production_writes": 0,
+  "review_publication": "NOT_RUN",
+  "protected_binding_of_proposed_revision": "NOT_RUN",
+  "merge": "NOT_RUN",
+  "production_deployment": "NOT_RUN"
+}

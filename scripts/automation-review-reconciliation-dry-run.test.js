@@ -20,6 +20,7 @@ const {
   buildManifestRows: buildFitHouseManifestRows,
   buildOutput: buildFitHouseOutput,
   buildSourceContract: buildFitHouseSourceContract,
+  loadAndValidateSource: loadFitHouseSource,
   profileFor,
   verifySourceContract: verifyFitHouseSourceContract,
 } = require("./shared-retailer-automation-review-source");
@@ -836,6 +837,16 @@ function writeTenRepsFixture({ profileKey = "10-reps", scopeRows = null, reviewI
     approved_mapping_count: approvedCount, source: { fingerprint: sourceFingerprint }, database_writes_attempted: 0, database_writes_completed: 0, business_writes_completed: 0, control_writes_completed: 0, approvals_created: 0, approvals_consumed: 0, recovery_calls: 0,
     classifier_summary: { scope: { scope_row_ids: executionOfferIds, blocked_rows: 0, reconciled: true, reconciled_total: executableCount }, action_counts: report.classification, changed_row_ids: [], changed_rows: [] },
   };
+  if (profileKey === "10-reps") {
+    report.source.diagnostic = { final_http_status: 200, pagination_completed: true };
+    report.discovery = { missing_variants: reviewOfferIds.size, missing_variants_review_only: reviewOfferIds.size, missing_variants_marked_unavailable: 0, catalogue_creates: 0 };
+    Object.assign(diagnostic.source, { http_status: 200, pagination_completed: true });
+    diagnostic.validator_result = "PASS";
+    diagnostic.guard_results = [
+      { guard: "SOURCE_HEALTH", result: "PASS" }, { guard: "VALIDATOR", result: "PASS" },
+      { guard: "APPROVED_MAPPING_COVERAGE", result: "REVIEW_ISOLATED", expected: approvedCount, matched: approvedCount - reviewOfferIds.size, source_absent_review_rows: reviewOfferIds.size, source_absent_marked_unavailable: 0 },
+    ];
+  }
   const baseline = { schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: selectedProfile.postflightProfile, snapshot: { captured_at: "2026-10-05T17:00:59.000Z", retailer_id: retailer.id, retailer_name: retailer.name, row_count: approvedCount, rows: baselineRows }, evidence_hash: "e".repeat(64) };
   writeJson(path.join(directory, "production-dry-run.json"), report);
   writeJson(path.join(directory, "production-preflight-diagnostic.json"), diagnostic);
@@ -853,6 +864,89 @@ test("10 Reps source adapter seals the fresh 934 safe plus 16 review partition w
   assert.equal(contract.review_row_count, 16);
   assert.deepEqual(contract.review_offer_ids, fixture.reviewRows.map((row) => row.offer_id).sort((a, b) => Number(a) - Number(b)));
   assert.equal(contract.catalogue_writes, 0);
+});
+
+function addCanonicalReviewEvidence(fixture) {
+  const reportFile = path.join(fixture.directory, "production-dry-run.json");
+  const report = JSON.parse(fs.readFileSync(reportFile, "utf8"));
+  for (let index = 0; index < 2; index++) {
+    const row = report.review_rows[index];
+    const before = fixture.baselineRows.find(before => before.offer_id === row.offer_id);
+    Object.assign(row, {
+      reason: "CANONICAL_IDENTITY_CONFLICT", action: "BLOCK_IDENTITY_DRIFT",
+      retailer_product_id: before.mapping_id, old_price: before.price, new_price: null,
+      old_stock: before.in_stock, new_stock: null, proposed_offer: null,
+      changed_fields: { price: false, stock: false, url: false, blocked: true },
+      source_record_evidence: { canonical_identity: {
+        reason: "CANONICAL_IDENTITY_CONFLICT", product_id: before.offer_product_id,
+        variant_id: before.offer_variant_id, default_variant: true,
+        active_explicit_variant_ids: Array.from({ length: index === 0 ? 11 : 1 }, (_, i) => String(100000 + index * 100 + i)),
+      } },
+    });
+  }
+  writeJson(reportFile, report);
+  return { reportFile, report };
+}
+
+test("shared publication preserves two independently evidenced canonical conflicts as non-executable manual reviews", () => {
+  const fixture = writeTenRepsFixture();
+  const { report } = addCanonicalReviewEvidence(fixture);
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "123456", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
+  const first = buildFitHouseSourceContract(fixture.directory, env, "10-reps");
+  assert.equal(first.executable_plan_count, 934);
+  assert.equal(first.review_row_count, 16);
+  assert.equal(first.catalogue_writes, 0);
+  assert.deepEqual(buildFitHouseSourceContract(fixture.directory, env, "10-reps"), first);
+  const source = loadFitHouseSource(fixture.directory, "10-reps");
+  const canonical = source.changedRows.filter(row => row.evidence_reason === "CANONICAL_IDENTITY_CONFLICT");
+  assert.equal(canonical.length, 2);
+  for (const row of canonical) {
+    assert.equal(row.old_price, row.new_price);
+    assert.equal(row.old_stock, row.new_stock);
+    const card = source.profile.reviewCard({}, row);
+    assert.equal(card.operationType, "MANUAL_REVIEW_IDENTITY");
+    assert.equal(card.reasonCodes, "IDENTITY_CONFLICT");
+    assert.equal(card.proposedState.automatic_action, false);
+    assert.equal(card.proposedState.catalogue_action, "KEEP_UNCHANGED");
+    assert.deepEqual(card.sourceRecordEvidence, report.review_rows.find(review => review.offer_id === row.offer_id).source_record_evidence);
+  }
+  assert.deepEqual(source.profile.classifierReviewReasons, ["MASS_OOS"]);
+  writeJson(path.join(fixture.directory, "automation-review-source-contract.json"), first);
+  const options = { profile: "10-reps", sourceArtifactDir: fixture.directory, sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "999999", sourceCommitSha: env.GITHUB_SHA, sourceArtifactDigest: "c".repeat(64), sourceContractSha256: fileSha(path.join(fixture.directory, "automation-review-source-contract.json")), output: path.join(fixture.directory, "output.json") };
+  const bound = verifyFitHouseSourceContract(options, new Date("2026-10-05T18:00:00Z"));
+  const baseline = publicationBaseline(fixture, "14");
+  const rows = buildFitHouseManifestRows(bound, baseline, options);
+  const output = buildFitHouseOutput(bound, baseline, rows, options, env);
+  assert.equal(rows.filter(row => row.reason_codes === "IDENTITY_CONFLICT").length, 2);
+  assert.equal(output.operations.CREATE, 16);
+  assert.equal(output.expected.catalogue_writes, 0);
+  assert.equal(output.production_writes, 0);
+  assert.deepEqual(buildFitHouseOutput(bound, baseline, rows, options, env).request, output.request);
+  const existing = { ...baseline, activeRows: rows.map((row, index) => ({ ...row, id: String(index + 1) })) };
+  const repeated = buildFitHouseOutput(bound, existing, rows, options, env);
+  assert.equal(repeated.operations.CREATE || 0, 0);
+});
+
+test("canonical publication refuses incomplete evidence, wrong identity, commercial changes and unknown conflict classes", () => {
+  const mutations = [
+    row => { delete row.source_record_evidence; },
+    row => { row.source_record_evidence.canonical_identity.product_id = "999999"; },
+    row => { row.source_record_evidence.canonical_identity.variant_id = "999999"; },
+    row => { row.source_record_evidence.canonical_identity.default_variant = false; },
+    row => { row.source_record_evidence.canonical_identity.active_explicit_variant_ids = []; },
+    row => { row.source_record_evidence.canonical_identity.active_explicit_variant_ids = [row.source_record_evidence.canonical_identity.variant_id]; },
+    row => { row.source_record_evidence.canonical_identity.active_explicit_variant_ids = ["123", "123"]; },
+    row => { row.source_record_evidence.canonical_identity.active_explicit_variant_ids = [Number(row.source_record_evidence.canonical_identity.variant_id)]; },
+    row => { row.proposed_offer = { in_stock: false }; },
+    row => { row.changed_fields.stock = true; },
+    row => { row.reason = "SOURCE_IDENTITY_DRIFT"; },
+  ];
+  for (const mutate of mutations) {
+    const fixture = writeTenRepsFixture();
+    const { reportFile, report } = addCanonicalReviewEvidence(fixture);
+    mutate(report.review_rows[0]); writeJson(reportFile, report);
+    assert.throws(() => loadFitHouseSource(fixture.directory, "10-reps"), /canonical review|review (reason|action) drifted/);
+  }
 });
 
 test("10 Reps source adapter accepts safe executable stock changes alongside isolated source-missing reviews", () => {
@@ -1071,6 +1165,112 @@ test("10 Reps review evidence survives a later partial execution failure", () =>
   assert.equal(source.contract.evidence_stage, "pre-execution-review-classification");
   assert.equal(source.contract.review_row_count, 16);
   assert.equal(source.contract.executable_plan_count, 934);
+});
+
+function preparedTenPublication(fixture) {
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37364486648", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
+  const contract = buildFitHouseSourceContract(fixture.directory, env, "10-reps");
+  writeJson(path.join(fixture.directory, "automation-review-source-contract.json"), contract);
+  const options = { profile: "10-reps", sourceArtifactDir: fixture.directory, sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "11368880858", sourceCommitSha: env.GITHUB_SHA, sourceArtifactDigest: "c".repeat(64), sourceContractSha256: fileSha(path.join(fixture.directory, "automation-review-source-contract.json")), output: path.join(fixture.directory, "output.json") };
+  const source = verifyFitHouseSourceContract(options, new Date("2026-10-05T18:00:00Z"));
+  const baseline = publicationBaseline(fixture, "14");
+  const rows = buildFitHouseManifestRows(source, baseline, options);
+  return { source, baseline, rows, options, env, output: buildFitHouseOutput(source, baseline, rows, options, env) };
+}
+
+test("owner-authorized publication prepares all 259 operations without filtering a 950-offer partition", () => {
+  const fixture = writeTenRepsFixture({ reviewIds: Array.from({ length: 114 }, (_, i) => String(2823 + i)) });
+  const prepared = preparedTenPublication(fixture);
+  const { source, baseline, rows, options, env } = prepared;
+  baseline.activeRows = [
+    ...rows.slice(0, 109).map((row, i) => ({ ...row, id: String(8000 + i), source_row_fingerprint: "f".repeat(64) })),
+    ...fixture.baselineRows.slice(114, 150).map((before, i) => ({ ...rows[0], id: String(9000 + i), offer_id: before.offer_id, source_row_fingerprint: "e".repeat(64) })),
+  ];
+  const first = buildFitHouseOutput(source, baseline, rows, options, env);
+  const second = buildFitHouseOutput(source, baseline, rows, options, env);
+  assert.equal(source.contract.catalogue_offer_ids.length, 950);
+  assert.equal(source.contract.executable_plan_count, 836);
+  assert.equal(first.publication_mode, "OWNER_AUTHORIZED_ARTIFACT_ONLY");
+  assert.deepEqual(first.operations, { CREATE: 114, REFRESH: 0, SUPERSEDE: 109, RESOLVE_BY_SOURCE: 36 });
+  assert.equal(first.request.operations.length, 259);
+  assert.deepEqual(first.request, second.request);
+  assert.equal(first.expected.catalogue_writes, 0);
+  assert.equal(new Set(first.request.operations.filter(op => op.expected.review_id).map(op => op.expected.review_id)).size, 145);
+});
+
+test("a complete real manifest keeps both canonical conflicts as REVIEW_ONLY without an identity executor", () => {
+  const scope = require("../config/retailers/10reps-approved-offer-manifest.json");
+  const fixture = writeTenRepsFixture({ scopeRows: scope.rows, reviewIds: ["3399", "3545"] });
+  addCanonicalReviewEvidence(fixture);
+  const { rows, output } = preparedTenPublication(fixture);
+  assert.deepEqual(rows.map(row => row.offer_id), ["3399", "3545"]);
+  for (const row of rows) {
+    assert.equal(row.operation_type, "MANUAL_REVIEW_IDENTITY");
+    assert.equal(row.proposed_state.automatic_action, false);
+    assert.equal(row.proposed_state.catalogue_action, "KEEP_UNCHANGED");
+    assert.equal(row.source_price, null);
+    assert.equal(row.proposed_variant_id, null);
+  }
+  assert.equal(output.publication_mode, "OWNER_AUTHORIZED_ARTIFACT_ONLY");
+});
+
+test("partial, unhealthy or SQL-rejected source cannot resolve an old review even with 950 declared IDs", () => {
+  for (const mutate of [
+    (report) => { report.source.diagnostic.pagination_completed = false; },
+    (report) => { report.source.diagnostic.final_http_status = 429; },
+    (_, diagnostic) => { diagnostic.source.pagination_completed = false; },
+    (_, diagnostic) => { diagnostic.guard_results[0].result = "BLOCK"; },
+    (_, diagnostic) => { diagnostic.guard_results.push({ guard: "SOURCE_HEALTH", result: "BLOCK" }); },
+    (_, diagnostic) => { diagnostic.validator_result = "FAIL"; },
+    (_, diagnostic) => { diagnostic.guard_results[2].matched--; },
+    (_, diagnostic) => { diagnostic.guard_results[2].source_absent_marked_unavailable = 1; },
+    (report) => { report.execution_offer_ids.pop(); },
+  ]) {
+    const fixture = writeTenRepsFixture();
+    const reportPath = path.join(fixture.directory, "production-dry-run.json");
+    const diagnosticPath = path.join(fixture.directory, "production-preflight-diagnostic.json");
+    const report = JSON.parse(fs.readFileSync(reportPath)), diagnostic = JSON.parse(fs.readFileSync(diagnosticPath));
+    mutate(report, diagnostic); writeJson(reportPath, report); writeJson(diagnosticPath, diagnostic);
+    assert.throws(() => preparedTenPublication(fixture), /complete healthy|full approved source coverage|executable offer IDs|scope|partition/);
+  }
+});
+
+test("capture time alone preserves problem fingerprints; changed global source evidence still versions cards", () => {
+  const fixture = writeTenRepsFixture();
+  const first = preparedTenPublication(fixture);
+  const diagnosticPath = path.join(fixture.directory, "production-preflight-diagnostic.json");
+  const diagnostic = JSON.parse(fs.readFileSync(diagnosticPath));
+  diagnostic.timestamp = "2026-10-05T17:31:00Z"; writeJson(diagnosticPath, diagnostic);
+  const later = preparedTenPublication(fixture);
+  assert.deepEqual(later.rows.map(r => r.source_row_fingerprint), first.rows.map(r => r.source_row_fingerprint));
+  later.baseline.activeRows = first.rows.map((r, i) => ({ ...r, id: String(8000 + i) }));
+  const refresh = buildFitHouseOutput(later.source, later.baseline, later.rows, later.options, later.env);
+  assert.deepEqual(refresh.operations, { CREATE: 0, REFRESH: 16, SUPERSEDE: 0, RESOLVE_BY_SOURCE: 0 });
+  const reportPath = path.join(fixture.directory, "production-dry-run.json");
+  const report = JSON.parse(fs.readFileSync(reportPath));
+  report.source.fingerprint = diagnostic.source.fingerprint = "d".repeat(64);
+  writeJson(reportPath, report); writeJson(diagnosticPath, diagnostic);
+  const changed = preparedTenPublication(fixture);
+  assert.notEqual(changed.rows[0].source_row_fingerprint, first.rows[0].source_row_fingerprint);
+});
+
+test("shared action prepares owner-only profiles without stopping automatic publishers or commercial refresh", () => {
+  const yaml = require("js-yaml");
+  const action = yaml.load(fs.readFileSync(path.join(process.cwd(), ".github/actions/publish-automation-review-queue/action.yml"), "utf8"));
+  assert.equal(action.runs.steps.find(s => s.id === "reconciliation").run.includes("--mode=reconcile"), true);
+  const publish = action.runs.steps.find(s => s.run?.includes("automation-review-reconciliation-apply.js"));
+  assert.equal(publish.if, "${{ steps.reconciliation.outputs.publication_mode == 'AUTOMATIC' }}");
+  for (const key of ["fit-house", "gladiator-nutrition", "holland-barrett", "gym-high", "discount-supplements"]) {
+    assert.equal(profileFor(key).publicationMode, "AUTOMATIC", key);
+  }
+  const workflow = yaml.load(fs.readFileSync(path.join(process.cwd(), ".github/workflows/fit-house-offer-refresh.yml"), "utf8"));
+  const job = workflow.jobs["ten-reps-offer-refresh"];
+  const apply = job.steps.find(s => s.name === "Apply all approved 10 Reps offer refresh");
+  assert.match(apply.if, /github.event_name == 'schedule'/);
+  assert.doesNotMatch(apply.if, /publication_mode|review-only/);
+  assert.equal(workflow.concurrency.group, "retailer-offer-production-write");
+  const retry = yaml.load(fs.readFileSync(path.join(process.cwd(), ".github/workflows/automation-review-publication-retry.yml"), "utf8"));
+  assert.equal(retry.concurrency.group, workflow.concurrency.group);
 });
 
 function hollandBarrettPublication(fixture) {

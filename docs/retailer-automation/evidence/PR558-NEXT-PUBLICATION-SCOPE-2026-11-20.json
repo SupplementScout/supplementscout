@@ -1,0 +1,2310 @@
+{
+  "schema_version": 1,
+  "kind": "READONLY_PUBLICATION_SCOPE_ANALYSIS_NOT_FOR_APPLY",
+  "captured_at": "2026-11-20T08:47:39.195Z",
+  "status": "NEEDS_OWNER_APPROVAL",
+  "mode": "LOCAL_SCENARIO_FROM_RECORDED_SOURCE_AND_CURRENT_READONLY_DATABASE",
+  "source_run_id": "44617220470",
+  "source_sha": "3a0ee9a1953b2715053182b8a0ec2e80357de9bd",
+  "source_captured_at": "2026-11-19T21:18:07.401Z",
+  "source_expires_at": "2026-11-20T21:18:07.401Z",
+  "proposed_code_sha": "2892250f2d8176d6007484de2d6633f2c09a88bc",
+  "deployed_main_sha": "857847abbed3ab5f05f45274e739b290a4cdf562",
+  "approved_offers": 950,
+  "executable": 836,
+  "incoming_review_rows": 114,
+  "existing_pending_or_approved_rows": 145,
+  "existing_unexpired_rows": 145,
+  "operations_count": {
+    "CREATE": 114,
+    "REFRESH": 0,
+    "SUPERSEDE": 109,
+    "RESOLVE_BY_SOURCE": 36
+  },
+  "operations": {
+    "CREATE": [
+      {
+        "offer_id": "2825",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2826",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2827",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2829",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2839",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2851",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2853",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2854",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2855",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2856",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2857",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2858",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2859",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2873",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2880",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2890",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2893",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2894",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2896",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2897",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2898",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2900",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2904",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2905",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2913",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2914",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2943",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2945",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2974",
+        "review_id": null,
+        "reason_codes": "PRICE_AND_STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "2993",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3141",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3144",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3146",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3151",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3153",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3154",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3155",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3180",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3182",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3183",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3184",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3185",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3188",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3230",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3250",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3268",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3328",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3340",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3343",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3351",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3356",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3357",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3358",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3359",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3384",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3386",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3388",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3397",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3399",
+        "review_id": null,
+        "reason_codes": "IDENTITY_CONFLICT",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3403",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3404",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3411",
+        "review_id": null,
+        "reason_codes": "PRICE_AND_STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3415",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3417",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3421",
+        "review_id": null,
+        "reason_codes": "PRICE_AND_STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3431",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3434",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3444",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3450",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3456",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3457",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3458",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3463",
+        "review_id": null,
+        "reason_codes": "PRICE_AND_STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3474",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3475",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3476",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3494",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3495",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3496",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3497",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3509",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3514",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3517",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3518",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3519",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3532",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3533",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3534",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3545",
+        "review_id": null,
+        "reason_codes": "IDENTITY_CONFLICT",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3551",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3566",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3567",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3610",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3611",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3630",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3631",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3632",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3661",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3666",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3671",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3674",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3678",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3682",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3718",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3742",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3745",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3747",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3760",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3764",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3769",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3775",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3846",
+        "review_id": null,
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3860",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      },
+      {
+        "offer_id": "3866",
+        "review_id": null,
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": null,
+        "replacement": null
+      }
+    ],
+    "REFRESH": [],
+    "SUPERSEDE": [
+      {
+        "offer_id": "2825",
+        "review_id": "6583",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2825",
+          "source_row_fingerprint": "4cc41fda1a7c1b047c1ccf7371247be783acca09929dd688132c0e8ee04db797"
+        }
+      },
+      {
+        "offer_id": "2826",
+        "review_id": "6584",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2826",
+          "source_row_fingerprint": "4c0536b0570f8be67e9f5c93752057d3f1f82195725e34da9223662769374e17"
+        }
+      },
+      {
+        "offer_id": "2827",
+        "review_id": "6585",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2827",
+          "source_row_fingerprint": "f4e716c8e29e456fa8f972e06e923e2815fc5678cde566756f4b27bef188eb97"
+        }
+      },
+      {
+        "offer_id": "2829",
+        "review_id": "6586",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2829",
+          "source_row_fingerprint": "0e7b662985f6ff79bd173d1aa468e185b1793a0af441fbbbf84b346174fece91"
+        }
+      },
+      {
+        "offer_id": "2839",
+        "review_id": "6587",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2839",
+          "source_row_fingerprint": "7a28e5dce82fbfc93135cd22f5e795e75819cfbd2ea3d84dc6ab47247d717f6e"
+        }
+      },
+      {
+        "offer_id": "2851",
+        "review_id": "6588",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2851",
+          "source_row_fingerprint": "ef791513f43e77a308eb08c56405b98a74de457dcd8df1f29a8835f3b516230f"
+        }
+      },
+      {
+        "offer_id": "2853",
+        "review_id": "6589",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2853",
+          "source_row_fingerprint": "553287b053a6f8ae59787a46ef2e9263023c7103b0b5c71fca7065052ff5e7c6"
+        }
+      },
+      {
+        "offer_id": "2854",
+        "review_id": "6590",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2854",
+          "source_row_fingerprint": "903e96a643d52156290cf807059045f29eb1661e7ae3caab7022a84ab238cfe2"
+        }
+      },
+      {
+        "offer_id": "2855",
+        "review_id": "6591",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2855",
+          "source_row_fingerprint": "7bccc0a2308994fc32523022ba12b075bbcaa1aae0b2f26f316a9d115e2269e9"
+        }
+      },
+      {
+        "offer_id": "2856",
+        "review_id": "6592",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2856",
+          "source_row_fingerprint": "cc93983aa626a9bb85dbe76f38fffdf3ea58dff1ca332bab1a970c6da4307718"
+        }
+      },
+      {
+        "offer_id": "2857",
+        "review_id": "6593",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2857",
+          "source_row_fingerprint": "dcac3d0e1c2562c358ae4634c0323f8f67b242ea24b0699bb5272548a5d7f266"
+        }
+      },
+      {
+        "offer_id": "2858",
+        "review_id": "6594",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2858",
+          "source_row_fingerprint": "d5f3e7e8e08852b62f96fafa7986f2d69a5b52885333274d62b061668eca9833"
+        }
+      },
+      {
+        "offer_id": "2859",
+        "review_id": "6595",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2859",
+          "source_row_fingerprint": "d436ab5f783afbb163a08d36bbc9cd049cb2072ce6a26b468e8808fbdde08ea5"
+        }
+      },
+      {
+        "offer_id": "2873",
+        "review_id": "6596",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2873",
+          "source_row_fingerprint": "14a9e125608c7772d58fbddfbfa826920f85fbf66aa6a42f15f83f0c3734a773"
+        }
+      },
+      {
+        "offer_id": "2880",
+        "review_id": "6597",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2880",
+          "source_row_fingerprint": "65ee782f17cb714d1d3cae019f20ed229452f7d7cdb2a717545d69996cbacdf8"
+        }
+      },
+      {
+        "offer_id": "2890",
+        "review_id": "6598",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2890",
+          "source_row_fingerprint": "07e726f23b4c4313de0609d95074e91a4a6e322addca5e8bab5700832addb3b1"
+        }
+      },
+      {
+        "offer_id": "2893",
+        "review_id": "6599",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2893",
+          "source_row_fingerprint": "f76f4146236b6e01d7cbe765f87577859cca665020465c0b83fb2277f7dde436"
+        }
+      },
+      {
+        "offer_id": "2894",
+        "review_id": "6600",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2894",
+          "source_row_fingerprint": "8eb1a06982ba23a0889d37d04ec4ea8e8fcae6aed3e1e4ed6c36ed48dd80ce7f"
+        }
+      },
+      {
+        "offer_id": "2896",
+        "review_id": "6601",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2896",
+          "source_row_fingerprint": "8d0c92a6b793e380bcd9623f23c669a1c5138289f4474b47c3796f9294884b93"
+        }
+      },
+      {
+        "offer_id": "2897",
+        "review_id": "6602",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2897",
+          "source_row_fingerprint": "f39e17331ff0229fb8382fa8fe5e4ef6e3bbd34019a8e59162cc4c4a07f18456"
+        }
+      },
+      {
+        "offer_id": "2898",
+        "review_id": "6603",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2898",
+          "source_row_fingerprint": "1de69ef3f0439cbbb305fab734b3334bb11bcbf2a290da8a1a73d34387332c8a"
+        }
+      },
+      {
+        "offer_id": "2900",
+        "review_id": "6604",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2900",
+          "source_row_fingerprint": "83a24e1d667b5785ab72fe8a9b10bc70a9954b413cd7666309bb5de168ff2ab8"
+        }
+      },
+      {
+        "offer_id": "2904",
+        "review_id": "6605",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2904",
+          "source_row_fingerprint": "502eed43502a359ff4f4f6086b5e0e4c173ce48cb8d43b541bf13b156921ccff"
+        }
+      },
+      {
+        "offer_id": "2905",
+        "review_id": "6606",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2905",
+          "source_row_fingerprint": "328baa2b1cba320ea3b47381d46d7340aec5d146a3c21a1e83d879bb3d87f9d5"
+        }
+      },
+      {
+        "offer_id": "2913",
+        "review_id": "6607",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2913",
+          "source_row_fingerprint": "f0af8322d5091f4b052767216ed9ad6b957c7bebea888b186a00786fa5d462b8"
+        }
+      },
+      {
+        "offer_id": "2914",
+        "review_id": "6608",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2914",
+          "source_row_fingerprint": "1dded52a50a9d5f506b3deb86bfa8dfd851f1d0b393b7665be5d5d8f2c9e0621"
+        }
+      },
+      {
+        "offer_id": "2945",
+        "review_id": "6609",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2945",
+          "source_row_fingerprint": "3d0e7f1f10267e912fb92e12b522de874598a9615f0a67f2edec4f7a67133f0e"
+        }
+      },
+      {
+        "offer_id": "2974",
+        "review_id": "6610",
+        "reason_codes": "PRICE_AND_STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2974",
+          "source_row_fingerprint": "a7b1ddae781006228ee978d27bd80f9c757a62ddca042ad9ef5a8252667d796f"
+        }
+      },
+      {
+        "offer_id": "2993",
+        "review_id": "6611",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "2993",
+          "source_row_fingerprint": "e663075be6ce020571b1bea5c02a7945546a52fab9e99252132f2554a5526f1d"
+        }
+      },
+      {
+        "offer_id": "3141",
+        "review_id": "6613",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3141",
+          "source_row_fingerprint": "81160897a4205426bd633c044d56757356853c83a7d3fe33724a0d5830650b6f"
+        }
+      },
+      {
+        "offer_id": "3144",
+        "review_id": "6614",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3144",
+          "source_row_fingerprint": "5ceb61563221a07aa94aef2fe540e8c3dcd033cb75c64e3a55eb68ad82e37202"
+        }
+      },
+      {
+        "offer_id": "3146",
+        "review_id": "6615",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3146",
+          "source_row_fingerprint": "20e7324c3e93f49e0021361d524f4c6fcf48d80bc520e92cb59ca231d55ff67b"
+        }
+      },
+      {
+        "offer_id": "3151",
+        "review_id": "6616",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3151",
+          "source_row_fingerprint": "535bd55af860ec65c00313b258a4903dcac02d3e9dc03b1d2c3512d7a8701eaa"
+        }
+      },
+      {
+        "offer_id": "3153",
+        "review_id": "6617",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3153",
+          "source_row_fingerprint": "440d853af74995c57edb266ffaae2f27b886f020e9e1cd39908a6068cbc41d60"
+        }
+      },
+      {
+        "offer_id": "3154",
+        "review_id": "6618",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3154",
+          "source_row_fingerprint": "597d53425d917cac47caa5d7fed0c2d9b6cd17c933c0292e619bf39e420cbe56"
+        }
+      },
+      {
+        "offer_id": "3155",
+        "review_id": "6619",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3155",
+          "source_row_fingerprint": "10adfe1c5efaa470030b2ac62f7bcc314f5a00aee12f64a71d4b1098c9f1f1d2"
+        }
+      },
+      {
+        "offer_id": "3180",
+        "review_id": "6631",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3180",
+          "source_row_fingerprint": "f224b95e7cead82c2e222cbce93d3f4d40a91a342ae1abd90d24a523943666b4"
+        }
+      },
+      {
+        "offer_id": "3182",
+        "review_id": "6632",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3182",
+          "source_row_fingerprint": "4a626933bc3dba7add66ae105a191cde4521592976921f6e43e3e56c0b0cf479"
+        }
+      },
+      {
+        "offer_id": "3183",
+        "review_id": "6633",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3183",
+          "source_row_fingerprint": "ea2297261e422a13915cc1dd9fa980c817fcad845a0fc3ae8b1e40a80dbae79e"
+        }
+      },
+      {
+        "offer_id": "3184",
+        "review_id": "6634",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3184",
+          "source_row_fingerprint": "c094fe52302a660f3101b90b476f328096eefd81f6a717da9e26305000577f22"
+        }
+      },
+      {
+        "offer_id": "3188",
+        "review_id": "6635",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3188",
+          "source_row_fingerprint": "141986ca39d2f60989bb683961d0d0a73b2cc4e06b422a661ee1b369561958d4"
+        }
+      },
+      {
+        "offer_id": "3230",
+        "review_id": "6637",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3230",
+          "source_row_fingerprint": "b75cc780929025e55d1ce8b87741ef77e056e22d7f0031db66e719d98e37734f"
+        }
+      },
+      {
+        "offer_id": "3268",
+        "review_id": "6638",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3268",
+          "source_row_fingerprint": "a61ff7faabed3f1f0cb2ec2ae3656ccfc7f1ab5bd60a958ea9dc30d5c61140e7"
+        }
+      },
+      {
+        "offer_id": "3328",
+        "review_id": "6640",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3328",
+          "source_row_fingerprint": "0a86987dbe1e79ecc9f526f357b7aac07ee1a4dbf173d66689435f33e7513630"
+        }
+      },
+      {
+        "offer_id": "3340",
+        "review_id": "6641",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3340",
+          "source_row_fingerprint": "6e78fee67ab9519ad6799aa60305e9e3d5a8be0c8f0c9353274efc055e0fcc94"
+        }
+      },
+      {
+        "offer_id": "3343",
+        "review_id": "6642",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3343",
+          "source_row_fingerprint": "c89ee2fd9f732c0f9ed5c171545e4034be421558f7966723dadb987ac0812e47"
+        }
+      },
+      {
+        "offer_id": "3351",
+        "review_id": "6643",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3351",
+          "source_row_fingerprint": "62a9462228c09317d095f2aff8bfa0ce7bc78493301fa8b91434db25f82613e2"
+        }
+      },
+      {
+        "offer_id": "3356",
+        "review_id": "6644",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3356",
+          "source_row_fingerprint": "b96fc74f3425c3ba081086283676f9cc474a2278298fe3129d05f7c5e8c1664a"
+        }
+      },
+      {
+        "offer_id": "3357",
+        "review_id": "6645",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3357",
+          "source_row_fingerprint": "3fbc63c6837b7b01c59e24a06c5ae9006b1ad0401a295c08972b120b284ef760"
+        }
+      },
+      {
+        "offer_id": "3358",
+        "review_id": "6646",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3358",
+          "source_row_fingerprint": "45aed92d5aac17e7d2ccc7eda73328b027b763076bc6c8534294c194eba0359c"
+        }
+      },
+      {
+        "offer_id": "3359",
+        "review_id": "6647",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3359",
+          "source_row_fingerprint": "17f2a52fc6100e3f3dc6838c6f3cdc6066312cc6fa30a19ea8147cd6ae5a1d7e"
+        }
+      },
+      {
+        "offer_id": "3384",
+        "review_id": "6649",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3384",
+          "source_row_fingerprint": "83741bb1e01d66e08baa6eda167020035aab20708691a12e66b542d26c85849c"
+        }
+      },
+      {
+        "offer_id": "3386",
+        "review_id": "6650",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3386",
+          "source_row_fingerprint": "c5e3bf859eeef0d1ee46739690a2dc75cd407cfee75c605cf92ecc5e17231cb1"
+        }
+      },
+      {
+        "offer_id": "3388",
+        "review_id": "6651",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3388",
+          "source_row_fingerprint": "00210ba404f17de99de651ccc432c7f0afe670edf7c454fdcf81d991a916f643"
+        }
+      },
+      {
+        "offer_id": "3397",
+        "review_id": "6652",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3397",
+          "source_row_fingerprint": "bc61684e2a7f39deabdb6960c432c1ad6fcf622a003f58c2d925d1a90364d5ae"
+        }
+      },
+      {
+        "offer_id": "3403",
+        "review_id": "6653",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3403",
+          "source_row_fingerprint": "13d1aa3eb5dcd1e1536bbe6f7c66652305c74c65f638be9b803b974ac97031ac"
+        }
+      },
+      {
+        "offer_id": "3404",
+        "review_id": "6654",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3404",
+          "source_row_fingerprint": "853acc769ae73efabf2a2fce3227039be13b6c3b60c53c899428645c67ecae87"
+        }
+      },
+      {
+        "offer_id": "3411",
+        "review_id": "6655",
+        "reason_codes": "PRICE_AND_STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3411",
+          "source_row_fingerprint": "4ddb0831f50ee65c16048b8835d1b03fb617d0117db2f60257fd2ba46217d262"
+        }
+      },
+      {
+        "offer_id": "3415",
+        "review_id": "6656",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3415",
+          "source_row_fingerprint": "8e84fef70e652e8c2d613d329c085e7538ffabe2efade5cf4296f19d4f34ccf7"
+        }
+      },
+      {
+        "offer_id": "3417",
+        "review_id": "6657",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3417",
+          "source_row_fingerprint": "d56754a0752059fecce18a648f50035ef534cbe335c2f1a72aaabbe584d4d976"
+        }
+      },
+      {
+        "offer_id": "3421",
+        "review_id": "6658",
+        "reason_codes": "PRICE_AND_STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3421",
+          "source_row_fingerprint": "76b34cb8a231c684bf39e6baf0a0eb806a2dc5ca9f4ab82d3cc4cd74922c1d3e"
+        }
+      },
+      {
+        "offer_id": "3431",
+        "review_id": "6660",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3431",
+          "source_row_fingerprint": "d99a90d9682fb951785d618f97b86a248fb370862090e6cc5988dc1751b29d0a"
+        }
+      },
+      {
+        "offer_id": "3434",
+        "review_id": "6662",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3434",
+          "source_row_fingerprint": "4a030f96bb4f4558453cb6d0b9c78622ec504f2b500e30db13bbe8de498a39b7"
+        }
+      },
+      {
+        "offer_id": "3444",
+        "review_id": "6663",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3444",
+          "source_row_fingerprint": "0a59a47a7816e13d603ab90ba64feb4f5efd6aabb62f0798e513c46e108e038c"
+        }
+      },
+      {
+        "offer_id": "3450",
+        "review_id": "6664",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3450",
+          "source_row_fingerprint": "74c04b4e33c7050e2f448fee0eafca37290f0594392e054a4dac00ac06f09b02"
+        }
+      },
+      {
+        "offer_id": "3456",
+        "review_id": "6665",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3456",
+          "source_row_fingerprint": "1ffb55da4f7ee0219933a2f2ef37d6bd8bb9e6c4daea56c9d809db09e6fa6004"
+        }
+      },
+      {
+        "offer_id": "3457",
+        "review_id": "6666",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3457",
+          "source_row_fingerprint": "5f37c1f6954b0ab51be97790c3436495a01348bd94c265f3a5cf40c3e82c463c"
+        }
+      },
+      {
+        "offer_id": "3458",
+        "review_id": "6667",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3458",
+          "source_row_fingerprint": "2bd5d59906989476f71668fea1bc70ea92151fb14a066711890a442b90f0a035"
+        }
+      },
+      {
+        "offer_id": "3463",
+        "review_id": "6668",
+        "reason_codes": "PRICE_AND_STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3463",
+          "source_row_fingerprint": "abd8ef8dd074448d6a42601523b0ac330ade6bc09f6cc76353486741a7e0c877"
+        }
+      },
+      {
+        "offer_id": "3474",
+        "review_id": "6669",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3474",
+          "source_row_fingerprint": "7d8bdaba954511dda5dd1c7c7a359cc84bc43b3e3e2733859620ad8b19abee8a"
+        }
+      },
+      {
+        "offer_id": "3475",
+        "review_id": "6670",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3475",
+          "source_row_fingerprint": "f5db3174d0bcecc1a8a6cf5c7424d6d53ad3edc82e05e60a609525b5b2ccbc64"
+        }
+      },
+      {
+        "offer_id": "3476",
+        "review_id": "6671",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3476",
+          "source_row_fingerprint": "19100e2c6cf46ecf7f84a9ef34dab730edb2c7dd42a0c228097c2f6e796a30d7"
+        }
+      },
+      {
+        "offer_id": "3494",
+        "review_id": "6674",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3494",
+          "source_row_fingerprint": "7cabfcf9a27bb6a0063138df01f06abcc04c67f2607f2ac24eb873207ac51f49"
+        }
+      },
+      {
+        "offer_id": "3495",
+        "review_id": "6675",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3495",
+          "source_row_fingerprint": "5e45407fc5eda476e470fa585af036ae9dd2a74489781e83179c68a63a2e7f65"
+        }
+      },
+      {
+        "offer_id": "3496",
+        "review_id": "6676",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3496",
+          "source_row_fingerprint": "01f4082ea4f24280b313b16d56e2206a9939af27ea1d1911268dd37a9aaabec3"
+        }
+      },
+      {
+        "offer_id": "3497",
+        "review_id": "6677",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3497",
+          "source_row_fingerprint": "4f89dcba0e79387c5176469e560a9fd2e825b1bb1b4d94c257b4960a6a7bbefb"
+        }
+      },
+      {
+        "offer_id": "3509",
+        "review_id": "6678",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3509",
+          "source_row_fingerprint": "93c6ed6cb9364b430cd91ad3d173bdc23f2fb662cc0c4194b4b2c23cdd169de9"
+        }
+      },
+      {
+        "offer_id": "3514",
+        "review_id": "6679",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3514",
+          "source_row_fingerprint": "7801274b7beb92ea622347aa70b29ea0e20dcf8ce2785626f586f21148cf27d9"
+        }
+      },
+      {
+        "offer_id": "3517",
+        "review_id": "6680",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3517",
+          "source_row_fingerprint": "fcefaf6c29b9e41629d8001ad5daadf1a04b378e889a7590120e4ed2d5b37e2e"
+        }
+      },
+      {
+        "offer_id": "3518",
+        "review_id": "6681",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3518",
+          "source_row_fingerprint": "7bfa1b480e52e82f301ff5ff0e2fbedbc16733756f2f2e2ff8d8b8429cdec4ed"
+        }
+      },
+      {
+        "offer_id": "3519",
+        "review_id": "6682",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3519",
+          "source_row_fingerprint": "7432d30b4364d7ce3d22134fa9f5f67d2e1815b91cebc5c6aa42e20bca3df15f"
+        }
+      },
+      {
+        "offer_id": "3532",
+        "review_id": "6684",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3532",
+          "source_row_fingerprint": "de0edfd238b463d4a03f8a71abe5e7a9be4268d7c6bc1002312029ad6f5b47d5"
+        }
+      },
+      {
+        "offer_id": "3533",
+        "review_id": "6685",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3533",
+          "source_row_fingerprint": "df37159faada0e9de57c475dc61148bea7ce7671126869782d1d00cc12b9fa3a"
+        }
+      },
+      {
+        "offer_id": "3534",
+        "review_id": "6686",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3534",
+          "source_row_fingerprint": "88b327c313fda0f163d2de53c481b3a89891f282266cd0d1c56921c2e21644ac"
+        }
+      },
+      {
+        "offer_id": "3551",
+        "review_id": "6689",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3551",
+          "source_row_fingerprint": "fdbf05bd70868746fd1afb3a780713ee0b234075289508cc497d9f59875b1622"
+        }
+      },
+      {
+        "offer_id": "3566",
+        "review_id": "6690",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3566",
+          "source_row_fingerprint": "714db43a7821daa2815eea1ec8c55b6a8c4c6e4b61303e5a3822180fca97d3c4"
+        }
+      },
+      {
+        "offer_id": "3567",
+        "review_id": "6691",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3567",
+          "source_row_fingerprint": "21cd3308b56f1e6848c30ad61bf07ef4338083173cbf135d0482d4cc6ebaa326"
+        }
+      },
+      {
+        "offer_id": "3610",
+        "review_id": "6692",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3610",
+          "source_row_fingerprint": "cbba47d8a8aa6571654cbbb994189d715cc8dbf39902be0e4e0b5e7fe6fe6476"
+        }
+      },
+      {
+        "offer_id": "3611",
+        "review_id": "6693",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3611",
+          "source_row_fingerprint": "b5f1d2150b43e09b60a7c708bdd8afa900f630059783afeac3835495479d0606"
+        }
+      },
+      {
+        "offer_id": "3630",
+        "review_id": "6699",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3630",
+          "source_row_fingerprint": "0b155abd2f0fe6dd050e40b3a9c1ab9326799fbfc650123890800bf1146b5e2d"
+        }
+      },
+      {
+        "offer_id": "3631",
+        "review_id": "6700",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3631",
+          "source_row_fingerprint": "9178f6a027f07852a9d9de722f51aeca179588e43d9c967d2ae3529b0f86781d"
+        }
+      },
+      {
+        "offer_id": "3632",
+        "review_id": "6701",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3632",
+          "source_row_fingerprint": "ffe52c2c6603966285247a3836748c430853337d8c0987f137ebcee1b7499655"
+        }
+      },
+      {
+        "offer_id": "3661",
+        "review_id": "6710",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3661",
+          "source_row_fingerprint": "b2bacf333183107a9383392fc06ec0f3d2bbd22e43aa544d730a3ce7e313416b"
+        }
+      },
+      {
+        "offer_id": "3666",
+        "review_id": "6711",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3666",
+          "source_row_fingerprint": "17482aaf92de970cb892f00d5041c05a095aba360636188be70ee4757e33ae57"
+        }
+      },
+      {
+        "offer_id": "3671",
+        "review_id": "6712",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3671",
+          "source_row_fingerprint": "49411a3a2c106f977092ea5b9dac0df96472cc2cb87ccf72bc8783e5838335c9"
+        }
+      },
+      {
+        "offer_id": "3674",
+        "review_id": "6713",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3674",
+          "source_row_fingerprint": "caf98eb728db44c2ff8b2a54f1e220d5d0b47d5ad8ac70fc36e3fe77aefb8280"
+        }
+      },
+      {
+        "offer_id": "3678",
+        "review_id": "6714",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3678",
+          "source_row_fingerprint": "1b5a34b638474734593333f6543da9a2fd595cd137fc59f4ae81e656b4b927b8"
+        }
+      },
+      {
+        "offer_id": "3682",
+        "review_id": "6716",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3682",
+          "source_row_fingerprint": "dbb6d96775ca4c61378eeb0cd03cc48e783e08e164a3509355a4cc6f10d84a33"
+        }
+      },
+      {
+        "offer_id": "3718",
+        "review_id": "6717",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3718",
+          "source_row_fingerprint": "3800c991f240eae2c2be7d1fa221e0cd391dd7f09ab30377a117b63041117b50"
+        }
+      },
+      {
+        "offer_id": "3742",
+        "review_id": "6718",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3742",
+          "source_row_fingerprint": "fd3f31e040bb13fbbc91e2d85cc6624e1852c6d70b57920003e10de7f8cad5b1"
+        }
+      },
+      {
+        "offer_id": "3745",
+        "review_id": "6719",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3745",
+          "source_row_fingerprint": "a8c9c0ac83683b41ae72385fe23405779f0bccdb58913d8c3322cf1eb7227d0f"
+        }
+      },
+      {
+        "offer_id": "3747",
+        "review_id": "6720",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3747",
+          "source_row_fingerprint": "c47daafbc9f2ce58757fa676dee64ee9803febfd64565dcd6352b8fe5b0edbfa"
+        }
+      },
+      {
+        "offer_id": "3760",
+        "review_id": "6721",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3760",
+          "source_row_fingerprint": "45e6b9014f79e5a532a5c1b1941c82799aeec4405e709ec890dc970021783983"
+        }
+      },
+      {
+        "offer_id": "3764",
+        "review_id": "6722",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3764",
+          "source_row_fingerprint": "c715889958a632a6747a78cb413a2de1ecf010fb8f522670b42e581baf895cad"
+        }
+      },
+      {
+        "offer_id": "3769",
+        "review_id": "6723",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3769",
+          "source_row_fingerprint": "76ed9e9e2837900298a27a59a9a972a88b970e28584254500c0046e1cbe05c34"
+        }
+      },
+      {
+        "offer_id": "3775",
+        "review_id": "6724",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3775",
+          "source_row_fingerprint": "bbdfec46582351a9fd498233e0f4e2dadfeadfd53be119dd33a0228b0ae97881"
+        }
+      },
+      {
+        "offer_id": "3846",
+        "review_id": "6725",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3846",
+          "source_row_fingerprint": "d61d23c82435792a0b4d98be9889f2b1057e22a5b14055b8fa404eb7221b7999"
+        }
+      },
+      {
+        "offer_id": "3860",
+        "review_id": "6726",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3860",
+          "source_row_fingerprint": "c52cc807ae85cec9c9beb0faadbc36b20629b33bb482adca938aee616cff050b"
+        }
+      },
+      {
+        "offer_id": "3866",
+        "review_id": "6727",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": {
+          "id": null,
+          "offer_id": "3866",
+          "source_row_fingerprint": "7897896f100105927aafea241d1b55e694707cfa66107b422374e13ae337725f"
+        }
+      }
+    ],
+    "RESOLVE_BY_SOURCE": [
+      {
+        "offer_id": "2996",
+        "review_id": "6612",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3167",
+        "review_id": "6620",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3168",
+        "review_id": "6621",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3169",
+        "review_id": "6622",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3170",
+        "review_id": "6623",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3171",
+        "review_id": "6624",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3172",
+        "review_id": "6625",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3173",
+        "review_id": "6626",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3174",
+        "review_id": "6627",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3175",
+        "review_id": "6628",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3176",
+        "review_id": "6629",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3177",
+        "review_id": "6630",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3203",
+        "review_id": "6636",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3312",
+        "review_id": "6639",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3368",
+        "review_id": "6648",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3425",
+        "review_id": "6659",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3433",
+        "review_id": "6661",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3478",
+        "review_id": "6672",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3479",
+        "review_id": "6673",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3525",
+        "review_id": "6683",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3540",
+        "review_id": "6687",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3542",
+        "review_id": "6688",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3618",
+        "review_id": "6694",
+        "reason_codes": "STOCK_CHANGE",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3624",
+        "review_id": "6695",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3625",
+        "review_id": "6696",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3626",
+        "review_id": "6697",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3627",
+        "review_id": "6698",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3650",
+        "review_id": "6702",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3651",
+        "review_id": "6703",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3652",
+        "review_id": "6704",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3653",
+        "review_id": "6705",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3654",
+        "review_id": "6706",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3655",
+        "review_id": "6707",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3656",
+        "review_id": "6708",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3657",
+        "review_id": "6709",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      },
+      {
+        "offer_id": "3680",
+        "review_id": "6715",
+        "reason_codes": "SOURCE_MISSING",
+        "prior_expires_at": "2026-11-20T10:46:09.739+00:00",
+        "replacement": null
+      }
+    ]
+  },
+  "expected": {
+    "catalogue_writes": 0,
+    "final_active_review_count": 114
+  },
+  "request_fingerprint_for_analysis_only": {
+    "operation_count": 259,
+    "changeset_fingerprint": "56123f044f85c4afef116a698700f3ad61ca8a37361e1ce0b02c411b5c93be04",
+    "publisher_batch_fingerprint": "f91b72258df2751a5e0be3cdab8b14bea64b5c97097d491ff9c7e079d1e284de",
+    "idempotency_key": "e1102ca3bda36a7461743a2b2acf138d96f797bf64347618925c00ecfc4620f8"
+  },
+  "protected_binding_of_proposed_revision": "NOT_RUN",
+  "fresh_source_capture_this_task": "NOT_RUN",
+  "publication_rpc_calls": 0,
+  "database_writes": 0,
+  "production_ready_artifact": false,
+  "authority": "No publication authorized. Recompute full CREATE/REFRESH/SUPERSEDE/RESOLVE_BY_SOURCE set from fresh source before owner release decision; scheduled workflow can automatically reconcile the whole profile after a future merge.",
+  "local_contract_tests": {
+    "result": "PASS",
+    "tests": 58,
+    "failed": 0,
+    "log_sha256": "7a67d42cb349043f30a52d34fb395033ccee9daaf97e44b7b94fc13d69704732"
+  },
+  "compatibility": {
+    "current_main": "857847abbed3ab5f05f45274e739b290a4cdf562",
+    "github_mergeability": "MERGEABLE",
+    "conflicts": false,
+    "runtime_changed_by_followup": false
+  }
+}
