@@ -1,5 +1,21 @@
 # Retailer Automation Consolidation Execution Plan
 
+**20 November 2026 PR560 controlled release ? SQL APPLIED / REPOSITORY CLOSED:**
+exact approved counter migration has independently verified270/ea11b693, same
+reader privileges and unchanged business/queue/control data. Actual applicator
+receipt consumed production pending; staging120/pending3 unchanged. Canonical
+counts494/9/0, SQL performance61.911 to51.329ms, focused263 and isolated SQL4 pass.
+Code release/live verification and restoring the27 paused writers remain pending;
+no publication/catalogue/automation logic change. [Current release evidence](CATALOG-HEALTH-REVIEW-COUNTS-RELEASE-2026-11-20.md).
+
+**20 November 2026 PR560 controlled release — BLOCKED BEFORE REHEARSAL:**
+exact approved3e64e69b/main81349995 and migration hash match. Production READ ONLY
+preflight failed with Query read timeout; separate READ ONLY connection timed
+out. Staging and all release stages remain NOT_RUN. No business/queue/migration
+writes, no workflow disable/enable, no merge/deploy;269/PENDING stays unchanged.
+Normal authenticated production page still renders Unavailable. No runtime or
+architecture change was made. [STOP history and receipts](CATALOG-HEALTH-REVIEW-COUNTS-RELEASE-2026-11-20.md).
+
 **20 November 2026 Catalog Health implementation — NEEDS_OWNER_APPROVAL:**
 approved4348460a design is implemented in Draft560. The existing queue reader
 adds four retailer-summary fields; health reuses one bounded page reader and

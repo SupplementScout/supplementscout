@@ -23,8 +23,10 @@ test("Catalog Health migration changes only the existing summary and keeps the r
   assert.equal(definition(counters),expected);
   assert.equal((counters.match(/create or replace function/g)||[]).length,1);
   assert.doesNotMatch(counters,/\b(?:create\s+(?:table|index|view)|grant|revoke|insert\s+into|update\s+public|delete\s+from)\b/i);
-  const pending=PENDING_MIGRATIONS.PRODUCTION.find(row=>row.filename===path.basename(COUNTERS));
-  assert.equal(pending.sha256,sha256File(path.join(ROOT,COUNTERS)));
+  const receipt=JSON.parse(fs.readFileSync(path.join(ROOT,"docs/retailer-automation/evidence/PR560-CATALOG-HEALTH-PRODUCTION-270-CLOSEOUT-2026-11-20.json"),"utf8"));
+  assert.deepEqual(PENDING_MIGRATIONS.PRODUCTION,[]);
+  assert.equal(receipt.consumed_pending.ordered_filenames[0],path.basename(COUNTERS));
+  assert.equal(receipt.consumed_pending.ordered_sha256[0],sha256File(path.join(ROOT,COUNTERS)));
 });
 
 test("queue projection is SELECT-only, service-role-only, applied in production and pending in staging", () => {

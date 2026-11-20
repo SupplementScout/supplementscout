@@ -1,5 +1,24 @@
 # SupplementScout Operating Plan
 
+**20 November 2026 PR560 controlled release ? SQL APPLIED / CODE RELEASE PENDING:**
+renewed exact-owner approval; fresh production269 and staging120 preflights,
+protected rehearsal and independent rollback readback PASS. Exactly one approved
+migration committed270/ea11b693; independent readback confirms unchanged19-table
+data hashes,213 other functions and reader ACL/security. Actual applicator
+receipt closes repository270/pending=[]; staging120/pending3 unchanged. Counters
+494/9/0 and SQL61.911 to51.329ms; focused263/263 and isolated SQL4/4 pass. Existing
+27 writers temporarily paused; final gates/CI/merge/deployment/live UI and
+restoration remain pending. [Release evidence and retained STOP](retailer-automation/CATALOG-HEALTH-REVIEW-COUNTS-RELEASE-2026-11-20.md).
+
+**20 November 2026 PR560 controlled release — STOP BEFORE REHEARSAL:**
+owner approved3e64e69b and the exact counter migration. Main81349995 and PR SHA
+remain unchanged; approved code CI/Guardian/integration are successful. Fresh
+production READ ONLY preflight ended with Query read timeout; a separate
+diagnostic connection timed out. No complete baseline or staging readback,
+rehearsal/apply/closeout/merge/deployment. Repository remains269 with one PENDING;
+no production data writes or workflow state changes. Authenticated production
+HTTP200 still reproduces Unavailable. See [release STOP and evidence](retailer-automation/CATALOG-HEALTH-REVIEW-COUNTS-RELEASE-2026-11-20.md).
+
 **20 November 2026 Catalog Health repair — CODE COMPLETE / NEEDS_OWNER_APPROVAL:**
 owner-approved design4348460a is implemented on existing Draft560: one additive
 existing-reader migration and one bounded health-loader call with complete
