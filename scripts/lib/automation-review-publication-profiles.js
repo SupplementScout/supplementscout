@@ -1,6 +1,7 @@
 const { reasonList } = require("./automation-review-publisher");
 const stockIdentity = require("./fit-house-stock-identity");
 const sourceProfile = require("../../config/retailers/holland-barrett-offer-sync.json");
+const simplySourceProfile = require("../../config/retailers/simply-supplements-offer-sync.json");
 const SOURCE_REVIEW_POLICIES = Object.freeze({
   CANONICAL_IDENTITY_CONFLICT: Object.freeze({ reasonCode: "IDENTITY_CONFLICT", reviewKind: "IDENTITY_CONFLICT", operation: "MANUAL_REVIEW_IDENTITY" }),
   SOURCE_RECORD_INVALID: Object.freeze({ reasonCode: "SOURCE_FAILURE", reviewKind: "SOURCE_FAILURE", operation: "MANUAL_REVIEW" }),
@@ -67,6 +68,27 @@ function validateStandardCapture(profile, { report, diagnostic, invariant }) {
   invariant(report.result === expectedResult && report.mode === "dry-run" && report.target === "production", `${label} pre-execution report is not publishable`);
   invariant(report.approved_mapping_count === profile.approvedMappingCount && report.blocked_row_count === 0, `${label} apply scope drifted`);
   invariant(diagnostic && diagnostic.approved_mapping_count === profile.approvedMappingCount && profile.sourceFingerprint({ source: diagnostic.source }) === profile.sourceFingerprint(report), `${label} preflight source binding drifted`);
+  if (profile.requireCompleteMissingSourceEvidence) {
+    const source = report.source?.diagnostic;
+    const health = diagnostic.guard_results?.filter(row => row.guard === "SOURCE_HEALTH");
+    const validator = diagnostic.guard_results?.filter(row => row.guard === "VALIDATOR");
+    const coverage = diagnostic.guard_results?.filter(row => row.guard === "APPROVED_MAPPING_COVERAGE");
+    invariant(source?.pagination_completed === true && source.final_http_status === 200
+      && health?.length === 1 && health[0].result === "PASS",
+    `${label} source-missing publication requires a complete healthy source`);
+    invariant(diagnostic.validator_result === "PASS" && validator?.length === 1 && validator[0].result === "PASS",
+      `${label} source-missing publication requires successful read-only validation`);
+    invariant(report.discovery?.catalogue_creates === 0
+      && report.discovery.missing_variants === report.review_row_count
+      && report.discovery.missing_variants_review_only === report.review_row_count
+      && report.discovery.missing_variants_marked_unavailable === 0
+      && coverage?.length === 1 && ["PASS", "REVIEW_ISOLATED"].includes(coverage[0].result)
+      && coverage[0].expected === profile.approvedMappingCount
+      && coverage[0].source_absent_review_rows === report.review_row_count
+      && coverage[0].source_absent_marked_unavailable === 0
+      && coverage[0].matched + report.review_row_count === profile.approvedMappingCount,
+    `${label} source-missing publication must retain the complete no-write review partition`);
+  }
 }
 
 function validateJonsCapture(profile, { report, diagnostic, invariant }) {
@@ -501,6 +523,9 @@ const PROFILES = Object.freeze({
   "10-reps": profile({ key: "10-reps", retailer: Object.freeze({ id: "14", name: "10 Reps", slug: "10-reps" }), approvedMappingCount: 950, sourceDirectory: "10reps-offer-refresh", artifactPrefix: "10reps-offer-refresh", reconciliationFile: "10reps-reconciliation-dry-run.json", contractName: "10-reps-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS"]) }),
   "whey-okay": profile({ key: "whey-okay", retailer: Object.freeze({ id: "3", name: "Whey Okay", slug: "whey-okay" }), approvedMappingCount: 589, sourceDirectory: "whey-okay-offer-refresh", artifactPrefix: "whey-okay-offer-refresh", reconciliationFile: "whey-okay-reconciliation-dry-run.json", contractName: "whey-okay-automation-review-source-v1", workflow: ".github/workflows/whey-okay-offer-refresh.yml", workflowName: "Whey Okay Offer Refresh", reviewType: "source-missing", captureFiles: WHEY_CAPTURE_FILES, sealedFiles: WHEY_SEALED_FILES, sourceFingerprint: (report) => report.source?.semantic_fingerprint, validate: validateWhey }),
   "jons-supplements": profile({ key: "jons-supplements", retailer: Object.freeze({ id: "10", name: "Jon's Supplements", slug: "jon-s-supplements" }), postflightProfile: "jons-supplements", approvedMappingCount: 506, sourceDirectory: "jons-offer-refresh", artifactPrefix: "jons-offer-refresh", reconciliationFile: "jons-reconciliation-dry-run.json", contractName: "jons-automation-review-source-v1", workflow: ".github/workflows/jons-offer-refresh.yml", workflowName: "Jon's Offer Refresh", reviewType: "source-missing", validateCapture: validateJonsCapture, validate: validateJons }),
+  // Publication policy v1 authorizes only quarantined missing-source review.
+  // The existing BLOCK/0 discovery policy and all commercial guards are unchanged.
+  "simply-supplements": profile({ key: "simply-supplements", retailer: Object.freeze({ id: String(simplySourceProfile.retailer_id), name: simplySourceProfile.retailer_name, slug: simplySourceProfile.retailer_slug }), approvedMappingCount: simplySourceProfile.approved_mapping_count, sourceDirectory: simplySourceProfile.output_directory, artifactPrefix: simplySourceProfile.output_directory, reconciliationFile: "simply-supplements-reconciliation-dry-run.json", contractName: "simply-supplements-automation-review-source-v1", workflow: ".github/workflows/simply-supplements-offer-refresh.yml", workflowName: "Simply Supplements Offer Refresh", reviewType: "source-missing", requireCompleteMissingSourceEvidence: true, requireDurableReviewRegistration: true }),
   "six-pack-supplements": profile({ key: "six-pack-supplements", retailer: Object.freeze({ id: "11", name: "6 Pack Supplements", slug: "6-pack-supplements" }), postflightProfile: "six-pack-supplements", approvedMappingCount: 504, sourceDirectory: "six-pack-offer-refresh", artifactPrefix: "six-pack-offer-refresh", reconciliationFile: "six-pack-reconciliation-dry-run.json", contractName: "six-pack-automation-review-source-v1", workflow: ".github/workflows/six-pack-offer-refresh.yml", workflowName: "6 Pack Supplements Offer Refresh", reviewType: "mixed-policy", captureFiles: SIX_PACK_CAPTURE_FILES, sealedFiles: SIX_PACK_SEALED_FILES, sourceFingerprint: (report) => report.source_snapshot_fingerprint, captureTimestamp: (source) => source.report.source_captured_at, validateCapture: validateSixPackCapture, validate: validateSixPack, validateChangedRows: validateSixPackChangedRows, reviewCard: sixPackReviewCard, matchesActiveReview: sixPackMatchesActiveReview }),
 });
 
