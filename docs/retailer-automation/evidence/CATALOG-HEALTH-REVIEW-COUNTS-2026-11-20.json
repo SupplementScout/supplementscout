@@ -1,0 +1,562 @@
+{
+  "schema_version": 1,
+  "status": "NEEDS_OWNER_APPROVAL",
+  "scope": "Catalog Health review counters; read-only diagnosis and SELECT-only design",
+  "implementation_status": "STOP_BEFORE_SQL_OR_APPLICATION_IMPLEMENTATION",
+  "main_sha": "81349995d2b29e249668071ef618794a634c256e",
+  "production_audit": {
+    "at": "2026-11-20T14:34:48.866Z",
+    "read_only": true,
+    "production_writes": 0,
+    "ledger": 269,
+    "eligible_rows": 7082,
+    "old_loader_with_actual_pg_response": null,
+    "rest": {
+      "read_only": true,
+      "error": null,
+      "count": 7082,
+      "returned": 1000,
+      "elapsed_ms": 762,
+      "old_loader_returns_null": true,
+      "aggregate_probe": {
+        "error": {
+          "code": "PGRST123",
+          "message": "Use of aggregate functions is not allowed"
+        }
+      }
+    },
+    "existing_views": [],
+    "existing_select_functions": [
+      {
+        "proname": "fit_house_six_oos_baseline_exact",
+        "args": "",
+        "provolatile": "s"
+      },
+      {
+        "proname": "read_automation_review_queue_page_v1",
+        "args": "p_request jsonb",
+        "provolatile": "s"
+      },
+      {
+        "proname": "read_verified_automation_review_stock_transitions_v1",
+        "args": "p_retailer_id bigint",
+        "provolatile": "s"
+      },
+      {
+        "proname": "validate_automation_review_owner_decision",
+        "args": "p_request jsonb",
+        "provolatile": "s"
+      }
+    ],
+    "deployed_reader_matches_repository": true,
+    "reader_body_sha256": "d3fb6c1ce56c110763e990000ceee64d3536e4898bc6d13f617a9251537abcd9",
+    "reader": {
+      "elapsed_ms": 512,
+      "page_rows": 1,
+      "total": 1220,
+      "summary_keys": [
+        "total",
+        "decide",
+        "execute",
+        "completed",
+        "retailers",
+        "technical",
+        "processing",
+        "completedToday",
+        "ownerRemaining",
+        "submittedToday"
+      ],
+      "retailer_summary": [
+        {
+          "total": 42,
+          "decide": 16,
+          "execute": 0,
+          "retailer": "Fit House",
+          "completed": 4,
+          "technical": 22,
+          "processing": 0
+        },
+        {
+          "total": 152,
+          "decide": 5,
+          "execute": 0,
+          "retailer": "eBay UK",
+          "completed": 80,
+          "technical": 67,
+          "processing": 0
+        },
+        {
+          "total": 284,
+          "decide": 0,
+          "execute": 0,
+          "retailer": "10 Reps",
+          "completed": 284,
+          "technical": 0,
+          "processing": 0
+        },
+        {
+          "total": 224,
+          "decide": 0,
+          "execute": 0,
+          "retailer": "6 Pack Supplements",
+          "completed": 1,
+          "technical": 223,
+          "processing": 0
+        },
+        {
+          "total": 50,
+          "decide": 0,
+          "execute": 0,
+          "retailer": "Discount Supplements",
+          "completed": 47,
+          "technical": 3,
+          "processing": 0
+        },
+        {
+          "total": 2,
+          "decide": 0,
+          "execute": 0,
+          "retailer": "Dolphin Fitness",
+          "completed": 2,
+          "technical": 0,
+          "processing": 0
+        },
+        {
+          "total": 21,
+          "decide": 0,
+          "execute": 0,
+          "retailer": "Gladiator Nutrition",
+          "completed": 21,
+          "technical": 0,
+          "processing": 0
+        },
+        {
+          "total": 3,
+          "decide": 0,
+          "execute": 0,
+          "retailer": "GYM HIGH",
+          "completed": 2,
+          "technical": 1,
+          "processing": 0
+        },
+        {
+          "total": 132,
+          "decide": 0,
+          "execute": 0,
+          "retailer": "Holland & Barrett",
+          "completed": 3,
+          "technical": 129,
+          "processing": 0
+        },
+        {
+          "total": 15,
+          "decide": 0,
+          "execute": 0,
+          "retailer": "Jon's Supplements",
+          "completed": 0,
+          "technical": 15,
+          "processing": 0
+        },
+        {
+          "total": 1,
+          "decide": 0,
+          "execute": 0,
+          "retailer": "Simply Supplements",
+          "completed": 1,
+          "technical": 0,
+          "processing": 0
+        },
+        {
+          "total": 294,
+          "decide": 0,
+          "execute": 0,
+          "retailer": "Whey Okay",
+          "completed": 284,
+          "technical": 10,
+          "processing": 0
+        }
+      ]
+    },
+    "current_counter_projection": {
+      "status": "READ_ONLY_DESIGN_QUERY_NOT_DEPLOYED",
+      "elapsed_ms": 693,
+      "counters": [
+        {
+          "id": "1",
+          "name": "GYM HIGH",
+          "pending": 1,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "3",
+          "name": "Whey Okay",
+          "pending": 10,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "4",
+          "name": "Discount Supplements",
+          "pending": 3,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "5",
+          "name": "Dolphin Fitness",
+          "pending": 0,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "7",
+          "name": "Simply Supplements",
+          "pending": 0,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "8",
+          "name": "KIOR Health",
+          "pending": 0,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "9",
+          "name": "Fit House",
+          "pending": 38,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "10",
+          "name": "Jon's Supplements",
+          "pending": 15,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "11",
+          "name": "6 Pack Supplements",
+          "pending": 223,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "12",
+          "name": "eBay UK",
+          "pending": 72,
+          "source_unavailable": 9,
+          "blocked": 0
+        },
+        {
+          "id": "13",
+          "name": "Predators Gear",
+          "pending": 0,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "14",
+          "name": "10 Reps",
+          "pending": 0,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "15",
+          "name": "Gladiator Nutrition",
+          "pending": 0,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "16",
+          "name": "Holland & Barrett",
+          "pending": 129,
+          "source_unavailable": 0,
+          "blocked": 0
+        }
+      ]
+    },
+    "main_queue_parity": [
+      {
+        "field": "pending",
+        "projection_total": 491,
+        "main_queue_filtered_total": 491,
+        "match": true
+      },
+      {
+        "field": "source_unavailable",
+        "projection_total": 9,
+        "main_queue_filtered_total": 9,
+        "match": true
+      },
+      {
+        "field": "blocked",
+        "projection_total": 0,
+        "main_queue_filtered_total": 0,
+        "match": true
+      }
+    ],
+    "raw_status_counts": [
+      {
+        "retailer_id": "1",
+        "pending": 3,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "retailer_id": "3",
+        "pending": 292,
+        "source_unavailable": 2,
+        "blocked": 0
+      },
+      {
+        "retailer_id": "4",
+        "pending": 3,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "retailer_id": "5",
+        "pending": 2,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "retailer_id": "7",
+        "pending": 1,
+        "source_unavailable": 1,
+        "blocked": 0
+      },
+      {
+        "retailer_id": "9",
+        "pending": 38,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "retailer_id": "10",
+        "pending": 15,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "retailer_id": "11",
+        "pending": 223,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "retailer_id": "12",
+        "pending": 72,
+        "source_unavailable": 9,
+        "blocked": 1
+      },
+      {
+        "retailer_id": "14",
+        "pending": 145,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "retailer_id": "15",
+        "pending": 0,
+        "source_unavailable": 0,
+        "blocked": 1
+      },
+      {
+        "retailer_id": "16",
+        "pending": 129,
+        "source_unavailable": 0,
+        "blocked": 0
+      }
+    ]
+  },
+  "local_select_only_design": {
+    "at": "2026-11-20T14:32:48.633Z",
+    "scope": "TEST ONLY disposable Docker; SELECT-only design validation, not an implemented fix",
+    "production_connections": 0,
+    "new_aggregation_functions_created": 0,
+    "request_roundtrips": 1,
+    "page_size": 10,
+    "results": [
+      {
+        "queue_rows": 1000,
+        "native_execution_ms": [
+          14.2,
+          13.923,
+          14.668
+        ],
+        "proposed_execution_ms": [
+          14.428,
+          17.383,
+          13.746
+        ],
+        "native_median_ms": 14.2,
+        "proposed_median_ms": 14.428,
+        "returned_page_rows": 10,
+        "returned_summary_rows": 1,
+        "response_bytes": 10126,
+        "expected_counts": {
+          "pending": 1000,
+          "source_unavailable": 100,
+          "blocked": 0
+        },
+        "legacy_limit_returns_unavailable": false
+      },
+      {
+        "queue_rows": 5000,
+        "native_execution_ms": [
+          63.855,
+          65.688,
+          55.744
+        ],
+        "proposed_execution_ms": [
+          60.423,
+          63.833,
+          73.266
+        ],
+        "native_median_ms": 63.855,
+        "proposed_median_ms": 63.833,
+        "returned_page_rows": 10,
+        "returned_summary_rows": 1,
+        "response_bytes": 10129,
+        "expected_counts": {
+          "pending": 5000,
+          "source_unavailable": 500,
+          "blocked": 0
+        },
+        "legacy_limit_returns_unavailable": true
+      },
+      {
+        "queue_rows": 10000,
+        "native_execution_ms": [
+          120.792,
+          135.321,
+          120.51
+        ],
+        "proposed_execution_ms": [
+          129.089,
+          126.229,
+          123.327
+        ],
+        "native_median_ms": 120.792,
+        "proposed_median_ms": 126.229,
+        "returned_page_rows": 10,
+        "returned_summary_rows": 1,
+        "response_bytes": 10135,
+        "expected_counts": {
+          "pending": 10000,
+          "source_unavailable": 1000,
+          "blocked": 0
+        },
+        "legacy_limit_returns_unavailable": true
+      },
+      {
+        "queue_rows": 20000,
+        "native_execution_ms": [
+          240.752,
+          243.009,
+          238.015
+        ],
+        "proposed_execution_ms": [
+          246.381,
+          238.085,
+          233.155
+        ],
+        "native_median_ms": 240.752,
+        "proposed_median_ms": 238.085,
+        "returned_page_rows": 10,
+        "returned_summary_rows": 1,
+        "response_bytes": 10140,
+        "expected_counts": {
+          "pending": 20000,
+          "source_unavailable": 2000,
+          "blocked": 0
+        },
+        "legacy_limit_returns_unavailable": true
+      }
+    ],
+    "semantic_regression": {
+      "status": "PASS",
+      "pending": 4,
+      "source_unavailable": 1,
+      "blocked": 1,
+      "cases": [
+        "expired PENDING",
+        "expired APPROVED",
+        "superseded",
+        "older unsuperseded duplicate",
+        "latest QUEUED execution",
+        "EVIDENCE_CHANGED execution",
+        "autonomous exclusion",
+        "SOURCE_FAILURE distinct from SOURCE_MISSING identity",
+        "FAILED current lifecycle",
+        "same filtered totals as main queue"
+      ]
+    },
+    "result": "PASS"
+  },
+  "local_baseline_gates": [
+    {
+      "gate": "verify:baseline",
+      "started": "2026-11-20T14:33:53.805Z",
+      "ended": "2026-11-20T14:33:56.719Z",
+      "exit_code": 0,
+      "result": "PASS",
+      "log": "tmp/catalog-health-counts/gates/verify-baseline.log"
+    },
+    {
+      "gate": "verify:quick",
+      "started": "2026-11-20T14:33:56.724Z",
+      "ended": "2026-11-20T14:36:26.220Z",
+      "exit_code": 0,
+      "result": "PASS",
+      "log": "tmp/catalog-health-counts/gates/verify-quick.log"
+    },
+    {
+      "gate": "verify:full",
+      "started": "2026-11-20T14:36:26.221Z",
+      "ended": "2026-11-20T14:40:41.547Z",
+      "exit_code": 0,
+      "result": "PASS",
+      "log": "tmp/catalog-health-counts/gates/verify-full.log"
+    }
+  ],
+  "production_ledger": 269,
+  "production_pending": [],
+  "runtime_files_changed": [],
+  "new_migrations": [],
+  "production_writes": 0,
+  "merge": false,
+  "deployment": false,
+  "quality_gate_test_inventory_changed": false,
+  "runtime_fix_regressions": "NOT_IMPLEMENTED: SQL design approval boundary",
+  "draft_pr": "This revision is documentation/design only; it does not repair the production page.",
+  "proposal": {
+    "existing_sql_function": "read_automation_review_queue_page_v1(jsonb)",
+    "cte": "retailer_summary",
+    "additive_fields": [
+      "retailer_id",
+      "pending",
+      "source_unavailable",
+      "blocked"
+    ],
+    "new_named_functions": 0,
+    "new_indexes": 0,
+    "new_tables": 0,
+    "application_loader": "Reuse loadReviewQueuePage once, display WORK, history false, page1; validate complete summary before mapping.",
+    "sql_release_requirement": "One forward-only migration plus existing selector/closeout process; separate production approval and SQL-first cutover required."
+  },
+  "local_project_guardian": {
+    "before": "PASS",
+    "after": "PASS"
+  },
+  "baseline_typescript": "PASS (verify:full)",
+  "baseline_eslint": "PASS (verify:full)",
+  "baseline_build": "PASS (verify:full)"
+}

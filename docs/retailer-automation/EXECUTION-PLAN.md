@@ -1,5 +1,15 @@
 # Retailer Automation Consolidation Execution Plan
 
+**20 November 2026 Catalog Health counter incident — NEEDS_OWNER_APPROVAL:**
+READ ONLY on main81349995/269 reproduces7082>1000 and all-retailer Unavailable.
+Existing reader/available functions do not expose the required three aggregates;
+PostgREST aggregates returnPGRST123. Implementation stops at the owner's SQL
+boundary. The minimal design extends the existing current-summary projection,
+with one bounded loader call, no new reader or data path. Isolated status/scale
+design checks pass; live filtered parity491 pending/9 source failures/0 blocked.
+No runtime change, pending migration, business write, publish/approval/execution,
+workflow, watchdog or durable change. See [proposal and evidence](CATALOG-HEALTH-REVIEW-COUNTS-2026-11-20.md).
+
 **20 November 2026 PR558 safe publication boundary — NEEDS_OWNER_APPROVAL:**
 one owner-scoped follow-up reuses the shared publisher/RPC, immutable source and
 existing exact authorized-artifact retry. Generic owner-only profile policy keeps

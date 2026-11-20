@@ -1,5 +1,16 @@
 # SupplementScout Operating Plan
 
+**20 November 2026 Catalog Health counters — NEEDS_OWNER_APPROVAL / SQL design STOP:**
+owner-scoped dashboard diagnosis on deployed81349995/CURRENT269 confirms7082
+queue rows trigger the old1000-row null fallback. The existing reader lacks
+the three exact aggregates; raw PostgREST aggregates are disabled. A bounded
+SELECT-only proposal extends its current retailer summary, preserving lifecycle,
+capability and latest-record rules; projected counts491/9/0 match main queue
+filters. Local1k/5k/10k/20k and status design checks pass. No runtime fix,
+migration registration, production write, merge or deployment. PR558 remains
+released; publication/PR559/worker decisions are not reopened. See the
+[SQL approval proposal](retailer-automation/CATALOG-HEALTH-REVIEW-COUNTS-2026-11-20.md).
+
 **20 November 2026 PR558 safe publication boundary — NEEDS_OWNER_APPROVAL:**
 existing Draft558 is synchronized with main857847ab/CURRENT269/pending=[]. Fresh
 READ ONLY44712746385 confirms950=836+114; full reconciliation remains259 operations.
