@@ -15,6 +15,8 @@ const PENDING_POLICY = Object.freeze({
 });
 const EXCLUSIONS = Object.freeze({
   STAGING: Object.freeze([
+    // Production Catalog Health proposal; the staging queue reader is still pending.
+    "20261120150000_add_catalog_health_review_counts",
     // Production-only H&B proposals; never selected on staging.
     "20261116210000_align_review_refresh_proposed_state",
     "20261116211000_register_shared_parent_approval_profiles",

@@ -4,9 +4,129 @@ const Module = require("module");
 const path = require("path");
 const test = require("node:test");
 const ts = require("typescript");
+const vm = require("node:vm");
 
 const originalModuleLoad = Module._load;
 const originalTsLoader = require.extensions[".ts"];
+
+function reviewHealthReader(response) {
+  let calls = 0;
+  const cache = new Map();
+  function load(file) {
+    if (cache.has(file)) return cache.get(file);
+    const mod = { exports: {} }; cache.set(file, mod.exports);
+    const source = fs.readFileSync(path.join(process.cwd(), file), "utf8");
+    vm.runInNewContext(ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, {
+      module: mod, exports: mod.exports, require: name => {
+        if (name === "server-only") return {};
+        if (name === "../../lib/supabaseAdmin") return { supabaseAdmin: {
+          from() { throw Error("Catalog Health must not scan queue rows"); },
+          async rpc(name, args) {
+            calls++; assert.equal(name, "read_automation_review_queue_page_v1");
+            assert.equal(args.p_request.page, 1); assert.equal(args.p_request.page_size, 10);
+            assert.deepEqual(JSON.parse(JSON.stringify(args.p_request.filters)), {
+              status: "ALL", retailer: "", kind: "", group: "", confidence: "", capability: "", query: "",
+              scope: "DECISIONS", bucket: "ALL", display: "WORK", history: false,
+            });
+            return typeof response === "function" ? response() : response;
+          },
+        } };
+        if (name === "./automationReviewQueueData") return load("app/admin/lib/automationReviewQueueData.ts");
+        if (name === "./automationReviewQueue") return { REVIEW_QUEUE_PAGE_SIZE: 50, REVIEW_QUEUE_WORK_PAGE_SIZE: 10 };
+        if (name === "../../lib/automationReviewCapabilityMatrix") return { AUTOMATION_REVIEW_CAPABILITY_MATRIX: [] };
+        throw Error(`Unexpected review health import ${name}`);
+      }, Date, Number, Set, Map, Object, Error,
+    });
+    return mod.exports;
+  }
+  return { read: load("app/admin/lib/automationReviewHealth.ts").loadAutomationReviewCounts, calls: () => calls };
+}
+
+function reviewCounterRow(id, pending, sourceUnavailable = 0, blocked = 0) {
+  return { retailer_id: id, retailer: `TEST ONLY ${id}`, pending, source_unavailable: sourceUnavailable, blocked,
+    decide: pending - sourceUnavailable, execute: 0, processing: 0, technical: sourceUnavailable + blocked,
+    completed: 0, total: pending + blocked };
+}
+
+function reviewCounterResponse(retailers) {
+  const summary = { total: 0, decide: 0, execute: 0, processing: 0, technical: 0, completed: 0,
+    completedToday: 0, submittedToday: 0, ownerRemaining: 0, retailers };
+  for (const row of retailers) for (const key of ["total", "decide", "execute", "processing", "technical", "completed"]) summary[key] += row[key];
+  summary.ownerRemaining = summary.decide + summary.execute;
+  return { error: null, data: { schema_version: 1, revision: "a".repeat(32), revision_changed: false,
+    page: 1, page_size: 10, total: summary.total, total_pages: Math.max(1, Math.ceil(summary.total / 10)),
+    rows: Array.from({ length: Math.min(10, summary.total) }, (_, i) => ({ id: i + 1, review_status: "EXPIRED", execution_request: null })),
+    retailers: retailers.map(row => row.retailer), summary } };
+}
+
+test("Catalog Health counters use one bounded canonical read below and above the old 1000-row ceiling", async () => {
+  for (const total of [99, 1000, 1001, 5000, 10000, 20000]) {
+    const response = reviewCounterResponse([reviewCounterRow("9", total - 2, Math.floor(total / 10), 2)]);
+    const reader = reviewHealthReader(response);
+    assert.deepEqual(JSON.parse(JSON.stringify(await reader.read())), {
+      "9": { pending: total - 2, sourceUnavailable: Math.floor(total / 10), blocked: 2 },
+    });
+    assert.equal(reader.calls(), 1);
+  }
+});
+
+test("Catalog Health maps every retailer summary and accepts genuine zero and empty queues", async () => {
+  const ids = [1, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+  const rows = ids.map((id, i) => reviewCounterRow(i % 2 ? String(id) : id, i, Math.floor(i / 3), i % 2));
+  const reader = reviewHealthReader(reviewCounterResponse(rows));
+  const expected = Object.fromEntries(rows.map(row => [String(row.retailer_id), {
+    pending: row.pending, sourceUnavailable: row.source_unavailable, blocked: row.blocked,
+  }]));
+  assert.deepEqual(JSON.parse(JSON.stringify(await reader.read())), expected); assert.equal(reader.calls(), 1);
+  const empty = reviewHealthReader(reviewCounterResponse([]));
+  assert.equal(JSON.stringify(await empty.read()), "{}"); assert.equal(empty.calls(), 1);
+});
+
+test("new Catalog Health loader fails closed against the old SQL summary", async () => {
+  const response = reviewCounterResponse([reviewCounterRow("9", 12, 3, 1)]);
+  for (const key of ["retailer_id", "pending", "source_unavailable", "blocked"]) delete response.data.summary.retailers[0][key];
+  assert.equal(await reviewHealthReader(response).read(), null);
+});
+
+test("Catalog Health never turns RPC errors, missing data or revision drift into zero", async () => {
+  for (const response of [null, { data: null, error: null }, { data: null, error: { message: "denied" } },
+    () => { throw Error("network failure"); }]) {
+    assert.equal(await reviewHealthReader(response).read(), null);
+  }
+  const response = reviewCounterResponse([reviewCounterRow("9", 1)]); response.data.revision_changed = true;
+  assert.equal(await reviewHealthReader(response).read(), null);
+});
+
+test("Catalog Health rejects malformed, missing, partial and inconsistent counter summaries", async () => {
+  for (const mutate of [
+    r => { r.data.summary = null; },
+    r => { r.data.summary.retailers = null; },
+    r => { r.data.summary.retailers = []; },
+    r => { r.data.summary.retailers.push(r.data.summary.retailers[0]); },
+    r => { delete r.data.summary.retailers[0].pending; },
+    r => { r.data.summary.retailers[0].pending = -1; },
+    r => { r.data.summary.retailers[0].blocked = 0.5; },
+    r => { r.data.summary.retailers[0].source_unavailable = NaN; },
+    r => { r.data.summary.retailers[0].pending = "12"; },
+    r => { r.data.summary.retailers[0].pending = 0; r.data.summary.retailers[0].source_unavailable = 0; },
+    r => { r.data.summary.retailers[0].source_unavailable = 13; },
+    r => { r.data.summary.retailers[0].blocked = 99; },
+    r => { r.data.summary.retailers[0].retailer_id = "bad"; },
+    r => { r.data.summary.retailers[0].retailer_id = 0; },
+    r => { r.data.summary.retailers[0].retailer_id = Number.MAX_SAFE_INTEGER + 1; },
+    r => { r.data.summary.retailers[0].retailer = ""; },
+    r => { r.data.summary.retailers[0].total++; },
+    r => { r.data.summary.total++; },
+    r => { r.data.summary.decide++; },
+    r => { delete r.data.summary.ownerRemaining; },
+    r => { r.data.summary.completedToday = "0"; },
+    r => { r.data.summary.submittedToday = Infinity; },
+    r => { r.data.rows.pop(); },
+  ]) {
+    const response = reviewCounterResponse([reviewCounterRow("9", 12, 3, 1)]); mutate(response);
+    assert.equal(await reviewHealthReader(response).read(), null, mutate.toString());
+  }
+});
 
 require.extensions[".ts"] = function loadTypeScriptModule(mod, filename) {
   const source = fs.readFileSync(filename, "utf8");
@@ -610,8 +730,8 @@ test("catalog health joins the shared review queue without inferring workflow or
   const loader = fs.readFileSync(path.join(process.cwd(), "app", "admin", "lib", "automationReviewHealth.ts"), "utf8");
   const components = fs.readFileSync(path.join(process.cwd(), "app", "admin", "catalog-health", "components.tsx"), "utf8");
   assert.match(page, /loadAutomationReviewCounts/);
-  assert.match(loader, /product_match_review_queue/);
-  assert.match(loader, /review_kind,review_status/);
+  assert.match(loader, /loadReviewQueuePage/);
+  assert.doesNotMatch(loader, /\.from\(|\.limit\(/);
   assert.match(components, /Pending review/);
   assert.match(components, /Source unavailable/);
   assert.match(components, /\/admin\/automation-review\?status=PENDING/);

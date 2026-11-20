@@ -1,5 +1,45 @@
 # SupplementScout Operating Plan
 
+**20 November 2026 PR560 controlled release ? SQL APPLIED / CODE RELEASE PENDING:**
+renewed exact-owner approval; fresh production269 and staging120 preflights,
+protected rehearsal and independent rollback readback PASS. Exactly one approved
+migration committed270/ea11b693; independent readback confirms unchanged19-table
+data hashes,213 other functions and reader ACL/security. Actual applicator
+receipt closes repository270/pending=[]; staging120/pending3 unchanged. Counters
+494/9/0 and SQL61.911 to51.329ms; focused263/263 and isolated SQL4/4 pass. Existing
+27 writers temporarily paused; final gates/CI/merge/deployment/live UI and
+restoration remain pending. [Release evidence and retained STOP](retailer-automation/CATALOG-HEALTH-REVIEW-COUNTS-RELEASE-2026-11-20.md).
+
+**20 November 2026 PR560 controlled release — STOP BEFORE REHEARSAL:**
+owner approved3e64e69b and the exact counter migration. Main81349995 and PR SHA
+remain unchanged; approved code CI/Guardian/integration are successful. Fresh
+production READ ONLY preflight ended with Query read timeout; a separate
+diagnostic connection timed out. No complete baseline or staging readback,
+rehearsal/apply/closeout/merge/deployment. Repository remains269 with one PENDING;
+no production data writes or workflow state changes. Authenticated production
+HTTP200 still reproduces Unavailable. See [release STOP and evidence](retailer-automation/CATALOG-HEALTH-REVIEW-COUNTS-RELEASE-2026-11-20.md).
+
+**20 November 2026 Catalog Health repair — CODE COMPLETE / NEEDS_OWNER_APPROVAL:**
+owner-approved design4348460a is implemented on existing Draft560: one additive
+existing-reader migration and one bounded health-loader call with complete
+counter validation. No new system/cache/reader or automation change. Actual
+isolated PostgreSQL migration/rollback, ACL/data invariance, old/new app-SQL
+compatibility and14-retailer1k/5k/10k/20k counters pass. READ ONLY15:08 confirms
+production269/old SQL and current494/9/0 expectations; new loader on old SQL
+fails closed. One production migration remains PENDING; no apply, merge or
+production deployment. [Implementation and guarded release plan](retailer-automation/CATALOG-HEALTH-REVIEW-COUNTS-IMPLEMENTATION-2026-11-20.md).
+
+**20 November 2026 Catalog Health counters — NEEDS_OWNER_APPROVAL / SQL design STOP:**
+owner-scoped dashboard diagnosis on deployed81349995/CURRENT269 confirms7082
+queue rows trigger the old1000-row null fallback. The existing reader lacks
+the three exact aggregates; raw PostgREST aggregates are disabled. A bounded
+SELECT-only proposal extends its current retailer summary, preserving lifecycle,
+capability and latest-record rules; projected counts491/9/0 match main queue
+filters. Local1k/5k/10k/20k and status design checks pass. No runtime fix,
+migration registration, production write, merge or deployment. PR558 remains
+released; publication/PR559/worker decisions are not reopened. See the
+[SQL approval proposal](retailer-automation/CATALOG-HEALTH-REVIEW-COUNTS-2026-11-20.md).
+
 **20 November 2026 PR558 safe publication boundary — NEEDS_OWNER_APPROVAL:**
 existing Draft558 is synchronized with main857847ab/CURRENT269/pending=[]. Fresh
 READ ONLY44712746385 confirms950=836+114; full reconciliation remains259 operations.

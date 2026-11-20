@@ -1,0 +1,607 @@
+{
+  "schema_version": 1,
+  "status": "NEEDS_OWNER_APPROVAL",
+  "scope": "Owner-approved Catalog Health counter implementation on existing Draft560",
+  "approved_design_sha": "4348460a41a41fc7880b075d367e517849a271fd",
+  "base_main": "81349995d2b29e249668071ef618794a634c256e",
+  "migration": {
+    "filename": "20261120150000_add_catalog_health_review_counts.sql",
+    "sha256": "09d941a26ac97791dde4e5690f97b7cc97ea16630297b1637aa02373c3695072",
+    "actual_file_sha256": "09d941a26ac97791dde4e5690f97b7cc97ea16630297b1637aa02373c3695072",
+    "unwrap_transaction": "PASS",
+    "pending": [
+      {
+        "filename": "20261120150000_add_catalog_health_review_counts.sql",
+        "sha256": "09d941a26ac97791dde4e5690f97b7cc97ea16630297b1637aa02373c3695072"
+      }
+    ],
+    "historical_reader_sha256": "062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa"
+  },
+  "current_bindings": {
+    "production": {
+      "count": 269,
+      "fingerprint": "f54057cd49ea4422a3b8b849ac15ce38b518496a44a8d4dceb2f480f8f97eb66"
+    },
+    "staging": {
+      "count": 120,
+      "fingerprint": "31dc3e6e90dab56dd00843bef441cfba400e1d9480d2940f41b46cfff6e32277",
+      "pending_count": 3
+    }
+  },
+  "derived_future_only": {
+    "status": "CLOSEOUT_REQUIRED",
+    "pre_count": 269,
+    "pre_fingerprint": "f54057cd49ea4422a3b8b849ac15ce38b518496a44a8d4dceb2f480f8f97eb66",
+    "post_count": 270,
+    "post_fingerprint": "ea11b69343c2100ecf38078a6920eb3b7478fc6ee4633bb65fc7657c39c2ae2a",
+    "consumed_pending": [
+      {
+        "filename": "20261120150000_add_catalog_health_review_counts.sql",
+        "identifier": "20261120150000_add_catalog_health_review_counts",
+        "sha256": "09d941a26ac97791dde4e5690f97b7cc97ea16630297b1637aa02373c3695072"
+      }
+    ],
+    "applied": false
+  },
+  "production_read_only": {
+    "at": "2026-11-20T15:08:52.351Z",
+    "read_only": true,
+    "production_writes": 0,
+    "ledger": 269,
+    "eligible_rows": 7086,
+    "old_loader_count_guard_triggered": true,
+    "rest": {
+      "new_loader_with_old_sql": "FAIL_CLOSED_NULL",
+      "read_only": true,
+      "error": null,
+      "count": 7086,
+      "returned": 1000,
+      "elapsed_ms": 157,
+      "old_loader_returns_null": true,
+      "aggregate_probe": {
+        "error": {
+          "code": "PGRST123",
+          "message": "Use of aggregate functions is not allowed"
+        }
+      }
+    },
+    "existing_views": [],
+    "existing_select_functions": [
+      {
+        "proname": "fit_house_six_oos_baseline_exact",
+        "args": "",
+        "provolatile": "s"
+      },
+      {
+        "proname": "read_automation_review_queue_page_v1",
+        "args": "p_request jsonb",
+        "provolatile": "s"
+      },
+      {
+        "proname": "read_verified_automation_review_stock_transitions_v1",
+        "args": "p_retailer_id bigint",
+        "provolatile": "s"
+      },
+      {
+        "proname": "validate_automation_review_owner_decision",
+        "args": "p_request jsonb",
+        "provolatile": "s"
+      }
+    ],
+    "deployed_reader_matches_repository": true,
+    "reader_body_sha256": "d3fb6c1ce56c110763e990000ceee64d3536e4898bc6d13f617a9251537abcd9",
+    "reader": {
+      "elapsed_ms": 556,
+      "page_rows": 1,
+      "total": 1221,
+      "summary_keys": [
+        "total",
+        "decide",
+        "execute",
+        "completed",
+        "retailers",
+        "technical",
+        "processing",
+        "completedToday",
+        "ownerRemaining",
+        "submittedToday"
+      ],
+      "retailer_summary": [
+        {
+          "total": 42,
+          "decide": 16,
+          "execute": 0,
+          "retailer": "Fit House",
+          "completed": 4,
+          "technical": 22,
+          "processing": 0
+        },
+        {
+          "total": 153,
+          "decide": 7,
+          "execute": 0,
+          "retailer": "eBay UK",
+          "completed": 78,
+          "technical": 68,
+          "processing": 0
+        },
+        {
+          "total": 284,
+          "decide": 0,
+          "execute": 0,
+          "retailer": "10 Reps",
+          "completed": 284,
+          "technical": 0,
+          "processing": 0
+        },
+        {
+          "total": 224,
+          "decide": 0,
+          "execute": 0,
+          "retailer": "6 Pack Supplements",
+          "completed": 1,
+          "technical": 223,
+          "processing": 0
+        },
+        {
+          "total": 50,
+          "decide": 0,
+          "execute": 0,
+          "retailer": "Discount Supplements",
+          "completed": 47,
+          "technical": 3,
+          "processing": 0
+        },
+        {
+          "total": 2,
+          "decide": 0,
+          "execute": 0,
+          "retailer": "Dolphin Fitness",
+          "completed": 2,
+          "technical": 0,
+          "processing": 0
+        },
+        {
+          "total": 21,
+          "decide": 0,
+          "execute": 0,
+          "retailer": "Gladiator Nutrition",
+          "completed": 21,
+          "technical": 0,
+          "processing": 0
+        },
+        {
+          "total": 3,
+          "decide": 0,
+          "execute": 0,
+          "retailer": "GYM HIGH",
+          "completed": 2,
+          "technical": 1,
+          "processing": 0
+        },
+        {
+          "total": 132,
+          "decide": 0,
+          "execute": 0,
+          "retailer": "Holland & Barrett",
+          "completed": 3,
+          "technical": 129,
+          "processing": 0
+        },
+        {
+          "total": 15,
+          "decide": 0,
+          "execute": 0,
+          "retailer": "Jon's Supplements",
+          "completed": 0,
+          "technical": 15,
+          "processing": 0
+        },
+        {
+          "total": 1,
+          "decide": 0,
+          "execute": 0,
+          "retailer": "Simply Supplements",
+          "completed": 1,
+          "technical": 0,
+          "processing": 0
+        },
+        {
+          "total": 294,
+          "decide": 0,
+          "execute": 0,
+          "retailer": "Whey Okay",
+          "completed": 284,
+          "technical": 10,
+          "processing": 0
+        }
+      ]
+    },
+    "current_counter_projection": {
+      "status": "READ_ONLY_DESIGN_QUERY_NOT_DEPLOYED",
+      "elapsed_ms": 113,
+      "counters": [
+        {
+          "id": "1",
+          "name": "GYM HIGH",
+          "pending": 1,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "3",
+          "name": "Whey Okay",
+          "pending": 10,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "4",
+          "name": "Discount Supplements",
+          "pending": 3,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "5",
+          "name": "Dolphin Fitness",
+          "pending": 0,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "7",
+          "name": "Simply Supplements",
+          "pending": 0,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "8",
+          "name": "KIOR Health",
+          "pending": 0,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "9",
+          "name": "Fit House",
+          "pending": 38,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "10",
+          "name": "Jon's Supplements",
+          "pending": 15,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "11",
+          "name": "6 Pack Supplements",
+          "pending": 223,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "12",
+          "name": "eBay UK",
+          "pending": 75,
+          "source_unavailable": 9,
+          "blocked": 0
+        },
+        {
+          "id": "13",
+          "name": "Predators Gear",
+          "pending": 0,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "14",
+          "name": "10 Reps",
+          "pending": 0,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "15",
+          "name": "Gladiator Nutrition",
+          "pending": 0,
+          "source_unavailable": 0,
+          "blocked": 0
+        },
+        {
+          "id": "16",
+          "name": "Holland & Barrett",
+          "pending": 129,
+          "source_unavailable": 0,
+          "blocked": 0
+        }
+      ]
+    },
+    "main_queue_parity": [
+      {
+        "field": "pending",
+        "projection_total": 494,
+        "main_queue_filtered_total": 494,
+        "match": true
+      },
+      {
+        "field": "source_unavailable",
+        "projection_total": 9,
+        "main_queue_filtered_total": 9,
+        "match": true
+      },
+      {
+        "field": "blocked",
+        "projection_total": 0,
+        "main_queue_filtered_total": 0,
+        "match": true
+      }
+    ],
+    "raw_status_counts": [
+      {
+        "retailer_id": "1",
+        "pending": 3,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "retailer_id": "3",
+        "pending": 292,
+        "source_unavailable": 2,
+        "blocked": 0
+      },
+      {
+        "retailer_id": "4",
+        "pending": 3,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "retailer_id": "5",
+        "pending": 2,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "retailer_id": "7",
+        "pending": 1,
+        "source_unavailable": 1,
+        "blocked": 0
+      },
+      {
+        "retailer_id": "9",
+        "pending": 38,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "retailer_id": "10",
+        "pending": 15,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "retailer_id": "11",
+        "pending": 223,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "retailer_id": "12",
+        "pending": 75,
+        "source_unavailable": 9,
+        "blocked": 1
+      },
+      {
+        "retailer_id": "14",
+        "pending": 145,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "retailer_id": "15",
+        "pending": 0,
+        "source_unavailable": 0,
+        "blocked": 1
+      },
+      {
+        "retailer_id": "16",
+        "pending": 129,
+        "source_unavailable": 0,
+        "blocked": 0
+      }
+    ]
+  },
+  "tests": {
+    "focused": {
+      "tests": 170,
+      "passed": 170,
+      "failed": 0,
+      "skipped": 0,
+      "log": "tmp/catalog-health-counts/implementation-focused-final.log"
+    },
+    "sql": {
+      "tests": 4,
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "log": "tmp/catalog-health-counts/implementation-sql-tests-verified.log"
+    },
+    "sql_details": {
+      "database": "TEST ONLY disposable PostgreSQL17",
+      "migration": "20261120150000_add_catalog_health_review_counts.sql",
+      "rehearsal": "PASS_ROLLBACK",
+      "apply": "PASS",
+      "acl_and_data_unchanged": true,
+      "old_client_new_sql": "PASS",
+      "new_client_old_sql": "FAIL_CLOSED",
+      "status_parity": "PASS",
+      "measurements": [
+        {
+          "rows": 1000,
+          "old_ms": [
+            33.067,
+            35.476,
+            34.139
+          ],
+          "new_ms": [
+            33.62,
+            43.201,
+            32.172
+          ],
+          "old_median_ms": 34.139,
+          "new_median_ms": 33.62,
+          "page_rows": 10,
+          "summary_rows": 14
+        },
+        {
+          "rows": 5000,
+          "old_ms": [
+            86.567,
+            85.299,
+            92.901
+          ],
+          "new_ms": [
+            97.784,
+            93.036,
+            88.955
+          ],
+          "old_median_ms": 86.567,
+          "new_median_ms": 93.036,
+          "page_rows": 10,
+          "summary_rows": 14
+        },
+        {
+          "rows": 10000,
+          "old_ms": [
+            179.499,
+            168.344,
+            161.379
+          ],
+          "new_ms": [
+            182.452,
+            184.387,
+            163.845
+          ],
+          "old_median_ms": 168.344,
+          "new_median_ms": 182.452,
+          "page_rows": 10,
+          "summary_rows": 14
+        },
+        {
+          "rows": 20000,
+          "old_ms": [
+            327.349,
+            323.813,
+            313.391
+          ],
+          "new_ms": [
+            314.093,
+            342.371,
+            320.563
+          ],
+          "old_median_ms": 323.813,
+          "new_median_ms": 320.563,
+          "page_rows": 10,
+          "summary_rows": 14
+        }
+      ]
+    },
+    "gates": [
+      {
+        "gate": "verify:project",
+        "started": "2026-11-20T15:11:58.879Z",
+        "ended": "2026-11-20T15:11:59.843Z",
+        "exit_code": 0,
+        "result": "PASS",
+        "log": "tmp/catalog-health-counts/implementation-gates/verify-project.log"
+      },
+      {
+        "gate": "verify:baseline",
+        "started": "2026-11-20T15:11:59.851Z",
+        "ended": "2026-11-20T15:12:01.057Z",
+        "exit_code": 0,
+        "result": "PASS",
+        "log": "tmp/catalog-health-counts/implementation-gates/verify-baseline.log"
+      },
+      {
+        "gate": "verify:inventory",
+        "started": "2026-11-20T15:12:01.058Z",
+        "ended": "2026-11-20T15:12:01.960Z",
+        "exit_code": 0,
+        "result": "PASS",
+        "log": "tmp/catalog-health-counts/implementation-gates/verify-inventory.log"
+      },
+      {
+        "gate": "verify:quick",
+        "started": "2026-11-20T15:12:01.961Z",
+        "ended": "2026-11-20T15:13:54.030Z",
+        "exit_code": 0,
+        "result": "PASS",
+        "log": "tmp/catalog-health-counts/implementation-gates/verify-quick.log"
+      },
+      {
+        "gate": "verify:full",
+        "started": "2026-11-20T15:13:54.031Z",
+        "ended": "2026-11-20T15:17:41.640Z",
+        "exit_code": 0,
+        "result": "PASS",
+        "log": "tmp/catalog-health-counts/implementation-gates/verify-full.log"
+      }
+    ],
+    "typecheck": "PASS",
+    "test_inventory": {
+      "count": 371,
+      "sha256": "06960cca86beefb8efc409f43c416aaf03a37dbbf8eaedb597a2a7eb3af59c83"
+    },
+    "inventory_changed": false,
+    "safe_totals": {
+      "tests": 4122,
+      "pass": 4119,
+      "fail": 0,
+      "skipped": 3
+    },
+    "typescript": "PASS (verify:full and standalone typecheck)",
+    "eslint": "PASS (verify:full)",
+    "build": "PASS (verify:full)",
+    "project_after_documentation": "PASS"
+  },
+  "implementation": {
+    "runtime_files": [
+      "app/admin/lib/automationReviewHealth.ts"
+    ],
+    "new_sql_functions": 0,
+    "new_tables": 0,
+    "new_indexes": 0,
+    "new_views": 0,
+    "new_endpoints": 0,
+    "new_caches": 0,
+    "rpc_calls_per_load": 1,
+    "maximum_page_rows": 10,
+    "summary_rows": "one per current retailer, independent of history size",
+    "raw_queue_scans_in_application": 0,
+    "old_nonempty_sql_returns": "null / Unavailable",
+    "empty_complete_response_returns": "valid empty map / zero",
+    "no_fixed_reference_counts": true
+  },
+  "authorization_boundary": {
+    "production_schema_apply": false,
+    "production_rehearsal": false,
+    "production_data_writes": 0,
+    "queue_publication": false,
+    "merge": false,
+    "production_deployment": false,
+    "production_current270": false
+  },
+  "remaining": [
+    "Separate exact production release approval",
+    "Protected production preflight/rehearsal and rollback readback",
+    "Single selected migration apply and independent270 readback",
+    "Receipt-derived repository closeout with final checks",
+    "Safe merge/deployment and actual live dashboard verification"
+  ]
+}
