@@ -214,3 +214,50 @@ test("robots disallows admin and go paths", () => {
 
   assert.deepEqual(wildcardRule?.disallow, ["/admin", "/go"]);
 });
+
+test("documented Meta crawler forms return before offer reads, click writes and redirects", async () => {
+  const agents = [
+    "meta-webindexer/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)",
+    "meta-externalagent/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)",
+    "meta-externalfetcher/1.1 (+/documentation/sharing/webmasters/web-crawlers)",
+    "meta-webindexer/1.1", "meta-externalagent/1.1", "meta-externalfetcher/1.1",
+    "  MeTa-WeBiNdExEr/1.1  ", "META-EXTERNALAGENT/1.1", "Meta-ExternalFetcher/1.1",
+    "facebookexternalhit/1.1", "FacebookExternalHit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
+    "Googlebot/2.1", "bingbot/2.0",
+  ];
+  for (const agent of agents) {
+    const { calls, supabaseAdmin } = createMockSupabase();
+    const { GET } = loadGoRouteModule(supabaseAdmin);
+    const response = await GET(createRequest("https://www.supplementscout.co.uk/go/123", agent), {
+      params: Promise.resolve({ offerId: "123" }),
+    });
+    assert.equal(response.status, 204, agent);
+    assert.equal(response.headers.get("location"), null, agent);
+    assert.equal(response.headers.get("X-Robots-Tag"), "noindex, nofollow, noarchive");
+    assert.deepEqual(calls.tables, [], agent);
+    assert.deepEqual(calls.insertedClicks, [], agent);
+  }
+});
+
+test("browser, in-app browser, missing and unusual agents retain existing click diagnostics", async () => {
+  const cases = [
+    ["Mozilla/5.0 AppleWebKit/537.36 Chrome/126.0 Safari/537.36", "likely_human"],
+    ["Mozilla/5.0 AppleWebKit/605.1.15 Mobile/15E148 [FBAN/FBIOS;FBAV/500.0]", "likely_human"],
+    [null, "likely_automated"], ["CustomMetaClient/1.0", "unknown"], ["curl/8.0", "likely_automated"],
+  ];
+  for (const [agent, classification] of cases) {
+    const { calls, supabaseAdmin } = createMockSupabase();
+    const { GET } = loadGoRouteModule(supabaseAdmin);
+    const request = createRequest("https://www.supplementscout.co.uk/go/123?source=product_best_offer", agent || "", {
+      referer: "https://www.supplementscout.co.uk/product/safe-product",
+      "sec-fetch-site": "same-origin", "sec-fetch-mode": "navigate", "sec-fetch-dest": "document",
+    });
+    if (agent === null) request.headers.delete("user-agent");
+    const response = await GET(request, { params: Promise.resolve({ offerId: "123" }) });
+    assert.equal(response.status, 307, String(agent));
+    assert.equal(response.headers.get("location"), "https://www.awin1.com/pclick.php?p=45010750732&a=2973875&m=5959");
+    assert.equal(calls.insertedClicks.length, 1);
+    assert.equal(calls.insertedClicks[0].traffic_class, classification);
+    assert.equal(calls.insertedClicks[0].source_page, "product_best_offer");
+  }
+});

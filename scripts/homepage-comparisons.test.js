@@ -51,6 +51,56 @@ const homeData = load("app/lib/homepageData.ts", dataOverrides);
 const components = load("app/home-comparisons.tsx");
 const presentation = load("app/lib/homepageComparisonDetails.ts");
 
+test("reused checked-time formatter preserves UK winter, summer, DST and missing-date output", () => {
+  const { OfferCheckedBadge } = load("app/components/ComparisonProductVisuals.tsx");
+  const expected = new Intl.DateTimeFormat("en-GB", {
+    dateStyle: "medium", timeStyle: "short", timeZone: "Europe/London",
+  });
+  for (const checkedAt of [
+    "2026-01-15T12:00:00Z", "2026-07-15T12:00:00Z",
+    "2026-03-29T00:59:59Z", "2026-03-29T01:00:00Z",
+    "2026-10-25T00:59:59Z", "2026-10-25T01:00:00Z",
+    "2028-02-29T23:59:00Z", "2026-01-15T12:00:00Z",
+  ]) {
+    const html = renderToStaticMarkup(React.createElement(OfferCheckedBadge, { checkedAt }));
+    assert.ok(html.includes(`Offer checked ${expected.format(new Date(checkedAt))}`), checkedAt);
+  }
+  for (const checkedAt of [null, "", "not-a-date"]) {
+    assert.equal(renderToStaticMarkup(React.createElement(OfferCheckedBadge, { checkedAt })),
+      '<p class="mt-2 text-xs text-zinc-500">Check time unavailable</p>');
+  }
+});
+
+test("public rendering preserves complete HTML, metadata, client props and reads against released main", async () => {
+  const { fixture, loadPage } = require("./benchmark-public-render");
+  for (const [route, category, params] of [
+    ["product/[id]", "Pre Workout", {}],
+    ["product/[id]", "Pre Workout", { variant: "20013" }],
+    ["compare", "Pre Workout", {}],
+    ["compare", "Pre Workout", { left: "10004", right: "10008" }],
+    ["creatine", "Creatine", { sort: "price_asc" }],
+    ["pre-workout", "Pre Workout", { retailer: "shop-2" }],
+  ]) {
+    const data = fixture(12, category, 3);
+    const before = loadPage(data, route, { ref: "50611eb151332af5af4fed5e4610eaa009d81acc" });
+    const after = loadPage(data, route);
+    for (const read of ["initial", "warm"]) {
+      const expected = await before.run(params), actual = await after.run(params);
+      for (const key of ["html", "metadata", "boundaryProps"]) assert.deepEqual(actual[key], expected[key], `${route}/${read}/${key}`);
+      assert.deepEqual(after.calls, before.calls, `${route}/${read}/reads`);
+    }
+  }
+});
+
+test("a warm category render formats current prices without constructing a formatter per value", async () => {
+  const { fixture, loadPage } = require("./benchmark-public-render");
+  const page = loadPage(fixture(12, "Creatine", 3), "creatine", { profile: true });
+  await page.run();
+  await page.run();
+  assert.ok(page.counters.currencyCalls > 20, "exercise real price and shipping presentation");
+  assert.equal(page.counters.numberFormat, 0, "formatter construction must not scale with prices per render");
+});
+
 function offer(retailerId, price, overrides = {}) {
   return {
     id: retailerId + 100, product_id: 1, retailer_id: retailerId, retailer_product_id: retailerId,
