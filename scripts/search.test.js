@@ -296,7 +296,8 @@ function loadProductsModule(
   observers = {}
 ) {
   const filename = path.join(process.cwd(), "app", "lib", "products.ts");
-  const source = fs.readFileSync(filename, "utf8");
+  // Expose the existing comparator only in this compiled test module.
+  const source = fs.readFileSync(filename, "utf8") + "\nexport { sortResults };";
   const { outputText } = ts.transpileModule(source, {
     compilerOptions: {
       module: ts.ModuleKind.CommonJS,
@@ -2382,4 +2383,58 @@ test("empty and malformed search inputs and database errors preserve their contr
   assert.equal(result.error, error);
   assert.deepEqual(result.results, []);
   assert.deepEqual(result.facets, { categories: [], brands: [], retailers: [], caffeine: [] });
+});
+
+function sortCostFixture() {
+  return Array.from({ length: 1000 }, (_, index) => {
+    const value = (index * 749) % 1000;
+    return {
+      id: String(value),
+      name: `Product ${String(value % 37).padStart(2, "0")}`,
+      relevanceScore: value % 9,
+      cheapestOffer: value % 13 === 0 ? null : {
+        productPrice: (value % 29) + 1,
+        deliveredPrice: value % 7 === 0 ? null : { totalPrice: (value % 31) + 1 },
+      },
+      verifiedPricePerServing: value % 5 === 0 ? null : (value % 19) / 100 + (value % 3) / 1000,
+      verifiedCostPer25gProtein: value % 3 === 0 ? null : (value % 17) / 100,
+      verifiedCostPer5gCreatine: value % 4 === 0 ? null : (value % 11) / 100,
+    };
+  });
+}
+
+test("all six sorts preserve the baseline order for 1000 mixed-price candidates", () => {
+  const { createHash } = require("node:crypto");
+  const { sortResults } = loadProductsModule();
+  const rows = sortCostFixture();
+  const expected = {
+    relevance: "cb949d8a0a9e710b33cbd24bbb5d629ee9a7514b1cb2c0bc64ef42578ddaf9e2",
+    price_asc: "7bc80d92d9fe8e230f2fb598ab5b6c999098095939e8c5a8407938a4c625a82b",
+    price_desc: "c70f02dbc72d4b2ca93a7e8f61c12fefa1ceb24b872fc08fa006e25e9731ff87",
+    price_per_serving_asc: "16386b9e2ec86bd88aa9f24aa5c6992c516dad9b206f7283a8675261ef9c9829",
+    cost_per_25g_protein_asc: "85603c6eeb2382ea107a46dd32832ee3acd560bad063a86f05b59a0f1a9b7e20",
+    cost_per_5g_creatine_asc: "b35ff6f65cfbe5e71b619c1e9da6d1996d062b6cc3680b255d9e5dfd62a51b9a",
+  };
+  for (const [sort, hash] of Object.entries(expected)) {
+    const sorted = sortResults(rows, sort);
+    assert.equal(createHash("sha256").update(JSON.stringify(sorted.map(({ id }) => id))).digest("hex"), hash, sort);
+    assert.equal(sorted.length, 1000);
+  }
+  assert.equal(rows[1].id, "749", "sorting must not mutate the input");
+});
+
+test("sort avoids price and name fallback work until the primary keys tie", () => {
+  const { sortResults } = loadProductsModule();
+  let namesCompared = 0;
+  const rows = sortCostFixture().slice(0, 2).map((row, index) => ({
+    ...row,
+    relevanceScore: index,
+    verifiedPricePerServing: index,
+    name: { localeCompare: () => { namesCompared++; return 0; } },
+  }));
+  sortResults(rows, "relevance");
+  sortResults(rows, "price_per_serving_asc");
+  assert.equal(namesCompared, 0);
+  sortResults(rows, "price_asc");
+  assert.equal(namesCompared, 1, "delivered-price sorting needs only one comparison");
 });

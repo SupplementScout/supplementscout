@@ -1372,8 +1372,6 @@ function compareSearchResultPrices(
 
 function sortResults(results: ProductSearchResult[], sort: SearchSort) {
   return [...results].sort((left, right) => {
-    const deliveredPriceFallback = compareSearchResultPrices(left, right);
-
     function compareValueMetric(
       leftValue: number | null,
       rightValue: number | null
@@ -1389,7 +1387,8 @@ function sortResults(results: ProductSearchResult[], sort: SearchSort) {
       }
 
       return (
-        right.relevanceScore - left.relevanceScore || deliveredPriceFallback
+        right.relevanceScore - left.relevanceScore ||
+        compareSearchResultPrices(left, right)
       );
     }
 
@@ -1424,7 +1423,7 @@ function sortResults(results: ProductSearchResult[], sort: SearchSort) {
 
     return (
       right.relevanceScore - left.relevanceScore ||
-      deliveredPriceFallback
+      compareSearchResultPrices(left, right)
     );
   });
 }
