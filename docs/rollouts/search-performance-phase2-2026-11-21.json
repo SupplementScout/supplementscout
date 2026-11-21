@@ -1,0 +1,1041 @@
+{
+  "task": "Search performance phase 2",
+  "date": "2026-11-21",
+  "status": "LOCAL_BENCHMARK_VERIFIED_DRAFT_REVIEW_REQUIRED",
+  "baselineSha": "ab24fc203f89297dce424468b62c0184198ec875",
+  "branch": "perf/search-cpu-phase2-20261121",
+  "scope": "Request-local grouping in the existing approved-fact loader; unchanged proof resolver, database reads, prices, offers, search pipeline, UI, SEO and released PR #561.",
+  "productionReadOnly": {
+    "deploymentId": "dpl_DFuohRyc85khWHz9VBYqMyCAKvj3",
+    "status": "READY",
+    "target": "production",
+    "gitSha": "ab24fc203f89297dce424468b62c0184198ec875",
+    "evidence": "Authenticated Vercel deployment metadata and fetched origin/main. No production search traffic or database query was generated for this benchmark.",
+    "writes": 0,
+    "migrations": 0,
+    "wafChanges": 0,
+    "productionDeployments": 0,
+    "ownerSuppliedObservability": {
+      "intervalUtc": "2026-11-21 13:55-14:35",
+      "amazonbotLabelBlockedRequests": 47,
+      "mj12botLabelAllowedRequests": 130,
+      "bytespiderLabelAllowedRequests": 40,
+      "latterLabelsApproxCpuSeconds": 12,
+      "searchApproxCpuSeconds": 12.47,
+      "limitations": "Supplied by owner, not independently re-queried. Labels and User-Agent declarations do not establish verified sender identities. No production saving is inferred from offline results."
+    }
+  },
+  "existingWorkRetained": [
+    "PR #561: no idle autocomplete requests, late-response guards and lazy comparator fallback.",
+    "PR #527: reuse normalized offers and relevance between retailer/caffeine passes.",
+    "Approved evidence already uses unique product-ID batches of 500 and pages of 1000; no query per offer/product.",
+    "Metadata does not call searchProducts again; existing candidate limit 1000 and final page size 24 are retained."
+  ],
+  "pipelineAudit": {
+    "reads": [
+      "One products SELECT with nested offers and retailers, active/merge guards, text filter, name order and range 0..999.",
+      "One active product_variants SELECT for unique referenced variant IDs when present.",
+      "Approved nutrition_candidates SELECTs in product-ID batches of 500, ordered pages of 1000; one additional empty page when a batch has an exact multiple of 1000 rows."
+    ],
+    "processing": "Attach variants/proofs, normalize eligible offers and variant prices, build unfiltered facets, apply retailer/caffeine/category/brand/budget filters, sort, then paginate. Existing retailer/caffeine passes retain their different eligible offers.",
+    "confirmedBottleneck": "The loader passed the entire approved candidate pool to the unchanged resolver for every variant. Each applied serving/ingredient field scanned that pool again, even though matching requires the exact product and variant. Cost grows with variants x candidate rows x applied fields.",
+    "chosenChange": "Build variant buckets while consuming the same pages and give each resolver only its own rows, preserving order and duplicates. The resolver still independently validates product, variant, approval and exact applied evidence. If all overrides are null, keep reads/error handling and skip unnecessary bucket population.",
+    "candidateLimit": "1000 candidates is not itself a defect. Cutting to the visible 24 before facets, filters, ranking and counts would change search behavior.",
+    "transfer": "No selected columns, query predicates, requests, rows or bytes are changed by this patch. Serialized fixture payload sizes are recorded below; they are not measured production transfer or compressed HTTP sizes.",
+    "unmeasured": [
+      "SQL execution/EXPLAIN",
+      "Production index inventory",
+      "Database/network latency",
+      "React/SSR HTTP route cost",
+      "Actual production query and override distributions"
+    ]
+  },
+  "existingIndexAudit": {
+    "source": "Repository DDL only, no production catalogue or EXPLAIN readback.",
+    "migrations": [
+      "20260712211120_baseline_current_public_schema.sql",
+      "20260802100000_create_nutrition_candidates.sql",
+      "20260911120000_add_nutrition_candidate_variant_provenance.sql"
+    ],
+    "found": [
+      "offers_product_variant_id_idx (product_variant_id)",
+      "offers_retailer_product_id_idx (retailer_product_id)",
+      "product_variants primary key (id) and partial one-default-per-product index",
+      "products primary key (id), is_active and merged_into_product_id indexes",
+      "nutrition_candidates_product_status_idx (product_id,status), partial non-null product_id",
+      "nutrition_candidates_status_created_idx (status,created_at DESC,id DESC)",
+      "nutrition_candidates_variant_status_idx (product_variant_id,status), partial non-null variant ID"
+    ],
+    "decision": "No new index or migration. No repository trigram/GIN search index was found; that is not evidence of a database bottleneck or a complete live index inventory."
+  },
+  "alternatives": [
+    {
+      "option": "Request-local variant grouping (implemented)",
+      "cpu": "Measured reduction on candidate-rich fixtures; no-override fixture unchanged.",
+      "queries": "Identical",
+      "transfer": "Identical",
+      "complexity": "One existing loader, small Map; resolver unchanged.",
+      "correctnessRisk": "Low; exact product/variant/approval/provenance/component/error guards covered by parity regressions."
+    },
+    {
+      "option": "Narrow candidate SELECT by variant ID",
+      "cpu": "Could reduce deserialization and irrelevant evidence; not measured against SQL.",
+      "queries": "Might change URL size, batches and pagination; must be validated separately.",
+      "transfer": "Potentially lower sibling/parent evidence.",
+      "complexity": "Changes established database read contract.",
+      "correctnessRisk": "Requires isolated read-plan and error/parity proof; not needed for the measured CPU improvement."
+    },
+    {
+      "option": "Remove selected fields",
+      "cpu": "Potential parsing reduction unmeasured.",
+      "queries": "Unchanged in principle.",
+      "transfer": "Potentially smaller.",
+      "complexity": "Shared nutrition/provenance consumers must be audited.",
+      "correctnessRisk": "Current fields support prices or exact evidence; no safe meaningful projection reduction established."
+    },
+    {
+      "option": "Move ranking/facets/pagination into SQL",
+      "cpu": "Could shift work into database, unmeasured.",
+      "queries": "New SQL contract/migration would be needed.",
+      "transfer": "Potentially smaller.",
+      "complexity": "Substantially broader.",
+      "correctnessRisk": "High equivalence burden for variant, shipping, freshness, value-intent and facet semantics; outside this minimal patch."
+    },
+    {
+      "option": "Global price cache or early 24-candidate cutoff (rejected)",
+      "cpu": "May reduce work, but no correctness proof.",
+      "queries": "Potentially fewer.",
+      "transfer": "Potentially smaller.",
+      "complexity": "Adds invalidation or changes search semantics.",
+      "correctnessRisk": "Stale prices/availability or incorrect ranking/facets/counts; not implemented."
+    }
+  ],
+  "sourceSha256Lf": {
+    "app/lib/reviewedPreWorkoutFacts.server.ts": "9d8cfbfbabc2a19fefc8187851e3f450268f1563f666525ec94cb3b6687ebf1b",
+    "scripts/search.test.js": "0702c6b3a5e64d8429cf9fa2db1c634f6503e09ecebba61fd8191d816169e002",
+    "scripts/benchmark-search-pipeline.js": "cc9e014d557dd1b3b59db2408cad86d16ce39ef61605a17962f19e771d84d3bb"
+  },
+  "baselineLoaderSha256Lf": "63d043c6c3e8db51e79ee3f509aaffc033d56c93b6d155c62309dfb2bd423997",
+  "benchmarkEnvironment": {
+    "platform": "win32",
+    "architecture": "x64",
+    "cpu": "AMD Ryzen 9 5900HS with Radeon Graphics        ",
+    "logicalCpus": 16
+  },
+  "benchmarkCommand": "node scripts/benchmark-search-pipeline.js ab24fc203f89297dce424468b62c0184198ec875",
+  "benchmark": {
+    "baseline": "ab24fc203f89297dce424468b62c0184198ec875",
+    "at": "2026-11-21T15:13:33.555Z",
+    "node": "v24.18.0",
+    "samplesPerRevision": 15,
+    "warmupMsPerRevision": 1000,
+    "targetBatchMs": 300,
+    "scope": "Offline full searchProducts including actual pricing/nutrition/freshness/proof modules and fresh fixture JSON deserialization. Synthetic scenarios, not sampled production data. No network, database, SSR, React rendering, or Vercel CPU measurements. Timings uninstrumented; separate instrumented stage profiles overlap (proofLoader is inside enrichment). Candidate inspections use a third run, separate from timing and stage profiles.",
+    "results": [
+      {
+        "name": "small-creatine",
+        "products": 90,
+        "variants": 90,
+        "offers": 270,
+        "candidates": 203,
+        "queries": [
+          {
+            "table": "products",
+            "rows": 90,
+            "bytes": 99243
+          },
+          {
+            "table": "product_variants",
+            "rows": 90,
+            "bytes": 18099
+          },
+          {
+            "table": "nutrition_candidates",
+            "rows": 203,
+            "bytes": 144801
+          }
+        ],
+        "parity": "PASS",
+        "iterationsPerSample": 127,
+        "median": {
+          "before": {
+            "cpuMs": 2.952755905511811,
+            "wallMs": 2.5921582677165276
+          },
+          "after": {
+            "cpuMs": 2.5826771653543306,
+            "wallMs": 2.5885629921259876
+          }
+        },
+        "samples": {
+          "before": {
+            "cpuMs": [
+              3.1968503937007875,
+              3.9291338582677167,
+              2.8346456692913384,
+              3.6929133858267718,
+              3.8188976377952755,
+              3.322834645669291,
+              2.338582677165354,
+              2.952755905511811,
+              3.078740157480315,
+              2.338582677165354,
+              3.078740157480315,
+              2.590551181102362,
+              2.2125984251968505,
+              2.094488188976378,
+              2.952755905511811
+            ],
+            "wallMs": [
+              2.8520929133858264,
+              2.7833212598425234,
+              2.591845669291336,
+              4.335883464566926,
+              3.255169291338583,
+              2.7286275590551208,
+              2.2630188976377963,
+              3.8627598425196834,
+              2.271879527559047,
+              2.318931496062996,
+              2.8843897637795357,
+              2.469705511811019,
+              2.2366070866141747,
+              2.0914031496062893,
+              2.5921582677165276
+            ]
+          },
+          "after": {
+            "cpuMs": [
+              2.8346456692913384,
+              3.6929133858267718,
+              2.952755905511811,
+              2.952755905511811,
+              3.440944881889764,
+              2.7086614173228347,
+              2.0866141732283463,
+              2.2125984251968505,
+              2.4645669291338583,
+              2.4488188976377954,
+              2.338582677165354,
+              2.2125984251968505,
+              2.7086614173228347,
+              2.5826771653543306,
+              2.5826771653543306
+            ],
+            "wallMs": [
+              2.5837874015748037,
+              3.183138582677166,
+              2.416753543307081,
+              2.5885629921259876,
+              2.963965354330709,
+              2.652969291338582,
+              1.9401779527559153,
+              1.9767999999999943,
+              2.9203503937007884,
+              2.240438582677168,
+              1.9645614173228307,
+              2.8170511811023586,
+              3.0190299212598495,
+              3.0811188976377872,
+              2.4682992125984264
+            ]
+          }
+        },
+        "profile": {
+          "before": {
+            "stages": {
+              "deserialize:products": {
+                "ms": 0.34839999999894644,
+                "calls": 1
+              },
+              "deserialize:product_variants": {
+                "ms": 0.060299999999188,
+                "calls": 1
+              },
+              "deserialize:nutrition_candidates": {
+                "ms": 0.29579999999987194,
+                "calls": 1
+              },
+              "proofResolver": {
+                "ms": 1.230600000002596,
+                "calls": 90
+              },
+              "proofLoader": {
+                "ms": 2.4342999999989843,
+                "calls": 1
+              },
+              "enrichment": {
+                "ms": 3.1877999999996973,
+                "calls": 1
+              },
+              "normalize": {
+                "ms": 4.515500000012253,
+                "calls": 90
+              },
+              "facets": {
+                "ms": 0.5277000000005501,
+                "calls": 1
+              },
+              "filters": {
+                "ms": 0.06459999999970023,
+                "calls": 1
+              },
+              "sort": {
+                "ms": 0.2834999999995489,
+                "calls": 1
+              }
+            },
+            "candidateInspections": 4669
+          },
+          "after": {
+            "stages": {
+              "deserialize:products": {
+                "ms": 0.33879999999953725,
+                "calls": 1
+              },
+              "deserialize:product_variants": {
+                "ms": 0.05850000000100408,
+                "calls": 1
+              },
+              "deserialize:nutrition_candidates": {
+                "ms": 0.2831000000005588,
+                "calls": 1
+              },
+              "proofResolver": {
+                "ms": 0.40839999999661813,
+                "calls": 90
+              },
+              "proofLoader": {
+                "ms": 1.4466000000011263,
+                "calls": 1
+              },
+              "enrichment": {
+                "ms": 2.045799999999872,
+                "calls": 1
+              },
+              "normalize": {
+                "ms": 3.462599999998929,
+                "calls": 90
+              },
+              "facets": {
+                "ms": 0.531699999999546,
+                "calls": 1
+              },
+              "filters": {
+                "ms": 0.06520000000091386,
+                "calls": 1
+              },
+              "sort": {
+                "ms": 0.2828000000008615,
+                "calls": 1
+              }
+            },
+            "candidateInspections": 46
+          }
+        }
+      },
+      {
+        "name": "broad-1000-quarter-reviewed",
+        "products": 1000,
+        "variants": 1000,
+        "offers": 3000,
+        "candidates": 3250,
+        "queries": [
+          {
+            "table": "products",
+            "rows": 1000,
+            "bytes": 1108614
+          },
+          {
+            "table": "product_variants",
+            "rows": 1000,
+            "bytes": 439751
+          },
+          {
+            "table": "nutrition_candidates",
+            "rows": 1000,
+            "bytes": 726400
+          },
+          {
+            "table": "nutrition_candidates",
+            "rows": 625,
+            "bytes": 453977
+          },
+          {
+            "table": "nutrition_candidates",
+            "rows": 1000,
+            "bytes": 726400
+          },
+          {
+            "table": "nutrition_candidates",
+            "rows": 625,
+            "bytes": 453977
+          }
+        ],
+        "parity": "PASS",
+        "iterationsPerSample": 10,
+        "median": {
+          "before": {
+            "cpuMs": 106.3,
+            "wallMs": 100.21034999999975
+          },
+          "after": {
+            "cpuMs": 37.5,
+            "wallMs": 33.98738999999987
+          }
+        },
+        "samples": {
+          "before": {
+            "cpuMs": [
+              131.2,
+              107.8,
+              112.5,
+              125,
+              104.7,
+              98.4,
+              110.9,
+              111,
+              126.6,
+              106.3,
+              96.9,
+              89,
+              100,
+              95.3,
+              100
+            ],
+            "wallMs": [
+              118.18083000000006,
+              108.06441000000014,
+              109.21718999999976,
+              110.27155999999995,
+              101.37333999999973,
+              98.64399000000012,
+              98.62163999999976,
+              109.13228999999993,
+              124.06762999999992,
+              98.11477000000014,
+              100.17881999999955,
+              99.35884000000006,
+              100.21034999999975,
+              99.09285000000018,
+              100.03482999999979
+            ]
+          },
+          "after": {
+            "cpuMs": [
+              48.5,
+              48.4,
+              43.8,
+              34.3,
+              36,
+              37.5,
+              43.8,
+              43.7,
+              35.9,
+              42.1,
+              37.5,
+              31.3,
+              32.8,
+              29.7,
+              35.9
+            ],
+            "wallMs": [
+              39.94187999999995,
+              36.69937000000027,
+              34.71269000000029,
+              33.15106000000014,
+              34.06123999999981,
+              36.016510000000196,
+              34.357710000000225,
+              33.98738999999987,
+              33.67747000000018,
+              36.51820000000007,
+              32.458890000000245,
+              31.07344000000012,
+              31.865149999999993,
+              33.190069999999835,
+              31.78585000000021
+            ]
+          }
+        },
+        "profile": {
+          "before": {
+            "stages": {
+              "deserialize:products": {
+                "ms": 3.5385999999998603,
+                "calls": 1
+              },
+              "deserialize:product_variants": {
+                "ms": 1.2465999999985797,
+                "calls": 1
+              },
+              "deserialize:nutrition_candidates": {
+                "ms": 4.795599999997648,
+                "calls": 4
+              },
+              "proofResolver": {
+                "ms": 99.63820000012493,
+                "calls": 1000
+              },
+              "proofLoader": {
+                "ms": 111.53830000000016,
+                "calls": 1
+              },
+              "enrichment": {
+                "ms": 115.92929999999615,
+                "calls": 1
+              },
+              "normalize": {
+                "ms": 16.484499999853142,
+                "calls": 1000
+              },
+              "facets": {
+                "ms": 3.259200000000419,
+                "calls": 1
+              },
+              "filters": {
+                "ms": 0.054499999998370185,
+                "calls": 1
+              },
+              "sort": {
+                "ms": 1.303299999999581,
+                "calls": 1
+              }
+            },
+            "candidateInspections": 4062500
+          },
+          "after": {
+            "stages": {
+              "deserialize:products": {
+                "ms": 3.6081000000049244,
+                "calls": 1
+              },
+              "deserialize:product_variants": {
+                "ms": 1.2554000000018277,
+                "calls": 1
+              },
+              "deserialize:nutrition_candidates": {
+                "ms": 4.775099999998929,
+                "calls": 4
+              },
+              "proofResolver": {
+                "ms": 9.924299999947834,
+                "calls": 1000
+              },
+              "proofLoader": {
+                "ms": 21.926500000001397,
+                "calls": 1
+              },
+              "enrichment": {
+                "ms": 26.047600000005332,
+                "calls": 1
+              },
+              "normalize": {
+                "ms": 16.168499999963387,
+                "calls": 1000
+              },
+              "facets": {
+                "ms": 3.332699999999022,
+                "calls": 1
+              },
+              "filters": {
+                "ms": 0.05850000000646105,
+                "calls": 1
+              },
+              "sort": {
+                "ms": 1.1710000000020955,
+                "calls": 1
+              }
+            },
+            "candidateInspections": 7500
+          }
+        }
+      },
+      {
+        "name": "proof-rich-preworkout",
+        "products": 200,
+        "variants": 600,
+        "offers": 1800,
+        "candidates": 3800,
+        "queries": [
+          {
+            "table": "products",
+            "rows": 200,
+            "bytes": 507541
+          },
+          {
+            "table": "product_variants",
+            "rows": 600,
+            "bytes": 746001
+          },
+          {
+            "table": "nutrition_candidates",
+            "rows": 1000,
+            "bytes": 741659
+          },
+          {
+            "table": "nutrition_candidates",
+            "rows": 1000,
+            "bytes": 741637
+          },
+          {
+            "table": "nutrition_candidates",
+            "rows": 1000,
+            "bytes": 741659
+          },
+          {
+            "table": "nutrition_candidates",
+            "rows": 800,
+            "bytes": 593249
+          }
+        ],
+        "parity": "PASS",
+        "iterationsPerSample": 9,
+        "median": {
+          "before": {
+            "cpuMs": 258.77777777777777,
+            "wallMs": 255.3797333333334
+          },
+          "after": {
+            "cpuMs": 43.44444444444444,
+            "wallMs": 36.44635555555578
+          }
+        },
+        "samples": {
+          "before": {
+            "cpuMs": [
+              239.55555555555554,
+              230.77777777777777,
+              258.77777777777777,
+              239.55555555555554,
+              263.8888888888889,
+              255.22222222222223,
+              234.33333333333334,
+              284.6666666666667,
+              263.8888888888889,
+              260.44444444444446,
+              270.77777777777777,
+              253.55555555555554,
+              265.55555555555554,
+              246.44444444444446,
+              260.55555555555554
+            ],
+            "wallMs": [
+              264.46176666666645,
+              233.77747777777728,
+              255.3797333333334,
+              233.87347777777825,
+              298.74115555555505,
+              244.87971111111094,
+              241.80866666666648,
+              285.26227777777723,
+              257.63590000000033,
+              253.55271111111182,
+              256.37434444444403,
+              260.4349888888893,
+              264.33441111111216,
+              242.30395555555555,
+              254.21751111111047
+            ]
+          },
+          "after": {
+            "cpuMs": [
+              36.44444444444444,
+              48.666666666666664,
+              32.888888888888886,
+              40,
+              43.44444444444444,
+              41.666666666666664,
+              52.111111111111114,
+              43.44444444444444,
+              50.333333333333336,
+              39.888888888888886,
+              62.55555555555556,
+              39.888888888888886,
+              55.55555555555556,
+              34.77777777777778,
+              46.77777777777778
+            ],
+            "wallMs": [
+              36.71714444444418,
+              37.67538888888844,
+              36.04611111111121,
+              36.1684111111107,
+              38.498644444444736,
+              34.518911111111166,
+              36.39547777777787,
+              36.10785555555534,
+              36.44635555555578,
+              33.878733333332804,
+              41.69517777777704,
+              38.52321111111087,
+              49.119044444444526,
+              35.54593333333388,
+              42.60941111111121
+            ]
+          }
+        },
+        "profile": {
+          "before": {
+            "stages": {
+              "deserialize:products": {
+                "ms": 1.8263000000006286,
+                "calls": 1
+              },
+              "deserialize:product_variants": {
+                "ms": 2.113000000012107,
+                "calls": 1
+              },
+              "deserialize:nutrition_candidates": {
+                "ms": 6.401900000011665,
+                "calls": 4
+              },
+              "proofResolver": {
+                "ms": 291.3734000000841,
+                "calls": 600
+              },
+              "proofLoader": {
+                "ms": 307.0182999999961,
+                "calls": 1
+              },
+              "enrichment": {
+                "ms": 312.395199999999,
+                "calls": 1
+              },
+              "normalize": {
+                "ms": 9.040899999978137,
+                "calls": 200
+              },
+              "facets": {
+                "ms": 1.3326999999990221,
+                "calls": 1
+              },
+              "filters": {
+                "ms": 0.0371000000013737,
+                "calls": 1
+              },
+              "sort": {
+                "ms": 0.671200000011595,
+                "calls": 1
+              }
+            },
+            "candidateInspections": 11400000
+          },
+          "after": {
+            "stages": {
+              "deserialize:products": {
+                "ms": 1.6549999999988358,
+                "calls": 1
+              },
+              "deserialize:product_variants": {
+                "ms": 2.1290999999910127,
+                "calls": 1
+              },
+              "deserialize:nutrition_candidates": {
+                "ms": 5.8870999999926426,
+                "calls": 4
+              },
+              "proofResolver": {
+                "ms": 33.28149999967718,
+                "calls": 600
+              },
+              "proofLoader": {
+                "ms": 48.23829999999725,
+                "calls": 1
+              },
+              "enrichment": {
+                "ms": 53.59290000000328,
+                "calls": 1
+              },
+              "normalize": {
+                "ms": 9.24240000001737,
+                "calls": 200
+              },
+              "facets": {
+                "ms": 0.8862999999983003,
+                "calls": 1
+              },
+              "filters": {
+                "ms": 0.03539999999338761,
+                "calls": 1
+              },
+              "sort": {
+                "ms": 0.5694000000075903,
+                "calls": 1
+              }
+            },
+            "candidateInspections": 18000
+          }
+        }
+      },
+      {
+        "name": "no-applied-overrides",
+        "products": 90,
+        "variants": 90,
+        "offers": 270,
+        "candidates": 180,
+        "queries": [
+          {
+            "table": "products",
+            "rows": 90,
+            "bytes": 99243
+          },
+          {
+            "table": "product_variants",
+            "rows": 90,
+            "bytes": 17731
+          },
+          {
+            "table": "nutrition_candidates",
+            "rows": 180,
+            "bytes": 128701
+          }
+        ],
+        "parity": "PASS",
+        "iterationsPerSample": 180,
+        "median": {
+          "before": {
+            "cpuMs": 1.8222222222222222,
+            "wallMs": 1.8603644444444702
+          },
+          "after": {
+            "cpuMs": 1.8222222222222222,
+            "wallMs": 1.8624416666667256
+          }
+        },
+        "samples": {
+          "before": {
+            "cpuMs": [
+              2.1666666666666665,
+              2.433333333333333,
+              2.0833333333333335,
+              2.0833333333333335,
+              1.9944444444444445,
+              1.8222222222222222,
+              1.65,
+              1.738888888888889,
+              1.8222222222222222,
+              1.65,
+              1.8222222222222222,
+              1.8222222222222222,
+              1.8222222222222222,
+              2.2555555555555555,
+              2.3444444444444446
+            ],
+            "wallMs": [
+              1.9637188888888988,
+              2.0178783333333237,
+              1.9028816666666697,
+              1.911408888888885,
+              1.8603644444444702,
+              1.787046666666639,
+              1.764999999999984,
+              1.7861627777778064,
+              1.7787177777777996,
+              1.804043333333377,
+              1.8259261111111198,
+              1.8680533333333895,
+              1.80037333333328,
+              2.1943477777777947,
+              2.334733888888877
+            ]
+          },
+          "after": {
+            "cpuMs": [
+              2,
+              2.3444444444444446,
+              2.172222222222222,
+              1.9944444444444445,
+              2,
+              1.8222222222222222,
+              1.8222222222222222,
+              1.8166666666666667,
+              1.738888888888889,
+              1.8222222222222222,
+              1.65,
+              1.7333333333333334,
+              2.172222222222222,
+              2.3444444444444446,
+              1.8222222222222222
+            ],
+            "wallMs": [
+              1.8624416666667256,
+              1.9324994444444503,
+              1.8857211111111003,
+              1.8800033333333785,
+              1.8964472222221957,
+              1.807914999999937,
+              1.9877788888889578,
+              1.7907894444444132,
+              1.7648172222222558,
+              1.7798511111111213,
+              1.8055561111111376,
+              1.766004444444439,
+              2.4211255555556113,
+              2.3351505555556082,
+              1.857821666666617
+            ]
+          }
+        },
+        "profile": {
+          "before": {
+            "stages": {
+              "deserialize:products": {
+                "ms": 0.3332000000082189,
+                "calls": 1
+              },
+              "deserialize:product_variants": {
+                "ms": 0.125,
+                "calls": 1
+              },
+              "deserialize:nutrition_candidates": {
+                "ms": 0.2520000000076834,
+                "calls": 1
+              },
+              "proofResolver": {
+                "ms": 0.39770000003045425,
+                "calls": 90
+              },
+              "proofLoader": {
+                "ms": 1.1576999999961117,
+                "calls": 1
+              },
+              "enrichment": {
+                "ms": 1.7712000000028638,
+                "calls": 1
+              },
+              "normalize": {
+                "ms": 3.6261000000376953,
+                "calls": 90
+              },
+              "facets": {
+                "ms": 0.6892999999981839,
+                "calls": 1
+              },
+              "filters": {
+                "ms": 0.060200000007171184,
+                "calls": 1
+              },
+              "sort": {
+                "ms": 0.35689999999885913,
+                "calls": 1
+              }
+            },
+            "candidateInspections": 0
+          },
+          "after": {
+            "stages": {
+              "deserialize:products": {
+                "ms": 0.3850000000093132,
+                "calls": 1
+              },
+              "deserialize:product_variants": {
+                "ms": 0.053599999999278225,
+                "calls": 1
+              },
+              "deserialize:nutrition_candidates": {
+                "ms": 0.2587000000057742,
+                "calls": 1
+              },
+              "proofResolver": {
+                "ms": 0.5470000000204891,
+                "calls": 90
+              },
+              "proofLoader": {
+                "ms": 1.3548999999911757,
+                "calls": 1
+              },
+              "enrichment": {
+                "ms": 1.9187999999994645,
+                "calls": 1
+              },
+              "normalize": {
+                "ms": 3.1405000000231666,
+                "calls": 90
+              },
+              "facets": {
+                "ms": 0.31730000000970904,
+                "calls": 1
+              },
+              "filters": {
+                "ms": 0.0268999999971129,
+                "calls": 1
+              },
+              "sort": {
+                "ms": 0.16079999999783468,
+                "calls": 1
+              }
+            },
+            "candidateInspections": 0
+          }
+        }
+      }
+    ]
+  },
+  "regressionCoverage": [
+    "600 variants / 3800 candidates / four pages: complete facts equal the unchanged full-pool resolver, including caffeine absence.",
+    "String/numeric IDs, wrong product/status, unrequested sibling/parent, duplicates and source order.",
+    "Fresh approval read on every request; removed approval cannot persist across requests.",
+    "Multi-component citrulline and singular/component conflicts remain fail closed.",
+    "Null override does not expose unapplied evidence; reads and strict error behavior remain.",
+    "Later-page error discards partial results; failOnError and logging retained.",
+    "24 complete result/query-shape comparisons against exact base revision: six sorts and combinations of retailer, caffeine, budget and pagination.",
+    "Existing price/shipping/availability/variants/ranking/facets/SEO-related suites retained."
+  ],
+  "validation": {
+    "focusedSearch": {
+      "passed": 135,
+      "failed": 0
+    },
+    "relatedSuites": {
+      "passed": 115,
+      "failed": 0
+    },
+    "inventory": {
+      "status": "PASS",
+      "files": 371,
+      "safe": 309,
+      "integration": 58,
+      "artifactBound": 4,
+      "quick": 69,
+      "changes": "No test file added/removed/renamed; existing sealed inventory unchanged."
+    },
+    "quick": {
+      "status": "PASS",
+      "tests": 1368,
+      "passed": 1365,
+      "failed": 0,
+      "skipped": 3
+    },
+    "full": {
+      "status": "PASS",
+      "tests": 4137,
+      "passed": 4134,
+      "failed": 0,
+      "skipped": 3
+    },
+    "ci": "Must be verified on final Draft PR head; local evidence does not substitute for GitHub checks.",
+    "integration": "NOT_RUN: no SQL/schema/transport contract change; offline fixtures do not connect to production.",
+    "typecheck": "PASS: real TypeScript --noEmit in both quality gates",
+    "lint": "PASS: real ESLint in both gates; four pre-existing unused-variable warnings in unchanged automation-review-queue-pagination.integration.test.js",
+    "build": "PASS: actual Next.js 16.2.9 production build, localhost dummy Supabase configuration through existing sanitizedEnvironment",
+    "projectGuardian": "PASS: before and after evidence update, including standalone npm run verify:project",
+    "baselineMigrations": "PASS: unchanged historical migration manifests",
+    "preExistingSkips": "Three 10 Reps v8 cases depend on absent local CSV artifacts; same skips in baseline. No tests or guards disabled.",
+    "buildWarning": "Nested worktree has multiple package-lock files; Next warns about inferred workspace root. Build succeeded; no configuration changed.",
+    "logSha256": {
+      "verify-quick": "a6cc125fccc3633494bc307a38a1bf91d450485c0b70ba4f4ddd132e7469a68e",
+      "verify-full": "54660070e71f6f6f227f05eb4f2860d03d960090a46821bb72c7ec9b51641db3",
+      "focused-final": "a4f61181dd4df4f1a47e81964cb4464b6ab6e1c5fdf2de1ac9eb0af5f9b66b42",
+      "related": "aea18de72bb8ff098e721121f02370b094035a79f14073da8db6d7397cb1d4b6"
+    }
+  },
+  "risks": [
+    "Fixture data are realistically shaped synthetic scenarios, not sampled production traffic. Absolute CPU varies with host/JIT and evidence volume.",
+    "Small/no-override requests show little or no benefit. Do not apply the stress-fixture percentage to all Vercel traffic or cost.",
+    "Database, network and SSR costs remain. No new production measurements or Core Web Vitals claims are made.",
+    "The shared loader also serves product/comparison consumers; related suites and unchanged resolver protect their behavior."
+  ],
+  "releaseBoundary": "Draft PR only. Owner approval required before merge or production release. No database migration, dependency, cache, paid service, WAF or retailer-automation change.",
+  "benchmarkStageProfile": "Diagnostic single-invocation wall-time profile, not CPU medians. Nested enrichment/proofLoader/proofResolver timings overlap and must not be summed. Main timing samples contain no instrumentation."
+}
