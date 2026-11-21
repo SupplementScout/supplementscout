@@ -11,6 +11,7 @@ function compileModule(filename, mocks = {}) {
     compilerOptions: {
       module: ts.ModuleKind.CommonJS,
       target: ts.ScriptTarget.ES2022,
+      jsx: ts.JsxEmit.ReactJSX,
     },
     fileName: filename,
   });
@@ -328,4 +329,192 @@ test("robots blocks only SERanking crawler while preserving public crawl access"
     { userAgent: "*", allow: "/", disallow: ["/admin", "/go"] },
   ]);
   assert.equal(robots.sitemap, "https://www.supplementscout.co.uk/sitemap.xml");
+});
+
+// Exercise the real component's event handlers and effect cleanup with controlled
+// hooks, timers and responses. Browser hydration/interaction is checked separately.
+function searchInputHarness(t, initialQuery = "creatine") {
+  const slots = [];
+  const requests = [];
+  let cursor = 0;
+  let dirty = true;
+  let tree;
+  let effects = [];
+  const react = {
+    useState(initial) {
+      const index = cursor++;
+      if (!slots[index]) slots[index] = { value: initial };
+      return [slots[index].value, (value) => {
+        const next = typeof value === "function" ? value(slots[index].value) : value;
+        if (!Object.is(next, slots[index].value)) dirty = true;
+        slots[index].value = next;
+      }];
+    },
+    useRef(initial) {
+      const index = cursor++;
+      if (!slots[index]) slots[index] = { current: initial };
+      return slots[index];
+    },
+    useMemo: (factory) => { cursor++; return factory(); },
+    useEffect(callback, dependencies) {
+      const index = cursor++;
+      const previous = slots[index];
+      if (!previous || dependencies.some((value, i) => !Object.is(value, previous.dependencies[i]))) {
+        effects.push(() => {
+          previous?.cleanup?.();
+          slots[index] = { dependencies, cleanup: callback() };
+        });
+      }
+    },
+  };
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  t.mock.method(globalThis, "fetch", (url, options) => new Promise((resolve, reject) => {
+    // Deliberately ignore abort here: even a late transport/body response must
+    // not update the component after its request has become obsolete.
+    requests.push({ url, signal: options.signal, resolve, reject });
+  }));
+  const previousDocument = Object.getOwnPropertyDescriptor(globalThis, "document");
+  const previousWindow = Object.getOwnPropertyDescriptor(globalThis, "window");
+  const location = { href: "" };
+  Object.defineProperty(globalThis, "document", { configurable: true, value: {
+    activeElement: { getAttribute: () => "q" },
+  } });
+  Object.defineProperty(globalThis, "window", { configurable: true, value: { location } });
+  const Component = compileModule(path.join(process.cwd(), "app", "components", "SearchInput.tsx"), {
+    react,
+    "./SupplementScoutIcon": { default: () => null },
+  }).default;
+  function flush() {
+    while (dirty) {
+      dirty = false;
+      cursor = 0;
+      effects = [];
+      tree = Component({ initialQuery });
+      for (const effect of effects) effect();
+    }
+  }
+  function find(predicate, node) {
+    if (arguments.length === 1) node = tree;
+    if (Array.isArray(node)) return node.flatMap((child) => find(predicate, child));
+    if (!node || typeof node !== "object") return [];
+    return [...(predicate(node) ? [node] : []), ...find(predicate, node.props?.children)];
+  }
+  const input = () => find((node) => node.type === "input")[0].props;
+  const act = (callback) => { callback(); flush(); };
+  async function settle() {
+    for (let i = 0; i < 8; i++) await Promise.resolve();
+    flush();
+  }
+  const response = (label) => ({ ok: true, json: async () => ({ correctedQuery: null, suggestions: [
+    { id: label, type: "product", label, href: `/product/${label}`, score: 1, matchText: label },
+  ] }) });
+  t.after(() => {
+    for (const slot of slots) slot?.cleanup?.();
+    for (const [key, descriptor] of [["document", previousDocument], ["window", previousWindow]]) {
+      if (descriptor) Object.defineProperty(globalThis, key, descriptor);
+      else delete globalThis[key];
+    }
+  });
+  flush();
+  return { requests, input, act, settle, response, location, find,
+    focus: () => act(() => input().onFocus()),
+    change: (value) => act(() => input().onChange({ target: { value } })),
+    tick: (ms) => act(() => t.mock.timers.tick(ms)),
+  };
+}
+
+test("autocomplete does not fetch initialQuery on mount or ordinary rerenders", (t) => {
+  const h = searchInputHarness(t);
+  h.tick(1000);
+  h.change("creatine ");
+  h.tick(1000);
+  assert.equal(h.requests.length, 0);
+});
+
+test("autocomplete starts on focus and debounces rapid typing", async (t) => {
+  const h = searchInputHarness(t);
+  h.focus();
+  h.tick(249);
+  assert.equal(h.requests.length, 0);
+  h.change("whey");
+  h.tick(100);
+  h.change("whey protein");
+  h.tick(249);
+  assert.equal(h.requests.length, 0);
+  h.tick(1);
+  assert.equal(h.requests.length, 1);
+  assert.equal(h.requests[0].url, "/api/search-suggestions?q=whey%20protein");
+  h.requests[0].resolve(h.response("whey"));
+  await h.settle();
+  assert.equal(h.input()["aria-expanded"], true);
+});
+
+test("autocomplete aborts obsolete requests and ignores late success and errors", async (t) => {
+  const h = searchInputHarness(t);
+  h.focus(); h.tick(250);
+  const first = h.requests[0];
+  h.change("whey"); h.tick(250);
+  assert.equal(first.signal.aborted, true);
+  const second = h.requests[1];
+  h.change("magnesium"); h.tick(250);
+  h.requests[2].resolve(h.response("magnesium"));
+  await h.settle();
+  first.resolve(h.response("obsolete"));
+  second.reject(new Error("late network error"));
+  await h.settle();
+  assert.deepEqual(h.find((node) => node.props?.role === "option").map((node) => node.props.children), ["magnesium"]);
+});
+
+test("autocomplete ignores an aborted response whose JSON body completes late", async (t) => {
+  const h = searchInputHarness(t);
+  h.focus(); h.tick(250);
+  let finishBody;
+  h.requests[0].resolve({ ok: true, json: () => new Promise((resolve) => { finishBody = resolve; }) });
+  await h.settle();
+  h.change("whey"); h.tick(250);
+  h.requests[1].resolve(h.response("whey"));
+  await h.settle();
+  finishBody(await h.response("obsolete").json());
+  await h.settle();
+  assert.deepEqual(h.find((node) => node.props?.role === "option").map((node) => node.props.children), ["whey"]);
+});
+
+test("autocomplete blur cancels work; refocus works; short queries stop requests", async (t) => {
+  const h = searchInputHarness(t);
+  h.focus(); h.tick(250);
+  h.act(() => h.input().onBlur());
+  assert.equal(h.requests[0].signal.aborted, true);
+  h.requests[0].resolve(h.response("obsolete"));
+  await h.settle(); h.tick(1000);
+  assert.equal(h.input()["aria-expanded"], false);
+  h.focus(); h.tick(250);
+  assert.equal(h.requests.length, 2);
+  h.change("a");
+  assert.equal(h.requests[1].signal.aborted, true);
+  h.tick(1000);
+  assert.equal(h.requests.length, 2);
+  assert.equal(h.input()["aria-expanded"], false);
+});
+
+test("autocomplete whitespace edits preserve active work and keyboard navigation", async (t) => {
+  const h = searchInputHarness(t);
+  h.focus(); h.tick(250);
+  h.change("creatine ");
+  assert.equal(h.requests[0].signal.aborted, false);
+  h.requests[0].resolve(h.response("creatine"));
+  await h.settle(); h.tick(1000);
+  assert.equal(h.requests.length, 1);
+  let prevented = 0;
+  const key = (value) => h.act(() => h.input().onKeyDown({ key: value, preventDefault: () => { prevented++; } }));
+  key("ArrowDown"); key("Enter");
+  assert.equal(prevented, 2);
+  assert.equal(h.location.href, "/product/creatine");
+  key("Escape");
+  assert.equal(h.input()["aria-expanded"], false);
+  key("ArrowUp");
+  assert.equal(h.input()["aria-expanded"], true);
+  const option = h.find((node) => node.props?.role === "option")[0];
+  assert.equal(option.props.href, "/product/creatine");
+  assert.equal(option.props["aria-selected"], true);
+  assert.equal(h.find((node) => node.type === "form")[0].props.method, "get");
 });

@@ -47,10 +47,12 @@ export default function SearchInput({
   const [query, setQuery] = useState(initialQuery);
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [correctedQuery, setCorrectedQuery] = useState<string | null>(null);
+  const [isFocused, setIsFocused] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const requestControllerRef = useRef<AbortController | null>(null);
   const suggestionListRef = useRef<HTMLDivElement>(null);
   const normalizedQuery = normalizeQuery(query);
   const shouldSuggest = normalizedQuery.length >= 2;
@@ -87,12 +89,14 @@ export default function SearchInput({
       : "absolute left-0 right-0 top-[calc(100%+0.5rem)] z-20 max-h-[min(65vh,28rem)] overflow-y-auto overscroll-contain rounded-2xl border border-zinc-200 bg-white text-left shadow-2xl";
 
   useEffect(() => {
-    if (!shouldSuggest) {
+    if (!isFocused || !shouldSuggest) {
       return;
     }
 
     const controller = new AbortController();
+    requestControllerRef.current = controller;
     const timeout = setTimeout(async () => {
+      if (controller.signal.aborted) return;
       setIsLoading(true);
 
       try {
@@ -101,6 +105,7 @@ export default function SearchInput({
           { signal: controller.signal }
         );
 
+        if (controller.signal.aborted) return;
         if (!response.ok) {
           setSuggestions([]);
           setCorrectedQuery(null);
@@ -108,12 +113,13 @@ export default function SearchInput({
         }
 
         const data = (await response.json()) as SearchSuggestionsResponse;
+        if (controller.signal.aborted) return;
         setSuggestions(data.suggestions.slice(0, 10));
         setCorrectedQuery(data.correctedQuery);
         setHighlightedIndex(-1);
         setIsOpen(document.activeElement?.getAttribute("name") === "q");
       } catch (error) {
-        if (!(error instanceof DOMException && error.name === "AbortError")) {
+        if (!controller.signal.aborted && !(error instanceof DOMException && error.name === "AbortError")) {
           setSuggestions([]);
           setCorrectedQuery(null);
         }
@@ -128,7 +134,7 @@ export default function SearchInput({
       controller.abort();
       clearTimeout(timeout);
     };
-  }, [normalizedQuery, shouldSuggest]);
+  }, [isFocused, normalizedQuery, shouldSuggest]);
 
   useEffect(() => {
     if (!isOpen || highlightedIndex < 0) return;
@@ -197,6 +203,9 @@ export default function SearchInput({
   }
 
   function handleBlur() {
+    requestControllerRef.current?.abort();
+    setIsFocused(false);
+    setIsLoading(false);
     blurTimeoutRef.current = setTimeout(() => {
       setIsOpen(false);
       setHighlightedIndex(-1);
@@ -227,6 +236,14 @@ export default function SearchInput({
 
               setQuery(nextQuery);
 
+              if (normalizeQuery(nextQuery) !== normalizedQuery) {
+                requestControllerRef.current?.abort();
+                setSuggestions([]);
+                setCorrectedQuery(null);
+                setIsLoading(false);
+                setHighlightedIndex(-1);
+              }
+
               if (normalizeQuery(nextQuery).length < 2) {
                 setSuggestions([]);
                 setCorrectedQuery(null);
@@ -240,6 +257,7 @@ export default function SearchInput({
             }}
             onFocus={() => {
               clearBlurTimeout();
+              setIsFocused(true);
               setIsOpen(shouldSuggest && suggestions.length > 0);
             }}
             onKeyDown={handleKeyDown}
