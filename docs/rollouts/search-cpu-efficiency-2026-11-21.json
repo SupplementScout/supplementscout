@@ -1,0 +1,453 @@
+{
+  "task": "Search CPU efficiency",
+  "date": "2026-11-21",
+  "status": "CODE_VERIFIED_LOCALLY_NOT_PRODUCTION_RELEASED",
+  "baselineSha": "20c4a467b88691662c356f62bd50344d0977a313",
+  "branch": "fix/search-cpu-efficiency-20261121",
+  "scope": "Minimal existing autocomplete lifecycle and lazy sort fallback; no ranking/query/price/SEO/UI redesign or database change.",
+  "confirmedFindings": [
+    "Before: initialQuery >=2 characters schedules autocomplete after 250ms without focus. Real SSR/hydration Chrome confirms one API request per loaded result page.",
+    "Before: aborting fetch alone does not guard a late response/body/error. Four new lifecycle regressions fail on baseline and pass on revised component.",
+    "Before: sort eagerly compares delivered price for every pair, then repeats that comparison for price_asc/price_desc. Other sorts pay that cost before checking their primary key.",
+    "searchProducts still needs the full candidate pool for correct ranking, exact-variant price selection, facets, counts and pagination; no blind 24-candidate cutoff is introduced."
+  ],
+  "serverAudit": {
+    "candidateLimit": 1000,
+    "pageSize": 24,
+    "products": "One products SELECT with nested offers/retailers, active and merge guards, existing text plan and name order.",
+    "variants": "One bulk active-variant ID SELECT when referenced variants exist; no per-product offer or variant query.",
+    "approvedFacts": "Existing unique-product batches of 500 and candidate pages of 1000, then in-memory resolution. Database calls scale with batches/pages, not a query per product.",
+    "existingOptimization": "PR #527 (3bef267e) already reuses normalized offers/relevance between retailer/caffeine passes. It is retained.",
+    "remainingWork": "Nutrition/offer normalization, global facets, filtering, ranking and final 24-row slice remain unchanged. Page metadata does not call searchProducts. Search parameter links already disable route prefetch.",
+    "suggestions": "One bounded products/offers query, limit 50; no variant/proof enrichment. Avoiding an unused autocomplete request avoids that query too.",
+    "analytics": "Existing conditional base-search event INSERT is unchanged; public audit did not request /search and never invoked this write path.",
+    "databaseOptimizationBoundary": "A later database-side reduction must prove identical exact-variant/freshness/shipping/unit-cost ranking, facets and counts before pagination. No SQL, index or migration is proposed or applied here.",
+    "pipelineFixture": {
+      "at": "2026-11-21T10:30:49.266Z",
+      "method": "Actual before/after searchProducts plus real pricing/nutrition/freshness/proof modules, isolated in-memory Supabase transport, 1000 synthetic products/1000 variants/2000 offers; no production credentials or calls. Bytes are serialized fixture JSON, not production network transfer.",
+      "cases": 72,
+      "allPayloadsAndQueryShapesIdentical": true,
+      "example": {
+        "query": "creatine",
+        "sort": "relevance",
+        "retailer": "",
+        "page": 1,
+        "totalCount": 1000,
+        "returned": 24,
+        "queries": [
+          {
+            "table": "products",
+            "rows": 1000,
+            "serializedBytes": 852625,
+            "range": [
+              0,
+              999
+            ]
+          },
+          {
+            "table": "product_variants",
+            "rows": 1000,
+            "serializedBytes": 188787,
+            "ids": 1000
+          },
+          {
+            "table": "nutrition_candidates",
+            "rows": 0,
+            "serializedBytes": 2,
+            "range": [
+              0,
+              999
+            ],
+            "ids": 500
+          },
+          {
+            "table": "nutrition_candidates",
+            "rows": 0,
+            "serializedBytes": 2,
+            "range": [
+              0,
+              999
+            ],
+            "ids": 500
+          }
+        ],
+        "parity": "PASS"
+      },
+      "casesSummarySha256": "7c3fde2c5cec039fbc5623db7e7cf76b0aa562e854d09f3478f65548132bfd37"
+    }
+  },
+  "performance": {
+    "caveat": "These are local measurements, not Vercel route CPU, production network bytes or field Core Web Vitals.",
+    "comparator": {
+      "at": "2026-11-21T10:38:23.440Z",
+      "node": "v24.18.0",
+      "method": "Comparator microbenchmark, not whole search request or Vercel CPU. Actual baseline/current functions; shared 1000-candidate fixture; 50 warmups, 15 alternating batches of 100 sorts. Process CPU includes user and system time; invocation counts measured separately.",
+      "results": [
+        {
+          "sort": "relevance",
+          "candidates": 1000,
+          "orderParity": "PASS",
+          "priceComparisons": {
+            "before": 8576,
+            "after": 5546
+          },
+          "median": {
+            "before": {
+              "wallMs": 2.021776,
+              "cpuMs": 2.03
+            },
+            "after": {
+              "wallMs": 1.3666890000000012,
+              "cpuMs": 1.41
+            }
+          }
+        },
+        {
+          "sort": "price_asc",
+          "candidates": 1000,
+          "orderParity": "PASS",
+          "priceComparisons": {
+            "before": 17248,
+            "after": 8624
+          },
+          "median": {
+            "before": {
+              "wallMs": 2.9057890000000044,
+              "cpuMs": 2.97
+            },
+            "after": {
+              "wallMs": 1.6052839999999924,
+              "cpuMs": 1.56
+            }
+          }
+        },
+        {
+          "sort": "price_desc",
+          "candidates": 1000,
+          "orderParity": "PASS",
+          "priceComparisons": {
+            "before": 17158,
+            "after": 8579
+          },
+          "median": {
+            "before": {
+              "wallMs": 2.842734999999993,
+              "cpuMs": 2.81
+            },
+            "after": {
+              "wallMs": 1.5664210000000094,
+              "cpuMs": 1.56
+            }
+          }
+        },
+        {
+          "sort": "price_per_serving_asc",
+          "candidates": 1000,
+          "orderParity": "PASS",
+          "priceComparisons": {
+            "before": 8660,
+            "after": 1820
+          },
+          "median": {
+            "before": {
+              "wallMs": 4.635771999999998,
+              "cpuMs": 4.68
+            },
+            "after": {
+              "wallMs": 3.5479299999999783,
+              "cpuMs": 3.44
+            }
+          }
+        },
+        {
+          "sort": "cost_per_25g_protein_asc",
+          "candidates": 1000,
+          "orderParity": "PASS",
+          "priceComparisons": {
+            "before": 8657,
+            "after": 3080
+          },
+          "median": {
+            "before": {
+              "wallMs": 4.021001000000033,
+              "cpuMs": 3.75
+            },
+            "after": {
+              "wallMs": 3.1604089999999996,
+              "cpuMs": 3.12
+            }
+          }
+        },
+        {
+          "sort": "cost_per_5g_creatine_asc",
+          "candidates": 1000,
+          "orderParity": "PASS",
+          "priceComparisons": {
+            "before": 8605,
+            "after": 2323
+          },
+          "median": {
+            "before": {
+              "wallMs": 4.469902999999976,
+              "cpuMs": 4.38
+            },
+            "after": {
+              "wallMs": 3.5375,
+              "cpuMs": 3.29
+            }
+          }
+        }
+      ]
+    },
+    "browser": {
+      "at": "2026-11-21T10:28:18.443Z",
+      "runtime": "Chrome; React 19.2.4 development StrictMode; real SSR + hydrateRoot; local fixture API",
+      "viewports": [
+        {
+          "width": 390,
+          "initialRequestBefore": 1,
+          "initialRequestAfter": 0,
+          "focusRequests": 1,
+          "rapidTypingRequests": 1,
+          "staleResponse": "PASS",
+          "blurDebounceCancellation": "PASS",
+          "keyboard": "PASS",
+          "clickOrTouch": "PASS",
+          "hydrationErrors": []
+        },
+        {
+          "width": 1440,
+          "initialRequestBefore": 1,
+          "initialRequestAfter": 0,
+          "focusRequests": 1,
+          "rapidTypingRequests": 1,
+          "staleResponse": "PASS",
+          "blurDebounceCancellation": "PASS",
+          "keyboard": "PASS",
+          "clickOrTouch": "PASS",
+          "hydrationErrors": []
+        }
+      ]
+    },
+    "reproduceComparator": "node scripts/benchmark-search-cpu.js 20c4a467b88691662c356f62bd50344d0977a313",
+    "reproduceRegressions": "node --test scripts/search.test.js scripts/search-ux.test.js scripts/category-search-intent.test.js scripts/search-analytics.test.js",
+    "localSupportingHarnesses": [
+      {
+        "path": "tmp/search-cpu-efficiency-20261121/browser-test.cjs",
+        "sha256": "899f053733191af664ecaa759ca8179170b6ab0542d550ea95218c2aadf14239"
+      },
+      {
+        "path": "tmp/search-cpu-efficiency-20261121/measure-pipeline.cjs",
+        "sha256": "76fa792f4e5ebfeedff75c982c7844eea64bc562b6f526a7f17a60b984f53db3"
+      }
+    ],
+    "rawBenchmarkLocalPath": "tmp/search-cpu-efficiency-20261121/benchmark-results.json"
+  },
+  "verification": {
+    "baselineFocused": {
+      "tests": 120,
+      "pass": 120,
+      "fail": 0
+    },
+    "baselineWithNewAutocompleteRegressions": {
+      "tests": 21,
+      "pass": 17,
+      "fail": 4,
+      "reason": "Expected red: initial fetch, obsolete success/error, obsolete JSON body, blur cancellation."
+    },
+    "revisedFocused": {
+      "tests": 128,
+      "pass": 128,
+      "fail": 0
+    },
+    "quick": {
+      "status": "PASS",
+      "tests": 1361,
+      "pass": 1358,
+      "skipped": 3,
+      "fail": 0
+    },
+    "full": {
+      "status": "PASS",
+      "tests": 4130,
+      "pass": 4127,
+      "skipped": 3,
+      "fail": 0,
+      "includes": [
+        "Project Guardian",
+        "TypeScript",
+        "ESLint",
+        "309 safe test files",
+        "baseline migration verification",
+        "isolated Next.js production build"
+      ]
+    },
+    "requiredNpmCommands": [
+      {
+        "command": "npm run typecheck",
+        "status": "PASS"
+      },
+      {
+        "command": "npm run lint",
+        "status": "PASS"
+      },
+      {
+        "command": "npm run build",
+        "status": "PASS"
+      }
+    ],
+    "knownSkips": "Three pre-existing 10 Reps v8 artifact-dependent cases: referenced local bootstrap/CSV artifacts are absent. No new skips or test exclusions.",
+    "knownWarnings": "Four pre-existing unused-variable ESLint warnings in unchanged scripts/automation-review-queue-pagination.integration.test.js; Windows nested-worktree Next root warning. Neither is suppressed or changed.",
+    "inventory": {
+      "status": "PASS",
+      "testFiles": 371,
+      "safe": 309,
+      "integration": 58,
+      "artifact": 4,
+      "quick": 69,
+      "manifestUnchanged": true,
+      "manifestSha256": "1d6b36901ffda522f15f7825a6246a64c77a3606335ba9a41d059b8b61fcd6b5"
+    },
+    "integration": "NOT_RUN: no SQL or database behavior changes; production credentials never supplied to quality gates."
+  },
+  "seoAndAccessibility": {
+    "publicReadback": {
+      "at": "2026-11-21T10:22:57.305Z",
+      "note": "Public GETs only. Bot user-agent probes do not prove actual verified-bot WAF treatment or Google indexing.",
+      "rows": [
+        {
+          "path": "/robots.txt",
+          "agent": "browser",
+          "status": 200,
+          "canonical": null,
+          "robots": null,
+          "productLinks": 0,
+          "jsonLd": 0,
+          "platformError": null,
+          "body": "User-Agent: SERankingBacklinksBot\nDisallow: /\n\nUser-Agent: *\nAllow: /\nDisallow: /admin\nDisallow: /go\n\nSitemap: https://www.supplementscout.co.uk/sitemap.xml\n",
+          "bytes": 157
+        },
+        {
+          "path": "/creatine",
+          "agent": "browser",
+          "status": 200,
+          "canonical": "<link rel=\"canonical\" href=\"https://www.supplementscout.co.uk/creatine\"/>",
+          "robots": "<meta name=\"robots\" content=\"index, follow\"/>",
+          "productLinks": 267,
+          "jsonLd": 2,
+          "platformError": null,
+          "bytes": 525649
+        },
+        {
+          "path": "/creatine",
+          "agent": "googlebot",
+          "status": 200,
+          "canonical": "<link rel=\"canonical\" href=\"https://www.supplementscout.co.uk/creatine\"/>",
+          "robots": "<meta name=\"robots\" content=\"index, follow\"/>",
+          "productLinks": 267,
+          "jsonLd": 2,
+          "platformError": null,
+          "bytes": 525649
+        },
+        {
+          "path": "/creatine",
+          "agent": "bingbot",
+          "status": 200,
+          "canonical": "<link rel=\"canonical\" href=\"https://www.supplementscout.co.uk/creatine\"/>",
+          "robots": "<meta name=\"robots\" content=\"index, follow\"/>",
+          "productLinks": 267,
+          "jsonLd": 2,
+          "platformError": null,
+          "bytes": 525386
+        },
+        {
+          "path": "/product/gym-high-mass-gainer-2100g?variant=956",
+          "agent": "browser",
+          "status": 200,
+          "canonical": "<link rel=\"canonical\" href=\"https://www.supplementscout.co.uk/product/gym-high-mass-gainer-2100g\"/>",
+          "robots": null,
+          "productLinks": 3,
+          "jsonLd": 2,
+          "platformError": null,
+          "bytes": 133456
+        },
+        {
+          "path": "/product/gym-high-mass-gainer-2100g?variant=956",
+          "agent": "googlebot",
+          "status": 200,
+          "canonical": "<link rel=\"canonical\" href=\"https://www.supplementscout.co.uk/product/gym-high-mass-gainer-2100g\"/>",
+          "robots": null,
+          "productLinks": 3,
+          "jsonLd": 2,
+          "platformError": null,
+          "bytes": 133456
+        },
+        {
+          "path": "/product/gym-high-mass-gainer-2100g?variant=956",
+          "agent": "bingbot",
+          "status": 200,
+          "canonical": "<link rel=\"canonical\" href=\"https://www.supplementscout.co.uk/product/gym-high-mass-gainer-2100g\"/>",
+          "robots": null,
+          "productLinks": 3,
+          "jsonLd": 2,
+          "platformError": null,
+          "bytes": 133193
+        }
+      ]
+    },
+    "preserved": [
+      "/search noindex/nofollow and /search canonical",
+      "Product/category metadata, robots and structured data",
+      "SSR result/product/category anchors and GET search form",
+      "Exact-category redirects and typo correction",
+      "Keyboard arrows/Enter/Escape; real desktop click and mobile touch",
+      "250ms debounce and current offer/price semantics"
+    ],
+    "limitations": [
+      "Synthetic Googlebot/Bingbot user-agent HTTP200 is not proof of verified-bot WAF policy or Google indexing.",
+      "Field LCP/INP/CLS and production CPU reduction require an owner-approved release and real traffic.",
+      "Initial browser-harness attempts needed foreground focus emulation and allowance for native Escape clearing a search input. Final browser assertions pass without changing existing keyboard semantics."
+    ]
+  },
+  "unverifiedProductionContext": {
+    "source": "Owner-supplied Vercel observations; no authenticated Vercel Observability tool/API available in this session.",
+    "observations": {
+      "searchCallsApprox": 3370,
+      "searchActiveCpuSecondsApprox": 138,
+      "searchCpuShareApprox": 0.88,
+      "sameJa4CallsApprox": 2600
+    },
+    "inference": "Some traffic may be automated. Intentional attack is not confirmed. Initial autocomplete waste does not explain CPU from non-JavaScript bots hitting /search directly.",
+    "waf": "Existing targeted browser challenge remains unchanged. Its effect cannot be separated from code savings using raw total CPU alone."
+  },
+  "releaseBoundary": {
+    "productionWrites": 0,
+    "productionDeployment": "NOT_RUN",
+    "merge": "NOT_RUN",
+    "databaseMigration": "NONE",
+    "wafDnsVercelSupabaseSettingsChanged": false,
+    "newDependencies": false,
+    "newPaidInfrastructure": false,
+    "newPriceCache": false,
+    "retailerAutomationReviewQueueWatchdogsChanged": false,
+    "seo20FrozenFieldsChanged": false,
+    "review": "Push only the requested branch and open a PR. CI must pass for its final SHA; production release requires separate owner approval.",
+    "rollback": "Revert the code commit through the ordinary reviewed release path; no database rollback or cache invalidation system is needed.",
+    "afterApprovedRelease": [
+      "Compare equivalent 30-minute and 24-hour windows with the same targeted WAF rule: CPU per 1000 /search calls and CPU per request, not just totals.",
+      "Compare /search-suggestions calls per search page view and active input session, plus query/page/filter/sort mix.",
+      "Track /search and suggestions invocation counts, p50/p95 CPU and duration, errors/timeouts and observable Supabase query volume.",
+      "Verify focus/typing/keyboard/mobile flows and known current-price, stale, no-result, filter/sort/pagination cases.",
+      "Check verified Googlebot/Bingbot WAF logs separately from spoofable user agents; preserve product/category HTTP200, canonical, robots, HTML anchors and schema.",
+      "Review mobile/desktop p75 LCP, INP and CLS with adequate traffic; do not infer field CWV from a local component fixture."
+    ]
+  },
+  "sha256Normalization": "UTF-8 text, with CRLF normalized to LF for reproducible Windows/Linux source binding.",
+  "sourceSha256": {
+    "app/components/SearchInput.tsx": "e14b903fdf49a5953c1ff2158f6af9af39543478038e48083c325f31b8cfd7ae",
+    "app/lib/products.ts": "2473b58b65cad3b3e13a8bf34f15f01c13b9a9d42bf7a224dd143941654addcf",
+    "scripts/search-ux.test.js": "77228db122fb72589003925d461779d97609de28e7b44b48952e3fc401c89ac5",
+    "scripts/search.test.js": "196a579b91cd2016052af686f5517b255e726c4d97d33eeef41dc6e973ec64af",
+    "scripts/benchmark-search-cpu.js": "1b0d225d297b04a310293aa2886aac17886da72c896f6064da755d4d38df4603"
+  }
+}
