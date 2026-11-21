@@ -53,8 +53,13 @@ export async function loadAppliedPreWorkoutFacts(
   const productIds = [
     ...new Set([...uniqueVariants.values()].map((variant) => String(variant.product_id))),
   ];
+  // Without an applied override the resolver exposes no facts, but the reads
+  // and their error handling still run unchanged.
+  const hasAppliedOverrides = [...uniqueVariants.values()].some(
+    (variant) => variant.nutrition_override != null
+  );
 
-  const candidates: ReviewedNutritionCandidate[] = [];
+  const candidatesByVariant = new Map<string, ReviewedNutritionCandidate[]>();
   for (let index = 0; index < productIds.length; index += PRODUCT_ID_BATCH_SIZE) {
     const batch = productIds.slice(index, index + PRODUCT_ID_BATCH_SIZE);
 
@@ -74,7 +79,15 @@ export async function loadAppliedPreWorkoutFacts(
       }
 
       const page = (data || []) as unknown as ReviewedNutritionCandidate[];
-      candidates.push(...page);
+      // Preserve page order within each variant; the resolver still checks the
+      // product, approval state and exact applied evidence before exposing facts.
+      for (const candidate of hasAppliedOverrides ? page : []) {
+        const variantId = String(candidate.product_variant_id);
+        if (!uniqueVariants.has(variantId)) continue;
+        const existing = candidatesByVariant.get(variantId);
+        if (existing) existing.push(candidate);
+        else candidatesByVariant.set(variantId, [candidate]);
+      }
       if (page.length < CANDIDATE_PAGE_SIZE) break;
     }
   }
@@ -86,7 +99,7 @@ export async function loadAppliedPreWorkoutFacts(
         variant.product_id,
         variant.id,
         variant.nutrition_override,
-        candidates
+        candidatesByVariant.get(variantId) || []
       ),
     ])
   );
