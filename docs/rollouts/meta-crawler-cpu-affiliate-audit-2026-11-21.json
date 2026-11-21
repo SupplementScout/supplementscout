@@ -1,0 +1,2399 @@
+{
+  "task": "Meta crawler CPU and affiliate traffic audit",
+  "date": "2026-11-21",
+  "status": "LOCAL_VERIFIED_DRAFT_OWNER_REVIEW_REQUIRED",
+  "baseline": "50611eb151332af5af4fed5e4610eaa009d81acc",
+  "branch": "perf/meta-public-cpu-20261121",
+  "priorWork": {
+    "released": [
+      "PR #561: idle autocomplete and lazy sort fallback",
+      "PR #562: variant-scoped approved-evidence resolution"
+    ],
+    "retained": [
+      "Existing /go crawler early return and privacy-safe click diagnostics",
+      "Existing hour-bucket lifecycle data cache and React request memoization",
+      "Current exact-variant, freshness, shipping and applied-nutrition guards"
+    ],
+    "openPrsChecked": [
+      559,
+      532,
+      33
+    ],
+    "noOverlappingImplementationStarted": true
+  },
+  "production": {
+    "at": "2026-11-21T18:48:45.616Z",
+    "baseline": "50611eb151332af5af4fed5e4610eaa009d81acc",
+    "deployment": {
+      "id": "dpl_GW9F6WXEme4wzwUzGHJsGuzosYzs",
+      "name": "supplementscout",
+      "url": "supplementscout-og9ih2hd2-supplement-scout.vercel.app",
+      "created": 1795279861386,
+      "state": "READY",
+      "target": "production",
+      "creator": {
+        "uid": "IVELYVmTwJbtVpVD353fAi7o",
+        "username": "supplementscout"
+      },
+      "meta": {
+        "githubCommitRef": "main",
+        "githubCommitSha": "50611eb151332af5af4fed5e4610eaa009d81acc",
+        "githubCommitMessage": "perf(search): scope approved nutrition proof scans by variant (#562)",
+        "githubRepo": "supplementscout",
+        "githubOrg": "SupplementScout"
+      },
+      "inspectorUrl": "https://vercel.com/supplement-scout/supplementscout/GW9F6WXEme4wzwUzGHJsGuzosYzs",
+      "isRollbackCandidate": true
+    },
+    "windowUtc": {
+      "start": "2026-11-21T17:40:00Z",
+      "end": "2026-11-21T18:10:00Z"
+    },
+    "cpu": {
+      "request": {
+        "metric": "vercel.function_invocation.function_cpu_time_ms",
+        "scope": {
+          "type": "project",
+          "ownerId": "team_1RQu0vdcBjVpCZcW3JqGdZcz",
+          "projectIds": [
+            "prj_nvEdQJHTuwd1QA2KhLCshs7a9p7c"
+          ]
+        },
+        "aggregation": "sum",
+        "startTime": "2026-11-21T17:40:00Z",
+        "endTime": "2026-11-21T18:10:00Z",
+        "granularity": {
+          "minutes": 5
+        },
+        "filter": "environment eq 'production'",
+        "groupBy": [
+          "route"
+        ],
+        "limit": 12
+      },
+      "summary": [
+        {
+          "route": "/creatine",
+          "vercel_function_invocation_function_cpu_time_ms_sum": 8710
+        },
+        {
+          "route": "/product/[id]",
+          "vercel_function_invocation_function_cpu_time_ms_sum": 12248.333333333334
+        },
+        {
+          "route": "/go/[offerId]",
+          "vercel_function_invocation_function_cpu_time_ms_sum": 1790
+        },
+        {
+          "route": "/compare",
+          "vercel_function_invocation_function_cpu_time_ms_sum": 5955.714285714286
+        },
+        {
+          "route": "/pre-workout",
+          "vercel_function_invocation_function_cpu_time_ms_sum": 2530
+        },
+        {
+          "route": "/api/ebay/account-deletion",
+          "vercel_function_invocation_function_cpu_time_ms_sum": 340
+        },
+        {
+          "route": "/protein-bars",
+          "vercel_function_invocation_function_cpu_time_ms_sum": 630
+        },
+        {
+          "route": "/search",
+          "vercel_function_invocation_function_cpu_time_ms_sum": 995
+        },
+        {
+          "route": "/",
+          "vercel_function_invocation_function_cpu_time_ms_sum": 707
+        },
+        {
+          "route": "/hydration",
+          "vercel_function_invocation_function_cpu_time_ms_sum": 250
+        },
+        {
+          "route": "/mass-gainer",
+          "vercel_function_invocation_function_cpu_time_ms_sum": 130
+        },
+        {
+          "route": "/amino-acids",
+          "vercel_function_invocation_function_cpu_time_ms_sum": 340
+        }
+      ],
+      "queryId": "2689844510",
+      "isError": false
+    },
+    "invocations": {
+      "request": {
+        "metric": "vercel.function_invocation.count",
+        "scope": {
+          "type": "project",
+          "ownerId": "team_1RQu0vdcBjVpCZcW3JqGdZcz",
+          "projectIds": [
+            "prj_nvEdQJHTuwd1QA2KhLCshs7a9p7c"
+          ]
+        },
+        "aggregation": "sum",
+        "startTime": "2026-11-21T17:40:00Z",
+        "endTime": "2026-11-21T18:10:00Z",
+        "granularity": {
+          "minutes": 5
+        },
+        "filter": "environment eq 'production'",
+        "groupBy": [
+          "route"
+        ],
+        "limit": 12
+      },
+      "summary": [
+        {
+          "route": "/creatine",
+          "vercel_function_invocation_count_sum": 350
+        },
+        {
+          "route": "/product/[id]",
+          "vercel_function_invocation_count_sum": 186
+        },
+        {
+          "route": "/go/[offerId]",
+          "vercel_function_invocation_count_sum": 168
+        },
+        {
+          "route": "/compare",
+          "vercel_function_invocation_count_sum": 83
+        },
+        {
+          "route": "/pre-workout",
+          "vercel_function_invocation_count_sum": 68
+        },
+        {
+          "route": "/api/ebay/account-deletion",
+          "vercel_function_invocation_count_sum": 34
+        },
+        {
+          "route": "/protein-bars",
+          "vercel_function_invocation_count_sum": 34
+        },
+        {
+          "route": "/search",
+          "vercel_function_invocation_count_sum": 13
+        },
+        {
+          "route": "/",
+          "vercel_function_invocation_count_sum": 9
+        },
+        {
+          "route": "/hydration",
+          "vercel_function_invocation_count_sum": 8
+        },
+        {
+          "route": "/mass-gainer",
+          "vercel_function_invocation_count_sum": 8
+        },
+        {
+          "route": "/amino-acids",
+          "vercel_function_invocation_count_sum": 6
+        }
+      ],
+      "queryId": "2499701361",
+      "isError": false
+    },
+    "requests": {
+      "request": {
+        "metric": "vercel.request.count",
+        "scope": {
+          "type": "project",
+          "ownerId": "team_1RQu0vdcBjVpCZcW3JqGdZcz",
+          "projectIds": [
+            "prj_nvEdQJHTuwd1QA2KhLCshs7a9p7c"
+          ]
+        },
+        "aggregation": "sum",
+        "startTime": "2026-11-21T17:40:00Z",
+        "endTime": "2026-11-21T18:10:00Z",
+        "granularity": {
+          "minutes": 5
+        },
+        "filter": "environment eq 'production' and (route eq '/product/[id]' or route eq '/compare' or route eq '/creatine' or route eq '/pre-workout' or route eq '/go/[offerId]')",
+        "groupBy": [
+          "route",
+          "bot_name",
+          "http_status"
+        ],
+        "limit": 50
+      },
+      "summary": [
+        {
+          "route": "/creatine",
+          "vercel_request_count_sum": 272,
+          "bot_name": "meta-externalagent",
+          "http_status": "200"
+        },
+        {
+          "route": "/product/[id]",
+          "vercel_request_count_sum": 165,
+          "bot_name": "meta-webindexer",
+          "http_status": "200"
+        },
+        {
+          "route": "/go/[offerId]",
+          "vercel_request_count_sum": 128,
+          "bot_name": "meta-webindexer",
+          "http_status": "204"
+        },
+        {
+          "route": "/creatine",
+          "vercel_request_count_sum": 77,
+          "bot_name": "meta-webindexer",
+          "http_status": "200"
+        },
+        {
+          "route": "/compare",
+          "vercel_request_count_sum": 66,
+          "bot_name": "meta-webindexer",
+          "http_status": "200"
+        },
+        {
+          "route": "/go/[offerId]",
+          "vercel_request_count_sum": 39,
+          "bot_name": "meta-externalagent",
+          "http_status": "204"
+        },
+        {
+          "route": "/pre-workout",
+          "vercel_request_count_sum": 36,
+          "bot_name": "meta-externalagent",
+          "http_status": "200"
+        },
+        {
+          "route": "/pre-workout",
+          "vercel_request_count_sum": 28,
+          "bot_name": "meta-webindexer",
+          "http_status": "200"
+        },
+        {
+          "route": "/product/[id]",
+          "vercel_request_count_sum": 13,
+          "bot_name": "",
+          "http_status": "200"
+        },
+        {
+          "route": "/compare",
+          "vercel_request_count_sum": 4,
+          "bot_name": "semrush",
+          "http_status": "200"
+        },
+        {
+          "route": "/product/[id]",
+          "vercel_request_count_sum": 4,
+          "bot_name": "amazonbot",
+          "http_status": "200"
+        },
+        {
+          "route": "/pre-workout",
+          "vercel_request_count_sum": 2,
+          "bot_name": "",
+          "http_status": "200"
+        },
+        {
+          "route": "/product/[id]",
+          "vercel_request_count_sum": 2,
+          "bot_name": "exasearchbot",
+          "http_status": "200"
+        },
+        {
+          "route": "/compare",
+          "vercel_request_count_sum": 1,
+          "bot_name": "",
+          "http_status": "200"
+        },
+        {
+          "route": "/creatine",
+          "vercel_request_count_sum": 1,
+          "bot_name": "bingbot",
+          "http_status": "200"
+        },
+        {
+          "route": "/go/[offerId]",
+          "vercel_request_count_sum": 1,
+          "bot_name": "",
+          "http_status": "307"
+        },
+        {
+          "route": "/pre-workout",
+          "vercel_request_count_sum": 1,
+          "bot_name": "amazonbot",
+          "http_status": "200"
+        },
+        {
+          "route": "/pre-workout",
+          "vercel_request_count_sum": 1,
+          "bot_name": "semrush",
+          "http_status": "200"
+        },
+        {
+          "route": "/product/[id]",
+          "vercel_request_count_sum": 1,
+          "bot_name": "bingbot",
+          "http_status": "200"
+        },
+        {
+          "route": "/product/[id]",
+          "vercel_request_count_sum": 1,
+          "bot_name": "semrush",
+          "http_status": "200"
+        }
+      ],
+      "queryId": "3333187818",
+      "isError": false
+    },
+    "go": {
+      "request": {
+        "metric": "vercel.request.count",
+        "groupBy": [
+          "bot_name",
+          "http_status"
+        ],
+        "filter": "environment eq 'production' and route eq '/go/[offerId]'",
+        "scope": {
+          "type": "project",
+          "ownerId": "team_1RQu0vdcBjVpCZcW3JqGdZcz",
+          "projectIds": [
+            "prj_nvEdQJHTuwd1QA2KhLCshs7a9p7c"
+          ]
+        },
+        "aggregation": "sum",
+        "startTime": "2026-11-21T17:40:00Z",
+        "endTime": "2026-11-21T18:10:00Z",
+        "granularity": {
+          "minutes": 5
+        },
+        "limit": 15
+      },
+      "summary": [
+        {
+          "vercel_request_count_sum": 128,
+          "bot_name": "meta-webindexer",
+          "http_status": "204"
+        },
+        {
+          "vercel_request_count_sum": 39,
+          "bot_name": "meta-externalagent",
+          "http_status": "204"
+        },
+        {
+          "vercel_request_count_sum": 1,
+          "bot_name": "",
+          "http_status": "307"
+        }
+      ],
+      "queryId": "1497403204",
+      "isError": false
+    },
+    "rsc": {
+      "request": {
+        "metric": "vercel.request.count",
+        "scope": {
+          "type": "project",
+          "ownerId": "team_1RQu0vdcBjVpCZcW3JqGdZcz",
+          "projectIds": [
+            "prj_nvEdQJHTuwd1QA2KhLCshs7a9p7c"
+          ]
+        },
+        "aggregation": "sum",
+        "startTime": "2026-11-21T17:40:00Z",
+        "endTime": "2026-11-21T18:10:00Z",
+        "granularity": {
+          "minutes": 5
+        },
+        "filter": "environment eq 'production' and route eq '/compare.rsc'",
+        "groupBy": [
+          "route",
+          "request_path",
+          "bot_name"
+        ],
+        "limit": 15
+      },
+      "summary": [
+        {
+          "route": "/compare.rsc",
+          "vercel_request_count_sum": 12,
+          "request_path": "/compare",
+          "bot_name": ""
+        }
+      ],
+      "queryId": "1917693428",
+      "isError": false
+    },
+    "metricLimitations": [
+      "Function-invocation metric rejects bot_name and user_agent grouping. CPU attribution to an individual crawler family is not directly available; incoming traffic labels are reported separately.",
+      "RSC route does not prove prefetch or crawler ownership. /compare.rsc events use public request_path /compare; their bot_name is empty."
+    ],
+    "waf": {
+      "version": 5,
+      "updatedAt": "2026-11-21T14:44:04.191Z",
+      "firewallEnabled": true,
+      "rules": [
+        {
+          "name": "Block SERankingBacklinksBot",
+          "active": true,
+          "action": "deny"
+        },
+        {
+          "name": "Challenge high-volume search TLS fingerprint",
+          "active": true,
+          "action": "challenge"
+        },
+        {
+          "name": "Deny Amazonbot user agent on search",
+          "active": true,
+          "action": "deny"
+        },
+        {
+          "name": "Deny MJ12bot user agent on search",
+          "active": true,
+          "action": "deny"
+        },
+        {
+          "name": "Deny Bytespider user agent on search",
+          "active": true,
+          "action": "deny"
+        }
+      ]
+    },
+    "mutations": "None. Metrics, deployment and WAF reads only; normal /go requests were not generated against production."
+  },
+  "ownerHistoricalContext": {
+    "windowUtc": "2026-11-21 17:05-17:50",
+    "productCpuSecondsApprox": 47.6,
+    "productInvocations": 756,
+    "compareCpuSecondsApprox": 14.2,
+    "compareInvocations": 181,
+    "searchCpuSecondsApprox": 1.6,
+    "searchInvocations": 22,
+    "source": "Owner-supplied earlier observations. Not substituted for the fresh 17:40-18:10 readback above."
+  },
+  "affiliateAudit": {
+    "observedProduction": "167 Meta-labelled /go requests: 128 webindexer and 39 externalagent, all HTTP204. One unlabelled HTTP307. No evidence that these observed Meta requests inserted outbound clicks.",
+    "why204": "isCrawlerUserAgent lowercases the UA and matches crawler inside the reference URL /webmasters/crawler or /web-crawlers. The guard returns before awaiting parameters, creating the data source, offer/product reads, INSERT or redirect.",
+    "reproducedGap": "Official short meta-webindexer/1.1, meta-externalagent/1.1 and meta-externalfetcher/1.1 do not contain any old pattern. Actual released route with existing isolated test fixtures performs two reads, inserts one unknown click and returns the affiliate HTTP307 for each.",
+    "fix": "Add only the three documented names to the existing CRAWLER_USER_AGENT_PATTERNS. No replacement guard, classifier, route or tracking mechanism.",
+    "semantics": "Recognized bots remain 204/X-Robots-Tag:noindex,nofollow,noarchive with zero data-source calls. Browser and Facebook in-app navigation retain original destination/source/likely_human semantics. Missing UA still redirects and is classified likely_automated; unusual clients remain unknown. Existing invalid identity, unavailable stock, unsafe destination and read-error behavior is unchanged.",
+    "matrix": {
+      "scope": "Actual route and classifier with existing test database fixtures only; no network or production writes.",
+      "results": [
+        {
+          "agent": "meta-webindexer/1.1",
+          "released": {
+            "status": 307,
+            "reads": 2,
+            "inserts": 1,
+            "redirect": "https://www.awin1.com/pclick.php?p=45010750732&a=2973875&m=5959",
+            "classification": "unknown"
+          },
+          "draft": {
+            "status": 204,
+            "reads": 0,
+            "inserts": 0,
+            "redirect": null,
+            "classification": null
+          }
+        },
+        {
+          "agent": "meta-externalagent/1.1",
+          "released": {
+            "status": 307,
+            "reads": 2,
+            "inserts": 1,
+            "redirect": "https://www.awin1.com/pclick.php?p=45010750732&a=2973875&m=5959",
+            "classification": "unknown"
+          },
+          "draft": {
+            "status": 204,
+            "reads": 0,
+            "inserts": 0,
+            "redirect": null,
+            "classification": null
+          }
+        },
+        {
+          "agent": "meta-externalfetcher/1.1",
+          "released": {
+            "status": 307,
+            "reads": 2,
+            "inserts": 1,
+            "redirect": "https://www.awin1.com/pclick.php?p=45010750732&a=2973875&m=5959",
+            "classification": "unknown"
+          },
+          "draft": {
+            "status": 204,
+            "reads": 0,
+            "inserts": 0,
+            "redirect": null,
+            "classification": null
+          }
+        },
+        {
+          "agent": "meta-webindexer/1.1 (+https://developers.facebook.com/docs/sharing/webmasters/crawler)",
+          "released": {
+            "status": 204,
+            "reads": 0,
+            "inserts": 0,
+            "redirect": null,
+            "classification": null
+          },
+          "draft": {
+            "status": 204,
+            "reads": 0,
+            "inserts": 0,
+            "redirect": null,
+            "classification": null
+          }
+        },
+        {
+          "agent": "facebookexternalhit/1.1",
+          "released": {
+            "status": 204,
+            "reads": 0,
+            "inserts": 0,
+            "redirect": null,
+            "classification": null
+          },
+          "draft": {
+            "status": 204,
+            "reads": 0,
+            "inserts": 0,
+            "redirect": null,
+            "classification": null
+          }
+        },
+        {
+          "agent": "Mozilla/5.0 AppleWebKit/537.36 Chrome/126.0 Safari/537.36",
+          "released": {
+            "status": 307,
+            "reads": 2,
+            "inserts": 1,
+            "redirect": "https://www.awin1.com/pclick.php?p=45010750732&a=2973875&m=5959",
+            "classification": "unknown"
+          },
+          "draft": {
+            "status": 307,
+            "reads": 2,
+            "inserts": 1,
+            "redirect": "https://www.awin1.com/pclick.php?p=45010750732&a=2973875&m=5959",
+            "classification": "unknown"
+          }
+        },
+        {
+          "agent": null,
+          "released": {
+            "status": 307,
+            "reads": 2,
+            "inserts": 1,
+            "redirect": "https://www.awin1.com/pclick.php?p=45010750732&a=2973875&m=5959",
+            "classification": "likely_automated"
+          },
+          "draft": {
+            "status": 307,
+            "reads": 2,
+            "inserts": 1,
+            "redirect": "https://www.awin1.com/pclick.php?p=45010750732&a=2973875&m=5959",
+            "classification": "likely_automated"
+          }
+        }
+      ]
+    },
+    "productionWrites": 0,
+    "productionGoRequestsGenerated": 0,
+    "historicalClickCleanup": "NOT_RUN; not authorized or shown necessary."
+  },
+  "cpuFindings": [
+    "All target pages are dynamically rendered. Production HTML cache-control is private/no-cache/no-store. A successful lifecycle data cache hit does not cache the complete HTML or Flight response.",
+    "Product metadata and body issue two different product SELECT projections. Body reads offers, exact variants/proofs, retailer bindings and history; better-value alternatives separately loads and normalizes the category/format pool. There is no database call for every offer. Queries and this behavior are unchanged.",
+    "Compare/category hubs already cache successful data for an hour with synchronous bucket rollover and fail-closed errors. React.cache is request memoization. Warm data avoids the catalogue read; server rendering, control/selector creation and client-prop serialization still run.",
+    "On a compare data miss, products paginate in batches of 200 with exact-count/completeness guards, retailer-product variant reads, per-variant selection normalization and approved-fact enrichment. Selected pairs read only their offer history. PR #562 proof optimization remains in place.",
+    "Source and instrumentation confirm repeated new Intl.NumberFormat for each GBP amount and new Intl.DateTimeFormat for each shared check badge. Warm creatine fixture: 238 NumberFormat and 95 DateTimeFormat constructions per render, reduced to 0 and 4. Warm pre-workout: 260/152 reduced to 0/1. The remaining constructors are in unchanged helpers.",
+    "Twelve additional /compare.rsc requests have public request_path=/compare and no bot label. Together with 71 HTML requests they match 83 compare function invocations. This does not prove that those twelve are Meta requests or prefetches.",
+    "Existing selector choice/clear links disable prefetch; retailer links are native anchors. Other product navigation can use Next Link. No prefetch behavior is changed.",
+    "An empty warm /compare uses neither optimized formatter in the fixture; it is a negative control. The patch does not establish a meaningful improvement for that route. Full Next Flight encoding, DB execution/network and production request composition remain unprofiled."
+  ],
+  "implementation": {
+    "applicationFiles": [
+      "app/lib/pricing.ts",
+      "app/lib/outboundClickRedirect.ts",
+      "app/components/ComparisonProductVisuals.tsx"
+    ],
+    "changes": [
+      "Reuse the existing native GBP formatter object; keep identical locale and options.",
+      "Reuse the existing native Europe/London date formatter object; format the supplied timestamp on every call.",
+      "Recognize documented bare Meta crawler names in the existing outbound guard."
+    ],
+    "notADataCache": "Only stateless Intl configuration objects persist. No formatted amounts, timestamps, offers, stock or nutrition results are retained. No new Data Cache, TTL, invalidation, table, query, dependency, endpoint or service.",
+    "sourceSha256Lf": {
+      "app/lib/pricing.ts": "718cb7e131c6c46f527544a27e20e783612b63b7fae017f1562ce78237d65796",
+      "app/lib/outboundClickRedirect.ts": "9e63865a767903555cc2610446131493e21d850a874641d689041c374ff1e5c3",
+      "app/components/ComparisonProductVisuals.tsx": "673685b0a783ac176935dd875ab9951c7286a3d181b2282797ea832b93f4a732",
+      "scripts/benchmark-public-render.js": "d8d484759b1060b9e3c9c688cdf3735ec7457ff2466663ed45697466bae2b484",
+      "scripts/go-route.test.js": "4a0cee9fd8f98526f1b8d30742a0bb6233da47b786b3fe7c84d1ef811f3135c8",
+      "scripts/pricing.test.js": "90d713ae546d69e2525ffc2301e3cde41bb5c380aba890854946d4e7aeabf443",
+      "scripts/homepage-comparisons.test.js": "62fea2c76ca57ad471dd6a76dd70f0753ac67ee89edcbaab959b701d6052d325"
+    }
+  },
+  "localBenchmark": {
+    "baseline": "50611eb151332af5af4fed5e4610eaa009d81acc",
+    "at": "2026-11-21T18:50:09.003Z",
+    "node": "v24.18.0",
+    "workerNodeEnv": "production",
+    "samplesPerRevision": 15,
+    "warmupMs": 1000,
+    "pilotMs": 200,
+    "targetBatchMs": 400,
+    "separateRevisionProcesses": true,
+    "scope": "Offline actual page/data modules and React production static SSR; synthetic fixtures, no production/network/SQL execution or full Next HTTP/Flight encoding. Only framework hooks/links/images and chart DOM are substituted. Entire HTML, metadata, client-boundary props and read shapes must match. Existing hour-bucket hub cache is simulated separately from request memoization; cold means hub-data miss, not a Vercel cold start. Revisions use separate processes, one timed at a time; formatter counters run separately from uninstrumented timings.",
+    "results": [
+      {
+        "route": "product/[id]",
+        "products": 90,
+        "offers": 810,
+        "warmHub": true,
+        "params": {},
+        "parity": "PASS",
+        "htmlBytes": 39201,
+        "clientPropJsonBytes": 19112,
+        "initialQueries": [
+          {
+            "table": "products",
+            "rows": 1,
+            "bytes": 308,
+            "shapeSha256": "a1ebceccc85776cf86af8e9e3309fa8d6343f0d42ed162290a1935e69406b9bd"
+          },
+          {
+            "table": "products",
+            "rows": 1,
+            "bytes": 504,
+            "shapeSha256": "e15bfe66c265d15f2c76947d22962dc167068febc5ea176b9a90ab2c284602bd"
+          },
+          {
+            "table": "products",
+            "rows": 90,
+            "bytes": 224667,
+            "shapeSha256": "3af1553d43728a0f91015bcbb6fadb3a441bba9ea3fcb072560bb15a95047c8a"
+          },
+          {
+            "table": "offers",
+            "rows": 9,
+            "bytes": 3217,
+            "shapeSha256": "654766b40d72d0dcfecfbd4efbb2304da94e2ffade1a68985d907dfa2ff4420f"
+          },
+          {
+            "table": "retailer_products",
+            "rows": 810,
+            "bytes": 414646,
+            "shapeSha256": "9da68812a2ca6c12c7be2ca6041ff36d10adabca82cc244fbd4986385eeaa288"
+          },
+          {
+            "table": "product_variants",
+            "rows": 3,
+            "bytes": 3928,
+            "shapeSha256": "9539f9bc18ffaff75911bf9384e3ae0a45dd330ab8e2568e0962144ba5254bdd"
+          },
+          {
+            "table": "nutrition_candidates",
+            "rows": 19,
+            "bytes": 14092,
+            "shapeSha256": "0d8f9e5e264a6cb88e45c1adc9e3417118898e77f33d6ea0ad39a97b7ece9415"
+          },
+          {
+            "table": "retailer_products",
+            "rows": 9,
+            "bytes": 11962,
+            "shapeSha256": "5beeda0060744910b4a14c5807ceb8006f6c48b220c244f4297cbb7f7d575a92"
+          },
+          {
+            "table": "price_history",
+            "rows": 252,
+            "bytes": 20497,
+            "shapeSha256": "d3e27b0300a9020fcd2d08b6106c9c8e1112c70b7c266aeb73db3dbad56d0a4a"
+          }
+        ],
+        "loops": 38,
+        "median": {
+          "before": {
+            "cpuMs": 13.157894736842104,
+            "wallMs": 12.491702631578942
+          },
+          "after": {
+            "cpuMs": 10.710526315789474,
+            "wallMs": 10.857110526315793
+          }
+        },
+        "profiles": {
+          "before": {
+            "numberFormat": 39,
+            "dateTimeFormat": 2,
+            "currencyCalls": 39,
+            "resolvedMs": 11.80399999999645,
+            "renderMs": 2.7586000000010245,
+            "queries": [
+              {
+                "table": "products",
+                "rows": 1,
+                "bytes": 308
+              },
+              {
+                "table": "products",
+                "rows": 1,
+                "bytes": 504
+              },
+              {
+                "table": "products",
+                "rows": 90,
+                "bytes": 224667
+              },
+              {
+                "table": "offers",
+                "rows": 9,
+                "bytes": 3217
+              },
+              {
+                "table": "retailer_products",
+                "rows": 810,
+                "bytes": 414646
+              },
+              {
+                "table": "product_variants",
+                "rows": 3,
+                "bytes": 3928
+              },
+              {
+                "table": "nutrition_candidates",
+                "rows": 19,
+                "bytes": 14092
+              },
+              {
+                "table": "retailer_products",
+                "rows": 9,
+                "bytes": 11962
+              },
+              {
+                "table": "price_history",
+                "rows": 252,
+                "bytes": 20497
+              }
+            ]
+          },
+          "after": {
+            "numberFormat": 0,
+            "dateTimeFormat": 2,
+            "currencyCalls": 39,
+            "resolvedMs": 12.126400000001013,
+            "renderMs": 1.0949999999975262,
+            "queries": [
+              {
+                "table": "products",
+                "rows": 1,
+                "bytes": 308
+              },
+              {
+                "table": "products",
+                "rows": 1,
+                "bytes": 504
+              },
+              {
+                "table": "products",
+                "rows": 90,
+                "bytes": 224667
+              },
+              {
+                "table": "offers",
+                "rows": 9,
+                "bytes": 3217
+              },
+              {
+                "table": "retailer_products",
+                "rows": 810,
+                "bytes": 414646
+              },
+              {
+                "table": "product_variants",
+                "rows": 3,
+                "bytes": 3928
+              },
+              {
+                "table": "nutrition_candidates",
+                "rows": 19,
+                "bytes": 14092
+              },
+              {
+                "table": "retailer_products",
+                "rows": 9,
+                "bytes": 11962
+              },
+              {
+                "table": "price_history",
+                "rows": 252,
+                "bytes": 20497
+              }
+            ]
+          }
+        },
+        "timings": {
+          "before": [
+            {
+              "cpuMs": 12.342105263157896,
+              "wallMs": 12.86930789473684
+            },
+            {
+              "cpuMs": 13.973684210526315,
+              "wallMs": 12.491702631578942
+            },
+            {
+              "cpuMs": 16.05263157894737,
+              "wallMs": 13.609489473684238
+            },
+            {
+              "cpuMs": 12.736842105263158,
+              "wallMs": 12.46330000000001
+            },
+            {
+              "cpuMs": 13.578947368421053,
+              "wallMs": 12.74133684210526
+            },
+            {
+              "cpuMs": 12.31578947368421,
+              "wallMs": 12.278218421052626
+            },
+            {
+              "cpuMs": 13.157894736842104,
+              "wallMs": 13.017368421052629
+            },
+            {
+              "cpuMs": 12.789473684210526,
+              "wallMs": 12.143523684210537
+            },
+            {
+              "cpuMs": 13.131578947368421,
+              "wallMs": 12.7349710526316
+            },
+            {
+              "cpuMs": 13.157894736842104,
+              "wallMs": 13.078371052631587
+            },
+            {
+              "cpuMs": 13.157894736842104,
+              "wallMs": 12.927205263157894
+            },
+            {
+              "cpuMs": 13.578947368421053,
+              "wallMs": 12.401405263157836
+            },
+            {
+              "cpuMs": 11.921052631578947,
+              "wallMs": 12.312526315789478
+            },
+            {
+              "cpuMs": 13.973684210526315,
+              "wallMs": 12.195247368421118
+            },
+            {
+              "cpuMs": 12.736842105263158,
+              "wallMs": 12.438089473684254
+            }
+          ],
+          "after": [
+            {
+              "cpuMs": 12.31578947368421,
+              "wallMs": 11.099573684210531
+            },
+            {
+              "cpuMs": 11.526315789473685,
+              "wallMs": 13.014163157894735
+            },
+            {
+              "cpuMs": 10.68421052631579,
+              "wallMs": 10.954868421052629
+            },
+            {
+              "cpuMs": 11.5,
+              "wallMs": 10.933836842105274
+            },
+            {
+              "cpuMs": 11.078947368421053,
+              "wallMs": 10.574857894736851
+            },
+            {
+              "cpuMs": 10.289473684210526,
+              "wallMs": 10.892523684210525
+            },
+            {
+              "cpuMs": 10.68421052631579,
+              "wallMs": 10.87235526315793
+            },
+            {
+              "cpuMs": 11.5,
+              "wallMs": 10.861865789473708
+            },
+            {
+              "cpuMs": 10.710526315789474,
+              "wallMs": 10.827292105263185
+            },
+            {
+              "cpuMs": 10.68421052631579,
+              "wallMs": 10.205813157894752
+            },
+            {
+              "cpuMs": 11.5,
+              "wallMs": 10.857110526315793
+            },
+            {
+              "cpuMs": 11.105263157894736,
+              "wallMs": 10.810568421052698
+            },
+            {
+              "cpuMs": 10.263157894736842,
+              "wallMs": 10.392994736842075
+            },
+            {
+              "cpuMs": 10.68421052631579,
+              "wallMs": 10.292881578947345
+            },
+            {
+              "cpuMs": 9.868421052631579,
+              "wallMs": 10.05091578947366
+            }
+          ]
+        }
+      },
+      {
+        "route": "compare",
+        "products": 200,
+        "offers": 600,
+        "warmHub": true,
+        "params": {},
+        "parity": "PASS",
+        "htmlBytes": 6992,
+        "clientPropJsonBytes": 75927,
+        "initialQueries": [
+          {
+            "table": "products",
+            "rows": 200,
+            "bytes": 230841,
+            "shapeSha256": "439e20e85e7e1d446bdce8e949c5104ba234ef2dd99cb2274c64fefd57652811"
+          },
+          {
+            "table": "retailer_products",
+            "rows": 600,
+            "bytes": 293251,
+            "shapeSha256": "bc8498bdde96148752b601a1ac75a129f14ae25c175f0f46caaa04b6348ba25e"
+          },
+          {
+            "table": "products",
+            "rows": 0,
+            "bytes": 2,
+            "shapeSha256": "da681a735ac2d46fc55b6f155416702d0a0e8ead0775d5bff58155bb8b945224"
+          },
+          {
+            "table": "nutrition_candidates",
+            "rows": 650,
+            "bytes": 472151,
+            "shapeSha256": "ab965d51a8d6d34fcd47fa03de95420cb7b8a0cf1d0c23eb25f80fd8caf463db"
+          }
+        ],
+        "loops": 560,
+        "median": {
+          "before": {
+            "cpuMs": 0.725,
+            "wallMs": 0.7303274999999985
+          },
+          "after": {
+            "cpuMs": 0.6982142857142857,
+            "wallMs": 0.7081251785714292
+          }
+        },
+        "profiles": {
+          "before": {
+            "numberFormat": 0,
+            "dateTimeFormat": 0,
+            "currencyCalls": 0,
+            "resolvedMs": 0.012500000000727596,
+            "renderMs": 1.0668000000005122,
+            "queries": []
+          },
+          "after": {
+            "numberFormat": 0,
+            "dateTimeFormat": 0,
+            "currencyCalls": 0,
+            "resolvedMs": 0.02470000000175787,
+            "renderMs": 1.5884000000005472,
+            "queries": []
+          }
+        },
+        "timings": {
+          "before": [
+            {
+              "cpuMs": 0.725,
+              "wallMs": 0.7517773214285723
+            },
+            {
+              "cpuMs": 0.725,
+              "wallMs": 0.7503980357142853
+            },
+            {
+              "cpuMs": 0.6428571428571429,
+              "wallMs": 0.7317166071428574
+            },
+            {
+              "cpuMs": 0.6410714285714286,
+              "wallMs": 0.7212030357142859
+            },
+            {
+              "cpuMs": 0.7267857142857143,
+              "wallMs": 0.7380335714285706
+            },
+            {
+              "cpuMs": 0.725,
+              "wallMs": 0.7224033928571446
+            },
+            {
+              "cpuMs": 0.7267857142857143,
+              "wallMs": 0.7304228571428569
+            },
+            {
+              "cpuMs": 0.7803571428571429,
+              "wallMs": 0.729819821428571
+            },
+            {
+              "cpuMs": 0.6982142857142857,
+              "wallMs": 0.7208405357142867
+            },
+            {
+              "cpuMs": 0.6982142857142857,
+              "wallMs": 0.7159214285714273
+            },
+            {
+              "cpuMs": 0.7535714285714286,
+              "wallMs": 0.746285000000002
+            },
+            {
+              "cpuMs": 0.725,
+              "wallMs": 0.7303274999999985
+            },
+            {
+              "cpuMs": 0.725,
+              "wallMs": 0.7144085714285698
+            },
+            {
+              "cpuMs": 0.6964285714285714,
+              "wallMs": 0.7153953571428572
+            },
+            {
+              "cpuMs": 0.7535714285714286,
+              "wallMs": 0.7342250000000019
+            }
+          ],
+          "after": [
+            {
+              "cpuMs": 0.6964285714285714,
+              "wallMs": 0.7127082142857148
+            },
+            {
+              "cpuMs": 0.7267857142857143,
+              "wallMs": 0.7165478571428577
+            },
+            {
+              "cpuMs": 0.6410714285714286,
+              "wallMs": 0.6802851785714292
+            },
+            {
+              "cpuMs": 0.725,
+              "wallMs": 0.7081251785714292
+            },
+            {
+              "cpuMs": 0.6696428571428571,
+              "wallMs": 0.7102510714285732
+            },
+            {
+              "cpuMs": 0.6982142857142857,
+              "wallMs": 0.6940371428571422
+            },
+            {
+              "cpuMs": 0.8089285714285714,
+              "wallMs": 0.723862142857141
+            },
+            {
+              "cpuMs": 0.6696428571428571,
+              "wallMs": 0.6880748214285729
+            },
+            {
+              "cpuMs": 0.7535714285714286,
+              "wallMs": 0.7128975000000017
+            },
+            {
+              "cpuMs": 0.6964285714285714,
+              "wallMs": 0.6864094642857156
+            },
+            {
+              "cpuMs": 0.6982142857142857,
+              "wallMs": 0.7061460714285723
+            },
+            {
+              "cpuMs": 0.6964285714285714,
+              "wallMs": 0.7091762499999992
+            },
+            {
+              "cpuMs": 0.6982142857142857,
+              "wallMs": 0.702737499999999
+            },
+            {
+              "cpuMs": 0.6982142857142857,
+              "wallMs": 0.6907755357142865
+            },
+            {
+              "cpuMs": 0.7803571428571429,
+              "wallMs": 0.7311021428571426
+            }
+          ]
+        }
+      },
+      {
+        "route": "compare",
+        "products": 200,
+        "offers": 600,
+        "warmHub": true,
+        "params": {
+          "left": "10004",
+          "right": "10008"
+        },
+        "parity": "PASS",
+        "htmlBytes": 26962,
+        "clientPropJsonBytes": 76077,
+        "initialQueries": [
+          {
+            "table": "products",
+            "rows": 200,
+            "bytes": 230841,
+            "shapeSha256": "439e20e85e7e1d446bdce8e949c5104ba234ef2dd99cb2274c64fefd57652811"
+          },
+          {
+            "table": "retailer_products",
+            "rows": 600,
+            "bytes": 293251,
+            "shapeSha256": "bc8498bdde96148752b601a1ac75a129f14ae25c175f0f46caaa04b6348ba25e"
+          },
+          {
+            "table": "products",
+            "rows": 0,
+            "bytes": 2,
+            "shapeSha256": "da681a735ac2d46fc55b6f155416702d0a0e8ead0775d5bff58155bb8b945224"
+          },
+          {
+            "table": "nutrition_candidates",
+            "rows": 650,
+            "bytes": 472151,
+            "shapeSha256": "ab965d51a8d6d34fcd47fa03de95420cb7b8a0cf1d0c23eb25f80fd8caf463db"
+          },
+          {
+            "table": "price_history",
+            "rows": 168,
+            "bytes": 13665,
+            "shapeSha256": "54ddb9fd24e1d492db18f24ec3c0d3e70b3d558f13032c9fadc27c0679d608f4"
+          }
+        ],
+        "loops": 193,
+        "median": {
+          "before": {
+            "cpuMs": 2.8341968911917097,
+            "wallMs": 2.818260103626931
+          },
+          "after": {
+            "cpuMs": 2.0259067357512954,
+            "wallMs": 2.0647865284974114
+          }
+        },
+        "profiles": {
+          "before": {
+            "numberFormat": 10,
+            "dateTimeFormat": 6,
+            "currencyCalls": 10,
+            "resolvedMs": 0.4228000000002794,
+            "renderMs": 3.6546999999991385,
+            "queries": [
+              {
+                "table": "price_history",
+                "rows": 168,
+                "bytes": 13665
+              }
+            ]
+          },
+          "after": {
+            "numberFormat": 0,
+            "dateTimeFormat": 4,
+            "currencyCalls": 10,
+            "resolvedMs": 0.37919999999940046,
+            "renderMs": 2.6814999999987776,
+            "queries": [
+              {
+                "table": "price_history",
+                "rows": 168,
+                "bytes": 13665
+              }
+            ]
+          }
+        },
+        "timings": {
+          "before": [
+            {
+              "cpuMs": 3.155440414507772,
+              "wallMs": 2.8511062176165805
+            },
+            {
+              "cpuMs": 2.911917098445596,
+              "wallMs": 2.851936269430053
+            },
+            {
+              "cpuMs": 2.911917098445596,
+              "wallMs": 2.851746632124352
+            },
+            {
+              "cpuMs": 2.922279792746114,
+              "wallMs": 2.82396528497409
+            },
+            {
+              "cpuMs": 2.7512953367875648,
+              "wallMs": 2.7973134715025973
+            },
+            {
+              "cpuMs": 2.8341968911917097,
+              "wallMs": 2.8070466321243535
+            },
+            {
+              "cpuMs": 2.7461139896373057,
+              "wallMs": 2.8247352331606206
+            },
+            {
+              "cpuMs": 2.756476683937824,
+              "wallMs": 2.753944041450772
+            },
+            {
+              "cpuMs": 3.077720207253886,
+              "wallMs": 3.1431689119171016
+            },
+            {
+              "cpuMs": 2.911917098445596,
+              "wallMs": 2.9606295336787563
+            },
+            {
+              "cpuMs": 2.7512953367875648,
+              "wallMs": 2.784739896373064
+            },
+            {
+              "cpuMs": 2.673575129533679,
+              "wallMs": 2.818260103626931
+            },
+            {
+              "cpuMs": 2.8341968911917097,
+              "wallMs": 2.7644409326424944
+            },
+            {
+              "cpuMs": 2.673575129533679,
+              "wallMs": 2.681568393782393
+            },
+            {
+              "cpuMs": 2.7461139896373057,
+              "wallMs": 2.742743005181343
+            }
+          ],
+          "after": [
+            {
+              "cpuMs": 2.0207253886010363,
+              "wallMs": 2.029730051813472
+            },
+            {
+              "cpuMs": 2.1865284974093266,
+              "wallMs": 2.132923316062176
+            },
+            {
+              "cpuMs": 2.0259067357512954,
+              "wallMs": 2.0655632124352326
+            },
+            {
+              "cpuMs": 2.1036269430051813,
+              "wallMs": 2.037049740932642
+            },
+            {
+              "cpuMs": 2.1036269430051813,
+              "wallMs": 2.0647865284974114
+            },
+            {
+              "cpuMs": 1.9430051813471503,
+              "wallMs": 1.996241450777196
+            },
+            {
+              "cpuMs": 2.1088082901554404,
+              "wallMs": 2.0658637305699474
+            },
+            {
+              "cpuMs": 1.9430051813471503,
+              "wallMs": 2.013335233160626
+            },
+            {
+              "cpuMs": 1.9430051813471503,
+              "wallMs": 2.012209326424864
+            },
+            {
+              "cpuMs": 2.1036269430051813,
+              "wallMs": 2.0529440414507736
+            },
+            {
+              "cpuMs": 2.1036269430051813,
+              "wallMs": 2.0911414507772013
+            },
+            {
+              "cpuMs": 2.1088082901554404,
+              "wallMs": 2.1749699481865226
+            },
+            {
+              "cpuMs": 2.0259067357512954,
+              "wallMs": 2.057188082901554
+            },
+            {
+              "cpuMs": 2.0259067357512954,
+              "wallMs": 2.065861658031083
+            },
+            {
+              "cpuMs": 2.0207253886010363,
+              "wallMs": 2.0787253886010335
+            }
+          ]
+        }
+      },
+      {
+        "route": "compare",
+        "products": 200,
+        "offers": 600,
+        "warmHub": false,
+        "params": {},
+        "parity": "PASS",
+        "htmlBytes": 6992,
+        "clientPropJsonBytes": 75927,
+        "initialQueries": [
+          {
+            "table": "products",
+            "rows": 200,
+            "bytes": 230841,
+            "shapeSha256": "439e20e85e7e1d446bdce8e949c5104ba234ef2dd99cb2274c64fefd57652811"
+          },
+          {
+            "table": "retailer_products",
+            "rows": 600,
+            "bytes": 293251,
+            "shapeSha256": "bc8498bdde96148752b601a1ac75a129f14ae25c175f0f46caaa04b6348ba25e"
+          },
+          {
+            "table": "products",
+            "rows": 0,
+            "bytes": 2,
+            "shapeSha256": "da681a735ac2d46fc55b6f155416702d0a0e8ead0775d5bff58155bb8b945224"
+          },
+          {
+            "table": "nutrition_candidates",
+            "rows": 650,
+            "bytes": 472151,
+            "shapeSha256": "ab965d51a8d6d34fcd47fa03de95420cb7b8a0cf1d0c23eb25f80fd8caf463db"
+          }
+        ],
+        "loops": 26,
+        "median": {
+          "before": {
+            "cpuMs": 16.807692307692307,
+            "wallMs": 14.410750000000007
+          },
+          "after": {
+            "cpuMs": 16.192307692307693,
+            "wallMs": 14.27505384615387
+          }
+        },
+        "profiles": {
+          "before": {
+            "numberFormat": 0,
+            "dateTimeFormat": 0,
+            "currencyCalls": 0,
+            "resolvedMs": 18.886599999997998,
+            "renderMs": 1.3474999999998545,
+            "queries": [
+              {
+                "table": "products",
+                "rows": 200,
+                "bytes": 230841
+              },
+              {
+                "table": "retailer_products",
+                "rows": 600,
+                "bytes": 293251
+              },
+              {
+                "table": "products",
+                "rows": 0,
+                "bytes": 2
+              },
+              {
+                "table": "nutrition_candidates",
+                "rows": 650,
+                "bytes": 472151
+              }
+            ]
+          },
+          "after": {
+            "numberFormat": 0,
+            "dateTimeFormat": 0,
+            "currencyCalls": 0,
+            "resolvedMs": 16.851800000000367,
+            "renderMs": 1.3119999999980791,
+            "queries": [
+              {
+                "table": "products",
+                "rows": 200,
+                "bytes": 230841
+              },
+              {
+                "table": "retailer_products",
+                "rows": 600,
+                "bytes": 293251
+              },
+              {
+                "table": "products",
+                "rows": 0,
+                "bytes": 2
+              },
+              {
+                "table": "nutrition_candidates",
+                "rows": 650,
+                "bytes": 472151
+              }
+            ]
+          }
+        },
+        "timings": {
+          "before": [
+            {
+              "cpuMs": 16.846153846153847,
+              "wallMs": 14.783284615384604
+            },
+            {
+              "cpuMs": 18.576923076923077,
+              "wallMs": 15.507957692307697
+            },
+            {
+              "cpuMs": 15.653846153846153,
+              "wallMs": 13.974988461538452
+            },
+            {
+              "cpuMs": 19.807692307692307,
+              "wallMs": 14.950930769230755
+            },
+            {
+              "cpuMs": 16.807692307692307,
+              "wallMs": 14.267573076923117
+            },
+            {
+              "cpuMs": 20.423076923076923,
+              "wallMs": 15.638484615384606
+            },
+            {
+              "cpuMs": 16.23076923076923,
+              "wallMs": 14.710196153846201
+            },
+            {
+              "cpuMs": 17.423076923076923,
+              "wallMs": 13.98837692307692
+            },
+            {
+              "cpuMs": 14.423076923076923,
+              "wallMs": 14.126207692307686
+            },
+            {
+              "cpuMs": 15.615384615384615,
+              "wallMs": 13.762700000000013
+            },
+            {
+              "cpuMs": 18.653846153846153,
+              "wallMs": 14.603100000000058
+            },
+            {
+              "cpuMs": 14.423076923076923,
+              "wallMs": 14.410750000000007
+            },
+            {
+              "cpuMs": 14.423076923076923,
+              "wallMs": 14.246946153846133
+            },
+            {
+              "cpuMs": 16.23076923076923,
+              "wallMs": 14.09280769230771
+            },
+            {
+              "cpuMs": 18,
+              "wallMs": 14.458253846153848
+            }
+          ],
+          "after": [
+            {
+              "cpuMs": 16.192307692307693,
+              "wallMs": 16.19292692307695
+            },
+            {
+              "cpuMs": 19.23076923076923,
+              "wallMs": 14.893673076923069
+            },
+            {
+              "cpuMs": 14.423076923076923,
+              "wallMs": 14.079792307692305
+            },
+            {
+              "cpuMs": 16.26923076923077,
+              "wallMs": 14.585030769230762
+            },
+            {
+              "cpuMs": 18.615384615384617,
+              "wallMs": 13.714569230769275
+            },
+            {
+              "cpuMs": 17.423076923076923,
+              "wallMs": 15.069692307692304
+            },
+            {
+              "cpuMs": 17.46153846153846,
+              "wallMs": 14.59835
+            },
+            {
+              "cpuMs": 16.807692307692307,
+              "wallMs": 14.27505384615387
+            },
+            {
+              "cpuMs": 15.615384615384615,
+              "wallMs": 13.99847692307692
+            },
+            {
+              "cpuMs": 15.615384615384615,
+              "wallMs": 13.900292307692325
+            },
+            {
+              "cpuMs": 15.615384615384615,
+              "wallMs": 14.595726923076935
+            },
+            {
+              "cpuMs": 17.384615384615383,
+              "wallMs": 14.009176923076947
+            },
+            {
+              "cpuMs": 15.038461538461538,
+              "wallMs": 14.36273076923072
+            },
+            {
+              "cpuMs": 15.653846153846153,
+              "wallMs": 14.075830769230798
+            },
+            {
+              "cpuMs": 15.615384615384615,
+              "wallMs": 13.577299999999992
+            }
+          ]
+        }
+      },
+      {
+        "route": "creatine",
+        "products": 90,
+        "offers": 810,
+        "warmHub": true,
+        "params": {},
+        "parity": "PASS",
+        "htmlBytes": 189848,
+        "clientPropJsonBytes": 2032,
+        "initialQueries": [
+          {
+            "table": "products",
+            "rows": 90,
+            "bytes": 213237,
+            "shapeSha256": "7f9d5e2e9122a7eef892a1dc1a2dc6dd7aa951adde5c9ed84d648f625eb5fdce"
+          },
+          {
+            "table": "retailer_products",
+            "rows": 810,
+            "bytes": 202573,
+            "shapeSha256": "af61e64f7af44bfa98c57e47389d704ebb8741fb9257e968c4cb420807f870ea"
+          }
+        ],
+        "loops": 90,
+        "median": {
+          "before": {
+            "cpuMs": 25.177777777777777,
+            "wallMs": 25.14749444444444
+          },
+          "after": {
+            "cpuMs": 4.344444444444444,
+            "wallMs": 4.174572222222196
+          }
+        },
+        "profiles": {
+          "before": {
+            "numberFormat": 238,
+            "dateTimeFormat": 95,
+            "currencyCalls": 238,
+            "resolvedMs": 0.555899999999383,
+            "renderMs": 24.94419999999809,
+            "queries": []
+          },
+          "after": {
+            "numberFormat": 0,
+            "dateTimeFormat": 4,
+            "currencyCalls": 238,
+            "resolvedMs": 1.0815000000002328,
+            "renderMs": 7.807999999997264,
+            "queries": []
+          }
+        },
+        "timings": {
+          "before": [
+            {
+              "cpuMs": 24.988888888888887,
+              "wallMs": 24.939299999999992
+            },
+            {
+              "cpuMs": 24.31111111111111,
+              "wallMs": 24.491918888888904
+            },
+            {
+              "cpuMs": 27.6,
+              "wallMs": 26.92302777777778
+            },
+            {
+              "cpuMs": 25.011111111111113,
+              "wallMs": 24.779935555555554
+            },
+            {
+              "cpuMs": 25.344444444444445,
+              "wallMs": 25.034265555555553
+            },
+            {
+              "cpuMs": 24.833333333333332,
+              "wallMs": 25.14749444444444
+            },
+            {
+              "cpuMs": 28.3,
+              "wallMs": 28.3718822222222
+            },
+            {
+              "cpuMs": 24.133333333333333,
+              "wallMs": 24.402603333333335
+            },
+            {
+              "cpuMs": 26.566666666666666,
+              "wallMs": 26.815335555555553
+            },
+            {
+              "cpuMs": 24.655555555555555,
+              "wallMs": 25.42537555555557
+            },
+            {
+              "cpuMs": 26.38888888888889,
+              "wallMs": 26.963382222222208
+            },
+            {
+              "cpuMs": 25.177777777777777,
+              "wallMs": 24.99719555555558
+            },
+            {
+              "cpuMs": 24.288888888888888,
+              "wallMs": 24.63928888888889
+            },
+            {
+              "cpuMs": 27.955555555555556,
+              "wallMs": 29.023438888888872
+            },
+            {
+              "cpuMs": 34.2,
+              "wallMs": 33.209111111111106
+            }
+          ],
+          "after": [
+            {
+              "cpuMs": 4,
+              "wallMs": 4.1198366666666715
+            },
+            {
+              "cpuMs": 3.988888888888889,
+              "wallMs": 4.242922222222226
+            },
+            {
+              "cpuMs": 4.166666666666667,
+              "wallMs": 4.0981188888888935
+            },
+            {
+              "cpuMs": 4,
+              "wallMs": 4.075395555555567
+            },
+            {
+              "cpuMs": 4.511111111111111,
+              "wallMs": 4.339860000000003
+            },
+            {
+              "cpuMs": 5.033333333333333,
+              "wallMs": 4.269450000000021
+            },
+            {
+              "cpuMs": 5.377777777777778,
+              "wallMs": 4.745273333333333
+            },
+            {
+              "cpuMs": 4.511111111111111,
+              "wallMs": 4.100055555555526
+            },
+            {
+              "cpuMs": 4,
+              "wallMs": 4.127772222222201
+            },
+            {
+              "cpuMs": 5.377777777777778,
+              "wallMs": 4.238545555555538
+            },
+            {
+              "cpuMs": 4.344444444444444,
+              "wallMs": 4.138043333333351
+            },
+            {
+              "cpuMs": 3.8222222222222224,
+              "wallMs": 4.102507777777727
+            },
+            {
+              "cpuMs": 4.511111111111111,
+              "wallMs": 4.459084444444387
+            },
+            {
+              "cpuMs": 4.344444444444444,
+              "wallMs": 4.21871333333337
+            },
+            {
+              "cpuMs": 4.688888888888889,
+              "wallMs": 4.174572222222196
+            }
+          ]
+        }
+      },
+      {
+        "route": "creatine",
+        "products": 90,
+        "offers": 810,
+        "warmHub": false,
+        "params": {},
+        "parity": "PASS",
+        "htmlBytes": 189848,
+        "clientPropJsonBytes": 2032,
+        "initialQueries": [
+          {
+            "table": "products",
+            "rows": 90,
+            "bytes": 213237,
+            "shapeSha256": "7f9d5e2e9122a7eef892a1dc1a2dc6dd7aa951adde5c9ed84d648f625eb5fdce"
+          },
+          {
+            "table": "retailer_products",
+            "rows": 810,
+            "bytes": 202573,
+            "shapeSha256": "af61e64f7af44bfa98c57e47389d704ebb8741fb9257e968c4cb420807f870ea"
+          }
+        ],
+        "loops": 39,
+        "median": {
+          "before": {
+            "cpuMs": 31.256410256410255,
+            "wallMs": 30.508235897435952
+          },
+          "after": {
+            "cpuMs": 10.820512820512821,
+            "wallMs": 9.957907692307694
+          }
+        },
+        "profiles": {
+          "before": {
+            "numberFormat": 238,
+            "dateTimeFormat": 95,
+            "currencyCalls": 238,
+            "resolvedMs": 6.693999999999505,
+            "renderMs": 24.24239999999918,
+            "queries": [
+              {
+                "table": "products",
+                "rows": 90,
+                "bytes": 213237
+              },
+              {
+                "table": "retailer_products",
+                "rows": 810,
+                "bytes": 202573
+              }
+            ]
+          },
+          "after": {
+            "numberFormat": 0,
+            "dateTimeFormat": 4,
+            "currencyCalls": 238,
+            "resolvedMs": 6.315200000000914,
+            "renderMs": 4.183000000000902,
+            "queries": [
+              {
+                "table": "products",
+                "rows": 90,
+                "bytes": 213237
+              },
+              {
+                "table": "retailer_products",
+                "rows": 810,
+                "bytes": 202573
+              }
+            ]
+          }
+        },
+        "timings": {
+          "before": [
+            {
+              "cpuMs": 32.05128205128205,
+              "wallMs": 30.982835897435905
+            },
+            {
+              "cpuMs": 34.05128205128205,
+              "wallMs": 30.897420512820528
+            },
+            {
+              "cpuMs": 29.666666666666668,
+              "wallMs": 30.073494871794864
+            },
+            {
+              "cpuMs": 31.256410256410255,
+              "wallMs": 30.196328205128175
+            },
+            {
+              "cpuMs": 30.025641025641026,
+              "wallMs": 30.64783846153846
+            },
+            {
+              "cpuMs": 31.28205128205128,
+              "wallMs": 29.358607692307675
+            },
+            {
+              "cpuMs": 36.43589743589744,
+              "wallMs": 34.40486153846154
+            },
+            {
+              "cpuMs": 32.87179487179487,
+              "wallMs": 30.508235897435952
+            },
+            {
+              "cpuMs": 35.23076923076923,
+              "wallMs": 34.51267179487182
+            },
+            {
+              "cpuMs": 30.46153846153846,
+              "wallMs": 29.472712820512804
+            },
+            {
+              "cpuMs": 30.435897435897434,
+              "wallMs": 29.7211256410257
+            },
+            {
+              "cpuMs": 31.666666666666668,
+              "wallMs": 30.079882051282112
+            },
+            {
+              "cpuMs": 31.256410256410255,
+              "wallMs": 32.175920512820504
+            },
+            {
+              "cpuMs": 30.82051282051282,
+              "wallMs": 29.533394871794883
+            },
+            {
+              "cpuMs": 30.46153846153846,
+              "wallMs": 31.106156410256425
+            }
+          ],
+          "after": [
+            {
+              "cpuMs": 10.41025641025641,
+              "wallMs": 10.4663
+            },
+            {
+              "cpuMs": 11.615384615384615,
+              "wallMs": 9.957907692307694
+            },
+            {
+              "cpuMs": 14,
+              "wallMs": 11.607315384615363
+            },
+            {
+              "cpuMs": 10.435897435897436,
+              "wallMs": 9.798687179487201
+            },
+            {
+              "cpuMs": 11.205128205128204,
+              "wallMs": 9.502110256410257
+            },
+            {
+              "cpuMs": 10.820512820512821,
+              "wallMs": 9.714261538461543
+            },
+            {
+              "cpuMs": 17.641025641025642,
+              "wallMs": 14.85730769230768
+            },
+            {
+              "cpuMs": 16.82051282051282,
+              "wallMs": 13.361376923076863
+            },
+            {
+              "cpuMs": 9.205128205128204,
+              "wallMs": 9.271774358974373
+            },
+            {
+              "cpuMs": 10.820512820512821,
+              "wallMs": 10.004925641025647
+            },
+            {
+              "cpuMs": 11.205128205128204,
+              "wallMs": 9.863374358974303
+            },
+            {
+              "cpuMs": 9.615384615384615,
+              "wallMs": 9.546035897435967
+            },
+            {
+              "cpuMs": 12.820512820512821,
+              "wallMs": 10.261892307692342
+            },
+            {
+              "cpuMs": 10,
+              "wallMs": 10.535307692307702
+            },
+            {
+              "cpuMs": 9.615384615384615,
+              "wallMs": 9.567125641025669
+            }
+          ]
+        }
+      },
+      {
+        "route": "pre-workout",
+        "products": 150,
+        "offers": 1350,
+        "warmHub": true,
+        "params": {},
+        "parity": "PASS",
+        "htmlBytes": 362629,
+        "clientPropJsonBytes": 2152,
+        "initialQueries": [
+          {
+            "table": "products",
+            "rows": 150,
+            "bytes": 374474,
+            "shapeSha256": "9006bf8b63fa55e8b56151d1340a1806e7b0cd7669a88046330abfbb2745b5a2"
+          }
+        ],
+        "loops": 57,
+        "median": {
+          "before": {
+            "cpuMs": 37,
+            "wallMs": 36.952226315789424
+          },
+          "after": {
+            "cpuMs": 6.035087719298246,
+            "wallMs": 6.045917543859615
+          }
+        },
+        "profiles": {
+          "before": {
+            "numberFormat": 260,
+            "dateTimeFormat": 152,
+            "currencyCalls": 256,
+            "resolvedMs": 0.8315000000002328,
+            "renderMs": 36.542600000000675,
+            "queries": []
+          },
+          "after": {
+            "numberFormat": 0,
+            "dateTimeFormat": 1,
+            "currencyCalls": 256,
+            "resolvedMs": 0.716099999997823,
+            "renderMs": 6.39539999999397,
+            "queries": []
+          }
+        },
+        "timings": {
+          "before": [
+            {
+              "cpuMs": 38.64912280701754,
+              "wallMs": 37.45977894736843
+            },
+            {
+              "cpuMs": 38.10526315789474,
+              "wallMs": 36.67245789473686
+            },
+            {
+              "cpuMs": 36.45614035087719,
+              "wallMs": 36.791105263157874
+            },
+            {
+              "cpuMs": 39.75438596491228,
+              "wallMs": 37.56903333333334
+            },
+            {
+              "cpuMs": 35.92982456140351,
+              "wallMs": 36.901538596491214
+            },
+            {
+              "cpuMs": 38.64912280701754,
+              "wallMs": 36.573056140350864
+            },
+            {
+              "cpuMs": 36.45614035087719,
+              "wallMs": 36.82290000000004
+            },
+            {
+              "cpuMs": 36.73684210526316,
+              "wallMs": 37.05050701754386
+            },
+            {
+              "cpuMs": 40.8421052631579,
+              "wallMs": 41.078840350877215
+            },
+            {
+              "cpuMs": 37.01754385964912,
+              "wallMs": 37.02387894736839
+            },
+            {
+              "cpuMs": 33.98245614035088,
+              "wallMs": 36.668698245614024
+            },
+            {
+              "cpuMs": 36.19298245614035,
+              "wallMs": 37.24895964912286
+            },
+            {
+              "cpuMs": 37,
+              "wallMs": 36.750036842105224
+            },
+            {
+              "cpuMs": 37,
+              "wallMs": 37.11485263157898
+            },
+            {
+              "cpuMs": 37,
+              "wallMs": 36.952226315789424
+            }
+          ],
+          "after": [
+            {
+              "cpuMs": 6.315789473684211,
+              "wallMs": 6.359278947368423
+            },
+            {
+              "cpuMs": 5.754385964912281,
+              "wallMs": 6.0167877192982475
+            },
+            {
+              "cpuMs": 7.140350877192983,
+              "wallMs": 6.946626315789456
+            },
+            {
+              "cpuMs": 6.298245614035087,
+              "wallMs": 6.451205263157885
+            },
+            {
+              "cpuMs": 7.4035087719298245,
+              "wallMs": 6.594043859649103
+            },
+            {
+              "cpuMs": 6.298245614035087,
+              "wallMs": 6.1785333333333385
+            },
+            {
+              "cpuMs": 6.035087719298246,
+              "wallMs": 6.045917543859615
+            },
+            {
+              "cpuMs": 5.754385964912281,
+              "wallMs": 5.980929824561412
+            },
+            {
+              "cpuMs": 5.754385964912281,
+              "wallMs": 6.002382456140351
+            },
+            {
+              "cpuMs": 6.035087719298246,
+              "wallMs": 6.003410526315731
+            },
+            {
+              "cpuMs": 5.7368421052631575,
+              "wallMs": 5.856777192982503
+            },
+            {
+              "cpuMs": 6.859649122807017,
+              "wallMs": 6.156315789473681
+            },
+            {
+              "cpuMs": 5.473684210526316,
+              "wallMs": 5.858185964912225
+            },
+            {
+              "cpuMs": 6.035087719298246,
+              "wallMs": 6.04117192982455
+            },
+            {
+              "cpuMs": 6.017543859649122,
+              "wallMs": 6.461435087719318
+            }
+          ]
+        }
+      }
+    ],
+    "host": {
+      "platform": "win32",
+      "architecture": "x64",
+      "cpu": "AMD Ryzen 9 5900HS with Radeon Graphics        "
+    },
+    "command": "node scripts/benchmark-public-render.js 50611eb151332af5af4fed5e4610eaa009d81acc",
+    "interpretation": "Local CPU timings only, not observed Vercel savings. Complete HTML, metadata, client-boundary props and read-shape parity are required. Initial query rows/bytes and warm/cold-hub query counts are unchanged.",
+    "exploration": "Earlier shared-heap and development-mode runs were noisy, including an apparent product slowdown and nonzero differences in the no-formatter control. Final reported data use separate production-mode processes, alternating batches and a negative control. No conclusion is drawn from the exploratory runs; their files remain in ignored tmp/meta-cpu-audit."
+  },
+  "seo": {
+    "publicReadback": [
+      {
+        "file": "public-compare.html",
+        "http": 200,
+        "deployment": "dpl_GW9F6WXEme4wzwUzGHJsGuzosYzs",
+        "robots": "index, follow",
+        "canonical": "https://www.supplementscout.co.uk/compare",
+        "title": "Compare Two Supplements Side by Side | SupplementScout",
+        "structuredDataCount": 1,
+        "htmlLinks": 6,
+        "htmlSha256": "4ba94eb452ebb8a0659ffbafbc065657c106c03a60f4a98837cd1df66fc44451",
+        "openGraph": [
+          {
+            "property": "og:title",
+            "content": "Compare Two Supplements | SupplementScout",
+            "byteOffset": 1865
+          },
+          {
+            "property": "og:description",
+            "content": "Compare two supplement products side by side using recently checked UK prices, exact pack identity and verified nutrition metrics.",
+            "byteOffset": 1944
+          },
+          {
+            "property": "og:url",
+            "content": "https://www.supplementscout.co.uk/compare",
+            "byteOffset": 2118
+          },
+          {
+            "property": "og:type",
+            "content": "website",
+            "byteOffset": 2195
+          }
+        ]
+      },
+      {
+        "file": "public-creatine.html",
+        "http": 200,
+        "deployment": "dpl_GW9F6WXEme4wzwUzGHJsGuzosYzs",
+        "robots": "index, follow",
+        "canonical": "https://www.supplementscout.co.uk/creatine",
+        "title": "Compare Creatine Prices UK | SupplementScout",
+        "structuredDataCount": 1,
+        "htmlLinks": 349,
+        "htmlSha256": "afa7c276cd6aff07150d75475d7cf9b22ddee8878c86f38437029ffef6541797",
+        "openGraph": [
+          {
+            "property": "og:title",
+            "content": "Compare Creatine Prices UK | SupplementScout",
+            "byteOffset": 1882
+          },
+          {
+            "property": "og:description",
+            "content": "Compare current creatine prices from UK retailers, including known delivery costs. Check exact products, pack sizes and verified unit costs where available.",
+            "byteOffset": 1964
+          },
+          {
+            "property": "og:url",
+            "content": "https://www.supplementscout.co.uk/creatine",
+            "byteOffset": 2164
+          },
+          {
+            "property": "og:type",
+            "content": "website",
+            "byteOffset": 2242
+          }
+        ]
+      },
+      {
+        "file": "public-pre-workout.html",
+        "http": 200,
+        "deployment": "dpl_GW9F6WXEme4wzwUzGHJsGuzosYzs",
+        "robots": "index, follow",
+        "canonical": "https://www.supplementscout.co.uk/pre-workout",
+        "title": "Compare Pre Workout Prices UK | SupplementScout",
+        "structuredDataCount": 1,
+        "htmlLinks": 607,
+        "htmlSha256": "d445274df754de11ec5079c32333bea354c1e929ec52a0672ead36390b15a6da",
+        "openGraph": [
+          {
+            "property": "og:title",
+            "content": "Compare Pre Workout Prices UK | SupplementScout",
+            "byteOffset": 1894
+          },
+          {
+            "property": "og:description",
+            "content": "Compare current Pre Workout prices from UK supplement retailers, with recently checked offers, known delivery costs, retailer coverage and verified value metrics.",
+            "byteOffset": 1979
+          },
+          {
+            "property": "og:url",
+            "content": "https://www.supplementscout.co.uk/pre-workout",
+            "byteOffset": 2185
+          },
+          {
+            "property": "og:type",
+            "content": "website",
+            "byteOffset": 2266
+          }
+        ]
+      },
+      {
+        "file": "live-product.html",
+        "http": 200,
+        "deployment": "dpl_GW9F6WXEme4wzwUzGHJsGuzosYzs",
+        "robots": null,
+        "canonical": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g",
+        "title": "Applied Nutrition ABE Pump 500g | SupplementScout",
+        "structuredDataCount": 1,
+        "htmlLinks": 20,
+        "htmlSha256": "004935934faa755af622ba88515f7b0ae4936343328cfcf2551d8cbfb98451c2",
+        "openGraph": [
+          {
+            "property": "og:title",
+            "content": "Applied Nutrition ABE Pump 500g | SupplementScout",
+            "byteOffset": 1887
+          },
+          {
+            "property": "og:description",
+            "content": "Compare Applied Nutrition ABE Pump 500g prices in the UK. Check flavours, retailer offers, known delivery costs and reviewed caffeine facts where available.",
+            "byteOffset": 1974
+          },
+          {
+            "property": "og:url",
+            "content": "https://www.supplementscout.co.uk/product/applied-nutrition-abe-pump-500g",
+            "byteOffset": 2174
+          },
+          {
+            "property": "og:image",
+            "content": "https://files.ekmcdn.com/2ab763/images/applied-nutrition-abe-pump-500g-3727-p.jpg",
+            "byteOffset": 2283
+          },
+          {
+            "property": "og:image:alt",
+            "content": "Applied Nutrition ABE Pump 500g",
+            "byteOffset": 2402
+          },
+          {
+            "property": "og:type",
+            "content": "website",
+            "byteOffset": 2475
+          }
+        ]
+      }
+    ],
+    "robotsTxt": "User-Agent: SERankingBacklinksBot\nDisallow: /\n\nUser-Agent: *\nAllow: /\nDisallow: /admin\nDisallow: /go\n\nSitemap: https://www.supplementscout.co.uk/sitemap.xml\n\n",
+    "correction": "Clean /compare, /creatine and /pre-workout are index,follow. Authenticated Vercel fetches add _vercel_share and therefore hit the existing parameter noindex,follow contract. The earlier release report interpreted that parameterized read as the clean URL; ordinary public curl readback corrects that reporting error. No SEO code changed.",
+    "preserved": [
+      "Canonical/robots/Open Graph/JSON-LD and HTML links in complete before/after fixture output.",
+      "Product metadata has no explicit robots tag, unchanged.",
+      "Meta preview OG tags are present near the start of all sampled HTML, within the documented first-MB requirement.",
+      "Googlebot, Bingbot, ordinary browsers and social previews retain page access. The application classifier change applies only to /go."
+    ]
+  },
+  "metaRoles": {
+    "source": "https://developers.facebook.com/documentation/sharing/webmasters/web-crawlers",
+    "checked": "2026-11-21",
+    "webindexer": "Indexes content for Meta AI search and citations.",
+    "externalagent": "Crawls for model training and direct product/content indexing.",
+    "externalfetcher": "Fetches individual links at a user request; may ignore robots.txt.",
+    "facebookexternalhit": "Fetches shared-link previews for Facebook, Instagram and Messenger; some security checks may ignore robots.txt.",
+    "identity": "UA strings and Vercel bot labels do not independently verify sender identity. Unknown labels do not prove human traffic."
+  },
+  "policyProposals": {
+    "status": "REVIEW_ONLY_NOT_APPLIED",
+    "recommendation": "Prefer measured code-only reduction first. No blanket Meta, product/category or canonical /compare block.",
+    "options": [
+      {
+        "scope": "Optional existing-WAF deny on /go/* only, UA contains meta-webindexer or meta-externalagent.",
+        "benefit": "At most the current all-/go function total 1.79 CPU seconds per 30 minutes; exact Meta-only CPU is unavailable. CDN/WAF request costs remain. Existing app already does zero downstream work for observed agents.",
+        "risk": "Changes their /go status from 204 to 403; UA is spoofable. Product/category discovery remains open. Do not extend to browsers, Google/Bing, facebookexternalhit or user-initiated externalfetcher.",
+        "rollback": "Disable only the newly approved rule and confirm existing 204 early-return behavior; verify human 307 in isolated tests or existing legitimate traffic. No database rollback."
+      },
+      {
+        "scope": "Only if a separate audit proves waste: exact /compare with left/right query parameters and the two indexer/agent UA families; keep clean /compare, product/category routes, social preview and user-initiated fetchers available.",
+        "benefit": "Unknown matching share of 5.96 total compare CPU seconds per 30 minutes. Current API readback does not establish query-parameter distribution, so do not claim that whole saving or apply a threshold.",
+        "risk": "Parameterized comparisons are noindex,follow but may still help Meta AI answer a specific comparison. Clean /compare is indexable. Do not block the canonical route, all RSC or all Meta traffic.",
+        "rollback": "Disable only the reviewed rule (or revert only separately approved crawler-policy lines) and verify the original metadata and access. No code/data recovery required."
+      }
+    ],
+    "paidFeatures": "No new paid feature proposed or enabled; no rate limit or threshold is configured."
+  },
+  "validation": {
+    "focused": {
+      "passed": 90,
+      "failed": 0
+    },
+    "quick": {
+      "passed": 1369,
+      "skipped": 3,
+      "failed": 0
+    },
+    "full": {
+      "passed": 4140,
+      "skipped": 3,
+      "failed": 0
+    },
+    "typecheck": "PASS in quality gates",
+    "lint": "PASS; four existing warnings in unchanged automation-review-queue-pagination.integration.test.js",
+    "build": "PASS with existing sanitized localhost-only build environment",
+    "projectGuardian": "PASS before and after evidence updates, including standalone verify:project",
+    "baselineMigrations": "PASS, untouched",
+    "inventory": {
+      "files": 371,
+      "safe": 309,
+      "integration": 58,
+      "artifactBound": 4,
+      "quick": 69,
+      "status": "PASS; no test file added/removed/renamed; sealed inventory unchanged"
+    },
+    "integration": "NOT_RUN: no SQL/schema change",
+    "ci": "Required on final Draft PR head; see PR checks, not inferred from local results.",
+    "buildWarning": "Existing nested-worktree lockfile/root warning; build succeeds and configuration is unchanged."
+  },
+  "risks": [
+    "No production CPU improvement is verified: this implementation is not released.",
+    "Local synthetic fixtures are realistic shapes, not a sampled production workload. Absolute values depend on host, JIT and query/offer/variant distribution.",
+    "Full Next HTTP/Flight encoding and chart DOM are outside the offline benchmark; complete client props including chart input are compared.",
+    "Do not attribute current bot volume or WAF improvements to this patch.",
+    "Bare Meta-ExternalFetcher receives the same /go HTTP204 as its already-blocked full UA form; its product/category access is unchanged. This is not a new general AI crawling policy."
+  ],
+  "releaseBoundary": {
+    "draftOnly": true,
+    "merge": false,
+    "productionDeployment": false,
+    "databaseMigration": false,
+    "productionDataWrites": 0,
+    "wafOrRobotsPolicyChanges": false,
+    "vercelDnsConfigurationChanges": false,
+    "retailerAutomationChanges": false,
+    "newPaidServices": false
+  }
+}
