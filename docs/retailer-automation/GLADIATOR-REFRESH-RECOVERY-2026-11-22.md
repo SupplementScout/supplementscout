@@ -4,6 +4,10 @@ Status: **local correction prepared; production recovery BLOCKED**. No release,
 publication, approval, apply, migration or production data write is authorized
 by this evidence. Base main: `c6955304074dc96ae3dd37d7c2759cb1861f1286`.
 
+The owner-authorized minimal E/K closeout below supersedes the earlier
+profile-only implementation scope. Historical incident and STOP evidence is
+retained; no production recovery or release is claimed.
+
 ## Existing implementation and live state
 
 - [PR #400](https://github.com/SupplementScout/supplementscout/pull/400)
@@ -157,3 +161,116 @@ remain BLOCKED.
    preserved affiliate URLs/history and subsequent watchdog evidence. Only
    then declare live recovery. No manual apply or workflow dispatch was run
    during this audit.
+
+## Owner-authorized minimal E/K closeout
+
+The 22 November owner instruction permits minimal changes in existing Draft564
+and local verification only. Merge, deployment, migration, cron changes,
+production approval/apply and Review Queue publication remain prohibited.
+Both remote heads were rechecked before editing: main `c6955304`, Draft564
+`39d606df`, Draft565 `25f70336`; both PRs were clean, open and Draft. The
+architecture audit's production readback at 22:07 UTC remains evidence of
+CURRENT270 and no active batch approvals for these retailers, not new apply
+authority. No source capture or production write was performed in this closeout.
+
+### Minimal existing-policy wiring
+
+- E: set the existing `guardrails.allow_two_capture_price_confirmation` opt-out
+  to `false` in the Gladiator production profile, matching the existing H&B
+  mechanism. This changes routing of hard-price anomalies, not any numeric
+  guard threshold. The classifier retains HARD_PRICE_ANOMALY in quarantine;
+  no automatic price-confirmation proof is emitted and no unsupported
+  retailer15 confirmation reaches SQL. This restricts an attempted automatic
+  path; it does not grant one. The policy fingerprint changes normally because
+  the existing fingerprint includes configuration. Old artifacts are not reused.
+- E/K: connect only the existing HARD_PRICE_ANOMALY and
+  CANONICAL_IDENTITY_CONFLICT entries from SOURCE_REVIEW_POLICIES to Gladiator's
+  `readOnlyReviewPolicies`. Existing normalization, canonical evidence checks,
+  source contract, cards and reconciliation are reused without modification.
+- Retain MASS_PRICE/MASS_CHANGE binding and their read-only cards from the
+  original correction. Classifier coverage is unchanged: canonical and hard
+  price quarantines are excluded from executable classifier scope; aggregate
+  rows retain the existing mixed-partition accounting.
+- No common engine, classifier, reader, publisher implementation, approval,
+  executor, SQL, manifest, affiliate URL, numeric guardrail or cron is changed.
+  The one opt-out is stored under `guardrails`; claiming that the entire
+  configuration object is byte-identical would be incorrect.
+
+E and K are synthetic regression scenarios, not newly observed production
+incidents. The last audited real source partition remains dated evidence:
+187 VERIFY_NO_CHANGE and 416 MASS_PRICE, with no stock changes. A future
+release must obtain its own fresh source and cannot assume that partition.
+
+### Normal cron authority for a separate owner decision
+
+The unchanged `17 8 * * *` cron uses the current main independently of Vercel
+deployment readiness. It can create technical parent/child approvals; those
+records are not owner Review Queue decisions. This table describes capability,
+not authorization to run or release it during this task.
+
+| Class | Existing cron capability | Owner decision and possible writes |
+| --- | --- | --- |
+| VERIFY_NO_CHANGE | Automatic after validation | No individual queue decision in ordinary cron; offer `last_checked_at`, existing control/audit records and applicable confirmation evidence. No price/stock change. |
+| UPDATE_STOCK | Automatic only inside existing guards | Normal-policy authorization must be explicit for this release; offer `in_stock` and freshness, control/audit records. No identity or URL change. |
+| UPDATE_PRICE | Automatic only below hard and aggregate limits | Normal-policy authorization must be explicit; offer price/total/freshness, derived delivery if the unchanged threshold policy requires it, exact price history and control/audit evidence. |
+| UPDATE_PRICE_AND_STOCK | Automatic only when every guard passes | Same bounded authorization; combined fields above and exact history. |
+| HARD_PRICE_ANOMALY, MASS_PRICE, MASS_CHANGE | Isolated, REVIEW_ONLY | No automatic commercial writes; prepared cards preserve KEEP_UNCHANGED and have no execution binding. A card is not authority to apply a price. |
+| CANONICAL_IDENTITY_CONFLICT | Isolated, MANUAL_REVIEW_IDENTITY | No product/variant/mapping/offer creation or rebinding; identity resolution needs a separate decision. |
+| MASS_OOS | Isolated stock review | Existing supported one-row Review Queue path needs an unexpired exact owner decision, fresh source, matching database and protected executor. Ordinary cron cannot approve the card. |
+| Missing mapped variant | Source review | Never infer OOS or a replacement identity. Independent safe rows may continue. |
+| Invalid IDs/schema, collapse, stale source, fingerprint/ledger drift, unexpected shipping-only drift | BLOCK | No approval or apply for the blocked path; never relax a guard to continue. |
+
+Existing protections remain: exact603 manifest and Shopify variant IDs,
+source health/completeness/freshness, row and global price/stock guards, mapped
+source confirmation, source/policy/artifact/expected-state/ledger fingerprints,
+dedicated validator/approver/executor roles, serialized writers, expiring
+single-use approvals, per-child atomic SQL and exact deltas including history
+and other-retailer protection. No arbitrary owner exception is manufactured.
+
+Recovery is per existing contract: retain checkpoints and consumed approvals;
+do not replay a failed or unknown write. Read back exact applied children and
+business state first. A later child failure does not undo earlier commits.
+Control-only closeout or data recovery uses the existing narrowly scoped path
+and its required separate approval. No recovery or rollback was executed here.
+
+### Local verification and eBay boundary
+
+The four added cases are in the two existing test files; no file was added to
+the371-file test inventory. The existing inventory hash remains valid. The
+original39d606 policy replay fails three new checks (hard-price builder,
+hard-price publication, canonical publication), while canonical isolation itself
+already passes. The corrected focused suite passes242 tests, including both
+aggregate reasons, E/K isolation, unchanged safe price/stock siblings, affiliate
+URLs, source/policy fingerprints, publication idempotency and malformed
+canonical-evidence rejection. These are local simulations with forbidden
+database constructors and an injected read-only source, not production writes.
+
+`verify:quick` passes1371 tests, with three existing SKIP and zero FAIL;
+TypeScript and ESLint pass (four existing unrelated warnings). `verify:full`
+passes4146 tests, three existing SKIP and zero FAIL, including baseline migration
+validation and the isolated-configuration Next.js production build. Project
+Guardian passes before/after the evidence update; inventory and diff checks pass.
+The final pushed SHA must also pass its normal GitHub Quality Gate and Guardian.
+The existing targeted SQL suites return1 PASS/2 SKIPPED because the local Docker
+daemon is unavailable; actual disposable PostgreSQL execution is NOT_RUN.
+No test SQL was sent to production. No SQL change is required by this fix.
+
+Draft565, its branch/worktree and2739/7584 correction remain unchanged. Its two
+existing focused suites pass169 tests. Serialized definitions of every other
+publication profile are identical to39d606. A non-mutating `git apply --check`
+of the complete code/test delta against565 succeeds; no patch/rebase/merge was
+performed. Its shared execution-ledger insertion must still be combined with
+Gladiator's entry when updating565 after a separately approved564 release.
+
+### Next release gate
+
+The owner must separately approve the final564 SHA and explicitly authorize
+the ordinary cron's four bounded classes above for the existing603 scope,
+including their exact freshness/history/control writes. E/K and aggregate price
+reviews remain non-executable. No manual workflow/apply,416-price decision,
+new identity, migration or release of565 follows from this preparation.
+Before that release, recheck main/head/CI, live ledger and active plans, cron
+timing, and that no other process has already released it. Require fresh natural
+capture, actual apply of the allowed partition, independent postflight, fresh
+idempotency, correct Review Queue publication and a later correlated watchdog.
+PRODUCTION RECOVERED remains NO until those live receipts exist.

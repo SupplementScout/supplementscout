@@ -1361,6 +1361,60 @@ test("Gladiator aggregate binding still rejects scope, identity, fingerprint, wr
   }
 });
 
+for (const reason of ["HARD_PRICE_ANOMALY", "CANONICAL_IDENTITY_CONFLICT"]) {
+  test(`Gladiator ${reason} reuses non-executable cards and preserves exact evidence`, t => {
+    const scope = require("../config/retailers/gladiator-nutrition-approved-offer-manifest.json");
+    const fixture = writeTenRepsFixture({ profileKey: "gladiator-nutrition", scopeRows: scope.rows,
+      reviewIds: scope.rows.slice(0, 2).map(row => String(row.offer_id)) });
+    t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
+    const reportPath = path.join(fixture.directory, "production-dry-run.json");
+    if (reason === "CANONICAL_IDENTITY_CONFLICT") addCanonicalReviewEvidence(fixture);
+    else {
+      const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
+      report.review_rows = report.review_rows.map((row, index) => ({ ...row, reason,
+        retailer_product_id: fixture.baselineRows[index].mapping_id, action: "BLOCK_SOURCE_ANOMALY",
+        changed_fields: { price: true, stock: false, url: false, blocked: true },
+        old_price: "10.00", new_price: "20.00", old_stock: true, new_stock: true }));
+      writeJson(reportPath, report);
+    }
+    const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main",
+      GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "123456", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit,
+      GITHUB_OUTPUT: path.join(fixture.directory, "github-output") };
+    const bound = bindSharedRetailerSource(fixture.directory, env, "gladiator-nutrition");
+    const options = { profile: "gladiator-nutrition", sourceArtifactDir: fixture.directory,
+      sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "999999", sourceCommitSha: env.GITHUB_SHA,
+      sourceArtifactDigest: "c".repeat(64), sourceContractSha256: bound.contract_sha256,
+      output: path.join(fixture.directory, "output.json") };
+    const source = verifyFitHouseSourceContract(options, new Date("2026-10-05T18:00:00Z"));
+    const baseline = publicationBaseline(fixture, "15");
+    const rows = buildFitHouseManifestRows(source, baseline, options);
+    const output = buildFitHouseOutput(source, baseline, rows, options, env);
+    assert.equal(source.contract.executable_plan_count, 601);
+    assert.equal(rows.length, 2);
+    for (const card of rows) {
+      assert.equal(card.review_kind, reason === "HARD_PRICE_ANOMALY" ? "POLICY_REVIEW" : "IDENTITY_CONFLICT");
+      assert.equal(card.operation_type, reason === "HARD_PRICE_ANOMALY" ? "MANUAL_REVIEW" : "MANUAL_REVIEW_IDENTITY");
+      assert.equal(card.proposed_state.catalogue_action, "KEEP_UNCHANGED");
+      assert.equal(card.proposed_state.review_only, true);
+      assert.equal(card.proposed_state.automatic_action, false);
+      assert.equal(card.source_price, null);
+      assert.equal(card.proposed_state.offer, undefined);
+      assert.equal(card.source_evidence.reason, reason);
+      assert.equal(profileFor("gladiator-nutrition").matchesActiveReview(card), true);
+    }
+    assert.equal(output.expected.catalogue_writes, 0);
+    assert.ok(output.request.operations.every(operation => !operation.execution_binding));
+    const repeated = buildFitHouseOutput(source, { ...baseline, activeRows: rows.map((row, index) => ({ ...row, id: String(index + 1) })) }, rows, options, env);
+    assert.equal(repeated.operations.CREATE || 0, 0);
+    if (reason === "CANONICAL_IDENTITY_CONFLICT") {
+      const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
+      report.review_rows[0].source_record_evidence.canonical_identity.variant_id = "999999";
+      writeJson(reportPath, report);
+      assert.throws(() => loadFitHouseSource(fixture.directory, "gladiator-nutrition"), /canonical review evidence is incomplete/);
+    }
+  });
+}
+
 test("H&B reuses the complete shared publication contract for 217 safe and two missing-source rows", () => {
   const scope = require("../config/retailers/holland-barrett-existing-offer-manifest.json");
   const fixture = writeTenRepsFixture({ profileKey: "holland-barrett", scopeRows: scope.rows, reviewIds: ["4661", "4678"] });

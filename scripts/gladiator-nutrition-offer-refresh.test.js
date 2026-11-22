@@ -2,6 +2,7 @@ const assert = require("node:assert/strict");
 const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
+const { Module } = require("node:module");
 const test = require("node:test");
 const { buildExistingOfferUpdatePlan } = require("./lib/retailer-offer-sync/existing-offer-plan");
 const { buildRowManifestStateRequests, readRowManifestState } = require("./lib/reviewed-catalogue-state");
@@ -79,6 +80,93 @@ function updatePlan(current, next) {
     sourceSnapshotFingerprint: "a".repeat(64),
   });
 }
+
+async function isolatedGladiatorRun(change) {
+  const reader = require("./lib/shopify-snapshot-reader");
+  const products = new Map();
+  const records = manifest.rows.map(row => {
+    const current = state({ price: "10.00", shipping: "6.99", total: "16.99" });
+    Object.assign(current.product, { id: row.canonical_product_id });
+    Object.assign(current.variant, { id: row.canonical_variant_id, product_id: row.canonical_product_id });
+    const direct = `${config.store_url}/products/test-${row.external_product_id}?variant=${row.external_variant_id}`;
+    Object.assign(current.mapping, { id: row.mapping_id, product_id: row.canonical_product_id,
+      product_variant_id: row.canonical_variant_id, external_product_id: row.external_product_id,
+      external_variant_id: row.external_variant_id, external_url: direct });
+    Object.assign(current.offer, { id: row.offer_id, product_id: row.canonical_product_id,
+      product_variant_id: row.canonical_variant_id, retailer_product_id: row.mapping_id,
+      url: `${direct}&sca_ref=TEST_ONLY` });
+    if (!products.has(row.external_product_id)) products.set(row.external_product_id,
+      { id: row.external_product_id, handle: `test-${row.external_product_id}`, variants: [] });
+    products.get(row.external_product_id).variants.push({ id: row.external_variant_id, price: "10.00", available: true });
+    return current;
+  });
+  for (let index = 0; index < 61; index++) products.set(`unmapped-${index}`, {
+    id: `900000${index}`, handle: `unmapped-${index}`,
+    variants: Array.from({ length: index === 60 ? 9 : 4 }, (_, n) => ({ id: `990000${index}000${n}`, price: "10.00", available: true })),
+  });
+  const snapshot = { store_origin: config.store_url, products: [...products.values()] };
+  change(records, snapshot.products.flatMap(product => product.variants));
+  const filename = path.join(ROOT, "scripts/fit-house-offer-refresh.js");
+  const fixtureModule = new Module(filename, module);
+  fixtureModule.filename = filename;
+  fixtureModule.paths = Module._nodeModulePaths(path.dirname(filename));
+  let captures = 0;
+  fixtureModule.require = function fixtureRequire(name) {
+    if (name === "pg") return { Client: class { constructor() { throw Error("Test must not access a database"); } } };
+    if (name === "@supabase/supabase-js") return { createClient() { throw Error("Test must not access Supabase"); } };
+    if (name === "./lib/shopify-snapshot-reader") return { ...reader, async readShopifySnapshot(options) {
+      captures++;
+      const captured = { ...snapshot, captured_at: options.capturedAt,
+        source_diagnostic: { pagination_completed: true, final_http_status: 200 } };
+      return { ...captured, ...reader.shopifySnapshotFingerprints(captured) };
+    } };
+    return Module.prototype.require.call(this, name);
+  };
+  fixtureModule._compile(fs.readFileSync(filename, "utf8"), filename);
+  const run = await fixtureModule.exports.buildRun("production", { records, historical_records: [] }, null, null, true);
+  return { run, records, captures };
+}
+
+test("Gladiator hard price isolation keeps ordinary price and stock plans without automatic price confirmation", async () => {
+  const { run, records, captures } = await isolatedGladiatorRun((_records, variants) => {
+    const byId = new Map(variants.map(row => [String(row.id), row]));
+    byId.get(manifest.rows[0].external_variant_id).price = "20.00";
+    byId.get(manifest.rows[1].external_variant_id).price = "10.10";
+    byId.get(manifest.rows[2].external_variant_id).available = false;
+  });
+  assert.equal(run.classification.quarantined_rows.length, 1);
+  assert.equal(run.classification.quarantined_rows[0].reason, "HARD_PRICE_ANOMALY");
+  assert.equal(run.automaticPriceConfirmation, null);
+  assert.equal(captures, 1);
+  const plans = run.artifacts.flatMap(artifact => artifact.rows);
+  assert.equal(plans.length, 602);
+  assert.ok(plans.every(row => row.offer_id !== String(records[0].offer.id)));
+  assert.equal(plans.find(row => row.offer_id === String(records[1].offer.id)).action, "UPDATE_PRICE");
+  assert.equal(plans.find(row => row.offer_id === String(records[2].offer.id)).action, "UPDATE_STOCK");
+  for (const artifact of run.artifacts) {
+    assert.equal(artifact.policy_fingerprint, engine.runtimePolicyFingerprint());
+    assert.equal(artifact.source_snapshot_fingerprint, run.snapshot.semantic_source_fingerprint);
+  }
+  assert.ok(plans.every(row => row.atomic_plan.offer.values.url === records.find(record => String(record.offer.id) === row.offer_id).offer.url));
+});
+
+test("Gladiator canonical conflict stays outside every executable child without rebinding identity", async () => {
+  const { canonicalIdentityConflict } = require("./lib/retailer-offer-sync/existing-offer-plan");
+  const { run, records } = await isolatedGladiatorRun(records => {
+    records[0].variant.is_default = true;
+    records[0].canonical_identity_conflict = canonicalIdentityConflict(records[0],
+      [{ id: "999999", product_id: records[0].product.id, is_active: true, is_default: false }]);
+  });
+  const held = run.classification.quarantined_rows;
+  assert.equal(held.length, 1);
+  assert.equal(held[0].reason, "CANONICAL_IDENTITY_CONFLICT");
+  assert.equal(held[0].source_record_evidence.canonical_identity.product_id, String(records[0].mapping.product_id));
+  const plans = run.artifacts.flatMap(artifact => artifact.rows);
+  assert.equal(plans.length, 602);
+  assert.ok(plans.every(row => row.offer_id !== String(records[0].offer.id)
+    && row.action === "VERIFY_NO_CHANGE" && row.atomic_plan.retailer_product.action === "noop"));
+  assert.equal(run.automaticPriceConfirmation, null);
+});
 
 test("Gladiator adopts the shared row-manifest profile with exactly 603 existing identities", () => {
   const manifestFile = path.join(ROOT, config.manifest_path);
