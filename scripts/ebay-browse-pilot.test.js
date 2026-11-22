@@ -845,6 +845,7 @@ test("eBay per-row preflight isolates identity and commercial review without pol
   const conflictId = "2582";
   const commercialId = "2549";
   const hardPriceId = "2560";
+  const shippingId = "2739"; // Run 45028324611: delivery 2.99 -> 2.50, price 21.95 -> 21.90.
   const testOut = fs.mkdtempSync(path.join(os.tmpdir(), "ebay-offer-refresh-test-"));
   t.after(() => fs.rmSync(testOut, { recursive: true, force: true }));
   const sharedReport = path.join(process.cwd(), "tmp", "ebay-offer-refresh", "production-dry-run.json");
@@ -873,13 +874,15 @@ test("eBay per-row preflight isolates identity and commercial review without pol
   const hardPriceEvaluation = evaluations.get(hardPriceId);
   hardPriceEvaluation.item_price = { value: 129, currency: "GBP" };
   hardPriceEvaluation.delivered_price = { value: 129 + hardPriceEvaluation.uk_shipping.value, currency: "GBP" };
+  Object.assign(evaluations.get(shippingId), { item_price: { value: 21.90, currency: "GBP" },
+    uk_shipping: { value: 2.50, currency: "GBP" }, delivered_price: { value: 24.40, currency: "GBP" } });
   const plans = new Map();
   const report = await runRefresh({ target: "production", mode: "dry-run" }, {
     config: {}, token: "test-token", evaluations, outDir: testOut, now: new Date("2026-10-01T12:00:01.000Z"),
     runImportRows: async ([row]) => {
       const scope = REFRESH_SCOPES.find((candidate) => candidate.external_variant_id === row.external_variant_id);
       if (scope.offer_id === conflictId) return { report: { approvedRows: [] }, blockedRows: [{ block_reason: "conflicting variant evidence: retailer product mapping" }] };
-      if (scope.offer_id === commercialId || scope.offer_id === hardPriceId) {
+      if ([commercialId, hardPriceId, shippingId].includes(scope.offer_id)) {
         const beforePrice = scope.offer_id === hardPriceId ? "149.00" : scope.price;
         const mappingValues = {
           external_product_id: scope.external_product_id, external_variant_id: scope.external_variant_id, external_sku: null,
@@ -924,15 +927,23 @@ test("eBay per-row preflight isolates identity and commercial review without pol
   });
   assert.equal(report.result, "PASS_WITH_REVIEW");
   assert.equal(report.approved_mapping_count, 237);
-  assert.equal(report.executable_plan_count, 234);
+  assert.equal(report.executable_plan_count, 233);
   assert.equal(report.executed_plan_count, 0);
-  assert.equal(report.review_row_count, 3);
+  assert.equal(report.review_row_count, 4);
   assert.equal(report.blocked_row_count, 0);
   assert.equal(report.identity_conflict_count, 1);
   assert.equal(report.commercial_change_count, 2);
-  assert.equal(report.classification.VERIFY_NO_CHANGE, 234);
+  assert.equal(report.classification.VERIFY_NO_CHANGE, 233);
   assert.equal(report.classification.UPDATE_PRICE, 2);
-  assert.deepEqual(report.review_rows.map((row) => row.offer_id), [commercialId, hardPriceId, conflictId]);
+  assert.deepEqual(report.review_rows.map((row) => row.offer_id), [commercialId, hardPriceId, conflictId, shippingId]);
+  const shippingReview = report.review_rows.find(row => row.offer_id === shippingId);
+  assert.equal(shippingReview.review_type, "POLICY_REVIEW");
+  assert.equal(shippingReview.action, "MANUAL_REVIEW");
+  assert.equal(shippingReview.reason, "SHIPPING_POLICY_DRIFT");
+  assert.equal(Number(shippingReview.source_record_evidence.expected_offer.shipping_cost), 2.99);
+  assert.equal(Number(shippingReview.source_record_evidence.observed_offer.shipping_cost), 2.50);
+  assert.ok(report.semantic_source_rows.find(row => row.offer_id === shippingId).review_reasons.includes("SHIPPING_POLICY_DRIFT"));
+  assert.equal(report.execution_offer_ids.includes(shippingId), false);
   assert.equal(report.execution_offer_ids.includes(commercialId), false);
   assert.equal(report.execution_offer_ids.includes(hardPriceId), false);
   assert.equal(report.execution_offer_ids.includes("2558"), true);

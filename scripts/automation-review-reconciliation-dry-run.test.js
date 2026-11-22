@@ -373,6 +373,39 @@ test("matching fingerprints become REFRESH and missing source baseline stays iso
   assert.equal(commercialRefresh.row.execution_binding.source_url, commercialRefresh.row.execution_binding.proposed_state.offer.url);
 });
 
+test("eBay delivery drift becomes a non-executable policy card instead of an invalid commercial REFRESH", t => {
+  const fixture = writeFixture();
+  t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
+  const options = sourceOptions(fixture.directory);
+  const source = { ...verifySourceArtifact(options), options };
+  const review = source.report.review_rows.find(row => row.offer_id === "2554");
+  const semantic = source.report.semantic_source_rows.find(row => row.offer_id === review.offer_id);
+  const evidence = { expected_offer: { price: "21.95", shipping_cost: "2.99", total_price: "24.94" },
+    observed_offer: { price: "21.90", shipping_cost: "2.50", total_price: "24.40" } };
+  Object.assign(review, { action: "MANUAL_REVIEW", review_type: "POLICY_REVIEW", reason: "SHIPPING_POLICY_DRIFT", source_record_evidence: evidence });
+  semantic.review_reasons = [...semantic.review_reasons, review.reason];
+  source.report.source_row_fingerprints.find(row => row.offer_id === review.offer_id).semantic_fingerprint = sha256(semantic);
+  const rows = buildManifestRows(source, activeRows(), activeRows());
+  const card = rows.find(row => row.offer_id === review.offer_id);
+  assert.equal(card.review_kind, "POLICY_REVIEW");
+  assert.equal(card.operation_type, "MANUAL_REVIEW");
+  assert.equal(card.reason_codes, "POLICY_REVIEW");
+  assert.deepEqual(card.proposed_state, { catalogue_action: "KEEP_UNCHANGED", review_only: true, automatic_action: false });
+  assert.deepEqual(card.source_evidence.source_record_check, evidence);
+  assert.notEqual(card.source_row_fingerprint, activeRows()[0].source_row_fingerprint);
+  const initial = buildOutput(source, baseline(activeRows()), rows, options.output, {});
+  assert.equal(initial.expected.catalogue_writes, 0);
+  assert.ok(initial.request.operations.some(op => op.op === "CREATE" && op.row.review_kind === "POLICY_REVIEW"));
+  assert.ok(initial.request.operations.some(op => op.op === "SUPERSEDE" && op.expected.review_id === "548"));
+  assert.ok(initial.request.operations.every(op => !op.row?.execution_binding));
+  const matching = rows.map((row, index) => ({ ...row, id: String(9000 + index) }));
+  const repeated = buildOutput(source, baseline(matching), rows, options.output, {});
+  assert.equal(repeated.operations.CREATE, 0);
+  assert.equal(repeated.operations.SUPERSEDE, 0);
+  assert.ok(repeated.request.operations.every(op => !op.row.execution_binding));
+  assert.throws(() => operationForReview({ ...review, reason: "UNKNOWN_POLICY" }, semantic), /Unsupported eBay policy/);
+});
+
 test("matching approved evidence stays immutable instead of becoming REFRESH", () => {
   const fixture = writeFixture();
   const options = sourceOptions(fixture.directory);

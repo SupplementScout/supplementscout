@@ -1,5 +1,15 @@
 # Retailer Automation Consolidation Execution Plan
 
+**22 November 2026 evening Gladiator/eBay recovery — READ ONLY / Draft only:**
+main unchangedc6955304, CURRENT270/pending0. Existing Draft564 remains unchanged;
+fresh Gladiator sourceHTTP200/161/881 still has416 held prices and603 stale
+offers. eBay natural45028324611 refreshed156 with postflight/idempotency PASS,
+but publication fails on one shipping delta mislabeled UPDATE_PRICE. SELECT of
+the actual live guard isolates review7584; minimal existing-policy quarantine
+is prepared separately, without SQL/guard changes. Real queue loader, pagination,
+history, REVIEW_ONLY and counters pass. Production recovery remains BLOCKED;
+no writes/dispatch/release. [Evidence and owner-controlled plan](GLADIATOR-EBAY-RECOVERY-2026-11-22.md).
+
 **20 November 2026 PR560 controlled release ? SQL APPLIED / REPOSITORY CLOSED:**
 exact approved counter migration has independently verified270/ea11b693, same
 reader privileges and unchanged business/queue/control data. Actual applicator

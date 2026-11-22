@@ -556,4 +556,4 @@ function profileForRetailerId(value) {
   return Object.values(PROFILES).find(profile => profile.retailer.id === String(value)) || null;
 }
 
-module.exports = { PROFILES, profileFor, profileForRetailerId };
+module.exports = { PROFILES, SOURCE_REVIEW_POLICIES, profileFor, profileForRetailerId };
