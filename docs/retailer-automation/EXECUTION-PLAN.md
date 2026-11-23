@@ -1,5 +1,25 @@
 # Retailer Automation Consolidation Execution Plan
 
+**22 November 2026 Gladiator minimal E/K closeout — implementation prepared,
+production NOT RECOVERED:** the owner authorized only existing Draft564 code,
+tests and local verification. The existing two-capture opt-out keeps hard price
+anomalies outside executable plans; two existing read-only publication policies
+cover HARD_PRICE_ANOMALY and CANONICAL_IDENTITY_CONFLICT. Numeric guardrails,
+shared runtime, SQL, cron, manifest and Draft565 remain unchanged. The 187/416
+aggregate regression still passes. No release, approval/apply, publication or
+production write is authorized; normal-cron authority needs a separate decision.
+[Latest implementation, test evidence and exact cron boundary](GLADIATOR-REFRESH-RECOVERY-2026-11-22.md#owner-authorized-minimal-ek-closeout).
+
+**22 November 2026 Gladiator refresh recovery — local correction / production
+BLOCKED:** READ ONLY confirmed CURRENT270/pending0 and 603 stale approved offers;
+last complete natural apply was 19 November (603). Run44923097560 correctly
+isolated 416 MASS_PRICE rows but its shared publication profile expected only
+187 classifier rows and failed before apply. The minimal existing-profile fix
+reuses shared read-only aggregate policies; incident regression and archived
+artifact replay pass locally. Today's neutral Shopify read returned HTTP429;
+no fresh-price/live-recovery claim, production write, publication or release.
+[Recovery evidence and approval-bound next step](GLADIATOR-REFRESH-RECOVERY-2026-11-22.md).
+
 **20 November 2026 PR560 controlled release ? SQL APPLIED / REPOSITORY CLOSED:**
 exact approved counter migration has independently verified270/ea11b693, same
 reader privileges and unchanged business/queue/control data. Actual applicator

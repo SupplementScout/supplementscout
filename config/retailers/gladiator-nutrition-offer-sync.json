@@ -30,6 +30,7 @@
   },
   "guardrails": {
     "preserve_existing_urls": true,
+    "allow_two_capture_price_confirmation": false,
     "allowed_existing_offer_hosts": ["gladiatornutrition.co.uk"],
     "required_matched_offers": 603,
     "source_freshness_hours": 24,
