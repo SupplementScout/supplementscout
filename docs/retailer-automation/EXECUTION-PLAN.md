@@ -1,5 +1,22 @@
 # Retailer Automation Consolidation Execution Plan
 
+**23 November 2026 eBay Draft565 safe synchronization — local verification PASS;
+separate release approval required:** existing565 is synchronized with released
+main ed37821e without rewriting its original25f70336 commit. Only the execution-
+ledger insertion conflicted; both dated histories are preserved. The original
+seven-file eBay patch is unchanged, all shared profile definitions equal main,
+and Gladiator603/MASS_PRICE/MASS_CHANGE/E/K plus10Reps owner-only publication
+remain intact. Historical45028324611/2739/7584 replay now produces non-executable
+SHIPPING_POLICY_DRIFT policy review; normal price/stock/combined contracts pass.
+Focused274 and full4147 PASS (3 existing SKIP); native PostgreSQL NOT_RUN because
+Docker is unavailable. READ ONLY confirms237 mappings/offers, CURRENT270/pending0
+and no active eBay execution; five known external-ID conflicts remain untouched.
+No SQL/config/cron/source-reader/publisher/executor changes, production writes,
+dispatch, publication or release. Final head-bound CI belongs in Draft565.
+Gladiator review-only45155656444 is independently PASS with416 published cards;
+its production apply remains PENDING_NATURAL_RUN. eBay production NOT_RECOVERED.
+[Sync, regression and owner-controlled next step](GLADIATOR-EBAY-RECOVERY-2026-11-22.md#pr565-safe-sync-and-release-readiness).
+
 **22 November 2026 evening Gladiator/eBay recovery — READ ONLY / Draft only:**
 main unchangedc6955304, CURRENT270/pending0. Existing Draft564 remains unchanged;
 fresh Gladiator sourceHTTP200/161/881 still has416 held prices and603 stale
@@ -9,6 +26,26 @@ the actual live guard isolates review7584; minimal existing-policy quarantine
 is prepared separately, without SQL/guard changes. Real queue loader, pagination,
 history, REVIEW_ONLY and counters pass. Production recovery remains BLOCKED;
 no writes/dispatch/release. [Evidence and owner-controlled plan](GLADIATOR-EBAY-RECOVERY-2026-11-22.md).
+
+**22 November 2026 Gladiator minimal E/K closeout — implementation prepared,
+production NOT RECOVERED:** the owner authorized only existing Draft564 code,
+tests and local verification. The existing two-capture opt-out keeps hard price
+anomalies outside executable plans; two existing read-only publication policies
+cover HARD_PRICE_ANOMALY and CANONICAL_IDENTITY_CONFLICT. Numeric guardrails,
+shared runtime, SQL, cron, manifest and Draft565 remain unchanged. The 187/416
+aggregate regression still passes. No release, approval/apply, publication or
+production write is authorized; normal-cron authority needs a separate decision.
+[Latest implementation, test evidence and exact cron boundary](GLADIATOR-REFRESH-RECOVERY-2026-11-22.md#owner-authorized-minimal-ek-closeout).
+
+**22 November 2026 Gladiator refresh recovery — local correction / production
+BLOCKED:** READ ONLY confirmed CURRENT270/pending0 and 603 stale approved offers;
+last complete natural apply was 19 November (603). Run44923097560 correctly
+isolated 416 MASS_PRICE rows but its shared publication profile expected only
+187 classifier rows and failed before apply. The minimal existing-profile fix
+reuses shared read-only aggregate policies; incident regression and archived
+artifact replay pass locally. Today's neutral Shopify read returned HTTP429;
+no fresh-price/live-recovery claim, production write, publication or release.
+[Recovery evidence and approval-bound next step](GLADIATOR-REFRESH-RECOVERY-2026-11-22.md).
 
 **20 November 2026 PR560 controlled release ? SQL APPLIED / REPOSITORY CLOSED:**
 exact approved counter migration has independently verified270/ea11b693, same

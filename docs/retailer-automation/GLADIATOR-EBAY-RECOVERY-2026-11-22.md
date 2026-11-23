@@ -1,6 +1,13 @@
 # Gladiator and eBay reliability recovery — 22 November 2026
 
-Boundary: read-only production audit and minimal Draft code correction only.
+Latest checkpoint, 23 November: PR565 is synchronized with released main
+`ed37821ef6bd69d078e29c95cb255f55b0d165ef`; the original eBay correction is
+preserved without additional runtime changes. Local gates and production
+READ ONLY evidence are recorded [below](#pr565-safe-sync-and-release-readiness).
+Final head-bound CI results belong in the existing Draft PR description.
+No release, production apply or publication is authorized by this preparation.
+
+Historical boundary, 22 November: read-only production audit and minimal Draft code correction only.
 Main remains `c6955304074dc96ae3dd37d7c2759cb1861f1286`. No production writes,
 publication, approval/apply, migration, dispatch, schedule change, merge or
 production deployment was performed. The original dirty checkout is preserved.
@@ -223,3 +230,110 @@ threshold, policy, capability or guard is changed.
 Full two-retailer closeout / First100 sprint readiness is **NO-GO** until this
 limited recovery is verified. Audit and Draft readiness do not mean production
 has recovered. No further architecture project is proposed.
+
+## PR565 safe sync and release readiness
+
+23 November 2026. Owner scope: update only the existing Draft565 branch after
+PR564 release, retain both fixes and their histories, verify release readiness.
+No production workflow, source API capture, publication, approval, apply,
+migration, production deployment or PR merge was performed.
+
+### Exact synchronization and preserved architecture
+
+Remote main was rechecked as `ed37821ef6bd69d078e29c95cb255f55b0d165ef` and Draft565
+as `25f70336a048c5fd708da53268dc130c7b5d5154`. Main was merged into that existing
+branch without rebasing or rewriting its original commit. The only content
+conflict was the two independent insertions at the top of EXECUTION-PLAN.md;
+both dated histories were retained. The shared profiles and reconciliation
+tests merged without a code conflict. The original dirty checkout and the
+Gladiator verification worktree were not edited.
+
+The diff against new main still contains exactly seven files: three existing
+runtime modules, two existing test files and two documentation files. Added
+and removed code/test lines are identical to the original565 correction;
+only their base now includes released564. There is no new runtime change.
+
+All nine shared publication profile definitions, including their function
+bodies, were compared with main after normalizing Windows line endings:
+identical. The shared profile module only adds the existing policy export.
+Gladiator retains full603 scope, MASS_PRICE/MASS_CHANGE isolation, and the
+HARD_PRICE_ANOMALY/CANONICAL_IDENTITY_CONFLICT policies. 10Reps retains
+OWNER_AUTHORIZED_ARTIFACT_ONLY. Fit House, H&B, Discount, Whey Okay and Jon's
+profiles are unchanged; Simply's separate existing runtime is untouched.
+All config, SQL, app, workflows, dependencies, shared engine, publisher RPC,
+consumer, eBay worker/source reader, control ledger and sealed-artifact paths
+are unchanged relative to main. No new thresholds, cron or product exception.
+
+Earlier eBay fixes were independently checked as merged ancestors of main:
+#480 `68c528ae` (combined price/stock), #482 `0d896076` (pending binding),
+#487 `fd323ca8` (execution-bound URL), #488 `190293ac` (publication evidence),
+#490 `bed7a141` (decimal normalization). They are not reimplemented.
+READ ONLY confirms the existing pending-binding migration
+`20261105100000_refresh_pending_review_execution_binding.sql` is applied.
+CURRENT270/pending=[] and fingerprint `ea11b69343c2100ecf38078a6920eb3b7478fc6ee4633bb65fc7657c39c2ae2a`
+remain authoritative; no SQL change is proposed.
+
+### Incident regression and production readback
+
+The exact archived artifact from [run45028324611](https://github.com/SupplementScout/supplementscout/actions/runs/45028324611)
+was downloaded and replayed offline through both actual preparers. For offer2739,
+review7584, item21.95 to21.90GBP and shipping2.99 to2.50GBP, current main returns
+an UPDATE_PRICE candidate; the unchanged565 correction returns POLICY_REVIEW /
+SHIPPING_POLICY_DRIFT / MANUAL_REVIEW without an approved executable plan.
+Canonical identity and original affiliate parameters are preserved. The archive
+is historical, expired evidence, not a new capture or authorization to retry.
+
+Existing reconciliation regression confirms KEEP_UNCHANGED, no execution
+binding, safe supersession, fingerprint separation, repeated-publication
+idempotency and unknown-policy rejection. Existing price-only, stock-only and
+combined price/stock tests still pass with the strict shipping/identity guards.
+The correction is generic to a validated delivery delta; offer2739 appears only
+as incident evidence/test data, never as a runtime exception.
+
+Fresh READ ONLY readback at10:57:10UTC confirms all237 eBay mappings/offers and
+canonical product/variant bindings, with all237 affiliate campaign URLs retained.
+Freshness at that timestamp:156 under24h,159 under48h,78 over48h. The five known
+external-identity discrepancies2637/2638/2681/2708/2770 are still unresolved and
+remain outside automatic apply; no identity was corrected. Review7584 is PENDING
+with no owner decision and an expired22November13:56:32UTC proof. All166 eBay
+execution-request records are historical; zero are active. No active eBay parent
+plan was found. No source/API traffic or affiliate clicks were generated.
+
+### Verification and remaining release gate
+
+- Eight focused existing suites:274 PASS,0 FAIL, including the237-row eBay
+  incident, unchanged price/stock contracts, Gladiator603/416 review-only,
+  publisher/reconciliation, postflight and durable-artifact boundary.
+- verify:quick:1371 PASS,3 pre-existing SKIP,0 FAIL.
+- verify:full:4147 PASS,3 pre-existing SKIP,0 FAIL; includes TypeScript, ESLint,
+  baseline migrations and isolated-configuration Next.js build.
+- The separately requested typecheck/lint/build and inventory results, final
+  independent database comparison, head SHA and CI run IDs are retained in the
+  local audit evidence and final Draft PR description. Four existing unrelated
+  lint warnings remain. No test was weakened or removed.
+- The371-file inventory and its existing seal are unchanged. Native isolated
+  PostgreSQL execution is NOT_RUN: the existing Docker Desktop Linux engine
+  is unavailable. Static SQL contract checks are not called real SQL writes.
+  No production credentials or data are passed to any test/build process.
+- Project Guardian passed before documentation changes; its final result and
+  git diff --check are recorded with the final readiness evidence.
+
+Existing local evidence directory: `tmp/ebay-565-safe-sync-20261123/`, containing
+`scope-parity.json`, `profile-parity.json`, `incident-replay.json`, private
+READ ONLY snapshots/comparison, focused/gate logs, inventory, CI metadata and
+the final readiness report. No raw database snapshot or credential is committed.
+
+Gladiator's separately authorized [review-only run45155656444](https://github.com/SupplementScout/supplementscout/actions/runs/45155656444)
+is SUCCESS on released main:187 VERIFY_NO_CHANGE,416 actual REVIEW_ONLY cards,
+zero business writes and zero offer applies. Its production apply is still
+PENDING_NATURAL_RUN, nominal24November08:17UTC, followed by postflight,
+idempotency and a correlated watchdog. This sync does not repeat that test.
+
+After final head-bound Quality Gate and Project Guardian PASS, seek separate
+owner approval for controlled release of exact565 SHA. Recheck main/diff/CI,
+production ledger, active controls/decisions and schedule write boundary first.
+Then require the existing fresh natural eBay source/refresh/publication path,
+independent postflight, idempotency, queue visibility and later watchdog.
+Never replay expired review7584 or the failed archived publication request.
+Shipping/identity changes remain review-only and require their own owner scope.
+PR565 stays DRAFT; eBay production is NOT_RECOVERED. No new system is proposed.
