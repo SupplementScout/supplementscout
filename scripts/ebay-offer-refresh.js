@@ -654,6 +654,14 @@ async function prepareScope(scope, evaluation, mode, dependencies, stamp, approv
   const artifactPath = mode === "prepare-apply" ? pendingArtifact(scope, outDir) : path.join(outDir, `artifact-${scope.offer_id}-${stamp}.json`);
   const written = (dependencies.writeDryRunArtifact || writeDryRunArtifact)(artifactRows, result, { artifactPath, sourceFileName: `ebay-browse-live-${scope.offer_id}.json`, environmentMarker: "production" });
   const approved = validatePlan({ ...scope, affiliate_url: row.affiliate_url }, { artifact: written.artifact, artifactSha256: written.artifactSha256 });
+  const plan = approved.entry.resolved_plan;
+  if (Number(plan.expected_state.offer.shipping_cost) !== Number(plan.offer.values.shipping_cost)) {
+    const reason = "SHIPPING_POLICY_DRIFT";
+    return { review: { offer_id: scope.offer_id, item_id: evaluation.item_id, action: "MANUAL_REVIEW",
+      review_type: "POLICY_REVIEW", reason, source_record_evidence: {
+        expected_offer: plan.expected_state.offer, observed_offer: plan.offer.values,
+      } }, evaluation: { ...evaluation, review_reasons: [...new Set([...evaluation.review_reasons, reason])] } };
+  }
   return { approved, evaluation };
 }
 
@@ -753,11 +761,14 @@ async function run(options, dependencies = {}) {
   const prepared = [];
   for (let index = 0; index < SCOPES.length; index += 1) {
     if (!evaluations[index].continuity.eligible) continue;
-    prepared.push(await prepareScope(SCOPES[index], evaluations[index], options.mode, dependencies, stamp));
+    const preparedScope = await prepareScope(SCOPES[index], evaluations[index], options.mode, dependencies, stamp);
+    prepared.push(preparedScope);
+    if (preparedScope.evaluation) evaluations[index] = preparedScope.evaluation;
   }
   const { globalBlocked, sourceFailureReview } = partitionSourceFailures(unsafeRows);
   const identityReview = unsafeRows.filter((row) => row.source_error !== "SOURCE_READ_FAILED").map((row) => ({ ...row, review_type: "IDENTITY_CONFLICT" }));
-  const importerIdentityReview = prepared.flatMap(({ review }) => review ? [review] : []);
+  const importerIdentityReview = prepared.flatMap(({ review }) => review && review.review_type !== "POLICY_REVIEW" ? [review] : []);
+  const policyReview = prepared.flatMap(({ review }) => review?.review_type === "POLICY_REVIEW" ? [review] : []);
   const preparedRows = prepared.filter(({ approved }) => approved).map(({ approved }) => {
     const plan = approved.entry.resolved_plan;
     return { offer_id: String(plan.offer.id), action: actionForPlan(plan), approved, hard_price_anomaly: approved.hardPriceAnomaly, price_change: approved.priceChange };
@@ -769,7 +780,7 @@ async function run(options, dependencies = {}) {
     review_type: "COMMERCIAL_CHANGE",
     ...(row.hard_price_anomaly && row.action === "UPDATE_PRICE" ? { reason: "HARD_PRICE_ANOMALY", price_change: row.price_change } : {}),
   }));
-  const reviewRows = [...sourceFailureReview, ...identityReview, ...importerIdentityReview, ...commercialReview].sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
+  const reviewRows = [...sourceFailureReview, ...identityReview, ...importerIdentityReview, ...policyReview, ...commercialReview].sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
   const classification = preparedRows.reduce((counts, row) => ({ ...counts, [row.action]: (counts[row.action] || 0) + 1 }), {});
   const semanticSourceRows = buildSemanticSourceRows(SCOPES, evaluations);
   const semanticPlanRows = buildSemanticPlanRows(preparedRows, reviewRows, globalBlocked);

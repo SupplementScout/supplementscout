@@ -11,6 +11,7 @@ const {
 const { bindDurableArtifactContract } = require("./lib/sealed-artifacts");
 const { normalizeDecimalString } = require("./lib/canonical-json");
 const { stableAffiliateUrl } = require("./lib/ebay-artifact-bound-contract");
+const { SOURCE_REVIEW_POLICIES } = require("./lib/automation-review-publication-profiles");
 const {
   extractZip,
   githubJson,
@@ -213,6 +214,12 @@ function sourceFingerprintByOffer(report, scope) {
 }
 
 function operationForReview(review, semantic) {
+  if (review.review_type === "POLICY_REVIEW") {
+    if (review.reason !== "SHIPPING_POLICY_DRIFT") fail("Unsupported eBay policy review");
+    const policy = SOURCE_REVIEW_POLICIES[review.reason];
+    return { review_kind: policy.reviewKind, operation_type: policy.operation, reason_codes: policy.reasonCode,
+      confidence: "LOW", suggested_action: "MANUAL_REVIEW" };
+  }
   if (review.action === "UPDATE_PRICE") return { review_kind: "COMMERCIAL_CHANGE", operation_type: "UPDATE_PRICE", reason_codes: review.reason === "HARD_PRICE_ANOMALY" ? "HARD_PRICE_ANOMALY" : "PRICE_CHANGE", confidence: "MEDIUM", suggested_action: "MANUAL_REVIEW" };
   if (review.action === "UPDATE_STOCK") return { review_kind: "COMMERCIAL_CHANGE", operation_type: "UPDATE_STOCK", reason_codes: "STOCK_CHANGE", confidence: "MEDIUM", suggested_action: "MANUAL_REVIEW" };
   if (review.action === "UPDATE_PRICE_AND_STOCK") return { review_kind: "COMMERCIAL_CHANGE", operation_type: "UPDATE_PRICE_AND_STOCK", reason_codes: "PRICE_AND_STOCK_CHANGE", confidence: "MEDIUM", suggested_action: "MANUAL_REVIEW" };
@@ -222,6 +229,7 @@ function operationForReview(review, semantic) {
 }
 
 function proposedStateForReview(review, artifact) {
+  if (review.review_type === "POLICY_REVIEW") return { catalogue_action: "KEEP_UNCHANGED", review_only: true, automatic_action: false };
   if (!["UPDATE_PRICE", "UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"].includes(review.action)) return {};
   const plan = artifact?.plans?.[0]?.resolved_plan;
   const values = plan?.offer?.values;
@@ -384,6 +392,7 @@ function buildManifestRows(source, activeRows, currentStateRows = []) {
         source_error: semantic.source_error || review.source_error || null,
         returned_gtin: semantic.returned_gtin || review.returned_gtin || null,
         item_id: semantic.returned_item_id || review.item_id || null,
+        ...(review.source_record_evidence ? { source_record_check: review.source_record_evidence } : {}),
       },
       source_captured_at: source.report.captured_at || source.contract.created_at,
       expires_at: source.contract.expires_at,
