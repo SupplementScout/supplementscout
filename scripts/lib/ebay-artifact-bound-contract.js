@@ -1,3 +1,4 @@
+const { MEMBERSHIP, bindMembership, assertArtifactMembership, assertMembershipRows } = require("./ebay-membership");
 const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -85,6 +86,7 @@ function inventoryMappingRows(rows) {
 }
 
 function bindSemanticEvidence(report, sourceRows, planRows) {
+  if (report.membership_version != null || report.membership_fingerprint != null) assertArtifactMembership(report);
   const rows = [...sourceRows].sort((a, b) => Number(a.offer_id) - Number(b.offer_id));
   const executableIds = sortedStrings(report.execution_offer_ids);
   const reviewIds = sortedStrings(report.review_rows.map((row) => row.offer_id));
@@ -98,7 +100,7 @@ function bindSemanticEvidence(report, sourceRows, planRows) {
   const executableSourceFingerprint = canonicalHash(executableRows);
   const reviewScopeFingerprint = canonicalHash(reviewRows);
   return {
-    ...report,
+    ...bindMembership(report),
     source_fingerprint: fullCaptureFingerprint,
     full_capture_fingerprint: fullCaptureFingerprint,
     executable_source_fingerprint: executableSourceFingerprint,
@@ -126,6 +128,7 @@ function writeDryRunContract(directory, report, env = process.env, now = new Dat
   const inventory = inventoryJsonFiles(directory);
   invariant(inventory.some((entry) => entry.path === REPORT_FILE), "Canonical report is absent from artifact inventory");
   const manifest = {
+    ...bindMembership(),
     schema_version: 2, kind: KIND, repository: REPOSITORY, workflow: WORKFLOW,
     run_id: String(env.GITHUB_RUN_ID), run_attempt: String(env.GITHUB_RUN_ATTEMPT || "1"), commit_sha: env.GITHUB_SHA,
     created_at: now.toISOString(), expires_at: new Date(now.getTime() + MAX_AGE_MS).toISOString(),
@@ -163,11 +166,14 @@ function loadAndVerifyContract(directory, approved, now = new Date()) {
   invariant(canonicalJson(inventory) === canonicalJson(manifest.files), "Approved artifact file set or content changed");
   invariant(canonicalHash(inventory) === manifest.artifact_content_sha256, "Approved artifact content SHA-256 mismatch");
   invariant(report.commit_sha === approved.commitSha && report.full_capture_fingerprint === approved.fullCaptureFingerprint && report.executable_source_fingerprint === approved.executableSourceFingerprint && report.review_scope_fingerprint === approved.reviewScopeFingerprint && report.plan_fingerprint === approved.planFingerprint, "Approved report correlation mismatch");
-  invariant(["PASS", "PASS_WITH_REVIEW"].includes(report.result) && report.mode === "dry-run" && report.approved_mapping_count === 237 && report.executable_plan_count > 0 && report.review_row_count + report.executable_plan_count === 237 && report.blocked_row_count === 0 && report.executed_plan_count === 0, "Approved eBay dry-run scope mismatch");
-  const exactScope = Array.from({ length: 237 }, (_, index) => String(2539 + index));
+  invariant(["PASS", "PASS_WITH_REVIEW"].includes(report.result) && report.mode === "dry-run" && report.approved_mapping_count === MEMBERSHIP.count && report.executable_plan_count > 0 && report.review_row_count + report.executable_plan_count === MEMBERSHIP.count && report.blocked_row_count === 0 && report.executed_plan_count === 0, "Approved eBay dry-run scope mismatch");
+  const exactScope = MEMBERSHIP.offerIds;
+  assertArtifactMembership(manifest);
+  assertArtifactMembership(report);
+  if (report.membership_version != null) assertMembershipRows(report.semantic_source_rows);
   const executableIds = sortedStrings(report.execution_offer_ids), reviewIds = sortedStrings(report.review_rows.map((row) => row.offer_id));
   invariant(canonicalJson(sortedStrings([...executableIds, ...reviewIds])) === canonicalJson(exactScope) && !executableIds.includes("2686"), "Approved eBay offer partition mismatch");
-  invariant(report.semantic_source_rows.length === 237 && canonicalJson(sortedStrings(report.semantic_source_rows.map((row) => row.offer_id))) === canonicalJson(exactScope) && report.semantic_plan_rows.executable.length === report.executable_plan_count && report.semantic_plan_rows.blocked.length === 0 && report.semantic_plan_rows.executable.every((row) => row.operation_type === "VERIFY_NO_CHANGE") && canonicalJson(sortedStrings(report.semantic_plan_rows.executable.map((row) => row.offer_id))) === canonicalJson(executableIds), "Approved semantic plan scope mismatch");
+  invariant(report.semantic_source_rows.length === MEMBERSHIP.count && canonicalJson(sortedStrings(report.semantic_source_rows.map((row) => row.offer_id))) === canonicalJson(exactScope) && report.semantic_plan_rows.executable.length === report.executable_plan_count && report.semantic_plan_rows.blocked.length === 0 && report.semantic_plan_rows.executable.every((row) => row.operation_type === "VERIFY_NO_CHANGE") && canonicalJson(sortedStrings(report.semantic_plan_rows.executable.map((row) => row.offer_id))) === canonicalJson(executableIds), "Approved semantic plan scope mismatch");
   const rebound = bindSemanticEvidence({ ...report }, report.semantic_source_rows, report.semantic_plan_rows);
   invariant(rebound.full_capture_fingerprint === approved.fullCaptureFingerprint && rebound.executable_source_fingerprint === approved.executableSourceFingerprint && rebound.review_scope_fingerprint === approved.reviewScopeFingerprint && rebound.plan_fingerprint === approved.planFingerprint, "Approved semantic evidence fingerprint mismatch");
   invariant(manifest.report_sha256 === fileSha256(reportPath) && manifest.full_capture_fingerprint === report.full_capture_fingerprint && manifest.executable_source_fingerprint === report.executable_source_fingerprint && manifest.review_scope_fingerprint === report.review_scope_fingerprint && manifest.plan_fingerprint === report.plan_fingerprint && canonicalJson(manifest.executable_offer_ids) === canonicalJson(executableIds) && canonicalJson(manifest.review_offer_ids) === canonicalJson(reviewIds) && canonicalJson(manifest.source_row_fingerprints) === canonicalJson(rebound.source_row_fingerprints) && canonicalJson(manifest.plan_row_fingerprints) === canonicalJson(rebound.plan_row_fingerprints) && canonicalJson(report.source_row_fingerprints) === canonicalJson(rebound.source_row_fingerprints) && canonicalJson(report.plan_row_fingerprints) === canonicalJson(rebound.plan_row_fingerprints) && canonicalJson(manifest.semantic_source_rows) === canonicalJson(report.semantic_source_rows) && canonicalJson(manifest.semantic_plan_binding) === canonicalJson(report.semantic_plan_binding), "Approved manifest and report content binding mismatch");
@@ -175,6 +181,8 @@ function loadAndVerifyContract(directory, approved, now = new Date()) {
 }
 
 function verifyFreshReport(approved, fresh) {
+  assertArtifactMembership(approved.report);
+  assertArtifactMembership(fresh);
   invariant(fresh.approved_mapping_count === approved.report.approved_mapping_count && fresh.blocked_row_count === 0 && fresh.semantic_source_rows.length === approved.report.semantic_source_rows.length, "Fresh inventory or global blocker drift");
   invariant(canonicalJson(inventoryMappingRows(fresh.semantic_source_rows)) === canonicalJson(inventoryMappingRows(approved.report.semantic_source_rows)), "Fresh inventory or mapping drift");
   const approvedExecutable = sortedStrings(approved.report.execution_offer_ids), approvedReview = sortedStrings(approved.report.review_rows.map((row) => row.offer_id));
@@ -246,9 +254,14 @@ function reasonCode(field, left, right) {
 }
 
 function verifyDatabaseBaseline(contract, baseline) {
-  invariant(baseline?.result === "PASS" && baseline?.profile === "ebay-uk" && baseline.snapshot?.row_count === 237, "Artifact-bound DB baseline invalid");
+  assertArtifactMembership(contract.report);
+  if (baseline.membership_version != null) {
+    assertArtifactMembership(baseline);
+    assertMembershipRows(baseline.snapshot.rows, "database", MEMBERSHIP, { reviewOfferIds: contract.report.review_rows.map(row => String(row.offer_id)) });
+  }
+  invariant(baseline?.result === "PASS" && baseline?.profile === "ebay-uk" && baseline.snapshot?.row_count === MEMBERSHIP.count, "Artifact-bound DB baseline invalid");
   const rows = new Map(baseline.snapshot.rows.map((row) => [String(row.offer_id), row]));
-  invariant(rows.size === 237 && canonicalJson(sortedStrings([...rows.keys()])) === canonicalJson(sortedStrings(contract.report.semantic_source_rows.map((row) => row.offer_id))), "Artifact-bound DB baseline offer scope drift");
+  invariant(rows.size === MEMBERSHIP.count && canonicalJson(sortedStrings([...rows.keys()])) === canonicalJson(sortedStrings(contract.report.semantic_source_rows.map((row) => row.offer_id))), "Artifact-bound DB baseline offer scope drift");
   const differences = [];
   for (const planRow of contract.report.semantic_plan_rows.executable) {
     const current = rows.get(planRow.offer_id), before = planRow.before_state.offer, mapping = planRow.before_state.retailer_product;
