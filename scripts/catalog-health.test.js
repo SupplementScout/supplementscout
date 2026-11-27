@@ -1,3 +1,6 @@
+// Archived eBay apply/sealer/watchdog receipts in this suite are version 1.
+const legacyMembershipPath = require.resolve("../config/retailers/ebay-approved-membership.json");
+require.cache[legacyMembershipPath] = { id: legacyMembershipPath, filename: legacyMembershipPath, loaded: true, exports: require("./fixtures/ebay-membership-v1.json") };
 const assert = require("node:assert/strict");
 const fs = require("fs");
 const Module = require("module");

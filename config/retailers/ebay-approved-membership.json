@@ -1,6 +1,133 @@
 {
   "schema_version": 1,
-  "version": 1,
+  "version": 2,
   "legacy_scope_sha256": "e974baca29062190439cd199102c6a7cb1f692f58e3375ecdf8aea689a1da25d",
-  "additions": []
+  "additions": [
+    {
+      "affiliate_url": "https://www.ebay.co.uk/itm/124103892715?mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050",
+      "brand": "New Nordic",
+      "category": "Health Supplements",
+      "external_gtin": "5021807447015",
+      "external_options": "{}",
+      "external_product_id": "124103892715",
+      "external_sku": "",
+      "external_url": "https://www.ebay.co.uk/itm/124103892715",
+      "external_variant_id": "v1|124103892715|0",
+      "flavour": "Unflavoured",
+      "image": "",
+      "pack_count": "1",
+      "product_format": "tablet",
+      "product_id": "1492",
+      "product_name": "New Nordic BlueBerry Eyebright Plus One-a-Day",
+      "product_variant_id": "4670",
+      "retailer_name": "eBay UK",
+      "retailer_website": "https://www.ebay.co.uk",
+      "size": "",
+      "size_unit": "",
+      "slug": "new-nordic-blueberry-eyebright-plus-one-a-day",
+      "unit_count": "30",
+      "unit_type": "tablets",
+      "variant_name": "Unflavoured / 30 tablets",
+      "gtin": "5021807447015",
+      "flavour_label": "Unflavoured",
+      "size_value": null,
+      "retailer_id": "12",
+      "retailer_product_id": "4898",
+      "offer_id": "4711",
+      "seller_username": "healthisyou",
+      "owner_artifact_sha256": "17dfa3bf1cbb4a9c36e131f7943d73c282c9c1df02dc135ae42cba9d5d7e7f26",
+      "import_readback_sha256": "a9f6140c878ed3a7247bae7a4af1060ae31af357d99ed0706642d5468657185c",
+      "continuity_policy": {
+        "returned_gtin": "5021807447015",
+        "blockers": [],
+        "review_reasons": [
+          "FLAVOUR_UNPROVEN"
+        ]
+      }
+    },
+    {
+      "affiliate_url": "https://www.ebay.co.uk/itm/134686134724?var=434197535545&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde--UCKWZ77roOcaPQVuyDwAqQxzJXWeeqTBxwYYTeqkKCmE5bvt2%2B7QD6cIkT2U9Ec2ZalllGIqSNCzvk%2F05Fg0BbgyWWiUB%2FaffXXjk02Yc18fBUvJGRV7zIp9rTkSmyfOQ51ynRluHKw9fxkLV%2Fm7gjXHTgu3hBE%2B3eDpxEAQUMDw5vexOlWFgbQwUUZvn4I%3D",
+      "brand": "Applied Nutrition",
+      "category": "Pre Workout",
+      "external_gtin": "5056555204306",
+      "external_options": "{\"Flavour\":\"Red Hawaiian\",\"physical_format\":\"powder\",\"pack_count\":1}",
+      "external_product_id": "134686134724",
+      "external_sku": "",
+      "external_url": "https://www.ebay.co.uk/itm/134686134724?var=434197535545",
+      "external_variant_id": "v1|134686134724|434197535545",
+      "flavour": "Red Hawaiian",
+      "pack_count": "1",
+      "product_format": "powder",
+      "product_id": "481",
+      "product_name": "Applied Nutrition ABE Pump 500g",
+      "product_variant_id": "761",
+      "retailer_name": "eBay UK",
+      "retailer_website": "https://www.ebay.co.uk",
+      "size": "500",
+      "size_unit": "g",
+      "slug": "applied-nutrition-abe-pump-500g",
+      "unit_count": "",
+      "unit_type": "",
+      "variant_name": "Red Hawaiian / 500g",
+      "gtin": "5056555204306",
+      "flavour_label": "Red Hawaiian",
+      "size_value": "500",
+      "retailer_id": "12",
+      "retailer_product_id": "4896",
+      "offer_id": "4709",
+      "seller_username": "appliednutritionplc",
+      "owner_artifact_sha256": "cc848c5cc4a2d1f69baea789508c0803ef626124c6bf9875384169038e133bb6",
+      "import_readback_sha256": "a9f6140c878ed3a7247bae7a4af1060ae31af357d99ed0706642d5468657185c",
+      "continuity_policy": {
+        "returned_gtin": "5056555204306",
+        "blockers": [
+          "UNIT_COUNT_MISMATCH"
+        ],
+        "review_reasons": []
+      }
+    },
+    {
+      "affiliate_url": "https://www.ebay.co.uk/itm/134544280111?var=434047778879&mkevt=1&mkcid=1&mkrid=710-53481-19255-0&campid=5339189922&customid=&toolid=10050&amdata=enc%3AAQALAAAAoCHNgUiiE%2FjQhlDTaMiAde9%2FYfeQfwnWKjQDa%2Bg3e79j%2FijUQ52OYnP641hzhYfOeHGEIZUiyQ4BcN%2FZmMQdLRQFWQDy1PipTwWdPER1quOkU65aOq2t5yo0Rnh%2BhjYBdnaawIFBBfhUPYaHDzjb6xHXjPnktCIMzpvXyOu9JpFWIMas7JYVE2I2pTo%2Bg%2FaCDogojxeNG5ocuqUFij1xSuk%3D",
+      "brand": "Applied Nutrition",
+      "category": "Health Supplements",
+      "external_gtin": "5056555200414",
+      "external_options": "{\"Flavour\":\"Golden Syrup\",\"physical_format\":\"powder\",\"pack_count\":1}",
+      "external_product_id": "134544280111",
+      "external_sku": "",
+      "external_url": "https://www.ebay.co.uk/itm/134544280111?var=434047778879",
+      "external_variant_id": "v1|134544280111|434047778879",
+      "flavour": "Golden Syrup",
+      "pack_count": "1",
+      "product_format": "powder",
+      "product_id": "423",
+      "product_name": "Applied Nutrition Cream Of Rice 2kg",
+      "product_variant_id": "1837",
+      "retailer_name": "eBay UK",
+      "retailer_website": "https://www.ebay.co.uk",
+      "size": "2000",
+      "size_unit": "g",
+      "slug": "applied-nutrition-cream-of-rice-2kg",
+      "unit_count": "",
+      "unit_type": "",
+      "variant_name": "Golden Syrup / 2kg",
+      "gtin": "5056555200414",
+      "flavour_label": "Golden Syrup",
+      "size_value": "2000",
+      "retailer_id": "12",
+      "retailer_product_id": "4897",
+      "offer_id": "4710",
+      "seller_username": "appliednutritionplc",
+      "owner_artifact_sha256": "baeacf0af218080bcead021f167284af8dcee0403b583402e994f932e86fd4f6",
+      "import_readback_sha256": "a9f6140c878ed3a7247bae7a4af1060ae31af357d99ed0706642d5468657185c",
+      "continuity_policy": {
+        "returned_gtin": "5056555200414",
+        "blockers": [
+          "UNIT_COUNT_MISMATCH"
+        ],
+        "review_reasons": [
+          "SIZE_UNPROVEN"
+        ]
+      }
+    }
+  ]
 }

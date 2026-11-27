@@ -1,3 +1,7 @@
+// Historical lifecycle fixtures retain their original v1 contract. The live
+// manifest is independently exercised below in a fresh process.
+const legacyMembershipPath = require.resolve("../config/retailers/ebay-approved-membership.json");
+require.cache[legacyMembershipPath] = { id: legacyMembershipPath, filename: legacyMembershipPath, loaded: true, exports: require("./fixtures/ebay-membership-v1.json") };
 const assert = require("node:assert/strict");
 const test = require("node:test");
 const crypto = require("node:crypto");
@@ -5,6 +9,11 @@ const { spawnSync } = require("node:child_process");
 const { canonicalJson } = require("./lib/canonical-json");
 const { MEMBERSHIP, SCOPES, LEGACY_SCOPE_SHA256, createMembership, bindMembership, assertArtifactMembership, assertMembershipRows } = require("./lib/ebay-membership");
 const manifest = require("../config/retailers/ebay-approved-membership.json");
+test("active manifest retains all legacy identities and binds every actual addition across consumers", () => {
+  const source = `const assert=require('node:assert/strict');const manifest=require('./config/retailers/ebay-approved-membership.json');const m=require('./scripts/lib/ebay-membership');const legacy=m.createMembership(require('./scripts/fixtures/ebay-membership-v1.json'));assert.deepEqual(m.SCOPES.slice(0,237),legacy.scopes);assert.equal(m.MEMBERSHIP.count,237+manifest.additions.length);assert.equal(m.MEMBERSHIP.version,manifest.version);assert.deepEqual(require('./scripts/ebay-offer-refresh').SCOPES,m.SCOPES);assert.deepEqual(require('./scripts/retailer-offer-refresh-postflight').PROFILES['ebay-uk'].offerIds,m.MEMBERSHIP.offerIds);assert.equal(new Set(m.SCOPES.map(x=>x.offer_id)).size,m.MEMBERSHIP.count);assert.equal(new Set(m.SCOPES.map(x=>x.retailer_product_id)).size,m.MEMBERSHIP.count);for(const x of manifest.additions){assert.equal(Object.hasOwn(x,'source_captured_at'),false);assert.equal(Object.hasOwn(x,'total_price'),false);assert.match(x.owner_artifact_sha256,/^[0-9a-f]{64}$/);assert.match(x.import_readback_sha256,/^[0-9a-f]{64}$/);assert.equal(new URL(x.affiliate_url).searchParams.get('var')||'0',x.external_variant_id.split('|')[2]);assert.equal(require('./scripts/ebay-offer-refresh').classifyContinuity(x,{item_id:x.external_variant_id,legacy_item_id:x.external_product_id,affiliate_ready:true,affiliate_url:x.affiliate_url,seller:{username:x.seller_username,account_type:"BUSINESS"},returned_gtin:x.continuity_policy.returned_gtin,blockers:x.continuity_policy.blockers,review_reasons:x.continuity_policy.review_reasons}).eligible,true);}if(manifest.version>1)assert.throws(()=>m.assertArtifactMembership({approved_mapping_count:237,membership_version:1,membership_fingerprint:legacy.fingerprint}),/membership/);require('./scripts/automation-review-ebay-worker');require('./scripts/automation-review-reconciliation-dry-run');require('./scripts/automation-reliability-watchdog');require('./scripts/ebay-refresh-evidence-sealer');`;
+  const result=spawnSync(process.execPath,["-"],{input:source,cwd:require("node:path").resolve(__dirname,".."),encoding:"utf8",windowsHide:true});
+  assert.equal(result.status,0,result.error?.message||result.stderr);
+});
 function addition(index) {
   // Synthetic only. Never persisted as active or presented as production IDs.
   const item = String(900000000000 + index), variation = String(800000000000 + index);
@@ -140,6 +149,7 @@ async function syntheticMaintenanceScenario(inputManifest) {
     const freshPlans=structuredClone(report.semantic_plan_rows);for(const row of freshPlans.executable)row.before_state.offer.last_checked_at=afterTime;
     const idempotency=contract.bindSemanticEvidence({...report},report.semantic_source_rows,freshPlans);
     const evidence=seal({apply,baseline,postflight:checked,idempotency,env});
+    require('./automation-reliability-watchdog').validateEbayApplyArtifacts({run:{event:env.GITHUB_EVENT_NAME,head_sha:env.GITHUB_SHA,conclusion:'success'},artifact:{digest:'sha256:'+'a'.repeat(64)},files:[{name:'production-apply.json',json:apply},{name:'production-db-postflight.json',json:checked,sha256:'b'.repeat(64)}]});
     assert.equal(evidence.approved_mapping_count,MEMBERSHIP.count);assert.equal(evidence.idempotency_result,"PASS");assert.equal(checked.freshness_change_count,inputManifest.additions.length);
     console.log(JSON.stringify({count:MEMBERSHIP.count,executed_synthetic_only:checked.freshness_change_count,review_only:report.review_row_count,real_database_writes:0,network_calls:0}));
   }finally{fs.rmSync(directory,{recursive:true,force:true});}
