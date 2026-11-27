@@ -1,3 +1,4 @@
+const { MEMBERSHIP, bindMembership, assertArtifactMembership, assertMembershipRows } = require("./lib/ebay-membership");
 const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -45,8 +46,9 @@ const PROFILES = Object.freeze({
     retailerId: "12",
     retailerName: "eBay UK",
     credential: "EBAY_REFRESH_VALIDATOR_DATABASE_URL",
-    offerIds: Object.freeze(Array.from({ length: 237 }, (_, index) => String(2539 + index))),
-    approvedMappingCount: 237,
+    offerIds: MEMBERSHIP.offerIds,
+    approvedMappingCount: MEMBERSHIP.count,
+    membership: MEMBERSHIP,
   },
   "fit-house": {
     retailerId: "9",
@@ -195,6 +197,7 @@ async function capture(client, profile) {
   if (profile.approvedMappingCount !== undefined) {
     invariant(rows.length === profile.approvedMappingCount, "Approved postflight DB scope drift");
   }
+  if (profile.membership) assertMembershipRows(rows, "database", profile.membership, { deferLegacyNativeDrift: true });
   const offerIds = rows.map((row) => row.offer_id);
   const history = await client.query(`
     select count(*)::integer count,
@@ -215,6 +218,15 @@ async function capture(client, profile) {
 }
 
 function verifyPostflight(baseline, after, execution) {
+  if (PROFILES[baseline.profile]?.membership) {
+    assertArtifactMembership(execution);
+    if (baseline.membership_version != null) {
+      assertArtifactMembership(baseline);
+      const partition = { reviewOfferIds: (execution.review_rows || []).map(row => String(row.offer_id)) };
+      assertMembershipRows(baseline.snapshot.rows, "database", MEMBERSHIP, partition);
+      assertMembershipRows(after.rows, "database", MEMBERSHIP, partition);
+    }
+  }
   invariant(baseline.result === "PASS" && baseline.kind === "retailer-offer-refresh-db-baseline", "Invalid DB baseline evidence");
   invariant(baseline.evidence_hash === baselineHash(baseline), "DB baseline evidence hash mismatch");
   invariant(execution.result === "PASS" || execution.result === "PASS_WITH_REVIEW", "Apply result did not pass");
@@ -294,7 +306,7 @@ function verifyPostflight(baseline, after, execution) {
     invariant(rawHistoryDelta === historyDelta + confirmationDelta, "Price observation breakdown differs from raw history delta");
     invariant(confirmationDelta >= 0 && confirmationDelta <= execution.executed_plan_count, "Daily confirmation delta exceeds executed scope");
   }
-  return { schema_version: 1, kind: "retailer-offer-refresh-db-postflight", result: "PASS", profile: baseline.profile, approved_mapping_count: execution.approved_mapping_count, executable_plan_count: execution.executable_plan_count, executed_plan_count: execution.executed_plan_count, review_row_count: execution.review_row_count, blocked_row_count: execution.blocked_row_count, price_change_count: priceChanges, stock_change_count: stockChanges, shipping_change_count: shippingChanges, total_change_count: totalChanges, offer_url_change_count: offerUrlChanges, mapping_url_change_count: mappingUrlChanges, freshness_change_count: freshnessChanges, price_history_delta: historyDelta, daily_confirmation_delta: confirmationDelta, raw_price_history_delta: rawHistoryDelta, baseline_hash: baseline.evidence_hash, postflight_hash: hash(after), completed_at: new Date().toISOString() };
+  return { ...(PROFILES[baseline.profile]?.membership ? bindMembership() : {}), schema_version: 1, kind: "retailer-offer-refresh-db-postflight", result: "PASS", profile: baseline.profile, approved_mapping_count: execution.approved_mapping_count, executable_plan_count: execution.executable_plan_count, executed_plan_count: execution.executed_plan_count, review_row_count: execution.review_row_count, blocked_row_count: execution.blocked_row_count, price_change_count: priceChanges, stock_change_count: stockChanges, shipping_change_count: shippingChanges, total_change_count: totalChanges, offer_url_change_count: offerUrlChanges, mapping_url_change_count: mappingUrlChanges, freshness_change_count: freshnessChanges, price_history_delta: historyDelta, daily_confirmation_delta: confirmationDelta, raw_price_history_delta: rawHistoryDelta, baseline_hash: baseline.evidence_hash, postflight_hash: hash(after), completed_at: new Date().toISOString() };
 }
 
 async function run(options, dependencies = {}) {
@@ -312,7 +324,7 @@ async function run(options, dependencies = {}) {
   }, (client) => capture(client, profile));
   let evidence;
   if (options.mode === "baseline") {
-    evidence = { schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: options.profile, snapshot: session.result };
+    evidence = { ...(profile.membership ? bindMembership() : {}), schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: options.profile, snapshot: session.result };
     evidence.evidence_hash = baselineHash(evidence);
   } else evidence = verifyPostflight(read(options.baseline), session.result, read(options.execution));
   fs.mkdirSync(path.dirname(options.output), { recursive: true });

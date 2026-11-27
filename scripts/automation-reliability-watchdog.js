@@ -1,3 +1,4 @@
+const { MEMBERSHIP, assertArtifactMembership } = require("./lib/ebay-membership");
 // Public eligibility is shared with the catalogue; historical offers remain counted.
 const OFFER_FRESHNESS_SQL = `with scoped as (
  select o.*,coalesce(p.is_active and p.merged_into_product_id is null and v.is_active,false) eligible,
@@ -848,9 +849,11 @@ function validateEbayApplyArtifacts({ run, artifact, files }) {
   invariant(run.head_sha === apply.commit_sha, "eBay apply commit evidence mismatch");
   invariant(run.conclusion === "cancelled" || run.conclusion === "success", "eBay apply run must be success or cancelled after postflight");
   invariant(["PASS", "PASS_WITH_REVIEW"].includes(apply.result) && apply.mode === "execute-apply", "eBay apply evidence did not pass");
+  assertArtifactMembership(apply);
+  assertArtifactMembership(postflight);
   const executableCount = apply.executable_plan_count;
   const reviewCount = apply.review_row_count;
-  invariant(apply.approved_mapping_count === 237 && Number.isInteger(executableCount) && executableCount > 0 && apply.executed_plan_count === executableCount && Number.isInteger(reviewCount) && reviewCount >= 0 && executableCount + reviewCount === 237 && apply.blocked_row_count === 0, "eBay apply scope drift");
+  invariant(apply.approved_mapping_count === MEMBERSHIP.count && Number.isInteger(executableCount) && executableCount > 0 && apply.executed_plan_count === executableCount && Number.isInteger(reviewCount) && reviewCount >= 0 && executableCount + reviewCount === MEMBERSHIP.count && apply.blocked_row_count === 0, "eBay apply scope drift");
   const executionIds = sortedStrings(apply.execution_offer_ids || []);
   const reviewIds = sortedStrings((apply.review_rows || []).map((row) => row.offer_id));
   invariant(executionIds.length === executableCount && new Set(executionIds).size === executableCount && reviewIds.length === reviewCount && new Set(reviewIds).size === reviewCount && executionIds.every((id) => !reviewIds.includes(id)), "eBay apply scope drift");
@@ -859,7 +862,7 @@ function validateEbayApplyArtifacts({ run, artifact, files }) {
   const rows = apply.expected_deltas?.row_count_deltas || {};
   invariant(logical.last_checked_at_updates === executableCount && ["offer_price_updates","offer_stock_updates","offer_shipping_updates","offer_total_updates","offer_url_updates","mapping_url_updates"].every((field) => logical[field] === 0), "eBay apply expected logical deltas drift");
   invariant(["products","product_variants","retailer_products","offers","price_history"].every((field) => rows[field] === 0), "eBay apply expected row-count deltas drift");
-  invariant(postflight.result === "PASS" && postflight.approved_mapping_count === 237 && postflight.executable_plan_count === executableCount && postflight.freshness_change_count === executableCount && postflight.executed_plan_count === executableCount && postflight.review_row_count === reviewCount && postflight.blocked_row_count === 0, "eBay postflight scope drift");
+  invariant(postflight.result === "PASS" && postflight.approved_mapping_count === MEMBERSHIP.count && postflight.executable_plan_count === executableCount && postflight.freshness_change_count === executableCount && postflight.executed_plan_count === executableCount && postflight.review_row_count === reviewCount && postflight.blocked_row_count === 0, "eBay postflight scope drift");
   invariant(["price_change_count","stock_change_count","shipping_change_count","total_change_count","offer_url_change_count","mapping_url_change_count","price_history_delta"].every((field) => postflight[field] === 0), "eBay postflight delta drift");
   invariant(/^sha256:[0-9a-f]{64}$/.test(artifact.digest || ""), "eBay apply artifact digest missing");
   invariant(/^[0-9a-f]{64}$/.test(postflight.postflight_hash || ""), "eBay postflight hash missing");
@@ -873,13 +876,15 @@ function validateEbayIdempotencyArtifacts({ run, artifact, files, applyEvidence 
   invariant(!jsonFile(files, "production-apply.json") && !jsonFile(files, "production-db-postflight.json"), "eBay independent idempotency artifact contains apply/postflight evidence");
   const report = reportFile.json;
   const contract = contractFile.json;
+  assertArtifactMembership(report);
+  assertArtifactMembership(contract);
   const apply = applyEvidence.apply;
   const executableCount = apply.executable_plan_count;
   const reviewCount = apply.review_row_count;
   invariant(run.conclusion === "success" && run.head_sha === apply.commit_sha, "eBay independent idempotency run status or commit mismatch");
   invariant(["PASS", "PASS_WITH_REVIEW"].includes(report.result) && report.mode === "dry-run" && report.executed_plan_count === 0, "eBay independent idempotency run was not read-only");
-  invariant(report.approved_mapping_count === 237 && report.executable_plan_count === executableCount && report.review_row_count === reviewCount && report.blocked_row_count === 0, "eBay independent idempotency scope drift");
-  invariant(contract.approved_mapping_count === 237 && contract.executable_plan_count === executableCount && contract.review_row_count === reviewCount && contract.blocked_row_count === 0, "eBay independent idempotency contract scope drift");
+  invariant(report.approved_mapping_count === MEMBERSHIP.count && report.executable_plan_count === executableCount && report.review_row_count === reviewCount && report.blocked_row_count === 0, "eBay independent idempotency scope drift");
+  invariant(contract.approved_mapping_count === MEMBERSHIP.count && contract.executable_plan_count === executableCount && contract.review_row_count === reviewCount && contract.blocked_row_count === 0, "eBay independent idempotency contract scope drift");
   const applyIds = sortedStrings(apply.execution_offer_ids);
   const idempotencyIds = sortedStrings(report.execution_offer_ids);
   const applyReviews = sortedStrings(apply.review_rows.map((row) => row.offer_id));

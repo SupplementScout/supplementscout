@@ -2,7 +2,8 @@
   "git": {
     "deploymentEnabled": {
       "feat/shared-import-contract-integrity": false,
-      "fix/shared-import-contract-closeout-273": false
+      "fix/shared-import-contract-closeout-273": false,
+      "feat/ebay-commercial-activation-readiness-phase18": false
     }
   }
 }

@@ -1,3 +1,4 @@
+const { MEMBERSHIP, bindMembership, assertArtifactMembership, assertMembershipRows } = require("./lib/ebay-membership");
 const fs = require("node:fs");
 const path = require("node:path");
 const { canonicalHash, sortedStrings } = require("./lib/ebay-artifact-bound-contract");
@@ -8,16 +9,21 @@ function invariant(condition, message) { if (!condition) throw new Error(message
 function read(name) { return JSON.parse(fs.readFileSync(path.join(OUT, name), "utf8")); }
 
 function seal({ apply, baseline, postflight, idempotency, env = process.env }) {
+  for (const value of [apply, postflight, idempotency]) assertArtifactMembership(value);
+  if (baseline?.membership_version != null) {
+    assertArtifactMembership(baseline);
+    assertMembershipRows(baseline.snapshot.rows, "database", MEMBERSHIP, { reviewOfferIds: apply.review_rows.map(row => String(row.offer_id)) });
+  }
   invariant(/^[0-9a-f]{40}$/.test(env.GITHUB_SHA || ""), "Correlated eBay evidence requires the workflow commit SHA");
-  invariant(["PASS", "PASS_WITH_REVIEW"].includes(apply.result) && apply.approved_mapping_count === 237 && apply.executable_plan_count > 0 && apply.executed_plan_count === apply.executable_plan_count && apply.review_row_count + apply.executable_plan_count === 237 && apply.blocked_row_count === 0, "eBay apply contract drift");
+  invariant(["PASS", "PASS_WITH_REVIEW"].includes(apply.result) && apply.approved_mapping_count === MEMBERSHIP.count && apply.executable_plan_count > 0 && apply.executed_plan_count === apply.executable_plan_count && apply.review_row_count + apply.executable_plan_count === MEMBERSHIP.count && apply.blocked_row_count === 0, "eBay apply contract drift");
   invariant(apply.classification?.VERIFY_NO_CHANGE === apply.executable_plan_count && Object.keys(apply.classification).length === 1, "eBay apply contains a non-freshness action");
   invariant(apply.commit_sha === env.GITHUB_SHA && /^[0-9a-f]{64}$/.test(apply.manifest_sha256 || "") && ["full_capture_fingerprint","executable_source_fingerprint","review_scope_fingerprint","plan_fingerprint"].every((field) => /^[0-9a-f]{64}$/.test(apply[field] || "")), "eBay apply correlation binding missing");
   if (env.GITHUB_EVENT_NAME === "workflow_dispatch") invariant(/^[1-9][0-9]*$/.test(apply.approved_dry_run_id || "") && /^[1-9][0-9]*$/.test(apply.approved_artifact_id || "") && apply.approved_commit_sha === env.GITHUB_SHA && /^[0-9a-f]{64}$/.test(apply.approved_manifest_sha256 || "") && /^[0-9a-f]{64}$/.test(apply.approved_report_sha256 || ""), "eBay approved dry-run correlation binding missing");
   const logical = apply.expected_deltas?.logical_field_deltas || {}, rows = apply.expected_deltas?.row_count_deltas || {};
   invariant(logical.last_checked_at_updates === apply.executed_plan_count && ["offer_price_updates","offer_stock_updates","offer_shipping_updates","offer_total_updates","offer_url_updates","mapping_url_updates"].every((field) => logical[field] === 0) && ["products","product_variants","retailer_products","offers","price_history"].every((field) => rows[field] === 0), "eBay apply expected deltas drift");
-  invariant(postflight.result === "PASS" && postflight.approved_mapping_count === 237 && postflight.executable_plan_count === apply.executable_plan_count && postflight.executed_plan_count === apply.executed_plan_count && postflight.review_row_count === apply.review_row_count && postflight.blocked_row_count === 0, "eBay DB postflight scope drift");
+  invariant(postflight.result === "PASS" && postflight.approved_mapping_count === MEMBERSHIP.count && postflight.executable_plan_count === apply.executable_plan_count && postflight.executed_plan_count === apply.executed_plan_count && postflight.review_row_count === apply.review_row_count && postflight.blocked_row_count === 0, "eBay DB postflight scope drift");
   invariant(postflight.freshness_change_count === apply.executed_plan_count && postflight.price_change_count === 0 && postflight.stock_change_count === 0 && postflight.shipping_change_count === 0 && postflight.total_change_count === 0 && postflight.offer_url_change_count === 0 && postflight.mapping_url_change_count === 0 && postflight.price_history_delta === 0 && /^[0-9a-f]{64}$/.test(postflight.postflight_hash || ""), "eBay DB postflight delta drift");
-  invariant(["PASS", "PASS_WITH_REVIEW"].includes(idempotency.result) && idempotency.approved_mapping_count === 237 && idempotency.executed_plan_count === 0 && idempotency.blocked_row_count === 0, "eBay idempotency contract drift");
+  invariant(["PASS", "PASS_WITH_REVIEW"].includes(idempotency.result) && idempotency.approved_mapping_count === MEMBERSHIP.count && idempotency.executed_plan_count === 0 && idempotency.blocked_row_count === 0, "eBay idempotency contract drift");
   const approvedIds = sortedStrings(apply.execution_offer_ids), idempotencyIds = new Set(idempotency.execution_offer_ids.map(String));
   const idempotencyReviewIds = new Set((idempotency.review_rows || []).map((row) => String(row.offer_id)));
   const demotedIds = approvedIds.filter((offerId) => !idempotencyIds.has(offerId));
@@ -25,11 +31,11 @@ function seal({ apply, baseline, postflight, idempotency, env = process.env }) {
   const retainedIds = approvedIds.filter((offerId) => idempotencyIds.has(offerId));
   const sourceMap = new Map(idempotency.semantic_source_rows.map((row) => [String(row.offer_id), row]));
   const expectedSourceFingerprints = new Map((apply.source_row_fingerprints || []).map((row) => [String(row.offer_id), row.semantic_fingerprint]));
-  invariant(expectedSourceFingerprints.size === 237 && retainedIds.every((id) => sourceMap.has(id) && canonicalHash(sourceMap.get(id)) === expectedSourceFingerprints.get(id)), "eBay idempotency retained executable source drift");
+  invariant(expectedSourceFingerprints.size === MEMBERSHIP.count && retainedIds.every((id) => sourceMap.has(id) && canonicalHash(sourceMap.get(id)) === expectedSourceFingerprints.get(id)), "eBay idempotency retained executable source drift");
   const planMap = new Map(idempotency.semantic_plan_rows.executable.map((row) => [String(row.offer_id), row]));
   const baselineMap = new Map((baseline?.snapshot?.rows || []).map((row) => [String(row.offer_id), row]));
   const expectedPlanFingerprints = new Map((apply.plan_row_fingerprints || []).map((row) => [String(row.offer_id), row.semantic_fingerprint]));
-  invariant(baseline?.result === "PASS" && baseline?.profile === "ebay-uk" && baseline?.snapshot?.row_count === 237 && baselineMap.size === 237, "eBay idempotency baseline evidence missing");
+  invariant(baseline?.result === "PASS" && baseline?.profile === "ebay-uk" && baseline?.snapshot?.row_count === MEMBERSHIP.count && baselineMap.size === MEMBERSHIP.count, "eBay idempotency baseline evidence missing");
   invariant(expectedPlanFingerprints.size === approvedIds.length && approvedIds.every((id) => expectedPlanFingerprints.has(id)), "eBay apply plan-row fingerprints missing");
   const restoredPlans = retainedIds.map((id) => {
     const freshPlan = planMap.get(id), before = baselineMap.get(id);
@@ -70,7 +76,8 @@ function seal({ apply, baseline, postflight, idempotency, env = process.env }) {
     idempotency_demoted_offer_ids: demotedIds,
     idempotency_promoted_offer_ids: sortedStrings(idempotency.execution_offer_ids.filter((id) => !approvedIds.includes(String(id)))),
     postflight_hash: postflight.postflight_hash,
-    approved_mapping_count: 237,
+    ...bindMembership(),
+    approved_mapping_count: MEMBERSHIP.count,
     executable_plan_count: apply.executable_plan_count,
     executed_plan_count: apply.executed_plan_count,
     review_row_count: apply.review_row_count,

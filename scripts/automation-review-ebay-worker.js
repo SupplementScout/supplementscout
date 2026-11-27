@@ -1,3 +1,4 @@
+const { MEMBERSHIP, bindMembership } = require("./lib/ebay-membership");
 const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -225,7 +226,7 @@ async function run(options, dependencies = {}) {
     databaseWrites = 1;
     assertApplyResult(applied, operation, scope.offer_id);
     const reviewRows = SCOPES.filter((candidate) => candidate.offer_id !== scope.offer_id).map((candidate) => ({ offer_id: candidate.offer_id, review_type: "NOT_SELECTED_BY_EXECUTION_REQUEST" }));
-    const execution = { result: "PASS_WITH_REVIEW", approved_mapping_count: 237, executable_plan_count: 1, executed_plan_count: 1, review_row_count: 236, blocked_row_count: 0, execution_offer_ids: [scope.offer_id], review_rows: reviewRows, full_capture_fingerprint: state.review.source_row_fingerprint, executable_source_fingerprint: state.review.source_row_fingerprint, review_scope_fingerprint: hash(reviewRows), source_row_fingerprints: [{ offer_id: scope.offer_id, semantic_fingerprint: state.review.source_row_fingerprint, scope: "EXECUTABLE" }], expected_deltas: expectedDeltas(plan) };
+    const execution = { result: "PASS_WITH_REVIEW", ...bindMembership(), approved_mapping_count: MEMBERSHIP.count, executable_plan_count: 1, executed_plan_count: 1, review_row_count: reviewRows.length, blocked_row_count: 0, execution_offer_ids: [scope.offer_id], review_rows: reviewRows, full_capture_fingerprint: state.review.source_row_fingerprint, executable_source_fingerprint: state.review.source_row_fingerprint, review_scope_fingerprint: hash(reviewRows), source_row_fingerprints: [{ offer_id: scope.offer_id, semantic_fingerprint: state.review.source_row_fingerprint, scope: "EXECUTABLE" }], expected_deltas: expectedDeltas(plan) };
     fs.writeFileSync(executionPath, `${JSON.stringify(execution, null, 2)}\n`);
     const postflight = await (dependencies.runPostflight || runPostflight)({ profile: "ebay-uk", mode: "postflight", baseline: baselinePath, execution: executionPath, output: postflightPath }, dependencies);
     assertPostflightResult(postflight, plan);

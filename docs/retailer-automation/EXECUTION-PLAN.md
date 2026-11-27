@@ -1,5 +1,31 @@
 # Retailer Automation Consolidation Execution Plan
 
+**27 November 2026 Phase 19 — owner-authorized membership release:** publish,
+CI, normal merge and the existing production deployment path are authorized
+for the prepared Phase 18 patch, with active version 1, additions [] and the
+same Exact-237 identities. Release review narrows legacy native review to
+the five exact after-bindings from the September remediation; other native
+drift still fails closed. One exact branch rule prevents Vercel Preview for
+`feat/ebay-commercial-activation-readiness-phase18`; main remains enabled.
+No migration, import, business approval/apply, new eBay API call or membership
+expansion is authorized. Actual commit/CI/deployment, compatibility and READ
+ONLY postflight receipts belong to `tmp/ebay-commercial-phase19-2026-11-27/`.
+All 89 decisions, 86 packages, 170 cases and historical evidence are retained.
+
+**27 November 2026 Phase 18 — local eBay activation preparation only:** the
+existing refresh scope now has one local versioned membership contract, with
+active version 1 preserving the frozen Exact-237. The 86 accepted packages
+retain their historical evidence and have freshly prepared v4 plans checked
+through the existing production READ ONLY validator. Synthetic 323/240 scopes
+exercise the existing maintenance/artifact/postflight path. No production
+write, import, technical approval, activation, migration, workflow dispatch,
+commit, push, merge or deployment is authorized or performed in this phase.
+The five native-ID differences from September remediation stay review-only;
+they are not a Phase 17 regression or authority to rebind listings. See
+[Phase 18 evidence and future handoff](../rollouts/ebay-commercial-activation-readiness-2026-11-27.md).
+This checkpoint does not start a new RA consolidation task or supersede any
+owner-deferred retailer decision.
+
 **23 November 2026 eBay Draft565 safe synchronization — local verification PASS;
 separate release approval required:** existing565 is synchronized with released
 main ed37821e without rewriting its original25f70336 commit. Only the execution-
