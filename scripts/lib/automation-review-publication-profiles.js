@@ -255,7 +255,10 @@ function validateStandard(profile, context) {
     ? profile.approvedMappingCount
     : executableCount + classifierReviewIds.length;
   invariant(classifierScope && Number(classifierScope.blocked_rows || 0) === 0 && classifierScope.reconciled === true && Number(classifierScope.reconciled_total) === expectedClassifierCount, `${label} preflight classifier scope drifted`);
-  sameJson(sortedIds(classifierScope.scope_row_ids || []), expectedClassifierIds, `${label} preflight classifier IDs drifted`);
+  const classifierIds = classifierScope.scope_row_ids;
+  invariant(Array.isArray(classifierIds) && classifierIds.length === expectedClassifierCount
+    && sortedIds(classifierIds).length === classifierIds.length, `${label} preflight classifier IDs drifted`);
+  sameJson(sortedIds(classifierIds), expectedClassifierIds, `${label} preflight classifier IDs drifted`);
   sameJson(diagnostic.classifier_summary.action_counts || {}, report.classification || {}, `${label} preflight classifier actions drifted`);
   if (classifierCoversReview) {
     const executableChangedRows = Array.isArray(diagnostic.classifier_summary.changed_rows) ? diagnostic.classifier_summary.changed_rows : [];
@@ -525,7 +528,8 @@ const PROFILES = Object.freeze({
   "discount-supplements": profile({ key:"discount-supplements", retailer:Object.freeze({id:"4",name:"Discount Supplements",slug:"discount-supplements"}),
     approvedMappingCount:109, sourceDirectory:"discount-supplements-offer-refresh",artifactPrefix:"discount-supplements-offer-refresh-review-source",
     reconciliationFile:"discount-supplements-reconciliation-dry-run.json",contractName:"discount-supplements-automation-review-source-v1",
-    workflow:".github/workflows/creatine-offer-refresh.yml",workflowName:"Discount Supplements Offer Refresh",reviewType:"mixed",readOnlyReviewPolicies:SOURCE_REVIEW_POLICIES }),
+    workflow:".github/workflows/creatine-offer-refresh.yml",workflowName:"Discount Supplements Offer Refresh",reviewType:"mixed",
+    classifierCoverage:"mixed-partition",classifierReviewReasons:Object.freeze(["MASS_PRICE", "MASS_CHANGE"]),readOnlyReviewPolicies:SOURCE_REVIEW_POLICIES }),
   "gym-high": profile({ key:"gym-high",retailer:Object.freeze({id:"1",name:"GYM HIGH",slug:"gym-high"}),approvedMappingCount:66,
     sourceDirectory:"gym-high-reviewed-catalogue",artifactPrefix:"gym-high-full-catalogue-review-source",reconciliationFile:"gym-high-reconciliation-dry-run.json",
     contractName:"gym-high-automation-review-source-v1",workflow:".github/workflows/gym-high-full-catalogue-apply.yml",workflowName:"GYM HIGH reviewed full catalogue apply",

@@ -1,5 +1,22 @@
 # Retailer Automation Consolidation Execution Plan
 
+**27 November 2026 Automation Reliability Recovery — owner-authorized local
+repair / Draft PR only:** one bounded recovery covers Queue Worker scheduling,
+Discount publication, GYM HIGH source and 10 Reps feed access. Discount reuses
+the existing mixed-partition profile; the shared exact-ID check now rejects
+duplicates before comparison. The retained 72-executable/37-review failure and
+prior 106-executable/3-review success both pass locally without writes.
+Worker schedule delivery remains platform-blocked, GYM HIGH has a successful
+current local read but awaits runner verification, and the 10 Reps endpoint
+explicitly rejects its configured feed key. No artificial code fix, threshold
+change, source bypass or remote configuration change is made for those causes.
+See [diagnosis, regressions and operator actions](AUTOMATION-RELIABILITY-RECOVERY-2026-11-27.md).
+Production stays 273/pending 0 and STAGING 120 unchanged; eBay v3/count 322,
+85 additions and all EPN bindings are protected. No eBay API, business writes,
+approvals/apply, imports, canonical corrections, rebinds, migrations, workflow
+dispatch, merge or deployment is authorized. Earlier Phase 20 evidence and the
+750/862 exclusion remain intact; Predators Gear is outside scope.
+
 **27 November 2026 Phase 20 — 85 imports read back; final membership handoff
 in progress:** canary PR #570 merged as `90c8876d40ba29d69442091eb603f53db225abee`;
 version 2/count 240 reached Production READY. Current-scope read-only run
