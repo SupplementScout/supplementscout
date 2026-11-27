@@ -1,5 +1,21 @@
 # Retailer Automation Consolidation Execution Plan
 
+**27 November 2026 Phase 20 — first three imports read back; membership release
+in progress:** the owner authorizes up to the exact 86 accepted packages, with
+canary first and no new canonical products/variants, corrections or migrations.
+Fresh manual-v4 plans passed the protected validator. Existing approval/apply
+created mappings/offers 4896/4709 (481/761), 4897/4710 (423/1837) and 4898/4711
+(1492/4670), with three initial price observations. Independent protected
+readback confirms exact identities, GBP delivery and source-returned EPN URLs.
+Version 2 proposes those actual three additions to the unchanged legacy 237.
+Release CI, deployment, public visibility and maintenance remain separate gates
+before any of the remaining 83 imports. Historical v1 test fixtures retain
+their original contract; a fresh-process regression validates the active
+manifest and shared consumers. Evidence: `tmp/ebay-commercial-phase20-2026-11-27/`.
+All 89 decisions, 86 historical packages and 170 cases remain intact; 743/809,
+the three accepted blocked cases and Predators Gear are excluded. Ledger stays
+273/pending0; no SQL, workflow, schedule or credential change is authorized.
+
 **27 November 2026 Phase 19 — owner-authorized membership release:** publish,
 CI, normal merge and the existing production deployment path are authorized
 for the prepared Phase 18 patch, with active version 1, additions [] and the

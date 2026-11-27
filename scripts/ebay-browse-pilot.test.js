@@ -1,3 +1,6 @@
+// These immutable refresh/artifact fixtures describe the historical v1 scope.
+const legacyMembershipPath = require.resolve("../config/retailers/ebay-approved-membership.json");
+require.cache[legacyMembershipPath] = { id: legacyMembershipPath, filename: legacyMembershipPath, loaded: true, exports: require("./fixtures/ebay-membership-v1.json") };
 const assert = require("node:assert/strict");
 const crypto = require("node:crypto");
 const fs = require("node:fs");
