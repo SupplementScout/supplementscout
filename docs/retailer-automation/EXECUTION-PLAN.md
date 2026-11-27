@@ -1,5 +1,30 @@
 # Retailer Automation Consolidation Execution Plan
 
+**27 November 2026 Phase 20 — 85 imports read back; final membership handoff
+in progress:** canary PR #570 merged as `90c8876d40ba29d69442091eb603f53db225abee`;
+version 2/count 240 reached Production READY. Current-scope read-only run
+46046668952 passed with 157 executable, 83 review and zero blocked; all three
+new members were executable. Its verifier, database before-state and existing
+reconciliation passed without database or Review Queue writes.
+The next execution stopped after 27 successful plans because the unchanged
+protected guard rejected 750/862: the same parent and equal `external_options`
+as the newly imported 750/861. No approval or apply was created for 750/862;
+no guard, option, identity or expected state was changed to bypass it. Independent
+readback and ledger accounting passed. The other 55 unattempted cases passed
+the protected read-only validator and fresh JIT qualification, then completed
+through the same executor with 55 consumed approvals and independent readback.
+Actual total: 85 new mappings, offers and initial price observations; no new
+canonical products/variants. Version 3 proposes exactly those 85 actual additions,
+count 322, preserving all 237 legacy identities and EPN URLs. Final PR/CI,
+deployment and current-scope maintenance remain to be verified separately.
+750/862 remains excluded from this execution and requires separate resolution;
+its historical commercial acceptance is preserved. Natural expanded-scope
+refresh/watchdog execution is not claimed by the read-only dry-run. All original
+artifacts, the stopped receipt, 89 decisions, 86 historical packages and 170 cases
+are retained in `tmp/ebay-commercial-phase20-2026-11-27/`. No SQL, workflow,
+schedule, public application, credential or unrelated retailer change; ledger
+273/pending 0, Predators Gear excluded.
+
 **27 November 2026 Phase 20 — first three imports read back; membership release
 in progress:** the owner authorizes up to the exact 86 accepted packages, with
 canary first and no new canonical products/variants, corrections or migrations.
