@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "inventory": {
-    "count": 371,
-    "sha256": "06960cca86beefb8efc409f43c416aaf03a37dbbf8eaedb597a2a7eb3af59c83"
+    "count": 372,
+    "sha256": "8f5d6d8dcc4b719f4df703dfda3b0eaa9642d913f28e30b0b44df1feb11dbcd3"
   },
   "integration": [
     "scripts/atomic-product-import-integration.test.js",
@@ -56,6 +56,7 @@
     "scripts/reviewed-variant-create-rebind.integration.test.js",
     "scripts/reviewed-variant-nutrition-migration.integration.test.js",
     "scripts/sealed-artifacts.integration.test.js",
+    "scripts/shared-import-contracts.integration.test.js",
     "scripts/shared-parent-import-identity.integration.test.js",
     "scripts/verified-no-change-offer-refresh.integration.test.js",
     "scripts/verify-baseline-migrations.test.js",

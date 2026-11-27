@@ -555,13 +555,14 @@ test("Catalog Health receipt closes CURRENT270 and preserves the exact historica
   const sql = fs.readFileSync(path.join(SOURCE, filename), "utf8");
   assert.match(sql, /^BEGIN;\r?\n/); assert.match(sql, /COMMIT;\s*$/);
   assert.doesNotThrow(() => unwrapTransaction(sql, filename));
-  assert.deepEqual(PENDING_MIGRATIONS.PRODUCTION, []);
-  const current = derivePostApplyMigrationBinding("PRODUCTION");
+  const historicalFiles = fs.readdirSync(SOURCE).filter(file => file <= filename);
+  assert.ok(!PENDING_MIGRATIONS.PRODUCTION.some(entry => entry.filename === filename));
+  const current = derivePostApplyMigrationBinding("PRODUCTION", { pendingMigrations: [], migrationFiles: historicalFiles });
   assert.equal(current.status, "ALREADY_CLOSED"); assert.equal(current.pending_count, 0);
-  assertDerivationMatchesContract(current, CONTRACTS.PRODUCTION);
+  assertDerivationMatchesContract(current, { ...CONTRACTS.PRODUCTION, pending: [] });
   assert.equal(current.post_ledger_count, receipt.post_state.ledger_count);
   assert.equal(current.post_ledger_fingerprint, receipt.post_state.ledger_fingerprint);
-  const historical = derivePostApplyMigrationBinding("PRODUCTION", {pendingMigrations:[{filename,sha256:receipt.consumed_pending.ordered_sha256[0]}]});
+  const historical = derivePostApplyMigrationBinding("PRODUCTION", {pendingMigrations:[{filename,sha256:receipt.consumed_pending.ordered_sha256[0]}],migrationFiles:historicalFiles});
   assert.equal(historical.pre_ledger_count, receipt.pre_state.ledger_count);
   assert.equal(historical.pre_ledger_fingerprint, receipt.pre_state.ledger_fingerprint);
   assert.equal(historical.post_ledger_count, receipt.post_state.ledger_count);

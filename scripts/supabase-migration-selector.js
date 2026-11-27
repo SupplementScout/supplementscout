@@ -135,6 +135,9 @@ const CONTRACTS = Object.freeze({
       "31dc3e6e90dab56dd00843bef441cfba400e1d9480d2940f41b46cfff6e32277",
     appliedExcluded: APPLIED_EXCLUSIONS.STAGING,
     excluded: Object.freeze({
+      "20261125100000_shared_import_contract_v4.sql": "a763b5dea4c79540e8ec1d189147e66f42af1d252dd1b3837d5fcf9a98b8c27d",
+      "20261125101000_reviewed_format_correction_v2.sql": "a144b66e910ec0fe129a9f3851359587602aba36c911563622f49adf71390e10",
+      "20261125102000_existing_target_identity_rebind_v5.sql": "4b96590a67a5ca5e3268a54ba514159d4d9e5b25e02642077ed7713e01d2df0e",
       "20261120150000_add_catalog_health_review_counts.sql": "09d941a26ac97791dde4e5690f97b7cc97ea16630297b1637aa02373c3695072",
       "20261116210000_align_review_refresh_proposed_state.sql": "3816dbe28a277a79574b70688103745a4cf6dc6dc5a430a137020918d373375e",
       "20261116211000_register_shared_parent_approval_profiles.sql": "842985652b164601169fb54dca81992acf7fcb0e16d7ef3a3cf6b6100eccd281",

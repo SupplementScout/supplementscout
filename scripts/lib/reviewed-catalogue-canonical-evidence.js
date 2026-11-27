@@ -1,5 +1,6 @@
 const crypto = require("node:crypto");
-const { canonicalJson } = require("./canonical-json");
+const { canonicalJson, normalizeNumbersToDecimalStrings } = require("./canonical-json");
+const MANUAL_OWNER_RESOLUTION_KIND = "manual-identity-owner-resolution-v1";
 
 const VERSION = "1";
 const HEX64 = /^[0-9a-f]{64}$/;
@@ -247,4 +248,55 @@ function validateCanonicalIdentityEvidence(evidence, context) {
   return { contract_version: VERSION, selected_facts: selected, evidence_sha256: sha(evidence) };
 }
 
-module.exports = { canonicalEvidenceSha256: sha, validateCanonicalIdentityEvidence };
+function readManualOwnerResolution(row, sourceFingerprint, options = {}) {
+  if (row.owner_resolutions == null || row.owner_resolutions === "") return null;
+  const review = typeof row.owner_resolutions === "string" ? JSON.parse(row.owner_resolutions) : structuredClone(row.owner_resolutions);
+  exactKeys(review, ["kind", "decision", "authorized_by", "authorized_at", "source_row_fingerprint",
+    "expected_state_fingerprint", "binding", "flavour_aliases", "parent_membership", "decision_evidence_sha256"]);
+  requireValue(review.kind === MANUAL_OWNER_RESOLUTION_KIND &&
+    review.decision === "OWNER_CONFIRMED_EXACT_IDENTITY_RESOLUTION" &&
+    /^[a-z][a-z0-9._-]{2,63}$/.test(review.authorized_by || "") &&
+    typeof review.authorized_at === "string" && Number.isFinite(Date.parse(review.authorized_at)) &&
+    new Date(review.authorized_at).toISOString() === review.authorized_at,
+  "MANUAL_OWNER_RESOLUTION_MISSING");
+  requireValue(HEX64.test(review.source_row_fingerprint || "") && review.source_row_fingerprint === sourceFingerprint &&
+    HEX64.test(review.expected_state_fingerprint || ""), "MANUAL_OWNER_RESOLUTION_SOURCE_CHANGED");
+  exactKeys(review.binding, ["seller", "brand", "product_name", "product_version", "source_evidence_fingerprint"]);
+  for (const [key, sourceKey] of [["seller", "source_seller"], ["brand", "brand"], ["product_name", "product_name"],
+    ["product_version", "product_version"], ["source_evidence_fingerprint", "source_evidence_fingerprint"]]) {
+    requireValue(typeof review.binding[key] === "string" && review.binding[key].trim() &&
+      review.binding[key] === row[sourceKey], "MANUAL_OWNER_RESOLUTION_BINDING_CHANGED");
+  }
+  requireValue(HEX64.test(review.binding.source_evidence_fingerprint), "MANUAL_OWNER_RESOLUTION_EVIDENCE_MISSING");
+  const unhashed = structuredClone(review); unhashed.decision_evidence_sha256 = null;
+  requireValue(HEX64.test(review.decision_evidence_sha256 || "") &&
+    review.decision_evidence_sha256 === sha(normalizeNumbersToDecimalStrings(unhashed)), "MANUAL_OWNER_RESOLUTION_SEAL_MISMATCH");
+  if (options.expectedState) {
+    requireValue(review.expected_state_fingerprint === sha(normalizeNumbersToDecimalStrings(options.expectedState)),
+      "MANUAL_OWNER_RESOLUTION_EXPECTED_STATE_CHANGED");
+  }
+  if (options.product) {
+    requireValue(review.binding.brand === options.product.brand && review.binding.product_name === options.product.name,
+      "MANUAL_OWNER_RESOLUTION_FAMILY_CHANGED");
+  }
+  if (review.flavour_aliases !== null) {
+    exactKeys(review.flavour_aliases, [String(row.external_variant_id)]);
+    const alias = review.flavour_aliases[String(row.external_variant_id)];
+    exactKeys(alias, ["source", "canonical", "resolution"]);
+    requireValue(alias.resolution === "OWNER_CONFIRMED_EQUIVALENT_PRODUCT_VARIANT" &&
+      typeof alias.source === "string" && alias.source.trim() && typeof alias.canonical === "string" && alias.canonical.trim() &&
+      typeof row.product_id === "string" && /^[1-9][0-9]*$/.test(row.product_id) &&
+      typeof row.product_variant_id === "string" && /^[1-9][0-9]*$/.test(row.product_variant_id),
+    "MANUAL_FLAVOUR_RESOLUTION_INVALID");
+    const sourceOptions = typeof row.external_options === "string" ? JSON.parse(row.external_options) : row.external_options || {};
+    const sourceFlavours = Object.entries(sourceOptions).filter(([key]) => ["flavour", "flavor"].includes(key.toLowerCase())).map(([, value]) => value);
+    requireValue(sourceFlavours.length > 0 && sourceFlavours.every(value => value === alias.source), "MANUAL_FLAVOUR_SOURCE_CHANGED");
+    requireValue([row.flavour, row.flavor].filter(value => value != null && value !== "")
+      .every(value => value === alias.source || value === alias.canonical), "MANUAL_FLAVOUR_EXPLICIT_CONFLICT");
+    if (options.variant) requireValue(alias.canonical === options.variant.flavour_label, "MANUAL_FLAVOUR_TARGET_CHANGED");
+  }
+  requireValue(review.flavour_aliases !== null || review.parent_membership !== null, "MANUAL_OWNER_RESOLUTION_EMPTY");
+  return review;
+}
+
+module.exports = { canonicalEvidenceSha256: sha, validateCanonicalIdentityEvidence, MANUAL_OWNER_RESOLUTION_KIND, readManualOwnerResolution };
