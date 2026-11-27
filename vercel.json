@@ -4,7 +4,8 @@
       "feat/shared-import-contract-integrity": false,
       "fix/shared-import-contract-closeout-273": false,
       "feat/ebay-commercial-activation-readiness-phase18": false,
-      "feat/ebay-approved-membership-phase20": false
+      "feat/ebay-approved-membership-phase20": false,
+      "feat/ebay-approved-membership-final-phase20": false
     }
   }
 }
