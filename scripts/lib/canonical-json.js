@@ -138,11 +138,58 @@ function canonicalJson(value) {
   return JSON.stringify(value);
 }
 
+// New import contracts validate PostgreSQL's JSON domain before sealing. Keep
+// canonicalJson's historical bytes and callers unchanged, including numeric
+// metadata in other contracts. Object keys are emitted directly in UTF-16 sort
+// order; rebuilding an object and JSON.stringify would reorder integer keys.
+function assertPostgresJsonCompatible(value, location = "$", ancestors = new Set()) {
+  const assertText = (text, label) => {
+    if (text.includes("\u0000")) throw new Error(`NUL is not representable in PostgreSQL jsonb at ${label}`);
+    for (let index = 0; index < text.length; index += 1) {
+      const unit = text.charCodeAt(index);
+      if (unit >= 0xd800 && unit <= 0xdbff) {
+        const next = text.charCodeAt(index + 1);
+        if (!(next >= 0xdc00 && next <= 0xdfff)) {
+          throw new Error(`Unpaired surrogate at ${label}`);
+        }
+        index += 1;
+      } else if (unit >= 0xdc00 && unit <= 0xdfff) {
+        throw new Error(`Unpaired surrogate at ${label}`);
+      }
+    }
+  };
+  if (value === null || typeof value === "boolean") return;
+  if (typeof value === "string") return assertText(value, location);
+  if (typeof value === "number") {
+    normalizeDecimalString(value, location);
+    return;
+  }
+  if (typeof value !== "object") throw new Error(`Non-JSON value at ${location}`);
+  if (ancestors.has(value)) throw new Error(`Cyclic JSON value at ${location}`);
+  if (!Array.isArray(value) && ![Object.prototype, null].includes(Object.getPrototypeOf(value))) {
+    throw new Error(`Non-JSON object at ${location}`);
+  }
+  if (Object.getOwnPropertySymbols(value).length) throw new Error(`Symbol JSON key at ${location}`);
+  ancestors.add(value);
+  if (Array.isArray(value)) {
+    for (let index = 0; index < value.length; index += 1) {
+      assertPostgresJsonCompatible(value[index], `${location}[${index}]`, ancestors);
+    }
+  } else {
+    for (const [key, item] of Object.entries(value)) {
+      assertText(key, `${location} key`);
+      assertPostgresJsonCompatible(item, `${location}.${key}`, ancestors);
+    }
+  }
+  ancestors.delete(value);
+}
+
 module.exports = {
   MAX_DECIMAL_PRECISION,
   MAX_DECIMAL_SCALE,
   addDecimalStrings,
   assertNoUndefined,
+  assertPostgresJsonCompatible,
   canonicalJson,
   normalizeDecimalString,
   normalizeNumbersToDecimalStrings,

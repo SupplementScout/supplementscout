@@ -105,19 +105,29 @@ async function connect(target, kind, ClientClass = Client) {
 function assertState(result, packageValue, expectedValue, label) {
   invariant(result?.valid === true, `${label} did not return valid state`);
   invariant(String(result.product_id) === packageValue.operation.product_id, `${label} product ID mismatch`);
-  invariant(result.table === "products" && result.field === "net_weight_g", `${label} scope mismatch`);
-  invariant(String(result.current_value) === expectedValue, `${label} net_weight_g mismatch`);
-  invariant(Number(result.products_count) >= 1, `${label} product count invalid`);
+  invariant(result.table === packageValue.operation.table && result.field === packageValue.operation.field, `${label} scope mismatch`);
+  if (packageValue.schema_version === 2) {
+    invariant((result.product_variant_id ?? null) === packageValue.operation.product_variant_id, `${label} variant ID mismatch`);
+    invariant(result.current_value === expectedValue && result.single_canonical_row === true, `${label} product_format mismatch`);
+  } else {
+    invariant(String(result.current_value) === expectedValue, `${label} net_weight_g mismatch`);
+    invariant(Number(result.products_count) >= 1, `${label} product count invalid`);
+  }
 }
 
 function assertReceipt(receipt, loaded) {
+  if (loaded.value.schema_version === 2) {
+    invariant(receipt?.validated_state?.table === loaded.value.operation.table &&
+      (receipt.validated_state.product_variant_id ?? null) === loaded.value.operation.product_variant_id,
+    "Format correction approval exact target mismatch");
+  }
   invariant(receipt && /^[0-9a-f-]{36}$/i.test(receipt.approval_id || ""), "Product pack correction approval receipt invalid");
   const expected = {
     status: "approved",
     artifact_sha256: loaded.packageSha256,
     package_fingerprint: loaded.value.package_fingerprint,
     product_id: loaded.value.operation.product_id,
-    field: "net_weight_g",
+    field: loaded.value.operation.field,
     target_environment: loaded.value.target_environment,
     target_project_ref: loaded.value.target_project_ref,
   };
@@ -172,8 +182,8 @@ async function run(options, dependencies = {}) {
   const transaction = dependencies.roleTransaction || roleTransaction;
   const clients = {};
   const audit = {
-    schema_version: 1,
-    kind: "reviewed-catalogue-product-pack-correction-audit-v1",
+    schema_version: loaded.value.schema_version,
+    kind: `reviewed-catalogue-product-pack-correction-audit-v${loaded.value.schema_version}`,
     mode: options.mode,
     result: "RUNNING",
     package_path: options.packagePath,
@@ -222,7 +232,8 @@ async function run(options, dependencies = {}) {
     });
     invariant(applied?.approval_status === "consumed" && applied.updated_rows === 1, "Product pack correction apply receipt invalid");
     invariant(applied.row_count_delta === 0, "Product pack correction apply row-count delta mismatch");
-    invariant(String(applied.before_value) === loaded.value.operation.expected_before && String(applied.after_value) === loaded.value.operation.reviewed_after, "Product pack correction apply value mismatch");
+    const actualBefore = loaded.value.schema_version === 2 ? applied.before_value : String(applied.before_value);
+    invariant(actualBefore === loaded.value.operation.expected_before && String(applied.after_value) === loaded.value.operation.reviewed_after, "Product pack correction apply value mismatch");
     audit.apply_count = 1;
     audit.business_row_writes = 1;
     audit.control_row_writes = 2;
@@ -233,7 +244,7 @@ async function run(options, dependencies = {}) {
       return rows[0].result;
     }, { readOnly: true });
     assertState(after, loaded.value, loaded.value.operation.reviewed_after, "Product pack correction readback");
-    invariant(after.products_count === before.products_count, "Product pack correction final product count changed");
+    if (loaded.value.schema_version === 1) invariant(after.products_count === before.products_count, "Product pack correction final product count changed");
     Object.assign(audit, {
       result: "PASS",
       source_commit: sourceCommit,

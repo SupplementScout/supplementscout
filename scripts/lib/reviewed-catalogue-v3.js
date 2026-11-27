@@ -72,9 +72,18 @@ function normalizeCountUnit(value) {
   return aliases.get(compact) || null;
 }
 
-function parseCount(value) {
+function parseCount(value, options = {}) {
   const match = String(value || "").trim().match(/^([1-9]\d*(?:\s*\/\s*[1-9]\d*)?)\s*([a-z]+)$/i);
-  if (!match) return parseCompositeSize(value)?.count || null;
+  if (!match) {
+    const composite = parseCompositeSize(value)?.count;
+    if (composite) return composite;
+    if (!options.canonicalDisplay) return null;
+    const text = String(value || "").trim().replace(/-/g, " ");
+    if (/\b(?:\d+\s*[x×]|packs?\b)/i.test(text)) return null;
+    const counts = [...text.matchAll(/(?:^|[\s/])([1-9]\d*)\s*(tablets?|tabs?|capsules?|caps?|softgels?|sachets?|shots?|pieces?|gummy|gummies)(?=$|[\s/)])/gi)];
+    if (counts.length !== 1) return null;
+    return parseCount(`${counts[0][1]} ${counts[0][2]}`);
+  }
   const countUnit = normalizeCountUnit(match[2]);
   if (!countUnit) return null;
   return { count_value: match[1].replace(/\s+/g, ""), count_unit: countUnit };

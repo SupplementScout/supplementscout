@@ -9,6 +9,8 @@ const {
   APPROVAL_TYPE,
   OPERATION_TYPE,
   buildReviewedVariantCreateRebindPlan,
+  buildExistingTargetIdentityRebindPlan,
+  identityOnlyState,
 } = require("./lib/reviewed-variant-create-rebind-offer-update");
 const { approveArtifactPlan, loadDryRunArtifact, planFingerprint, setSupabaseForTests, writeDryRunArtifact } = require("./import-products");
 const {
@@ -53,6 +55,88 @@ function fixture() {
   ];
   return { state, source, captures, expiresAt: "2026-09-01T12:15:00.000Z" };
 }
+
+function identityOnlyFixture() {
+  const { state } = fixture();
+  state.product.gtin = null;
+  state.product.net_weight_g = 250;
+  state.product.name = "TEST ONLY Protein 250g";
+  state.offer.total_price = "23.979999999999997";
+  state.mapping.external_product_id = "native-standalone";
+  state.mapping.external_variant_id = "native-standalone";
+  state.mapping.external_gtin = "5060547314546";
+  state.price_identity_series = [];
+  state.price_history = [{ id: 1, offer_id: state.offer.id, price: state.offer.price, shipping_cost: state.offer.shipping_cost,
+    total_price: state.offer.total_price, checked_at: state.offer.last_checked_at, identity_series_id: null }];
+  const targetVariant = { ...state.variant, id: 999, variant_key: "unflavoured-250g", display_name: "Unflavoured / 250g",
+    flavour_code: "unflavoured", flavour_label: "Unflavoured", size_value: "250", size_unit: "g", pack_count: "1",
+    product_format: "powder", gtin: null, is_default: false };
+  const sourceRecord = { kind: "same-physical-unit-evidence-v1", seller: "TEST ONLY retained seller", brand: state.product.brand,
+    product_name: state.product.name, product_version: "TEST ONLY exact 250g version", external_product_id: state.mapping.external_product_id,
+    external_variant_id: state.mapping.external_variant_id, url: state.mapping.external_url, flavour: targetVariant.flavour_label,
+    size_value: "250", size_unit: "g", pack_count: "1", product_format: "powder", gtin: state.mapping.external_gtin,
+    evidence: { relative_path: "tmp/test-only-proof.json", sha256: "e".repeat(64) } };
+  const sha = value => crypto.createHash("sha256").update(canonicalJson(value)).digest("hex");
+  const ownerResolution = { kind: "existing-target-identity-rebind-owner-v1", decision: "OWNER_CONFIRMED_SAME_PHYSICAL_UNIT_REBIND",
+    authorized_by: "phase14-test-owner", authorized_at: "2026-11-25T10:00:00.000Z",
+    expected_state_fingerprint: sha(identityOnlyState(state, targetVariant)), source_evidence_fingerprint: sha(sourceRecord),
+    mapping_id: String(state.mapping.id), offer_id: String(state.offer.id), target_variant_id: String(targetVariant.id), decision_evidence_sha256: null };
+  ownerResolution.decision_evidence_sha256 = sha(ownerResolution);
+  return { state, targetVariant, sourceRecord, ownerResolution, expiresAt: "2026-11-25T10:15:00Z" };
+}
+
+test("existing-target identity-only mode seals the existing pair and preserves all commercial and history state", () => {
+  const input = identityOnlyFixture();const original = structuredClone(input);
+  const plan = buildExistingTargetIdentityRebindPlan(input);
+  assert.deepEqual(input, original);
+  assert.equal(plan.meta.version, "5");assert.equal(plan.meta.plan_kind, "manual");
+  assert.deepEqual(plan.product_variant, { action: "existing", id: "999" });
+  assert.deepEqual(plan.offer, { action: "identity_rebind", id: String(input.state.offer.id) });
+  assert.deepEqual(plan.price_history, { action: "noop" });
+  assert.equal(plan.approval.approved, false);
+  assert.equal(plan.retailer_product.values, undefined);assert.equal(plan.offer.values, undefined);
+  assert.equal(plan.expected_state.history.length, 1);
+  assert.equal(plan.expected_state.offer.total_price, "23.979999999999997", "identity correction preserves legacy decimal precision");
+  assert.equal(plan.expected_state.target_variant.gtin, null, "identity rebind never invents or fills a canonical GTIN");
+  assert.equal(plan.expected_state.retailer_product.external_product_id, plan.expected_state.retailer_product.external_variant_id);
+  assert.equal(planFingerprint(plan), plan.meta.plan_fingerprint);
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "identity-only-artifact-"));
+  try {
+    const result = { skipped: 0, blockedRows: [], report: { approvedRows: [{ rowNumber: 2, row: plan.source_record, importPlan: plan }], blockedRows: [] } };
+    const written = writeDryRunArtifact([plan.source_record], result, { artifactPath: path.join(directory, "plan.json"),
+      runId: "test-only-identity-rebind", sourceContent: canonicalJson(plan.source_record), sourceFileName: "source.json", environmentMarker: "test" });
+    assert.deepEqual(loadDryRunArtifact(written.artifactPath).artifact.plans[0].resolved_plan, plan);
+  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+});
+
+test("existing-target identity-only mode rejects stale approvals, physical conflicts and managed history", () => {
+  for (const mutate of [input => { input.targetVariant.size_value = "500"; }, input => { input.targetVariant.flavour_label = "Chocolate"; },
+    input => { input.targetVariant.product_id = 9999; }, input => { input.state.offer.price = 100; },
+    input => { input.state.mapping.external_gtin = null; }, input => { input.sourceRecord.external_variant_id = "another"; },
+    input => { input.sourceRecord.seller = "another"; }, input => { input.sourceRecord.evidence.sha256 = "f".repeat(64); },
+    input => { input.sourceRecord.seller = true; }, input => { input.sourceRecord.product_version = true; },
+    input => { input.ownerResolution.decision = "PROPOSED"; }, input => { input.ownerResolution.target_variant_id = "1000"; },
+    input => { input.ownerResolution.decision_evidence_sha256 = "0".repeat(64); },
+    input => { input.state.price_history[0].identity_series_id = 1; }, input => { input.state.price_identity_series = [{ id: 1 }]; },
+    input => { input.state.variant.size_value = "500"; input.state.variant.size_unit = "g"; },
+    input => { input.expiresAt = "2026-11-24T10:00:00Z"; }]) {
+    const input = identityOnlyFixture();mutate(input);assert.throws(() => buildExistingTargetIdentityRebindPlan(input), /identity-only/);
+  }
+});
+
+test("identity-only serialization preserves numeric source options and their exact seal", () => {
+  const { serializeImportPlan } = require("./import-products");
+  const input = identityOnlyFixture();
+  input.state.mapping.external_options = { pack_count: 1, nested: { amount: 1.25 } };
+  const sha = value => crypto.createHash("sha256").update(canonicalJson(value)).digest("hex");
+  input.ownerResolution.expected_state_fingerprint = sha(identityOnlyState(input.state, input.targetVariant));
+  input.ownerResolution.decision_evidence_sha256 = sha({ ...input.ownerResolution, decision_evidence_sha256: null });
+  const plan = buildExistingTargetIdentityRebindPlan(input);
+  assert.deepEqual(serializeImportPlan(plan), plan);
+  assert.equal(plan.expected_state.retailer_product.external_options.pack_count, 1);
+  const unhashed = { ...plan, meta: { ...plan.meta, plan_fingerprint: null } };
+  assert.equal(plan.meta.plan_fingerprint, crypto.createHash("md5").update(canonicalJson(unhashed)).digest("hex"));
+});
 
 test("builds the exact atomic create/rebind/commercial reviewed plan", () => {
   const plan = buildReviewedVariantCreateRebindPlan(fixture());

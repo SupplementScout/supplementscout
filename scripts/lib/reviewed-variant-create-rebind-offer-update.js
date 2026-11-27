@@ -1,5 +1,5 @@
 const crypto = require("node:crypto");
-const { canonicalJson } = require("./canonical-json");
+const { canonicalJson, normalizeDecimalString, assertPostgresJsonCompatible } = require("./canonical-json");
 const { canonicalTimestamp } = require("./canonical-timestamp");
 const { normalizeSourceRow, planFingerprint, sourceRowFingerprint } = require("../import-products");
 
@@ -208,11 +208,84 @@ function buildReviewedVariantCreateRebindPlan({ state, source, captures, expires
   return plan;
 }
 
+function identityOnlyState(state, targetVariant) {
+  invariant(Array.isArray(state.price_history) && Array.isArray(state.price_identity_series), "identity-only history snapshot required");
+  invariant(state.price_identity_series.length === 0 && state.price_history.every(row => row.identity_series_id == null),
+    "identity-only rebind cannot migrate managed history");
+  const product = { ...productState(state.product), gtin: state.product.gtin ?? null };
+  if (product.net_weight_g !== null) product.net_weight_g = normalizeDecimalString(product.net_weight_g);
+  const variant = row => {
+    const result = variantState(row);
+    for (const key of ["size_value", "pack_count"]) if (result[key] !== null) result[key] = normalizeDecimalString(result[key]);
+    return result;
+  };
+  const offer = offerState(state.offer);
+  for (const key of ["price", "shipping_cost", "total_price"]) offer[key] = state.offer[key] == null ? null : normalizeDecimalString(state.offer[key]);
+  const mapping = mappingState(state.mapping);
+  mapping.match_confidence = state.mapping.match_confidence == null ? null : normalizeDecimalString(state.mapping.match_confidence);
+  const history = state.price_history.map(row => ({ id: String(row.id), offer_id: String(row.offer_id),
+    price: normalizeDecimalString(row.price), shipping_cost: row.shipping_cost == null ? null : normalizeDecimalString(row.shipping_cost),
+    total_price: row.total_price == null ? null : normalizeDecimalString(row.total_price),
+    checked_at: canonicalTimestamp(row.checked_at), identity_series_id: null,
+  })).sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+  return { product, product_variant: variant(state.variant), target_variant: variant(targetVariant),
+    retailer: retailerState(state.retailer), retailer_product: mapping, offer, history };
+}
+
+function buildExistingTargetIdentityRebindPlan({ state, targetVariant, sourceRecord, ownerResolution, expiresAt }) {
+  const expected = identityOnlyState(state, targetVariant);
+  const { product, product_variant: old, target_variant: target, retailer, retailer_product: mapping, offer } = expected;
+  const exactKeys = (value, keys) => invariant(value && canonicalJson(Object.keys(value).sort()) === canonicalJson([...keys].sort()), "identity-only closed schema mismatch");
+  exactKeys(sourceRecord, ["kind", "seller", "brand", "product_name", "product_version", "external_product_id", "external_variant_id",
+    "url", "flavour", "size_value", "size_unit", "pack_count", "product_format", "gtin", "evidence"]);
+  exactKeys(sourceRecord.evidence, ["relative_path", "sha256"]);
+  invariant(sourceRecord.kind === "same-physical-unit-evidence-v1" && typeof sourceRecord.seller === "string" && sourceRecord.seller.trim() &&
+    typeof sourceRecord.product_version === "string" && sourceRecord.product_version.trim() &&
+    sourceRecord.evidence.relative_path.startsWith("tmp/") && /^[0-9a-f]{64}$/.test(sourceRecord.evidence.sha256), "identity-only physical proof required");
+  invariant(product.is_active && product.merged_into_product_id === null && old.is_active && target.is_active && !target.is_default &&
+    old.id !== target.id && old.product_id === product.id && target.product_id === product.id &&
+    mapping.product_id === product.id && mapping.product_variant_id === old.id && mapping.retailer_id === retailer.id &&
+    offer.product_id === product.id && offer.product_variant_id === old.id && offer.retailer_id === retailer.id &&
+    offer.retailer_product_id === mapping.id && mapping.external_url === offer.url, "identity-only target binding mismatch");
+  invariant(sourceRecord.brand === product.brand && sourceRecord.product_name === product.name && sourceRecord.url === mapping.external_url &&
+    sourceRecord.external_product_id === mapping.external_product_id && sourceRecord.external_variant_id === mapping.external_variant_id &&
+    sourceRecord.flavour === target.flavour_label && sourceRecord.size_value === target.size_value && sourceRecord.size_unit === target.size_unit &&
+    sourceRecord.pack_count === target.pack_count && sourceRecord.product_format === target.product_format && target.product_format === product.product_format &&
+    sourceRecord.gtin === mapping.external_gtin && sourceRecord.gtin !== null && (target.gtin === null || sourceRecord.gtin === target.gtin),
+  "identity-only same physical unit proof mismatch");
+  invariant((product.net_weight_g === null || (target.size_unit === "g" && target.pack_count === "1" && product.net_weight_g === target.size_value)) &&
+    (old.size_value === null || (old.size_value === target.size_value && old.size_unit === target.size_unit)) &&
+    (old.is_default || old.flavour_label === target.flavour_label) && (old.pack_count === null || old.pack_count === target.pack_count) &&
+    expected.history.every(row => row.offer_id === offer.id), "identity-only contradictory old identity or history");
+  exactKeys(ownerResolution, ["kind", "decision", "authorized_by", "authorized_at", "expected_state_fingerprint", "source_evidence_fingerprint",
+    "mapping_id", "offer_id", "target_variant_id", "decision_evidence_sha256"]);
+  const sourceFingerprint = sha256(sourceRecord);
+  invariant(ownerResolution.kind === "existing-target-identity-rebind-owner-v1" && ownerResolution.decision === "OWNER_CONFIRMED_SAME_PHYSICAL_UNIT_REBIND" &&
+    /^[a-z][a-z0-9._-]{2,63}$/.test(ownerResolution.authorized_by || "") && typeof ownerResolution.authorized_at === "string" && Number.isFinite(Date.parse(ownerResolution.authorized_at)) &&
+    ownerResolution.expected_state_fingerprint === sha256(expected) && ownerResolution.source_evidence_fingerprint === sourceFingerprint &&
+    ownerResolution.mapping_id === mapping.id && ownerResolution.offer_id === offer.id && ownerResolution.target_variant_id === target.id &&
+    ownerResolution.decision_evidence_sha256 === sha256({ ...ownerResolution, decision_evidence_sha256: null }), "identity-only owner resolution mismatch");
+  const expiry = timestamp(expiresAt, "expiresAt");
+  invariant(Date.parse(expiry) > Date.parse(ownerResolution.authorized_at), "identity-only expiry must follow owner decision");
+  const plan = { meta: { version: "5", plan_kind: "manual", operation_type: OPERATION_TYPE,
+    source_row_fingerprint: sourceFingerprint, plan_fingerprint: null, expires_at: expiry },
+    source_record: structuredClone(sourceRecord), owner_resolution: structuredClone(ownerResolution),
+    product: { action: "existing", id: product.id }, product_variant: { action: "existing", id: target.id },
+    retailer: { action: "existing", id: retailer.id }, retailer_product: { action: "identity_rebind", id: mapping.id },
+    offer: { action: "identity_rebind", id: offer.id }, price_history: { action: "noop" },
+    approval: { approved: false, approval_type: APPROVAL_TYPE }, expected_state: expected };
+  assertPostgresJsonCompatible(plan);
+  plan.meta.plan_fingerprint = planFingerprint(plan);
+  return plan;
+}
+
 module.exports = {
   APPROVAL_TYPE,
   OPERATION_TYPE,
   buildReviewedVariantCreateRebindPlan,
   buildSourceRecord,
+  buildExistingTargetIdentityRebindPlan,
+  identityOnlyState,
   mappingState,
   offerState,
   productState,

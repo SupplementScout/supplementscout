@@ -1,0 +1,7 @@
+{
+  "git": {
+    "deploymentEnabled": {
+      "feat/shared-import-contract-integrity": false
+    }
+  }
+}

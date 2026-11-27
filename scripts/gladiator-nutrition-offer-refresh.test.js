@@ -306,8 +306,9 @@ test("environment binding freezes the classifier, reader, executor and Phase-B g
     "scripts/lib/shopify-snapshot-reader.js": "06d93e363ee95e4bbd73a17bd2292d9d258efb677634fa148685c42277811fce",
     // All sealed plans now pass read-only identity validation before any approval.
     "scripts/reviewed-catalogue-package-executor.js": "0fde4978ab74f479bb25ff2956d304ba2df4e0caabb7a5769e0afc558208db0f",
-    // Reviewed V2 NEW plans reject existing lookup hits; other importer functions are unchanged.
-    "scripts/import-products.js": "7c60c930a9e406a8ef16bb6dd3930d45711498b0dc91ae0c2b4bfe5fa4bfd845",
+    // Phase 14B preserves numeric source options in explicit identity-only v5.
+    // Default v2 and reviewed V2 NEW rejection retain their regression coverage.
+    "scripts/import-products.js": "389c99b77ae926aa538098e2020f8b282fd83badb2255c9973b152eafe198adb",
     "supabase/migrations/20260718170000_add_read_only_mixed_batch_validator.sql": "09ece7d68328ee7e383375f6d13f55933e7c18be88137fa0108046d69f121510",
   };
   for (const [relative, expected] of Object.entries(immutable)) assert.equal(sha256Text(path.join(ROOT, relative)), expected, relative);

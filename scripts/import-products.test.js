@@ -78,6 +78,230 @@ const tenRepsReviewedNewProductsV8 = require("../config/retailers/10reps-reviewe
 const tenRepsReviewedNewProductsV9 = require("../config/retailers/10reps-reviewed-new-products-v9-large-101.json");
 const tenRepsReviewedCatalogueV10 = require("../config/retailers/10reps-reviewed-catalogue-v10-93.json");
 
+test("new import serialization preserves UTF-16 and numeric-looking key order", () => {
+  const { assertPostgresJsonCompatible } = require("./lib/canonical-json");
+  const value = {
+    "2": "second", "10": "tenth", Supply: "30", pack_count: "1",
+    Flavour: "Orange", "\uE000": "private", "\u{10000}": "supplementary",
+    nested: [true, null, { "e\u0301": "combining", "é": "precomposed", "😀": "face" }],
+  };
+  assertPostgresJsonCompatible(value);
+  assert.equal(canonicalJson(value),
+    '{"10":"tenth","2":"second","Flavour":"Orange","Supply":"30","nested":[true,null,{"é":"combining","é":"precomposed","😀":"face"}],"pack_count":"1","𐀀":"supplementary","":"private"}');
+  assert.equal(canonicalJson({ schema_version: 1, amount: 1.25, decimal: "1.250" }),
+    '{"amount":1.25,"decimal":"1.250","schema_version":1}');
+  assert.equal(canonicalJson({ quote: '"\\\b\f\n\r\t' }), '{"quote":"\\\"\\\\\\b\\f\\n\\r\\t"}');
+});
+
+test("new import contracts reject values that cannot survive PostgreSQL jsonb before hashing", () => {
+  const { assertPostgresJsonCompatible } = require("./lib/canonical-json");
+  for (const value of ["\u0000", "\ud800", "\udc00", { "bad\u0000": "key" },
+    { a: undefined }, [undefined], new Array(1), NaN, Infinity, new Date(0), 12n]) {
+    assert.throws(() => assertPostgresJsonCompatible(value), /NUL|surrogate|JSON|undefined|finite/);
+    assert.throws(() => planFingerprint({ meta: { version: "4" }, value }), /NUL|surrogate|JSON|undefined|finite/);
+  }
+  const cycle = {}; cycle.self = cycle;
+  assert.throws(() => assertPostgresJsonCompatible(cycle), /Cyclic/);
+  const shared = { value: "valid" };
+  assert.doesNotThrow(() => assertPostgresJsonCompatible([shared, shared, "😀", "𐀀"]));
+});
+
+test("contract version and review state remain part of the immutable plan fingerprint", () => {
+  const plan = { meta: { version: "4", plan_kind: "manual", operation_type: "standard_import", plan_fingerprint: null },
+    expected_state: { product: { id: "9007199254740993", name: "Example" } },
+    approval: { approved: false, approval_type: "none" } };
+  const fingerprint = planFingerprint(plan);
+  for (const mutate of [p => { p.meta.version = "2"; },
+    p => { p.expected_state.product.name = "Changed"; },
+    p => { p.approval.approved = true; }]) {
+    const changed = structuredClone(plan); mutate(changed);
+    assert.notEqual(planFingerprint(changed), fingerprint);
+  }
+  const legacy = { meta: { version: "2", plan_fingerprint: null }, value: { Supply: "30", physical_format: "powder" } };
+  assert.equal(planFingerprint(legacy), crypto.createHash("md5").update(canonicalJson(legacy)).digest("hex"));
+});
+
+test("v4 CLI requires explicit manual dry-run and never switches the default producer", () => {
+  assert.equal(parseArgs(["--dry-run"]).contractVersion, undefined);
+  assert.equal(parseArgs(["--dry-run", "--mode=manual", "--contract-version=4"]).contractVersion, "4");
+  for (const args of [["--contract-version=4"], ["--dry-run", "--mode=feed", "--contract-version=4"],
+    ["--dry-run", "--contract-version=99"], ["--dry-run", "--contract-version=4", "--approve-plan"],
+    ["--dry-run", "--contract-version=4", "--contract-version=4"]]) assert.throws(() => parseArgs(args));
+});
+
+test("manual v4 physical count selects exact tablets and seals the actual count", async () => {
+  const { createStateClient } = require("./lib/reviewed-catalogue-state");
+  const product = { id: "101", name: "Example Mineral", slug: "example-mineral", brand: "Example", category: "Minerals",
+    product_format: "tablet", gtin: null, is_active: true, merged_into_product_id: null };
+  const variants = [60, 120].map((count, index) => ({ id: String(201 + index), product_id: "101",
+    variant_key: `unflavoured-${count}tablets`, display_name: `Unflavoured / ${count} tablets`,
+    flavour_code: "unflavoured", flavour_label: "Unflavoured", size_value: null, size_unit: null,
+    pack_count: "1", product_format: "tablet", gtin: null, is_active: true, is_default: false }));
+  const rowFor = count => baseFeedRow({ product_id: "101", product_variant_id: String(count === 60 ? 201 : 202),
+    source_captured_at: "2026-11-24T12:00:00.000Z",
+    product_name: product.name, slug: product.slug, brand: product.brand, category: product.category,
+    variant_name: `Unflavoured / ${count} tablets`, flavour: "Unflavoured", size: "", size_unit: "",
+    product_format: "tablet", unit_count: String(count), unit_type: "tablets", pack_count: "1",
+    gtin: "", external_gtin: "", external_product_id: "parent", external_variant_id: String(count),
+    external_url: `https://retailer.test/mineral?variant=${count}`,
+    external_options: JSON.stringify({ Flavour: "Unflavoured", physical_unit_count: String(count), physical_format: "tablet" }) });
+  const run = async row => {
+    setSupabaseForTests(createStateClient({ retailer: { id: "1", name: "Retailer One", slug: "retailer-one", website: "https://retailer.test" },
+      products: [product], product_variants: variants, retailer_products: [], offers: [], price_history: [] }));
+    return runImportRowsRaw([row], { mode: "manual", dryRun: true, contractVersion: "4" });
+  };
+  for (const count of [60, 120]) {
+    const result = await run(rowFor(count));
+    assert.equal(result.planned, 1, JSON.stringify(result.blockedRows));
+    const plan = result.report.approvedRows[0].importPlan;
+    assert.equal(plan.product_variant.id, String(count === 60 ? 201 : 202));
+    assert.equal(plan.product_variant.evidence.unit_count, String(count));
+    assert.equal(plan.product_variant.evidence.unit_type, "tablets");
+    assert.equal(plan.meta.version, "4");
+    assert.equal(plan.approval.approved, false);
+    assert.equal(plan.offer.values.last_checked_at, "2026-11-24T12:00:00.000Z");
+  }
+  for (const change of [
+    { source_captured_at: "" }, { source_captured_at: "2026-11-24T12:00:00" },
+    { unit_count: "", unit_type: "", product_variant_id: "" },
+    { unit_type: "servings" }, { unit_type: "capsules" }, { unit_count: "500", unit_type: "mg" },
+    { variant_name: "Unflavoured / 120 tablets" },
+    { variant_name: "2 x 60 tablets", pack_count: "1" },
+    { unit_count: "120", product_variant_id: "201", variant_name: "Unflavoured / 120 tablets",
+      external_options: JSON.stringify({ Flavour: "Unflavoured", physical_unit_count: "120" }) },
+  ]) {
+    const result = await run({ ...rowFor(60), ...change });
+    assert.equal(result.planned, 0, JSON.stringify(change));
+    assert.equal(result.blockedRows.length, 1);
+  }
+  assert.equal(collectCanonicalVariantEvidence(rowFor(60)).unitCount, undefined, "legacy generic evidence remains unchanged");
+});
+
+test("canonical count parser stays strict by default and rejects ambiguous pack identities", () => {
+  const { parseCount } = require("./lib/reviewed-catalogue-v3");
+  assert.equal(parseCount("Unflavoured / 60 tablets"), null);
+  assert.deepEqual(parseCount("unflavoured-60tablets", { canonicalDisplay: true }), { count_value: "60", count_unit: "tablets" });
+  for (const value of ["2 x 60 tablets", "1 pack of 120 tablets", "60 tablets / 120 tablets", "500 mg", "60 servings"]) {
+    const count = parseCount(value, { canonicalDisplay: true });
+    assert.ok(count === null || count.count_unit === "servings", value);
+  }
+});
+
+test("manual v4 reviewed parent membership permits exact cross-size siblings and rejects peer drift", async () => {
+  const { createStateClient } = require("./lib/reviewed-catalogue-state");
+  const { buildExpectedImportState } = require("./import-products");
+  const { reviewedParentPeerState, normalizeSharedParentPeer, sha256Canonical } = require("./lib/retailer-shared-parent-identity");
+  const retailer = { id: "1", name: "Retailer One", slug: "retailer-one", website: "https://retailer.test" };
+  const product = { id: "101", name: "TEST ONLY protein 908g", slug: "test-protein", brand: "Example", category: "Protein",
+    product_format: "powder", gtin: null, is_active: true, merged_into_product_id: null };
+  const peer = { id: "301", retailer_id: "1", product_id: "102", product_variant_id: "203",
+    external_product_id: "parent", external_variant_id: "1816", external_sku: "peer-sku", external_gtin: null,
+    external_options: { Flavour: "Tiramisu", Size: "1816g" }, external_url: "https://retailer.test/shared?variant=1816",
+    updated_at: "2026-11-24T12:00:00.123456Z" };
+  for (const flavour of ["Strawberry", "Vanilla"]) {
+    const variant = { id: "201", product_id: "101", variant_key: `${flavour.toLowerCase()}-908g`,
+      display_name: `${flavour} / 908g`, flavour_code: flavour.toLowerCase(), flavour_label: flavour,
+      size_value: "908", size_unit: "g", pack_count: "1", product_format: "powder", gtin: null, is_active: true, is_default: false };
+    const raw = baseFeedRow({ product_id: "101", product_variant_id: "201", product_name: product.name, slug: product.slug,
+      source_captured_at: "2026-11-24T12:00:00.000Z",
+      brand: product.brand, category: product.category, flavour, variant_name: variant.display_name, size: "908", size_unit: "g",
+      product_format: "powder", pack_count: "1", gtin: "", external_gtin: "", external_sku: "incoming-sku",
+      external_product_id: "parent", external_variant_id: `908-${flavour}`, external_url: `https://retailer.test/shared?variant=908-${flavour}`,
+      source_seller: "test-seller", product_version: "TEST ONLY 908g", source_evidence_fingerprint: "e".repeat(64),
+      external_options: JSON.stringify({ Flavour: flavour, Size: "908g" }) });
+    const reset = (peers = [peer]) => setSupabaseForTests(createStateClient({ retailer, products: [product], product_variants: [variant],
+      retailer_products: peers, offers: [], price_history: [] }));
+    reset();
+    assert.equal((await runImportRowsRaw([raw], { mode: "manual", dryRun: true, contractVersion: "4" })).planned, 0);
+    const expectedPeers = [reviewedParentPeerState(peer)];
+    const incoming = normalizeSharedParentPeer({ retailer_id: retailer.id, product_id: product.id, product_variant_id: variant.id,
+      canonical_variant: null, external_product_id: raw.external_product_id, external_variant_id: raw.external_variant_id,
+      external_sku: raw.external_sku, external_gtin: null, external_options: JSON.parse(raw.external_options), external_url: raw.external_url, legacy: false });
+    const row = testOnlyManualResolution(structuredClone(raw), buildExpectedImportState({ product, retailer, productVariant: variant }),
+      { parentMembership: { complete_scope: true, incoming, expected_peers: expectedPeers, peer_set_fingerprint: sha256Canonical(expectedPeers) } });
+    reset();
+    const result = await runImportRowsRaw([row], { mode: "manual", dryRun: true, contractVersion: "4" });
+    assert.equal(result.planned, 1, JSON.stringify(result.blockedRows));
+    assert.equal(result.report.approvedRows[0].importPlan.approval.approved, false);
+    assert.deepEqual(peer.external_options, { Flavour: "Tiramisu", Size: "1816g" });
+    for (const peers of [[{ ...peer, updated_at: "2026-11-25T12:00:00Z" }], [{ ...peer, product_id: "999" }],
+      [peer, { ...peer, id: "302", external_variant_id: "unknown-sibling" }], []]) {
+      reset(peers);
+      const changed = await runImportRowsRaw([row], { mode: "manual", dryRun: true, contractVersion: "4" });
+      assert.equal(changed.planned, 0, JSON.stringify(peers));
+    }
+  }
+});
+
+function testOnlyManualResolution(row, expectedState, { flavourAlias = null, parentMembership = null } = {}) {
+  const { MANUAL_OWNER_RESOLUTION_KIND, canonicalEvidenceSha256 } = require("./lib/reviewed-catalogue-canonical-evidence");
+  const { normalizeNumbersToDecimalStrings } = require("./lib/canonical-json");
+  const review = { kind: MANUAL_OWNER_RESOLUTION_KIND, decision: "OWNER_CONFIRMED_EXACT_IDENTITY_RESOLUTION",
+    authorized_by: "phase14-test-owner", authorized_at: "2026-11-25T10:00:00.000Z", source_row_fingerprint: null,
+    expected_state_fingerprint: canonicalEvidenceSha256(normalizeNumbersToDecimalStrings(expectedState)),
+    binding: { seller: row.source_seller, brand: row.brand, product_name: row.product_name,
+      product_version: row.product_version, source_evidence_fingerprint: row.source_evidence_fingerprint },
+    flavour_aliases: flavourAlias ? { [row.external_variant_id]: { ...flavourAlias, resolution: "OWNER_CONFIRMED_EQUIVALENT_PRODUCT_VARIANT" } } : null,
+    parent_membership: parentMembership, decision_evidence_sha256: null };
+  row.owner_resolutions = review;
+  review.source_row_fingerprint = sourceRowFingerprint(row);
+  review.decision_evidence_sha256 = canonicalEvidenceSha256(normalizeNumbersToDecimalStrings(review));
+  return row;
+}
+
+test("manual v4 uses exact scoped owner flavour resolutions while preserving literal source options", async () => {
+  const { createStateClient } = require("./lib/reviewed-catalogue-state");
+  const { buildExpectedImportState } = require("./import-products");
+  const pairs = [["Cola Millions", "Millions Cola"], ["Pineapple Millions", "Millions Pineapple"],
+    ["Ice Blue Razz", "Icy Blue Raz"], ["Icy Blue Razz", "Icy Blue Raz"],
+    ["Pineapple Millions", "Millions Pineapple"], ["Grape Gazillionz", "Grape Gazillions"],
+    ["Cookies & Cream", "Cookies N Cream"], ["Icy Blue Razz", "Icy Blue Raz"],
+    ["Icy Blue Razz", "Icy Blue Raz"], ["Peach Iced Tea", "Peach Ice Tea"],
+    ["Strawberry & Cream", "Strawberry Cream"]];
+  for (const [canonical, source] of pairs) {
+    const retailer = { id: "1", name: "Retailer One", slug: "retailer-one", website: "https://retailer.test" };
+    const product = { id: "101", name: "TEST ONLY Powder", slug: "test-only-powder", brand: "Example", category: "Protein",
+      product_format: "powder", gtin: null, is_active: true, merged_into_product_id: null };
+    const variant = { id: "201", product_id: "101", variant_key: "exact-1000g", display_name: `${canonical} / 1000g`,
+      flavour_code: normalizeFlavour(canonical), flavour_label: canonical, size_value: "1000", size_unit: "g",
+      pack_count: "1", product_format: "powder", gtin: null, is_active: true, is_default: false };
+    const reset = () => setSupabaseForTests(createStateClient({ retailer, products: [product], product_variants: [variant],
+      retailer_products: [], offers: [], price_history: [] }));
+    const raw = baseFeedRow({ product_id: "101", product_variant_id: "201", product_name: product.name, slug: product.slug,
+      source_captured_at: "2026-11-24T12:00:00.000Z",
+      brand: product.brand, category: product.category, flavour: canonical, variant_name: variant.display_name,
+      size: "1000", size_unit: "g", product_format: "powder", pack_count: "1", gtin: "", external_gtin: "",
+      external_product_id: "parent", external_variant_id: "variation", source_seller: "test-seller",
+      product_version: "TEST ONLY exact version", source_evidence_fingerprint: "e".repeat(64),
+      external_options: JSON.stringify({ Flavour: source, physical_format: "powder", pack_count: "1" }) });
+    reset();
+    const blocked = await runImportRowsRaw([raw], { mode: "manual", dryRun: true, contractVersion: "4" });
+    assert.equal(blocked.planned, 0);
+    const row = testOnlyManualResolution(structuredClone(raw), buildExpectedImportState({ product, retailer, productVariant: variant }),
+      { flavourAlias: { source, canonical } });
+    reset();
+    const result = await runImportRowsRaw([row], { mode: "manual", dryRun: true, contractVersion: "4" });
+    assert.equal(result.planned, 1, JSON.stringify(result.blockedRows));
+    const plan = result.report.approvedRows[0].importPlan;
+    assert.equal(plan.retailer_product.values.external_options.Flavour, source);
+    assert.equal(plan.product_variant.evidence.external_options.Flavour, source);
+    assert.equal(plan.approval.approved, false);
+    assert.equal(row.flavour, canonical);
+    for (const mutate of [r => { r.source_seller = "another-seller"; }, r => { r.external_variant_id = "other"; },
+      r => { r.product_variant_id = "999"; }, r => { r.size = "810"; }, r => { r.product_version = "another-version"; },
+      r => { r.brand = "Other"; }, r => { r.owner_resolutions.decision = "PROPOSED"; },
+      r => { r.owner_resolutions.decision_evidence_sha256 = "0".repeat(64); },
+      r => { r.external_options = JSON.stringify({ Flavour: "Blue Raspberry" }); }]) {
+      const changed = structuredClone(row); mutate(changed); reset();
+      const rejected = await runImportRowsRaw([changed], { mode: "manual", dryRun: true, contractVersion: "4" });
+      assert.equal(rejected.planned, 0, `${canonical}: ${JSON.stringify(changed)}`);
+    }
+    reset();
+    const legacy = await runImportRowsRaw([row], { mode: "manual", dryRun: true });
+    assert.equal(legacy.planned, 0, "new resolution cannot downgrade to the legacy contract");
+  }
+});
+
 const PREDATORS_REVIEWED_NEW_PRODUCTS_SHA =
   predatorsReviewedNewProducts.canonical_csv.sha256;
 const PREDATORS_REVIEWED_NEW_PRODUCTS_SIMPLE2_SHA =
