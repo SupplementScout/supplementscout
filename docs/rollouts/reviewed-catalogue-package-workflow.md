@@ -322,17 +322,18 @@ Future release sequence, each step separately authorized and verified:
    loaders/consumers first, keeping new producers unused through their existing
    explicit options. A merge/push can trigger full CI and the existing Vercel
    deployment; those operations require separate owner authorization.
-3. Apply core v4 (`20261125100000`) first. Its own transaction also activates the
-   new-manual-standard-v4 approval requirement: there is no independent runtime
-   switch. The quiet window and compatible consumers must already be ready.
-4. Apply format v2 (`20261125101000`), then identity v5 (`20261125102000`). Each
-   file has its own BEGIN/COMMIT and guarded input lineage; do not represent the
-   three files as an atomic deployment. After each step check installed function
-   definitions/owners/ACLs, unchanged old canonical helper, private inventory and
-   migration ledger using authorized read-only metadata. Stop on any mismatch.
-5. Once all consumers are confirmed, end the manual approval quiet window and
-   allow explicit fresh manual v4 production. v5 and format v2 remain explicit
-   individually authorized data operations. Do not send new versions to old SQL.
+3. Use the existing applicator for core v4 (`20261125100000`), format v2
+   (`20261125101000`) and identity v5 (`20261125102000`), in order, inside its
+   one shared transaction with ledger inserts. Core activates the new-manual-v4
+   approval requirement; consumers and the quiet window must already be ready.
+4. The applicator strips file wrappers and commits the complete set once.
+   271/272 are uncommitted intermediate states; failure of any file rolls back
+   the set. After COMMIT independently verify273, exact fingerprint, definitions,
+   owners/ACL/RLS, legacy helpers and private inventory. Stop on any mismatch.
+5. Complete the central repository closeout before ending the quiet window.
+   New producers remain unused in this code/migration release. Later manual v4,
+   v5 and format-v2 data operations require their separate exact authorizations.
+   Do not send new versions to old SQL.
    Existing valid ledger approvals keep their old consumers. An unapproved old
    manual-v2 artifact stays immutable; a future operation needs a fresh v4
    technical plan, without repeating an already granted candidacy decision.
@@ -630,6 +631,57 @@ remote protection API does not expose a required-status list, so no external
 Vercel check requirement or bypass is assumed. Scheduled/manual production,
 staging-write and Predators jobs are not dispatched by these branch/PR events.
 Publication requires positive Vercel proof and all final local gates first.
+
+## Phase 17 controlled production release and central273 closeout (2026-11-27)
+
+The owner explicitly authorized release of PR567, its exact three migrations,
+the required deployments, controlled transition and minimal repository closeout.
+Approved head `d8eaef4070f71c18348153a5cb6905c3216c51ce` was squash merged as
+`c1fdbd7fc7c64af2a0367708ba696b784869f852`, with exact approved tree parity.
+Main CI passed. Production deployment `dpl_7QQWhH2R9qPSt8Rr6uuAJZh5r3hx`
+is READY for that main SHA and the correct custom domain; the safe homepage GET
+returned200 with the existing title/canonical. No new producer was dispatched.
+
+Fresh owner-path READ ONLY checks confirmed the exact270 baseline/fingerprint,
+all nine input definitions, PostgreSQL17.6/UTF8/ICU en-US153.121/en_US.UTF-8,
+ownership/ACL/RLS and zero active public write locks. One actual unmodified
+applicator invocation then committed exactly the three sealed SQL and ledger
+inserts in one transaction. Independent verifier and technical readback confirm
+273 / `9ca37b4d56ca2815b01eb48bd4d01c37db9e06b46d4cb0c0cec2fa90673bd25b`.
+Counts before/after the migration transaction are products1494, variants4228,
+mappings4580, offers4580 and price_history62893: zero business deltas attributable
+to this apply. Exactly nine existing public definitions changed,13 private
+helper functions are present, and all public signatures/owners/ACL/search_path,
+business table ACL/RLS and other public function hashes are preserved. No new
+public RPC/table or production business test approval/apply was introduced.
+
+The existing applicator's real receipt is retained verbatim as
+`../retailer-automation/evidence/SHARED-IMPORT-CONTRACTS-PRODUCTION-273-CLOSEOUT-2026-11-27.json`.
+This closeout changes only the central PRODUCTION count/fingerprint and consumes
+the exact three pending entries after confirmed real readback. Migration bytes,
+STAGING120 and its original pending/exclusions are unchanged. Existing receipt,
+selector and applicator tests preserve historical270-to273 derivation, all exact
+file hashes, zero-pending replay protection and negative drift/order cases.
+
+Only Queue Worker355214106 was temporarily changed from active to
+disabled_manually during the coordinated boundary; no active writer was
+cancelled, no workflow definition/cron changed and no other process was paused.
+Its original active state must be restored only after main's central273 contract,
+pending0, final verifier and dependent read-only compatibility checks pass.
+The closeout feature branch alone is also excluded from Vercel Git deployment
+in the existing root config, under the owner's confirmed Root Directory `./`.
+Main retains its normal required deployment path. Closeout requires its own
+quick/full, exact-SHA CI, normal merge and production deployment readback.
+
+Per-retailer runtime evidence remains separate from source/read-only binding
+verification: unobserved scheduled refreshes are AWAITING_NATURAL_RUN, never
+runtime PASS. Retain prior local9/9 PostgreSQL and86/86 immutable loader evidence
+without claiming new executions. All89 owner acceptances,86 complete packets,
+170 cases,16 additional local cases,14 unapproved GTIN promotions, commercial
+deferrals, future EPN gates, exact237 and Predators exclusions remain unchanged.
+New imports, business approvals/apply, eBay API calls and automation expansion
+remain unauthorized. Actual Phase17 technical evidence is retained separately
+under `tmp/ebay-commercial-phase17-2026-11-27`.
 
 ## Permanent boundaries
 

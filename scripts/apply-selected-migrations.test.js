@@ -559,7 +559,7 @@ test("Catalog Health receipt closes CURRENT270 and preserves the exact historica
   assert.ok(!PENDING_MIGRATIONS.PRODUCTION.some(entry => entry.filename === filename));
   const current = derivePostApplyMigrationBinding("PRODUCTION", { pendingMigrations: [], migrationFiles: historicalFiles });
   assert.equal(current.status, "ALREADY_CLOSED"); assert.equal(current.pending_count, 0);
-  assertDerivationMatchesContract(current, { ...CONTRACTS.PRODUCTION, pending: [] });
+  assertDerivationMatchesContract(current, { ...CONTRACTS.PRODUCTION, ledgerCount:receipt.post_state.ledger_count, ledgerFingerprint:receipt.post_state.ledger_fingerprint, pending: [] });
   assert.equal(current.post_ledger_count, receipt.post_state.ledger_count);
   assert.equal(current.post_ledger_fingerprint, receipt.post_state.ledger_fingerprint);
   const historical = derivePostApplyMigrationBinding("PRODUCTION", {pendingMigrations:[{filename,sha256:receipt.consumed_pending.ordered_sha256[0]}],migrationFiles:historicalFiles});
@@ -572,3 +572,7 @@ test("Catalog Health receipt closes CURRENT270 and preserves the exact historica
   assert.equal(migrationBinding("STAGING").versions.length, 120);
   assert.equal(PENDING_MIGRATIONS.STAGING.length, 3);
 });
+
+
+test("shared contract production receipt closes CURRENT273 and preserves the exact consumed270-to273 release", () => { const receipt = JSON.parse(fs.readFileSync(path.join(ROOT, "docs/retailer-automation/evidence/SHARED-IMPORT-CONTRACTS-PRODUCTION-273-CLOSEOUT-2026-11-27.json"), "utf8")), pending = receipt.consumed_pending.ordered_filenames.map((filename, i) => ({ filename, sha256: receipt.consumed_pending.ordered_sha256[i] })); assert.equal(pending.length, 3); for (const p of pending)
+    assert.equal(require("./lib/environment-migrations").sha256File(path.join(SOURCE, p.filename)), p.sha256); const current = derivePostApplyMigrationBinding("PRODUCTION"), historical = derivePostApplyMigrationBinding("PRODUCTION", { pendingMigrations: pending }); assert.equal(current.status, "ALREADY_CLOSED"); assert.equal(current.pending_count, 0); assert.equal(current.pre_ledger_count, 273); assertDerivationMatchesContract(current, CONTRACTS.PRODUCTION); assert.equal(historical.pre_ledger_count, receipt.pre_state.ledger_count); assert.equal(historical.pre_ledger_fingerprint, receipt.pre_state.ledger_fingerprint); assert.equal(historical.post_ledger_count, receipt.post_state.ledger_count); assert.equal(historical.post_ledger_fingerprint, receipt.post_state.ledger_fingerprint); assert.deepEqual(historical.consumed_pending.map(x => x.sha256), receipt.consumed_pending.ordered_sha256); const closed = repositoryCloseoutForAttempt({ mode: "apply", committed: true, derivation: current, contract: CONTRACTS.PRODUCTION, projectRef: CONTRACTS.PRODUCTION.projectRef, remoteLedger: ledgerRows(current.post_identifiers) }); assert.equal(closed.closeout_status, "ALREADY_CLOSED"); assert.equal(closed.evidence, null); });

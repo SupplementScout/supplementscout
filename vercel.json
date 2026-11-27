@@ -1,7 +1,8 @@
 {
   "git": {
     "deploymentEnabled": {
-      "feat/shared-import-contract-integrity": false
+      "feat/shared-import-contract-integrity": false,
+      "fix/shared-import-contract-closeout-273": false
     }
   }
 }
