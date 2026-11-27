@@ -276,20 +276,7 @@ const PENDING_MIGRATIONS = Object.freeze({
       sha256: "062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa",
     }),
   ]),
-  PRODUCTION: Object.freeze([
-    Object.freeze({
-      filename: "20261125100000_shared_import_contract_v4.sql",
-      sha256: "a763b5dea4c79540e8ec1d189147e66f42af1d252dd1b3837d5fcf9a98b8c27d",
-    }),
-    Object.freeze({
-      filename: "20261125101000_reviewed_format_correction_v2.sql",
-      sha256: "a144b66e910ec0fe129a9f3851359587602aba36c911563622f49adf71390e10",
-    }),
-    Object.freeze({
-      filename: "20261125102000_existing_target_identity_rebind_v5.sql",
-      sha256: "4b96590a67a5ca5e3268a54ba514159d4d9e5b25e02642077ed7713e01d2df0e",
-    }),
-  ]),
+  PRODUCTION: Object.freeze([]),
 });
 
 function migrationIdentifier(filename) {
