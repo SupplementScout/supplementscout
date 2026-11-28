@@ -1,3 +1,5 @@
+import { categoryBrowseHref } from "./categoryRoutes";
+
 export type IntentSearchSort =
   | "relevance"
   | "price_asc"
@@ -93,6 +95,7 @@ type ValueMetricDefinition = {
   label: string;
   applicability: string;
   patterns: RegExp[];
+  prefixedPatterns: RegExp[];
 };
 
 export const SEARCH_VALUE_METRICS: Record<
@@ -104,27 +107,37 @@ export const SEARCH_VALUE_METRICS: Record<
     label: "Lowest cost per serving",
     applicability: "Products with a verified serving count",
     patterns: [
-      /\b(?:lowest\s+)?(?:price|cost|cheapest)\s+per\s+serving\b/gi,
+      /\b(?:with\s+)?(?:the\s+)?(?:lowest\s+)?(?:price|cost|cheapest|best\s+value)\s+per\s+serving\b/gi,
       /\bcheapest\s+by\s+(?:price|cost)\s+per\s+serving\b/gi,
     ],
+    prefixedPatterns: [/\bper\s+serving\b/gi],
   },
   cost_per_25g_protein: {
     sort: "cost_per_25g_protein_asc",
     label: "Lowest cost per 25 g protein",
     applicability: "Products with verified protein per serving",
     patterns: [
-      /\b(?:lowest\s+)?(?:price|cost|cheapest)\s+per\s+25\s*g(?:\s+(?:of\s+)?protein)?\b/gi,
+      /\b(?:with\s+)?(?:the\s+)?(?:lowest\s+)?(?:price|cost|cheapest|best\s+value)\s+per\s+25\s*g(?:\s+(?:of\s+)?protein)?\b/gi,
     ],
+    prefixedPatterns: [/\bper\s+25\s*g(?:\s+(?:of\s+)?protein)?\b/gi],
   },
   cost_per_5g_creatine: {
     sort: "cost_per_5g_creatine_asc",
     label: "Lowest cost per 5 g creatine",
     applicability: "Powder products with verified creatine and serving data",
     patterns: [
-      /\b(?:lowest\s+)?(?:price|cost|cheapest)\s+per\s+5\s*g(?:\s+(?:of\s+)?creatine)?\b/gi,
+      /\b(?:with\s+)?(?:the\s+)?(?:lowest\s+)?(?:price|cost|cheapest|best\s+value)\s+per\s+5\s*g(?:\s+(?:of\s+)?creatine)?\b/gi,
     ],
+    prefixedPatterns: [/\bper\s+5\s*g(?:\s+(?:of\s+)?creatine)?\b/gi],
   },
 };
+
+// Delivery wording is consumed only as part of a valid budget clause.
+const DELIVERED_BUDGET_PATTERNS = [
+  /\b(?:under|below|up\s+to|(?:for\s+)?less\s+than)\s*£\s*(\d+(?:\.\d{1,2})?)(?![\w.,])(?:\s+(?:including\s+(?:delivery|shipping)|with\s+(?:delivery|shipping)\s+included|delivered)\b)?/gi,
+  /\b(?:under|below|up\s+to|(?:for\s+)?less\s+than)\s*(\d+(?:\.\d{1,2})?)\s+pounds?\b(?:\s+(?:including\s+(?:delivery|shipping)|with\s+(?:delivery|shipping)\s+included|delivered)\b)?/gi,
+  /\bfor\s+£\s*(\d+(?:\.\d{1,2})?)\s+or\s+less\b(?:\s+(?:including\s+(?:delivery|shipping)|with\s+(?:delivery|shipping)\s+included|delivered)\b)?/gi,
+];
 
 const FORMAT_TERMS: Array<{
   format: SearchProductFormat;
@@ -327,10 +340,14 @@ export function buildSearchIntentPlan(
     }
   }
 
+  const hasValuePrefix = /^(?:best\s+value|cheapest)\s+/i.test(working);
   for (const [metric, definition] of Object.entries(
     SEARCH_VALUE_METRICS
   ) as Array<[SearchValueMetric, ValueMetricDefinition]>) {
-    for (const pattern of definition.patterns) {
+    for (const pattern of [
+      ...definition.patterns,
+      ...(hasValuePrefix ? definition.prefixedPatterns : []),
+    ]) {
       let found = false;
       working = replaceMatches(working, pattern, () => {
         found = true;
@@ -376,15 +393,14 @@ export function buildSearchIntentPlan(
   );
   caffeineFree = foundCaffeineFree;
 
-  working = working.replace(
-    /\b(?:under|below|up\s+to|less\s+than)\s*£\s*(\d+(?:\.\d{1,2})?)\b/gi,
-    (match, amount: string) => {
+  for (const pattern of DELIVERED_BUDGET_PATTERNS) {
+    working = working.replace(pattern, (match, amount: string) => {
       const parsedBudget = positiveNumber(amount, 1_000);
       if (parsedBudget === null) return match;
       maxDeliveredPrice ??= parsedBudget;
       return " ";
-    }
-  );
+    });
+  }
 
   const budgetMatch = working.match(
     /\b(?:under|below|up\s+to|less\s+than)\s*(\d+(?:\.\d{1,2})?)\s*$/i
@@ -396,8 +412,15 @@ export function buildSearchIntentPlan(
       working = working.slice(0, budgetMatch.index).trim();
     }
   }
-  if (maxDeliveredPrice !== null) {
-    working = working.replace(/^(?:best)\s+/i, "");
+  if (maxDeliveredPrice !== null || valueMetric !== null) {
+    working = working.replace(/^best\s+(?:value\s+)?/i, "");
+  }
+  if (valueMetric !== null) {
+    working = working.replace(/^which\s+(.+?)\s+is\s*\?$/i, "$1");
+  }
+  const categoryValueQuery = working.match(/^best\s+value\s+(.+)$/i)?.[1]?.trim();
+  if (valueMetric === null && categoryValueQuery && !categoryBrowseHref(categoryValueQuery).startsWith("/search?")) {
+    working = categoryValueQuery;
   }
 
   let foundCheap = false;
@@ -608,6 +631,7 @@ export function searchIntentParamsFromPlan(plan: SearchIntentPlan) {
   if (query) params.set("q", query);
   appendSearchIntentUrlState(params, intentUrlStateFromPlan(plan));
   if (plan.filters.caffeineFree) params.set("caffeine", "free");
+  if (plan.sort !== "relevance") params.set("sort", plan.sort);
   return params;
 }
 
@@ -615,7 +639,7 @@ export function canonicalIntentQuery(plan: SearchIntentPlan) {
   const clauses = [plan.textQuery];
 
   if (plan.filters.maxDeliveredPrice !== null) {
-    clauses.push(`under £${formatNumber(plan.filters.maxDeliveredPrice)}`);
+    clauses.push(`under £${plan.filters.maxDeliveredPrice}`);
   }
 
   clauses.push(...plan.unsupportedClauses.map(({ clause }) => clause));

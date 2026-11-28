@@ -23,7 +23,9 @@ function compileModule(filename, mocks = {}) {
   mod.require = (request) =>
     Object.prototype.hasOwnProperty.call(mocks, request)
       ? mocks[request]
-      : originalRequire(request);
+      : request.startsWith(".")
+        ? compileModule(path.resolve(path.dirname(filename), `${request}.ts`), mocks)
+        : originalRequire(request);
   mod._compile(outputText, filename);
   return mod.exports;
 }
@@ -213,6 +215,35 @@ test("DecisionRequest composes SearchIntentPlan and explicit priority wins", () 
   assert.equal(explicit.primaryPriority, "LOWEST_COST_PER_5G_CREATINE");
   assert.equal(explicit.primaryPrioritySource, "url");
   assert.equal(explicit.shortlistLimit, 3);
+});
+
+test("natural search intent reaches the existing decision engine without a second parser", () => {
+  for (const [query, text, priority, budget] of [
+    ["Whey protein under £40 including delivery", "Whey protein", null, 40],
+    ["Whey isolate with the lowest cost per 25g of protein", "Whey isolate", "LOWEST_COST_PER_25G_PROTEIN", null],
+    ["Which creatine is cheapest per 5g?", "creatine", "LOWEST_COST_PER_5G_CREATINE", null],
+    ["Creatine under £25 with the lowest cost per 5g", "Creatine", "LOWEST_COST_PER_5G_CREATINE", 25],
+  ]) {
+    const result = request(query);
+    assert.equal(result.intentPlan.textQuery, text, query);
+    assert.equal(result.primaryPriority, priority, query);
+    assert.equal(result.intentPlan.filters.maxDeliveredPrice, budget, query);
+  }
+  assert.equal(request("Best value whey protein").primaryPriority, null);
+  const explicit = request("Which creatine is cheapest per 5g?", { explicitPriority: "LOWEST_DELIVERED_PRICE" });
+  assert.equal(explicit.primaryPriority, "LOWEST_DELIVERED_PRICE");
+  assert.equal(explicit.primaryPrioritySource, "url");
+});
+
+test("best value keeps existing clarification rather than inventing a metric", async () => {
+  const fixture = searchFixture([candidate(1, { totalPrice: 12 }), candidate(2, { totalPrice: 14 })]);
+  for (const query of ["Best value creatine", "Best value creatine under £25 including delivery"]) {
+    const result = await engine.runDecisionEngine(request(query), { search: fixture.search, now: NOW });
+    assert.equal(result.status, "NEEDS_CLARIFICATION");
+    assert.equal(result.interpretedRequest.primaryPriority, null);
+    assert.ok(result.clarification.choices.length > 1);
+  }
+  assert.equal(fixture.calls.length, 2);
 });
 test("request A returns at most three exact variants ordered by delivered price", async () => {
   const fixture = searchFixture([

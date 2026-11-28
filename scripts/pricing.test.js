@@ -54,8 +54,8 @@ const offerFreshnessModule = (() => {
   mod._compile(outputText, filename);
   return mod.exports;
 })();
-const searchIntentModule = (() => {
-  const filename = path.join(process.cwd(), "app", "lib", "searchIntent.ts");
+const categoryCoverageModule = (() => {
+  const filename = path.join(process.cwd(), "app", "lib", "categoryCoverage.ts");
   const source = fs.readFileSync(filename, "utf8");
   const { outputText } = ts.transpileModule(source, {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
@@ -67,8 +67,8 @@ const searchIntentModule = (() => {
   mod._compile(outputText, filename);
   return mod.exports;
 })();
-const categoryCoverageModule = (() => {
-  const filename = path.join(process.cwd(), "app", "lib", "categoryCoverage.ts");
+const searchIntentModule = (function loadSearchIntentModule(moduleName = "searchIntent") {
+  const filename = path.join(process.cwd(), "app", "lib", `${moduleName}.ts`);
   const source = fs.readFileSync(filename, "utf8");
   const { outputText } = ts.transpileModule(source, {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
@@ -77,6 +77,8 @@ const categoryCoverageModule = (() => {
   const mod = new Module(filename, module);
   mod.filename = filename;
   mod.paths = Module._nodeModulePaths(path.dirname(filename));
+  const originalRequire = mod.require.bind(mod);
+  mod.require = (request) => request.startsWith("./") ? loadSearchIntentModule(request.slice(2)) : originalRequire(request);
   mod._compile(outputText, filename);
   return mod.exports;
 })();

@@ -69,8 +69,8 @@ function loadAppliedFactsModule(mockSupabaseAdmin, resolveAppliedPreWorkoutFacts
   return mod.exports;
 }
 
-function loadSearchIntentModule() {
-  const filename = path.join(process.cwd(), "app", "lib", "searchIntent.ts");
+function loadSearchIntentModule(moduleName = "searchIntent") {
+  const filename = path.join(process.cwd(), "app", "lib", `${moduleName}.ts`);
   const source = fs.readFileSync(filename, "utf8");
   const { outputText } = ts.transpileModule(source, {
     compilerOptions: {
@@ -82,6 +82,8 @@ function loadSearchIntentModule() {
   const mod = new Module(filename, module);
   mod.filename = filename;
   mod.paths = Module._nodeModulePaths(path.dirname(filename));
+  const originalRequire = mod.require.bind(mod);
+  mod.require = (request) => request.startsWith("./") ? loadSearchIntentModule(request.slice(2)) : originalRequire(request);
   mod._compile(outputText, filename);
   return mod.exports;
 }
@@ -834,6 +836,117 @@ test("bounded intent grammar cleans supported structural clauses", () => {
       assert.deepEqual(plan.filters[key], value, `${query}: ${key}`);
     }
   }
+});
+
+const naturalBudgetCases = [
+  ["Whey protein under £40 including delivery", "Whey protein", 40],
+  ["Whey protein under £40 delivered", "Whey protein", 40],
+  ["Whey protein for less than £40 including delivery", "Whey protein", 40],
+  ["Whey protein up to £40 with delivery included", "Whey protein", 40],
+  ["Creatine monohydrate under £20", "Creatine monohydrate", 20],
+  ["Creatine under 20 pounds", "Creatine", 20],
+  ["Whey isolate for £35 or less", "Whey isolate", 35],
+  ["Whey protein below £50", "Whey protein", 50],
+  ["Whey protein under £39.99 including shipping", "Whey protein", 39.99],
+  ["PER4M Whey 2kg under £50", "PER4M Whey 2kg", 50],
+];
+
+const naturalValueCases = [
+  ["Whey protein with the lowest cost per serving", "Whey protein", "price_per_serving", null],
+  ["Cheapest whey protein per serving", "whey protein", "price_per_serving", null],
+  ["Whey isolate with the lowest cost per 25g of protein", "Whey isolate", "cost_per_25g_protein", null],
+  ["Best value whey isolate per 25g protein", "whey isolate", "cost_per_25g_protein", null],
+  ["Which creatine is cheapest per 5g?", "creatine", "cost_per_5g_creatine", null],
+  ["Creatine with the lowest cost per 5g", "Creatine", "cost_per_5g_creatine", null],
+  ["Vegan protein with the best value per serving", "Vegan protein", "price_per_serving", null],
+  ["Creatine under £25 with the lowest cost per 5g", "Creatine", "cost_per_5g_creatine", 25],
+];
+
+test("natural budgets remove only their attached shopping wording and keep the delivered ceiling", () => {
+  for (const [query, text, budget] of naturalBudgetCases) {
+    const plan = buildSearchIntentPlan(query);
+    assert.equal(plan.rawQuery, query);
+    assert.equal(plan.textQuery, text, query);
+    assert.equal(plan.filters.maxDeliveredPrice, budget, query);
+    assert.equal(plan.valueMetric, null);
+    assert.equal(plan.sort, "relevance");
+    assert.deepEqual(plan.unsupportedClauses, []);
+    assert.ok(plan.appliedConstraints.some(c => c.key === "max_delivered_price" && c.label.includes("Delivered price ≤")));
+  }
+});
+
+test("natural value requests preserve their explicit denominator without adding nutrition constraints", () => {
+  for (const [query, text, metric, budget] of naturalValueCases) {
+    const plan = buildSearchIntentPlan(query);
+    assert.equal(plan.textQuery, text, query);
+    assert.equal(plan.valueMetric, metric, query);
+    assert.equal(plan.sort, `${metric}_asc`);
+    assert.equal(plan.filters.maxDeliveredPrice, budget);
+    assert.equal(plan.filters.minProteinPerServingG, null, query);
+    assert.equal(plan.filters.minVerifiedServings, null);
+    assert.deepEqual(plan.unsupportedClauses, []);
+  }
+});
+
+test("natural budget and value URLs round-trip every constraint and explicit sort without duplicate parameters", () => {
+  for (const [query] of [...naturalBudgetCases, ...naturalValueCases, ["creatine under £1000"], ["cheap creatine"]]) {
+    const plan = buildSearchIntentPlan(query), params = searchIntentParamsFromPlan(plan);
+    const reloaded = buildSearchIntentPlan(params.get("q") || "", {
+      explicit: normalizeSearchIntentUrlState(Object.fromEntries(params)),
+      caffeineFree: params.get("caffeine") === "free",
+      requestedSort: params.get("sort") || "relevance",
+      sortIsExplicit: params.has("sort"),
+    });
+    assert.deepEqual(reloaded.filters, plan.filters, query);
+    assert.equal(reloaded.textQuery, plan.textQuery, query);
+    assert.equal(reloaded.valueMetric, plan.valueMetric, query);
+    assert.equal(reloaded.sort, plan.sort, query);
+    for (const key of params.keys()) assert.equal(params.getAll(key).length, 1, `${query}: ${key}`);
+  }
+  const plan = buildSearchIntentPlan("Whey isolate with the lowest cost per 25g of protein under £40", {
+    requestedSort: "relevance", sortIsExplicit: true, explicit: { format: "capsule", proteinMinG: 22 },
+  });
+  assert.equal(plan.sort, "relevance");
+  assert.equal(plan.valueMetric, null);
+  assert.equal(plan.filters.format, "capsule");
+  assert.equal(plan.filters.minProteinPerServingG, 22);
+  assert.equal(plan.filters.maxDeliveredPrice, 40);
+});
+
+test("shopping grammar preserves identity words, ambiguity, unsupported constraints and malformed money", () => {
+  for (const query of ["PER4M 310g", "PER4M Whey 2kg", "Applied Nutrition Critical Whey 2kg", "Best Value Nutrition Whey", "Including Delivery Whey", "Shipping Included Protein", "Best magnesium for muscle cramps", "Best supplement for me"]) {
+    const plan = buildSearchIntentPlan(query);
+    assert.equal(plan.textQuery, query, query);
+    assert.equal(plan.filters.maxDeliveredPrice, null);
+    assert.equal(plan.valueMetric, null);
+  }
+  for (const amount of ["£0", "£-20", "£1001", "£99999999999999999999", "£39.999", "£20,50", "£1,000", "$20", "€20"]) {
+    const query = `Whey protein under ${amount} including delivery`, plan = buildSearchIntentPlan(query);
+    assert.equal(plan.textQuery, query, query);
+    assert.equal(plan.filters.maxDeliveredPrice, null, query);
+  }
+  const named = buildSearchIntentPlan("Including Delivery Whey under £40");
+  assert.equal(named.textQuery, "Including Delivery Whey");
+  const pack = buildSearchIntentPlan("Whey protein strawberry 2kg under £50");
+  assert.equal(pack.textQuery, "Whey protein strawberry 2kg");
+  assert.equal(pack.filters.maxDeliveredPrice, 50);
+  const unsupported = buildSearchIntentPlan("Low sugar protein under £40 including delivery");
+  assert.equal(unsupported.textQuery.toLowerCase(), "protein");
+  assert.deepEqual(unsupported.unsupportedClauses.map(c => c.key), ["low_sugar"]);
+  assert.match(canonicalIntentQuery(unsupported), /low sugar/);
+  assert.equal(buildSearchIntentPlan("Creatine capsules under £20").filters.format, "capsule");
+  assert.equal(buildSearchIntentPlan("Creatine monohydrate powder 500g").textQuery, "Creatine monohydrate 500g");
+  assert.equal(buildSearchIntentPlan("Caffeine-free pre-workout").filters.caffeineFree, true);
+  const combined = buildSearchIntentPlan("Best value protein powder under £40 including delivery");
+  assert.equal(combined.textQuery, "protein");
+  assert.equal(combined.filters.format, "powder");
+  assert.equal(combined.valueMetric, null);
+  assert.equal(combined.filters.maxDeliveredPrice, 40);
+  const ambiguous = buildSearchIntentPlan("Best value whey protein");
+  assert.equal(ambiguous.textQuery, "whey protein");
+  assert.equal(ambiguous.valueMetric, null);
+  assert.equal(ambiguous.sort, "relevance");
+  assert.equal(buildSearchIntentPlan("Best Value Whey 2kg").textQuery, "Best Value Whey 2kg");
 });
 
 test("unsupported low sugar is transparent but does not poison protein discovery", () => {
@@ -1642,6 +1755,40 @@ function variantIntentProduct(name, overrides) {
   }));
   return { product, variants };
 }
+
+test("natural budgets preserve inclusive boundary, known shipping, exact stock and freshness guards", async () => {
+  for (const [label, offer, count] of [
+    ["boundary", { price: 35, shipping_cost: 5 }, 1],
+    ["above boundary", { price: 35.01, shipping_cost: 5 }, 0],
+    ["unknown delivery", { price: 10, shipping_cost: null }, 0],
+    ["out of stock", { price: 10, shipping_cost: 0, in_stock: false }, 0],
+    ["stale", { price: 10, shipping_cost: 0, last_checked_at: "2020-01-01T00:00:00Z" }, 0],
+  ]) {
+    const fixture = variantIntentProduct("Whey protein", [{}]);
+    fixture.product.category = "Whey Protein";
+    Object.assign(fixture.product.offers[0], offer);
+    const result = await exactVariantSearch(fixture.product, fixture.variants)("Whey protein powder under £40 including delivery", "relevance");
+    assert.equal(result.totalCount, count, label);
+    if (count) {
+      assert.equal(result.results[0].cheapestOffer.deliveredPrice.totalPrice, 40);
+      assert.equal(result.results[0].selectedVariantId, String(fixture.variants[0].id));
+    }
+  }
+});
+
+test("natural metric wording never invents missing verified servings, protein or creatine", async () => {
+  for (const [query, name, key] of [
+    ["Whey protein with the lowest cost per serving", "Whey protein", "verifiedPricePerServing"],
+    ["Whey isolate with the lowest cost per 25g of protein", "Whey isolate", "verifiedCostPer25gProtein"],
+    ["Which creatine is cheapest per 5g?", "Creatine", "verifiedCostPer5gCreatine"],
+  ]) {
+    const fixture = variantIntentProduct(name, [{}]);
+    fixture.product.category = name === "Creatine" ? "Creatine" : "Whey Protein";
+    const result = await exactVariantSearch(fixture.product, fixture.variants)(query, "relevance");
+    assert.equal(result.valueMetricAvailable, false, query);
+    assert.equal(result.results[0][key], null, query);
+  }
+});
 
 test("variant intent predicate selects the exact servings and protein variant", async () => {
   const servings = variantIntentProduct("Intent Product", [
