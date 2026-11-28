@@ -10,6 +10,7 @@ import SearchAnalyticsEvents from "../components/SearchAnalyticsEvents";
 import SearchResultsLayout from "../components/SearchResultsLayout";
 import SearchResultSelectionAnalytics from "../components/SearchResultSelectionAnalytics";
 import { resolveExactCategorySearchIntent } from "../lib/categorySearchIntent";
+import { comparisonHref, comparisonSearchQueries } from "../lib/comparisonSelector";
 import {
   normalizeSearchQuery,
   normalizeSearchFilters,
@@ -94,6 +95,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
   const query = normalizeSearchQuery(params.q);
   const requestedSort = normalizeSearchSort(params.sort);
+  const comparisonQueries = comparisonSearchQueries(query);
   const normalizedFilters = normalizeSearchFilters(params);
   const explicitIntent = normalizeSearchIntentUrlState(params);
   const intentPlan = buildSearchIntentPlan(query, {
@@ -195,6 +197,19 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
       <section className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 sm:py-10">
         <SearchInput key={query} initialQuery={query} variant="compact" />
+        {comparisonQueries && (
+          <p className="mt-4 text-sm leading-6 text-zinc-600">
+            Comparing these products?{" "}
+            <Link
+              href={comparisonHref(null, null, comparisonQueries)}
+              prefetch={false}
+              className="inline-flex min-h-11 items-center font-semibold text-[var(--ss-accent)] underline underline-offset-4 focus:outline-none focus:ring-2 focus:ring-[var(--ss-accent)]"
+            >
+              Compare side by side
+            </Link>
+            {" "}Choose the exact product and check the pack and flavour for each.
+          </p>
+        )}
         <div className="mt-3 flex items-start gap-2 rounded-2xl border border-[var(--ss-border)] bg-[var(--ss-surface-muted)] px-4 py-3 text-sm leading-6 text-zinc-600">
           <SupplementScoutIcon name="truck" size={18} className="mt-0.5 shrink-0 text-[var(--ss-accent)]" />
           <p>

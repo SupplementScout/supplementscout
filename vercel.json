@@ -1,6 +1,7 @@
 {
   "git": {
     "deploymentEnabled": {
+      "feat/customer-search-to-purchase-20261128": false,
       "feat/shared-import-contract-integrity": false,
       "fix/shared-import-contract-closeout-273": false,
       "feat/ebay-commercial-activation-readiness-phase18": false,
