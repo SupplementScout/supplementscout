@@ -6,7 +6,8 @@
       "feat/ebay-commercial-activation-readiness-phase18": false,
       "feat/ebay-approved-membership-phase20": false,
       "feat/ebay-approved-membership-final-phase20": false,
-      "fix/automation-reliability-recovery-20261127": false
+      "fix/automation-reliability-recovery-20261127": false,
+      "fix/simply-shared-review-publication-20261119": false
     }
   }
 }

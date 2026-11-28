@@ -142,7 +142,8 @@ function files(value = report()) {
 }
 
 test("owner-only publication refuses scheduled, delayed and manual same-run paths before any credentials or RPC", async t => {
-  const value = report(); value.request.retailer = { id: "14", slug: "10-reps" };
+  for (const retailer of [{ id: "14", slug: "10-reps" }]) {
+  const value = report(); value.request.retailer = retailer;
   value.publication_mode = "AUTOMATIC"; // An artifact cannot override the deployed profile policy.
   const fixture = files(value); t.after(fixture.cleanup);
   for (const event of ["schedule", "workflow_dispatch"]) {
@@ -150,6 +151,7 @@ test("owner-only publication refuses scheduled, delayed and manual same-run path
       env: { ...retryEnv(value), GITHUB_EVENT_NAME: event, GITHUB_SHA: SOURCE_SHA },
       client: new Proxy({}, { get() { assert.fail("same-run must stop before database access"); } }),
     }), /REVIEW_PUBLICATION_OWNER_AUTHORIZED_ARTIFACT_REQUIRED/);
+  }
   }
 });
 
@@ -178,6 +180,71 @@ test("exact owner authorization submits the entire 259-operation request once an
   assert.equal(second.publication_status, "ALREADY_APPLIED");
   assert.equal(second.database_writes, 0);
   assert.equal(calls, 1); assert.equal(protectionReads, 1);
+});
+
+test("Simply exact authorized retry mock publication creates three manual reviews once and verifies the publication seal", async t => {
+  const value = report(); value.request.retailer = { id: "7", slug: "simply-supplements" };
+  value.publication_mode = "AUTOMATIC";
+  value.source.publication_mode = "AUTOMATIC";
+  value.request.operations = ["596", "669", "670"].map(offer_id => ({ op: "CREATE", expected: { review_id: null }, row: {
+    retailer_id: "7", offer_id, source_row_fingerprint: "f".repeat(64), expires_at: EXPIRY,
+    reason_codes: "SOURCE_MISSING", operation_type: "MANUAL_REVIEW_IDENTITY",
+    proposed_state: { catalogue_action: "KEEP_UNCHANGED", automatic_action: false },
+  } }));
+  value.request_summary.operation_count = 3;
+  const result = { ...rpcResult(value), created_count: 3 }, seal = publicationSeal(value, result);
+  let calls = 0;
+  const setup = retryDependencies(value, {
+    client: { async rpc(name, args) { assert.equal(name, "publish_automation_review_queue_changes"); assert.deepEqual(args.p_request, value.request); calls++; return { data: result }; } },
+    readPublicationProtection: async () => ({ executionRequests: [], decidedReviews: [] }),
+    readPublicationSeal: async () => calls ? [seal] : [],
+  });
+  const fixture = files(value); t.after(fixture.cleanup);
+  const first = await run({ mode: RETRY_MODE, input: fixture.input, output: fixture.output }, setup.dependencies);
+  assert.equal(first.rpc_mutation_attempts, 1); assert.equal(first.catalogue_writes, 0);
+  const second = await run({ mode: RETRY_MODE, input: fixture.input, output: fixture.output }, setup.dependencies);
+  assert.equal(second.publication_status, "ALREADY_APPLIED"); assert.equal(second.database_writes, 0); assert.equal(calls, 1);
+  for (const failure of ["owner", "expected-state"]) {
+    const blocked = retryDependencies(value, { readPublicationProtection: async () => ({ executionRequests: failure === "active-execution" ? [{ id: "queued", status: "QUEUED" }] : [], decidedReviews: [] }) });
+    if (failure === "owner") blocked.dependencies.env.RETRY_OWNER_CONFIRMATION = "not-authorized";
+    if (failure === "expected-state") blocked.dependencies.readProductionBaseline = async () => ({ catalogueCounts: { ...COUNTS, offers: COUNTS.offers + 1 }, activeRows: [] });
+    await assert.rejects(run({ mode: RETRY_MODE, input: fixture.input, output: fixture.output }, blocked.dependencies), /OWNER_CONFIRMATION|BASELINE|CATALOGUE|PROTECTED/);
+    assert.equal(blocked.state.rpcCalls, 0);
+  }
+});
+
+test("Simply automatic publication requires the real schedule, current authority and publication postflight receipt", async t => {
+  const value = report({ publication_mode: "AUTOMATIC", github_context: { run_id: SOURCE_RUN } });
+  value.source.publication_mode = "AUTOMATIC";
+  value.request.retailer = { id: "7", slug: "simply-supplements" };
+  const env = { ...retryEnv(value), GITHUB_RUN_ID: SOURCE_RUN, GITHUB_SHA: SOURCE_SHA, GITHUB_EVENT_NAME: "schedule" };
+  const fixture = files(value); t.after(fixture.cleanup);
+  let calls = 0;
+  const client = { rpc: async () => { calls++; return { data: { ...rpcResult(value), already_applied: calls > 1, database_writes: calls > 1 ? 0 : 1 } }; } };
+  const dependencies = { env, client, readPublicationSeal: async () => [publicationSeal(value)] };
+  const first = await run({ input: fixture.input, output: fixture.output }, dependencies);
+  assert.equal(first.publication_status, "APPLIED"); assert.equal(first.publication_seal_count, 1);
+  const second = await run({ input: fixture.input, output: fixture.output }, dependencies);
+  assert.equal(second.publication_status, "ALREADY_APPLIED"); assert.equal(second.database_writes, 0);
+  assert.equal(second.idempotency_key, first.idempotency_key); assert.equal(second.catalogue_writes, 0);
+  assert.deepEqual(JSON.parse(fs.readFileSync(fixture.output, "utf8")), JSON.parse(JSON.stringify(second)));
+  for (const publication_mode of [undefined, "OWNER_AUTHORIZED_ARTIFACT_ONLY"]) {
+    const invalid = files({ ...value, publication_mode }); t.after(invalid.cleanup);
+    await assert.rejects(run({ input: invalid.input, output: invalid.output }, dependencies), /AUTHORITY_DRIFT/);
+  }
+  const drift = files({ ...value, source: { ...value.source, publication_mode: "OWNER_AUTHORIZED_ARTIFACT_ONLY" } }); t.after(drift.cleanup);
+  await assert.rejects(run({ input: drift.input, output: drift.output }, dependencies), /AUTHORITY_DRIFT/);
+  const priorCalls = calls;
+  await assert.rejects(run({ input: fixture.input, output: fixture.output }, { ...dependencies, env: { ...env, GITHUB_EVENT_NAME: "workflow_dispatch", INPUT_VALIDATION_CONTEXT: "schedule" } }), /EVENT_NOT_AUTHORIZED/);
+  assert.equal(calls, priorCalls);
+  for (const readPublicationSeal of [async () => [], async () => [{ ...publicationSeal(value), request_hash: "e".repeat(64) }], async () => [publicationSeal(value, { ...rpcResult(value), status: "FAILED" })]]) {
+    const missing = files(value); t.after(missing.cleanup);
+    await assert.rejects(run({ input: missing.input, output: missing.output }, { ...dependencies, readPublicationSeal }), /SEAL/);
+    assert.equal(fs.existsSync(missing.output), false);
+  }
+  const failed = files(value); t.after(failed.cleanup);
+  await assert.rejects(run({ input: failed.input, output: failed.output }, { ...dependencies, client: { rpc: async () => ({ error: new Error("RPC failed") }) } }), /RPC failed/);
+  assert.equal(fs.existsSync(failed.output), false);
 });
 
 test("owner-only initial mutation protects approved decisions, active requests and unresolved failed execution", async t => {
@@ -256,6 +323,104 @@ async function runRetry(value = report(), overrides = {}) {
   } finally { fixture.cleanup(); }
 }
 
+test("legacy schema1 retry preserves authorization, expiry, hash, expected state and workflow guards", async t => {
+  for (const [name, envChange, overrides, pattern] of [
+    ["owner", { RETRY_OWNER_CONFIRMATION: "" }, {}, /OWNER_CONFIRMATION_INVALID/],
+    ["expiry", {}, { now: new Date(EXPIRY) }, /EVIDENCE_EXPIRED/],
+    ["hash", { RETRY_REQUEST_HASH: "e".repeat(64) }, {}, /REQUEST_HASH_MISMATCH/],
+    ["workflow", { GITHUB_WORKFLOW_REF: "wrong" }, {}, /WORKFLOW_REF_INVALID/],
+    ["event", { GITHUB_EVENT_NAME: "schedule" }, {}, /WORKFLOW_DISPATCH_REQUIRED/],
+    ["repository", { GITHUB_REPOSITORY: "wrong/repo" }, {}, /REPOSITORY_INVALID/],
+    ["main", { GITHUB_REF: "refs/heads/feature" }, {}, /MAIN_REF_REQUIRED/],
+    ["run", { RETRY_SOURCE_RUN_ID: "999" }, {}, /SOURCE_RUN_MISMATCH/],
+    ["artifact", { RETRY_SOURCE_ARTIFACT_ID: "999" }, {}, /SOURCE_ARTIFACT_ID_MISMATCH/],
+    ["digest", { RETRY_SOURCE_ARTIFACT_DIGEST: "e".repeat(64) }, {}, /SOURCE_ARTIFACT_DIGEST_MISMATCH/],
+    ["service-role", { NEXT_PUBLIC_SUPABASE_URL: "https://wrong.supabase.co" }, {}, /PROJECT_BINDING_MISMATCH/],
+    ["expected-state", {}, { readProductionBaseline: async () => ({ catalogueCounts: { ...COUNTS, offers: COUNTS.offers + 1 }, activeRows: [] }) }, /BASELINE_DRIFT/],
+  ]) await t.test(name, async () => {
+    const value = report(); value.request.retailer = { id: "14", slug: "10-reps" };
+    assert.equal(Object.hasOwn(value, "publication_mode"), false);
+    const fixture = files(value); t.after(fixture.cleanup);
+    const setup = retryDependencies(value, { ...overrides, env: retryEnv(value, envChange), readPublicationProtection: async () => ({ executionRequests: [], decidedReviews: [] }) });
+    await assert.rejects(run({ mode: RETRY_MODE, input: fixture.input, output: fixture.output }, setup.dependencies), pattern);
+    assert.equal(setup.state.rpcCalls, 0);
+  });
+});
+
+test("missing authority identifies only schema1 authorized retry, never arbitrary reports or same-run", async t => {
+  for (const [retailer, change, mode] of [
+    [{ id: "14", slug: "10-reps" }, () => {}, "same-run"],
+    [{ id: "9", slug: "fit-house" }, () => {}, "same-run"],
+    [{ id: "14", slug: "10-reps" }, r => { r.schema_version = 2; }, RETRY_MODE],
+    [{ id: "14", slug: "10-reps" }, r => { r.kind = "unknown-report"; }, RETRY_MODE],
+    [{ id: "14", slug: "10-reps" }, r => { r.source.publication_mode = "OWNER_AUTHORIZED_ARTIFACT_ONLY"; }, RETRY_MODE],
+  ]) {
+    const value = report(); value.request.retailer = retailer; change(value);
+    const fixture = files(value); t.after(fixture.cleanup);
+    const setup = retryDependencies(value);
+    await assert.rejects(run({ mode, input: fixture.input, output: fixture.output }, setup.dependencies), /AUTHORITY_DRIFT|OWNER_AUTHORIZED_ARTIFACT_REQUIRED/);
+    assert.equal(setup.state.rpcCalls, 0);
+  }
+});
+
+test("new authority is independently checked in report and source, including null and empty values", async t => {
+  for (const retailer of [{ id: "14", slug: "10-reps" }, { id: "7", slug: "simply-supplements" }]) {
+    const authority = retailer.id === "14" ? "OWNER_AUTHORIZED_ARTIFACT_ONLY" : "AUTOMATIC";
+    const valid = report({ publication_mode: authority }); valid.source.publication_mode = authority; valid.request.retailer = retailer;
+    const positive = await runRetry(valid, { readPublicationProtection: async () => ({ executionRequests: [], decidedReviews: [] }) });
+    assert.equal(positive.output.publication_status, "APPLIED"); assert.equal(positive.state.rpcCalls, 1);
+    for (const where of ["report", "source"]) for (const invalid of [null, "", "UNKNOWN", authority === "AUTOMATIC" ? "OWNER_AUTHORIZED_ARTIFACT_ONLY" : "AUTOMATIC"]) await t.test(`${retailer.slug} ${where} ${JSON.stringify(invalid)}`, async () => {
+      const value = structuredClone(valid); (where === "report" ? value : value.source).publication_mode = invalid;
+      const fixture = files(value); t.after(fixture.cleanup);
+      const setup = retryDependencies(value);
+      await assert.rejects(run({ mode: RETRY_MODE, input: fixture.input, output: fixture.output }, setup.dependencies), /AUTHORITY_DRIFT/);
+      assert.equal(setup.state.rpcCalls, 0);
+    });
+    if (retailer.id === "7") for (const where of ["report", "source", "both"]) {
+      const value = structuredClone(valid);
+      if (where !== "source") delete value.publication_mode;
+      if (where !== "report") delete value.source.publication_mode;
+      const fixture = files(value); t.after(fixture.cleanup); const setup = retryDependencies(value);
+      await assert.rejects(run({ mode: RETRY_MODE, input: fixture.input, output: fixture.output }, setup.dependencies), /AUTHORITY_DRIFT/);
+      assert.equal(setup.state.rpcCalls, 0);
+    }
+  }
+});
+
+test("existing automatic consumers retain legacy retry and current authority formats", async t => {
+  const profiles = require("./lib/automation-review-publication-profiles").PROFILES;
+  for (const key of ["fit-house", "gladiator-nutrition", "holland-barrett", "jons-supplements", "whey-okay", "six-pack-supplements", "discount-supplements", "gym-high"]) {
+    const profile = profiles[key]; assert.equal(profile.publicationMode, "AUTOMATIC", key);
+    for (const format of ["legacy", "report-authority", "bound-authority"]) await t.test(`${key} ${format}`, async () => {
+      const value = report(); value.request.retailer = profile.retailer;
+      if (format !== "legacy") value.publication_mode = "AUTOMATIC";
+      if (format === "bound-authority") value.source.publication_mode = "AUTOMATIC";
+      const { output, state } = await runRetry(value); assert.equal(output.publication_status, "APPLIED"); assert.equal(state.rpcCalls, 1);
+      if (format !== "legacy") {
+        value.github_context.run_id = SOURCE_RUN;
+        const fixture = files(value); t.after(fixture.cleanup);
+        const sameRun = retryDependencies(value, { env: retryEnv(value, { GITHUB_RUN_ID: SOURCE_RUN, GITHUB_SHA: SOURCE_SHA, GITHUB_EVENT_NAME: "schedule" }), readPublicationSeal: async () => [publicationSeal(value)] });
+        const receipt = await run({ input: fixture.input, output: fixture.output }, sameRun.dependencies);
+        assert.equal(receipt.publication_status, "APPLIED"); assert.equal(sameRun.state.rpcCalls, 1);
+      }
+    });
+  }
+});
+
+test("legacy retry rejects conflicting or missing publication seals without automatic RPC retries", async t => {
+  for (const failure of ["hash", "fingerprint", "missing-postflight"]) await t.test(failure, async () => {
+    const value = report(); value.request.retailer = { id: "14", slug: "10-reps" };
+    const seal = publicationSeal(value);
+    if (failure === "hash") seal.request_hash = "e".repeat(64);
+    if (failure === "fingerprint") seal.batch_fingerprint = "e".repeat(64);
+    const setup = retryDependencies(value, { readPublicationSeal: async () => failure === "missing-postflight" ? [] : [seal], readPublicationProtection: async () => ({ executionRequests: [], decidedReviews: [] }) });
+    const fixture = files(value); t.after(fixture.cleanup);
+    await assert.rejects(run({ mode: RETRY_MODE, input: fixture.input, output: fixture.output }, setup.dependencies), /SEAL/);
+    assert.equal(setup.state.rpcCalls, failure === "missing-postflight" ? 1 : 0);
+    assert.equal(fs.existsSync(fixture.output), false);
+  });
+});
+
 test("normal same-run apply behavior remains unchanged", async () => {
   const value = report({ source: { ...report().source, run_id: "12345" }, github_context: { run_id: "12345", commit_sha: SOURCE_SHA } });
   value.request.workflow_run_id = "12345";
@@ -264,6 +429,7 @@ test("normal same-run apply behavior remains unchanged", async () => {
   try {
     const output = await run({ input: fixture.input, output: fixture.output }, {
       env: { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "12345", GITHUB_SHA: SOURCE_SHA },
+      readPublicationSeal: async () => [publicationSeal(value)],
       client: { rpc: async (_name, args) => { calls += 1; return { data: rpcResult({ ...value, request: args.p_request }), error: null }; } },
     });
     assert.equal(output.result, "PASS");

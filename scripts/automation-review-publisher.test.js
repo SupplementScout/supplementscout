@@ -3,6 +3,22 @@ const fs = require("node:fs");
 const Module = require("node:module");
 const path = require("node:path");
 const test = require("node:test");
+
+test("Simply source-missing manual identity cards are visible as REVIEW_ONLY without gaining an executor", () => {
+  const source = fs.readFileSync(path.join(process.cwd(), "app/lib/automationReviewCapabilityMatrix.ts"), "utf8");
+  const compiled = require("typescript").transpileModule(source, { compilerOptions: { module: require("typescript").ModuleKind.CommonJS } });
+  const mod = { exports: {} };
+  require("node:vm").runInNewContext(compiled.outputText, {
+    module: mod, exports: mod.exports,
+    require: name => { assert.equal(name, "./automationReviewAdapters"); return { REVIEW_ADAPTERS: [] }; },
+  });
+  assert.equal(mod.exports.capabilityForReview("7", "MANUAL_REVIEW_IDENTITY", "IDENTITY_CONFLICT").capability, "REVIEW_ONLY");
+  assert.equal(mod.exports.capabilityForReview("7", "SOURCE_MISSING").capability, "REVIEW_ONLY");
+  assert.equal(mod.exports.capabilityForReview("7", "UPDATE_STOCK").capability, "REVIEW_ONLY");
+  assert.equal(mod.exports.capabilityForReview("7", "REBIND_EXISTING_VARIANT").capability, "UNSUPPORTED");
+  assert.equal(mod.exports.capabilityForReview("4", "MANUAL_REVIEW_IDENTITY", "IDENTITY_CONFLICT").capability, "UNSUPPORTED");
+  assert.equal(mod.exports.capabilityForReview("1", "MANUAL_REVIEW_IDENTITY", "IDENTITY_CONFLICT").capability, "REVIEW_ONLY");
+});
 const ts = require("typescript");
 const reasonContract = require("../config/automation-review-reason-codes.json");
 const {

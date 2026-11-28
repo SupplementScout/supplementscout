@@ -309,6 +309,13 @@ function applyOutput(report, data, extra = {}) {
     kind: "automation-review-queue-reconciliation-apply",
     result: "PASS",
     source_run_id: report.source.run_id,
+    source_commit_sha: report.source.commit_sha,
+    source_contract_sha256: report.source.contract_sha256,
+    review_scope_fingerprint: report.source.review_scope_fingerprint,
+    publication_mode: report.publication_mode,
+    publication_status: data.already_applied === true ? "ALREADY_APPLIED" : "APPLIED",
+    request_hash: requestHash(report.request),
+    idempotency_key: report.request.idempotency_key,
     operation_count: report.request.operations.length,
     created_count: Number(data.created_count || 0),
     refreshed_count: Number(data.refreshed_count || 0),
@@ -349,7 +356,11 @@ async function runSameRun(parsed, report, exactBytes, env, dependencies) {
   });
   validateRpcResult(report.request, data);
   if (Number(data.catalogue_writes || 0) !== 0) fail("RECONCILIATION_CATALOGUE_WRITE_DETECTED");
-  return writeOutput(parsed.output, applyOutput(report, data));
+  const seal = validateSealRows(await (dependencies.readPublicationSeal || readPublicationSeal)(client, report.request.idempotency_key), report.request, requestHash(report.request));
+  if (!seal) fail("RECONCILIATION_PUBLICATION_SEAL_MISSING_AFTER_RPC");
+  validateRpcResult(report.request, seal.result);
+  if (seal.result.status !== "APPLIED") fail("RECONCILIATION_PUBLICATION_SEAL_NOT_APPLIED");
+  return writeOutput(parsed.output, applyOutput(report, data, { publication_seal_count: 1 }));
 }
 
 async function runAuthorizedRetry(parsed, report, exactBytes, env, dependencies) {
@@ -429,14 +440,36 @@ async function run(options, dependencies = {}) {
   if (publicationProfile?.publicationMode === "OWNER_AUTHORIZED_ARTIFACT_ONLY" && parsed.mode !== RETRY_MODE) {
     fail("REVIEW_PUBLICATION_OWNER_AUTHORIZED_ARTIFACT_REQUIRED");
   }
+  if (publicationProfile) {
+    const reportAuthority = Object.hasOwn(report, "publication_mode");
+    const sourceAuthority = Object.hasOwn(report.source || {}, "publication_mode");
+    // Legacy schema1 has no authority metadata. Only its existing separately
+    // authorized retry path may consume it; no authority is inferred or added.
+    const legacyRetry = parsed.mode === RETRY_MODE && report.schema_version === 1
+      && report.kind === "automation-review-queue-reconciliation-dry-run"
+      && !reportAuthority && !sourceAuthority && !publicationProfile.requireBoundPublicationAuthority;
+    if ((publicationProfile.requireBoundPublicationAuthority && (!reportAuthority || !sourceAuthority))
+        || (!reportAuthority && !legacyRetry)
+        || (reportAuthority && report.publication_mode !== publicationProfile.publicationMode)
+        || (sourceAuthority && report.source.publication_mode !== publicationProfile.publicationMode)) fail("REVIEW_PUBLICATION_AUTHORITY_DRIFT");
+  }
   const env = dependencies.env || process.env;
+  if (parsed.mode !== RETRY_MODE && publicationProfile?.automaticPublicationEvents
+      && !publicationProfile.automaticPublicationEvents.includes(env.GITHUB_EVENT_NAME)) fail("REVIEW_PUBLICATION_EVENT_NOT_AUTHORIZED");
   return parsed.mode === RETRY_MODE
     ? runAuthorizedRetry(parsed, report, exactBytes, env, dependencies)
     : runSameRun(parsed, report, exactBytes, env, dependencies);
 }
 
 if (require.main === module) run(parseArgs(process.argv.slice(2)))
-  .then((result) => console.log(JSON.stringify(result)))
+  .then((result) => {
+    if (process.env.GITHUB_OUTPUT) {
+      const parsed = parseArgs(process.argv.slice(2));
+      const receiptSha256 = require("node:crypto").createHash("sha256").update(fs.readFileSync(parsed.output)).digest("hex");
+      fs.appendFileSync(process.env.GITHUB_OUTPUT, `publication_status=${result.publication_status}\nreceipt_sha256=${receiptSha256}\n`);
+    }
+    console.log(JSON.stringify(result));
+  })
   .catch((error) => { console.error(error.stack || error.message); process.exitCode = 1; });
 
 module.exports = {

@@ -1,5 +1,59 @@
 # Retailer Automation Consolidation Execution Plan
 
+**28 November 2026 PR559 legacy compatibility closeout — Draft only:** the
+owner authorizes the minimal correction after release preflight stopped at
+8eacdec1. Schema1 reconciliation evidence without authority metadata is accepted
+only by the existing separately authorized artifact retry; explicit invalid
+authority is rejected. Simply's declarative bound-authority requirement keeps
+report/source/immutable-contract metadata mandatory for AUTOMATIC/v2. Restore
+the unchanged 259-operation legacy test instead of adding metadata to its
+fixture. Reuse sealed real SQL/seal/service-role evidence; no production replay
+or new SQL reads are needed. New local gates and actual-head CI precede handoff.
+No merge or deployment of the new SHA is authorized. See the dated closeout in
+[Simply publication hardening](SIMPLY-REVIEW-PUBLICATION-HARDENING-2026-11-19.md).
+
+**28 November 2026 Simply automatic SOURCE_MISSING publication — Draft PR #559,
+release approval pending:** the owner's new dated decision supersedes the
+historical no-review-write policy only for non-executable SOURCE_MISSING within
+the existing approved120. The shared profile separates complete-source
+validation from authority; Simply is AUTOMATIC with actual schedule admission,
+while 10 Reps remains OWNER_AUTHORIZED_ARTIFACT_ONLY. A new v2 review-scope
+contract rejects old Simply OWNER evidence. The unreleased manual review-only
+option is removed; manual dry-run cannot publish and manual apply retains its
+existing business authorization. Other review kinds are excluded from the
+source-missing lifecycle. The existing publisher reads its publication seal
+after RPC and emits the exact receipt digest; the watchdog's existing matcher
+observes a receipt verification step that also requires complete refresh
+postflight. No watchdog logic, thresholds, monitored backlog, schedules,
+rollout, SQL, application or executor changes. Historical ZIP/seals and the
+earlier completion record below remain evidence. Local matrix/lifecycle,
+mock publication/idempotency and receipt-shell regressions are separate from
+production proof. Required local gates and exact-head CI must pass before
+handoff; release still requires owner approval of final SHA. No merge,
+deployment, production publication or business writes are authorized here.
+See [current policy and implementation evidence](SIMPLY-REVIEW-PUBLICATION-HARDENING-2026-11-19.md)
+and [dated owner decision](../Automation-Reliability-Owner-Decisions.md).
+
+**28 November 2026 Simply shared pipeline completion — Draft only:** reuse
+PR #559 and its existing worktree, preserving both original commits/evidence,
+on main `06fa1c2db85c5abfb20bb3896e35ed29f3fe58ef`. Simply's approved 120-offer
+refresh, protected apply, postflight and idempotency stay unchanged. Configure
+the central source-missing profile from the existing authority/config, bind
+pre-execution sealedFiles and invoke the existing shared composite/publisher.
+Preserve the owner's original exact 27-ID monitoring/no-review-row-write
+decision through OWNER_AUTHORIZED_ARTIFACT_ONLY; no AUTOMATIC grant is inferred.
+The immutable 15207952662 ZIP exposes overwritten final dry-run evidence, so
+it cannot become a new valid production source contract. An explicitly derived
+local replay and synthetic lifecycle/mutation regressions cover 120/117/3;
+future captures are bound before execution. Missing source remains review-only.
+Reuse current shared owner-mode validation and rollout handling; do not retain
+the old unmerged Draft's duplicate validators or extra OFF-availability guard.
+No production publication, business apply, source fetch, SQL/migration, rollout,
+schedule, credential or eBay membership change is authorized. Ledger stays
+273/pending0, STAGING120 unchanged, eBay v3/322 and EPN protected. Discount's
+released patch, historical owner decisions and Predators Gear remain untouched.
+See [current revision and historical evidence](SIMPLY-REVIEW-PUBLICATION-HARDENING-2026-11-19.md).
+
 **27 November 2026 Automation Reliability Recovery — owner-authorized local
 repair / Draft PR only:** one bounded recovery covers Queue Worker scheduling,
 Discount publication, GYM HIGH source and 10 Reps feed access. Discount reuses

@@ -103,6 +103,7 @@ function contractCore(source, env) {
     schema_version: 2,
     kind: "automation-review-source-contract",
     profile: retailer.slug,
+    publication_mode: profile.publicationMode,
     repository: REPOSITORY,
     workflow: profile.workflow,
     workflow_name: profile.workflowName,
@@ -152,7 +153,7 @@ function bindSource(directory, env = process.env, profileValue = "fit-house") {
   const contract = buildSourceContract(directory, env, profile.key, profile.sealedFiles);
   const output = path.join(directory, CONTRACT_FILE);
   fs.writeFileSync(output, `${JSON.stringify(contract, null, 2)}\n`, { flag: "wx" });
-  const values = { contract_sha256: fileSha256(output), review_scope_fingerprint: contract.review_scope_fingerprint };
+  const values = { contract_sha256: fileSha256(output), review_scope_fingerprint: contract.review_scope_fingerprint, publication_mode: contract.publication_mode };
   fs.appendFileSync(env.GITHUB_OUTPUT, Object.entries(values).map(([key, value]) => `${key}=${value}`).join("\n") + "\n");
   return values;
 }
@@ -188,6 +189,8 @@ function verifySourceContract(options, now = new Date()) {
   invariant(fs.existsSync(contractPath) && fileSha256(contractPath) === options.sourceContractSha256, `${label} source contract hash mismatch`);
   const contract = readJson(contractPath);
   invariant(contract.schema_version === 2 && contract.kind === "automation-review-source-contract" && contract.profile === retailer.slug, `${label} source contract schema mismatch`);
+  invariant((!profile.requireBoundPublicationAuthority && !Object.hasOwn(contract, "publication_mode"))
+    || contract.publication_mode === profile.publicationMode, `${label} source publication authority mismatch`);
   invariant(contract.repository === REPOSITORY && contract.workflow === profile.workflow && contract.workflow_name === profile.workflowName, `${label} source workflow mismatch`);
   invariant(contract.run_id === options.sourceRunId && contract.commit_sha === options.sourceCommitSha && contract.retailer?.id === retailer.id && contract.retailer?.name === retailer.name, `${label} source identity mismatch`);
   invariant(contract.approved_mapping_count === profile.approvedMappingCount && Number.isInteger(contract.executable_plan_count) && contract.executable_plan_count >= 0 && contract.executable_plan_count <= profile.approvedMappingCount && Number.isInteger(contract.review_row_count) && contract.review_row_count >= 0 && contract.review_row_count <= profile.approvedMappingCount && contract.executable_plan_count + contract.review_row_count === profile.approvedMappingCount && contract.blocked_row_count === 0 && contract.catalogue_writes === 0, `${label} source contract scope mismatch`);
@@ -225,6 +228,7 @@ async function verifyGithubBinding(options, env = process.env, fetchImpl = fetch
   const sameRun = env.GITHUB_ACTIONS === "true" && String(env.GITHUB_RUN_ID) === options.sourceRunId && run.status === "in_progress";
   invariant((run.status === "completed" && run.conclusion === "success") || sameRun, `${label} source run is not usable`);
   invariant(["schedule", "workflow_dispatch"].includes(run.event) && run.head_branch === "main" && run.head_sha === options.sourceCommitSha, `${label} source branch or commit mismatch`);
+  invariant(!profile.automaticPublicationEvents || profile.automaticPublicationEvents.includes(run.event), `${label} source publication event is not authorized`);
   const attempt=String(env.GITHUB_RUN_ATTEMPT || "1");
   invariant(/^[1-9][0-9]*$/.test(attempt) && String(run.run_attempt || "1")===attempt, `${label} source run attempt mismatch`);
   const artifact = await githubJson(`${api}/repos/${REPOSITORY}/actions/artifacts/${options.sourceArtifactId}`, env.GITHUB_TOKEN, fetchImpl);
@@ -335,7 +339,13 @@ function buildOutput(source, baseline, rows, options, env = process.env) {
   const observedOfferIds = sortedIds([...source.contract.review_offer_ids, ...priorReviewIds]);
   invariant(observedOfferIds.every((offerId) => source.contract.catalogue_offer_ids.includes(offerId)), `${profileLabel(profile)} active review is outside the fresh catalogue scope`);
   const manifest = { schema_version: 1, kind: "automation-review-publisher-manifest", generated_at: source.contract.created_at, retailer_id: retailer.id, retailer: retailer.name, retailer_slug: retailer.slug, observed_offer_ids: observedOfferIds, workflow_run_id: options.sourceRunId, artifact_id: options.sourceArtifactId, commit_sha: options.sourceCommitSha, report_sha256: source.contract.file_hashes.report, artifact_sha256: options.sourceArtifactDigest, rows };
-  const request = buildPublicationRpcRequest(manifest, baseline.activeRows, { catalogueCounts: baseline.catalogueCounts });
+  const scopedActiveRows = profile.reviewType === "source-missing"
+    ? baseline.activeRows.filter(row => String(row.retailer_id) === retailer.id && profile.matchesActiveReview(row))
+    : baseline.activeRows;
+  const request = buildPublicationRpcRequest(manifest, scopedActiveRows, { catalogueCounts: baseline.catalogueCounts });
+  // The RPC locks/counts all active retailer cards; lifecycle operations only own
+  // the profile's review kinds, including when another kind shares an offer.
+  request.expected_baseline.active_review_count = baseline.activeRows.length;
   const operations = { CREATE: 0, REFRESH: 0, SUPERSEDE: 0, RESOLVE_BY_SOURCE: 0 };
   for (const operation of request.operations) operations[operation.op] = (operations[operation.op] || 0) + 1;
   return bindDurableArtifactContract({
@@ -343,11 +353,11 @@ function buildOutput(source, baseline, rows, options, env = process.env) {
     kind: "automation-review-queue-reconciliation-dry-run",
     result: "PASS",
     mode: "dry-run",
-    publication_mode: profile.publicationMode,
+    publication_mode: source.contract.publication_mode || profile.publicationMode,
     retailer,
     production_writes: 0,
     direct_rest_writes: 0,
-    source: { run_id: options.sourceRunId, artifact_id: options.sourceArtifactId, artifact_name: `${profile.artifactPrefix}-${options.sourceRunId}-${source.contract.run_attempt}`, commit_sha: options.sourceCommitSha, artifact_digest: options.sourceArtifactDigest, contract_sha256: options.sourceContractSha256, review_scope_fingerprint: source.contract.review_scope_fingerprint, contract_expires_at: source.contract.expires_at, review_offer_ids: source.contract.review_offer_ids },
+    source: { run_id: options.sourceRunId, artifact_id: options.sourceArtifactId, artifact_name: `${profile.artifactPrefix}-${options.sourceRunId}-${source.contract.run_attempt}`, commit_sha: options.sourceCommitSha, artifact_digest: options.sourceArtifactDigest, contract_sha256: options.sourceContractSha256, publication_mode: source.contract.publication_mode || profile.publicationMode, review_scope_fingerprint: source.contract.review_scope_fingerprint, contract_expires_at: source.contract.expires_at, review_offer_ids: source.contract.review_offer_ids },
     github_context: { run_id: env.GITHUB_RUN_ID || null, run_attempt: env.GITHUB_RUN_ATTEMPT || null, commit_sha: env.GITHUB_SHA || null, event_name: env.GITHUB_EVENT_NAME || null, ref: env.GITHUB_REF || null },
     baseline: { catalogue_counts: baseline.catalogueCounts, active_review_count: baseline.activeRows.length },
     operations,
@@ -387,7 +397,7 @@ async function reconcile(options, dependencies = {}) {
   const output = buildOutput(source, baseline, rows, options, env);
   fs.mkdirSync(path.dirname(options.output), { recursive: true });
   fs.writeFileSync(options.output, `${JSON.stringify(output, null, 2)}\n`, { flag: "wx" });
-  if (env.GITHUB_OUTPUT) fs.appendFileSync(env.GITHUB_OUTPUT, `publication_mode=${source.profile.publicationMode}\n`);
+  if (env.GITHUB_OUTPUT) fs.appendFileSync(env.GITHUB_OUTPUT, `publication_mode=${output.publication_mode}\n`);
   return output;
 }
 

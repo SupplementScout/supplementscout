@@ -140,6 +140,7 @@ export const AUTOMATION_REVIEW_CAPABILITY_MATRIX: readonly RetailerCapabilityRow
     operations: {
       ...defaultOperations,
       VERIFY_NO_CHANGE: AUTONOMOUS("Existing protected Simply Supplements workflow supports approved freshness confirmations.", "simply-supplements-offer-refresh.yml"),
+      IDENTITY_PROMOTION: REVIEW_ONLY("Source-missing identity evidence is available for manual review only; no identity executor is registered."),
       UPDATE_PRICE: REVIEW_ONLY("Commercial changes require retailer-specific reviewed evidence and owner approval."),
       UPDATE_STOCK: REVIEW_ONLY("Stock changes require retailer-specific reviewed evidence and owner approval."),
       UPDATE_PRICE_AND_STOCK: REVIEW_ONLY("Combined changes require retailer-specific reviewed evidence and owner approval."),

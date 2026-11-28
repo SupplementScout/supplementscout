@@ -504,3 +504,31 @@ Anomalie pozostające bez zmian:
 ## Historyczna zgoda Grupy A
 
 Historyczna zgoda Grupy A została wykonana i nie jest ponownie używalnym approval blockiem. Jedyną aktualną linią zatwierdzenia jest blok `EBAY_2582` powyżej.
+
+
+## 28 November 2026 — Simply Supplements automatic SOURCE_MISSING publication
+
+Owner decision received in this task:
+
+> Zatwierdzam zastąpienie historycznego zakazu review-row writes dla Simply Supplements zgodą na standardową automatyczną publikację wyłącznie nieegzekwowalnych kart SOURCE_MISSING w istniejącym approved scope 120. Zachowaj wszystkie obecne kontrole kompletności źródła niezależnie od publication mode. Wykorzystaj istniejący wspólny validator, binder, composite action i publisher. Bez zmian OOS, freshness, cen, mapowań, identity, business approvals/apply, migracji, credentials i harmonogramów. Zaktualizuj istniejący PR #559, wykonaj wymagane testy i CI. Bez merge do czasu zatwierdzenia finalnego SHA. Predators Gear untouched.
+
+This supersedes the historical no-review-row-write restriction only for fresh,
+fully validated, scheduled, non-executable SOURCE_MISSING publication inside
+the existing config/manifest's approved120. Historical monitoring evidence and
+its exact 27 IDs remain unchanged, including 593 (not 595); 596 and 669 were
+not members of that historical list. The new policy is not restricted to three
+historical missing variants and does not authorize another review kind.
+
+Cards remain MANUAL_REVIEW_IDENTITY, KEEP_UNCHANGED, automatic_action=false,
+without execution binding/adapter. Shared CREATE/REFRESH/SUPERSEDE/
+RESOLVE_BY_SOURCE may affect only the permitted source-missing cards. No
+business writes, OOS/freshness updates, approvals/apply, imports, mappings,
+canonical corrections, GTIN promotions or rebinds are authorized by this policy.
+
+This task authorizes preparation, local tests, commit/push to the existing
+branch, Draft PR559 update and safe CI. It does not authorize merge, deployment,
+production Review Queue publication, manual production workflow dispatch,
+migrations, credential/permission/schedule/rollout changes, STAGING writes or
+eBay API/membership changes. Release requires a separate owner decision bound
+to the final reviewed SHA. Existing manual apply/retry authorization stays in
+force; diagnostic validation_context=schedule never grants write authority.

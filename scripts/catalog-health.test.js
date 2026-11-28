@@ -1507,6 +1507,18 @@ test("watchdog rejects unrelated independent idempotency evidence", () => {
   assert(genericSplit.failures.includes("GENERIC_SPLIT_RUN_FORBIDDEN"));
 });
 
+test("shared publication matcher requires the receipt verification step, independently of composite success", () => {
+  const profile = loadWatchdogConfig().retailers.find(row => row.id === 7);
+  const run = watchdogRun(45);
+  const refresh = watchdogJob(profile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" });
+  for (const conclusion of [undefined, "skipped", "failure", "success"]) {
+    const steps = [{ name: "Reconcile and publish fresh Simply Supplements Review Queue source", conclusion: "success" }];
+    if (conclusion) steps.push({ name: profile.review_publication.step_name, conclusion });
+    const attempt = workflowAttempt(profile, run, [refresh, { name: profile.review_publication.job_name, conclusion: "success", steps }]);
+    assert.equal(attempt.review_publication.conclusion === "success", conclusion === "success");
+  }
+});
+
 test("watchdog selects attempts without stitching newer failure into older success", () => {
   const older = workflowAttempt(watchdogProfile, watchdogRun(10), [watchdogJob(watchdogProfile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" })]);
   const newer = workflowAttempt(watchdogProfile, watchdogRun(11, { conclusion: "failure" }), [watchdogJob(watchdogProfile, { capture: "failure", apply: "skipped", db_postflight: "skipped", idempotency: "skipped" })]);

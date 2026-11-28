@@ -381,7 +381,7 @@ function reviewReport() {
     github_context: { run_id: "12345" },
     expected: { catalogue_writes: 0 },
     request_summary: { operation_count: 0 },
-    request: { operations: [], changeset_fingerprint: FINGERPRINT, publisher_batch_fingerprint: "c".repeat(64), idempotency_key: "d".repeat(64) },
+    request: { retailer: { id: "12" }, operations: [], changeset_fingerprint: FINGERPRINT, publisher_batch_fingerprint: "c".repeat(64), idempotency_key: "d".repeat(64) },
   };
 }
 
@@ -405,11 +405,19 @@ async function withReviewFiles(report, callback) {
   try { return await callback({ input, output }); } finally { fs.rmSync(directory, { recursive: true, force: true }); }
 }
 
+async function reviewPublicationSeal(_client, idempotencyKey) {
+  const { request } = reviewReport();
+  assert.equal(idempotencyKey, request.idempotency_key);
+  const result = { status: "APPLIED", batch_fingerprint: request.publisher_batch_fingerprint, changeset_fingerprint: request.changeset_fingerprint, idempotency_key: idempotencyKey, catalogue_writes: 0 };
+  return [{ retailer_id: request.retailer.id, ...result, request_hash: require("./automation-review-reconciliation-apply").requestHash(request), result }];
+}
+
 test("shared Review Queue apply keeps OFF/legacy behavior and needs no Storage API", async () => {
   let rpcCalls = 0;
   await withReviewFiles(reviewReport(), async (options) => {
     await applyReviewRegistration(options, {
       env: reviewEnv(),
+      readPublicationSeal: reviewPublicationSeal,
       client: { rpc: async (_name, args) => { rpcCalls += 1; return { data: { batch_fingerprint: args.p_request.publisher_batch_fingerprint, changeset_fingerprint: args.p_request.changeset_fingerprint, idempotency_key: args.p_request.idempotency_key, catalogue_writes: 0, database_writes: 0 }, error: null }; } },
       sealedArtifactsServiceFactory: () => { throw new Error("must stay lazy"); },
     });
@@ -434,6 +442,7 @@ test("shared Review Queue apply seals and verifies exact input before its RPC", 
     };
     await applyReviewRegistration(options, {
       env: reviewEnv(),
+      readPublicationSeal: reviewPublicationSeal,
       client: { rpc: async (_name, args) => { order.push("rpc"); return { data: { batch_fingerprint: args.p_request.publisher_batch_fingerprint, changeset_fingerprint: args.p_request.changeset_fingerprint, idempotency_key: args.p_request.idempotency_key, catalogue_writes: 0, database_writes: 1 }, error: null }; } },
       sealedArtifactsServiceFactory: () => service,
     });
