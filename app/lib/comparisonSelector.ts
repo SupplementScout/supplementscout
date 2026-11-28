@@ -35,6 +35,7 @@ export function filterComparisonSelectorOptions(
 ) {
   const normalizedQuery = normalizeComparisonSearch(query);
   if (!normalizedQuery) return [];
+  const terms = normalizedQuery.split(" ");
 
   return options.filter((option) => {
     if (option.id === excludedId) return false;
@@ -43,7 +44,7 @@ export function filterComparisonSelectorOptions(
         .filter(Boolean)
         .join(" ")
     );
-    return searchableText.includes(normalizedQuery);
+    return terms.every((term) => searchableText.includes(term));
   });
 }
 
@@ -64,11 +65,21 @@ export function comparisonSelectorStatus(
 
 export function comparisonHref(
   leftId: string | null,
-  rightId: string | null = null
+  rightId: string | null = null,
+  searches: { leftQuery?: string; rightQuery?: string } = {}
 ) {
   const params = new URLSearchParams();
   if (leftId) params.set("left", leftId);
   if (rightId) params.set("right", rightId);
+  if (!leftId && searches.leftQuery?.trim()) params.set("left_query", searches.leftQuery.trim());
+  if (!rightId && searches.rightQuery?.trim()) params.set("right_query", searches.rightQuery.trim());
   const query = params.toString();
   return query ? `${COMPARISON_PATH}?${query}` : COMPARISON_PATH;
+}
+
+export function comparisonSearchQueries(query: string) {
+  if (query.length > 200) return null;
+  const parts = query.trim().split(/\s+(?:vs\.?|versus)\s+/i);
+  if (parts.length !== 2 || parts.some((part) => !part.trim())) return null;
+  return { leftQuery: parts[0].trim(), rightQuery: parts[1].trim() };
 }

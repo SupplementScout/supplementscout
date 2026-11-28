@@ -478,6 +478,8 @@ export function TwoProductComparisonPageContent({
               options={selectorOptions}
               leftId={leftId}
               rightId={rightId}
+              {...(typeof params.left_query === "string" ? { leftQuery: params.left_query.slice(0, 200) } : {})}
+              {...(typeof params.right_query === "string" ? { rightQuery: params.right_query.slice(0, 200) } : {})}
             />
           </div>
           <div className="mt-5 flex flex-wrap items-center gap-3">

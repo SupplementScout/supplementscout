@@ -108,6 +108,7 @@ function loadSearchPage() {
     "../components/SearchResultsLayout": componentMock(),
     "../components/SearchResultSelectionAnalytics": componentMock(),
     "../lib/categorySearchIntent": resolver,
+    "../lib/comparisonSelector": compileModule(path.join(root, "app/lib/comparisonSelector.ts")),
     "../lib/products": {
       normalizeSearchQuery: (value) =>
         (Array.isArray(value) ? value[0] : value || "").trim(),
@@ -406,6 +407,22 @@ test("Amino Acids raw mode remains ordinary Search", async () => {
     analytics: 1,
     redirect: 0,
   });
+});
+
+test("an explicit comparison search offers a contextual handoff even with no ordinary results", async () => {
+  const { page, calls } = loadSearchPage();
+  const tree = await page.default({ searchParams: Promise.resolve({ q: "PER4M Whey vs Critical Whey" }) });
+  function links(node) {
+    if (!node || typeof node !== "object") return [];
+    if (Array.isArray(node)) return node.flatMap(links);
+    return [...(node.props?.href ? [node.props.href] : []), ...links(node.props?.children)];
+  }
+  assert.ok(links(tree).includes("/compare?left_query=PER4M+Whey&right_query=Critical+Whey"));
+  assert.equal(calls.searchProducts, 1);
+  assert.equal(calls.redirect, 0);
+  const metadata = await page.generateMetadata({ searchParams: Promise.resolve({ q: "PER4M Whey vs Critical Whey" }) });
+  assert.deepEqual(metadata.robots, { index: false, follow: false });
+  assert.equal(metadata.alternates.canonical, "/search");
 });
 
 test("resolver architecture has one registry, generic form and generic raw link", () => {

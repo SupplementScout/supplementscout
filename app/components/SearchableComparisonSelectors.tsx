@@ -19,6 +19,8 @@ type SelectorProps = {
   options: ComparisonSelectorOption[];
   leftId: string | null;
   rightId: string | null;
+  leftQuery?: string;
+  rightQuery?: string;
 };
 
 export function SearchableComparisonSelector({
@@ -27,12 +29,14 @@ export function SearchableComparisonSelector({
   options,
   leftId,
   rightId,
+  leftQuery = "",
+  rightQuery = "",
 }: SelectorProps) {
   const selectedId = slot === "left" ? leftId : rightId;
   const otherSelectedId = slot === "left" ? rightId : leftId;
   const selected = options.find((option) => option.id === selectedId) || null;
   const [isChanging, setIsChanging] = useState(!selected);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(slot === "left" ? leftQuery : rightQuery);
   const inputId = useId();
   const resultsId = useId();
   const statusId = useId();
@@ -41,13 +45,13 @@ export function SearchableComparisonSelector({
   const hasQuery = normalizeComparisonSearch(query).length > 0;
   const status = comparisonSelectorStatus(query, matches.length, visibleMatches.length);
   const clearHref = slot === "left"
-    ? comparisonHref(null, rightId)
-    : comparisonHref(leftId, null);
+    ? comparisonHref(null, rightId, { rightQuery })
+    : comparisonHref(leftId, null, { leftQuery });
 
   function optionHref(optionId: string) {
     return slot === "left"
-      ? comparisonHref(optionId, rightId)
-      : comparisonHref(leftId, optionId);
+      ? comparisonHref(optionId, rightId, { rightQuery })
+      : comparisonHref(leftId, optionId, { leftQuery });
   }
 
   return (
@@ -172,28 +176,36 @@ export default function SearchableComparisonSelectors({
   options,
   leftId,
   rightId,
+  leftQuery = "",
+  rightQuery = "",
 }: {
   options: ComparisonSelectorOption[];
   leftId: string | null;
   rightId: string | null;
+  leftQuery?: string;
+  rightQuery?: string;
 }) {
   return (
     <div className="grid min-w-0 gap-5 md:grid-cols-2">
       <SearchableComparisonSelector
-        key={`left-${leftId || "empty"}`}
+        key={`left-${leftId || "empty"}-${leftQuery}`}
         slot="left"
         label="Product A"
         options={options}
         leftId={leftId}
         rightId={rightId}
+        {...(leftQuery ? { leftQuery } : {})}
+        {...(rightQuery ? { rightQuery } : {})}
       />
       <SearchableComparisonSelector
-        key={`right-${rightId || "empty"}`}
+        key={`right-${rightId || "empty"}-${rightQuery}`}
         slot="right"
         label="Product B"
         options={options}
         leftId={leftId}
         rightId={rightId}
+        {...(leftQuery ? { leftQuery } : {})}
+        {...(rightQuery ? { rightQuery } : {})}
       />
     </div>
   );

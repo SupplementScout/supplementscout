@@ -217,6 +217,55 @@ test("searchable selector filters by exact variant and pack labels", () => {
   );
 });
 
+test("comparison selector combines brand, name, flavour and pack terms without requiring field order", () => {
+  for (const query of ["PER4M Tiramisu", "1,816g PER4M whey", "  whey   PER4M  "]) {
+    assert.deepEqual(
+      comparisonSelector.filterComparisonSelectorOptions(selectorOptions, query).map((row) => row.id),
+      ["1"]
+    );
+  }
+  for (const query of ["PER4M Lemon", "PER4M 500g", "PER4M missing"]) {
+    assert.deepEqual(comparisonSelector.filterComparisonSelectorOptions(selectorOptions, query), []);
+  }
+  assert.deepEqual(comparisonSelector.filterComparisonSelectorOptions(selectorOptions, "PER4M whey", "1"), []);
+});
+
+test("explicit two-product search keeps both names as queries rather than selecting identities", () => {
+  assert.deepEqual(
+    comparisonSelector.comparisonSearchQueries("PER4M Whey vs Applied Nutrition Critical Whey"),
+    { leftQuery: "PER4M Whey", rightQuery: "Applied Nutrition Critical Whey" }
+  );
+  assert.deepEqual(comparisonSelector.comparisonSearchQueries(" A & B  VERSUS  C / D "), {
+    leftQuery: "A & B", rightQuery: "C / D",
+  });
+  for (const query of ["whey protein", "A vs B vs C", "vs B", "A versus", "A vs " + "B".repeat(200)]) {
+    assert.equal(comparisonSelector.comparisonSearchQueries(query), null);
+  }
+  const queries = { leftQuery: "A & B", rightQuery: "C / D" };
+  assert.equal(comparisonSelector.comparisonHref(null, null, queries), "/compare?left_query=A+%26+B&right_query=C+%2F+D");
+  assert.equal(comparisonSelector.comparisonHref("12", null, queries), "/compare?left=12&right_query=C+%2F+D");
+  assert.equal(comparisonSelector.comparisonHref("12", "34", queries), "/compare?left=12&right=34");
+});
+
+test("comparison query handoff prefills both selectors and retains the other query after selection", () => {
+  const selectors = compileModule(path.join(root, "app/components/SearchableComparisonSelectors.tsx"), {
+    react: React,
+    "next/link": { __esModule: true, default: Link },
+    "../lib/comparisonSelector": comparisonSelector,
+  });
+  const props = { options: selectorOptions, leftId: null, rightId: null, leftQuery: "PER4M whey", rightQuery: "clear protein" };
+  const html = renderToStaticMarkup(React.createElement(selectors.default, props));
+  assert.match(html, /value="PER4M whey"/);
+  assert.match(html, /value="clear protein"/);
+  assert.match(html, /href="\/compare\?left=1&amp;right_query=clear\+protein"/);
+  assert.match(html, /href="\/compare\?right=2&amp;left_query=PER4M\+whey"/);
+  assert.doesNotMatch(html, /Current Product [AB] selection/);
+  const partial = renderToStaticMarkup(React.createElement(selectors.default, { ...props, leftId: "1", leftQuery: "" }));
+  assert.match(partial, /Current Product A selection/);
+  assert.match(partial, /value="clear protein"/);
+  assert.match(partial, /href="\/compare\?left=1&amp;right=2"/);
+});
+
 test("searchable selector reports no matches and keeps the left/right URL contract", () => {
   assert.deepEqual(
     comparisonSelector.filterComparisonSelectorOptions(selectorOptions, "missing flavour"),
