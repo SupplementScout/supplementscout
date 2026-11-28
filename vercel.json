@@ -1,6 +1,7 @@
 {
   "git": {
     "deploymentEnabled": {
+      "feat/customer-natural-search-intent-20261128": false,
       "feat/customer-search-to-purchase-20261128": false,
       "feat/shared-import-contract-integrity": false,
       "fix/shared-import-contract-closeout-273": false,
