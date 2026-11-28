@@ -102,7 +102,68 @@ const PENDING_REFRESH_BINDING = Object.freeze({ filename: PENDING_REFRESH_BINDIN
 const PLANNED_CONTROL_CLOSE_PENDING = Object.freeze({ filename: "20261107190000_extend_never_approved_planned_control_close.sql", sha256: "0c6a7ef27021c0ba2dc5ef38eea3289b8238e4dc3220ede03de6210336263ddf" });
 const QUEUE_READER_PENDING = Object.freeze({filename:"20261119150000_read_automation_review_queue_page.sql",sha256:"062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa"});
 const STAGING_PENDING = Object.freeze([...HARD_PRICE_ANOMALY_PENDING, PENDING_REFRESH_BINDING, QUEUE_READER_PENDING]);
+const CATALOG_HEALTH_COUNTS_PENDING = Object.freeze({filename:"20261120150000_add_catalog_health_review_counts.sql",sha256:"09d941a26ac97791dde4e5690f97b7cc97ea16630297b1637aa02373c3695072"});
 const PRODUCTION_PENDING = Object.freeze([]);
+const SHARED_RELEASE_RECEIPT = JSON.parse(fs.readFileSync(path.join(ROOT, "docs/retailer-automation/evidence/SHARED-IMPORT-CONTRACTS-PRODUCTION-273-CLOSEOUT-2026-11-27.json"), "utf8"));
+const SHARED_RELEASE_PENDING = SHARED_RELEASE_RECEIPT.consumed_pending.ordered_filenames.map((filename, index) => ({ filename, sha256: SHARED_RELEASE_RECEIPT.consumed_pending.ordered_sha256[index] }));
+function sharedReleaseInput(sourceDir = SOURCE) { const c = CONTRACTS.PRODUCTION; return { environment: "PRODUCTION", projectRef: c.projectRef, sourceDir, databaseTarget: { target_environment: "PRODUCTION", project_ref: c.projectRef, database_identity: c.databaseIdentity }, remoteLedger: migrationBinding("PRODUCTION").versions.map(id => ({ version: id.slice(0, 14), name: id.slice(15) })) }; }
+test("shared contract closeout selects273 applied migrations with zero pending and preserves staging", () => {
+    const input = sharedReleaseInput(), selected = validateSelection(input);
+    assert.equal(input.remoteLedger.length, 273);
+    assert.deepEqual(selected.pending_files, []);
+    assert.deepEqual(selected.pending_sha256s, {});
+    assert.equal(selected.ledger_fingerprint, SHARED_RELEASE_RECEIPT.post_state.ledger_fingerprint);
+    const staging = validateSelection(validInput());
+    assert.deepEqual(staging.pending_files, STAGING_PENDING.map(x => x.filename));
+    assert.equal(SHARED_RELEASE_PENDING.length, 3);
+    for (const p of SHARED_RELEASE_PENDING) {
+        assert.equal(sha256File(path.join(SOURCE, p.filename)), p.sha256);
+        assert.ok(selected.selected_files.includes(p.filename));
+        assert.equal(CONTRACTS.STAGING.excluded[p.filename], p.sha256);
+        assert.ok(!staging.selected_files.includes(p.filename));
+    }
+});
+test("shared receipt retains missing/modified SQL and unauthorized fourth-migration guards", () => {
+    const missing = sourceCopy();
+    fs.unlinkSync(path.join(missing, SHARED_RELEASE_PENDING[1].filename));
+    assert.throws(() => derivePostApplyMigrationBinding("PRODUCTION", { sourceDir: missing, pendingMigrations: SHARED_RELEASE_PENDING }), /expected pending migration is missing/);
+    const changed = sourceCopy();
+    fs.appendFileSync(path.join(changed, SHARED_RELEASE_PENDING[0].filename), "\n-- TEST ONLY mutation\n");
+    assert.throws(() => derivePostApplyMigrationBinding("PRODUCTION", { sourceDir: changed, pendingMigrations: SHARED_RELEASE_PENDING }), /pending migration SHA-256 mismatch/);
+    const extra = sourceCopy();
+    fs.writeFileSync(path.join(extra, "20261125103000_unauthorized_fourth.sql"), "begin;select 1;commit;");
+    assert.throws(() => validateSelection(sharedReleaseInput(extra)), /pending migration count mismatch/);
+});
+test("shared receipt preserves exact270-to273 derivation and rejects applying the consumed set again", () => {
+    const { validatePostApplyReadback, repositoryCloseoutForAttempt } = require("./apply-selected-migrations"), files = fs.readdirSync(SOURCE), names = new Set(SHARED_RELEASE_PENDING.map(x => x.filename)), base = files.filter(x => !names.has(x));
+    const fingerprints = ["5d50dd04eaaa94e0c0839650fb4c1fedac1f77ad0bee6f90febafccc09958495", "361f76f835c7dc25fd40855caa21db59cecda52ebd46748ce9a5aa54ae16067b", SHARED_RELEASE_RECEIPT.post_state.ledger_fingerprint];
+    for (let i = 0; i < 3; i++) {
+        const pending = SHARED_RELEASE_PENDING.slice(0, i + 1), d = derivePostApplyMigrationBinding("PRODUCTION", { pendingMigrations: pending, migrationFiles: [...base, ...pending.map(x => x.filename)] });
+        assert.equal(d.pre_ledger_count, 270);
+        assert.equal(d.post_ledger_count, 271 + i);
+        assert.equal(d.post_ledger_fingerprint, fingerprints[i]);
+    }
+    const current = derivePostApplyMigrationBinding("PRODUCTION"), historical = derivePostApplyMigrationBinding("PRODUCTION", { pendingMigrations: SHARED_RELEASE_PENDING }), rows = current.post_identifiers.map(id => ({ version: id.slice(0, 14), name: id.slice(15) }));
+    assert.equal(validatePostApplyReadback(historical, rows).ledger_count, 273);
+    assert.equal(current.status, "ALREADY_CLOSED");
+    assert.equal(current.pending_count, 0);
+    assert.equal(repositoryCloseoutForAttempt({ mode: "apply", committed: true, derivation: current, contract: CONTRACTS.PRODUCTION, projectRef: CONTRACTS.PRODUCTION.projectRef, remoteLedger: rows }).evidence, null);
+    assert.throws(() => validateSelection({ ...sharedReleaseInput(), remoteLedger: rows.slice(0, 270) }), /remote ledger count mismatch/);
+    assert.deepEqual(CONTRACTS.PRODUCTION.pending, []);
+});
+test("shared receipt rejects reordered history, fingerprint drift, wrong environment and partial ledgers", () => {
+    const { validatePostApplyReadback } = require("./apply-selected-migrations");
+    assert.throws(() => derivePostApplyMigrationBinding("PRODUCTION", { pendingMigrations: [...SHARED_RELEASE_PENDING].reverse() }), /deterministic order/);
+    const d = derivePostApplyMigrationBinding("PRODUCTION", { pendingMigrations: SHARED_RELEASE_PENDING }), rows = d.post_identifiers.map(id => ({ version: id.slice(0, 14), name: id.slice(15) }));
+    assert.throws(() => validatePostApplyReadback(d, rows, "0".repeat(64)), /fingerprint mismatch/);
+    const reversed = [...rows];
+    [reversed[270], reversed[271]] = [reversed[271], reversed[270]];
+    assert.throws(() => validatePostApplyReadback(d, reversed), /identity sequence mismatch/);
+    const input = sharedReleaseInput();
+    assert.throws(() => validateSelection({ ...input, remoteLedger: input.remoteLedger.slice(1) }), /remote ledger count mismatch/);
+    assert.throws(() => validateSelection({ ...input, environment: "STAGING" }), /project ref mismatch/);
+});
+
 const NEW_PRODUCT_IDENTITY_MIGRATION = "20261114213000_enforce_reviewed_new_product_identity.sql";
 const NEW_PRODUCT_IDENTITY_SHA256 = "343425521c09d402e7dd59f4d49964ad3803630481864fcc02adccf0e118c590";
 const REVIEWED_GTIN_MIGRATION = "20261112130000_align_reviewed_catalogue_gtin_identity.sql";
@@ -593,10 +654,10 @@ test("production preserves deployed V3 and Ghost Lifestyle metadata correction b
     "20261009120000_add_compact_other_retailer_fingerprint.sql",
     SEALED_ARTIFACTS_REGISTRY_MIGRATION,
   ]);
-  assert.equal(contract.ledgerCount, 269);
+  assert.equal(contract.ledgerCount, 273);
   assert.equal(
     contract.ledgerFingerprint,
-    "f54057cd49ea4422a3b8b849ac15ce38b518496a44a8d4dceb2f480f8f97eb66",
+    "9ca37b4d56ca2815b01eb48bd4d01c37db9e06b46d4cb0c0cec2fa90673bd25b",
   );
   assert.equal(sha256File(path.join(SOURCE, GHOST_LIFESTYLE_METADATA_MIGRATION)), GHOST_LIFESTYLE_METADATA_SHA256);
   assert.equal(contract.excluded[REVIEWED_STATE_MIGRATION], REVIEWED_STATE_SHA256);
@@ -890,7 +951,7 @@ test("the frozen fixture reproduces the approved staging ledger fingerprint", ()
   assert.equal(ledgerRowsFingerprint(rows, { targetEnvironment: "STAGING" }), CONTRACT.ledgerFingerprint);
 });
 
-test("production records ledger 269 with reviewed identity, URL and GTIN migrations applied", () => {
+test("production records ledger 273 with reviewed identity, URL and GTIN migrations applied", () => {
   const contract = CONTRACTS.PRODUCTION;
   const excluded = new Set(Object.keys(contract.excluded));
   for (const filename of contract.appliedExcluded) excluded.delete(filename);
@@ -917,9 +978,9 @@ test("production records ledger 269 with reviewed identity, URL and GTIN migrati
     remoteLedger,
     sourceDir: SOURCE,
   });
-  assert.equal(result.ledger_count, 269);
+  assert.equal(result.ledger_count, 273);
   assert.equal(result.ledger_fingerprint, contract.ledgerFingerprint);
-  assert.equal(result.selected_files.length, 269 + PRODUCTION_PENDING.length);
+  assert.equal(result.selected_files.length, 273 + PRODUCTION_PENDING.length);
   assert.ok(result.selected_files.includes(OWNER_WITHDRAWAL_MIGRATION));
   assert.ok(migrationBinding("PRODUCTION").versions.includes(OWNER_WITHDRAWAL_MIGRATION.slice(0,-4)));
   assert.deepEqual(result.pending_files, PRODUCTION_PENDING.map(({ filename }) => filename));
@@ -1842,11 +1903,13 @@ test("shared production binding includes hard-price and refresh-binding migratio
   assert.ok(result.selected_files.includes(REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION));
   assert.ok(result.selected_files.includes(REVIEWED_V3_1_CONSOLIDATION_MIGRATION));
   assert.deepEqual(CONTRACTS.PRODUCTION.pending, PRODUCTION_PENDING);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 269);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount, 273);
   assert.equal(CONTRACTS.PRODUCTION.ledgerFingerprint,
-    "f54057cd49ea4422a3b8b849ac15ce38b518496a44a8d4dceb2f480f8f97eb66");
+    "9ca37b4d56ca2815b01eb48bd4d01c37db9e06b46d4cb0c0cec2fa90673bd25b");
   const productionPrerequisiteIdentifiers = [
     ...migrationBinding("PRODUCTION").versions.filter(identifier =>
+      !SHARED_RELEASE_PENDING.some(({ filename }) => identifier === filename.slice(0, -4)) &&
+      identifier !== CATALOG_HEALTH_COUNTS_PENDING.filename.slice(0, -4) &&
       !laterHbMigrations.has(identifier) && identifier !== QUEUE_READER_PENDING.filename.slice(0, -4) && identifier !== NEW_PRODUCT_IDENTITY_MIGRATION.slice(0, -4) &&
       identifier !== REVIEWED_GTIN_MIGRATION.slice(0, -4) &&
       identifier !== REVIEWED_V3_CANONICAL_EVIDENCE_APPLY_PROJECTION_MIGRATION.slice(0, -4)
@@ -1867,6 +1930,8 @@ test("shared production binding includes hard-price and refresh-binding migratio
     "3b833f177f113e8e7e8554806d26a563ac520129beb0567c1210dc00938d1912",
   );
   const productionPostIdentifiers = migrationBinding("PRODUCTION").versions.filter(identifier =>
+    !SHARED_RELEASE_PENDING.some(({ filename }) => identifier === filename.slice(0, -4)) &&
+    identifier !== CATALOG_HEALTH_COUNTS_PENDING.filename.slice(0, -4) &&
     !laterHbMigrations.has(identifier) && identifier !== QUEUE_READER_PENDING.filename.slice(0, -4) && identifier !== NEW_PRODUCT_IDENTITY_MIGRATION.slice(0, -4)
     && identifier !== REVIEWED_GTIN_MIGRATION.slice(0, -4)
     && identifier !== REVIEWED_V3_1_CONSOLIDATION_MIGRATION.slice(0, -4)
@@ -1894,10 +1959,10 @@ test("shared production binding includes hard-price and refresh-binding migratio
     const split = identifier.indexOf("_");
     return { version: identifier.slice(0, split), name: identifier.slice(split + 1) };
   });
-  assert.equal(productionCurrentRows.length, 269);
+  assert.equal(productionCurrentRows.length, 273);
   assert.equal(
     ledgerRowsFingerprint(productionCurrentRows, { targetEnvironment: "PRODUCTION" }),
-    "f54057cd49ea4422a3b8b849ac15ce38b518496a44a8d4dceb2f480f8f97eb66",
+    "9ca37b4d56ca2815b01eb48bd4d01c37db9e06b46d4cb0c0cec2fa90673bd25b",
   );
 });
 
@@ -1906,9 +1971,9 @@ test("Gladiator registration and parent approval migration are applied exactly o
   assert.deepEqual(CONTRACTS.STAGING.pending, STAGING_PENDING);
   assert.deepEqual(CONTRACTS.PRODUCTION.pending, PRODUCTION_PENDING);
   assert.equal(migrationBinding("STAGING").versions.length, 120);
-  assert.equal(migrationBinding("PRODUCTION").versions.length, 269);
+  assert.equal(migrationBinding("PRODUCTION").versions.length, 273);
   assert.equal(migrationBinding("STAGING").fingerprint, "31dc3e6e90dab56dd00843bef441cfba400e1d9480d2940f41b46cfff6e32277");
-  assert.equal(migrationBinding("PRODUCTION").fingerprint, "f54057cd49ea4422a3b8b849ac15ce38b518496a44a8d4dceb2f480f8f97eb66");
+  assert.equal(migrationBinding("PRODUCTION").fingerprint, "9ca37b4d56ca2815b01eb48bd4d01c37db9e06b46d4cb0c0cec2fa90673bd25b");
   assert.equal(sha256File(path.join(SOURCE, GLADIATOR_PARENT_APPROVAL_MIGRATION)), GLADIATOR_PARENT_APPROVAL_SHA256);
   assert.ok(migrationBinding("PRODUCTION").versions.includes(GLADIATOR_PARENT_APPROVAL_MIGRATION.slice(0, -4)));
 });
@@ -2066,7 +2131,7 @@ test("historical new-parent pending selection retains its exact 264-to-265 bindi
 test("identity closeout selects migration exactly once and keeps staging unchanged", () => {
   assert.deepEqual(CONTRACTS.PRODUCTION.pending, PRODUCTION_PENDING);
   assert.equal(migrationBinding("PRODUCTION").versions.filter(id=>id===NEW_PRODUCT_IDENTITY_MIGRATION.slice(0,-4)).length,1);
-  assert.equal(CONTRACTS.PRODUCTION.ledgerCount,269);
+  assert.equal(CONTRACTS.PRODUCTION.ledgerCount,273);
   assert.equal(migrationBinding("PRODUCTION").fingerprint,CONTRACTS.PRODUCTION.ledgerFingerprint);
   assert.equal(CONTRACTS.STAGING.ledgerCount,120);
   assert.equal(CONTRACTS.STAGING.ledgerFingerprint,"31dc3e6e90dab56dd00843bef441cfba400e1d9480d2940f41b46cfff6e32277");

@@ -15,6 +15,12 @@ const PENDING_POLICY = Object.freeze({
 });
 const EXCLUSIONS = Object.freeze({
   STAGING: Object.freeze([
+    // Exact Phase16 production release; these consumers are not installed on staging.
+    "20261125100000_shared_import_contract_v4",
+    "20261125101000_reviewed_format_correction_v2",
+    "20261125102000_existing_target_identity_rebind_v5",
+    // Production Catalog Health proposal; the staging queue reader is still pending.
+    "20261120150000_add_catalog_health_review_counts",
     // Production-only H&B proposals; never selected on staging.
     "20261116210000_align_review_refresh_proposed_state",
     "20261116211000_register_shared_parent_approval_profiles",

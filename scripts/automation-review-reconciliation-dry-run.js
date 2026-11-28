@@ -1,3 +1,4 @@
+const { MEMBERSHIP, assertArtifactMembership } = require("./lib/ebay-membership");
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
@@ -11,6 +12,7 @@ const {
 const { bindDurableArtifactContract } = require("./lib/sealed-artifacts");
 const { normalizeDecimalString } = require("./lib/canonical-json");
 const { stableAffiliateUrl } = require("./lib/ebay-artifact-bound-contract");
+const { SOURCE_REVIEW_POLICIES } = require("./lib/automation-review-publication-profiles");
 const {
   extractZip,
   githubJson,
@@ -179,10 +181,12 @@ function verifySourceArtifact(options) {
   if (contract.commit_sha !== options.sourceCommitSha || report.commit_sha !== options.sourceCommitSha) fail("Source commit mismatch");
   if (contract.report_sha256 !== options.sourceReportSha256) fail("Source contract report hash mismatch");
   if (contract.review_scope_fingerprint !== options.sourceReviewScopeFingerprint || report.review_scope_fingerprint !== options.sourceReviewScopeFingerprint) fail("Source review scope fingerprint mismatch");
+  assertArtifactMembership(contract);
+  assertArtifactMembership(report);
   const executableCount = contract.executable_plan_count;
   const reviewCount = contract.review_row_count;
-  if (contract.approved_mapping_count !== 237 || !Number.isInteger(executableCount) || executableCount < 0 || !Number.isInteger(reviewCount) || reviewCount < 0 || executableCount + reviewCount !== 237 || contract.blocked_row_count !== 0) fail("Source review scope count mismatch");
-  if (report.approved_mapping_count !== 237 || report.executable_plan_count !== executableCount || report.executed_plan_count !== 0 || report.review_row_count !== reviewCount || report.blocked_row_count !== 0) fail("Source report scope count mismatch");
+  if (contract.approved_mapping_count !== MEMBERSHIP.count || !Number.isInteger(executableCount) || executableCount < 0 || !Number.isInteger(reviewCount) || reviewCount < 0 || executableCount + reviewCount !== MEMBERSHIP.count || contract.blocked_row_count !== 0) fail("Source review scope count mismatch");
+  if (report.approved_mapping_count !== MEMBERSHIP.count || report.executable_plan_count !== executableCount || report.executed_plan_count !== 0 || report.review_row_count !== reviewCount || report.blocked_row_count !== 0) fail("Source report scope count mismatch");
   if (!Array.isArray(contract.executable_operation_types) || contract.executable_operation_types.length !== 1 || contract.executable_operation_types[0] !== "VERIFY_NO_CHANGE") fail("Source executable operation drift");
   const reviewIds = sortedStrings(report.review_rows.map((row) => row.offer_id));
   if (canonicalJson(reviewIds) !== canonicalJson(sortedStrings(contract.review_offer_ids))) fail("Source report and contract review IDs mismatch");
@@ -213,6 +217,12 @@ function sourceFingerprintByOffer(report, scope) {
 }
 
 function operationForReview(review, semantic) {
+  if (review.review_type === "POLICY_REVIEW") {
+    if (review.reason !== "SHIPPING_POLICY_DRIFT") fail("Unsupported eBay policy review");
+    const policy = SOURCE_REVIEW_POLICIES[review.reason];
+    return { review_kind: policy.reviewKind, operation_type: policy.operation, reason_codes: policy.reasonCode,
+      confidence: "LOW", suggested_action: "MANUAL_REVIEW" };
+  }
   if (review.action === "UPDATE_PRICE") return { review_kind: "COMMERCIAL_CHANGE", operation_type: "UPDATE_PRICE", reason_codes: review.reason === "HARD_PRICE_ANOMALY" ? "HARD_PRICE_ANOMALY" : "PRICE_CHANGE", confidence: "MEDIUM", suggested_action: "MANUAL_REVIEW" };
   if (review.action === "UPDATE_STOCK") return { review_kind: "COMMERCIAL_CHANGE", operation_type: "UPDATE_STOCK", reason_codes: "STOCK_CHANGE", confidence: "MEDIUM", suggested_action: "MANUAL_REVIEW" };
   if (review.action === "UPDATE_PRICE_AND_STOCK") return { review_kind: "COMMERCIAL_CHANGE", operation_type: "UPDATE_PRICE_AND_STOCK", reason_codes: "PRICE_AND_STOCK_CHANGE", confidence: "MEDIUM", suggested_action: "MANUAL_REVIEW" };
@@ -222,6 +232,7 @@ function operationForReview(review, semantic) {
 }
 
 function proposedStateForReview(review, artifact) {
+  if (review.review_type === "POLICY_REVIEW") return { catalogue_action: "KEEP_UNCHANGED", review_only: true, automatic_action: false };
   if (!["UPDATE_PRICE", "UPDATE_STOCK", "UPDATE_PRICE_AND_STOCK"].includes(review.action)) return {};
   const plan = artifact?.plans?.[0]?.resolved_plan;
   const values = plan?.offer?.values;
@@ -384,6 +395,7 @@ function buildManifestRows(source, activeRows, currentStateRows = []) {
         source_error: semantic.source_error || review.source_error || null,
         returned_gtin: semantic.returned_gtin || review.returned_gtin || null,
         item_id: semantic.returned_item_id || review.item_id || null,
+        ...(review.source_record_evidence ? { source_record_check: review.source_record_evidence } : {}),
       },
       source_captured_at: source.report.captured_at || source.contract.created_at,
       expires_at: source.contract.expires_at,

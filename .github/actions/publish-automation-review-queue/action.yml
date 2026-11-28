@@ -54,6 +54,7 @@ runs:
         merge-multiple: true
 
     - name: Build fresh ${{ inputs.display-name }} Review Queue changes
+      id: reconciliation
       shell: bash
       env:
         DURABLE_SEALED_ARTIFACTS_ENFORCEMENT: ${{ inputs.durable-sealed-artifacts-enforcement }}
@@ -74,6 +75,7 @@ runs:
         --output=tmp/automation-review-reconciliation/${{ inputs.evidence-prefix }}-reconciliation-dry-run.json
 
     - name: Publish fresh ${{ inputs.display-name }} cards to Automation Review Queue
+      if: ${{ steps.reconciliation.outputs.publication_mode == 'AUTOMATIC' }}
       shell: bash
       env:
         DURABLE_SEALED_ARTIFACTS_ENFORCEMENT: ${{ inputs.durable-sealed-artifacts-enforcement }}

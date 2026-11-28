@@ -807,3 +807,18 @@ test("liquid with zero or negative volume returns no price per litre", () => {
     null
   );
 });
+
+test("reused currency formatting preserves native GBP rounding and never retains an earlier price", () => {
+  const expected = new Intl.NumberFormat("en-GB", { style: "currency", currency: "GBP" });
+  const values = [0, -0, 0.0049, 0.005, 0.995, 1.005, 19.99, 23.98, -23.98,
+    999.995, 1234567.891, 1e-8, Number.MAX_SAFE_INTEGER, Number.MAX_VALUE, NaN, Infinity, -Infinity];
+  let seed = 123456;
+  for (let i = 0; i < 1000; i++) {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    values.push((seed % 10000000 - 5000000) / 1000);
+  }
+  for (const value of values) assert.equal(pricingModule.formatCurrency(value), expected.format(value), String(value));
+  assert.equal(pricingModule.formatCurrency(19.99), "£19.99");
+  assert.equal(pricingModule.formatCurrency(14.99), "£14.99");
+  assert.equal(pricingModule.formatCurrency(19.99), "£19.99");
+});

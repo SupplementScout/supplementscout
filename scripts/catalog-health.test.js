@@ -1,12 +1,135 @@
+// Archived eBay apply/sealer/watchdog receipts in this suite are version 1.
+const legacyMembershipPath = require.resolve("../config/retailers/ebay-approved-membership.json");
+require.cache[legacyMembershipPath] = { id: legacyMembershipPath, filename: legacyMembershipPath, loaded: true, exports: require("./fixtures/ebay-membership-v1.json") };
 const assert = require("node:assert/strict");
 const fs = require("fs");
 const Module = require("module");
 const path = require("path");
 const test = require("node:test");
 const ts = require("typescript");
+const vm = require("node:vm");
 
 const originalModuleLoad = Module._load;
 const originalTsLoader = require.extensions[".ts"];
+
+function reviewHealthReader(response) {
+  let calls = 0;
+  const cache = new Map();
+  function load(file) {
+    if (cache.has(file)) return cache.get(file);
+    const mod = { exports: {} }; cache.set(file, mod.exports);
+    const source = fs.readFileSync(path.join(process.cwd(), file), "utf8");
+    vm.runInNewContext(ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText, {
+      module: mod, exports: mod.exports, require: name => {
+        if (name === "server-only") return {};
+        if (name === "../../lib/supabaseAdmin") return { supabaseAdmin: {
+          from() { throw Error("Catalog Health must not scan queue rows"); },
+          async rpc(name, args) {
+            calls++; assert.equal(name, "read_automation_review_queue_page_v1");
+            assert.equal(args.p_request.page, 1); assert.equal(args.p_request.page_size, 10);
+            assert.deepEqual(JSON.parse(JSON.stringify(args.p_request.filters)), {
+              status: "ALL", retailer: "", kind: "", group: "", confidence: "", capability: "", query: "",
+              scope: "DECISIONS", bucket: "ALL", display: "WORK", history: false,
+            });
+            return typeof response === "function" ? response() : response;
+          },
+        } };
+        if (name === "./automationReviewQueueData") return load("app/admin/lib/automationReviewQueueData.ts");
+        if (name === "./automationReviewQueue") return { REVIEW_QUEUE_PAGE_SIZE: 50, REVIEW_QUEUE_WORK_PAGE_SIZE: 10 };
+        if (name === "../../lib/automationReviewCapabilityMatrix") return { AUTOMATION_REVIEW_CAPABILITY_MATRIX: [] };
+        throw Error(`Unexpected review health import ${name}`);
+      }, Date, Number, Set, Map, Object, Error,
+    });
+    return mod.exports;
+  }
+  return { read: load("app/admin/lib/automationReviewHealth.ts").loadAutomationReviewCounts, calls: () => calls };
+}
+
+function reviewCounterRow(id, pending, sourceUnavailable = 0, blocked = 0) {
+  return { retailer_id: id, retailer: `TEST ONLY ${id}`, pending, source_unavailable: sourceUnavailable, blocked,
+    decide: pending - sourceUnavailable, execute: 0, processing: 0, technical: sourceUnavailable + blocked,
+    completed: 0, total: pending + blocked };
+}
+
+function reviewCounterResponse(retailers) {
+  const summary = { total: 0, decide: 0, execute: 0, processing: 0, technical: 0, completed: 0,
+    completedToday: 0, submittedToday: 0, ownerRemaining: 0, retailers };
+  for (const row of retailers) for (const key of ["total", "decide", "execute", "processing", "technical", "completed"]) summary[key] += row[key];
+  summary.ownerRemaining = summary.decide + summary.execute;
+  return { error: null, data: { schema_version: 1, revision: "a".repeat(32), revision_changed: false,
+    page: 1, page_size: 10, total: summary.total, total_pages: Math.max(1, Math.ceil(summary.total / 10)),
+    rows: Array.from({ length: Math.min(10, summary.total) }, (_, i) => ({ id: i + 1, review_status: "EXPIRED", execution_request: null })),
+    retailers: retailers.map(row => row.retailer), summary } };
+}
+
+test("Catalog Health counters use one bounded canonical read below and above the old 1000-row ceiling", async () => {
+  for (const total of [99, 1000, 1001, 5000, 10000, 20000]) {
+    const response = reviewCounterResponse([reviewCounterRow("9", total - 2, Math.floor(total / 10), 2)]);
+    const reader = reviewHealthReader(response);
+    assert.deepEqual(JSON.parse(JSON.stringify(await reader.read())), {
+      "9": { pending: total - 2, sourceUnavailable: Math.floor(total / 10), blocked: 2 },
+    });
+    assert.equal(reader.calls(), 1);
+  }
+});
+
+test("Catalog Health maps every retailer summary and accepts genuine zero and empty queues", async () => {
+  const ids = [1, 3, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+  const rows = ids.map((id, i) => reviewCounterRow(i % 2 ? String(id) : id, i, Math.floor(i / 3), i % 2));
+  const reader = reviewHealthReader(reviewCounterResponse(rows));
+  const expected = Object.fromEntries(rows.map(row => [String(row.retailer_id), {
+    pending: row.pending, sourceUnavailable: row.source_unavailable, blocked: row.blocked,
+  }]));
+  assert.deepEqual(JSON.parse(JSON.stringify(await reader.read())), expected); assert.equal(reader.calls(), 1);
+  const empty = reviewHealthReader(reviewCounterResponse([]));
+  assert.equal(JSON.stringify(await empty.read()), "{}"); assert.equal(empty.calls(), 1);
+});
+
+test("new Catalog Health loader fails closed against the old SQL summary", async () => {
+  const response = reviewCounterResponse([reviewCounterRow("9", 12, 3, 1)]);
+  for (const key of ["retailer_id", "pending", "source_unavailable", "blocked"]) delete response.data.summary.retailers[0][key];
+  assert.equal(await reviewHealthReader(response).read(), null);
+});
+
+test("Catalog Health never turns RPC errors, missing data or revision drift into zero", async () => {
+  for (const response of [null, { data: null, error: null }, { data: null, error: { message: "denied" } },
+    () => { throw Error("network failure"); }]) {
+    assert.equal(await reviewHealthReader(response).read(), null);
+  }
+  const response = reviewCounterResponse([reviewCounterRow("9", 1)]); response.data.revision_changed = true;
+  assert.equal(await reviewHealthReader(response).read(), null);
+});
+
+test("Catalog Health rejects malformed, missing, partial and inconsistent counter summaries", async () => {
+  for (const mutate of [
+    r => { r.data.summary = null; },
+    r => { r.data.summary.retailers = null; },
+    r => { r.data.summary.retailers = []; },
+    r => { r.data.summary.retailers.push(r.data.summary.retailers[0]); },
+    r => { delete r.data.summary.retailers[0].pending; },
+    r => { r.data.summary.retailers[0].pending = -1; },
+    r => { r.data.summary.retailers[0].blocked = 0.5; },
+    r => { r.data.summary.retailers[0].source_unavailable = NaN; },
+    r => { r.data.summary.retailers[0].pending = "12"; },
+    r => { r.data.summary.retailers[0].pending = 0; r.data.summary.retailers[0].source_unavailable = 0; },
+    r => { r.data.summary.retailers[0].source_unavailable = 13; },
+    r => { r.data.summary.retailers[0].blocked = 99; },
+    r => { r.data.summary.retailers[0].retailer_id = "bad"; },
+    r => { r.data.summary.retailers[0].retailer_id = 0; },
+    r => { r.data.summary.retailers[0].retailer_id = Number.MAX_SAFE_INTEGER + 1; },
+    r => { r.data.summary.retailers[0].retailer = ""; },
+    r => { r.data.summary.retailers[0].total++; },
+    r => { r.data.summary.total++; },
+    r => { r.data.summary.decide++; },
+    r => { delete r.data.summary.ownerRemaining; },
+    r => { r.data.summary.completedToday = "0"; },
+    r => { r.data.summary.submittedToday = Infinity; },
+    r => { r.data.rows.pop(); },
+  ]) {
+    const response = reviewCounterResponse([reviewCounterRow("9", 12, 3, 1)]); mutate(response);
+    assert.equal(await reviewHealthReader(response).read(), null, mutate.toString());
+  }
+});
 
 require.extensions[".ts"] = function loadTypeScriptModule(mod, filename) {
   const source = fs.readFileSync(filename, "utf8");
@@ -77,6 +200,8 @@ const {
   validateEbayApplyArtifacts,
   validateEbayIdempotencyArtifacts,
   workflowAttempt,
+  workflowProfileSelection,
+  scheduledJobCron,
   workflowHistoryPage,
   workflowLivenessCheck,
   workflowLivenessResult,
@@ -608,8 +733,8 @@ test("catalog health joins the shared review queue without inferring workflow or
   const loader = fs.readFileSync(path.join(process.cwd(), "app", "admin", "lib", "automationReviewHealth.ts"), "utf8");
   const components = fs.readFileSync(path.join(process.cwd(), "app", "admin", "catalog-health", "components.tsx"), "utf8");
   assert.match(page, /loadAutomationReviewCounts/);
-  assert.match(loader, /product_match_review_queue/);
-  assert.match(loader, /review_kind,review_status/);
+  assert.match(loader, /loadReviewQueuePage/);
+  assert.doesNotMatch(loader, /\.from\(|\.limit\(/);
   assert.match(components, /Pending review/);
   assert.match(components, /Source unavailable/);
   assert.match(components, /\/admin\/automation-review\?status=PENDING/);
@@ -1618,6 +1743,132 @@ test("watchdog rejects a freshness anchor older than the requested cutoff", asyn
   );
 });
 
+test("watchdog proves expected scheduled skips against the workflow at the run SHA", async () => {
+  const source = fs.readFileSync(path.join(process.cwd(), ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
+  const profile = loadWatchdogConfig().retailers.find(row => row.id === 9);
+  const run = { ...watchdogRun(80), head_sha: "a".repeat(40) };
+  const skipped = { id: 1, name: profile.job_name, conclusion: "skipped", steps: [] };
+  const other = { id: 2, name: "gladiator-nutrition-offer-refresh", conclusion: "success", steps: [{ name: "Set up job", conclusion: "success" }] };
+  const calls = [];
+  const options = { repository: "owner/repo", token: "test", cache: new Map(), fetchJson: async url => {
+    calls.push(url);
+    assert.ok(url.endsWith(`?ref=${run.head_sha}`));
+    return { encoding: "base64", size: Buffer.byteLength(source), content: Buffer.from(source).toString("base64"), sha: "blob-sha" };
+  } };
+  assert.equal(scheduledJobCron(source, profile.job_name), "47 2 * * *");
+  assert.equal(scheduledJobCron(source, other.name), "17 8 * * *");
+  const result = await workflowProfileSelection(profile, run, [skipped, other], options);
+  assert.equal(result.selection, "EXPECTED_SKIP");
+  assert.equal(result.head_sha, run.head_sha);
+  assert.equal(result.workflow_blob_sha, "blob-sha");
+  assert.equal(result.workflow_definition_sha256.length, 64);
+  assert.equal((await workflowProfileSelection(profile, run, [skipped, other], options)).selection, "EXPECTED_SKIP");
+  assert.equal(calls.length, 1);
+  // A same-schedule peer means the skipped profile should have run.
+  const sameSchedule = { ...other, name: "ten-reps-offer-refresh" };
+  assert.equal((await workflowProfileSelection(profile, run, [skipped, sameSchedule], options)).selection, "INCOMPLETE");
+  for (const jobs of [[skipped], [other], [skipped, skipped, other]]) {
+    assert.equal((await workflowProfileSelection(profile, run, jobs, options)).selection, "INCOMPLETE");
+  }
+  const manual = await workflowProfileSelection(profile, { ...run, event: "workflow_dispatch" }, [skipped, other], options);
+  assert.equal(manual.selection, "NOT_SELECTED");
+  assert.equal(manual.expectation, "UNKNOWN");
+  assert.equal(scheduledJobCron(source.replace("github.event_name == 'workflow_dispatch'", "github.event_name == 'schedule'"), profile.job_name), null);
+  assert.equal(scheduledJobCron(source.replace("inputs.retailer == 'all'", "always()"), profile.job_name), null);
+});
+
+test("watchdog keeps missing stages and failed selected jobs incomplete, never adopting another executor", () => {
+  const profile = { ...watchdogProfile, job_name: "target" };
+  const run = watchdogRun(11);
+  const impostor = watchdogJob(profile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" }, "other");
+  assert.equal(workflowAttempt(profile, run, [impostor]), null);
+  const failed = workflowAttempt(profile, run, [impostor, { id: 2, name: "target", conclusion: "failure", steps: [] }]);
+  assert.equal(failed.result, "FAILED_OR_INCOMPLETE");
+  assert.equal(failed.job_name, "target");
+  assert.equal(failed.stages.apply, null);
+  assert.equal(workflowAttempt(profile, { ...run, status: "queued", conclusion: null }, [{ id: 2, name: "target", status: "queued", conclusion: null, steps: [] }]).result, "FAILED_OR_INCOMPLETE");
+  assert.equal(workflowAttempt(profile, run, [{ id: 2, name: "target", conclusion: "skipped", steps: [] }]), null);
+});
+
+test("watchdog ignores only a proved other-schedule skip and retains the actual ordinary attempt", async () => {
+  const profile = loadWatchdogConfig().retailers.find(row => row.id === 9);
+  const oldRun = { ...watchdogRun(10), head_sha: "a".repeat(40) };
+  const laterRun = { ...watchdogRun(11), head_sha: "a".repeat(40) };
+  const source = fs.readFileSync(path.join(process.cwd(), ".github/workflows/fit-house-offer-refresh.yml"), "utf8");
+  const fetchJson = async url => {
+    if (url.includes("/contents/")) return { encoding: "base64", size: Buffer.byteLength(source), content: Buffer.from(source).toString("base64"), sha: "blob" };
+    if (url.includes("created=")) return { workflow_runs: [laterRun] };
+    if (url.includes("/actions/workflows/")) return { workflow_runs: [laterRun, oldRun] };
+    if (url.includes("/11/jobs")) return { jobs: [
+      { id: 1, name: profile.job_name, conclusion: "skipped", steps: [] },
+      { id: 2, name: "gladiator-nutrition-offer-refresh", conclusion: "success", steps: [{ name: "Set up job" }] },
+    ] };
+    return { jobs: [watchdogJob(profile, { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" }, profile.job_name)] };
+  };
+  const result = await runStages(profile, "owner/repo", "test", { fetchJson, historyFreshnessCutoff: "2026-08-31T00:00:00Z" });
+  assert.equal(result.latestListedRun.run_id, "11");
+  assert.equal(result.latestListedOrdinaryRun.run_id, "10");
+  assert.equal(result.latestOrdinaryAttempt.run_id, "10");
+  assert.equal(result.unmatchedRecentRuns[0].profile_selection.selection, "EXPECTED_SKIP");
+});
+
+test("watchdog uses bounded schedule filtering without replacing a scheduled failure with manual READ ONLY", async () => {
+  const profile = { ...watchdogProfile, workflow: "shared.yml" };
+  const manual = { ...watchdogRun(12), event: "workflow_dispatch" };
+  const failed = { ...watchdogRun(11), conclusion: "failure" };
+  const success = watchdogRun(10);
+  const oldManualSuccess = { ...watchdogRun(9), event: "workflow_dispatch" };
+  const calls = [];
+  const fetchJson = async url => {
+    calls.push(url);
+    if (url.includes("/actions/workflows/")) {
+      const schedule = url.includes("event=schedule");
+      return { workflow_runs: url.includes("created=") ? [schedule ? failed : manual] : schedule ? [failed, success] : [manual, oldManualSuccess] };
+    }
+    const id = Number(url.match(/runs\/(\d+)\/jobs/)[1]);
+    return { jobs: [watchdogJob(profile, id === 12
+      ? { capture: "success", apply: "skipped", db_postflight: "skipped", idempotency: "skipped" }
+      : id === 11 ? { capture: "failure", apply: "skipped", db_postflight: "skipped", idempotency: "skipped" }
+        : { capture: "success", apply: "success", db_postflight: "success", idempotency: "success" })] };
+  };
+  // No ordinary success in the initial mixed listing: the schedule query must
+  // recover the latest ordinary failure even when manual activity crowds it out.
+  const result = await runStages(profile, "owner/repo", "test", { fetchJson, historyFreshnessCutoff: "2026-08-31T00:00:00Z" });
+  assert.equal(result.latestAttempt.run_id, "12");
+  assert.equal(result.latestAttempt.result, "READ_ONLY_COMPLETE");
+  assert.equal(result.latestOrdinaryAttempt.run_id, "11");
+  assert.equal(result.latestOrdinaryAttempt.result, "FAILED_OR_INCOMPLETE");
+  assert.equal(result.lastCompleteOrdinarySuccess.run_id, "10");
+  assert.equal(result.historyTruncated, false);
+  assert.ok(calls.some(url => url.includes("event=schedule")));
+  assert.ok(calls.every(url => !url.includes("status=completed")));
+  assert.ok(calls.filter(url => url.includes("/actions/workflows/") && !url.includes("created=")).length <= 4);
+});
+
+test("watchdog retains exhausted history and missing contracts as failures within the original page budget", async () => {
+  const profile = { ...watchdogProfile, workflow: "shared.yml" };
+  const calls = [];
+  const fetchJson = async url => {
+    calls.push(url);
+    if (url.includes("created=")) return { workflow_runs: [] };
+    if (url.includes("/actions/workflows/")) {
+      const page = Number(new URL(url).searchParams.get("page"));
+      return { workflow_runs: Array.from({ length: 25 }, (_, i) => ({ ...watchdogRun(page * 25 + i), created_at: "2026-09-01T00:00:00Z", updated_at: "2026-09-01T00:00:00Z" })) };
+    }
+    return { jobs: [watchdogJob(profile, { capture: "failure", apply: "skipped", db_postflight: "skipped", idempotency: "skipped" })] };
+  };
+  const result = await runStages(profile, "owner/repo", "test", { fetchJson, historyFreshnessCutoff: "2026-08-31T00:00:00Z" });
+  assert.equal(result.scannedRunCount, 100);
+  assert.equal(result.historyTruncated, true);
+  assert.equal(result.lastCompleteSuccess, null);
+  assert.equal(calls.filter(url => url.includes("/actions/workflows/") && !url.includes("created=")).length, 4);
+  const evaluation = evaluateRetailer({ profile, stages: { ...result.stages, latest_attempt: result.latestAttempt, latest_ordinary_attempt: result.latestOrdinaryAttempt, history_truncated: result.historyTruncated }, contract: null, database: { offers_older_than_48h: 0 } }, new Date("2026-09-01T01:00:00Z"), 48);
+  assert.equal(evaluation.result, "FAIL");
+  assert.ok(evaluation.failures.includes("WORKFLOW_HISTORY_TRUNCATED"));
+  assert.ok(evaluation.failures.includes("EXECUTION_CONTRACT_EVIDENCE_MISSING"));
+  assert.ok(evaluation.failures.includes("LATEST_ORDINARY_ATTEMPT_INCOMPLETE"));
+});
+
 test("watchdog configuration binds exact stage alternatives for every retailer", () => {
   const profiles = new Map(loadWatchdogConfig().retailers.map((profile) => [String(profile.id), profile.stages]));
   assert.deepEqual(profiles.get("1").idempotency, ["Verify complete live postcondition"]);
@@ -1655,15 +1906,17 @@ test("Gladiator watchdog binds the live scheduled job and publication without ch
 test("shared workflow watchdog stages match real step names and retailer artifacts cannot cross profiles", () => {
   const config = loadWatchdogConfig();
   const workflow = require("js-yaml").load(fs.readFileSync(path.join(process.cwd(), ".github/workflows/fit-house-offer-refresh.yml"), "utf8"));
-  for (const id of [15, 16]) {
+  for (const id of [9, 14, 15, 16]) {
     const profile = config.retailers.find(row => row.id === id);
-    const slug = id === 15 ? "gladiator-nutrition" : "holland-barrett";
+    const slug = { 9: "fit-house", 14: "ten-reps", 15: "gladiator-nutrition", 16: "holland-barrett" }[id];
     const job = workflow.jobs[`${slug}-offer-refresh`];
+    assert.equal(profile.job_name, `${slug}-offer-refresh`);
     const names = job.steps.map(step => (step.name || "").replaceAll("${{ env.RETAILER_DISPLAY_NAME }}", profile.name));
     for (const name of Object.values(profile.stages).flat()) assert.ok(names.includes(name), name);
     assert.ok(workflow.jobs[profile.review_publication.job_name].steps.some(step => step.name === profile.review_publication.step_name));
-    assert.equal(artifactBelongsToProfile(profile, { name: `${slug}-offer-refresh-123-1` }), true);
-    for (const other of ["fit-house", "10reps", id === 15 ? "holland-barrett" : "gladiator-nutrition"]) {
+    const artifactSlug = id === 14 ? "10reps" : slug;
+    assert.equal(artifactBelongsToProfile(profile, { name: `${artifactSlug}-offer-refresh-123-1` }), true);
+    for (const other of ["fit-house", "10reps", "gladiator-nutrition", "holland-barrett"].filter(other => other !== (id === 14 ? "10reps" : slug))) {
       assert.equal(artifactBelongsToProfile(profile, { name: `${other}-offer-refresh-123-1` }), false);
     }
   }

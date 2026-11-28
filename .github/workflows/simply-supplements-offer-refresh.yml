@@ -43,6 +43,7 @@ jobs:
       artifact_digest: ${{ steps.source_artifact.outputs.artifact-digest }}
       source_contract_sha256: ${{ steps.review_source.outputs.contract_sha256 }}
       review_scope_fingerprint: ${{ steps.review_source.outputs.review_scope_fingerprint }}
+      publication_mode: ${{ steps.review_source.outputs.publication_mode }}
 
     steps:
       - name: Validate protected execution context
@@ -153,7 +154,7 @@ jobs:
 
   refresh-review-queue:
     needs: [simply-supplements-offer-refresh]
-    if: ${{ always() && github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (inputs.operation == 'apply' || inputs.operation == 'review-only'))) && needs.simply-supplements-offer-refresh.outputs.artifact_id != '' && needs.simply-supplements-offer-refresh.outputs.artifact_digest != '' && needs.simply-supplements-offer-refresh.outputs.source_contract_sha256 != '' && needs.simply-supplements-offer-refresh.outputs.review_scope_fingerprint != '' }}
+    if: ${{ always() && github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (inputs.operation == 'apply' || inputs.operation == 'review-only'))) && needs.simply-supplements-offer-refresh.outputs.artifact_id != '' && needs.simply-supplements-offer-refresh.outputs.artifact_digest != '' && needs.simply-supplements-offer-refresh.outputs.source_contract_sha256 != '' && needs.simply-supplements-offer-refresh.outputs.review_scope_fingerprint != '' && needs.simply-supplements-offer-refresh.outputs.publication_mode != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: production-readonly
@@ -166,7 +167,7 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --ignore-scripts
-      - name: Reconcile and publish fresh Simply Supplements Review Queue source
+      - name: ${{ needs.simply-supplements-offer-refresh.outputs.publication_mode == 'AUTOMATIC' && 'Reconcile and publish fresh Simply Supplements Review Queue source' || 'Prepare owner-authorized Simply Supplements Review Queue evidence' }}
         uses: ./.github/actions/publish-automation-review-queue
         with:
           display-name: Simply Supplements

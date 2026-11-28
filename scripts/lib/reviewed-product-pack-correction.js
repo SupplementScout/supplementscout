@@ -1,10 +1,12 @@
 const crypto = require("node:crypto");
 const fs = require("node:fs");
 const path = require("node:path");
-const { canonicalJson, normalizeDecimalString } = require("./canonical-json");
+const { canonicalJson, normalizeDecimalString, assertPostgresJsonCompatible } = require("./canonical-json");
 const { TARGETS } = require("./reviewed-catalogue-target");
 
 const CONTRACT_KIND = "reviewed-catalogue-product-pack-correction-v1";
+const FORMAT_CONTRACT_KIND = "reviewed-catalogue-product-pack-correction-v2";
+const FORMAT_VALUES = new Set(["powder", "capsule"]);
 const STATUSES = new Set(["PREPARED", "OWNER_APPROVED"]);
 const HEX64 = /^[0-9a-f]{64}$/;
 const PACKAGE_KEYS = Object.freeze([
@@ -40,6 +42,7 @@ function sha256(bytes) {
 }
 
 function packageFingerprint(value) {
+  if (value.schema_version === 2) assertPostgresJsonCompatible(value);
   const copy = structuredClone(value);
   copy.package_fingerprint = null;
   return sha256(Buffer.from(canonicalJson(copy), "utf8"));
@@ -61,8 +64,9 @@ function repositoryFile(root, relativePath, label) {
 }
 
 function validatePackage(value, options = {}) {
-  exactKeys(value, PACKAGE_KEYS, "Product pack correction package");
-  invariant(value.schema_version === 1 && value.kind === CONTRACT_KIND, "Product pack correction package identity mismatch");
+  const formatCorrection = value?.schema_version === 2;
+  exactKeys(value, formatCorrection ? [...PACKAGE_KEYS, "expected_state"] : PACKAGE_KEYS, "Product pack correction package");
+  invariant(formatCorrection ? value.kind === FORMAT_CONTRACT_KIND : value.schema_version === 1 && value.kind === CONTRACT_KIND, "Product pack correction package identity mismatch");
   invariant(STATUSES.has(value.status), "Product pack correction package status invalid");
   if (value.status === "OWNER_APPROVED") {
     invariant(typeof value.authorized_by === "string" && value.authorized_by.trim(), "Owner-approved package authorizer missing");
@@ -77,7 +81,10 @@ function validatePackage(value, options = {}) {
     invariant(value.target_environment === TARGETS[options.target].environment && value.target_project_ref === TARGETS[options.target].projectRef, "Product pack correction requested target mismatch");
   }
 
-  exactKeys(value.operation, OPERATION_KEYS, "Product pack correction operation");
+  exactKeys(value.operation, formatCorrection ? [...OPERATION_KEYS, "product_variant_id"] : OPERATION_KEYS, "Product pack correction operation");
+  if (formatCorrection) {
+    validateFormatCorrection(value);
+  } else {
   invariant(value.operation.table === "products", "Product pack correction table must be products");
   invariant(/^[1-9][0-9]*$/.test(String(value.operation.product_id)), "Product pack correction product ID invalid");
   invariant(value.operation.field === "net_weight_g", "Product pack correction field must be net_weight_g");
@@ -87,6 +94,7 @@ function validatePackage(value, options = {}) {
   invariant(!after.startsWith("-") && after !== "0", "Product pack correction reviewed_after must be positive");
   invariant(before !== after, "Product pack correction must change net_weight_g");
   invariant(before === value.operation.expected_before && after === value.operation.reviewed_after, "Product pack correction decimals must be canonical strings");
+  }
 
   exactKeys(value.evidence, EVIDENCE_KEYS, "Product pack correction evidence");
   exactKeys(value.evidence.preparation_artifact, PREPARATION_KEYS, "Product pack correction preparation evidence");
@@ -97,10 +105,70 @@ function validatePackage(value, options = {}) {
   }
   invariant(HEX64.test(value.evidence.preparation_artifact.artifact_fingerprint), "Preparation artifact fingerprint invalid");
 
-  exactKeys(value.policy, POLICY_KEYS, "Product pack correction policy");
-  for (const key of POLICY_KEYS) invariant(value.policy[key] === true, `Product pack correction policy ${key} must be true`);
+  const policyKeys = formatCorrection ? POLICY_KEYS.map(key => key === "single_product_row" ? "single_canonical_row" : key) : POLICY_KEYS;
+  exactKeys(value.policy, policyKeys, "Product pack correction policy");
+  for (const key of policyKeys) invariant(value.policy[key] === true, `Product pack correction policy ${key} must be true`);
   invariant(HEX64.test(value.package_fingerprint), "Product pack correction package fingerprint invalid");
   invariant(packageFingerprint(value) === value.package_fingerprint, "Product pack correction package fingerprint mismatch");
+  return value;
+}
+
+function formatCorrectionState(product, variant = null) {
+  invariant(product && /^[1-9][0-9]*$/.test(String(product.id)), "Format correction product required");
+  return {
+    product: {
+      id: String(product.id), name: product.name, brand: product.brand,
+      product_format: product.product_format ?? null, is_active: product.is_active,
+      merged_into_product_id: product.merged_into_product_id == null ? null : String(product.merged_into_product_id),
+    },
+    variant: variant == null ? null : {
+      id: String(variant.id), product_id: String(variant.product_id), display_name: variant.display_name,
+      flavour_label: variant.flavour_label ?? null,
+      size_value: variant.size_value == null ? null : normalizeDecimalString(variant.size_value),
+      size_unit: variant.size_unit ?? null,
+      pack_count: variant.pack_count == null ? null : normalizeDecimalString(variant.pack_count),
+      product_format: variant.product_format ?? null, is_active: variant.is_active,
+    },
+  };
+}
+
+function validateFormatCorrection(value) {
+  const op = value.operation;
+  invariant(["products", "product_variants"].includes(op.table), "Unsupported format correction target");
+  invariant(typeof op.product_id === "string" && /^[1-9][0-9]*$/.test(op.product_id), "Format correction product ID invalid");
+  invariant(op.field === "product_format" && op.expected_before === null, "Format correction only fills NULL product_format");
+  invariant(FORMAT_VALUES.has(op.reviewed_after), "Unsupported reviewed product format");
+  exactKeys(value.expected_state, ["product", "variant"], "Format correction expected state");
+  const { product, variant } = value.expected_state;
+  const normalized = formatCorrectionState(product, variant);
+  invariant(canonicalJson(normalized) === canonicalJson(value.expected_state), "Format correction expected state schema mismatch");
+  invariant(product.id === op.product_id && product.is_active === true && product.merged_into_product_id === null,
+    "Format correction product state mismatch");
+  if (op.table === "products") {
+    invariant(op.product_variant_id === null && variant === null && product.product_format === null,
+      "Format correction product target mismatch");
+  } else {
+    invariant(typeof op.product_variant_id === "string" && /^[1-9][0-9]*$/.test(op.product_variant_id), "Format correction variant ID invalid");
+    invariant(variant && variant.id === op.product_variant_id && variant.product_id === op.product_id &&
+      variant.is_active === true && variant.product_format === null, "Format correction variant state mismatch");
+  }
+}
+
+function buildPreparedFormatPackage({ target, product, variant = null, reviewedFormat, preparationEvidence, sourceEvidence }) {
+  invariant(TARGETS[target], "Format correction target must be staging or production");
+  const value = {
+    schema_version: 2, kind: FORMAT_CONTRACT_KIND, status: "PREPARED", authorized_by: null, authorized_at: null,
+    target_environment: TARGETS[target].environment, target_project_ref: TARGETS[target].projectRef,
+    operation: { table: variant ? "product_variants" : "products", product_id: String(product.id),
+      product_variant_id: variant ? String(variant.id) : null, field: "product_format", expected_before: null, reviewed_after: reviewedFormat },
+    expected_state: formatCorrectionState(product, variant),
+    evidence: { preparation_artifact: preparationEvidence, source_evidence: sourceEvidence },
+    policy: { single_canonical_row: true, single_field_only: true, exact_before_required: true,
+      strict_post_write_readback: true, row_count_delta_must_be_zero: true },
+    package_fingerprint: null,
+  };
+  value.package_fingerprint = packageFingerprint(value);
+  validatePackage(value, { target });
   return value;
 }
 
@@ -119,9 +187,19 @@ function loadPackage({ root, packagePath, packageSha256, target, verifyEvidence 
     invariant(preparationFingerprint(preparation) === value.evidence.preparation_artifact.artifact_fingerprint, "Preparation artifact internal fingerprint mismatch");
     const correction = preparation.required_actions?.exact_product_pack_correction;
     invariant(String(preparation.target?.product_id) === value.operation.product_id, "Preparation artifact product binding mismatch");
-    invariant(correction?.field === "products.net_weight_g", "Preparation artifact field binding mismatch");
-    invariant(normalizeDecimalString(correction.before, "preparation before") === value.operation.expected_before, "Preparation artifact before binding mismatch");
-    invariant(normalizeDecimalString(correction.after, "preparation after") === value.operation.reviewed_after, "Preparation artifact after binding mismatch");
+    if (value.schema_version === 2) {
+      const format = preparation.required_actions?.exact_product_format_correction;
+      invariant(preparation.schema_version === 2 && preparation.required_actions?.format_correction_required === true &&
+        (preparation.target?.product_variant_id ?? null) === value.operation.product_variant_id &&
+        format?.field === `${value.operation.table}.product_format` && format.before === null && format.after === value.operation.reviewed_after,
+      "Preparation artifact format binding mismatch");
+      invariant(canonicalJson(preparation.expected_state) === canonicalJson(value.expected_state), "Preparation artifact expected state mismatch");
+      invariant(canonicalJson(preparation.source_evidence) === canonicalJson(value.evidence.source_evidence), "Preparation artifact source evidence mismatch");
+    } else {
+      invariant(correction?.field === "products.net_weight_g", "Preparation artifact field binding mismatch");
+      invariant(normalizeDecimalString(correction.before, "preparation before") === value.operation.expected_before, "Preparation artifact before binding mismatch");
+      invariant(normalizeDecimalString(correction.after, "preparation after") === value.operation.reviewed_after, "Preparation artifact after binding mismatch");
+    }
   }
   return { value, bytes, packageSha256: packageSha256.toLowerCase(), absolutePackage };
 }
@@ -205,8 +283,11 @@ function buildOwnerApprovedPackage(prepared, { authorizedBy, authorizedAt }) {
 
 module.exports = {
   CONTRACT_KIND,
+  FORMAT_CONTRACT_KIND,
   buildOwnerApprovedPackage,
   buildPreparedPackage,
+  buildPreparedFormatPackage,
+  formatCorrectionState,
   exactKeys,
   loadPackage,
   packageFingerprint,

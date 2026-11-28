@@ -10,6 +10,42 @@ const repairSql = fs.readFileSync(repairPath, "utf8");
 const executorAclRepairPath = path.join(__dirname, "../supabase/migrations/20260901110000_restore_reviewed_variant_executor_rpc_acl.sql");
 const executorAclRepairSql = fs.readFileSync(executorAclRepairPath, "utf8");
 
+const proposal = name => fs.readFileSync(path.join(__dirname, "../supabase/migrations", name), "utf8");
+test("v4 shared proposal preserves old serializers and exposes no new public capability", () => {
+  const value = proposal("20261125100000_shared_import_contract_v4.sql");
+  assert.match(value, /utf16_sort_key/);assert.match(value, /v_version in \('2','3'\)/);
+  assert.match(value, /CONSUMER_LINEAGE_MISMATCH/);assert.match(value, /CONSUMER_PATCH_SHAPE/);
+  assert.match(value, /revoke all on all functions in schema atomic_import_private from public,anon,authenticated,service_role/);
+  assert.match(value, /CANONICAL_GTIN_STATE_CHANGED/);assert.match(value, /FOREIGN_GTIN_CLAIM/);
+  assert.match(value, /PARENT_PEERS_CHANGED/);assert.match(value, /OWNER_RESOLUTION_INVALID/);
+  assert.match(value, /lock table public.gtin_promotion_quarantine in share mode/);
+  assert.doesNotMatch(value, /create (?:or replace )?function public\./i);
+  assert.doesNotMatch(value, /create table|grant (?:select|execute)|retailer_id\s*=\s*(?:12|13)/i);
+});
+
+test("format v2 proposal extends the existing ledger and keeps a typed single-field NULL fill", () => {
+  const value = proposal("20261125101000_reviewed_format_correction_v2.sql");
+  assert.match(value, /p_package->'schema_version'='1'::jsonb/);
+  assert.match(value, /p_package->'schema_version'='2'::jsonb/);
+  assert.match(value, /v_op->'expected_before' is distinct from 'null'::jsonb/);
+  assert.match(value, /set product_format=p_package#>>'\{operation,reviewed_after\}'/);
+  assert.match(value, /FORMAT_V2_POSTCONDITION_MISMATCH/);
+  assert.match(value, /FORMAT_V2_LINEAGE_MISMATCH/);
+  assert.doesNotMatch(value, /create (?:or replace )?function public\.|create table|grant (?:select|execute)/i);
+});
+
+test("identity v5 proposal reuses the existing executor with zero commercial and history writes", () => {
+  const value = proposal("20261125102000_existing_target_identity_rebind_v5.sql");
+  assert.match(value, /IDENTITY_V5_MANAGED_HISTORY_UNSUPPORTED/);
+  assert.match(value, /set product_variant_id=/);
+  assert.match(value, /IDENTITY_ONLY_NO_OBSERVATION/);
+  assert.match(value, /IDENTITY_V5_POSTCONDITION_MISMATCH/);
+  assert.match(value, /IDENTITY_V5_OWNER_RESOLUTION_INVALID/);
+  assert.doesNotMatch(value, /insert into public\.(?:products|product_variants|retailer_products|offers|price_history)/i);
+  assert.doesNotMatch(value, /set (?:price|shipping_cost|total_price|in_stock|url|last_checked_at|external_gtin)=/i);
+  assert.doesNotMatch(value, /create (?:or replace )?function public\.|create table|grant (?:select|execute)/i);
+});
+
 test("migration extends the existing importer and approval ledger", () => {
   assert.match(sql, /rename to atomic_import_validate_before_reviewed_variant_rebind/);
   assert.match(sql, /rename to atomic_import_apply_before_reviewed_variant_rebind/);

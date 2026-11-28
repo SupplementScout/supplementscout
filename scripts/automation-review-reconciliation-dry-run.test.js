@@ -1,3 +1,6 @@
+// Retain the original version of the historical sealed source fixtures.
+const legacyMembershipPath = require.resolve("../config/retailers/ebay-approved-membership.json");
+require.cache[legacyMembershipPath] = { id: legacyMembershipPath, filename: legacyMembershipPath, loaded: true, exports: require("./fixtures/ebay-membership-v1.json") };
 const assert = require("node:assert/strict");
 const crypto = require("node:crypto");
 const fs = require("node:fs");
@@ -20,6 +23,7 @@ const {
   buildManifestRows: buildFitHouseManifestRows,
   buildOutput: buildFitHouseOutput,
   buildSourceContract: buildFitHouseSourceContract,
+  loadAndValidateSource: loadFitHouseSource,
   profileFor,
   verifySourceContract: verifyFitHouseSourceContract,
 } = require("./shared-retailer-automation-review-source");
@@ -370,6 +374,39 @@ test("matching fingerprints become REFRESH and missing source baseline stays iso
   assert.equal(output.direct_rest_writes, 0);
   const commercialRefresh = output.request.operations.find((operation) => operation.op === "REFRESH" && operation.expected.review_id === "548");
   assert.equal(commercialRefresh.row.execution_binding.source_url, commercialRefresh.row.execution_binding.proposed_state.offer.url);
+});
+
+test("eBay delivery drift becomes a non-executable policy card instead of an invalid commercial REFRESH", t => {
+  const fixture = writeFixture();
+  t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
+  const options = sourceOptions(fixture.directory);
+  const source = { ...verifySourceArtifact(options), options };
+  const review = source.report.review_rows.find(row => row.offer_id === "2554");
+  const semantic = source.report.semantic_source_rows.find(row => row.offer_id === review.offer_id);
+  const evidence = { expected_offer: { price: "21.95", shipping_cost: "2.99", total_price: "24.94" },
+    observed_offer: { price: "21.90", shipping_cost: "2.50", total_price: "24.40" } };
+  Object.assign(review, { action: "MANUAL_REVIEW", review_type: "POLICY_REVIEW", reason: "SHIPPING_POLICY_DRIFT", source_record_evidence: evidence });
+  semantic.review_reasons = [...semantic.review_reasons, review.reason];
+  source.report.source_row_fingerprints.find(row => row.offer_id === review.offer_id).semantic_fingerprint = sha256(semantic);
+  const rows = buildManifestRows(source, activeRows(), activeRows());
+  const card = rows.find(row => row.offer_id === review.offer_id);
+  assert.equal(card.review_kind, "POLICY_REVIEW");
+  assert.equal(card.operation_type, "MANUAL_REVIEW");
+  assert.equal(card.reason_codes, "POLICY_REVIEW");
+  assert.deepEqual(card.proposed_state, { catalogue_action: "KEEP_UNCHANGED", review_only: true, automatic_action: false });
+  assert.deepEqual(card.source_evidence.source_record_check, evidence);
+  assert.notEqual(card.source_row_fingerprint, activeRows()[0].source_row_fingerprint);
+  const initial = buildOutput(source, baseline(activeRows()), rows, options.output, {});
+  assert.equal(initial.expected.catalogue_writes, 0);
+  assert.ok(initial.request.operations.some(op => op.op === "CREATE" && op.row.review_kind === "POLICY_REVIEW"));
+  assert.ok(initial.request.operations.some(op => op.op === "SUPERSEDE" && op.expected.review_id === "548"));
+  assert.ok(initial.request.operations.every(op => !op.row?.execution_binding));
+  const matching = rows.map((row, index) => ({ ...row, id: String(9000 + index) }));
+  const repeated = buildOutput(source, baseline(matching), rows, options.output, {});
+  assert.equal(repeated.operations.CREATE, 0);
+  assert.equal(repeated.operations.SUPERSEDE, 0);
+  assert.ok(repeated.request.operations.every(op => !op.row.execution_binding));
+  assert.throws(() => operationForReview({ ...review, reason: "UNKNOWN_POLICY" }, semantic), /Unsupported eBay policy/);
 });
 
 test("matching approved evidence stays immutable instead of becoming REFRESH", () => {
@@ -836,6 +873,16 @@ function writeTenRepsFixture({ profileKey = "10-reps", scopeRows = null, reviewI
     approved_mapping_count: approvedCount, source: { fingerprint: sourceFingerprint }, database_writes_attempted: 0, database_writes_completed: 0, business_writes_completed: 0, control_writes_completed: 0, approvals_created: 0, approvals_consumed: 0, recovery_calls: 0,
     classifier_summary: { scope: { scope_row_ids: executionOfferIds, blocked_rows: 0, reconciled: true, reconciled_total: executableCount }, action_counts: report.classification, changed_row_ids: [], changed_rows: [] },
   };
+  if (profileKey === "10-reps") {
+    report.source.diagnostic = { final_http_status: 200, pagination_completed: true };
+    report.discovery = { missing_variants: reviewOfferIds.size, missing_variants_review_only: reviewOfferIds.size, missing_variants_marked_unavailable: 0, catalogue_creates: 0 };
+    Object.assign(diagnostic.source, { http_status: 200, pagination_completed: true });
+    diagnostic.validator_result = "PASS";
+    diagnostic.guard_results = [
+      { guard: "SOURCE_HEALTH", result: "PASS" }, { guard: "VALIDATOR", result: "PASS" },
+      { guard: "APPROVED_MAPPING_COVERAGE", result: "REVIEW_ISOLATED", expected: approvedCount, matched: approvedCount - reviewOfferIds.size, source_absent_review_rows: reviewOfferIds.size, source_absent_marked_unavailable: 0 },
+    ];
+  }
   const baseline = { schema_version: 1, kind: "retailer-offer-refresh-db-baseline", result: "PASS", profile: selectedProfile.postflightProfile, snapshot: { captured_at: "2026-10-05T17:00:59.000Z", retailer_id: retailer.id, retailer_name: retailer.name, row_count: approvedCount, rows: baselineRows }, evidence_hash: "e".repeat(64) };
   writeJson(path.join(directory, "production-dry-run.json"), report);
   writeJson(path.join(directory, "production-preflight-diagnostic.json"), diagnostic);
@@ -853,6 +900,89 @@ test("10 Reps source adapter seals the fresh 934 safe plus 16 review partition w
   assert.equal(contract.review_row_count, 16);
   assert.deepEqual(contract.review_offer_ids, fixture.reviewRows.map((row) => row.offer_id).sort((a, b) => Number(a) - Number(b)));
   assert.equal(contract.catalogue_writes, 0);
+});
+
+function addCanonicalReviewEvidence(fixture) {
+  const reportFile = path.join(fixture.directory, "production-dry-run.json");
+  const report = JSON.parse(fs.readFileSync(reportFile, "utf8"));
+  for (let index = 0; index < 2; index++) {
+    const row = report.review_rows[index];
+    const before = fixture.baselineRows.find(before => before.offer_id === row.offer_id);
+    Object.assign(row, {
+      reason: "CANONICAL_IDENTITY_CONFLICT", action: "BLOCK_IDENTITY_DRIFT",
+      retailer_product_id: before.mapping_id, old_price: before.price, new_price: null,
+      old_stock: before.in_stock, new_stock: null, proposed_offer: null,
+      changed_fields: { price: false, stock: false, url: false, blocked: true },
+      source_record_evidence: { canonical_identity: {
+        reason: "CANONICAL_IDENTITY_CONFLICT", product_id: before.offer_product_id,
+        variant_id: before.offer_variant_id, default_variant: true,
+        active_explicit_variant_ids: Array.from({ length: index === 0 ? 11 : 1 }, (_, i) => String(100000 + index * 100 + i)),
+      } },
+    });
+  }
+  writeJson(reportFile, report);
+  return { reportFile, report };
+}
+
+test("shared publication preserves two independently evidenced canonical conflicts as non-executable manual reviews", () => {
+  const fixture = writeTenRepsFixture();
+  const { report } = addCanonicalReviewEvidence(fixture);
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "123456", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
+  const first = buildFitHouseSourceContract(fixture.directory, env, "10-reps");
+  assert.equal(first.executable_plan_count, 934);
+  assert.equal(first.review_row_count, 16);
+  assert.equal(first.catalogue_writes, 0);
+  assert.deepEqual(buildFitHouseSourceContract(fixture.directory, env, "10-reps"), first);
+  const source = loadFitHouseSource(fixture.directory, "10-reps");
+  const canonical = source.changedRows.filter(row => row.evidence_reason === "CANONICAL_IDENTITY_CONFLICT");
+  assert.equal(canonical.length, 2);
+  for (const row of canonical) {
+    assert.equal(row.old_price, row.new_price);
+    assert.equal(row.old_stock, row.new_stock);
+    const card = source.profile.reviewCard({}, row);
+    assert.equal(card.operationType, "MANUAL_REVIEW_IDENTITY");
+    assert.equal(card.reasonCodes, "IDENTITY_CONFLICT");
+    assert.equal(card.proposedState.automatic_action, false);
+    assert.equal(card.proposedState.catalogue_action, "KEEP_UNCHANGED");
+    assert.deepEqual(card.sourceRecordEvidence, report.review_rows.find(review => review.offer_id === row.offer_id).source_record_evidence);
+  }
+  assert.deepEqual(source.profile.classifierReviewReasons, ["MASS_OOS"]);
+  writeJson(path.join(fixture.directory, "automation-review-source-contract.json"), first);
+  const options = { profile: "10-reps", sourceArtifactDir: fixture.directory, sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "999999", sourceCommitSha: env.GITHUB_SHA, sourceArtifactDigest: "c".repeat(64), sourceContractSha256: fileSha(path.join(fixture.directory, "automation-review-source-contract.json")), output: path.join(fixture.directory, "output.json") };
+  const bound = verifyFitHouseSourceContract(options, new Date("2026-10-05T18:00:00Z"));
+  const baseline = publicationBaseline(fixture, "14");
+  const rows = buildFitHouseManifestRows(bound, baseline, options);
+  const output = buildFitHouseOutput(bound, baseline, rows, options, env);
+  assert.equal(rows.filter(row => row.reason_codes === "IDENTITY_CONFLICT").length, 2);
+  assert.equal(output.operations.CREATE, 16);
+  assert.equal(output.expected.catalogue_writes, 0);
+  assert.equal(output.production_writes, 0);
+  assert.deepEqual(buildFitHouseOutput(bound, baseline, rows, options, env).request, output.request);
+  const existing = { ...baseline, activeRows: rows.map((row, index) => ({ ...row, id: String(index + 1) })) };
+  const repeated = buildFitHouseOutput(bound, existing, rows, options, env);
+  assert.equal(repeated.operations.CREATE || 0, 0);
+});
+
+test("canonical publication refuses incomplete evidence, wrong identity, commercial changes and unknown conflict classes", () => {
+  const mutations = [
+    row => { delete row.source_record_evidence; },
+    row => { row.source_record_evidence.canonical_identity.product_id = "999999"; },
+    row => { row.source_record_evidence.canonical_identity.variant_id = "999999"; },
+    row => { row.source_record_evidence.canonical_identity.default_variant = false; },
+    row => { row.source_record_evidence.canonical_identity.active_explicit_variant_ids = []; },
+    row => { row.source_record_evidence.canonical_identity.active_explicit_variant_ids = [row.source_record_evidence.canonical_identity.variant_id]; },
+    row => { row.source_record_evidence.canonical_identity.active_explicit_variant_ids = ["123", "123"]; },
+    row => { row.source_record_evidence.canonical_identity.active_explicit_variant_ids = [Number(row.source_record_evidence.canonical_identity.variant_id)]; },
+    row => { row.proposed_offer = { in_stock: false }; },
+    row => { row.changed_fields.stock = true; },
+    row => { row.reason = "SOURCE_IDENTITY_DRIFT"; },
+  ];
+  for (const mutate of mutations) {
+    const fixture = writeTenRepsFixture();
+    const { reportFile, report } = addCanonicalReviewEvidence(fixture);
+    mutate(report.review_rows[0]); writeJson(reportFile, report);
+    assert.throws(() => loadFitHouseSource(fixture.directory, "10-reps"), /canonical review|review (reason|action) drifted/);
+  }
 });
 
 test("10 Reps source adapter accepts safe executable stock changes alongside isolated source-missing reviews", () => {
@@ -1073,6 +1203,112 @@ test("10 Reps review evidence survives a later partial execution failure", () =>
   assert.equal(source.contract.executable_plan_count, 934);
 });
 
+function preparedTenPublication(fixture) {
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "37364486648", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
+  const contract = buildFitHouseSourceContract(fixture.directory, env, "10-reps");
+  writeJson(path.join(fixture.directory, "automation-review-source-contract.json"), contract);
+  const options = { profile: "10-reps", sourceArtifactDir: fixture.directory, sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "11368880858", sourceCommitSha: env.GITHUB_SHA, sourceArtifactDigest: "c".repeat(64), sourceContractSha256: fileSha(path.join(fixture.directory, "automation-review-source-contract.json")), output: path.join(fixture.directory, "output.json") };
+  const source = verifyFitHouseSourceContract(options, new Date("2026-10-05T18:00:00Z"));
+  const baseline = publicationBaseline(fixture, "14");
+  const rows = buildFitHouseManifestRows(source, baseline, options);
+  return { source, baseline, rows, options, env, output: buildFitHouseOutput(source, baseline, rows, options, env) };
+}
+
+test("owner-authorized publication prepares all 259 operations without filtering a 950-offer partition", () => {
+  const fixture = writeTenRepsFixture({ reviewIds: Array.from({ length: 114 }, (_, i) => String(2823 + i)) });
+  const prepared = preparedTenPublication(fixture);
+  const { source, baseline, rows, options, env } = prepared;
+  baseline.activeRows = [
+    ...rows.slice(0, 109).map((row, i) => ({ ...row, id: String(8000 + i), source_row_fingerprint: "f".repeat(64) })),
+    ...fixture.baselineRows.slice(114, 150).map((before, i) => ({ ...rows[0], id: String(9000 + i), offer_id: before.offer_id, source_row_fingerprint: "e".repeat(64) })),
+  ];
+  const first = buildFitHouseOutput(source, baseline, rows, options, env);
+  const second = buildFitHouseOutput(source, baseline, rows, options, env);
+  assert.equal(source.contract.catalogue_offer_ids.length, 950);
+  assert.equal(source.contract.executable_plan_count, 836);
+  assert.equal(first.publication_mode, "OWNER_AUTHORIZED_ARTIFACT_ONLY");
+  assert.deepEqual(first.operations, { CREATE: 114, REFRESH: 0, SUPERSEDE: 109, RESOLVE_BY_SOURCE: 36 });
+  assert.equal(first.request.operations.length, 259);
+  assert.deepEqual(first.request, second.request);
+  assert.equal(first.expected.catalogue_writes, 0);
+  assert.equal(new Set(first.request.operations.filter(op => op.expected.review_id).map(op => op.expected.review_id)).size, 145);
+});
+
+test("a complete real manifest keeps both canonical conflicts as REVIEW_ONLY without an identity executor", () => {
+  const scope = require("../config/retailers/10reps-approved-offer-manifest.json");
+  const fixture = writeTenRepsFixture({ scopeRows: scope.rows, reviewIds: ["3399", "3545"] });
+  addCanonicalReviewEvidence(fixture);
+  const { rows, output } = preparedTenPublication(fixture);
+  assert.deepEqual(rows.map(row => row.offer_id), ["3399", "3545"]);
+  for (const row of rows) {
+    assert.equal(row.operation_type, "MANUAL_REVIEW_IDENTITY");
+    assert.equal(row.proposed_state.automatic_action, false);
+    assert.equal(row.proposed_state.catalogue_action, "KEEP_UNCHANGED");
+    assert.equal(row.source_price, null);
+    assert.equal(row.proposed_variant_id, null);
+  }
+  assert.equal(output.publication_mode, "OWNER_AUTHORIZED_ARTIFACT_ONLY");
+});
+
+test("partial, unhealthy or SQL-rejected source cannot resolve an old review even with 950 declared IDs", () => {
+  for (const mutate of [
+    (report) => { report.source.diagnostic.pagination_completed = false; },
+    (report) => { report.source.diagnostic.final_http_status = 429; },
+    (_, diagnostic) => { diagnostic.source.pagination_completed = false; },
+    (_, diagnostic) => { diagnostic.guard_results[0].result = "BLOCK"; },
+    (_, diagnostic) => { diagnostic.guard_results.push({ guard: "SOURCE_HEALTH", result: "BLOCK" }); },
+    (_, diagnostic) => { diagnostic.validator_result = "FAIL"; },
+    (_, diagnostic) => { diagnostic.guard_results[2].matched--; },
+    (_, diagnostic) => { diagnostic.guard_results[2].source_absent_marked_unavailable = 1; },
+    (report) => { report.execution_offer_ids.pop(); },
+  ]) {
+    const fixture = writeTenRepsFixture();
+    const reportPath = path.join(fixture.directory, "production-dry-run.json");
+    const diagnosticPath = path.join(fixture.directory, "production-preflight-diagnostic.json");
+    const report = JSON.parse(fs.readFileSync(reportPath)), diagnostic = JSON.parse(fs.readFileSync(diagnosticPath));
+    mutate(report, diagnostic); writeJson(reportPath, report); writeJson(diagnosticPath, diagnostic);
+    assert.throws(() => preparedTenPublication(fixture), /complete healthy|full approved source coverage|executable offer IDs|scope|partition/);
+  }
+});
+
+test("capture time alone preserves problem fingerprints; changed global source evidence still versions cards", () => {
+  const fixture = writeTenRepsFixture();
+  const first = preparedTenPublication(fixture);
+  const diagnosticPath = path.join(fixture.directory, "production-preflight-diagnostic.json");
+  const diagnostic = JSON.parse(fs.readFileSync(diagnosticPath));
+  diagnostic.timestamp = "2026-10-05T17:31:00Z"; writeJson(diagnosticPath, diagnostic);
+  const later = preparedTenPublication(fixture);
+  assert.deepEqual(later.rows.map(r => r.source_row_fingerprint), first.rows.map(r => r.source_row_fingerprint));
+  later.baseline.activeRows = first.rows.map((r, i) => ({ ...r, id: String(8000 + i) }));
+  const refresh = buildFitHouseOutput(later.source, later.baseline, later.rows, later.options, later.env);
+  assert.deepEqual(refresh.operations, { CREATE: 0, REFRESH: 16, SUPERSEDE: 0, RESOLVE_BY_SOURCE: 0 });
+  const reportPath = path.join(fixture.directory, "production-dry-run.json");
+  const report = JSON.parse(fs.readFileSync(reportPath));
+  report.source.fingerprint = diagnostic.source.fingerprint = "d".repeat(64);
+  writeJson(reportPath, report); writeJson(diagnosticPath, diagnostic);
+  const changed = preparedTenPublication(fixture);
+  assert.notEqual(changed.rows[0].source_row_fingerprint, first.rows[0].source_row_fingerprint);
+});
+
+test("shared action prepares owner-only profiles without stopping automatic publishers or commercial refresh", () => {
+  const yaml = require("js-yaml");
+  const action = yaml.load(fs.readFileSync(path.join(process.cwd(), ".github/actions/publish-automation-review-queue/action.yml"), "utf8"));
+  assert.equal(action.runs.steps.find(s => s.id === "reconciliation").run.includes("--mode=reconcile"), true);
+  const publish = action.runs.steps.find(s => s.run?.includes("automation-review-reconciliation-apply.js"));
+  assert.equal(publish.if, "${{ steps.reconciliation.outputs.publication_mode == 'AUTOMATIC' }}");
+  for (const key of ["fit-house", "gladiator-nutrition", "holland-barrett", "gym-high", "discount-supplements"]) {
+    assert.equal(profileFor(key).publicationMode, "AUTOMATIC", key);
+  }
+  const workflow = yaml.load(fs.readFileSync(path.join(process.cwd(), ".github/workflows/fit-house-offer-refresh.yml"), "utf8"));
+  const job = workflow.jobs["ten-reps-offer-refresh"];
+  const apply = job.steps.find(s => s.name === "Apply all approved 10 Reps offer refresh");
+  assert.match(apply.if, /github.event_name == 'schedule'/);
+  assert.doesNotMatch(apply.if, /publication_mode|review-only/);
+  assert.equal(workflow.concurrency.group, "retailer-offer-production-write");
+  const retry = yaml.load(fs.readFileSync(path.join(process.cwd(), ".github/workflows/automation-review-publication-retry.yml"), "utf8"));
+  assert.equal(retry.concurrency.group, workflow.concurrency.group);
+});
+
 function hollandBarrettPublication(fixture) {
   const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "workflow_dispatch", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "43943093822", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
   const contract = buildFitHouseSourceContract(fixture.directory, env, "holland-barrett");
@@ -1082,6 +1318,229 @@ function hollandBarrettPublication(fixture) {
   const baseline = publicationBaseline(fixture, "16");
   const rows = buildFitHouseManifestRows(source, baseline, options);
   return { contract, source, rows, output: buildFitHouseOutput(source, baseline, rows, options, env) };
+}
+
+function discountMixedPartitionFixture() {
+  // Retained run 46038176892/artifact 15217783355: 72 executable, 34 mass-price
+  // reviews and three canonical conflicts. Reuse synthetic states, not raw source.
+  const scope = require("../config/retailers/discount-supplements-approved-offer-manifest.json");
+  const canonicalIds = ["762", "2537", "2538"];
+  const massIds = ["763", "792", "793", "794", "795", "803", "804", "805", "806", "827", "828", "829", "830", "831", "832", "833", "866", "867", "874", "888", "889", "894", "895", "896", "904", "905", "906", "1498", "1499", "1500", "1501", "1503", "1504", "1505"];
+  const fixture = writeTenRepsFixture({ profileKey: "discount-supplements", scopeRows: scope.rows, reviewIds: [...canonicalIds, ...massIds] });
+  const reportPath = path.join(fixture.directory, "production-dry-run.json");
+  const diagnosticPath = path.join(fixture.directory, "production-preflight-diagnostic.json");
+  const report = JSON.parse(fs.readFileSync(reportPath));
+  report.review_rows = report.review_rows.map((row, index) => {
+    const before = fixture.baselineRows.find(x => x.offer_id === row.offer_id);
+    if (canonicalIds.includes(row.offer_id)) return { ...row, reason: "CANONICAL_IDENTITY_CONFLICT", action: "BLOCK_IDENTITY_DRIFT",
+      proposed_offer: null, new_price: null, new_stock: null,
+      changed_fields: { price: false, stock: false, url: false, blocked: true },
+      source_record_evidence: { canonical_identity: { reason: "CANONICAL_IDENTITY_CONFLICT", product_id: before.offer_product_id,
+        variant_id: before.offer_variant_id, default_variant: true, active_explicit_variant_ids: [String(900000 + index)] } } };
+    return { ...row, reason: "MASS_PRICE", action: index === 3 ? "UPDATE_PRICE_AND_STOCK" : "UPDATE_PRICE",
+      old_price: before.price, new_price: "11.00", old_stock: true, new_stock: index !== 3,
+      changed_fields: { price: true, stock: index === 3, url: false, blocked: false } };
+  });
+  const diagnostic = JSON.parse(fs.readFileSync(diagnosticPath));
+  Object.assign(diagnostic.classifier_summary.scope, {
+    scope_row_ids: fixture.baselineRows.filter(x => !canonicalIds.includes(x.offer_id)).map(x => x.offer_id),
+    total: 106, no_change: 72, changed: 34, reconciled_total: 106,
+    action_counts: { VERIFY_NO_CHANGE: 72, UPDATE_PRICE: 33, UPDATE_PRICE_AND_STOCK: 1 },
+  });
+  writeJson(reportPath, report); writeJson(diagnosticPath, diagnostic);
+  return { ...fixture, reportPath, diagnosticPath, canonicalIds, massIds };
+}
+
+test("Discount retained 72 executable plus 34 MASS_PRICE and three canonical conflicts reuse mixed publication", t => {
+  const fixture = discountMixedPartitionFixture();
+  t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main",
+    GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "46038176892", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit,
+    GITHUB_OUTPUT: path.join(fixture.directory, "github-output") };
+  const bound = bindSharedRetailerSource(fixture.directory, env, "discount-supplements");
+  const options = { profile: "discount-supplements", sourceArtifactDir: fixture.directory,
+    sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "15217783355", sourceCommitSha: env.GITHUB_SHA,
+    sourceArtifactDigest: "c".repeat(64), sourceContractSha256: bound.contract_sha256, output: path.join(fixture.directory, "output.json") };
+  const source = verifyFitHouseSourceContract(options, new Date("2026-10-05T18:00:00Z"));
+  assert.equal(source.report.approved_mapping_count, 109);
+  assert.equal(source.report.execution_offer_ids.length, 72);
+  assert.equal(source.changedRows.length, 37);
+  assert.ok([...fixture.canonicalIds, ...fixture.massIds].every(id => !source.report.execution_offer_ids.includes(id)));
+  const baseline = publicationBaseline(fixture, "4"), rows = buildFitHouseManifestRows(source, baseline, options);
+  const output = buildFitHouseOutput(source, baseline, rows, options, env);
+  assert.equal(rows.filter(x => x.review_kind === "POLICY_REVIEW").length, 34);
+  assert.equal(rows.filter(x => x.review_kind === "IDENTITY_CONFLICT").length, 3);
+  assert.equal(output.expected.catalogue_writes, 0);
+  assert.ok(output.request.operations.every(x => !x.execution_binding && x.row.proposed_state.automatic_action === false));
+});
+
+test("Discount mixed publication rejects count, missing, extra, duplicate, identity, action and partition drift", t => {
+  const mutations = [
+    (_, d) => { d.classifier_summary.scope.reconciled_total--; },
+    (_, d) => { d.classifier_summary.scope.scope_row_ids.pop(); },
+    (_, d) => { d.classifier_summary.scope.scope_row_ids.push("999999"); },
+    (_, d) => { d.classifier_summary.scope.scope_row_ids[0] = "999999"; },
+    (_, d) => { d.classifier_summary.scope.scope_row_ids.push(d.classifier_summary.scope.scope_row_ids[0]); },
+    (r) => { r.review_rows[3].reason = "UNKNOWN_POLICY"; },
+    (r) => { r.review_rows[3].offer_id = "999999"; },
+    (r) => { r.review_rows[4] = structuredClone(r.review_rows[3]); },
+    (r) => { r.execution_offer_ids[0] = r.review_rows[0].offer_id; r.verification_offer_ids = [...r.execution_offer_ids]; },
+    (r) => { r.execution_offer_ids[0] = r.review_rows[3].offer_id; r.verification_offer_ids = [...r.execution_offer_ids]; },
+    (_, d) => { d.classifier_summary.action_counts.VERIFY_NO_CHANGE--; },
+    (r) => { r.executable_plan_count--; },
+    (r) => { r.review_rows[3].external_variant_id = "changed-native-id"; },
+  ];
+  for (const mutate of mutations) {
+    const fixture = discountMixedPartitionFixture();
+    t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
+    const r = JSON.parse(fs.readFileSync(fixture.reportPath)), d = JSON.parse(fs.readFileSync(fixture.diagnosticPath));
+    mutate(r, d); writeJson(fixture.reportPath, r); writeJson(fixture.diagnosticPath, d);
+    assert.throws(() => loadFitHouseSource(fixture.directory, "discount-supplements"), /scope|IDs|partition|review|classification|actions|identity/);
+  }
+});
+
+test("shared mixed publication rejects duplicate classifier IDs across its existing consumers", t => {
+  for (const profileKey of ["discount-supplements", "fit-house", "gladiator-nutrition", "holland-barrett", "10-reps"]) {
+    const fixture = writeTenRepsFixture({ profileKey });
+    t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
+    assert.doesNotThrow(() => loadFitHouseSource(fixture.directory, profileKey), profileKey);
+    const diagnosticPath = path.join(fixture.directory, "production-preflight-diagnostic.json");
+    const diagnostic = JSON.parse(fs.readFileSync(diagnosticPath));
+    diagnostic.classifier_summary.scope.scope_row_ids.push(diagnostic.classifier_summary.scope.scope_row_ids[0]);
+    writeJson(diagnosticPath, diagnostic);
+    assert.throws(() => loadFitHouseSource(fixture.directory, profileKey), /classifier IDs drifted/, profileKey);
+  }
+});
+
+function gladiatorAggregateFixture(reason = "MASS_PRICE") {
+  const scope = require("../config/retailers/gladiator-nutrition-approved-offer-manifest.json");
+  // Natural run 44923097560: 187 unchanged offers and 416 isolated price changes.
+  const fixture = writeTenRepsFixture({ profileKey: "gladiator-nutrition", scopeRows: scope.rows,
+    reviewIds: scope.rows.slice(0, 416).map(row => String(row.offer_id)) });
+  const reportPath = path.join(fixture.directory, "production-dry-run.json");
+  const diagnosticPath = path.join(fixture.directory, "production-preflight-diagnostic.json");
+  const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
+  const beforeById = new Map(fixture.baselineRows.map(row => [row.offer_id, row]));
+  report.review_rows = report.review_rows.map(row => ({ ...row, reason,
+    retailer_product_id: beforeById.get(row.offer_id).mapping_id, action: "UPDATE_PRICE",
+    changed_fields: { price: true, stock: false, url: false, blocked: false },
+    old_price: "10.00", new_price: "11.00", old_stock: true, new_stock: true }));
+  const diagnostic = JSON.parse(fs.readFileSync(diagnosticPath, "utf8"));
+  Object.assign(diagnostic.classifier_summary.scope, {
+    scope_row_ids: scope.rows.map(row => String(row.offer_id)), reconciled_total: 603,
+  });
+  writeJson(reportPath, report);
+  writeJson(diagnosticPath, diagnostic);
+  return { ...fixture, reportPath, diagnosticPath };
+}
+
+test("Gladiator natural 187/416 aggregate partition binds and publishes review-only cards without price authority", t => {
+  for (const reason of ["MASS_PRICE", "MASS_CHANGE"]) {
+    const fixture = gladiatorAggregateFixture(reason);
+    t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
+    const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main",
+      GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "44923097560", GITHUB_RUN_ATTEMPT: "1",
+      GITHUB_SHA: SOURCE.commit, GITHUB_OUTPUT: path.join(fixture.directory, "github-output") };
+    const bound = bindSharedRetailerSource(fixture.directory, env, "gladiator-nutrition");
+    const contract = JSON.parse(fs.readFileSync(path.join(fixture.directory, "automation-review-source-contract.json"), "utf8"));
+    assert.equal(contract.executable_plan_count, 187);
+    assert.equal(contract.review_row_count, 416);
+    assert.equal(contract.catalogue_offer_ids.length, 603);
+    const options = { profile: "gladiator-nutrition", sourceArtifactDir: fixture.directory,
+      sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "999999", sourceCommitSha: env.GITHUB_SHA,
+      sourceArtifactDigest: "c".repeat(64), sourceContractSha256: bound.contract_sha256,
+      output: path.join(fixture.directory, "output.json") };
+    const source = verifyFitHouseSourceContract(options, new Date("2026-10-05T18:00:00Z"));
+    const baseline = publicationBaseline(fixture, "15");
+    const rows = buildFitHouseManifestRows(source, baseline, options);
+    const output = buildFitHouseOutput(source, baseline, rows, options, env);
+    assert.equal(rows.length, 416);
+    for (const card of rows) {
+      assert.equal(card.review_kind, "POLICY_REVIEW");
+      assert.equal(card.operation_type, "MANUAL_REVIEW");
+      assert.equal(card.source_evidence.reason, reason);
+      assert.equal(card.proposed_state.catalogue_action, "KEEP_UNCHANGED");
+      assert.equal(card.proposed_state.automatic_action, false);
+      assert.equal(card.source_price, null);
+      assert.equal(card.proposed_state.price, undefined);
+      assert.equal(card.proposed_state.offer, undefined);
+    }
+    assert.equal(output.operations.CREATE, 416);
+    assert.equal(output.expected.catalogue_writes, 0);
+    assert.ok(output.request.operations.every(operation => !operation.execution_binding));
+    const repeated = buildFitHouseOutput(source, { ...baseline, activeRows: rows.map((row, index) => ({ ...row, id: String(index + 1) })) }, rows, options, env);
+    assert.equal(repeated.operations.CREATE || 0, 0);
+  }
+});
+
+test("Gladiator aggregate binding still rejects scope, identity, fingerprint, writes and unknown review drift", t => {
+  const changes = [
+    fixture => { const d = JSON.parse(fs.readFileSync(fixture.diagnosticPath)); d.classifier_summary.scope.reconciled_total = 187; writeJson(fixture.diagnosticPath, d); },
+    fixture => { const r = JSON.parse(fs.readFileSync(fixture.reportPath)); r.review_rows[0].external_variant_id = "999999"; writeJson(fixture.reportPath, r); },
+    fixture => { const d = JSON.parse(fs.readFileSync(fixture.diagnosticPath)); d.source.fingerprint = "0".repeat(64); writeJson(fixture.diagnosticPath, d); },
+    fixture => { const d = JSON.parse(fs.readFileSync(fixture.diagnosticPath)); d.database_writes_completed = 1; writeJson(fixture.diagnosticPath, d); },
+    fixture => { const r = JSON.parse(fs.readFileSync(fixture.reportPath)); r.review_rows[0].reason = "UNKNOWN_POLICY"; writeJson(fixture.reportPath, r); },
+  ];
+  for (const change of changes) {
+    const fixture = gladiatorAggregateFixture();
+    t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
+    change(fixture);
+    assert.throws(() => loadFitHouseSource(fixture.directory, "gladiator-nutrition"), /drifted|identity drift|contains writes/);
+  }
+});
+
+for (const reason of ["HARD_PRICE_ANOMALY", "CANONICAL_IDENTITY_CONFLICT"]) {
+  test(`Gladiator ${reason} reuses non-executable cards and preserves exact evidence`, t => {
+    const scope = require("../config/retailers/gladiator-nutrition-approved-offer-manifest.json");
+    const fixture = writeTenRepsFixture({ profileKey: "gladiator-nutrition", scopeRows: scope.rows,
+      reviewIds: scope.rows.slice(0, 2).map(row => String(row.offer_id)) });
+    t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
+    const reportPath = path.join(fixture.directory, "production-dry-run.json");
+    if (reason === "CANONICAL_IDENTITY_CONFLICT") addCanonicalReviewEvidence(fixture);
+    else {
+      const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
+      report.review_rows = report.review_rows.map((row, index) => ({ ...row, reason,
+        retailer_product_id: fixture.baselineRows[index].mapping_id, action: "BLOCK_SOURCE_ANOMALY",
+        changed_fields: { price: true, stock: false, url: false, blocked: true },
+        old_price: "10.00", new_price: "20.00", old_stock: true, new_stock: true }));
+      writeJson(reportPath, report);
+    }
+    const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main",
+      GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "123456", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit,
+      GITHUB_OUTPUT: path.join(fixture.directory, "github-output") };
+    const bound = bindSharedRetailerSource(fixture.directory, env, "gladiator-nutrition");
+    const options = { profile: "gladiator-nutrition", sourceArtifactDir: fixture.directory,
+      sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "999999", sourceCommitSha: env.GITHUB_SHA,
+      sourceArtifactDigest: "c".repeat(64), sourceContractSha256: bound.contract_sha256,
+      output: path.join(fixture.directory, "output.json") };
+    const source = verifyFitHouseSourceContract(options, new Date("2026-10-05T18:00:00Z"));
+    const baseline = publicationBaseline(fixture, "15");
+    const rows = buildFitHouseManifestRows(source, baseline, options);
+    const output = buildFitHouseOutput(source, baseline, rows, options, env);
+    assert.equal(source.contract.executable_plan_count, 601);
+    assert.equal(rows.length, 2);
+    for (const card of rows) {
+      assert.equal(card.review_kind, reason === "HARD_PRICE_ANOMALY" ? "POLICY_REVIEW" : "IDENTITY_CONFLICT");
+      assert.equal(card.operation_type, reason === "HARD_PRICE_ANOMALY" ? "MANUAL_REVIEW" : "MANUAL_REVIEW_IDENTITY");
+      assert.equal(card.proposed_state.catalogue_action, "KEEP_UNCHANGED");
+      assert.equal(card.proposed_state.review_only, true);
+      assert.equal(card.proposed_state.automatic_action, false);
+      assert.equal(card.source_price, null);
+      assert.equal(card.proposed_state.offer, undefined);
+      assert.equal(card.source_evidence.reason, reason);
+      assert.equal(profileFor("gladiator-nutrition").matchesActiveReview(card), true);
+    }
+    assert.equal(output.expected.catalogue_writes, 0);
+    assert.ok(output.request.operations.every(operation => !operation.execution_binding));
+    const repeated = buildFitHouseOutput(source, { ...baseline, activeRows: rows.map((row, index) => ({ ...row, id: String(index + 1) })) }, rows, options, env);
+    assert.equal(repeated.operations.CREATE || 0, 0);
+    if (reason === "CANONICAL_IDENTITY_CONFLICT") {
+      const report = JSON.parse(fs.readFileSync(reportPath, "utf8"));
+      report.review_rows[0].source_record_evidence.canonical_identity.variant_id = "999999";
+      writeJson(reportPath, report);
+      assert.throws(() => loadFitHouseSource(fixture.directory, "gladiator-nutrition"), /canonical review evidence is incomplete/);
+    }
+  });
 }
 
 test("H&B reuses the complete shared publication contract for 217 safe and two missing-source rows", () => {
@@ -1269,28 +1728,32 @@ function publicationBaseline(fixture, retailerId) {
   };
 }
 
-function writeSimplyReviewFixture() {
-  const fixture = writeTenRepsFixture({ profileKey: "simply-supplements", reviewIds: ["1001", "1002", "1003"] });
+function writeSimplyReviewFixture(reviewIds = ["1001", "1002", "1003"]) {
+  const scopeRows = Array.from({ length: profileFor("simply-supplements").approvedMappingCount }, (_, index) => ({ offer_id: String(1001 + index) }));
+  const fixture = writeTenRepsFixture({ profileKey: "simply-supplements", scopeRows, reviewIds });
   const reportFile = path.join(fixture.directory, "production-dry-run.json");
   const diagnosticFile = path.join(fixture.directory, "production-preflight-diagnostic.json");
   const baselineFile = path.join(fixture.directory, "production-db-baseline.json");
   const report = JSON.parse(fs.readFileSync(reportFile, "utf8"));
   const diagnostic = JSON.parse(fs.readFileSync(diagnosticFile, "utf8"));
   const baseline = JSON.parse(fs.readFileSync(baselineFile, "utf8"));
+  report.result = reviewIds.length ? "PASS_WITH_REVIEW" : "PASS";
+  report.approved_manifest_sha256 = require("../config/retailers/simply-supplements-offer-sync.json").manifest_sha256;
   for (const row of baseline.snapshot.rows) {
     row.url = row.external_url = `https://www.simplysupplements.co.uk/products/test-${row.offer_id}?variant=${row.external_variant_id}`;
   }
   fixture.baselineRows = baseline.snapshot.rows;
   report.source.diagnostic = { pagination_completed: true, final_http_status: 200 };
-  report.discovery = { catalogue_creates: 0, missing_variants: 3, missing_variants_review_only: 3, missing_variants_marked_unavailable: 0 };
+  Object.assign(diagnostic.source, { http_status: 200, pagination_completed: true });
+  report.discovery = { catalogue_creates: 0, missing_variants: reviewIds.length, missing_variants_review_only: reviewIds.length, missing_variants_marked_unavailable: 0 };
   diagnostic.guard_results = [
     { guard: "SOURCE_HEALTH", result: "PASS" },
-    { guard: "APPROVED_MAPPING_COVERAGE", result: "REVIEW_ISOLATED", expected: 120, matched: 117, source_absent_review_rows: 3, source_absent_marked_unavailable: 0 },
+    { guard: "APPROVED_MAPPING_COVERAGE", result: reviewIds.length ? "REVIEW_ISOLATED" : "PASS", expected: scopeRows.length, matched: scopeRows.length - reviewIds.length, source_absent_review_rows: reviewIds.length, source_absent_marked_unavailable: 0 },
     { guard: "VALIDATOR", result: "PASS" },
   ];
   diagnostic.validator_result = "PASS";
   writeJson(reportFile, report); writeJson(diagnosticFile, diagnostic); writeJson(baselineFile, baseline);
-  return { ...fixture, report, diagnostic, reportFile, diagnosticFile };
+  return { ...fixture, report, diagnostic, reportFile, diagnosticFile, baselineFile };
 }
 
 test("Simply publication policy v1 seals 117 executable and three missing-source manual reviews without changing BLOCK/0", async () => {
@@ -1306,9 +1769,13 @@ test("Simply publication policy v1 seals 117 executable and three missing-source
   const baseline = publicationBaseline(fixture, "7");
   const rows = buildFitHouseManifestRows(source, baseline, options);
   for (const mode of [undefined, "OFF"]) {
-    assert.throws(() => buildFitHouseOutput(source, baseline, rows, options, { ...env, DURABLE_SEALED_ARTIFACTS_ENFORCEMENT: mode }), /requires the existing durable sealed-artifact rollout/);
+    const prepared = buildFitHouseOutput(source, baseline, rows, options, { ...env, DURABLE_SEALED_ARTIFACTS_ENFORCEMENT: mode });
+    assert.equal(prepared.publication_mode, "OWNER_AUTHORIZED_ARTIFACT_ONLY");
+    assert.equal(prepared.durable_sealed_artifact_contract, undefined);
+    assert.equal(prepared.production_writes, 0);
   }
   const output = buildFitHouseOutput(source, baseline, rows, options, env);
+  assert.equal(output.publication_mode, "OWNER_AUTHORIZED_ARTIFACT_ONLY");
   assert.equal(output.durable_sealed_artifact_contract.requirement, "DURABLE_REQUIRED");
   assert.equal(output.durable_sealed_artifact_contract.artifact_kind, "REVIEW_REGISTRATION");
   assert.equal(output.operations.CREATE, 3);
@@ -1355,11 +1822,73 @@ test("Simply publication refuses incomplete or unhealthy sources, synthetic OOS,
     f => { f.report.review_rows[0].reason = "CANONICAL_IDENTITY_CONFLICT"; },
     f => { f.report.review_rows.pop(); },
     f => { f.diagnostic.database_writes_attempted = 1; },
+    f => { f.report.approved_manifest_sha256 = "f".repeat(64); },
+    f => { f.report.execution_offer_ids.pop(); },
+    f => { f.report.execution_offer_ids.push("999999"); },
+    f => { f.report.execution_offer_ids[0] = f.report.review_rows[0].offer_id; },
+    f => { f.report.review_rows[1] = structuredClone(f.report.review_rows[0]); },
+    f => { f.report.review_rows[0].external_variant_id = "changed-native-id"; },
+    f => { f.diagnostic.classifier_summary.scope.scope_row_ids.push(f.diagnostic.classifier_summary.scope.scope_row_ids[0]); },
+    f => { f.diagnostic.classifier_summary.action_counts.VERIFY_NO_CHANGE--; },
+    f => { f.report.executable_plan_count--; },
+    f => { f.report.discovery.missing_variants--; },
   ];
   for (const mutate of mutations) {
     const fixture = writeSimplyReviewFixture(); mutate(fixture);
     writeJson(fixture.reportFile, fixture.report); writeJson(fixture.diagnosticFile, fixture.diagnostic);
-    assert.throws(() => buildFitHouseSourceContract(fixture.directory, { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "123456", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit }, "simply-supplements"), /source-missing publication|review (reason|row count) drifted|contains writes/);
+    assert.throws(() => buildFitHouseSourceContract(fixture.directory, { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "123456", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit }, "simply-supplements"), /owner-reviewed publication|source-missing|review (reason|row count) drifted|contains writes|binding drifted|IDs|scope|identity|partition|actions/);
+  }
+});
+
+test("Simply uses shared CREATE, REFRESH, SUPERSEDE and RESOLVE_BY_SOURCE for changing and empty review partitions", t => {
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "123456", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
+  let activeRows = [];
+  for (const reviewIds of [["1001", "1002", "1003"], ["1001", "1002"], []]) {
+    const fixture = writeSimplyReviewFixture(reviewIds);
+    t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
+    const bound = bindSharedRetailerSource(fixture.directory, { ...env, GITHUB_OUTPUT: path.join(fixture.directory, "github-output") }, "simply-supplements");
+    assert.equal(bound.publication_mode, "OWNER_AUTHORIZED_ARTIFACT_ONLY");
+    assert.match(fs.readFileSync(path.join(fixture.directory, "github-output"), "utf8"), /publication_mode=OWNER_AUTHORIZED_ARTIFACT_ONLY/);
+    const options = { profile: "simply-supplements", sourceArtifactDir: fixture.directory, sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "999999", sourceCommitSha: env.GITHUB_SHA, sourceArtifactDigest: "c".repeat(64), sourceContractSha256: bound.contract_sha256, output: path.join(fixture.directory, "output.json") };
+    // Apply/idempotency overwrite the mutable report; verification must use the sealed pre-execution files.
+    writeJson(fixture.reportFile, { overwritten_by: "idempotency" });
+    const source = verifyFitHouseSourceContract(options, new Date("2026-10-05T18:00:00Z"));
+    assert.equal(source.report.execution_offer_ids.length + source.changedRows.length, 120);
+    const baseline = { ...publicationBaseline(fixture, "7"), activeRows };
+    const rows = buildFitHouseManifestRows(source, baseline, options);
+    if (reviewIds.length) {
+      const rebound = structuredClone(baseline);
+      rebound.offers.find(row => row.id === reviewIds[0]).product_variant_id = "999999";
+      assert.throws(() => buildFitHouseManifestRows(source, rebound, options), /drift|mismatch|binding/);
+    }
+    const output = buildFitHouseOutput(source, baseline, rows, options, env);
+    assert.equal(output.publication_mode, "OWNER_AUTHORIZED_ARTIFACT_ONLY");
+    assert.equal(output.expected.catalogue_writes, 0);
+    assert.equal(output.operations.RESOLVE_BY_SOURCE, Math.max(0, activeRows.length - reviewIds.length));
+    assert.ok(output.request.operations.every(op => !op.row?.execution_binding && !op.replacement_row?.execution_binding));
+    if (reviewIds.length === 3) {
+      assert.equal(output.operations.CREATE, 3);
+      const matching = rows.map((row, index) => ({ ...row, id: String(index + 1) }));
+      assert.equal(buildFitHouseOutput(source, { ...baseline, activeRows: matching }, rows, options, env).operations.REFRESH, 3);
+      const changed = matching.map(row => ({ ...row, source_row_fingerprint: "f".repeat(64) }));
+      assert.equal(buildFitHouseOutput(source, { ...baseline, activeRows: changed }, rows, options, env).operations.SUPERSEDE, 3);
+    }
+    activeRows = rows.map((row, index) => ({ ...row, id: String(index + 1) }));
+  }
+});
+
+test("Simply sealed source rejects changed evidence, absent contracts, expired capture and wrong commit", t => {
+  for (const failure of ["changed-report", "changed-baseline", "missing-contract", "expired", "commit"]) {
+    const fixture = writeSimplyReviewFixture();
+    t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
+    const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "123456", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit, GITHUB_OUTPUT: path.join(fixture.directory, "github-output") };
+    const bound = bindSharedRetailerSource(fixture.directory, env, "simply-supplements");
+    const options = { profile: "simply-supplements", sourceArtifactDir: fixture.directory, sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "999999", sourceCommitSha: env.GITHUB_SHA, sourceArtifactDigest: "c".repeat(64), sourceContractSha256: bound.contract_sha256 };
+    if (failure === "changed-report") fs.appendFileSync(path.join(fixture.directory, "automation-review-classification.json"), " ");
+    if (failure === "changed-baseline") fs.appendFileSync(path.join(fixture.directory, "automation-review-db-baseline.json"), " ");
+    if (failure === "missing-contract") fs.unlinkSync(path.join(fixture.directory, "automation-review-source-contract.json"));
+    if (failure === "commit") options.sourceCommitSha = "f".repeat(40);
+    assert.throws(() => verifyFitHouseSourceContract(options, new Date(failure === "expired" ? "2026-10-08T18:00:00Z" : "2026-10-05T18:00:00Z")), /hash|digest|ENOENT|expir|commit|mismatch/);
   }
 });
 

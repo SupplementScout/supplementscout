@@ -2,7 +2,9 @@ const crypto = require("node:crypto");
 const {
   canonicalJson,
   normalizeDecimalString,
+  normalizeNumbersToDecimalStrings,
 } = require("./canonical-json");
+const { canonicalTimestamp } = require("./canonical-timestamp");
 
 const CONTRACT_VERSION = "1";
 
@@ -158,6 +160,41 @@ function peerFromMapping(mapping) {
   });
 }
 
+function reviewedParentPeerState(mapping) {
+  if (!mapping.id || !mapping.updated_at) throw new Error("reviewed parent peer requires ID and updated_at");
+  return normalizeNumbersToDecimalStrings({
+    mapping_id: String(mapping.id),
+    updated_at: canonicalTimestamp(mapping.updated_at),
+    ...peerFromMapping(mapping),
+  });
+}
+
+function validateReviewedParentMembership({ review, incoming, parentPeers, urlPeers = [] }) {
+  const membership = review?.parent_membership;
+  if (!membership || canonicalJson(Object.keys(membership).sort()) !==
+      canonicalJson(["complete_scope", "expected_peers", "incoming", "peer_set_fingerprint"]) ||
+      membership.complete_scope !== true || !Array.isArray(membership.expected_peers) ||
+      !membership.expected_peers.length) throw new Error("reviewed parent membership requires complete exact peer state");
+  const candidate = normalizeNumbersToDecimalStrings(normalizeSharedParentPeer(incoming));
+  if (canonicalJson(membership.incoming) !== canonicalJson(candidate)) throw new Error("reviewed parent incoming identity changed");
+  const actual = parentPeers.map(reviewedParentPeerState).sort((a, b) => a.mapping_id < b.mapping_id ? -1 : a.mapping_id > b.mapping_id ? 1 : 0);
+  if (canonicalJson(membership.expected_peers) !== canonicalJson(actual) ||
+      membership.peer_set_fingerprint !== sha256Canonical(actual) ||
+      urlPeers.some(peer => !actual.some(item => item.mapping_id === String(peer.id)))) {
+    throw new Error("reviewed parent peer state changed or incomplete");
+  }
+  for (const peer of actual) {
+    if (peer.legacy || peer.retailer_id !== candidate.retailer_id || peer.external_product_id !== candidate.external_product_id ||
+        peer.external_variant_id === candidate.external_variant_id ||
+        peer.product_variant_id === candidate.product_variant_id ||
+        ["external_sku", "external_gtin"].some(key => candidate[key] && candidate[key] === peer[key]) ||
+        (candidate.external_options && peer.external_options && canonicalJson(candidate.external_options) === canonicalJson(peer.external_options))) {
+      throw new Error("reviewed parent identity collision");
+    }
+  }
+  return true;
+}
+
 function peerFromResolvedItem(item) {
   const variant = item.productVariant;
   return normalizeSharedParentPeer({
@@ -239,6 +276,8 @@ module.exports = {
   normalizeSharedParentPeer,
   peerFromMapping,
   peerFromResolvedItem,
+  reviewedParentPeerState,
+  validateReviewedParentMembership,
   sha256Canonical,
   validateSharedParentPeerCohort,
 };

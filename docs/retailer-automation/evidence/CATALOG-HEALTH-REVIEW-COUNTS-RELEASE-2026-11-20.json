@@ -1,0 +1,2400 @@
+{
+  "schema_version": 1,
+  "status": "SQL_APPLIED_REPOSITORY_CLOSED_CODE_RELEASE_PENDING",
+  "recorded_at": "2026-11-20T17:17:24.403Z",
+  "approved_implementation_sha": "3e64e69bdcd5b758e6de3891b9b996193edf587e",
+  "production_main_before": "81349995d2b29e249668071ef618794a634c256e",
+  "migration": {
+    "filename": "20261120150000_add_catalog_health_review_counts.sql",
+    "sha256": "09d941a26ac97791dde4e5690f97b7cc97ea16630297b1637aa02373c3695072"
+  },
+  "original_stop_preserved": "CATALOG-HEALTH-REVIEW-COUNTS-RELEASE-STOP-2026-11-20.json",
+  "preflight": {
+    "PRODUCTION": {
+      "at": "2026-11-20T16:45:10.598Z",
+      "environment": "PRODUCTION",
+      "identity": {
+        "current_user": "postgres",
+        "current_database": "postgres",
+        "read_only": "on",
+        "safe_update": null
+      },
+      "database_target": {
+        "project_ref": "aftboxmrdgyhizicfsfu",
+        "database_oid": "5",
+        "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu",
+        "target_environment": "PRODUCTION",
+        "database_system_identifier": "7642734024280108049"
+      },
+      "ledger_count": 269,
+      "fingerprint": "f54057cd49ea4422a3b8b849ac15ce38b518496a44a8d4dceb2f480f8f97eb66",
+      "selection": {
+        "result": "PASS",
+        "environment": "PRODUCTION",
+        "project_ref": "aftboxmrdgyhizicfsfu",
+        "database_target": {
+          "project_ref": "aftboxmrdgyhizicfsfu",
+          "database_oid": "5",
+          "database_identity": "supplementscout-production:aftboxmrdgyhizicfsfu",
+          "target_environment": "PRODUCTION",
+          "database_system_identifier": "7642734024280108049"
+        },
+        "ledger_count": 269,
+        "ledger_fingerprint": "f54057cd49ea4422a3b8b849ac15ce38b518496a44a8d4dceb2f480f8f97eb66",
+        "activation_schema": null,
+        "activation_id": null,
+        "excluded_files": [
+          "20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql",
+          "20261031120000_add_verified_automation_review_stock_transition_reader.sql",
+          "20261030120000_create_sealed_artifacts_registry.sql",
+          "20261028210000_add_reviewed_product_pack_correction.sql",
+          "20261009120000_add_compact_other_retailer_fingerprint.sql",
+          "20261008200000_consolidate_shared_executor_state_reads.sql",
+          "20260717120000_create_retailer_catalogue_control_ledger.sql",
+          "20260717130000_add_local_retailer_catalogue_child_executor.sql",
+          "20260717140000_add_staging_retailer_catalogue_executor.sql",
+          "20260718150000_add_verified_no_change_offer_refresh.sql",
+          "20260718160000_add_retailer_offer_mixed_batch_executor.sql",
+          "20260718170000_add_read_only_mixed_batch_validator.sql",
+          "20260719090000_add_expired_retailer_offer_sync_approval_close.sql",
+          "20260924100000_add_transactional_retailer_control_state_interface.sql",
+          "20260925100000_add_ra004_staging_preflight_metadata_interface.sql",
+          "20260926100000_create_ra004_staging_10reps_retailer.sql",
+          "20260926110000_add_ra004_staging_interface_compatibility.sql",
+          "20260927100000_reissue_transactional_retailer_control_state_interface.sql",
+          "20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql",
+          "20260927102000_correct_ra004_staging_preflight_ledger_contract.sql",
+          "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql",
+          "20260928100000_diagnose_ra004_preflight_acl_rls.sql",
+          "20260928101000_align_ra004_control_export_provider_identity.sql",
+          "20260929133000_extend_expired_sequential_plan_close.sql",
+          "20261004120000_add_central_control_plan_readback.sql",
+          "20261006120000_extend_partial_sequential_plan_close.sql",
+          "20261006190000_add_automation_review_verified_postflight_recovery.sql",
+          "20261008140000_add_active_retailer_parent_inventory.sql",
+          "20261017130000_add_reviewed_catalogue_bounded_state.sql",
+          "20261018120000_add_reviewed_catalogue_v3_boundary.sql",
+          "20261018190000_fix_reviewed_catalogue_v3_apply_option_roles.sql"
+        ],
+        "selected_files": [
+          "20260712211120_baseline_current_public_schema.sql",
+          "20260713130000_product_variants_stage2.sql",
+          "20260713180000_atomic_product_import_rpc.sql",
+          "20260713190000_approved_import_plan_ledger.sql",
+          "20260713200000_legacy_mapping_upgrade_rpc.sql",
+          "20260713210000_create_product_7_chocolate_vanilla_variants_and_retire_legacy_offer.sql",
+          "20260713220000_seed_batch_a_canonical_variants.sql",
+          "20260715120000_seed_discount_supplements_batch_b_canonical_variants.sql",
+          "20260715150000_seed_discount_supplements_batch_c_canonical_variants.sql",
+          "20260715180000_seed_discount_supplements_batch_d_canonical_products_variants.sql",
+          "20260715210000_seed_discount_supplements_batch_e_canonical_products_variants.sql",
+          "20260715230000_seed_fit_house_batch_f_catalog_and_backfill_images.sql",
+          "20260715233000_correct_fit_house_batch_f_source_variant_identity.sql",
+          "20260715234500_align_approval_product_format_normalization.sql",
+          "20260715235500_seed_batch_g_canonical_catalog.sql",
+          "20260716000000_support_standalone_legacy_mapping_upgrade.sql",
+          "20260716001000_seed_batch_g_replacement_variants.sql",
+          "20260716002000_allow_legacy_mapping_upgrade_null_total_noop.sql",
+          "20260716003000_support_optioned_legacy_mapping_upgrade.sql",
+          "20260716004000_support_optioned_parent_size_evidence.sql",
+          "20260716005000_allow_optioned_legacy_identity_update_null_total.sql",
+          "20260716010000_seed_whey_okay_medium_batch_1_canonical_variants.sql",
+          "20260716011000_seed_whey_okay_medium_batch_2_canonical_variants.sql",
+          "20260716012000_seed_whey_okay_medium_batch_3_canonical_variants.sql",
+          "20260716203000_seed_jons_per4m_product_families.sql",
+          "20260719100000_add_production_retailer_sync_enablement.sql",
+          "20260719173000_grant_importer_rpc_access_to_existing_roles.sql",
+          "20260719193000_support_existing_product_variant_import.sql",
+          "20260720103000_align_safe_create_reviewed_families.sql",
+          "20260720110000_align_serving_count_variant_size.sql",
+          "20260720113000_support_verified_shopify_variants_without_sku.sql",
+          "20260721100000_support_reviewed_parent_explicit_variant_safe_create.sql",
+          "20260721113000_allow_reviewed_tbjp_parent_variants.sql",
+          "20260721125000_allow_reviewed_jons_preworkout_parent_variants.sql",
+          "20260721190000_allow_reviewed_jons_hydration_bar_parent_variants.sql",
+          "20260721191000_allow_reviewed_bar_format_in_parent_import.sql",
+          "20260721200000_allow_reviewed_jons_nutrition_families.sql",
+          "20260721210000_allow_reviewed_strom_health_support_families.sql",
+          "20260722113000_allow_final_reviewed_jons_closeout.sql",
+          "20260722120000_add_reviewed_jons_stock_only_override.sql",
+          "20260722121000_fix_reviewed_stock_only_plan_binding.sql",
+          "20260722122000_allow_reviewed_stock_only_retry_after_expiry.sql",
+          "20260722130000_add_jons_sync_plan_registration.sql",
+          "20260722133000_align_retailer_sync_plan_metadata.sql",
+          "20260722140000_renew_and_resume_sequential_sync_plans.sql",
+          "20260723160000_allow_exact_retailer_variants_to_share_product_urls.sql",
+          "20260723161000_allow_exact_retailer_variants_to_share_legacy_parent_url_evidence.sql",
+          "20260723170000_unify_ekm_shared_parent_import_identity.sql",
+          "20260723210000_apply_reviewed_whey_okay_product_formats.sql",
+          "20260724100000_add_approved_retailer_sync_registration.sql",
+          "20260724120000_allow_whey_null_total_non_price_refresh.sql",
+          "20260726100000_add_reviewed_mixed_change_approval.sql",
+          "20260726120000_add_scoped_reviewed_mixed_change_fingerprints.sql",
+          "20260726130000_add_mapped_scope_reviewed_approval.sql",
+          "20260726140000_authorize_reviewed_jons_16_mapped_scope.sql",
+          "20260726150000_seed_reviewed_fit_house_catalogue_closeout.sql",
+          "20260726160000_support_reviewed_fit_house_no_sku_legacy_upgrade.sql",
+          "20260726170000_add_fit_house_offer_sync_registration.sql",
+          "20260726180000_reconcile_fit_house_whey_pro_synergy_dynamic.sql",
+          "20260726200000_allow_public_read_active_product_variants.sql",
+          "20260726210000_add_reviewed_variant_nutrition_apply.sql",
+          "20260728100000_extend_duplicate_review_decisions.sql",
+          "20260728110000_create_product_match_review_queue.sql",
+          "20260728170000_add_product_match_family_decisions.sql",
+          "20260729200000_authorize_reviewed_jons_11_stock_changes.sql",
+          "20260729210000_correct_strom_essentialmax_berrylicious_variant.sql",
+          "20260731120000_correct_jons_two_default_flavour_variants.sql",
+          "20260731170000_add_guarded_product_family_variant_merge.sql",
+          "20260801070000_rebind_whey_okay_manifest_after_family_merge.sql",
+          "20260801170000_support_reviewed_gym_high_no_sku_legacy_upgrade.sql",
+          "20260801180000_upgrade_reviewed_gym_high_accessory_and_wrong_legacy_identities.sql",
+          "20260801190000_allow_reviewed_gym_high_null_total_identity_upgrade.sql",
+          "20260801200000_repair_reviewed_gym_high_legacy_control_binding.sql",
+          "20260801210000_allow_reviewed_gym_high_standalone_null_options.sql",
+          "20260801220000_recognize_reviewed_gym_high_standalone_legacy_tuples.sql",
+          "20260802100000_create_nutrition_candidates.sql",
+          "20260803120000_authorize_reviewed_jons_10_oos_changes.sql",
+          "20260803130000_correct_jons_creamax_lemonade_variant.sql",
+          "20260803170000_support_simply_identity_only_legacy_upgrade.sql",
+          "20260803180000_require_simply_complete_identity_options.sql",
+          "20260803190000_allow_simply_count_size_option_evidence.sql",
+          "20260803200000_normalize_simply_match_confidence_guard.sql",
+          "20260803210000_allow_simply_count_size_apply.sql",
+          "20260803220000_add_simply_supplements_offer_sync_registration.sql",
+          "20260803230000_authorize_simply_reviewed_commercial_baseline.sql",
+          "20260803240000_normalize_simply_reviewed_commercial_money.sql",
+          "20260803250000_support_simply_reviewed_commercial_registration.sql",
+          "20260803260000_align_existing_offer_option_evidence.sql",
+          "20260803270000_verify_separate_offer_and_mapping_urls.sql",
+          "20260804000000_add_dolphin_vegan_protein_offer_sync_registration.sql",
+          "20260804010000_add_dolphin_single_offer_validation.sql",
+          "20260804020000_correct_dolphin_scope_fingerprint.sql",
+          "20260809120000_add_nutrition_candidate_approved_value.sql",
+          "20260809130000_add_nutrition_candidate_batch_items.sql",
+          "20260810160000_authorize_simply_offer_635_reviewed_sale.sql",
+          "20260810170000_support_simply_offer_635_reviewed_sale_validation.sql",
+          "20260810180000_support_simply_offer_635_reviewed_sale_registration.sql",
+          "20260810190000_rebind_jons_loaded_eaa_fruit_twist_variant.sql",
+          "20260810200000_rebind_two_reviewed_jons_variants.sql",
+          "20260810210000_authorize_reviewed_jons_23_oos_changes.sql",
+          "20260810220000_correct_jons_strom_buttered_pancake_variant.sql",
+          "20260810230000_complete_jons_strom_buttered_pancake_variant_move.sql",
+          "20260810240000_create_reviewed_jons_17_explicit_variants.sql",
+          "20260810250000_supersede_abandoned_partial_jons_plan.sql",
+          "20260810260000_rebind_two_reviewed_fit_house_variants.sql",
+          "20260811000000_authorize_reviewed_fit_house_47_changes.sql",
+          "20260811010000_add_fit_house_stable_oos_validator.sql",
+          "20260811020000_repair_fit_house_runtime_policy_fingerprint.sql",
+          "20260811030000_correct_reviewed_mass_gainer_metadata.sql",
+          "20260811113000_add_two_reviewed_discount_multivitamin_offers.sql",
+          "20260813170000_add_guarded_gtin_promotion.sql",
+          "20260814213000_correct_critical_cookie_73g_identity.sql",
+          "20260816173000_extend_guarded_gtin_promotion_exact_36.sql",
+          "20260817100000_rebind_whey_okay_manifest_after_creatine_merge.sql",
+          "20260817114500_add_outbound_click_traffic_classification.sql",
+          "20260818070000_authorize_reviewed_fit_house_offer_697_oos.sql",
+          "20260818080000_authorize_reviewed_jons_offer_1098_price.sql",
+          "20260818090000_reauthorize_reviewed_jons_offer_1098_price.sql",
+          "20260818100000_allow_jons_isolated_offer_batches.sql",
+          "20260818110000_add_jons_confirmed_price_validator.sql",
+          "20260818120000_add_shared_isolated_confirmed_price_refresh.sql",
+          "20260820100000_add_whey_okay_isolated_confirmed_price_refresh.sql",
+          "20260820110000_add_discount_supplements_isolated_confirmed_price_refresh.sql",
+          "20260820120000_allow_production_validator_offer_refresh_reads.sql",
+          "20260820130000_allow_production_validator_bounded_rls_reads.sql",
+          "20260820140000_normalize_reviewed_brand_aliases.sql",
+          "20260824160000_add_identity_proven_price_observations.sql",
+          "20260825163000_create_jons_exact_pack_canary_5.sql",
+          "20260825170000_create_jons_exact_pack_ready_servings_10.sql",
+          "20260825200000_create_jons_exact_pack_ready_servings_2.sql",
+          "20260825201000_create_jons_exact_pack_ready_grams_4.sql",
+          "20260825210000_create_jons_exact_pack_ordinary_servings_a_10.sql",
+          "20260825211000_create_jons_exact_pack_ordinary_servings_b_10.sql",
+          "20260825212000_create_jons_exact_pack_ordinary_servings_c_10.sql",
+          "20260825213000_create_jons_exact_pack_ordinary_servings_d_9.sql",
+          "20260825214000_create_jons_exact_pack_ordinary_grams_a_10.sql",
+          "20260825215000_create_jons_exact_pack_ordinary_grams_b_1.sql",
+          "20260825220000_rebind_jons_existing_exact_pack_1.sql",
+          "20260825230000_create_jons_exact_pack_special_evidence_a_10.sql",
+          "20260825231000_create_jons_exact_pack_special_evidence_b_3.sql",
+          "20260826090000_enable_gym_high_price_observation_producer.sql",
+          "20260826100000_create_gym_high_exact_pack_9.sql",
+          "20260826110000_create_gym_high_shred_mode_exact_pack.sql",
+          "20260826120000_create_fit_house_exact_pack_batch_15.sql",
+          "20260826130000_create_fit_house_retailer_evidence_exact_pack_11.sql",
+          "20260826140000_create_fit_house_retailer_evidence_exact_pack_27.sql",
+          "20260826150000_create_fit_house_owner_reviewed_exact_pack_24.sql",
+          "20260826160000_create_fit_house_owner_reviewed_exact_pack_10.sql",
+          "20260826170000_create_fit_house_sodium_butyrate_exact_pack.sql",
+          "20260826180000_resolve_fit_house_six_exact_pack_conflicts.sql",
+          "20260826190000_enable_fit_house_price_observation_producer.sql",
+          "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql",
+          "20260827201000_allow_predators_gear_reviewed_parent_variant_transport.sql",
+          "20260828080000_allow_predators_gear_reviewed_parent_url_siblings.sql",
+          "20260828100000_allow_predators_gear_reviewed_cm3_missing_variants.sql",
+          "20260828102000_allow_predators_gear_cm3_cross_product_parent_url.sql",
+          "20260829100000_allow_predators_gear_reviewed_new_products_v3.sql",
+          "20260829110000_allow_predators_gear_reviewed_olimp_parent_url_siblings.sql",
+          "20260829111000_allow_predators_gear_reviewed_glutamine_peer_cohort.sql",
+          "20260830090000_rebind_owner_approved_six_pack_offer_2006.sql",
+          "20260830091000_rebind_owner_approved_ebay_offer_2581.sql",
+          "20260830092000_promote_owner_approved_kior_11_identities.sql",
+          "20260830100000_add_kior_offer_sync_registration.sql",
+          "20260830102000_repair_kior_registration_scope_hash.sql",
+          "20260830120000_expand_discount_supplements_freshness_scope_109.sql",
+          "20260830140000_extend_product_match_review_queue_for_automation.sql",
+          "20260830151000_extend_automation_review_execution_evidence.sql",
+          "20260830173000_create_automation_review_execution_requests.sql",
+          "20260831080000_fix_verified_no_change_timestamp_guard.sql",
+          "20260831081000_fix_verified_no_change_timestamp_guard_jsonb_operator.sql",
+          "20260831110000_create_automation_review_queue_publication_rpc.sql",
+          "20260901090000_add_reviewed_variant_create_rebind_offer_update.sql",
+          "20260901100000_fix_reviewed_variant_digest_schema_resolution.sql",
+          "20260901110000_restore_reviewed_variant_executor_rpc_acl.sql",
+          "20260903100000_exclude_reviewed_whey_offer_73_from_automatic_scope.sql",
+          "20260903101000_supersede_expired_fit_house_control_plan.sql",
+          "20260903130000_exclude_reviewed_whey_offer_73_from_registration.sql",
+          "20260903140000_apply_reviewed_ebay_34_remediation.sql",
+          "20260904100000_apply_reviewed_whey_okay_existing_variant_3.sql",
+          "20260905170000_apply_reviewed_ebay_26_remediation.sql",
+          "20260906143000_allow_10reps_reviewed_new_products_v8.sql",
+          "20260906150000_allow_10reps_v8_short_source_ids.sql",
+          "20260906153000_allow_10reps_v8_sibling_variants_without_default.sql",
+          "20260906200000_allow_10reps_reviewed_new_products_v9.sql",
+          "20260906210000_allow_10reps_v9_sibling_variants_without_default.sql",
+          "20260906220000_allow_10reps_reviewed_catalogue_v10.sql",
+          "20260907070000_allow_10reps_v10_short_source_ids.sql",
+          "20260907080000_allow_10reps_v10_reviewed_liquid_parent.sql",
+          "20260907090000_allow_10reps_v10_sibling_variants_without_default.sql",
+          "20260907100000_add_reviewed_catalogue_package_v1.sql",
+          "20260907210000_allow_reviewed_catalogue_count_identity.sql",
+          "20260908070000_allow_owner_reviewed_energy_supplements_default_create.sql",
+          "20260908100000_add_10reps_offer_sync_registration.sql",
+          "20260908110000_allow_reviewed_catalogue_existing_categories.sql",
+          "20260908113000_allow_reviewed_variant_count_evidence.sql",
+          "20260908120000_allow_reviewed_count_sibling_variants.sql",
+          "20260908123000_fix_reviewed_count_sibling_normalization.sql",
+          "20260908180000_supersede_interrupted_shared_refresh_plans.sql",
+          "20260908190000_supersede_expired_discount_jons_refresh_plans.sql",
+          "20260908200000_serialize_shared_refresh_and_close_partial_jons.sql",
+          "20260908210000_reuse_atomic_price_history_and_close_jons_retry.sql",
+          "20260909093000_apply_reviewed_fit_house_944_oos.sql",
+          "20260909094000_bind_fit_house_104_runtime_policy.sql",
+          "20260910193000_allow_automation_review_retry_revisions.sql",
+          "20260911120000_add_nutrition_candidate_variant_provenance.sql",
+          "20260911130000_add_nutrition_candidate_preworkout_facts.sql",
+          "20260911150000_add_nutrition_candidate_structured_creatine.sql",
+          "20260913110000_add_nutrition_candidate_citrulline_components.sql",
+          "20260919113000_supersede_interrupted_jons_refresh.sql",
+          "20260919120000_supersede_interrupted_10reps_refresh.sql",
+          "20260919193000_extend_sequential_refresh_window.sql",
+          "20260919200000_extend_10reps_simply_refresh_window.sql",
+          "20260919203000_prepare_sequential_parent_approval.sql",
+          "20260919210000_fix_sequential_parent_approver_identity.sql",
+          "20260919220000_allow_simply_confirmed_aggregate_price_wave.sql",
+          "20260919223000_apply_simply_confirmed_aggregate_guard.sql",
+          "20260920150000_add_nutrition_candidate_creatine_components.sql",
+          "20260922122000_extend_three_dedicated_refresh_windows.sql",
+          "20260922140000_extend_three_sequential_parent_approvals.sql",
+          "20260922141000_supersede_three_failed_refresh_plans.sql",
+          "20260922160000_allow_owner_approved_fit_house_six_oos.sql",
+          "20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan.sql",
+          "20260929133000_extend_expired_sequential_plan_close.sql",
+          "20261004120000_add_central_control_plan_readback.sql",
+          "20261006120000_extend_partial_sequential_plan_close.sql",
+          "20261006170000_add_automation_review_owner_decision_validation.sql",
+          "20261006190000_add_automation_review_verified_postflight_recovery.sql",
+          "20261008100000_align_shared_stable_oos_validation.sql",
+          "20261008120000_serialize_all_approved_offer_writes.sql",
+          "20261008140000_add_active_retailer_parent_inventory.sql",
+          "20261008200000_consolidate_shared_executor_state_reads.sql",
+          "20261009100000_align_shared_sequential_child_capacity.sql",
+          "20261009120000_add_compact_other_retailer_fingerprint.sql",
+          "20261009140000_add_seo15_bounded_stage3_evidence.sql",
+          "20261009160000_add_seo15_automatic_candidate_inventory.sql",
+          "20261009180000_optimize_seo15_candidate_inventory.sql",
+          "20261015130000_release_gym_high_seo15_stage3_source.sql",
+          "20261017120000_add_retailer_identity_bootstrap.sql",
+          "20261017131000_add_environment_safe_reviewed_catalogue_bounded_state.sql",
+          "20261018121000_add_environment_safe_reviewed_catalogue_v3_boundary.sql",
+          "20261018191000_fix_environment_safe_reviewed_v3_apply_option_roles.sql",
+          "20261019100000_fix_reviewed_v3_post_create_option_roles.sql",
+          "20261019120000_bridge_trusted_v3_reviewed_parent_policy.sql",
+          "20261019130000_fix_reviewed_v3_plural_flavour_compatibility.sql",
+          "20261020180000_fix_reviewed_v3_role_aware_legacy_size_projection.sql",
+          "20261021120000_align_trusted_v3_reviewed_parent_format_policy.sql",
+          "20261021190000_correct_ghost_lifestyle_energy_drink_metadata.sql",
+          "20261022080000_allow_reviewed_v3_existing_variant_flavour_alias_projection.sql",
+          "20261022120000_fix_reviewed_v3_apply_evidence_parity.sql",
+          "20261024120000_fix_reviewed_v3_create_product_composite_size_projection.sql",
+          "20261025120000_add_reviewed_v3_canonical_identity_evidence.sql",
+          "20261026120000_fix_reviewed_v3_canonical_evidence_apply_projection.sql",
+          "20261027120000_consolidate_reviewed_catalogue_v3_owned_runtime.sql",
+          "20261027130000_add_gladiator_nutrition_offer_sync_registration.sql",
+          "20261027150000_extend_sequential_parent_approval_to_gladiator.sql",
+          "20261029061000_reissue_reviewed_product_pack_correction_production_safe.sql",
+          "20261030120000_create_sealed_artifacts_registry.sql",
+          "20261031120000_add_verified_automation_review_stock_transition_reader.sql",
+          "20261104120000_allow_automation_review_hard_price_anomaly.sql",
+          "20261105100000_refresh_pending_review_execution_binding.sql",
+          "20261107190000_extend_never_approved_planned_control_close.sql",
+          "20261109120000_add_owner_withdrawal_terminal_preflight.sql",
+          "20261110170000_align_reviewed_catalogue_affiliate_url_contract.sql",
+          "20261112130000_align_reviewed_catalogue_gtin_identity.sql",
+          "20261114213000_enforce_reviewed_new_product_identity.sql",
+          "20261116210000_align_review_refresh_proposed_state.sql",
+          "20261116211000_register_shared_parent_approval_profiles.sql",
+          "20261117212000_register_holland_barrett_existing_offer_sync.sql",
+          "20261119150000_read_automation_review_queue_page.sql",
+          "20261120150000_add_catalog_health_review_counts.sql"
+        ],
+        "remote_only": [],
+        "unexpected_local": [],
+        "pending": [
+          "20261120150000_add_catalog_health_review_counts"
+        ],
+        "pending_files": [
+          "20261120150000_add_catalog_health_review_counts.sql"
+        ],
+        "pending_sha256s": {
+          "20261120150000_add_catalog_health_review_counts.sql": "09d941a26ac97791dde4e5690f97b7cc97ea16630297b1637aa02373c3695072"
+        },
+        "pending_file": "20261120150000_add_catalog_health_review_counts.sql",
+        "pending_sha256": "09d941a26ac97791dde4e5690f97b7cc97ea16630297b1637aa02373c3695072"
+      }
+    },
+    "STAGING": {
+      "at": "2026-11-20T16:45:11.453Z",
+      "environment": "STAGING",
+      "identity": {
+        "current_user": "postgres",
+        "current_database": "postgres",
+        "read_only": "on",
+        "safe_update": null
+      },
+      "database_target": {
+        "project_ref": "hxnrsyyqffztlvcrtgbf",
+        "database_oid": "5",
+        "database_identity": "supplementscout-staging:hxnrsyyqffztlvcrtgbf",
+        "target_environment": "STAGING",
+        "database_system_identifier": "7642734024280108049"
+      },
+      "ledger_count": 120,
+      "fingerprint": "31dc3e6e90dab56dd00843bef441cfba400e1d9480d2940f41b46cfff6e32277",
+      "selection": {
+        "result": "PASS",
+        "environment": "STAGING",
+        "project_ref": "hxnrsyyqffztlvcrtgbf",
+        "database_target": {
+          "project_ref": "hxnrsyyqffztlvcrtgbf",
+          "database_oid": "5",
+          "database_identity": "supplementscout-staging:hxnrsyyqffztlvcrtgbf",
+          "target_environment": "STAGING",
+          "database_system_identifier": "7642734024280108049"
+        },
+        "ledger_count": 120,
+        "ledger_fingerprint": "31dc3e6e90dab56dd00843bef441cfba400e1d9480d2940f41b46cfff6e32277",
+        "activation_schema": null,
+        "activation_id": null,
+        "excluded_files": [
+          "20261120150000_add_catalog_health_review_counts.sql",
+          "20261116210000_align_review_refresh_proposed_state.sql",
+          "20261116211000_register_shared_parent_approval_profiles.sql",
+          "20261117212000_register_holland_barrett_existing_offer_sync.sql",
+          "20261114213000_enforce_reviewed_new_product_identity.sql",
+          "20261112130000_align_reviewed_catalogue_gtin_identity.sql",
+          "20261110170000_align_reviewed_catalogue_affiliate_url_contract.sql",
+          "20261109120000_add_owner_withdrawal_terminal_preflight.sql",
+          "20261109100000_add_owner_catalogue_withdrawal_lifecycle.sql",
+          "20261107190000_extend_never_approved_planned_control_close.sql",
+          "20261031120000_add_verified_automation_review_stock_transition_reader.sql",
+          "20261030120000_create_sealed_artifacts_registry.sql",
+          "20261029061000_reissue_reviewed_product_pack_correction_production_safe.sql",
+          "20261027150000_extend_sequential_parent_approval_to_gladiator.sql",
+          "20261015130000_release_gym_high_seo15_stage3_source.sql",
+          "20261009120000_add_compact_other_retailer_fingerprint.sql",
+          "20261008200000_consolidate_shared_executor_state_reads.sql",
+          "20260920150000_add_nutrition_candidate_creatine_components.sql",
+          "20260913110000_add_nutrition_candidate_citrulline_components.sql",
+          "20260911150000_add_nutrition_candidate_structured_creatine.sql",
+          "20260911130000_add_nutrition_candidate_preworkout_facts.sql",
+          "20260911120000_add_nutrition_candidate_variant_provenance.sql",
+          "20260910193000_allow_automation_review_retry_revisions.sql",
+          "20260831110000_create_automation_review_queue_publication_rpc.sql",
+          "20261008140000_add_active_retailer_parent_inventory.sql",
+          "20261008120000_serialize_all_approved_offer_writes.sql",
+          "20260922160000_allow_owner_approved_fit_house_six_oos.sql",
+          "20260922170000_allow_fit_house_parent_approval_and_supersede_failed_plan.sql",
+          "20260909094000_bind_fit_house_104_runtime_policy.sql",
+          "20260909093000_apply_reviewed_fit_house_944_oos.sql",
+          "20260717130000_add_local_retailer_catalogue_child_executor.sql",
+          "20260719100000_add_production_retailer_sync_enablement.sql",
+          "20260726140000_authorize_reviewed_jons_16_mapped_scope.sql",
+          "20260729200000_authorize_reviewed_jons_11_stock_changes.sql",
+          "20260729210000_correct_strom_essentialmax_berrylicious_variant.sql",
+          "20260731120000_correct_jons_two_default_flavour_variants.sql",
+          "20260801170000_support_reviewed_gym_high_no_sku_legacy_upgrade.sql",
+          "20260801180000_upgrade_reviewed_gym_high_accessory_and_wrong_legacy_identities.sql",
+          "20260801190000_allow_reviewed_gym_high_null_total_identity_upgrade.sql",
+          "20260801200000_repair_reviewed_gym_high_legacy_control_binding.sql",
+          "20260801210000_allow_reviewed_gym_high_standalone_null_options.sql",
+          "20260801220000_recognize_reviewed_gym_high_standalone_legacy_tuples.sql",
+          "20260803120000_authorize_reviewed_jons_10_oos_changes.sql",
+          "20260803130000_correct_jons_creamax_lemonade_variant.sql",
+          "20260803230000_authorize_simply_reviewed_commercial_baseline.sql",
+          "20260803240000_normalize_simply_reviewed_commercial_money.sql",
+          "20260803250000_support_simply_reviewed_commercial_registration.sql",
+          "20260803260000_align_existing_offer_option_evidence.sql",
+          "20260803270000_verify_separate_offer_and_mapping_urls.sql",
+          "20260804000000_add_dolphin_vegan_protein_offer_sync_registration.sql",
+          "20260804010000_add_dolphin_single_offer_validation.sql",
+          "20260804020000_correct_dolphin_scope_fingerprint.sql",
+          "20260810160000_authorize_simply_offer_635_reviewed_sale.sql",
+          "20260810170000_support_simply_offer_635_reviewed_sale_validation.sql",
+          "20260810180000_support_simply_offer_635_reviewed_sale_registration.sql",
+          "20260810190000_rebind_jons_loaded_eaa_fruit_twist_variant.sql",
+          "20260810200000_rebind_two_reviewed_jons_variants.sql",
+          "20260810210000_authorize_reviewed_jons_23_oos_changes.sql",
+          "20260810220000_correct_jons_strom_buttered_pancake_variant.sql",
+          "20260810230000_complete_jons_strom_buttered_pancake_variant_move.sql",
+          "20260810240000_create_reviewed_jons_17_explicit_variants.sql",
+          "20260810250000_supersede_abandoned_partial_jons_plan.sql",
+          "20260810260000_rebind_two_reviewed_fit_house_variants.sql",
+          "20260811000000_authorize_reviewed_fit_house_47_changes.sql",
+          "20260811010000_add_fit_house_stable_oos_validator.sql",
+          "20260811020000_repair_fit_house_runtime_policy_fingerprint.sql",
+          "20260811030000_correct_reviewed_mass_gainer_metadata.sql",
+          "20260811113000_add_two_reviewed_discount_multivitamin_offers.sql",
+          "20260813170000_add_guarded_gtin_promotion.sql",
+          "20260814213000_correct_critical_cookie_73g_identity.sql",
+          "20260816173000_extend_guarded_gtin_promotion_exact_36.sql",
+          "20260817100000_rebind_whey_okay_manifest_after_creatine_merge.sql",
+          "20260818070000_authorize_reviewed_fit_house_offer_697_oos.sql",
+          "20260818080000_authorize_reviewed_jons_offer_1098_price.sql",
+          "20260818090000_reauthorize_reviewed_jons_offer_1098_price.sql",
+          "20260818100000_allow_jons_isolated_offer_batches.sql",
+          "20260818110000_add_jons_confirmed_price_validator.sql",
+          "20260818120000_add_shared_isolated_confirmed_price_refresh.sql",
+          "20260820100000_add_whey_okay_isolated_confirmed_price_refresh.sql",
+          "20260820110000_add_discount_supplements_isolated_confirmed_price_refresh.sql",
+          "20260820120000_allow_production_validator_offer_refresh_reads.sql",
+          "20260820130000_allow_production_validator_bounded_rls_reads.sql",
+          "20260820140000_normalize_reviewed_brand_aliases.sql",
+          "20260825163000_create_jons_exact_pack_canary_5.sql",
+          "20260825170000_create_jons_exact_pack_ready_servings_10.sql",
+          "20260825200000_create_jons_exact_pack_ready_servings_2.sql",
+          "20260825201000_create_jons_exact_pack_ready_grams_4.sql",
+          "20260825210000_create_jons_exact_pack_ordinary_servings_a_10.sql",
+          "20260825211000_create_jons_exact_pack_ordinary_servings_b_10.sql",
+          "20260825212000_create_jons_exact_pack_ordinary_servings_c_10.sql",
+          "20260825213000_create_jons_exact_pack_ordinary_servings_d_9.sql",
+          "20260825214000_create_jons_exact_pack_ordinary_grams_a_10.sql",
+          "20260825215000_create_jons_exact_pack_ordinary_grams_b_1.sql",
+          "20260825220000_rebind_jons_existing_exact_pack_1.sql",
+          "20260825230000_create_jons_exact_pack_special_evidence_a_10.sql",
+          "20260825231000_create_jons_exact_pack_special_evidence_b_3.sql",
+          "20260826090000_enable_gym_high_price_observation_producer.sql",
+          "20260826100000_create_gym_high_exact_pack_9.sql",
+          "20260826110000_create_gym_high_shred_mode_exact_pack.sql",
+          "20260826120000_create_fit_house_exact_pack_batch_15.sql",
+          "20260826130000_create_fit_house_retailer_evidence_exact_pack_11.sql",
+          "20260826140000_create_fit_house_retailer_evidence_exact_pack_27.sql",
+          "20260826150000_create_fit_house_owner_reviewed_exact_pack_24.sql",
+          "20260826160000_create_fit_house_owner_reviewed_exact_pack_10.sql",
+          "20260826170000_create_fit_house_sodium_butyrate_exact_pack.sql",
+          "20260826180000_resolve_fit_house_six_exact_pack_conflicts.sql",
+          "20260826190000_enable_fit_house_price_observation_producer.sql",
+          "20260830090000_rebind_owner_approved_six_pack_offer_2006.sql",
+          "20260830091000_rebind_owner_approved_ebay_offer_2581.sql",
+          "20260830092000_promote_owner_approved_kior_11_identities.sql",
+          "20260830100000_add_kior_offer_sync_registration.sql",
+          "20260830102000_repair_kior_registration_scope_hash.sql",
+          "20260830120000_expand_discount_supplements_freshness_scope_109.sql",
+          "20260901090000_add_reviewed_variant_create_rebind_offer_update.sql",
+          "20260901100000_fix_reviewed_variant_digest_schema_resolution.sql",
+          "20260901110000_restore_reviewed_variant_executor_rpc_acl.sql",
+          "20260903100000_exclude_reviewed_whey_offer_73_from_automatic_scope.sql",
+          "20260903101000_supersede_expired_fit_house_control_plan.sql",
+          "20260903130000_exclude_reviewed_whey_offer_73_from_registration.sql",
+          "20260903140000_apply_reviewed_ebay_34_remediation.sql",
+          "20260904100000_apply_reviewed_whey_okay_existing_variant_3.sql",
+          "20260905170000_apply_reviewed_ebay_26_remediation.sql",
+          "20260906143000_allow_10reps_reviewed_new_products_v8.sql",
+          "20260906150000_allow_10reps_v8_short_source_ids.sql",
+          "20260906153000_allow_10reps_v8_sibling_variants_without_default.sql",
+          "20260906200000_allow_10reps_reviewed_new_products_v9.sql",
+          "20260906210000_allow_10reps_v9_sibling_variants_without_default.sql",
+          "20260906220000_allow_10reps_reviewed_catalogue_v10.sql",
+          "20260907070000_allow_10reps_v10_short_source_ids.sql",
+          "20260907080000_allow_10reps_v10_reviewed_liquid_parent.sql",
+          "20260907090000_allow_10reps_v10_sibling_variants_without_default.sql",
+          "20260907100000_add_reviewed_catalogue_package_v1.sql",
+          "20260907210000_allow_reviewed_catalogue_count_identity.sql",
+          "20260908070000_allow_owner_reviewed_energy_supplements_default_create.sql",
+          "20260908110000_allow_reviewed_catalogue_existing_categories.sql",
+          "20260908113000_allow_reviewed_variant_count_evidence.sql",
+          "20260908120000_allow_reviewed_count_sibling_variants.sql",
+          "20260908123000_fix_reviewed_count_sibling_normalization.sql",
+          "20260908100000_add_10reps_offer_sync_registration.sql",
+          "20260908180000_supersede_interrupted_shared_refresh_plans.sql",
+          "20260908190000_supersede_expired_discount_jons_refresh_plans.sql",
+          "20260908200000_serialize_shared_refresh_and_close_partial_jons.sql",
+          "20260908210000_reuse_atomic_price_history_and_close_jons_retry.sql",
+          "20260919113000_supersede_interrupted_jons_refresh.sql",
+          "20260919120000_supersede_interrupted_10reps_refresh.sql",
+          "20260919193000_extend_sequential_refresh_window.sql",
+          "20260919200000_extend_10reps_simply_refresh_window.sql",
+          "20260919203000_prepare_sequential_parent_approval.sql",
+          "20260919210000_fix_sequential_parent_approver_identity.sql",
+          "20260919220000_allow_simply_confirmed_aggregate_price_wave.sql",
+          "20260919223000_apply_simply_confirmed_aggregate_guard.sql",
+          "20260922122000_extend_three_dedicated_refresh_windows.sql",
+          "20260922140000_extend_three_sequential_parent_approvals.sql",
+          "20260922141000_supersede_three_failed_refresh_plans.sql",
+          "20260924100000_add_transactional_retailer_control_state_interface.sql",
+          "20260925100000_add_ra004_staging_preflight_metadata_interface.sql",
+          "20260926100000_create_ra004_staging_10reps_retailer.sql",
+          "20260926110000_add_ra004_staging_interface_compatibility.sql",
+          "20260927100000_reissue_transactional_retailer_control_state_interface.sql",
+          "20260927101000_reissue_ra004_staging_preflight_metadata_interface.sql",
+          "20260927102000_correct_ra004_staging_preflight_ledger_contract.sql",
+          "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql",
+          "20260928100000_diagnose_ra004_preflight_acl_rls.sql",
+          "20260928101000_align_ra004_control_export_provider_identity.sql",
+          "20260929133000_extend_expired_sequential_plan_close.sql",
+          "20261004120000_add_central_control_plan_readback.sql",
+          "20261006120000_extend_partial_sequential_plan_close.sql",
+          "20261006170000_add_automation_review_owner_decision_validation.sql",
+          "20261006190000_add_automation_review_verified_postflight_recovery.sql",
+          "20261008100000_align_shared_stable_oos_validation.sql",
+          "20261009100000_align_shared_sequential_child_capacity.sql",
+          "20261017131000_add_environment_safe_reviewed_catalogue_bounded_state.sql",
+          "20261018121000_add_environment_safe_reviewed_catalogue_v3_boundary.sql",
+          "20261018191000_fix_environment_safe_reviewed_v3_apply_option_roles.sql",
+          "20261021190000_correct_ghost_lifestyle_energy_drink_metadata.sql"
+        ],
+        "selected_files": [
+          "20260712211120_baseline_current_public_schema.sql",
+          "20260713130000_product_variants_stage2.sql",
+          "20260713180000_atomic_product_import_rpc.sql",
+          "20260713190000_approved_import_plan_ledger.sql",
+          "20260713200000_legacy_mapping_upgrade_rpc.sql",
+          "20260713210000_create_product_7_chocolate_vanilla_variants_and_retire_legacy_offer.sql",
+          "20260713220000_seed_batch_a_canonical_variants.sql",
+          "20260715120000_seed_discount_supplements_batch_b_canonical_variants.sql",
+          "20260715150000_seed_discount_supplements_batch_c_canonical_variants.sql",
+          "20260715180000_seed_discount_supplements_batch_d_canonical_products_variants.sql",
+          "20260715210000_seed_discount_supplements_batch_e_canonical_products_variants.sql",
+          "20260715230000_seed_fit_house_batch_f_catalog_and_backfill_images.sql",
+          "20260715233000_correct_fit_house_batch_f_source_variant_identity.sql",
+          "20260715234500_align_approval_product_format_normalization.sql",
+          "20260715235500_seed_batch_g_canonical_catalog.sql",
+          "20260716000000_support_standalone_legacy_mapping_upgrade.sql",
+          "20260716001000_seed_batch_g_replacement_variants.sql",
+          "20260716002000_allow_legacy_mapping_upgrade_null_total_noop.sql",
+          "20260716003000_support_optioned_legacy_mapping_upgrade.sql",
+          "20260716004000_support_optioned_parent_size_evidence.sql",
+          "20260716005000_allow_optioned_legacy_identity_update_null_total.sql",
+          "20260716010000_seed_whey_okay_medium_batch_1_canonical_variants.sql",
+          "20260716011000_seed_whey_okay_medium_batch_2_canonical_variants.sql",
+          "20260716012000_seed_whey_okay_medium_batch_3_canonical_variants.sql",
+          "20260716203000_seed_jons_per4m_product_families.sql",
+          "20260717120000_create_retailer_catalogue_control_ledger.sql",
+          "20260717140000_add_staging_retailer_catalogue_executor.sql",
+          "20260718150000_add_verified_no_change_offer_refresh.sql",
+          "20260718160000_add_retailer_offer_mixed_batch_executor.sql",
+          "20260718170000_add_read_only_mixed_batch_validator.sql",
+          "20260719090000_add_expired_retailer_offer_sync_approval_close.sql",
+          "20260719173000_grant_importer_rpc_access_to_existing_roles.sql",
+          "20260719193000_support_existing_product_variant_import.sql",
+          "20260720103000_align_safe_create_reviewed_families.sql",
+          "20260720110000_align_serving_count_variant_size.sql",
+          "20260720113000_support_verified_shopify_variants_without_sku.sql",
+          "20260721100000_support_reviewed_parent_explicit_variant_safe_create.sql",
+          "20260721113000_allow_reviewed_tbjp_parent_variants.sql",
+          "20260721125000_allow_reviewed_jons_preworkout_parent_variants.sql",
+          "20260721190000_allow_reviewed_jons_hydration_bar_parent_variants.sql",
+          "20260721191000_allow_reviewed_bar_format_in_parent_import.sql",
+          "20260721200000_allow_reviewed_jons_nutrition_families.sql",
+          "20260721210000_allow_reviewed_strom_health_support_families.sql",
+          "20260722113000_allow_final_reviewed_jons_closeout.sql",
+          "20260722120000_add_reviewed_jons_stock_only_override.sql",
+          "20260722121000_fix_reviewed_stock_only_plan_binding.sql",
+          "20260722122000_allow_reviewed_stock_only_retry_after_expiry.sql",
+          "20260722130000_add_jons_sync_plan_registration.sql",
+          "20260722133000_align_retailer_sync_plan_metadata.sql",
+          "20260722140000_renew_and_resume_sequential_sync_plans.sql",
+          "20260723160000_allow_exact_retailer_variants_to_share_product_urls.sql",
+          "20260723161000_allow_exact_retailer_variants_to_share_legacy_parent_url_evidence.sql",
+          "20260723170000_unify_ekm_shared_parent_import_identity.sql",
+          "20260723210000_apply_reviewed_whey_okay_product_formats.sql",
+          "20260724100000_add_approved_retailer_sync_registration.sql",
+          "20260724120000_allow_whey_null_total_non_price_refresh.sql",
+          "20260726100000_add_reviewed_mixed_change_approval.sql",
+          "20260726120000_add_scoped_reviewed_mixed_change_fingerprints.sql",
+          "20260726130000_add_mapped_scope_reviewed_approval.sql",
+          "20260726150000_seed_reviewed_fit_house_catalogue_closeout.sql",
+          "20260726160000_support_reviewed_fit_house_no_sku_legacy_upgrade.sql",
+          "20260726170000_add_fit_house_offer_sync_registration.sql",
+          "20260726180000_reconcile_fit_house_whey_pro_synergy_dynamic.sql",
+          "20260726200000_allow_public_read_active_product_variants.sql",
+          "20260726210000_add_reviewed_variant_nutrition_apply.sql",
+          "20260728100000_extend_duplicate_review_decisions.sql",
+          "20260728110000_create_product_match_review_queue.sql",
+          "20260728170000_add_product_match_family_decisions.sql",
+          "20260731170000_add_guarded_product_family_variant_merge.sql",
+          "20260801070000_rebind_whey_okay_manifest_after_family_merge.sql",
+          "20260802100000_create_nutrition_candidates.sql",
+          "20260803170000_support_simply_identity_only_legacy_upgrade.sql",
+          "20260803180000_require_simply_complete_identity_options.sql",
+          "20260803190000_allow_simply_count_size_option_evidence.sql",
+          "20260803200000_normalize_simply_match_confidence_guard.sql",
+          "20260803210000_allow_simply_count_size_apply.sql",
+          "20260803220000_add_simply_supplements_offer_sync_registration.sql",
+          "20260809120000_add_nutrition_candidate_approved_value.sql",
+          "20260809130000_add_nutrition_candidate_batch_items.sql",
+          "20260817114500_add_outbound_click_traffic_classification.sql",
+          "20260824160000_add_identity_proven_price_observations.sql",
+          "20260827200000_allow_predators_gear_reviewed_creatine_316g.sql",
+          "20260827201000_allow_predators_gear_reviewed_parent_variant_transport.sql",
+          "20260828080000_allow_predators_gear_reviewed_parent_url_siblings.sql",
+          "20260828100000_allow_predators_gear_reviewed_cm3_missing_variants.sql",
+          "20260828102000_allow_predators_gear_cm3_cross_product_parent_url.sql",
+          "20260829100000_allow_predators_gear_reviewed_new_products_v3.sql",
+          "20260829110000_allow_predators_gear_reviewed_olimp_parent_url_siblings.sql",
+          "20260829111000_allow_predators_gear_reviewed_glutamine_peer_cohort.sql",
+          "20260830140000_extend_product_match_review_queue_for_automation.sql",
+          "20260830151000_extend_automation_review_execution_evidence.sql",
+          "20260830173000_create_automation_review_execution_requests.sql",
+          "20260831080000_fix_verified_no_change_timestamp_guard.sql",
+          "20260831081000_fix_verified_no_change_timestamp_guard_jsonb_operator.sql",
+          "20260926100000_create_ra004_staging_10reps_retailer.sql",
+          "20260926110000_add_ra004_staging_interface_compatibility.sql",
+          "20260927103000_consolidate_ra004_supabase_ownership_interfaces.sql",
+          "20260928100000_diagnose_ra004_preflight_acl_rls.sql",
+          "20260928101000_align_ra004_control_export_provider_identity.sql",
+          "20261008200000_consolidate_shared_executor_state_reads.sql",
+          "20261009140000_add_seo15_bounded_stage3_evidence.sql",
+          "20261009160000_add_seo15_automatic_candidate_inventory.sql",
+          "20261009180000_optimize_seo15_candidate_inventory.sql",
+          "20261017120000_add_retailer_identity_bootstrap.sql",
+          "20261017130000_add_reviewed_catalogue_bounded_state.sql",
+          "20261018120000_add_reviewed_catalogue_v3_boundary.sql",
+          "20261018190000_fix_reviewed_catalogue_v3_apply_option_roles.sql",
+          "20261019100000_fix_reviewed_v3_post_create_option_roles.sql",
+          "20261019120000_bridge_trusted_v3_reviewed_parent_policy.sql",
+          "20261019130000_fix_reviewed_v3_plural_flavour_compatibility.sql",
+          "20261020180000_fix_reviewed_v3_role_aware_legacy_size_projection.sql",
+          "20261021120000_align_trusted_v3_reviewed_parent_format_policy.sql",
+          "20261022080000_allow_reviewed_v3_existing_variant_flavour_alias_projection.sql",
+          "20261022120000_fix_reviewed_v3_apply_evidence_parity.sql",
+          "20261024120000_fix_reviewed_v3_create_product_composite_size_projection.sql",
+          "20261025120000_add_reviewed_v3_canonical_identity_evidence.sql",
+          "20261026120000_fix_reviewed_v3_canonical_evidence_apply_projection.sql",
+          "20261027120000_consolidate_reviewed_catalogue_v3_owned_runtime.sql",
+          "20261027130000_add_gladiator_nutrition_offer_sync_registration.sql",
+          "20261028210000_add_reviewed_product_pack_correction.sql",
+          "20261104120000_allow_automation_review_hard_price_anomaly.sql",
+          "20261105100000_refresh_pending_review_execution_binding.sql",
+          "20261119150000_read_automation_review_queue_page.sql"
+        ],
+        "remote_only": [],
+        "unexpected_local": [],
+        "pending": [
+          "20261104120000_allow_automation_review_hard_price_anomaly",
+          "20261105100000_refresh_pending_review_execution_binding",
+          "20261119150000_read_automation_review_queue_page"
+        ],
+        "pending_files": [
+          "20261104120000_allow_automation_review_hard_price_anomaly.sql",
+          "20261105100000_refresh_pending_review_execution_binding.sql",
+          "20261119150000_read_automation_review_queue_page.sql"
+        ],
+        "pending_sha256s": {
+          "20261104120000_allow_automation_review_hard_price_anomaly.sql": "26a7aa2155bebc49313e8827fe0377b4676af455b7aa964c293db0f30d5fce6d",
+          "20261105100000_refresh_pending_review_execution_binding.sql": "015f0de7448c10fcca10174e74dfbf7ca9e3150951f49090d01cd6eee869024c",
+          "20261119150000_read_automation_review_queue_page.sql": "062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa"
+        },
+        "pending_file": null,
+        "pending_sha256": null
+      }
+    }
+  },
+  "control_plans": {
+    "at": "2026-11-20T16:48:22.531Z",
+    "tables": {
+      "retailer_catalogue_parent_plans": [
+        {
+          "status": "COMPLETED",
+          "count": 731,
+          "records": null
+        },
+        {
+          "status": "EXPIRED",
+          "count": 7,
+          "records": null
+        },
+        {
+          "status": "SUPERSEDED",
+          "count": 25,
+          "records": null
+        }
+      ],
+      "retailer_catalogue_child_plans": [
+        {
+          "status": "APPLIED",
+          "count": 6504,
+          "records": null
+        },
+        {
+          "status": "EXPIRED",
+          "count": 52,
+          "records": null
+        },
+        {
+          "status": "SUPERSEDED",
+          "count": 204,
+          "records": null
+        }
+      ],
+      "retailer_catalogue_apply_runs": [
+        {
+          "status": "SUCCEEDED",
+          "count": 6504,
+          "records": null
+        }
+      ]
+    }
+  },
+  "rehearsal": {
+    "result": "PASS",
+    "mode": "rehearse",
+    "environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "pending": [
+      "20261120150000_add_catalog_health_review_counts"
+    ],
+    "confirmation": "d8884d1c41656c71",
+    "catalogue_counts_before": {
+      "products": "1494",
+      "product_variants": "4228",
+      "retailer_products": "4580",
+      "offers": "4580",
+      "price_history": "58013"
+    },
+    "catalogue_counts_expected": {
+      "products": "1494",
+      "product_variants": "4228",
+      "retailer_products": "4580",
+      "offers": "4580",
+      "price_history": "58013"
+    },
+    "catalogue_counts_after": {
+      "products": "1494",
+      "product_variants": "4228",
+      "retailer_products": "4580",
+      "offers": "4580",
+      "price_history": "58013"
+    },
+    "schema_checks": {
+      "queue_exists": true,
+      "duplicate_decision_exists": true,
+      "anon_cannot_read_queue": true,
+      "authenticated_cannot_read_queue": true
+    },
+    "committed": false,
+    "committed_state": null,
+    "closeout_status": "NOT_REQUIRED_REHEARSAL",
+    "closeout_evidence_path": null,
+    "post_ledger_count": null,
+    "post_ledger_fingerprint": null,
+    "consumed_pending_count": 0
+  },
+  "rollback_readback": {
+    "status": "PASS",
+    "as_of_comparison": {
+      "before": "2026-11-20T16:51:13.392771+00:00",
+      "after": "2026-11-20T17:03:37.984362+00:00",
+      "status": "PASS_EXPECTED_READ_TIME_PROGRESSION"
+    }
+  },
+  "timestamp_comparison_history": {
+    "at": "2026-11-20T17:03:29.625Z",
+    "status": "LOCAL_AUDIT_ASSERTION_REQUIRES_CORRECTION",
+    "native_exit_code": 1,
+    "message": "Existing page fields changed; only difference reported: as_of 2026-11-20T16:58:09.094276+00:00 versus 2026-11-20T16:51:13.392771+00:00",
+    "prior_completed_assertions": [
+      "all19 business table hashes equal",
+      "all213 non-reader functions equal",
+      "reader owner/OID/ACL/security metadata equal"
+    ],
+    "production_sql_error": false,
+    "apply_performed": false,
+    "reason": "as_of is the existing transaction read time, not immutable business state; preserve its presence/type and require time progression separately"
+  },
+  "apply": {
+    "result": "PASS",
+    "mode": "apply",
+    "environment": "PRODUCTION",
+    "project_ref": "aftboxmrdgyhizicfsfu",
+    "pending": [
+      "20261120150000_add_catalog_health_review_counts"
+    ],
+    "confirmation": "d8884d1c41656c71",
+    "catalogue_counts_before": {
+      "products": "1494",
+      "product_variants": "4228",
+      "retailer_products": "4580",
+      "offers": "4580",
+      "price_history": "58013"
+    },
+    "catalogue_counts_expected": {
+      "products": "1494",
+      "product_variants": "4228",
+      "retailer_products": "4580",
+      "offers": "4580",
+      "price_history": "58013"
+    },
+    "catalogue_counts_after": {
+      "products": "1494",
+      "product_variants": "4228",
+      "retailer_products": "4580",
+      "offers": "4580",
+      "price_history": "58013"
+    },
+    "schema_checks": {
+      "queue_exists": true,
+      "duplicate_decision_exists": true,
+      "anon_cannot_read_queue": true,
+      "authenticated_cannot_read_queue": true
+    },
+    "committed": true,
+    "committed_state": {
+      "ledger_count": 270,
+      "ledger_fingerprint": "ea11b69343c2100ecf38078a6920eb3b7478fc6ee4633bb65fc7657c39c2ae2a",
+      "applied": [
+        "20261120150000_add_catalog_health_review_counts"
+      ],
+      "catalogue_counts": {
+        "products": "1494",
+        "product_variants": "4228",
+        "retailer_products": "4580",
+        "offers": "4580",
+        "price_history": "58013"
+      }
+    },
+    "closeout_status": "CLOSEOUT_REQUIRED",
+    "closeout_evidence_path": "tmp/selected-migrations/production-ea11b69343c2100ecf38078a6920eb3b7478fc6ee4633bb65fc7657c39c2ae2a-repository-closeout.json",
+    "post_ledger_count": 270,
+    "post_ledger_fingerprint": "ea11b69343c2100ecf38078a6920eb3b7478fc6ee4633bb65fc7657c39c2ae2a",
+    "consumed_pending_count": 1
+  },
+  "repository_closeout": {
+    "receipt": "docs/retailer-automation/evidence/PR560-CATALOG-HEALTH-PRODUCTION-270-CLOSEOUT-2026-11-20.json",
+    "status": "ALREADY_CLOSED",
+    "derived_by": "derivePostApplyMigrationBinding(PRODUCTION)"
+  },
+  "independent_readback": {
+    "captured_at": "2026-11-20T17:09:41.929Z",
+    "ledger_count": 270,
+    "fingerprint": "ea11b69343c2100ecf38078a6920eb3b7478fc6ee4633bb65fc7657c39c2ae2a",
+    "result": "PASS",
+    "reader_before": {
+      "oid": 425638,
+      "owner": "postgres",
+      "args": "p_request jsonb",
+      "provolatile": "s",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "proacl": "{postgres=X/postgres,service_role=X/postgres}",
+      "body_sha256": "d3fb6c1ce56c110763e990000ceee64d3536e4898bc6d13f617a9251537abcd9",
+      "source_matches": true
+    },
+    "reader_after": {
+      "oid": 425638,
+      "owner": "postgres",
+      "args": "p_request jsonb",
+      "provolatile": "s",
+      "prosecdef": false,
+      "proconfig": [
+        "search_path=pg_catalog, public, pg_temp"
+      ],
+      "proacl": "{postgres=X/postgres,service_role=X/postgres}",
+      "body_sha256": "5b06e97b72c06b0ad9a587254c2175ac5470cd581e12ab485b3a537490fe100e",
+      "source_matches": true
+    },
+    "other_functions_before": {
+      "count": 213,
+      "definition_md5": "5caddcbe742198bf9b9c1ba2433fec7e"
+    },
+    "other_functions_after": {
+      "count": 213,
+      "definition_md5": "5caddcbe742198bf9b9c1ba2433fec7e"
+    },
+    "business_data_before": {
+      "approved_import_plans": {
+        "count": 286848,
+        "md5": "53fccb24b3a4d56937602719efb42c42"
+      },
+      "automation_review_execution_events": {
+        "count": 1008,
+        "md5": "3d26c2ad089c4fc9ce3bc21014a49516"
+      },
+      "automation_review_execution_requests": {
+        "count": 332,
+        "md5": "9bcd0bbca21d9e5946feb3e790c3b47d"
+      },
+      "automation_review_queue_publications": {
+        "count": 288,
+        "md5": "7d22f15431d5e8869f007ee15fcdea75"
+      },
+      "offers": {
+        "count": 4580,
+        "md5": "bdaa33a1f0aa23f86da44234aad584e0"
+      },
+      "price_history": {
+        "count": 58013,
+        "md5": "dd0344fb21bb29d03124b62c12a469be"
+      },
+      "product_match_review_events": {
+        "count": 18516,
+        "md5": "35a159e5aae8dac69c5ef4a542a81e44"
+      },
+      "product_match_review_queue": {
+        "count": 7230,
+        "md5": "b5b8d97dd02177eac46374c94bbb0342"
+      },
+      "product_variants": {
+        "count": 4228,
+        "md5": "9e78ed8802dab0816ca5bd18319360ea"
+      },
+      "products": {
+        "count": 1494,
+        "md5": "8ecd17026e1dd4d2fb80e3fde355a907"
+      },
+      "retailer_catalogue_apply_runs": {
+        "count": 6504,
+        "md5": "76c35cfa0f070d26e816814ebd36d823"
+      },
+      "retailer_catalogue_child_plans": {
+        "count": 6760,
+        "md5": "3c9d66903633ee1a1c923001105085fe"
+      },
+      "retailer_catalogue_parent_plans": {
+        "count": 763,
+        "md5": "0b1a2fe68ac85e10ffff890892543105"
+      },
+      "retailer_catalogue_production_fixture_approvals": {
+        "count": 0,
+        "md5": "d41d8cd98f00b204e9800998ecf8427e"
+      },
+      "retailer_catalogue_production_recovery_approvals": {
+        "count": 0,
+        "md5": "d41d8cd98f00b204e9800998ecf8427e"
+      },
+      "retailer_offer_sync_batch_approvals": {
+        "count": 6526,
+        "md5": "7a11cb0cebb3300e30539c43dcaa365d"
+      },
+      "retailer_products": {
+        "count": 4580,
+        "md5": "1581f2b3df2cb60c44a764fe0720ad7d"
+      },
+      "retailers": {
+        "count": 14,
+        "md5": "3efcd905984907f99632bef7b9fa1563"
+      },
+      "sealed_artifacts": {
+        "count": 8,
+        "md5": "106ef6dac2270b9a6122834090d93728"
+      }
+    },
+    "business_data_after": {
+      "approved_import_plans": {
+        "count": 286848,
+        "md5": "53fccb24b3a4d56937602719efb42c42"
+      },
+      "automation_review_execution_events": {
+        "count": 1008,
+        "md5": "3d26c2ad089c4fc9ce3bc21014a49516"
+      },
+      "automation_review_execution_requests": {
+        "count": 332,
+        "md5": "9bcd0bbca21d9e5946feb3e790c3b47d"
+      },
+      "automation_review_queue_publications": {
+        "count": 288,
+        "md5": "7d22f15431d5e8869f007ee15fcdea75"
+      },
+      "offers": {
+        "count": 4580,
+        "md5": "bdaa33a1f0aa23f86da44234aad584e0"
+      },
+      "price_history": {
+        "count": 58013,
+        "md5": "dd0344fb21bb29d03124b62c12a469be"
+      },
+      "product_match_review_events": {
+        "count": 18516,
+        "md5": "35a159e5aae8dac69c5ef4a542a81e44"
+      },
+      "product_match_review_queue": {
+        "count": 7230,
+        "md5": "b5b8d97dd02177eac46374c94bbb0342"
+      },
+      "product_variants": {
+        "count": 4228,
+        "md5": "9e78ed8802dab0816ca5bd18319360ea"
+      },
+      "products": {
+        "count": 1494,
+        "md5": "8ecd17026e1dd4d2fb80e3fde355a907"
+      },
+      "retailer_catalogue_apply_runs": {
+        "count": 6504,
+        "md5": "76c35cfa0f070d26e816814ebd36d823"
+      },
+      "retailer_catalogue_child_plans": {
+        "count": 6760,
+        "md5": "3c9d66903633ee1a1c923001105085fe"
+      },
+      "retailer_catalogue_parent_plans": {
+        "count": 763,
+        "md5": "0b1a2fe68ac85e10ffff890892543105"
+      },
+      "retailer_catalogue_production_fixture_approvals": {
+        "count": 0,
+        "md5": "d41d8cd98f00b204e9800998ecf8427e"
+      },
+      "retailer_catalogue_production_recovery_approvals": {
+        "count": 0,
+        "md5": "d41d8cd98f00b204e9800998ecf8427e"
+      },
+      "retailer_offer_sync_batch_approvals": {
+        "count": 6526,
+        "md5": "7a11cb0cebb3300e30539c43dcaa365d"
+      },
+      "retailer_products": {
+        "count": 4580,
+        "md5": "1581f2b3df2cb60c44a764fe0720ad7d"
+      },
+      "retailers": {
+        "count": 14,
+        "md5": "3efcd905984907f99632bef7b9fa1563"
+      },
+      "sealed_artifacts": {
+        "count": 8,
+        "md5": "106ef6dac2270b9a6122834090d93728"
+      }
+    },
+    "as_of_comparison": {
+      "before": "2026-11-20T16:51:13.392771+00:00",
+      "after": "2026-11-20T17:09:42.654731+00:00",
+      "status": "PASS_EXPECTED_READ_TIME_PROGRESSION"
+    },
+    "counts": [
+      {
+        "id": "1",
+        "name": "GYM HIGH",
+        "pending": 1,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "id": "3",
+        "name": "Whey Okay",
+        "pending": 10,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "id": "4",
+        "name": "Discount Supplements",
+        "pending": 3,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "id": "5",
+        "name": "Dolphin Fitness",
+        "pending": 0,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "id": "7",
+        "name": "Simply Supplements",
+        "pending": 0,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "id": "8",
+        "name": "KIOR Health",
+        "pending": 0,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "id": "9",
+        "name": "Fit House",
+        "pending": 38,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "id": "10",
+        "name": "Jon's Supplements",
+        "pending": 15,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "id": "11",
+        "name": "6 Pack Supplements",
+        "pending": 223,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "id": "12",
+        "name": "eBay UK",
+        "pending": 75,
+        "source_unavailable": 9,
+        "blocked": 0
+      },
+      {
+        "id": "13",
+        "name": "Predators Gear",
+        "pending": 0,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "id": "14",
+        "name": "10 Reps",
+        "pending": 0,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "id": "15",
+        "name": "Gladiator Nutrition",
+        "pending": 0,
+        "source_unavailable": 0,
+        "blocked": 0
+      },
+      {
+        "id": "16",
+        "name": "Holland & Barrett",
+        "pending": 129,
+        "source_unavailable": 0,
+        "blocked": 0
+      }
+    ],
+    "totals": {
+      "pending": 494,
+      "source_unavailable": 9,
+      "blocked": 0
+    },
+    "canonical_queue_parity": [
+      {
+        "field": "pending",
+        "total": 494,
+        "main_queue_total": 494,
+        "match": true
+      },
+      {
+        "field": "source_unavailable",
+        "total": 9,
+        "main_queue_total": 9,
+        "match": true
+      },
+      {
+        "field": "blocked",
+        "total": 0,
+        "main_queue_total": 0,
+        "match": true
+      }
+    ]
+  },
+  "performance": {
+    "production_before": {
+      "at": "2026-11-20T17:08:34.056Z",
+      "phase": "before",
+      "read_only": true,
+      "samples": [
+        {
+          "elapsed_ms": 175.26260000000002,
+          "execution_ms": 58.844,
+          "planning_ms": 0.023,
+          "shared_hit_blocks": 9897,
+          "shared_read_blocks": 0
+        },
+        {
+          "elapsed_ms": 116.24250000000006,
+          "execution_ms": 56.872,
+          "planning_ms": 0.023,
+          "shared_hit_blocks": 9897,
+          "shared_read_blocks": 0
+        },
+        {
+          "elapsed_ms": 134.26170000000002,
+          "execution_ms": 74.206,
+          "planning_ms": 0.022,
+          "shared_hit_blocks": 9897,
+          "shared_read_blocks": 0
+        },
+        {
+          "elapsed_ms": 124.67180000000008,
+          "execution_ms": 61.911,
+          "planning_ms": 0.021,
+          "shared_hit_blocks": 9897,
+          "shared_read_blocks": 0
+        },
+        {
+          "elapsed_ms": 134.10940000000005,
+          "execution_ms": 64.293,
+          "planning_ms": 0.022,
+          "shared_hit_blocks": 9897,
+          "shared_read_blocks": 0
+        },
+        {
+          "elapsed_ms": 118.99530000000004,
+          "execution_ms": 57.718,
+          "planning_ms": 0.022,
+          "shared_hit_blocks": 9897,
+          "shared_read_blocks": 0
+        },
+        {
+          "elapsed_ms": 128.05649999999991,
+          "execution_ms": 62.692,
+          "planning_ms": 0.021,
+          "shared_hit_blocks": 9897,
+          "shared_read_blocks": 0
+        }
+      ],
+      "median_server_ms": 61.911,
+      "median_elapsed_ms": 128.05649999999991
+    },
+    "production_after": {
+      "at": "2026-11-20T17:09:35.318Z",
+      "phase": "after",
+      "read_only": true,
+      "samples": [
+        {
+          "elapsed_ms": 129.23579999999993,
+          "execution_ms": 56.469,
+          "planning_ms": 0.023,
+          "shared_hit_blocks": 9897,
+          "shared_read_blocks": 0
+        },
+        {
+          "elapsed_ms": 121.22320000000013,
+          "execution_ms": 51.329,
+          "planning_ms": 0.021,
+          "shared_hit_blocks": 9897,
+          "shared_read_blocks": 0
+        },
+        {
+          "elapsed_ms": 114.81889999999999,
+          "execution_ms": 50.061,
+          "planning_ms": 0.021,
+          "shared_hit_blocks": 9897,
+          "shared_read_blocks": 0
+        },
+        {
+          "elapsed_ms": 115.10349999999994,
+          "execution_ms": 50.814,
+          "planning_ms": 0.021,
+          "shared_hit_blocks": 9897,
+          "shared_read_blocks": 0
+        },
+        {
+          "elapsed_ms": 121.13490000000002,
+          "execution_ms": 60.297,
+          "planning_ms": 0.021,
+          "shared_hit_blocks": 9897,
+          "shared_read_blocks": 0
+        },
+        {
+          "elapsed_ms": 129.0399,
+          "execution_ms": 55.028,
+          "planning_ms": 0.021,
+          "shared_hit_blocks": 9897,
+          "shared_read_blocks": 0
+        },
+        {
+          "elapsed_ms": 119.38390000000004,
+          "execution_ms": 51.053,
+          "planning_ms": 0.021,
+          "shared_hit_blocks": 9897,
+          "shared_read_blocks": 0
+        }
+      ],
+      "median_server_ms": 51.329,
+      "median_elapsed_ms": 121.13490000000002
+    },
+    "isolated_postgresql_medians_ms": [
+      {
+        "rows": 1000,
+        "old": 24.768,
+        "new": 24.225
+      },
+      {
+        "rows": 5000,
+        "old": 73.833,
+        "new": 69.067
+      },
+      {
+        "rows": 10000,
+        "old": 125.488,
+        "new": 124.092
+      },
+      {
+        "rows": 20000,
+        "old": 237.819,
+        "new": 234.804
+      }
+    ]
+  },
+  "tests": {
+    "focused": {
+      "tests": 263,
+      "pass": 263,
+      "fail": 0,
+      "skip": 0
+    },
+    "isolated_postgresql": {
+      "tests": 4,
+      "pass": 4,
+      "fail": 0,
+      "skip": 0
+    },
+    "project": "PASS",
+    "baseline": "PASS",
+    "sealed_inventory": {
+      "result": "PASS",
+      "files": 371
+    },
+    "quick": {
+      "result": "PASS",
+      "tests": 1359,
+      "pass": 1356,
+      "fail": 0,
+      "skip": 3
+    },
+    "full": {
+      "result": "PASS",
+      "typescript": "PASS",
+      "eslint": "PASS",
+      "build": "PASS",
+      "tests": 4122,
+      "pass": 4119,
+      "fail": 0,
+      "skip": 3
+    }
+  },
+  "writers": {
+    "original": [
+      {
+        "id": 345699780,
+        "name": "Automation Reliability Watchdog",
+        "path": ".github/workflows/automation-reliability-watchdog.yml",
+        "state": "active"
+      },
+      {
+        "id": 408082973,
+        "name": "Authorized Review Queue Publication Retry",
+        "path": ".github/workflows/automation-review-publication-retry.yml",
+        "state": "active"
+      },
+      {
+        "id": 355214106,
+        "name": "Automation Review Queue Worker",
+        "path": ".github/workflows/automation-review-queue-worker.yml",
+        "state": "active"
+      },
+      {
+        "id": 311870448,
+        "name": "Baseline Validation",
+        "path": ".github/workflows/baseline-validation.yml",
+        "state": "active"
+      },
+      {
+        "id": 316307352,
+        "name": "Discount Supplements Offer Refresh",
+        "path": ".github/workflows/creatine-offer-refresh.yml",
+        "state": "active"
+      },
+      {
+        "id": 326724575,
+        "name": "Dolphin Vegan Protein Offer Refresh",
+        "path": ".github/workflows/dolphin-vegan-protein-offer-refresh.yml",
+        "state": "active"
+      },
+      {
+        "id": 336498776,
+        "name": "eBay Offer Batch H",
+        "path": ".github/workflows/ebay-offer-batch-h.yml",
+        "state": "active"
+      },
+      {
+        "id": 336721248,
+        "name": "eBay Offer Batch I",
+        "path": ".github/workflows/ebay-offer-batch-i.yml",
+        "state": "active"
+      },
+      {
+        "id": 338400509,
+        "name": "eBay Offer Batch J",
+        "path": ".github/workflows/ebay-offer-batch-j.yml",
+        "state": "active"
+      },
+      {
+        "id": 338483281,
+        "name": "eBay Offer Batch K Recovery",
+        "path": ".github/workflows/ebay-offer-batch-k-recovery.yml",
+        "state": "active"
+      },
+      {
+        "id": 338464877,
+        "name": "eBay Offer Batch K",
+        "path": ".github/workflows/ebay-offer-batch-k.yml",
+        "state": "active"
+      },
+      {
+        "id": 338551792,
+        "name": "eBay Offer Batch L",
+        "path": ".github/workflows/ebay-offer-batch-l.yml",
+        "state": "active"
+      },
+      {
+        "id": 339287487,
+        "name": "eBay Offer Batch M",
+        "path": ".github/workflows/ebay-offer-batch-m.yml",
+        "state": "active"
+      },
+      {
+        "id": 339613814,
+        "name": "eBay Offer Batch N",
+        "path": ".github/workflows/ebay-offer-batch-n.yml",
+        "state": "active"
+      },
+      {
+        "id": 339658458,
+        "name": "eBay Offer Batch O",
+        "path": ".github/workflows/ebay-offer-batch-o.yml",
+        "state": "active"
+      },
+      {
+        "id": 339912715,
+        "name": "eBay Offer Batch P",
+        "path": ".github/workflows/ebay-offer-batch-p.yml",
+        "state": "active"
+      },
+      {
+        "id": 339978186,
+        "name": "eBay Offer Batch Q",
+        "path": ".github/workflows/ebay-offer-batch-q.yml",
+        "state": "active"
+      },
+      {
+        "id": 340445763,
+        "name": "eBay Offer Batch R",
+        "path": ".github/workflows/ebay-offer-batch-r.yml",
+        "state": "active"
+      },
+      {
+        "id": 340485624,
+        "name": "eBay Offer Batch S",
+        "path": ".github/workflows/ebay-offer-batch-s.yml",
+        "state": "active"
+      },
+      {
+        "id": 334442723,
+        "name": "eBay Offer Canary",
+        "path": ".github/workflows/ebay-offer-canary.yml",
+        "state": "active"
+      },
+      {
+        "id": 335708870,
+        "name": "eBay Offer Refresh",
+        "path": ".github/workflows/ebay-offer-refresh.yml",
+        "state": "active"
+      },
+      {
+        "id": 320801274,
+        "name": "Shared Retailer Offer Refresh",
+        "path": ".github/workflows/fit-house-offer-refresh.yml",
+        "state": "active"
+      },
+      {
+        "id": 325077991,
+        "name": "Growth Analytics Report",
+        "path": ".github/workflows/growth-analytics-report.yml",
+        "state": "active"
+      },
+      {
+        "id": 333700368,
+        "name": "Guarded GTIN promotion",
+        "path": ".github/workflows/gtin-promotion.yml",
+        "state": "active"
+      },
+      {
+        "id": 325202624,
+        "name": "GYM HIGH reviewed full catalogue apply",
+        "path": ".github/workflows/gym-high-full-catalogue-apply.yml",
+        "state": "active"
+      },
+      {
+        "id": 325151292,
+        "name": "GYM HIGH Read-only Source Monitor",
+        "path": ".github/workflows/gym-high-source-monitor.yml",
+        "state": "active"
+      },
+      {
+        "id": 318161273,
+        "name": "Jon's Offer Refresh",
+        "path": ".github/workflows/jons-offer-refresh.yml",
+        "state": "active"
+      },
+      {
+        "id": 345807507,
+        "name": "KIOR Offer Refresh",
+        "path": ".github/workflows/kior-offer-refresh.yml",
+        "state": "active"
+      },
+      {
+        "id": 349184668,
+        "name": "Predators Gear Offer Refresh Read-only Proof",
+        "path": ".github/workflows/predators-gear-offer-refresh.yml",
+        "state": "active"
+      },
+      {
+        "id": 324934888,
+        "name": "Project Guardian",
+        "path": ".github/workflows/project-guardian.yml",
+        "state": "active"
+      },
+      {
+        "id": 333522413,
+        "name": "Quality Gate",
+        "path": ".github/workflows/quality-gate.yml",
+        "state": "active"
+      },
+      {
+        "id": 311600328,
+        "name": "Retailer Dry Run",
+        "path": ".github/workflows/retailer-dry-run.yml",
+        "state": "active"
+      },
+      {
+        "id": 378850353,
+        "name": "Shared Retailer Executor Performance Audit",
+        "path": ".github/workflows/retailer-offer-sync-performance-audit.yml",
+        "state": "active"
+      },
+      {
+        "id": 390250674,
+        "name": "Reviewed V3 Exact SHA Proof",
+        "path": ".github/workflows/reviewed-v3-exact-sha-proof.yml",
+        "state": "active"
+      },
+      {
+        "id": 379570065,
+        "name": "SEO-15 Accrual Audit",
+        "path": ".github/workflows/seo15-accrual-audit.yml",
+        "state": "active"
+      },
+      {
+        "id": 326435373,
+        "name": "Simply Supplements Offer Refresh",
+        "path": ".github/workflows/simply-supplements-offer-refresh.yml",
+        "state": "active"
+      },
+      {
+        "id": 321437217,
+        "name": "6 Pack Supplements Offer Refresh",
+        "path": ".github/workflows/six-pack-offer-refresh.yml",
+        "state": "active"
+      },
+      {
+        "id": 319412170,
+        "name": "Whey Okay Offer Refresh",
+        "path": ".github/workflows/whey-okay-offer-refresh.yml",
+        "state": "active"
+      }
+    ],
+    "pause": {
+      "at": "2026-11-20T16:50:55.935Z",
+      "result": "PASS",
+      "writer_count": 27,
+      "workflows": [
+        {
+          "id": 345699780,
+          "name": "Automation Reliability Watchdog",
+          "path": ".github/workflows/automation-reliability-watchdog.yml",
+          "state": "active"
+        },
+        {
+          "id": 408082973,
+          "name": "Authorized Review Queue Publication Retry",
+          "path": ".github/workflows/automation-review-publication-retry.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 355214106,
+          "name": "Automation Review Queue Worker",
+          "path": ".github/workflows/automation-review-queue-worker.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 311870448,
+          "name": "Baseline Validation",
+          "path": ".github/workflows/baseline-validation.yml",
+          "state": "active"
+        },
+        {
+          "id": 316307352,
+          "name": "Discount Supplements Offer Refresh",
+          "path": ".github/workflows/creatine-offer-refresh.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 326724575,
+          "name": "Dolphin Vegan Protein Offer Refresh",
+          "path": ".github/workflows/dolphin-vegan-protein-offer-refresh.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 336498776,
+          "name": "eBay Offer Batch H",
+          "path": ".github/workflows/ebay-offer-batch-h.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 336721248,
+          "name": "eBay Offer Batch I",
+          "path": ".github/workflows/ebay-offer-batch-i.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 338400509,
+          "name": "eBay Offer Batch J",
+          "path": ".github/workflows/ebay-offer-batch-j.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 338483281,
+          "name": "eBay Offer Batch K Recovery",
+          "path": ".github/workflows/ebay-offer-batch-k-recovery.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 338464877,
+          "name": "eBay Offer Batch K",
+          "path": ".github/workflows/ebay-offer-batch-k.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 338551792,
+          "name": "eBay Offer Batch L",
+          "path": ".github/workflows/ebay-offer-batch-l.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 339287487,
+          "name": "eBay Offer Batch M",
+          "path": ".github/workflows/ebay-offer-batch-m.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 339613814,
+          "name": "eBay Offer Batch N",
+          "path": ".github/workflows/ebay-offer-batch-n.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 339658458,
+          "name": "eBay Offer Batch O",
+          "path": ".github/workflows/ebay-offer-batch-o.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 339912715,
+          "name": "eBay Offer Batch P",
+          "path": ".github/workflows/ebay-offer-batch-p.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 339978186,
+          "name": "eBay Offer Batch Q",
+          "path": ".github/workflows/ebay-offer-batch-q.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 340445763,
+          "name": "eBay Offer Batch R",
+          "path": ".github/workflows/ebay-offer-batch-r.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 340485624,
+          "name": "eBay Offer Batch S",
+          "path": ".github/workflows/ebay-offer-batch-s.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 334442723,
+          "name": "eBay Offer Canary",
+          "path": ".github/workflows/ebay-offer-canary.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 335708870,
+          "name": "eBay Offer Refresh",
+          "path": ".github/workflows/ebay-offer-refresh.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 320801274,
+          "name": "Shared Retailer Offer Refresh",
+          "path": ".github/workflows/fit-house-offer-refresh.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 325077991,
+          "name": "Growth Analytics Report",
+          "path": ".github/workflows/growth-analytics-report.yml",
+          "state": "active"
+        },
+        {
+          "id": 333700368,
+          "name": "Guarded GTIN promotion",
+          "path": ".github/workflows/gtin-promotion.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 325202624,
+          "name": "GYM HIGH reviewed full catalogue apply",
+          "path": ".github/workflows/gym-high-full-catalogue-apply.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 325151292,
+          "name": "GYM HIGH Read-only Source Monitor",
+          "path": ".github/workflows/gym-high-source-monitor.yml",
+          "state": "active"
+        },
+        {
+          "id": 318161273,
+          "name": "Jon's Offer Refresh",
+          "path": ".github/workflows/jons-offer-refresh.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 345807507,
+          "name": "KIOR Offer Refresh",
+          "path": ".github/workflows/kior-offer-refresh.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 349184668,
+          "name": "Predators Gear Offer Refresh Read-only Proof",
+          "path": ".github/workflows/predators-gear-offer-refresh.yml",
+          "state": "active"
+        },
+        {
+          "id": 324934888,
+          "name": "Project Guardian",
+          "path": ".github/workflows/project-guardian.yml",
+          "state": "active"
+        },
+        {
+          "id": 333522413,
+          "name": "Quality Gate",
+          "path": ".github/workflows/quality-gate.yml",
+          "state": "active"
+        },
+        {
+          "id": 311600328,
+          "name": "Retailer Dry Run",
+          "path": ".github/workflows/retailer-dry-run.yml",
+          "state": "active"
+        },
+        {
+          "id": 378850353,
+          "name": "Shared Retailer Executor Performance Audit",
+          "path": ".github/workflows/retailer-offer-sync-performance-audit.yml",
+          "state": "active"
+        },
+        {
+          "id": 390250674,
+          "name": "Reviewed V3 Exact SHA Proof",
+          "path": ".github/workflows/reviewed-v3-exact-sha-proof.yml",
+          "state": "active"
+        },
+        {
+          "id": 379570065,
+          "name": "SEO-15 Accrual Audit",
+          "path": ".github/workflows/seo15-accrual-audit.yml",
+          "state": "active"
+        },
+        {
+          "id": 326435373,
+          "name": "Simply Supplements Offer Refresh",
+          "path": ".github/workflows/simply-supplements-offer-refresh.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 321437217,
+          "name": "6 Pack Supplements Offer Refresh",
+          "path": ".github/workflows/six-pack-offer-refresh.yml",
+          "state": "disabled_manually"
+        },
+        {
+          "id": 319412170,
+          "name": "Whey Okay Offer Refresh",
+          "path": ".github/workflows/whey-okay-offer-refresh.yml",
+          "state": "disabled_manually"
+        }
+      ],
+      "active": [
+        {
+          "id": 43098583586,
+          "name": "Quality Gate",
+          "path": ".github/workflows/quality-gate.yml",
+          "status": "queued",
+          "event": "pull_request",
+          "head_sha": "3c2c14736b6b2fc6499ca5fefa5813196654d3a7",
+          "created_at": "2026-11-11T20:52:41Z"
+        },
+        {
+          "id": 43098583532,
+          "name": "Project Guardian",
+          "path": ".github/workflows/project-guardian.yml",
+          "status": "queued",
+          "event": "pull_request",
+          "head_sha": "3c2c14736b6b2fc6499ca5fefa5813196654d3a7",
+          "created_at": "2026-11-11T20:52:41Z"
+        }
+      ]
+    },
+    "events": [
+      {
+        "at": "2026-11-20T16:50:16.598Z",
+        "id": 408082973,
+        "path": ".github/workflows/automation-review-publication-retry.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:18.013Z",
+        "id": 355214106,
+        "path": ".github/workflows/automation-review-queue-worker.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:19.461Z",
+        "id": 316307352,
+        "path": ".github/workflows/creatine-offer-refresh.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:20.866Z",
+        "id": 326724575,
+        "path": ".github/workflows/dolphin-vegan-protein-offer-refresh.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:22.382Z",
+        "id": 336498776,
+        "path": ".github/workflows/ebay-offer-batch-h.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:23.768Z",
+        "id": 336721248,
+        "path": ".github/workflows/ebay-offer-batch-i.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:25.150Z",
+        "id": 338400509,
+        "path": ".github/workflows/ebay-offer-batch-j.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:26.746Z",
+        "id": 338483281,
+        "path": ".github/workflows/ebay-offer-batch-k-recovery.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:28.225Z",
+        "id": 338464877,
+        "path": ".github/workflows/ebay-offer-batch-k.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:29.778Z",
+        "id": 338551792,
+        "path": ".github/workflows/ebay-offer-batch-l.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:31.238Z",
+        "id": 339287487,
+        "path": ".github/workflows/ebay-offer-batch-m.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:32.653Z",
+        "id": 339613814,
+        "path": ".github/workflows/ebay-offer-batch-n.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:34.099Z",
+        "id": 339658458,
+        "path": ".github/workflows/ebay-offer-batch-o.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:35.536Z",
+        "id": 339912715,
+        "path": ".github/workflows/ebay-offer-batch-p.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:36.988Z",
+        "id": 339978186,
+        "path": ".github/workflows/ebay-offer-batch-q.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:38.396Z",
+        "id": 340445763,
+        "path": ".github/workflows/ebay-offer-batch-r.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:39.858Z",
+        "id": 340485624,
+        "path": ".github/workflows/ebay-offer-batch-s.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:41.641Z",
+        "id": 334442723,
+        "path": ".github/workflows/ebay-offer-canary.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:43.105Z",
+        "id": 335708870,
+        "path": ".github/workflows/ebay-offer-refresh.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:44.472Z",
+        "id": 320801274,
+        "path": ".github/workflows/fit-house-offer-refresh.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:46.002Z",
+        "id": 333700368,
+        "path": ".github/workflows/gtin-promotion.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:47.558Z",
+        "id": 325202624,
+        "path": ".github/workflows/gym-high-full-catalogue-apply.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:49.058Z",
+        "id": 318161273,
+        "path": ".github/workflows/jons-offer-refresh.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:50.549Z",
+        "id": 345807507,
+        "path": ".github/workflows/kior-offer-refresh.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:51.988Z",
+        "id": 326435373,
+        "path": ".github/workflows/simply-supplements-offer-refresh.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:53.522Z",
+        "id": 321437217,
+        "path": ".github/workflows/six-pack-offer-refresh.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      },
+      {
+        "at": "2026-11-20T16:50:55.253Z",
+        "id": 319412170,
+        "path": ".github/workflows/whey-okay-offer-refresh.yml",
+        "from": "active",
+        "to": "disabled_manually"
+      }
+    ],
+    "restoration": "NOT_RUN_PENDING_DEPLOYMENT"
+  },
+  "browser_before": {
+    "at": "2026-11-20T16:53:48.620Z",
+    "http_samples": [
+      {
+        "status": 200,
+        "elapsed_ms": 3466.1978000000004,
+        "unavailable_occurrences": 84,
+        "bytes": 98069,
+        "cache": "MISS"
+      },
+      {
+        "status": 200,
+        "elapsed_ms": 2061.7965999999997,
+        "unavailable_occurrences": 84,
+        "bytes": 98069,
+        "cache": "MISS"
+      },
+      {
+        "status": 200,
+        "elapsed_ms": 1626.5782000000008,
+        "unavailable_occurrences": 84,
+        "bytes": 98069,
+        "cache": "MISS"
+      }
+    ],
+    "retailer_rows": [
+      [
+        "10 Reps",
+        "950",
+        "145",
+        "86",
+        "43",
+        "0",
+        "Unavailable",
+        "Unavailable",
+        "Unavailable",
+        "10 Sept 2026, 07:32",
+        "19 Nov 2026, 10:48",
+        "16"
+      ],
+      [
+        "6 Pack Supplements",
+        "504",
+        "223",
+        "223",
+        "14",
+        "0",
+        "Unavailable",
+        "Unavailable",
+        "Unavailable",
+        "2 Sept 2026, 07:52",
+        "20 Nov 2026, 11:29",
+        "27"
+      ],
+      [
+        "Discount Supplements",
+        "156",
+        "50",
+        "50",
+        "47",
+        "0",
+        "Unavailable",
+        "Unavailable",
+        "Unavailable",
+        "28 Jun 2026, 14:32",
+        "20 Nov 2026, 15:47",
+        "4"
+      ],
+      [
+        "Dolphin Fitness",
+        "3",
+        "2",
+        "2",
+        "2",
+        "0",
+        "Unavailable",
+        "Unavailable",
+        "Unavailable",
+        "28 Jun 2026, 12:23",
+        "20 Nov 2026, 14:10",
+        "0"
+      ],
+      [
+        "eBay UK",
+        "237",
+        "75",
+        "68",
+        "63",
+        "0",
+        "Unavailable",
+        "Unavailable",
+        "Unavailable",
+        "23 Aug 2026, 07:53",
+        "20 Nov 2026, 14:26",
+        "6"
+      ],
+      [
+        "Fit House",
+        "284",
+        "38",
+        "38",
+        "10",
+        "0",
+        "Unavailable",
+        "Unavailable",
+        "Unavailable",
+        "14 Sept 2026, 08:07",
+        "20 Nov 2026, 10:33",
+        "42"
+      ],
+      [
+        "Gladiator Nutrition",
+        "603",
+        "0",
+        "0",
+        "0",
+        "0",
+        "Unavailable",
+        "Unavailable",
+        "Unavailable",
+        "19 Nov 2026, 17:37",
+        "19 Nov 2026, 17:37",
+        "8"
+      ],
+      [
+        "GYM HIGH",
+        "66",
+        "1",
+        "1",
+        "1",
+        "0",
+        "Unavailable",
+        "Unavailable",
+        "Unavailable",
+        "8 Sept 2026, 18:57",
+        "20 Nov 2026, 12:48",
+        "3"
+      ],
+      [
+        "Holland & Barrett",
+        "219",
+        "3",
+        "0",
+        "0",
+        "0",
+        "Unavailable",
+        "Unavailable",
+        "Unavailable",
+        "15 Nov 2026, 20:12",
+        "19 Nov 2026, 17:44",
+        "0"
+      ],
+      [
+        "Jon's Supplements",
+        "506",
+        "15",
+        "15",
+        "8",
+        "0",
+        "Unavailable",
+        "Unavailable",
+        "Unavailable",
+        "31 Aug 2026, 11:10",
+        "20 Nov 2026, 13:40",
+        "16"
+      ],
+      [
+        "KIOR Health",
+        "11",
+        "11",
+        "0",
+        "0",
+        "0",
+        "Unavailable",
+        "Unavailable",
+        "Unavailable",
+        "18 Nov 2026, 16:42",
+        "18 Nov 2026, 16:42",
+        "1"
+      ],
+      [
+        "Predators Gear",
+        "47",
+        "47",
+        "47",
+        "47",
+        "0",
+        "Unavailable",
+        "Unavailable",
+        "Unavailable",
+        "26 Aug 2026, 20:33",
+        "29 Aug 2026, 13:32",
+        "0"
+      ],
+      [
+        "Simply Supplements",
+        "120",
+        "3",
+        "2",
+        "2",
+        "0",
+        "Unavailable",
+        "Unavailable",
+        "Unavailable",
+        "20 Sept 2026, 05:21",
+        "20 Nov 2026, 13:58",
+        "9"
+      ],
+      [
+        "Whey Okay",
+        "870",
+        "291",
+        "291",
+        "291",
+        "0",
+        "Unavailable",
+        "Unavailable",
+        "Unavailable",
+        "28 Jun 2026, 14:32",
+        "20 Nov 2026, 10:05",
+        "156"
+      ]
+    ],
+    "exceptions": []
+  },
+  "production_deployment": "NOT_RUN",
+  "post_deployment_ui": "NOT_RUN",
+  "production_business_writes": 0,
+  "review_publications": 0,
+  "authorized_migration_commits": 1,
+  "current_binding_readback": {
+    "at": "2026-11-20T17:20:19.962Z",
+    "read_only": true,
+    "ledger_count": 270,
+    "fingerprint": "ea11b69343c2100ecf38078a6920eb3b7478fc6ee4633bb65fc7657c39c2ae2a",
+    "pending": [],
+    "current_binding": "PASS",
+    "old_CURRENT269_guard": {
+      "status": "EXPECTED_REJECT",
+      "message": "remote ledger count mismatch",
+      "native_workflow_dispatched": false,
+      "database_writes": 0
+    },
+    "controls": {
+      "retailer_catalogue_parent_plans": [
+        {
+          "status": "COMPLETED",
+          "count": 731
+        },
+        {
+          "status": "EXPIRED",
+          "count": 7
+        },
+        {
+          "status": "SUPERSEDED",
+          "count": 25
+        }
+      ],
+      "retailer_catalogue_child_plans": [
+        {
+          "status": "APPLIED",
+          "count": 6504
+        },
+        {
+          "status": "EXPIRED",
+          "count": 52
+        },
+        {
+          "status": "SUPERSEDED",
+          "count": 204
+        }
+      ],
+      "retailer_catalogue_apply_runs": [
+        {
+          "status": "SUCCEEDED",
+          "count": 6504
+        }
+      ],
+      "automation_review_execution_requests": [
+        {
+          "status": "EXECUTED",
+          "count": 112
+        },
+        {
+          "status": "EXPIRED",
+          "count": 206
+        },
+        {
+          "status": "FAILED",
+          "count": 14
+        }
+      ]
+    }
+  },
+  "preexisting_monitoring": {
+    "run_id": 44705626833,
+    "result": "FAIL",
+    "monitor_status": "FAILED_SYSTEM",
+    "global_failures": [
+      "REVIEW_QUEUE_WORKER_SCHEDULE_BROKEN"
+    ],
+    "platform_checks": [
+      {
+        "id": "review_queue_worker_schedule",
+        "type": "workflow_liveness",
+        "workflow": "automation-review-queue-worker.yml",
+        "expected_event": "schedule",
+        "cadence_minutes": 30,
+        "healthy_max_age_minutes": 60,
+        "delayed_max_age_minutes": 120,
+        "status": "BROKEN",
+        "last_scheduled_run_id": "44673104086",
+        "last_scheduled_run_url": "https://github.com/SupplementScout/supplementscout/actions/runs/44673104086",
+        "last_scheduled_run_created_at": "2026-11-20T04:14:44Z",
+        "age_minutes": 275.99488333333335,
+        "warning_code": null,
+        "failure_code": "REVIEW_QUEUE_WORKER_SCHEDULE_BROKEN"
+      }
+    ],
+    "scope_boundary": "Worker schedule and monitoring thresholds remain unchanged and outside PR560"
+  }
+}

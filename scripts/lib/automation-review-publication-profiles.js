@@ -67,27 +67,29 @@ function validateStandardCapture(profile, { report, diagnostic, invariant }) {
   const expectedResult = Number(report.review_row_count) > 0 ? "PASS_WITH_REVIEW" : "PASS";
   invariant(report.result === expectedResult && report.mode === "dry-run" && report.target === "production", `${label} pre-execution report is not publishable`);
   invariant(report.approved_mapping_count === profile.approvedMappingCount && report.blocked_row_count === 0, `${label} apply scope drifted`);
+  invariant(!profile.approvedManifestSha256 || report.approved_manifest_sha256 === profile.approvedManifestSha256, `${label} approved manifest binding drifted`);
   invariant(diagnostic && diagnostic.approved_mapping_count === profile.approvedMappingCount && profile.sourceFingerprint({ source: diagnostic.source }) === profile.sourceFingerprint(report), `${label} preflight source binding drifted`);
-  if (profile.requireCompleteMissingSourceEvidence) {
-    const source = report.source?.diagnostic;
-    const health = diagnostic.guard_results?.filter(row => row.guard === "SOURCE_HEALTH");
-    const validator = diagnostic.guard_results?.filter(row => row.guard === "VALIDATOR");
-    const coverage = diagnostic.guard_results?.filter(row => row.guard === "APPROVED_MAPPING_COVERAGE");
-    invariant(source?.pagination_completed === true && source.final_http_status === 200
-      && health?.length === 1 && health[0].result === "PASS",
-    `${label} source-missing publication requires a complete healthy source`);
-    invariant(diagnostic.validator_result === "PASS" && validator?.length === 1 && validator[0].result === "PASS",
-      `${label} source-missing publication requires successful read-only validation`);
-    invariant(report.discovery?.catalogue_creates === 0
-      && report.discovery.missing_variants === report.review_row_count
-      && report.discovery.missing_variants_review_only === report.review_row_count
-      && report.discovery.missing_variants_marked_unavailable === 0
-      && coverage?.length === 1 && ["PASS", "REVIEW_ISOLATED"].includes(coverage[0].result)
+  if (profile.publicationMode === "OWNER_AUTHORIZED_ARTIFACT_ONLY") {
+    const guards = diagnostic.guard_results || [];
+    const passed = name => {
+      const results = guards.filter(row => row.guard === name);
+      return results.length === 1 && results[0].result === "PASS";
+    };
+    const coverage = guards.filter(row => row.guard === "APPROVED_MAPPING_COVERAGE");
+    invariant(report.source?.diagnostic?.final_http_status === 200 && report.source.diagnostic.pagination_completed === true
+      && diagnostic.source?.http_status === 200 && diagnostic.source.pagination_completed === true
+      && passed("SOURCE_HEALTH") && passed("VALIDATOR") && diagnostic.validator_result === "PASS",
+    `${label} owner-reviewed publication requires complete healthy SQL-validated source`);
+    invariant(coverage.length === 1 && ["PASS", "REVIEW_ISOLATED"].includes(coverage[0].result)
       && coverage[0].expected === profile.approvedMappingCount
-      && coverage[0].source_absent_review_rows === report.review_row_count
+      && coverage[0].matched + coverage[0].source_absent_review_rows === profile.approvedMappingCount
+      && coverage[0].source_absent_review_rows === report.discovery?.missing_variants
       && coverage[0].source_absent_marked_unavailable === 0
-      && coverage[0].matched + report.review_row_count === profile.approvedMappingCount,
-    `${label} source-missing publication must retain the complete no-write review partition`);
+      && report.discovery.missing_variants_review_only === report.discovery.missing_variants
+      && report.discovery.missing_variants_marked_unavailable === 0 && report.discovery.catalogue_creates === 0,
+    `${label} owner-reviewed publication requires full approved source coverage`);
+    invariant(profile.reviewType !== "source-missing" || report.discovery.missing_variants === report.review_row_count,
+      `${label} source-missing review partition drifted`);
   }
 }
 
@@ -126,6 +128,25 @@ function normalizeMissingRows(report, baselineByOffer, label, invariant, reasons
     invariant(before, `${label} baseline missing for review offer ${offerId}`);
     invariant(reasons.includes(review.reason), `${label} review reason drifted for offer ${offerId}`);
     invariant(String(review.external_product_id) === String(before.external_product_id) && String(review.external_variant_id) === String(before.external_variant_id), `${label} source identity drift for offer ${offerId}`);
+    if (review.reason === "CANONICAL_IDENTITY_CONFLICT" && readOnlyPolicies[review.reason]) {
+      const identity = review.source_record_evidence?.canonical_identity;
+      const siblings = identity?.active_explicit_variant_ids;
+      invariant(identity?.reason === review.reason && identity.default_variant === true
+        && /^\d+$/.test(identity.product_id) && /^\d+$/.test(identity.variant_id)
+        && identity.product_id === String(before.offer_product_id)
+        && identity.variant_id === String(before.offer_variant_id)
+        && String(before.mapping_product_id) === identity.product_id
+        && String(before.mapping_variant_id) === identity.variant_id
+        && Array.isArray(siblings) && siblings.length > 0
+        && siblings.every(id => typeof id === "string" && /^\d+$/.test(id) && id !== identity.variant_id)
+        && new Set(siblings).size === siblings.length,
+      `${label} canonical review evidence is incomplete for offer ${offerId}`);
+      invariant(review.action === "BLOCK_IDENTITY_DRIFT" && review.proposed_offer === null
+        && review.new_price === null && review.new_stock === null
+        && review.changed_fields?.price === false && review.changed_fields?.stock === false
+        && review.changed_fields?.url === false && review.changed_fields?.blocked === true,
+      `${label} canonical review must preserve the catalogue for offer ${offerId}`);
+    }
     return {
       offer_id: offerId,
       retailer_product_id: String(before.mapping_id),
@@ -238,7 +259,10 @@ function validateStandard(profile, context) {
     ? profile.approvedMappingCount
     : executableCount + classifierReviewIds.length;
   invariant(classifierScope && Number(classifierScope.blocked_rows || 0) === 0 && classifierScope.reconciled === true && Number(classifierScope.reconciled_total) === expectedClassifierCount, `${label} preflight classifier scope drifted`);
-  sameJson(sortedIds(classifierScope.scope_row_ids || []), expectedClassifierIds, `${label} preflight classifier IDs drifted`);
+  const classifierIds = classifierScope.scope_row_ids;
+  invariant(Array.isArray(classifierIds) && classifierIds.length === expectedClassifierCount
+    && sortedIds(classifierIds).length === classifierIds.length, `${label} preflight classifier IDs drifted`);
+  sameJson(sortedIds(classifierIds), expectedClassifierIds, `${label} preflight classifier IDs drifted`);
   sameJson(diagnostic.classifier_summary.action_counts || {}, report.classification || {}, `${label} preflight classifier actions drifted`);
   if (classifierCoversReview) {
     const executableChangedRows = Array.isArray(diagnostic.classifier_summary.changed_rows) ? diagnostic.classifier_summary.changed_rows : [];
@@ -468,8 +492,11 @@ function matchesActiveReview(profile, row) {
 }
 
 function profile(values) {
+  const publicationMode = values.publicationMode || "AUTOMATIC";
+  if (!["AUTOMATIC", "OWNER_AUTHORIZED_ARTIFACT_ONLY"].includes(publicationMode)) throw new Error("Invalid publication mode");
   return Object.freeze({
     ...values,
+    publicationMode,
     postflightProfile: values.postflightProfile || values.retailer.slug,
     captureFiles: values.captureFiles || STANDARD_CAPTURE_FILES,
     sealedFiles: values.sealedFiles || STANDARD_SEALED_FILES,
@@ -505,7 +532,8 @@ const PROFILES = Object.freeze({
   "discount-supplements": profile({ key:"discount-supplements", retailer:Object.freeze({id:"4",name:"Discount Supplements",slug:"discount-supplements"}),
     approvedMappingCount:109, sourceDirectory:"discount-supplements-offer-refresh",artifactPrefix:"discount-supplements-offer-refresh-review-source",
     reconciliationFile:"discount-supplements-reconciliation-dry-run.json",contractName:"discount-supplements-automation-review-source-v1",
-    workflow:".github/workflows/creatine-offer-refresh.yml",workflowName:"Discount Supplements Offer Refresh",reviewType:"mixed",readOnlyReviewPolicies:SOURCE_REVIEW_POLICIES }),
+    workflow:".github/workflows/creatine-offer-refresh.yml",workflowName:"Discount Supplements Offer Refresh",reviewType:"mixed",
+    classifierCoverage:"mixed-partition",classifierReviewReasons:Object.freeze(["MASS_PRICE", "MASS_CHANGE"]),readOnlyReviewPolicies:SOURCE_REVIEW_POLICIES }),
   "gym-high": profile({ key:"gym-high",retailer:Object.freeze({id:"1",name:"GYM HIGH",slug:"gym-high"}),approvedMappingCount:66,
     sourceDirectory:"gym-high-reviewed-catalogue",artifactPrefix:"gym-high-full-catalogue-review-source",reconciliationFile:"gym-high-reconciliation-dry-run.json",
     contractName:"gym-high-automation-review-source-v1",workflow:".github/workflows/gym-high-full-catalogue-apply.yml",workflowName:"GYM HIGH reviewed full catalogue apply",
@@ -519,13 +547,16 @@ const PROFILES = Object.freeze({
     workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition",
     classifierReviewReasons: Object.freeze(["MASS_OOS", "MASS_PRICE", "MASS_CHANGE"]), readOnlyReviewPolicies: SOURCE_REVIEW_POLICIES, publicationEnabled: sourceProfile.preparation_only !== true }),
   "fit-house": profile({ key: "fit-house", retailer: Object.freeze({ id: "9", name: "Fit House", slug: "fit-house" }), approvedMappingCount: 284, sourceDirectory: "fit-house-offer-refresh", artifactPrefix: "fit-house-offer-refresh", reconciliationFile: "fit-house-reconciliation-dry-run.json", contractName: "fit-house-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", stockOnlyCommercialChanges: true, identityReviewReasons: stockIdentity.IDENTITY_REASONS, reviewCard: stockIdentity.reviewCard, classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS", "OWNER_DEFERRED_STOCK_REVIEW", ...stockIdentity.IDENTITY_REASONS]) }),
-  "gladiator-nutrition": profile({ key: "gladiator-nutrition", retailer: Object.freeze({ id: "15", name: "Gladiator Nutrition", slug: "gladiator-nutrition" }), approvedMappingCount: 603, sourceDirectory: "gladiator-nutrition-offer-refresh", artifactPrefix: "gladiator-nutrition-offer-refresh", reconciliationFile: "gladiator-nutrition-reconciliation-dry-run.json", contractName: "gladiator-nutrition-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS"]) }),
-  "10-reps": profile({ key: "10-reps", retailer: Object.freeze({ id: "14", name: "10 Reps", slug: "10-reps" }), approvedMappingCount: 950, sourceDirectory: "10reps-offer-refresh", artifactPrefix: "10reps-offer-refresh", reconciliationFile: "10reps-reconciliation-dry-run.json", contractName: "10-reps-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS"]) }),
+  "gladiator-nutrition": profile({ key: "gladiator-nutrition", retailer: Object.freeze({ id: "15", name: "Gladiator Nutrition", slug: "gladiator-nutrition" }), approvedMappingCount: 603, sourceDirectory: "gladiator-nutrition-offer-refresh", artifactPrefix: "gladiator-nutrition-offer-refresh", reconciliationFile: "gladiator-nutrition-reconciliation-dry-run.json", contractName: "gladiator-nutrition-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition",
+    classifierReviewReasons: Object.freeze(["MASS_OOS", "MASS_PRICE", "MASS_CHANGE"]),
+    readOnlyReviewPolicies: Object.freeze({ MASS_PRICE: SOURCE_REVIEW_POLICIES.MASS_PRICE, MASS_CHANGE: SOURCE_REVIEW_POLICIES.MASS_CHANGE,
+      HARD_PRICE_ANOMALY: SOURCE_REVIEW_POLICIES.HARD_PRICE_ANOMALY, CANONICAL_IDENTITY_CONFLICT: SOURCE_REVIEW_POLICIES.CANONICAL_IDENTITY_CONFLICT }) }),
+  "10-reps": profile({ key: "10-reps", retailer: Object.freeze({ id: "14", name: "10 Reps", slug: "10-reps" }), publicationMode: "OWNER_AUTHORIZED_ARTIFACT_ONLY", approvedMappingCount: 950, sourceDirectory: "10reps-offer-refresh", artifactPrefix: "10reps-offer-refresh", reconciliationFile: "10reps-reconciliation-dry-run.json", contractName: "10-reps-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS"]), readOnlyReviewPolicies: Object.freeze({ CANONICAL_IDENTITY_CONFLICT: SOURCE_REVIEW_POLICIES.CANONICAL_IDENTITY_CONFLICT }) }),
   "whey-okay": profile({ key: "whey-okay", retailer: Object.freeze({ id: "3", name: "Whey Okay", slug: "whey-okay" }), approvedMappingCount: 589, sourceDirectory: "whey-okay-offer-refresh", artifactPrefix: "whey-okay-offer-refresh", reconciliationFile: "whey-okay-reconciliation-dry-run.json", contractName: "whey-okay-automation-review-source-v1", workflow: ".github/workflows/whey-okay-offer-refresh.yml", workflowName: "Whey Okay Offer Refresh", reviewType: "source-missing", captureFiles: WHEY_CAPTURE_FILES, sealedFiles: WHEY_SEALED_FILES, sourceFingerprint: (report) => report.source?.semantic_fingerprint, validate: validateWhey }),
   "jons-supplements": profile({ key: "jons-supplements", retailer: Object.freeze({ id: "10", name: "Jon's Supplements", slug: "jon-s-supplements" }), postflightProfile: "jons-supplements", approvedMappingCount: 506, sourceDirectory: "jons-offer-refresh", artifactPrefix: "jons-offer-refresh", reconciliationFile: "jons-reconciliation-dry-run.json", contractName: "jons-automation-review-source-v1", workflow: ".github/workflows/jons-offer-refresh.yml", workflowName: "Jon's Offer Refresh", reviewType: "source-missing", validateCapture: validateJonsCapture, validate: validateJons }),
-  // Publication policy v1 authorizes only quarantined missing-source review.
-  // The existing BLOCK/0 discovery policy and all commercial guards are unchanged.
-  "simply-supplements": profile({ key: "simply-supplements", retailer: Object.freeze({ id: String(simplySourceProfile.retailer_id), name: simplySourceProfile.retailer_name, slug: simplySourceProfile.retailer_slug }), approvedMappingCount: simplySourceProfile.approved_mapping_count, sourceDirectory: simplySourceProfile.output_directory, artifactPrefix: simplySourceProfile.output_directory, reconciliationFile: "simply-supplements-reconciliation-dry-run.json", contractName: "simply-supplements-automation-review-source-v1", workflow: ".github/workflows/simply-supplements-offer-refresh.yml", workflowName: "Simply Supplements Offer Refresh", reviewType: "source-missing", requireCompleteMissingSourceEvidence: true, requireDurableReviewRegistration: true }),
+  // Preserve the owner's no-review-row-write decision through the existing mode.
+  // Preparation does not authorize publication or execution of missing variants.
+  "simply-supplements": profile({ key: "simply-supplements", retailer: Object.freeze({ id: String(simplySourceProfile.retailer_id), name: simplySourceProfile.retailer_name, slug: simplySourceProfile.retailer_slug }), publicationMode: "OWNER_AUTHORIZED_ARTIFACT_ONLY", approvedMappingCount: simplySourceProfile.approved_mapping_count, approvedManifestSha256: simplySourceProfile.manifest_sha256, sourceDirectory: simplySourceProfile.output_directory, artifactPrefix: simplySourceProfile.output_directory, reconciliationFile: "simply-supplements-reconciliation-dry-run.json", contractName: "simply-supplements-automation-review-source-v1", workflow: ".github/workflows/simply-supplements-offer-refresh.yml", workflowName: "Simply Supplements Offer Refresh", reviewType: "source-missing" }),
   "six-pack-supplements": profile({ key: "six-pack-supplements", retailer: Object.freeze({ id: "11", name: "6 Pack Supplements", slug: "6-pack-supplements" }), postflightProfile: "six-pack-supplements", approvedMappingCount: 504, sourceDirectory: "six-pack-offer-refresh", artifactPrefix: "six-pack-offer-refresh", reconciliationFile: "six-pack-reconciliation-dry-run.json", contractName: "six-pack-automation-review-source-v1", workflow: ".github/workflows/six-pack-offer-refresh.yml", workflowName: "6 Pack Supplements Offer Refresh", reviewType: "mixed-policy", captureFiles: SIX_PACK_CAPTURE_FILES, sealedFiles: SIX_PACK_SEALED_FILES, sourceFingerprint: (report) => report.source_snapshot_fingerprint, captureTimestamp: (source) => source.report.source_captured_at, validateCapture: validateSixPackCapture, validate: validateSixPack, validateChangedRows: validateSixPackChangedRows, reviewCard: sixPackReviewCard, matchesActiveReview: sixPackMatchesActiveReview }),
 });
 
@@ -539,4 +570,4 @@ function profileForRetailerId(value) {
   return Object.values(PROFILES).find(profile => profile.retailer.id === String(value)) || null;
 }
 
-module.exports = { PROFILES, profileFor, profileForRetailerId };
+module.exports = { PROFILES, SOURCE_REVIEW_POLICIES, profileFor, profileForRetailerId };

@@ -8,6 +8,7 @@ const { Client } = require("pg");
 const {
   addDecimalStrings,
   assertNoUndefined,
+  assertPostgresJsonCompatible,
   canonicalJson,
   normalizeDecimalString,
   normalizeNumbersToDecimalStrings,
@@ -18,12 +19,14 @@ const {
   normalizeSharedParentPeer,
   peerFromMapping,
   validateSharedParentPeerCohort,
+  validateReviewedParentMembership,
 } = require("./lib/retailer-shared-parent-identity");
 const { loadReviewedSourceProfile } = require("./lib/reviewed-catalogue-package");
-const { validateCanonicalIdentityEvidence } = require("./lib/reviewed-catalogue-canonical-evidence");
+const { validateCanonicalIdentityEvidence, MANUAL_OWNER_RESOLUTION_KIND, readManualOwnerResolution } = require("./lib/reviewed-catalogue-canonical-evidence");
 const {
   CONTRACT_KIND: REVIEWED_V3_KIND,
   isV3SourceExcluded,
+  parseCount,
 } = require("./lib/reviewed-catalogue-v3");
 const {
   bindDurableArtifactContract,
@@ -273,6 +276,14 @@ function normalizeSourceRow(row) {
 
 function sourceFingerprintProjection(row) {
   const normalized = normalizeSourceRow(row);
+  const manualReview = typeof normalized.owner_resolutions === "string"
+    ? (() => { try { return JSON.parse(normalized.owner_resolutions); } catch { return null; } })()
+    : normalized.owner_resolutions;
+  if (manualReview?.kind === MANUAL_OWNER_RESOLUTION_KIND) {
+    normalized.owner_resolutions = normalizeNumbersToDecimalStrings(structuredClone(manualReview));
+    normalized.owner_resolutions.source_row_fingerprint = null;
+    normalized.owner_resolutions.decision_evidence_sha256 = null;
+  }
   const identity = normalized?.__reviewed_catalogue_identity;
   const evidence = identity?.canonical_identity_evidence;
 
@@ -328,16 +339,25 @@ function approvalFingerprint(approval) {
 }
 
 function planFingerprint(plan) {
-  const normalized = normalizeNumbersToDecimalStrings({
+  if (["4", "5"].includes(String(plan.meta?.version))) assertPostgresJsonCompatible(plan);
+  const unhashed = {
     ...plan,
     meta: { ...plan.meta, plan_fingerprint: null },
-  });
+  };
+  const normalized = String(plan.meta?.version) === "5" ? unhashed : normalizeNumbersToDecimalStrings(unhashed);
+  if (["4", "5"].includes(String(normalized.meta?.version))) {
+    assertPostgresJsonCompatible(normalized);
+  }
   return hashJson(normalized);
 }
 
 function serializeImportPlan(plan) {
-  const normalized = normalizeNumbersToDecimalStrings(plan);
+  if (["4", "5"].includes(String(plan.meta?.version))) assertPostgresJsonCompatible(plan);
+  const normalized = String(plan.meta?.version) === "5" ? plan : normalizeNumbersToDecimalStrings(plan);
   assertNoUndefined(normalized);
+  if (["4", "5"].includes(String(normalized.meta?.version))) {
+    assertPostgresJsonCompatible(normalized);
+  }
   return JSON.parse(canonicalJson(normalized));
 }
 
@@ -523,6 +543,10 @@ function loadDryRunArtifact(artifactPath) {
         || entry.plan_kind !== plan.meta?.plan_kind
         || entry.operation_type !== plan.meta?.operation_type
         || !["standard_import", "legacy_mapping_upgrade", "verify_offer_no_change", "reviewed_variant_create_rebind_offer_update"].includes(entry.operation_type)
+        || (plan.meta?.version !== undefined && !(String(plan.meta.version) === "2" ||
+          String(plan.meta.version) === "3" && entry.operation_type === "reviewed_variant_create_rebind_offer_update" ||
+          String(plan.meta.version) === "4" && entry.operation_type === "standard_import" ||
+          String(plan.meta.version) === "5" && entry.operation_type === "reviewed_variant_create_rebind_offer_update"))
         || entry.plan_fingerprint !== planFingerprint(plan)
         || !MD5_PATTERN.test(entry.plan_fingerprint)
         || !SHA256_PATTERN.test(entry.source_row_fingerprint)) {
@@ -600,6 +624,16 @@ function loadDryRunArtifact(artifactPath) {
     }
     if (entry.operation_type === "reviewed_variant_create_rebind_offer_update") {
       const source = sourceRow.normalized_source_row || {};
+      if (plan.meta?.version === "5") {
+        const expected = plan.expected_state || {};
+        const rebuilt = require("./lib/reviewed-variant-create-rebind-offer-update").buildExistingTargetIdentityRebindPlan({
+          state: { product: expected.product, variant: expected.product_variant, retailer: expected.retailer,
+            mapping: expected.retailer_product, offer: expected.offer, price_history: expected.history, price_identity_series: [] },
+          targetVariant: expected.target_variant, sourceRecord: source, ownerResolution: plan.owner_resolution, expiresAt: plan.meta.expires_at,
+        });
+        if (canonicalJson(rebuilt) !== canonicalJson(plan)) throw new Error("Dry-run artifact identity-only rebind metadata mismatch");
+        continue;
+      }
       if (
         entry.plan_kind !== "feed" ||
         plan.meta?.version !== "3" ||
@@ -3093,6 +3127,7 @@ async function validateNewRetailerMappingIdentity({
   product,
   productVariant,
   urlPeers = [],
+  contractVersion,
 }) {
   const externalProductId = optionalIdentifier(row.external_product_id);
   const externalVariantId = optionalIdentifier(row.external_variant_id);
@@ -3189,14 +3224,6 @@ async function validateNewRetailerMappingIdentity({
     external_url: getRetailerProductUrl(row),
     legacy: false,
   });
-  const canonicalUrlPeers = exactPredatorsCm3PlannedVariant || exactPredatorsV3PlannedVariant || exactReviewedCataloguePlannedVariant
-    ? urlPeers.filter((peer) => String(peer.product_id) === String(product.id))
-    : urlPeers;
-  validateSharedParentPeerCohort([
-    ...canonicalUrlPeers.map(peerFromMapping),
-    incomingPeer,
-  ]);
-
   const [skuPeers, gtinPeers, canonicalPeers, parentPeers] = await Promise.all([
     findRetailerIdentityPeers(retailer.id, "external_sku", row.external_sku),
     findRetailerIdentityPeers(retailer.id, "external_gtin", getExternalGtin(row)),
@@ -3211,6 +3238,14 @@ async function validateNewRetailerMappingIdentity({
       externalProductId
     ),
   ]);
+  const review = String(contractVersion) === "4"
+    ? readManualOwnerResolution(row, sourceRowFingerprint(row), { product, variant: productVariant }) : null;
+  const reviewedMembership = Boolean(review?.parent_membership && validateReviewedParentMembership({
+    review, incoming: incomingPeer, parentPeers, urlPeers,
+  }));
+  const canonicalUrlPeers = exactPredatorsCm3PlannedVariant || exactPredatorsV3PlannedVariant || exactReviewedCataloguePlannedVariant || reviewedMembership
+    ? urlPeers.filter((peer) => String(peer.product_id) === String(product.id)) : urlPeers;
+  validateSharedParentPeerCohort([...canonicalUrlPeers.map(peerFromMapping), incomingPeer]);
   if (skuPeers.length > 0) {
     throw new Error("new retailer mapping external SKU collision");
   }
@@ -3227,7 +3262,8 @@ async function validateNewRetailerMappingIdentity({
   );
   if (
     crossProductParent &&
-    ![
+    !reviewedMembership &&
+    (String(contractVersion) === "4" || ![
       isExactEbayCrossProductParentVariant,
       isExactPredatorsGearCrossProductParentVariant,
     ].some((allows) => allows({
@@ -3238,7 +3274,7 @@ async function validateNewRetailerMappingIdentity({
       externalProductId,
       externalVariantId,
       parentPeers,
-    }))
+    })))
   ) {
     throw new Error("external parent ID canonical product drift");
   }
@@ -3330,7 +3366,7 @@ async function fetchProductVariantById(productVariantId) {
   const { data, error } = await getSupabase()
     .from("product_variants")
     .select(
-      "id, product_id, variant_key, display_name, flavour_code, flavour_label, size_value, size_unit, pack_count, product_format, is_active, is_default"
+      "id, product_id, variant_key, display_name, flavour_code, flavour_label, size_value, size_unit, pack_count, product_format, gtin, is_active, is_default"
     )
     .eq("id", productVariantId)
     .maybeSingle();
@@ -3460,7 +3496,13 @@ function normalizeReviewedUnitType(value) {
   return aliases.get(normalized) || null;
 }
 
-function reviewedCountIdentity(value, expectedCount, expectedType) {
+function reviewedCountIdentity(value, expectedCount, expectedType, canonicalDisplay = false) {
+  if (canonicalDisplay) {
+    const actual = parseCount(value, { canonicalDisplay: true });
+    const expected = parseCount(`${expectedCount} ${expectedType}`);
+    return Boolean(actual && expected && actual.count_unit !== "servings" &&
+      actual.count_value === expected.count_value && actual.count_unit === expected.count_unit);
+  }
   const match = String(value || "").trim().match(/^(\d+)\s*([a-z]+)$/i);
   return Boolean(
     match &&
@@ -3469,8 +3511,17 @@ function reviewedCountIdentity(value, expectedCount, expectedType) {
   );
 }
 
-function collectCanonicalVariantEvidence(row) {
+function collectCanonicalVariantEvidence(row, contractOptions = {}) {
   const options = parseExternalOptions(row.external_options);
+  const manualReview = String(contractOptions.contractVersion) === "4"
+    ? readManualOwnerResolution(row, sourceRowFingerprint(row)) : null;
+  if (row.owner_resolutions && !manualReview) throw new Error("Manual owner resolutions require import contract v4");
+  const flavourAlias = manualReview?.flavour_aliases?.[String(row.external_variant_id)];
+  const resolvedFlavour = value => {
+    const normalized = normalizeFlavour(value);
+    return flavourAlias && normalized === normalizeFlavour(flavourAlias.source)
+      ? normalizeFlavour(flavourAlias.canonical) : normalized;
+  };
   const reviewedTenReps = row.__reviewed_catalogue_identity ||
     row.__reviewed_10reps_new_product_identity;
   if (
@@ -3562,11 +3613,11 @@ function collectCanonicalVariantEvidence(row) {
   const variantText = [row.variant_name, row.variant].filter(Boolean);
   const optionFlavours = normalizedEvidenceValues(
     externalOptionValues(options, ["flavour", "flavor"]),
-    normalizeFlavour
+    resolvedFlavour
   );
   const csvFlavours = normalizedEvidenceValues(
     [row.flavour, row.flavor],
-    normalizeFlavour
+    resolvedFlavour
   );
   const fallbackFlavours = normalizedEvidenceValues(variantText, parseFlavour);
   const explicitFlavourConflict =
@@ -3617,6 +3668,27 @@ function collectCanonicalVariantEvidence(row) {
     throw new Error("reviewed format evidence mismatch");
   }
   const conflicts = [];
+  let physicalCount = null;
+  if (String(contractOptions.contractVersion) === "4" &&
+      (row.unit_count != null && String(row.unit_count).trim() || row.unit_type != null && String(row.unit_type).trim())) {
+    physicalCount = parseCount(`${String(row.unit_count ?? "").trim()} ${String(row.unit_type ?? "").trim()}`);
+    if (!physicalCount || physicalCount.count_unit === "servings" ||
+        !/^[1-9][0-9]*$/.test(physicalCount.count_value) ||
+        !Number.isSafeInteger(Number(physicalCount.count_value))) {
+      throw new Error("invalid physical unit count evidence");
+    }
+    if (variantText.some(value => /\b(?:[0-9]+\s*[x×]|packs?\b)/i.test(String(value)))) {
+      throw new Error("ambiguous physical unit count: compound pack evidence");
+    }
+    const sourceCounts = [
+      ...variantText.map(value => parseCount(value, { canonicalDisplay: true })),
+      ...externalOptionValues(options, ["unit_count", "physical_unit_count"])
+        .map(value => parseCount(`${value} ${row.unit_type}`)),
+    ].filter(Boolean);
+    if (sourceCounts.some(count => count.count_value !== physicalCount.count_value || count.count_unit !== physicalCount.count_unit)) {
+      conflicts.push("physical unit count");
+    }
+  }
 
   if (explicitFlavourConflict || flavours.length > 1) conflicts.push("flavour");
   if (sizes.length > 1) conflicts.push("size");
@@ -3632,8 +3704,9 @@ function collectCanonicalVariantEvidence(row) {
     size: sizes[0] || null,
     packCount: packCounts[0] ?? null,
     productFormat: formats[0] || null,
+    ...(physicalCount ? { unitCount: physicalCount.count_value, unitType: physicalCount.count_unit } : {}),
     discriminatingSupplied:
-      flavours.length > 0 ||
+      Boolean(physicalCount) || flavours.length > 0 ||
       sizes.length > 0 ||
       externalOptionValues(options, ["flavour", "flavor", "size"]).length > 0,
     supplied:
@@ -3648,7 +3721,7 @@ async function resolveCanonicalProductVariant(
   options = {}
 ) {
   const supabase = getSupabase();
-  const evidence = collectCanonicalVariantEvidence(row);
+  const evidence = collectCanonicalVariantEvidence(row, options);
   const { data, error } = await supabase
     .from("product_variants")
     .select(
@@ -3676,6 +3749,10 @@ async function resolveCanonicalProductVariant(
     );
     if (!mappedVariant) {
       throw new Error("conflicting variant evidence: retailer product mapping");
+    }
+    if (String(options.contractVersion) === "4" && optionalIdentifier(row.product_variant_id) &&
+        String(mappedVariant.id) !== optionalIdentifier(row.product_variant_id)) {
+      throw new Error("conflicting variant evidence: requested mapping target");
     }
     if (options.legacyMappingUpgrade) {
       if (options.legacyMappingUpgrade.optioned) {
@@ -3775,6 +3852,9 @@ async function resolveCanonicalProductVariant(
     const mappedFormat = parseProductFormat(mappedVariant.product_format);
     const mappingConflicts =
       !mappedFlavourMatches ||
+      (evidence.unitCount != null &&
+        !reviewedCountIdentity(mappedVariant.display_name, evidence.unitCount, evidence.unitType, String(options.contractVersion) === "4") &&
+        !reviewedCountIdentity(mappedVariant.variant_key, evidence.unitCount, evidence.unitType, String(options.contractVersion) === "4")) ||
       (evidence.size && sizeKey(evidence.size) !== sizeKey(mappedSize)) ||
       (Number(evidence.packCount) > 1 &&
         Number(evidence.packCount) !== Number(mappedVariant.pack_count)) ||
@@ -3834,8 +3914,8 @@ async function resolveCanonicalProductVariant(
         flavourMatches &&
         (!evidence.size || sizeKey(evidence.size) === sizeKey(variantSize)) &&
         (evidence.unitCount == null ||
-          reviewedCountIdentity(variant.display_name, evidence.unitCount, evidence.unitType) ||
-          reviewedCountIdentity(variant.variant_key, evidence.unitCount, evidence.unitType)) &&
+          reviewedCountIdentity(variant.display_name, evidence.unitCount, evidence.unitType, String(options.contractVersion) === "4") ||
+          reviewedCountIdentity(variant.variant_key, evidence.unitCount, evidence.unitType, String(options.contractVersion) === "4")) &&
         (evidence.packCount === null ||
           Number(evidence.packCount) === Number(variant.pack_count)) &&
         (!evidence.productFormat ||
@@ -3855,6 +3935,10 @@ async function resolveCanonicalProductVariant(
     candidates = candidates.filter(
       (variant) => variant.id === mapping.product_variant_id
     );
+  }
+
+  if (String(options.contractVersion) === "4" && optionalIdentifier(row.product_variant_id)) {
+    candidates = candidates.filter(variant => String(variant.id) === optionalIdentifier(row.product_variant_id));
   }
 
   if (candidates.length === 0) {
@@ -4842,7 +4926,15 @@ function expectedOfferState(offer) {
   ]);
 }
 
-function buildVariantEvidence(row, mapping, productVariant = null) {
+function buildExpectedImportState({ product, retailer, productVariant, mapping, existingOffer }) {
+  return {
+    product: expectedProductState(product), retailer: expectedRetailerState(retailer),
+    product_variant: productVariant?.planned_create ? null : expectedVariantState(productVariant),
+    retailer_product: expectedMappingState(mapping), offer: expectedOfferState(existingOffer),
+  };
+}
+
+function buildVariantEvidence(row, mapping, productVariant = null, contractOptions = {}) {
   if (String(row.legacy_mapping_identity_only ?? "").trim().toLowerCase() === "true") {
     return {
       flavour: productVariant?.flavour_code || productVariant?.flavour_label || null,
@@ -4854,7 +4946,7 @@ function buildVariantEvidence(row, mapping, productVariant = null) {
       approved_mapping_id: mapping?.id ?? null,
     };
   }
-  const evidence = collectCanonicalVariantEvidence(row);
+  const evidence = collectCanonicalVariantEvidence(row, contractOptions);
   const reviewedProductFormat = String(
     row.__reviewed_six_pack_family_identity?.product_format || ""
   )
@@ -4891,6 +4983,10 @@ function buildVariantEvidence(row, mapping, productVariant = null) {
     approved_mapping_id: mapping?.id ?? null,
   };
   const reviewedCountIdentity = row.__reviewed_catalogue_identity;
+  if (String(contractOptions.contractVersion) === "4" && evidence.unitCount != null) {
+    variantEvidence.unit_count = evidence.unitCount;
+    variantEvidence.unit_type = evidence.unitType;
+  }
   if (reviewedCountIdentity?.canonical_identity_evidence) {
     variantEvidence.canonical_identity_evidence = reviewedCountIdentity.canonical_identity_evidence;
   }
@@ -4966,6 +5062,13 @@ function buildAtomicImportPlan(item) {
     row, retailer, product, productVariant, mapping, existingOffer, offerPlan,
     legacyMappingUpgrade,
   } = item;
+  const contractVersion = String(item.contractVersion ?? "2");
+  if (!["2", "4"].includes(contractVersion)) throw new Error("Unsupported standard import contract version");
+  if (contractVersion === "4" &&
+      (!product || !retailer || !productVariant || productVariant.planned_create ||
+       productVariant.reviewed_parent_variant_create || legacyMappingUpgrade)) {
+    throw new Error("Import contract v4 requires existing product, variant and retailer without legacy upgrade");
+  }
   const cataloguePolicyReason = getProhibitedCatalogueTypeReason(row);
   if (cataloguePolicyReason) throw new Error(cataloguePolicyReason);
   assertCataloguePolicyAllowsRecords([{ product, variant: productVariant, mapping, offer: existingOffer }]);
@@ -4973,7 +5076,9 @@ function buildAtomicImportPlan(item) {
   const reviewedTenRepsDefaultVariant =
     (row.__reviewed_catalogue_identity || row.__reviewed_10reps_new_product_identity)?.action ===
       "create_product_with_default_variant";
-  const now = resolvePlanTimestamp(item.sourceCapturedAt);
+  const capturedAt = contractVersion === "4" ? (item.sourceCapturedAt ?? row.source_captured_at) : item.sourceCapturedAt;
+  if (contractVersion === "4" && !capturedAt) throw new Error("Import contract v4 requires source_captured_at");
+  const now = resolvePlanTimestamp(capturedAt);
   const rawProductData = product ? null : (item.plannedProduct?.planned_create ? item.plannedProduct : buildProductData(row, item.rowNumber, "feed"));
   const reviewedProductCount = row.__reviewed_catalogue_identity?.unit_count;
   if (rawProductData && reviewedProductCount != null) {
@@ -5059,7 +5164,7 @@ function buildAtomicImportPlan(item) {
 
   const plan = {
     meta: {
-      version: 2,
+      version: contractVersion,
       plan_kind: item.mode || "feed",
       operation_type: legacyMappingUpgrade
         ? "legacy_mapping_upgrade"
@@ -5080,7 +5185,7 @@ function buildAtomicImportPlan(item) {
             "variant_key", "display_name", "flavour_code", "flavour_label",
             "size_value", "size_unit", "pack_count", "product_format",
           ]),
-          evidence: buildVariantEvidence(row, mapping, productVariant),
+          evidence: buildVariantEvidence(row, mapping, productVariant, { contractVersion }),
         }
       : product
       ? productVariant?.planned_create
@@ -5090,12 +5195,12 @@ function buildAtomicImportPlan(item) {
               "variant_key", "display_name", "flavour_code", "flavour_label",
               "size_value", "size_unit", "pack_count", "product_format",
             ]),
-            evidence: buildVariantEvidence(row, mapping, productVariant),
+            evidence: buildVariantEvidence(row, mapping, productVariant, { contractVersion }),
           }
         : {
           action: "existing",
           id: productVariant.id,
-          evidence: buildVariantEvidence(row, mapping, productVariant),
+          evidence: buildVariantEvidence(row, mapping, productVariant, { contractVersion }),
         }
       : {
           action: "create_default",
@@ -5144,14 +5249,19 @@ function buildAtomicImportPlan(item) {
         : offerPlan.createsPriceHistory ? "create" : "noop",
     },
     approval,
-    expected_state: {
-      product: expectedProductState(product),
-      retailer: expectedRetailerState(retailer),
-      product_variant: productVariant?.planned_create ? null : expectedVariantState(productVariant),
-      retailer_product: expectedMappingState(mapping),
-      offer: expectedOfferState(existingOffer),
-    },
+    expected_state: buildExpectedImportState({ product, retailer, productVariant, mapping, existingOffer }),
   };
+  if (contractVersion === "4") {
+    plan.product_variant.evidence.source_captured_at = now;
+    plan.product_variant.evidence.canonical_gtins = {
+      product: product.gtin || null,
+      variant: productVariant.gtin || null,
+    };
+    const review = readManualOwnerResolution(row, sourceFingerprint, {
+      expectedState: plan.expected_state, product, variant: productVariant,
+    });
+    if (review) plan.product_variant.evidence.owner_resolutions = review;
+  }
   const serialized = serializeImportPlan(plan);
   serialized.meta.plan_fingerprint = planFingerprint(serialized);
   return serializeImportPlan(serialized);
@@ -5806,13 +5916,13 @@ async function preflightFeedRows(rows, options = {}) {
   });
 }
 
-async function resolveManualImportPlan(row, rowNumber) {
+async function resolveManualImportPlan(row, rowNumber, options = {}) {
   const validationErrors = validateFeedRowForWrites(row, rowNumber, {
     safeCreate: false,
   });
   try {
     parseExternalOptions(row.external_options);
-    collectCanonicalVariantEvidence(row);
+    collectCanonicalVariantEvidence(row, options);
   } catch (error) {
     validationErrors.push(error?.message || String(error));
   }
@@ -5844,11 +5954,11 @@ async function resolveManualImportPlan(row, rowNumber) {
       `Row ${rowNumber}: manual import requires an existing canonical product; use approved safe-create or create the product manually`
     );
   }
-  const productVariant = await resolveCanonicalProductVariant(row, product.id, mapping);
+  const productVariant = await resolveCanonicalProductVariant(row, product.id, mapping, options);
   if (
     !mapping &&
     retailer &&
-    mappingResolution.sharedParentIdentityRequired
+    (mappingResolution.sharedParentIdentityRequired || String(options.contractVersion) === "4")
   ) {
     await validateNewRetailerMappingIdentity({
       row,
@@ -5856,6 +5966,7 @@ async function resolveManualImportPlan(row, rowNumber) {
       product,
       productVariant,
       urlPeers: mappingResolution.urlPeers,
+      contractVersion: options.contractVersion,
     });
   }
 
@@ -5873,6 +5984,7 @@ async function resolveManualImportPlan(row, rowNumber) {
     existingOffer,
     offerPlan,
     mode: "manual",
+    contractVersion: options.contractVersion,
   };
   resolved.importPlan = buildAtomicImportPlan(resolved);
   return resolved;
@@ -6059,7 +6171,7 @@ async function runImportRows(rows, options = {}) {
     const rowNumber = index + 2;
 
     try {
-      approvedRows.push(await resolveManualImportPlan(row, rowNumber));
+      approvedRows.push(await resolveManualImportPlan(row, rowNumber, options));
     } catch (error) {
       blockedRows.push({
         rowNumber,
@@ -6136,6 +6248,10 @@ function parseArgs(argv) {
       options.mode = "manual";
     } else if (arg.startsWith("--mode=")) {
       throw new Error(`Unsupported import mode: ${arg.slice("--mode=".length)}`);
+    } else if (arg.startsWith("--contract-version=")) {
+      if (options.contractVersion) throw new Error("Only one --contract-version is allowed");
+      options.contractVersion = arg.slice("--contract-version=".length);
+      if (!["2", "4"].includes(options.contractVersion)) throw new Error("Unsupported import contract version");
     } else if (arg.startsWith("--csv=")) {
       options.csvPath = path.resolve(process.cwd(), arg.slice("--csv=".length));
       options.csvProvided = true;
@@ -6153,6 +6269,10 @@ function parseArgs(argv) {
     }
   }
 
+  if (options.contractVersion === "4" && (options.mode !== "manual" || !options.dryRun || options.safeCreate ||
+    options.pilotApply || options.approvePlan || options.approvalId || options.artifactPath)) {
+    throw new Error("Contract v4 CLI is restricted to an explicit manual CSV dry-run");
+  }
   if (options.safeCreate && options.mode !== "feed") {
     throw new Error("--safe-create is only supported with --mode=feed");
   }
@@ -6398,6 +6518,7 @@ module.exports = {
   buildRetailerProductPayload,
   buildRowLevelOfferResults,
   buildVariantEvidence,
+  buildExpectedImportState,
   collectCanonicalVariantEvidence,
   formatPreflightReport,
   getExternalGtin,

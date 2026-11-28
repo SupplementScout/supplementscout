@@ -1,5 +1,13 @@
 # PR559 — existing global durable rollout impact
 
+**28 November revision note:** the analysis below describes the unmerged
+19–20 November proposal and its then-current ledger. Its evidence is preserved.
+The current Draft reuses main's existing OWNER_AUTHORIZED_ARTIFACT_ONLY mode
+and common rollout semantics instead of that proposal's per-profile OFF guard.
+It neither enables automatic publication nor changes global enforcement.
+Production remains 273/pending 0. See the dated current revision in
+[the Simply integration note](SIMPLY-REVIEW-PUBLICATION-HARDENING-2026-11-19.md).
+
 Status: **BLOCKED for release / NEEDS_OWNER_APPROVAL**. PR557 alone is authorized
 for deployment. This analysis does not enable DURABLE_SEALED_ARTIFACTS_ENFORCEMENT,
 merge PR559, publish reviews, alter commercial refresh, grant privileges or apply

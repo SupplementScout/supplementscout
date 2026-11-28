@@ -1,0 +1,460 @@
+{
+  "schema_version": 1,
+  "task": "PR560 controlled production release",
+  "status": "STOP_BEFORE_PROTECTED_REHEARSAL",
+  "recorded_at": "2026-11-20T16:25:05.197Z",
+  "approval": {
+    "implementation_sha": "3e64e69bdcd5b758e6de3891b9b996193edf587e",
+    "main_sha": "81349995d2b29e249668071ef618794a634c256e",
+    "migration": "20261120150000_add_catalog_health_review_counts.sql",
+    "sha256": "09d941a26ac97791dde4e5690f97b7cc97ea16630297b1637aa02373c3695072"
+  },
+  "head_unchanged": "3e64e69bdcd5b758e6de3891b9b996193edf587e",
+  "main_unchanged": "81349995d2b29e249668071ef618794a634c256e",
+  "pr_is_draft": true,
+  "local_migration_hash": "09d941a26ac97791dde4e5690f97b7cc97ea16630297b1637aa02373c3695072",
+  "real_unwrap_transaction": "PASS",
+  "production_preflight": {
+    "status": "BLOCKED_INCOMPLETE",
+    "errors": [
+      {
+        "source": "Independent read-only production snapshot",
+        "message": "Query read timeout",
+        "last_progress": "PRODUCTION: hash offers",
+        "committed": false
+      },
+      {
+        "source": "Separate read-only PostgreSQL diagnostic connection",
+        "message": "timeout expired",
+        "committed": false
+      }
+    ],
+    "staging": "NOT_RUN: production collection did not complete",
+    "fresh_complete_readback": null,
+    "do_not_interpret_partial_preflight_as_complete_pass": true
+  },
+  "historical_last_complete_readback": {
+    "at": "2026-11-20T15:24:33.469Z",
+    "ledger_count": 269,
+    "fingerprint": "f54057cd49ea4422a3b8b849ac15ce38b518496a44a8d4dceb2f480f8f97eb66",
+    "not_a_fresh_release_receipt": true
+  },
+  "repository_contract": {
+    "ledger_count": 269,
+    "ledger_fingerprint": "f54057cd49ea4422a3b8b849ac15ce38b518496a44a8d4dceb2f480f8f97eb66",
+    "pending": [
+      {
+        "filename": "20261120150000_add_catalog_health_review_counts.sql",
+        "sha256": "09d941a26ac97791dde4e5690f97b7cc97ea16630297b1637aa02373c3695072"
+      }
+    ],
+    "staging_count": 120,
+    "staging_pending": [
+      {
+        "filename": "20261104120000_allow_automation_review_hard_price_anomaly.sql",
+        "sha256": "26a7aa2155bebc49313e8827fe0377b4676af455b7aa964c293db0f30d5fce6d"
+      },
+      {
+        "filename": "20261105100000_refresh_pending_review_execution_binding.sql",
+        "sha256": "015f0de7448c10fcca10174e74dfbf7ca9e3150951f49090d01cd6eee869024c"
+      },
+      {
+        "filename": "20261119150000_read_automation_review_queue_page.sql",
+        "sha256": "062865129b774e8ff79631b241ee43a44a8a5b334640a91c7e51a5953eb187aa"
+      }
+    ]
+  },
+  "rehearsal": "NOT_RUN",
+  "production_apply": "NOT_RUN",
+  "repository_closeout": "NOT_RUN",
+  "merge": "NOT_RUN",
+  "deployment": "NOT_RUN",
+  "authorized_migration_writes": 0,
+  "production_business_writes": 0,
+  "review_publications": 0,
+  "catalog_health_before": {
+    "at": "2026-11-20T16:19:00.843Z",
+    "login": {
+      "status": 303,
+      "location": "https://www.supplementscout.co.uk/admin/duplicates",
+      "has_session": true
+    },
+    "samples": [
+      {
+        "status": 200,
+        "elapsed_ms": 1765.4952999999998,
+        "unavailable": 84,
+        "bytes": 98067,
+        "cache": "MISS"
+      },
+      {
+        "status": 200,
+        "elapsed_ms": 1882.2957000000001,
+        "unavailable": 84,
+        "bytes": 98067,
+        "cache": "MISS"
+      },
+      {
+        "status": 200,
+        "elapsed_ms": 1491.8963000000003,
+        "unavailable": 84,
+        "bytes": 98067,
+        "cache": "MISS"
+      }
+    ],
+    "url": "https://www.supplementscout.co.uk/admin/catalog-health",
+    "authentication": "Existing ADMIN_TOKEN through normal production login route; no auth bypass or generated account",
+    "html_sha256": "0d1813598a1fcbbd14c8b336a99f549e8758ae26cadbfd20e9775ee5c7ae67a0",
+    "result": "HTTP200; existing Unavailable reproduced in server-rendered HTML",
+    "note": "84 literal occurrences include rendered cells and serialized React output; not 84 independent counters",
+    "browser_ui_verification": "NOT_RUN",
+    "after_deployment": "NOT_RUN"
+  },
+  "sql_performance_after": "NOT_RUN",
+  "workflow_controls": {
+    "disable_calls": 0,
+    "enable_calls": 0,
+    "original_states_preserved": true,
+    "checked_at": "2026-11-20T16:24:02.955Z",
+    "workflows": [
+      {
+        "id": 345699780,
+        "name": "Automation Reliability Watchdog",
+        "path": ".github/workflows/automation-reliability-watchdog.yml",
+        "state": "active"
+      },
+      {
+        "id": 408082973,
+        "name": "Authorized Review Queue Publication Retry",
+        "path": ".github/workflows/automation-review-publication-retry.yml",
+        "state": "active"
+      },
+      {
+        "id": 355214106,
+        "name": "Automation Review Queue Worker",
+        "path": ".github/workflows/automation-review-queue-worker.yml",
+        "state": "active"
+      },
+      {
+        "id": 311870448,
+        "name": "Baseline Validation",
+        "path": ".github/workflows/baseline-validation.yml",
+        "state": "active"
+      },
+      {
+        "id": 316307352,
+        "name": "Discount Supplements Offer Refresh",
+        "path": ".github/workflows/creatine-offer-refresh.yml",
+        "state": "active"
+      },
+      {
+        "id": 326724575,
+        "name": "Dolphin Vegan Protein Offer Refresh",
+        "path": ".github/workflows/dolphin-vegan-protein-offer-refresh.yml",
+        "state": "active"
+      },
+      {
+        "id": 336498776,
+        "name": "eBay Offer Batch H",
+        "path": ".github/workflows/ebay-offer-batch-h.yml",
+        "state": "active"
+      },
+      {
+        "id": 336721248,
+        "name": "eBay Offer Batch I",
+        "path": ".github/workflows/ebay-offer-batch-i.yml",
+        "state": "active"
+      },
+      {
+        "id": 338400509,
+        "name": "eBay Offer Batch J",
+        "path": ".github/workflows/ebay-offer-batch-j.yml",
+        "state": "active"
+      },
+      {
+        "id": 338483281,
+        "name": "eBay Offer Batch K Recovery",
+        "path": ".github/workflows/ebay-offer-batch-k-recovery.yml",
+        "state": "active"
+      },
+      {
+        "id": 338464877,
+        "name": "eBay Offer Batch K",
+        "path": ".github/workflows/ebay-offer-batch-k.yml",
+        "state": "active"
+      },
+      {
+        "id": 338551792,
+        "name": "eBay Offer Batch L",
+        "path": ".github/workflows/ebay-offer-batch-l.yml",
+        "state": "active"
+      },
+      {
+        "id": 339287487,
+        "name": "eBay Offer Batch M",
+        "path": ".github/workflows/ebay-offer-batch-m.yml",
+        "state": "active"
+      },
+      {
+        "id": 339613814,
+        "name": "eBay Offer Batch N",
+        "path": ".github/workflows/ebay-offer-batch-n.yml",
+        "state": "active"
+      },
+      {
+        "id": 339658458,
+        "name": "eBay Offer Batch O",
+        "path": ".github/workflows/ebay-offer-batch-o.yml",
+        "state": "active"
+      },
+      {
+        "id": 339912715,
+        "name": "eBay Offer Batch P",
+        "path": ".github/workflows/ebay-offer-batch-p.yml",
+        "state": "active"
+      },
+      {
+        "id": 339978186,
+        "name": "eBay Offer Batch Q",
+        "path": ".github/workflows/ebay-offer-batch-q.yml",
+        "state": "active"
+      },
+      {
+        "id": 340445763,
+        "name": "eBay Offer Batch R",
+        "path": ".github/workflows/ebay-offer-batch-r.yml",
+        "state": "active"
+      },
+      {
+        "id": 340485624,
+        "name": "eBay Offer Batch S",
+        "path": ".github/workflows/ebay-offer-batch-s.yml",
+        "state": "active"
+      },
+      {
+        "id": 334442723,
+        "name": "eBay Offer Canary",
+        "path": ".github/workflows/ebay-offer-canary.yml",
+        "state": "active"
+      },
+      {
+        "id": 335708870,
+        "name": "eBay Offer Refresh",
+        "path": ".github/workflows/ebay-offer-refresh.yml",
+        "state": "active"
+      },
+      {
+        "id": 320801274,
+        "name": "Shared Retailer Offer Refresh",
+        "path": ".github/workflows/fit-house-offer-refresh.yml",
+        "state": "active"
+      },
+      {
+        "id": 325077991,
+        "name": "Growth Analytics Report",
+        "path": ".github/workflows/growth-analytics-report.yml",
+        "state": "active"
+      },
+      {
+        "id": 333700368,
+        "name": "Guarded GTIN promotion",
+        "path": ".github/workflows/gtin-promotion.yml",
+        "state": "active"
+      },
+      {
+        "id": 325202624,
+        "name": "GYM HIGH reviewed full catalogue apply",
+        "path": ".github/workflows/gym-high-full-catalogue-apply.yml",
+        "state": "active"
+      },
+      {
+        "id": 325151292,
+        "name": "GYM HIGH Read-only Source Monitor",
+        "path": ".github/workflows/gym-high-source-monitor.yml",
+        "state": "active"
+      },
+      {
+        "id": 318161273,
+        "name": "Jon's Offer Refresh",
+        "path": ".github/workflows/jons-offer-refresh.yml",
+        "state": "active"
+      },
+      {
+        "id": 345807507,
+        "name": "KIOR Offer Refresh",
+        "path": ".github/workflows/kior-offer-refresh.yml",
+        "state": "active"
+      },
+      {
+        "id": 349184668,
+        "name": "Predators Gear Offer Refresh Read-only Proof",
+        "path": ".github/workflows/predators-gear-offer-refresh.yml",
+        "state": "active"
+      },
+      {
+        "id": 324934888,
+        "name": "Project Guardian",
+        "path": ".github/workflows/project-guardian.yml",
+        "state": "active"
+      },
+      {
+        "id": 333522413,
+        "name": "Quality Gate",
+        "path": ".github/workflows/quality-gate.yml",
+        "state": "active"
+      },
+      {
+        "id": 311600328,
+        "name": "Retailer Dry Run",
+        "path": ".github/workflows/retailer-dry-run.yml",
+        "state": "active"
+      },
+      {
+        "id": 378850353,
+        "name": "Shared Retailer Executor Performance Audit",
+        "path": ".github/workflows/retailer-offer-sync-performance-audit.yml",
+        "state": "active"
+      },
+      {
+        "id": 390250674,
+        "name": "Reviewed V3 Exact SHA Proof",
+        "path": ".github/workflows/reviewed-v3-exact-sha-proof.yml",
+        "state": "active"
+      },
+      {
+        "id": 379570065,
+        "name": "SEO-15 Accrual Audit",
+        "path": ".github/workflows/seo15-accrual-audit.yml",
+        "state": "active"
+      },
+      {
+        "id": 326435373,
+        "name": "Simply Supplements Offer Refresh",
+        "path": ".github/workflows/simply-supplements-offer-refresh.yml",
+        "state": "active"
+      },
+      {
+        "id": 321437217,
+        "name": "6 Pack Supplements Offer Refresh",
+        "path": ".github/workflows/six-pack-offer-refresh.yml",
+        "state": "active"
+      },
+      {
+        "id": 319412170,
+        "name": "Whey Okay Offer Refresh",
+        "path": ".github/workflows/whey-okay-offer-refresh.yml",
+        "state": "active"
+      }
+    ],
+    "active": [
+      {
+        "id": 43098583586,
+        "name": "Quality Gate",
+        "status": "queued",
+        "event": "pull_request",
+        "sha": "3c2c14736b6b2fc6499ca5fefa5813196654d3a7",
+        "path": ".github/workflows/quality-gate.yml"
+      },
+      {
+        "id": 43098583532,
+        "name": "Project Guardian",
+        "status": "queued",
+        "event": "pull_request",
+        "sha": "3c2c14736b6b2fc6499ca5fefa5813196654d3a7",
+        "path": ".github/workflows/project-guardian.yml"
+      }
+    ],
+    "unmaterialized_delayed_scheduled_events_observable": false
+  },
+  "ci": {
+    "checks": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-20T15:21:58Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SupplementScout/supplementscout/actions/runs/44762343243/job/136377845912",
+        "name": "verify-baseline",
+        "startedAt": "2026-11-20T15:20:51Z",
+        "status": "COMPLETED",
+        "workflowName": "Baseline Validation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-20T15:21:45Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SupplementScout/supplementscout/actions/runs/44762333250/job/136377813724",
+        "name": "verify-baseline",
+        "startedAt": "2026-11-20T15:20:48Z",
+        "status": "COMPLETED",
+        "workflowName": "Baseline Validation"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-20T15:20:58Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SupplementScout/supplementscout/actions/runs/44762343082/job/136377845731",
+        "name": "verify-project-control",
+        "startedAt": "2026-11-20T15:20:51Z",
+        "status": "COMPLETED",
+        "workflowName": "Project Guardian"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-20T15:23:17Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://github.com/SupplementScout/supplementscout/actions/runs/44762343249/job/136377847041",
+        "name": "full",
+        "startedAt": "2026-11-20T15:20:51Z",
+        "status": "COMPLETED",
+        "workflowName": "Quality Gate"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-20T15:20:49Z",
+        "conclusion": "SKIPPED",
+        "detailsUrl": "https://github.com/SupplementScout/supplementscout/actions/runs/44762343249/job/136377849159",
+        "name": "integration",
+        "startedAt": "2026-11-20T15:20:50Z",
+        "status": "COMPLETED",
+        "workflowName": "Quality Gate"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-20T15:20:50Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://dashboard.gitguardian.com",
+        "name": "GitGuardian Security Checks",
+        "startedAt": "2026-11-20T15:20:47Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      },
+      {
+        "__typename": "StatusContext",
+        "context": "Vercel",
+        "startedAt": "2026-11-20T15:21:37Z",
+        "state": "SUCCESS",
+        "targetUrl": "https://vercel.com/supplement-scout/supplementscout/2cW9Wx5SrSbhJPXZLUtpVTZ28j5J"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-11-20T15:21:38Z",
+        "conclusion": "SUCCESS",
+        "detailsUrl": "https://vercel.com/github",
+        "name": "Vercel Preview Comments",
+        "startedAt": "2026-11-20T15:21:38Z",
+        "status": "COMPLETED",
+        "workflowName": ""
+      }
+    ],
+    "integration": {
+      "id": 44762407486,
+      "head_sha": "3e64e69bdcd5b758e6de3891b9b996193edf587e",
+      "status": "completed",
+      "conclusion": "success",
+      "attempt": 2
+    },
+    "local_verify_project_before_documentation": "PASS",
+    "no_new_implementation_changes": true
+  },
+  "release_conclusion": "BLOCKED; no LIVE VERIFIED claim; original approval not consumed by any production migration"
+}

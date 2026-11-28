@@ -338,11 +338,13 @@ export function getVerifiedCostPer5gCreatine(
     : null;
 }
 
+const currencyFormatter = new Intl.NumberFormat("en-GB", {
+  style: "currency",
+  currency: "GBP",
+});
+
 export function formatCurrency(value: number) {
-  return new Intl.NumberFormat("en-GB", {
-    style: "currency",
-    currency: "GBP",
-  }).format(value);
+  return currencyFormatter.format(value);
 }
 
 export function formatUnitPrice(value: number) {

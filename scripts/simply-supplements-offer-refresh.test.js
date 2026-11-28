@@ -50,7 +50,7 @@ test("Simply review-only operation reuses exact sealed source and the common pub
   assert.equal(action.with.profile, "simply-supplements");
   assert.equal(action.with["durable-sealed-artifacts-enforcement"], "${{ vars.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT }}");
   const monitor = require("../config/automation-reliability-watchdog.json").retailers.find(row => row.id === 7);
-  assert.equal(action.name, monitor.review_publication.step_name);
+  assert.ok(action.name.includes(monitor.review_publication.step_name));
 });
 
 test("Simply build start does not inherit the Fit House stable OOS exception", () => {
@@ -66,6 +66,39 @@ test("Simply build start does not inherit the Fit House stable OOS exception", (
   } finally {
     delete config.approved_stable_oos_baseline;
   }
+});
+
+test("Simply workflow isolates manual dry-run, PR and feature branches and requires every source binding", () => {
+  const parsed = require("js-yaml").load(workflow), refresh = parsed.jobs["simply-supplements-offer-refresh"], publisher = parsed.jobs["refresh-review-queue"];
+  const evaluate = (expression, github, inputs, outputs) => Function("github", "inputs", "needs", "success", "always", `return (${expression.replace(/^\$\{\{\s*|\s*\}\}$/g, "").replaceAll("needs.simply-supplements-offer-refresh", "needs.refresh")});`)(github, inputs, { refresh: { outputs } }, () => true, () => true);
+  const outputs = { artifact_id: "1", artifact_digest: "a".repeat(64), source_contract_sha256: "b".repeat(64), review_scope_fingerprint: "c".repeat(64), publication_mode: "OWNER_AUTHORIZED_ARTIFACT_ONLY" };
+  for (const [event_name, ref, operation, expectedRefresh, expectedApply, expectedPublish] of [
+    ["schedule", "refs/heads/main", "", true, true, true],
+    ["workflow_dispatch", "refs/heads/main", "apply", true, true, true],
+    ["workflow_dispatch", "refs/heads/main", "review-only", true, false, true],
+    ["workflow_dispatch", "refs/heads/main", "dry-run", true, false, false],
+    ["workflow_dispatch", "refs/heads/feature", "apply", false, false, false],
+    ["pull_request", "refs/heads/main", "apply", false, false, false],
+    ["push", "refs/heads/main", "apply", false, false, false],
+  ]) {
+    const github = { event_name, ref }, inputs = { operation, validation_context: "schedule" };
+    assert.equal(evaluate(refresh.if, github, inputs, outputs), expectedRefresh);
+    const apply = refresh.steps.find(step => step.name === "Apply approved Simply Supplements offer refresh");
+    assert.equal(expectedRefresh && evaluate(apply.if, github, inputs, outputs), expectedApply);
+    assert.equal(evaluate(publisher.if, github, inputs, outputs), expectedPublish);
+  }
+  for (const field of Object.keys(outputs)) {
+    assert.equal(evaluate(publisher.if, { event_name: "schedule", ref: "refs/heads/main" }, {}, { ...outputs, [field]: "" }), false);
+  }
+  assert.equal(require("./shared-retailer-automation-review-source").profileFor("simply-supplements").publicationMode, "OWNER_AUTHORIZED_ARTIFACT_ONLY");
+  const publicationStep = publisher.steps.find(step => step.uses === "./.github/actions/publish-automation-review-queue");
+  const monitoredStep = require("../config/automation-reliability-watchdog.json").retailers.find(row => row.id === 7).review_publication.step_name;
+  const github = { event_name: "schedule", ref: "refs/heads/main" };
+  assert.equal(evaluate(publicationStep.name, github, {}, outputs), "Prepare owner-authorized Simply Supplements Review Queue evidence");
+  assert.notEqual(evaluate(publicationStep.name, github, {}, outputs), monitoredStep);
+  assert.equal(evaluate(publicationStep.name, github, {}, { ...outputs, publication_mode: "AUTOMATIC" }), monitoredStep);
+  const action = fs.readFileSync(path.join(ROOT, ".github/actions/publish-automation-review-queue/action.yml"), "utf8");
+  assert.match(action, /steps\.reconciliation\.outputs\.publication_mode == 'AUTOMATIC'/);
 });
 
 test("Simply shipping follows the existing £20 threshold", () => {

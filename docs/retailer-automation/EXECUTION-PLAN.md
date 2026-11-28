@@ -1,5 +1,214 @@
 # Retailer Automation Consolidation Execution Plan
 
+**28 November 2026 Simply shared pipeline completion — Draft only:** reuse
+PR #559 and its existing worktree, preserving both original commits/evidence,
+on main `06fa1c2db85c5abfb20bb3896e35ed29f3fe58ef`. Simply's approved 120-offer
+refresh, protected apply, postflight and idempotency stay unchanged. Configure
+the central source-missing profile from the existing authority/config, bind
+pre-execution sealedFiles and invoke the existing shared composite/publisher.
+Preserve the owner's original exact 27-ID monitoring/no-review-row-write
+decision through OWNER_AUTHORIZED_ARTIFACT_ONLY; no AUTOMATIC grant is inferred.
+The immutable 15207952662 ZIP exposes overwritten final dry-run evidence, so
+it cannot become a new valid production source contract. An explicitly derived
+local replay and synthetic lifecycle/mutation regressions cover 120/117/3;
+future captures are bound before execution. Missing source remains review-only.
+Reuse current shared owner-mode validation and rollout handling; do not retain
+the old unmerged Draft's duplicate validators or extra OFF-availability guard.
+No production publication, business apply, source fetch, SQL/migration, rollout,
+schedule, credential or eBay membership change is authorized. Ledger stays
+273/pending0, STAGING120 unchanged, eBay v3/322 and EPN protected. Discount's
+released patch, historical owner decisions and Predators Gear remain untouched.
+See [current revision and historical evidence](SIMPLY-REVIEW-PUBLICATION-HARDENING-2026-11-19.md).
+
+**27 November 2026 Automation Reliability Recovery — owner-authorized local
+repair / Draft PR only:** one bounded recovery covers Queue Worker scheduling,
+Discount publication, GYM HIGH source and 10 Reps feed access. Discount reuses
+the existing mixed-partition profile; the shared exact-ID check now rejects
+duplicates before comparison. The retained 72-executable/37-review failure and
+prior 106-executable/3-review success both pass locally without writes.
+Worker schedule delivery remains platform-blocked, GYM HIGH has a successful
+current local read but awaits runner verification, and the 10 Reps endpoint
+explicitly rejects its configured feed key. No artificial code fix, threshold
+change, source bypass or remote configuration change is made for those causes.
+See [diagnosis, regressions and operator actions](AUTOMATION-RELIABILITY-RECOVERY-2026-11-27.md).
+Production stays 273/pending 0 and STAGING 120 unchanged; eBay v3/count 322,
+85 additions and all EPN bindings are protected. No eBay API, business writes,
+approvals/apply, imports, canonical corrections, rebinds, migrations, workflow
+dispatch, merge or deployment is authorized. Earlier Phase 20 evidence and the
+750/862 exclusion remain intact; Predators Gear is outside scope.
+
+**27 November 2026 Phase 20 — 85 imports read back; final membership handoff
+in progress:** canary PR #570 merged as `90c8876d40ba29d69442091eb603f53db225abee`;
+version 2/count 240 reached Production READY. Current-scope read-only run
+46046668952 passed with 157 executable, 83 review and zero blocked; all three
+new members were executable. Its verifier, database before-state and existing
+reconciliation passed without database or Review Queue writes.
+The next execution stopped after 27 successful plans because the unchanged
+protected guard rejected 750/862: the same parent and equal `external_options`
+as the newly imported 750/861. No approval or apply was created for 750/862;
+no guard, option, identity or expected state was changed to bypass it. Independent
+readback and ledger accounting passed. The other 55 unattempted cases passed
+the protected read-only validator and fresh JIT qualification, then completed
+through the same executor with 55 consumed approvals and independent readback.
+Actual total: 85 new mappings, offers and initial price observations; no new
+canonical products/variants. Version 3 proposes exactly those 85 actual additions,
+count 322, preserving all 237 legacy identities and EPN URLs. Final PR/CI,
+deployment and current-scope maintenance remain to be verified separately.
+750/862 remains excluded from this execution and requires separate resolution;
+its historical commercial acceptance is preserved. Natural expanded-scope
+refresh/watchdog execution is not claimed by the read-only dry-run. All original
+artifacts, the stopped receipt, 89 decisions, 86 historical packages and 170 cases
+are retained in `tmp/ebay-commercial-phase20-2026-11-27/`. No SQL, workflow,
+schedule, public application, credential or unrelated retailer change; ledger
+273/pending 0, Predators Gear excluded.
+
+**27 November 2026 Phase 20 — first three imports read back; membership release
+in progress:** the owner authorizes up to the exact 86 accepted packages, with
+canary first and no new canonical products/variants, corrections or migrations.
+Fresh manual-v4 plans passed the protected validator. Existing approval/apply
+created mappings/offers 4896/4709 (481/761), 4897/4710 (423/1837) and 4898/4711
+(1492/4670), with three initial price observations. Independent protected
+readback confirms exact identities, GBP delivery and source-returned EPN URLs.
+Version 2 proposes those actual three additions to the unchanged legacy 237.
+Release CI, deployment, public visibility and maintenance remain separate gates
+before any of the remaining 83 imports. Historical v1 test fixtures retain
+their original contract; a fresh-process regression validates the active
+manifest and shared consumers. Evidence: `tmp/ebay-commercial-phase20-2026-11-27/`.
+All 89 decisions, 86 historical packages and 170 cases remain intact; 743/809,
+the three accepted blocked cases and Predators Gear are excluded. Ledger stays
+273/pending0; no SQL, workflow, schedule or credential change is authorized.
+
+**27 November 2026 Phase 19 — owner-authorized membership release:** publish,
+CI, normal merge and the existing production deployment path are authorized
+for the prepared Phase 18 patch, with active version 1, additions [] and the
+same Exact-237 identities. Release review narrows legacy native review to
+the five exact after-bindings from the September remediation; other native
+drift still fails closed. One exact branch rule prevents Vercel Preview for
+`feat/ebay-commercial-activation-readiness-phase18`; main remains enabled.
+No migration, import, business approval/apply, new eBay API call or membership
+expansion is authorized. Actual commit/CI/deployment, compatibility and READ
+ONLY postflight receipts belong to `tmp/ebay-commercial-phase19-2026-11-27/`.
+All 89 decisions, 86 packages, 170 cases and historical evidence are retained.
+
+**27 November 2026 Phase 18 — local eBay activation preparation only:** the
+existing refresh scope now has one local versioned membership contract, with
+active version 1 preserving the frozen Exact-237. The 86 accepted packages
+retain their historical evidence and have freshly prepared v4 plans checked
+through the existing production READ ONLY validator. Synthetic 323/240 scopes
+exercise the existing maintenance/artifact/postflight path. No production
+write, import, technical approval, activation, migration, workflow dispatch,
+commit, push, merge or deployment is authorized or performed in this phase.
+The five native-ID differences from September remediation stay review-only;
+they are not a Phase 17 regression or authority to rebind listings. See
+[Phase 18 evidence and future handoff](../rollouts/ebay-commercial-activation-readiness-2026-11-27.md).
+This checkpoint does not start a new RA consolidation task or supersede any
+owner-deferred retailer decision.
+
+**23 November 2026 eBay Draft565 safe synchronization — local verification PASS;
+separate release approval required:** existing565 is synchronized with released
+main ed37821e without rewriting its original25f70336 commit. Only the execution-
+ledger insertion conflicted; both dated histories are preserved. The original
+seven-file eBay patch is unchanged, all shared profile definitions equal main,
+and Gladiator603/MASS_PRICE/MASS_CHANGE/E/K plus10Reps owner-only publication
+remain intact. Historical45028324611/2739/7584 replay now produces non-executable
+SHIPPING_POLICY_DRIFT policy review; normal price/stock/combined contracts pass.
+Focused274 and full4147 PASS (3 existing SKIP); native PostgreSQL NOT_RUN because
+Docker is unavailable. READ ONLY confirms237 mappings/offers, CURRENT270/pending0
+and no active eBay execution; five known external-ID conflicts remain untouched.
+No SQL/config/cron/source-reader/publisher/executor changes, production writes,
+dispatch, publication or release. Final head-bound CI belongs in Draft565.
+Gladiator review-only45155656444 is independently PASS with416 published cards;
+its production apply remains PENDING_NATURAL_RUN. eBay production NOT_RECOVERED.
+[Sync, regression and owner-controlled next step](GLADIATOR-EBAY-RECOVERY-2026-11-22.md#pr565-safe-sync-and-release-readiness).
+
+**22 November 2026 evening Gladiator/eBay recovery — READ ONLY / Draft only:**
+main unchangedc6955304, CURRENT270/pending0. Existing Draft564 remains unchanged;
+fresh Gladiator sourceHTTP200/161/881 still has416 held prices and603 stale
+offers. eBay natural45028324611 refreshed156 with postflight/idempotency PASS,
+but publication fails on one shipping delta mislabeled UPDATE_PRICE. SELECT of
+the actual live guard isolates review7584; minimal existing-policy quarantine
+is prepared separately, without SQL/guard changes. Real queue loader, pagination,
+history, REVIEW_ONLY and counters pass. Production recovery remains BLOCKED;
+no writes/dispatch/release. [Evidence and owner-controlled plan](GLADIATOR-EBAY-RECOVERY-2026-11-22.md).
+
+**22 November 2026 Gladiator minimal E/K closeout — implementation prepared,
+production NOT RECOVERED:** the owner authorized only existing Draft564 code,
+tests and local verification. The existing two-capture opt-out keeps hard price
+anomalies outside executable plans; two existing read-only publication policies
+cover HARD_PRICE_ANOMALY and CANONICAL_IDENTITY_CONFLICT. Numeric guardrails,
+shared runtime, SQL, cron, manifest and Draft565 remain unchanged. The 187/416
+aggregate regression still passes. No release, approval/apply, publication or
+production write is authorized; normal-cron authority needs a separate decision.
+[Latest implementation, test evidence and exact cron boundary](GLADIATOR-REFRESH-RECOVERY-2026-11-22.md#owner-authorized-minimal-ek-closeout).
+
+**22 November 2026 Gladiator refresh recovery — local correction / production
+BLOCKED:** READ ONLY confirmed CURRENT270/pending0 and 603 stale approved offers;
+last complete natural apply was 19 November (603). Run44923097560 correctly
+isolated 416 MASS_PRICE rows but its shared publication profile expected only
+187 classifier rows and failed before apply. The minimal existing-profile fix
+reuses shared read-only aggregate policies; incident regression and archived
+artifact replay pass locally. Today's neutral Shopify read returned HTTP429;
+no fresh-price/live-recovery claim, production write, publication or release.
+[Recovery evidence and approval-bound next step](GLADIATOR-REFRESH-RECOVERY-2026-11-22.md).
+
+**20 November 2026 PR560 controlled release ? SQL APPLIED / REPOSITORY CLOSED:**
+exact approved counter migration has independently verified270/ea11b693, same
+reader privileges and unchanged business/queue/control data. Actual applicator
+receipt consumed production pending; staging120/pending3 unchanged. Canonical
+counts494/9/0, SQL performance61.911 to51.329ms, focused263 and isolated SQL4 pass.
+Code release/live verification and restoring the27 paused writers remain pending;
+no publication/catalogue/automation logic change. [Current release evidence](CATALOG-HEALTH-REVIEW-COUNTS-RELEASE-2026-11-20.md).
+
+**20 November 2026 PR560 controlled release — BLOCKED BEFORE REHEARSAL:**
+exact approved3e64e69b/main81349995 and migration hash match. Production READ ONLY
+preflight failed with Query read timeout; separate READ ONLY connection timed
+out. Staging and all release stages remain NOT_RUN. No business/queue/migration
+writes, no workflow disable/enable, no merge/deploy;269/PENDING stays unchanged.
+Normal authenticated production page still renders Unavailable. No runtime or
+architecture change was made. [STOP history and receipts](CATALOG-HEALTH-REVIEW-COUNTS-RELEASE-2026-11-20.md).
+
+**20 November 2026 Catalog Health implementation — NEEDS_OWNER_APPROVAL:**
+approved4348460a design is implemented in Draft560. The existing queue reader
+adds four retailer-summary fields; health reuses one bounded page reader and
+rejects missing/invalid summaries. Exact SQL migration is pending production;
+CURRENT269/f54057cd and staging120/pending3 remain unchanged. Actual isolated
+SQL rollback/apply, unchanged ACL/data,14-retailer status/scale tests and client
+compatibility pass. Current production readback yields494/9/0; no hardcoded
+reference counts or business/queue writes. Controlled270 is only tool-derived
+future closeout, not an applied state. See [implementation evidence and release order](CATALOG-HEALTH-REVIEW-COUNTS-IMPLEMENTATION-2026-11-20.md).
+
+**20 November 2026 Catalog Health counter incident — NEEDS_OWNER_APPROVAL:**
+READ ONLY on main81349995/269 reproduces7082>1000 and all-retailer Unavailable.
+Existing reader/available functions do not expose the required three aggregates;
+PostgREST aggregates returnPGRST123. Implementation stops at the owner's SQL
+boundary. The minimal design extends the existing current-summary projection,
+with one bounded loader call, no new reader or data path. Isolated status/scale
+design checks pass; live filtered parity491 pending/9 source failures/0 blocked.
+No runtime change, pending migration, business write, publish/approval/execution,
+workflow, watchdog or durable change. See [proposal and evidence](CATALOG-HEALTH-REVIEW-COUNTS-2026-11-20.md).
+
+**20 November 2026 PR558 safe publication boundary — NEEDS_OWNER_APPROVAL:**
+one owner-scoped follow-up reuses the shared publisher/RPC, immutable source and
+existing exact authorized-artifact retry. Generic owner-only profile policy keeps
+10Reps scheduled publication in preparation, preserving its commercial path and
+other retailers' automatic publication. Fresh44712746385 verifies950=836+114 and
+259 full-request operations;109 are evidence-only versions,36 explicit source
+resolutions. Decisions/executions are protected; no operation list is filtered.
+This remains Draft-only code on main857847ab/269/pending=[], not production proof.
+No PR559, durable rollout, migration or data write. Existing371-test-file inventory
+is preserved. See [implementation, evidence and controlled next decision](PR558-SAFE-PUBLICATION-BOUNDARY-2026-11-20.md).
+
+**19 November 2026 owner-scoped hardening — NEEDS_OWNER_APPROVAL:**
+separate shared-watchdog Draft PR preparation uses main3a0ee9a/CURRENT269,
+pending=[]. Exact retailer jobs, immutable workflow-version skip proof,
+publication wrapper names and bounded scheduled history are corrected without
+changing existing limits, fingerprint checks or native historical FAIL receipts.
+Local/API verification does not earn ordinary observation credit or global
+LIVE VERIFIED. Simply publication and10Reps canonical review are independent
+Draft scopes; worker schedule investigation is read-only. No new runtime,
+table, migration, executor, publisher or production mutation is included.
+See the [scoped watchdog report](WATCHDOG-CORRELATION-HARDENING-2026-11-19.md).
+
 **19 November PR556 owner-approved controlled release — IN PROGRESS:** exact
 source `da4f591b` and migration06286512…187aa passed protected rehearsal, rollback
 readback and one production apply. Independent READ ONLY confirms CURRENT269,

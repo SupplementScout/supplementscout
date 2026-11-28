@@ -7,6 +7,7 @@ const {
   CONTRACT_KIND,
   buildOwnerApprovedPackage,
   buildPreparedPackage,
+  buildPreparedFormatPackage,
   loadPackage,
   packageFingerprint,
   preparationFingerprint,
@@ -25,6 +26,103 @@ const {
 } = require("./reviewed-product-pack-correction");
 
 const PACKAGE_SHA = "a".repeat(64);
+
+function formatFixture({ variant = false, format = "powder" } = {}) {
+  return buildPreparedFormatPackage({ target: "production", reviewedFormat: format,
+    product: { id: "991", name: "TEST ONLY Example", brand: "Example", product_format: null, is_active: true, merged_into_product_id: null },
+    variant: variant ? { id: "992", product_id: "991", display_name: "Example / 225g", flavour_label: "Example",
+      size_value: "225", size_unit: "g", pack_count: "1", product_format: null, is_active: true } : null,
+    preparationEvidence: { relative_path: "tmp/test-only/prepared.json", sha256: "1".repeat(64), artifact_fingerprint: "2".repeat(64) },
+    sourceEvidence: { relative_path: "tmp/test-only/source.json", sha256: "3".repeat(64) },
+  });
+}
+
+test("typed format extension prepares only a reviewed NULL fill without claiming approval", () => {
+  for (const variant of [false, true]) for (const format of ["powder", "capsule"]) {
+    const value = formatFixture({ variant, format });
+    assert.equal(value.schema_version, 2);
+    assert.equal(value.status, "PREPARED");
+    assert.equal(value.authorized_by, null);
+    assert.equal(value.operation.table, variant ? "product_variants" : "products");
+    assert.equal(value.operation.expected_before, null);
+    assert.doesNotThrow(() => validatePackage(value));
+    assert.doesNotThrow(() => assertState({ valid: true, product_id: "991", product_variant_id: variant ? "992" : null,
+      table: value.operation.table, field: "product_format", current_value: null, single_canonical_row: true }, value, null, "test"));
+  }
+});
+
+test("typed format extension rejects unrelated columns, records, filled formats and missing evidence", () => {
+  const changes = [p => { p.operation.field = "gtin"; }, p => { p.operation.table = "offers"; },
+    p => { p.operation.expected_before = "powder"; }, p => { p.operation.reviewed_after = "unknown"; },
+    p => { p.operation.product_id = "999"; }, p => { p.operation.product_variant_id = "999"; },
+    p => { p.expected_state.variant.product_id = "999"; }, p => { p.expected_state.variant.product_format = "capsule"; },
+    p => { p.evidence.source_evidence.sha256 = ""; }, p => { p.policy.single_field_only = false; },
+    p => { p.operation.extra_column = "unsafe"; }, p => { p.expected_state.product.name = "changed"; }];
+  for (const mutate of changes) {
+    const value = formatFixture({ variant: true }); mutate(value);
+    // A changed full state cannot reuse its old seal. Other mutations are
+    // resealed so the closed operation schema, rather than hashing alone, fails.
+    if (value.expected_state.product.name !== "changed") value.package_fingerprint = packageFingerprint(value);
+    assert.throws(() => validatePackage(value));
+  }
+  assert.throws(() => assertState({ valid: true, product_id: "991", product_variant_id: "999", table: "product_variants",
+    field: "product_format", current_value: null, single_canonical_row: true }, formatFixture({ variant: true }), null, "test"), /variant ID/);
+});
+
+test("typed format extension loads sealed preparation files and rejects a resealed wrong scope", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "format-preparation-"));
+  const temporary = path.join(root, "tmp");fs.mkdirSync(temporary);
+  try {
+    const value = formatFixture({ variant: true });
+    const source = Buffer.from("TEST ONLY retained physical proof");fs.writeFileSync(path.join(temporary, "source.txt"), source);
+    value.evidence.source_evidence = { relative_path: "tmp/source.txt", sha256: sha256(source) };
+    const preparation = { schema_version: 2, target: { product_id: "991", product_variant_id: "992" },
+      required_actions: { format_correction_required: true, exact_product_format_correction: {
+        field: "product_variants.product_format", before: null, after: "powder" } },
+      expected_state: structuredClone(value.expected_state), source_evidence: value.evidence.source_evidence };
+    const write = () => {
+      preparation.artifact_fingerprint = preparationFingerprint(preparation);
+      const preparedBytes = Buffer.from(JSON.stringify(preparation));fs.writeFileSync(path.join(temporary, "prepared.json"), preparedBytes);
+      value.evidence.preparation_artifact = { relative_path: "tmp/prepared.json", sha256: sha256(preparedBytes), artifact_fingerprint: preparation.artifact_fingerprint };
+      value.package_fingerprint = packageFingerprint(value);
+      const bytes = Buffer.from(JSON.stringify(value));fs.writeFileSync(path.join(temporary, "package.json"), bytes);
+      return { root, packagePath: "tmp/package.json", packageSha256: sha256(bytes), target: "production" };
+    };
+    assert.doesNotThrow(() => loadPackage(write()));
+    preparation.target.product_variant_id = "993";
+    assert.throws(() => loadPackage(write()), /format binding mismatch/);
+    preparation.target.product_variant_id = "992";preparation.expected_state.product.name = "another family";
+    assert.throws(() => loadPackage(write()), /expected state mismatch/);
+  } finally { fs.rmSync(root, { recursive: true, force: true }); }
+});
+
+test("typed format extension reuses the validator, approval, apply and readback lifecycle", async () => {
+  const value = buildOwnerApprovedPackage(formatFixture({ variant: true }), {
+    authorizedBy: "phase14-test-owner", authorizedAt: "2026-11-25T10:00:00.000Z" });
+  const queries = [];
+  const state = current => ({ valid: true, table: "product_variants", field: "product_format", product_id: "991",
+    product_variant_id: "992", current_value: current, single_canonical_row: true });
+  const client = { async query(sql) {
+    queries.push(sql);
+    if (sql === VALIDATE_SQL) return { rows: [{ result: state(null) }] };
+    if (sql === APPROVE_SQL) return { rows: [{ result: { approval_id: "11111111-1111-4111-8111-111111111111", status: "approved",
+      expires_at: new Date(Date.now() + 600000).toISOString(), artifact_sha256: PACKAGE_SHA, package_fingerprint: value.package_fingerprint,
+      product_id: "991", field: "product_format", target_environment: value.target_environment, target_project_ref: value.target_project_ref,
+      validated_state: state(null) } }] };
+    if (sql === APPLY_SQL) return { rows: [{ result: { approval_status: "consumed", updated_rows: 1, row_count_delta: 0,
+      before_value: null, after_value: "powder" } }] };
+    if (sql === READBACK_SQL) return { rows: [{ result: state("powder") }] };
+    throw Error("Unexpected SQL");
+  }, async end() {} };
+  const result = await run({ mode: "apply", target: "production", packagePath: "tmp/test-only/package.json",
+    packageSha256: PACKAGE_SHA, outputPath: "tmp/test-only/audit.json", confirmed: true }, {
+    loadPackage: () => ({ value, packageSha256: PACKAGE_SHA }), connect: async () => client,
+    roleTransaction: async (connection, target, kind, callback) => callback(connection),
+    assertCleanMain: () => "f".repeat(40), writeNewJson: () => ({ sha256: "b".repeat(64) }),
+  });
+  assert.equal(result.result, "PASS");assert.equal(result.business_row_writes, 1);
+  assert.deepEqual(queries, [VALIDATE_SQL, APPROVE_SQL, APPLY_SQL, READBACK_SQL]);
+});
 
 function reseal(value) {
   value.package_fingerprint = packageFingerprint(value);

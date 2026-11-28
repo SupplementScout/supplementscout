@@ -194,11 +194,16 @@ test("Discount publication validates the complete existing contract and rejects 
   const report={result:"PASS_WITH_REVIEW",mode:"dry-run",target:"production",source:{fingerprint},approved_mapping_count:109,
     executable_plan_count:106,executed_plan_count:0,review_row_count:3,blocked_row_count:0,execution_offer_ids:executionIds,
     verification_offer_ids:executionIds,stock_change_offer_ids:[],classification:{VERIFY_NO_CHANGE:106},
-    review_rows:input.targets.slice(106).map(row=>({...row,reason:"CANONICAL_IDENTITY_CONFLICT",source_record_evidence:{canonical_identity:{default_variant:true}}}))};
+    review_rows:input.targets.slice(106).map(row=>({...row,reason:"CANONICAL_IDENTITY_CONFLICT",action:"BLOCK_IDENTITY_DRIFT",
+      new_price:null,new_stock:null,proposed_offer:null,changed_fields:{price:false,stock:false,url:false,blocked:true},
+      source_record_evidence:{canonical_identity:{reason:"CANONICAL_IDENTITY_CONFLICT",default_variant:true,
+        product_id:String(Number(row.offer_id)+10000),variant_id:String(Number(row.offer_id)+20000),active_explicit_variant_ids:[String(Number(row.offer_id)+30000)]}}}))};
   const diagnostic={result:"PASS",approved_mapping_count:109,source:{fingerprint},classifier_summary:{
     scope:{blocked_rows:0,reconciled:true,reconciled_total:106,scope_row_ids:executionIds},action_counts:report.classification,changed_rows:[],changed_row_ids:[]}};
   const baseline={schema_version:1,kind:"retailer-offer-refresh-db-baseline",result:"PASS",profile:"discount-supplements",
-    snapshot:{retailer_id:"4",retailer_name:"Discount Supplements",row_count:109,rows:input.targets.map(row=>({...row,mapping_id:row.retailer_product_id}))}};
+    snapshot:{retailer_id:"4",retailer_name:"Discount Supplements",row_count:109,rows:input.targets.map(row=>({...row,mapping_id:row.retailer_product_id,
+      offer_product_id:String(Number(row.offer_id)+10000),mapping_product_id:String(Number(row.offer_id)+10000),
+      offer_variant_id:String(Number(row.offer_id)+20000),mapping_variant_id:String(Number(row.offer_id)+20000)}))}};
   const write=()=>{for(const [name,data] of [["production-dry-run.json",report],["production-preflight-diagnostic.json",diagnostic],["production-db-baseline.json",baseline]])fs.writeFileSync(path.join(directory,name),JSON.stringify(data));};
   write();const source=loadAndValidateSource(directory,"discount-supplements");
   assert.equal(source.changedRows.length,3);assert.ok(source.changedRows.every(row=>row.action==="READ_ONLY_REVIEW"));

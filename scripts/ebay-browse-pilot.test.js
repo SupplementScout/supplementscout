@@ -1,3 +1,6 @@
+// These immutable refresh/artifact fixtures describe the historical v1 scope.
+const legacyMembershipPath = require.resolve("../config/retailers/ebay-approved-membership.json");
+require.cache[legacyMembershipPath] = { id: legacyMembershipPath, filename: legacyMembershipPath, loaded: true, exports: require("./fixtures/ebay-membership-v1.json") };
 const assert = require("node:assert/strict");
 const crypto = require("node:crypto");
 const fs = require("node:fs");
@@ -845,6 +848,7 @@ test("eBay per-row preflight isolates identity and commercial review without pol
   const conflictId = "2582";
   const commercialId = "2549";
   const hardPriceId = "2560";
+  const shippingId = "2739"; // Run 45028324611: delivery 2.99 -> 2.50, price 21.95 -> 21.90.
   const testOut = fs.mkdtempSync(path.join(os.tmpdir(), "ebay-offer-refresh-test-"));
   t.after(() => fs.rmSync(testOut, { recursive: true, force: true }));
   const sharedReport = path.join(process.cwd(), "tmp", "ebay-offer-refresh", "production-dry-run.json");
@@ -873,13 +877,15 @@ test("eBay per-row preflight isolates identity and commercial review without pol
   const hardPriceEvaluation = evaluations.get(hardPriceId);
   hardPriceEvaluation.item_price = { value: 129, currency: "GBP" };
   hardPriceEvaluation.delivered_price = { value: 129 + hardPriceEvaluation.uk_shipping.value, currency: "GBP" };
+  Object.assign(evaluations.get(shippingId), { item_price: { value: 21.90, currency: "GBP" },
+    uk_shipping: { value: 2.50, currency: "GBP" }, delivered_price: { value: 24.40, currency: "GBP" } });
   const plans = new Map();
   const report = await runRefresh({ target: "production", mode: "dry-run" }, {
     config: {}, token: "test-token", evaluations, outDir: testOut, now: new Date("2026-10-01T12:00:01.000Z"),
     runImportRows: async ([row]) => {
       const scope = REFRESH_SCOPES.find((candidate) => candidate.external_variant_id === row.external_variant_id);
       if (scope.offer_id === conflictId) return { report: { approvedRows: [] }, blockedRows: [{ block_reason: "conflicting variant evidence: retailer product mapping" }] };
-      if (scope.offer_id === commercialId || scope.offer_id === hardPriceId) {
+      if ([commercialId, hardPriceId, shippingId].includes(scope.offer_id)) {
         const beforePrice = scope.offer_id === hardPriceId ? "149.00" : scope.price;
         const mappingValues = {
           external_product_id: scope.external_product_id, external_variant_id: scope.external_variant_id, external_sku: null,
@@ -924,15 +930,23 @@ test("eBay per-row preflight isolates identity and commercial review without pol
   });
   assert.equal(report.result, "PASS_WITH_REVIEW");
   assert.equal(report.approved_mapping_count, 237);
-  assert.equal(report.executable_plan_count, 234);
+  assert.equal(report.executable_plan_count, 233);
   assert.equal(report.executed_plan_count, 0);
-  assert.equal(report.review_row_count, 3);
+  assert.equal(report.review_row_count, 4);
   assert.equal(report.blocked_row_count, 0);
   assert.equal(report.identity_conflict_count, 1);
   assert.equal(report.commercial_change_count, 2);
-  assert.equal(report.classification.VERIFY_NO_CHANGE, 234);
+  assert.equal(report.classification.VERIFY_NO_CHANGE, 233);
   assert.equal(report.classification.UPDATE_PRICE, 2);
-  assert.deepEqual(report.review_rows.map((row) => row.offer_id), [commercialId, hardPriceId, conflictId]);
+  assert.deepEqual(report.review_rows.map((row) => row.offer_id), [commercialId, hardPriceId, conflictId, shippingId]);
+  const shippingReview = report.review_rows.find(row => row.offer_id === shippingId);
+  assert.equal(shippingReview.review_type, "POLICY_REVIEW");
+  assert.equal(shippingReview.action, "MANUAL_REVIEW");
+  assert.equal(shippingReview.reason, "SHIPPING_POLICY_DRIFT");
+  assert.equal(Number(shippingReview.source_record_evidence.expected_offer.shipping_cost), 2.99);
+  assert.equal(Number(shippingReview.source_record_evidence.observed_offer.shipping_cost), 2.50);
+  assert.ok(report.semantic_source_rows.find(row => row.offer_id === shippingId).review_reasons.includes("SHIPPING_POLICY_DRIFT"));
+  assert.equal(report.execution_offer_ids.includes(shippingId), false);
   assert.equal(report.execution_offer_ids.includes(commercialId), false);
   assert.equal(report.execution_offer_ids.includes(hardPriceId), false);
   assert.equal(report.execution_offer_ids.includes("2558"), true);
@@ -1359,7 +1373,7 @@ function artifactBoundFixture(now = new Date("2026-08-30T18:00:00.000Z")) {
   const allIds = Array.from({ length: 237 }, (_, index) => String(2539 + index));
   const executableIds = allIds.filter((id) => id !== "2686").slice(0, 197);
   const reviewIds = allIds.filter((id) => !executableIds.includes(id));
-  const semanticSourceRows = allIds.map((id) => ({ offer_id: id, mapping_id: `m-${id}`, item_id: `item-${id}`, price: "10.00", shipping: "0.00", total: "10.00", in_stock: true, url: `https://www.ebay.co.uk/itm/${id}` }));
+  const semanticSourceRows = REFRESH_SCOPES.map((scope) => ({ offer_id: scope.offer_id, mapping_id: scope.retailer_product_id, retailer_id: scope.retailer_id, product_id: scope.product_id, product_variant_id: scope.product_variant_id, external_product_id: scope.external_product_id, external_variant_id: scope.external_variant_id, item_id: scope.external_variant_id, price: "10.00", shipping: "0.00", total: "10.00", in_stock: true, url: scope.external_url }));
   const executable = executableIds.map((id) => ({ offer_id: id, operation_type: "VERIFY_NO_CHANGE", importer_operation_type: "verify_offer_no_change", plan_kind: "feed", retailer_id: "12", product: { action: "existing", id: `p-${id}` }, product_variant: { action: "existing", id: `v-${id}` }, retailer: { action: "existing", id: "12" }, retailer_product: { action: "noop", id: `m-${id}` }, offer: { action: "verify_no_change", id, values: { price: "10", shipping_cost: "0", total_price: "10", in_stock: true, url: `https://www.ebay.co.uk/itm/${id}` } }, price_history: { action: "noop" }, before_state: { offer: { id, product_id: `p-${id}`, product_variant_id: `v-${id}`, retailer_id: "12", retailer_product_id: `m-${id}`, price: "10", shipping_cost: "0", total_price: "10", in_stock: true, url: `https://www.ebay.co.uk/itm/${id}`, last_checked_at: "2026-08-29T00:00:00.000Z" }, retailer_product: { id: `m-${id}`, retailer_id: "12", product_id: `p-${id}`, product_variant_id: `v-${id}`, external_product_id: `ep-${id}`, external_variant_id: `ev-${id}`, external_sku: null, external_gtin: null, external_options: {}, external_url: `https://www.ebay.co.uk/itm/${id}` } } }));
   const reviewRows = reviewIds.map((offer_id, index) => offer_id === "2686" ? { offer_id, review_type: "SOURCE_FAILURE", source_error: "SOURCE_READ_FAILED" } : { offer_id, review_type: index < 7 ? "COMMERCIAL_CHANGE" : "IDENTITY_CONFLICT", action: index < 7 ? "UPDATE_PRICE" : "IDENTITY_CONFLICT" });
   const semanticPlanRows = { executable, review: reviewRows, blocked: [] };

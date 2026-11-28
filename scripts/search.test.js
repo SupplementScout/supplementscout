@@ -142,11 +142,11 @@ function nutritionCandidatePages(pages) {
 
 test("reviewed facts query unique product IDs instead of batching every 100 variants", async () => {
   const query = nutritionCandidatePages([{ data: [{ product_variant_id: 1 }], error: null }]);
-  let candidateCount = 0;
+  const candidateCounts = new Map();
   const { loadAppliedPreWorkoutFacts } = loadAppliedFactsModule(
     query.supabase,
-    (_productId, _variantId, _override, candidates) => {
-      candidateCount = candidates.length;
+    (_productId, variantId, _override, candidates) => {
+      candidateCounts.set(String(variantId), candidates.length);
       return { facts: [] };
     }
   );
@@ -164,7 +164,8 @@ test("reviewed facts query unique product IDs instead of batching every 100 vari
   assert.equal(query.calls[0].in[1].length, 163);
   assert.deepEqual(query.calls[0].eq, ["status", "approved"]);
   assert.deepEqual(query.calls[0].range, [0, 999]);
-  assert.equal(candidateCount, 1);
+  assert.equal(candidateCounts.get("1"), 0);
+  assert.equal(candidateCounts.get("650"), 0);
 });
 
 test("reviewed facts paginate candidates without truncating exact-variant proof", async () => {
@@ -175,7 +176,7 @@ test("reviewed facts paginate candidates without truncating exact-variant proof"
   }));
   const query = nutritionCandidatePages([
     { data: firstPage, error: null },
-    { data: [{ product_id: 38 }, { product_id: 38 }], error: null },
+    { data: [{ product_id: 38, product_variant_id: 726 }, { product_id: 38, product_variant_id: 727 }], error: null },
   ]);
   let candidateCount = 0;
   const { loadAppliedPreWorkoutFacts } = loadAppliedFactsModule(
@@ -187,7 +188,7 @@ test("reviewed facts paginate candidates without truncating exact-variant proof"
   );
 
   await loadAppliedPreWorkoutFacts([
-    { id: 726, product_id: 38, nutrition_override: null },
+    { id: 726, product_id: 38, nutrition_override: { serving_size_g: 10 } },
   ]);
 
   assert.equal(query.calls.length, 2);
@@ -195,7 +196,7 @@ test("reviewed facts paginate candidates without truncating exact-variant proof"
     [0, 999],
     [1000, 1999],
   ]);
-  assert.equal(candidateCount, 1002);
+  assert.equal(candidateCount, 1001);
 });
 
 test("product-scoped candidate query preserves variant-specific facts and overrides", async () => {
@@ -296,7 +297,8 @@ function loadProductsModule(
   observers = {}
 ) {
   const filename = path.join(process.cwd(), "app", "lib", "products.ts");
-  const source = fs.readFileSync(filename, "utf8");
+  // Expose the existing comparator only in this compiled test module.
+  const source = fs.readFileSync(filename, "utf8") + "\nexport { sortResults };";
   const { outputText } = ts.transpileModule(source, {
     compilerOptions: {
       module: ts.ModuleKind.CommonJS,
@@ -2382,4 +2384,198 @@ test("empty and malformed search inputs and database errors preserve their contr
   assert.equal(result.error, error);
   assert.deepEqual(result.results, []);
   assert.deepEqual(result.facets, { categories: [], brands: [], retailers: [], caffeine: [] });
+});
+
+function sortCostFixture() {
+  return Array.from({ length: 1000 }, (_, index) => {
+    const value = (index * 749) % 1000;
+    return {
+      id: String(value),
+      name: `Product ${String(value % 37).padStart(2, "0")}`,
+      relevanceScore: value % 9,
+      cheapestOffer: value % 13 === 0 ? null : {
+        productPrice: (value % 29) + 1,
+        deliveredPrice: value % 7 === 0 ? null : { totalPrice: (value % 31) + 1 },
+      },
+      verifiedPricePerServing: value % 5 === 0 ? null : (value % 19) / 100 + (value % 3) / 1000,
+      verifiedCostPer25gProtein: value % 3 === 0 ? null : (value % 17) / 100,
+      verifiedCostPer5gCreatine: value % 4 === 0 ? null : (value % 11) / 100,
+    };
+  });
+}
+
+test("all six sorts preserve the baseline order for 1000 mixed-price candidates", () => {
+  const { createHash } = require("node:crypto");
+  const { sortResults } = loadProductsModule();
+  const rows = sortCostFixture();
+  const expected = {
+    relevance: "cb949d8a0a9e710b33cbd24bbb5d629ee9a7514b1cb2c0bc64ef42578ddaf9e2",
+    price_asc: "7bc80d92d9fe8e230f2fb598ab5b6c999098095939e8c5a8407938a4c625a82b",
+    price_desc: "c70f02dbc72d4b2ca93a7e8f61c12fefa1ceb24b872fc08fa006e25e9731ff87",
+    price_per_serving_asc: "16386b9e2ec86bd88aa9f24aa5c6992c516dad9b206f7283a8675261ef9c9829",
+    cost_per_25g_protein_asc: "85603c6eeb2382ea107a46dd32832ee3acd560bad063a86f05b59a0f1a9b7e20",
+    cost_per_5g_creatine_asc: "b35ff6f65cfbe5e71b619c1e9da6d1996d062b6cc3680b255d9e5dfd62a51b9a",
+  };
+  for (const [sort, hash] of Object.entries(expected)) {
+    const sorted = sortResults(rows, sort);
+    assert.equal(createHash("sha256").update(JSON.stringify(sorted.map(({ id }) => id))).digest("hex"), hash, sort);
+    assert.equal(sorted.length, 1000);
+  }
+  assert.equal(rows[1].id, "749", "sorting must not mutate the input");
+});
+
+test("sort avoids price and name fallback work until the primary keys tie", () => {
+  const { sortResults } = loadProductsModule();
+  let namesCompared = 0;
+  const rows = sortCostFixture().slice(0, 2).map((row, index) => ({
+    ...row,
+    relevanceScore: index,
+    verifiedPricePerServing: index,
+    name: { localeCompare: () => { namesCompared++; return 0; } },
+  }));
+  sortResults(rows, "relevance");
+  sortResults(rows, "price_per_serving_asc");
+  assert.equal(namesCompared, 0);
+  sortResults(rows, "price_asc");
+  assert.equal(namesCompared, 1, "delivered-price sorting needs only one comparison");
+});
+
+test("reviewed proof batches preserve full-pool facts with linear variant scoping", async () => {
+  const { scenario } = require("./benchmark-search-pipeline");
+  const data = scenario({ name: "proof regression", products: 200, variantsPerProduct: 3 });
+  const resolver = loadReviewedFactsResolver();
+  const pages = [];
+  for (let from = 0; from < data.candidates.length; from += 1000) {
+    pages.push({ data: data.candidates.slice(from, from + 1000), error: null });
+  }
+  const query = nutritionCandidatePages(pages);
+  let inspectedPoolRows = 0;
+  const { loadAppliedPreWorkoutFacts } = loadAppliedFactsModule(query.supabase, (...args) => {
+    inspectedPoolRows += args[3].length;
+    return resolver(...args);
+  });
+  const actual = await loadAppliedPreWorkoutFacts(data.variants);
+  const expected = new Map(data.variants.map(variant => [String(variant.id),
+    resolver(variant.product_id, variant.id, variant.nutrition_override, data.candidates),
+  ]));
+  assert.deepEqual(actual, expected);
+  assert.equal(actual.size, 600);
+  assert.equal(query.calls.length, 4);
+  assert.equal(inspectedPoolRows, 3600, "each requested variant receives its own six rows, not 3800 rows 600 times");
+  assert.equal(actual.get(String(data.variants[0].id)).caffeineFreeConfirmed, true);
+  assert.equal(actual.get(String(data.variants[1].id)).caffeineFreeConfirmed, false);
+});
+
+test("proof grouping preserves numeric/string IDs, product guards, duplicates and source order", async () => {
+  const { scenario } = require("./benchmark-search-pipeline");
+  const data = scenario({ name: "identity regression", products: 2, variantsPerProduct: 2 });
+  const resolver = loadReviewedFactsResolver();
+  const variant = data.variants[1];
+  const caffeine = data.candidates.find(row => row.product_variant_id === variant.id && row.proposed_field === "caffeine_per_serving_mg");
+  data.candidates.unshift(
+    { ...caffeine, status: "pending" },
+    { ...caffeine, product_id: 999999 },
+    { ...caffeine, product_variant_id: null },
+    { ...caffeine, product_variant_id: 999999 },
+    { ...caffeine, product_id: String(variant.product_id), product_variant_id: String(variant.id), source_locator: "web:fixture", source_type: "retailer_feed" },
+  );
+  const variants = [...data.variants, { ...variant, id: String(variant.id) }];
+  const query = nutritionCandidatePages([{ data: data.candidates, error: null }]);
+  const { loadAppliedPreWorkoutFacts } = loadAppliedFactsModule(query.supabase, resolver);
+  const actual = await loadAppliedPreWorkoutFacts(variants);
+  const expected = new Map(variants.map(row => [String(row.id), resolver(row.product_id, row.id, row.nutrition_override, data.candidates)]));
+  assert.deepEqual(actual, expected);
+  assert.equal(actual.size, 4);
+  assert.deepEqual(actual.get(String(variant.id)).facts.find(fact => fact.key === "caffeine").sourceKinds,
+    ["retailer_source", "product_label"]);
+  assert.equal(actual.get(String(variant.id)).productId, String(variant.product_id));
+});
+
+test("proof grouping never reuses an approval from a preceding request", async () => {
+  const { scenario } = require("./benchmark-search-pipeline");
+  const data = scenario({ name: "approval refresh", products: 1 });
+  const query = nutritionCandidatePages([{ data: data.candidates, error: null }, { data: [], error: null }]);
+  const { loadAppliedPreWorkoutFacts } = loadAppliedFactsModule(query.supabase, loadReviewedFactsResolver());
+  const first = await loadAppliedPreWorkoutFacts(data.variants);
+  const second = await loadAppliedPreWorkoutFacts(data.variants);
+  assert.equal(first.get(String(data.variants[0].id)).caffeineFreeConfirmed, true);
+  assert.deepEqual(second.get(String(data.variants[0].id)).facts, []);
+  assert.equal(second.get(String(data.variants[0].id)).caffeineFreeConfirmed, false);
+  assert.equal(query.calls.length, 2);
+});
+
+test("proof grouping preserves multi-component matching and representation conflicts", async () => {
+  const { scenario } = require("./benchmark-search-pipeline");
+  const data = scenario({ name: "component proof", products: 1 });
+  const variant = data.variants[0];
+  const singular = variant.nutrition_override.citrulline;
+  delete variant.nutrition_override.citrulline;
+  const candidate = data.candidates.find(row => row.proposed_field === "citrulline_per_serving_mg");
+  const components = [
+    { ...singular, amount_per_serving_mg: 3000, source_quantity_value: 3000, ingredient_form: "citrulline_malate", ingredient_ratio: "2:1" },
+    { ...singular, amount_per_serving_mg: 1500, source_quantity_value: 1500 },
+  ];
+  variant.nutrition_override.citrulline_components = components;
+  for (const applied of components) data.candidates.push({ ...candidate,
+    proposed_field: "citrulline_component_per_serving_mg", proposed_value: applied.amount_per_serving_mg,
+    approved_value: applied.amount_per_serving_mg, source_quantity_value: applied.source_quantity_value,
+    ingredient_form: applied.ingredient_form, ingredient_ratio: applied.ingredient_ratio || null,
+  });
+  const resolver = loadReviewedFactsResolver();
+  const query = nutritionCandidatePages([{ data: data.candidates, error: null }, { data: data.candidates, error: null }]);
+  const { loadAppliedPreWorkoutFacts } = loadAppliedFactsModule(query.supabase, resolver);
+  for (const conflict of [false, true]) {
+    if (conflict) variant.nutrition_override.citrulline = singular;
+    const actual = (await loadAppliedPreWorkoutFacts(data.variants)).get(String(variant.id));
+    assert.deepEqual(actual, resolver(variant.product_id, variant.id, variant.nutrition_override, data.candidates));
+    assert.equal(actual.facts.filter(fact => fact.key === "citrulline_component").length, conflict ? 0 : 2);
+  }
+});
+
+test("null overrides still read and fail closed but never expose unapplied evidence", async () => {
+  const { scenario } = require("./benchmark-search-pipeline");
+  const data = scenario({ name: "unapplied evidence", products: 1 });
+  const variants = data.variants.map(variant => ({ ...variant, nutrition_override: null }));
+  const query = nutritionCandidatePages([
+    { data: data.candidates, error: null }, { data: null, error: { message: "fixture error" } },
+  ]);
+  const resolver = loadReviewedFactsResolver();
+  let receivedCandidates = 0;
+  const { loadAppliedPreWorkoutFacts } = loadAppliedFactsModule(query.supabase, (...args) => {
+    receivedCandidates += args[3].length;
+    return resolver(...args);
+  });
+  const result = await loadAppliedPreWorkoutFacts(variants);
+  assert.deepEqual(result.get(String(variants[0].id)), resolver(variants[0].product_id, variants[0].id, null, data.candidates));
+  assert.equal(receivedCandidates, 0);
+  await assert.rejects(loadAppliedPreWorkoutFacts(variants, { failOnError: true }), /Unable to verify applied pre-workout facts/);
+  assert.equal(query.calls.length, 2);
+});
+
+test("a later proof-page error discards partial facts and preserves strict failures", async (t) => {
+  const { scenario } = require("./benchmark-search-pipeline");
+  const data = scenario({ name: "partial error", products: 200 });
+  const error = { message: "fixture read failure" };
+  const first = { data: data.candidates.slice(0, 1000), error: null };
+  const query = nutritionCandidatePages([first, { data: null, error }, first, { data: null, error }]);
+  const { loadAppliedPreWorkoutFacts } = loadAppliedFactsModule(query.supabase, loadReviewedFactsResolver());
+  const logged = t.mock.method(console, "error", () => {});
+  assert.equal((await loadAppliedPreWorkoutFacts(data.variants)).size, 0);
+  await assert.rejects(loadAppliedPreWorkoutFacts(data.variants, { failOnError: true }), /Unable to verify applied pre-workout facts/);
+  assert.equal(logged.mock.callCount(), 1);
+  assert.equal(query.calls.length, 4);
+});
+
+test("full search payloads and read shapes match baseline across six sorts and filters", async () => {
+  const { scenario, loadSearch, SORTS } = require("./benchmark-search-pipeline");
+  const data = scenario({ name: "complete search parity", products: 34, variantsPerProduct: 2 });
+  const before = loadSearch(data, { ref: "ab24fc203f89297dce424468b62c0184198ec875" });
+  const after = loadSearch(data);
+  for (const sort of SORTS) for (const [retailer, caffeine, budget, page] of [
+    ["", "", false, 1], ["shop-2", "", false, 2], ["", "free", true, 1], ["shop-3", "free", false, 2],
+  ]) {
+    const options = { sort, retailer, caffeine, budget, page };
+    assert.deepEqual(await after.run(options), await before.run(options));
+    assert.deepEqual(after.calls, before.calls);
+  }
 });

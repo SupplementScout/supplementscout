@@ -1,5 +1,46 @@
 # Simply through the existing shared review publisher
 
+## 28 November 2026 — current Draft revision
+
+The existing PR #559/worktree is reused on main
+`06fa1c2db85c5abfb20bb3896e35ed29f3fe58ef`; the original two commits and evidence
+below remain historical. This revision preserves the 9 September owner decision:
+monitor exactly its original 27 IDs, with no review-row writes. The historical
+list contains 593, not 595; neither 596 nor 669 is in it. No later standard
+publication approval was found. The profile therefore uses the now-existing
+`OWNER_AUTHORIZED_ARTIFACT_ONLY` mode. The common composite prepares evidence
+and skips automatic publication; the deployed-profile guard rejects same-run
+publication even if an artifact claims AUTOMATIC. A later exact authorized retry
+uses the existing owner confirmation, baseline/decision protection and publisher.
+The binder exposes its existing profile mode as metadata. The workflow uses a
+distinct preparation step name in owner-only mode, so the watchdog's existing
+exact publication-step matcher cannot mistake artifact preparation for a write.
+
+Current main already supplies complete-source owner-mode validation, immutable
+source binding, publication authorization and durable rollout handling. Reuse
+those paths instead of the older Draft's duplicate capture checks and proposed
+per-profile durable-availability guard. No production control is removed: that
+proposal was never deployed. OFF/absent retains the shared legacy preparation
+semantics; ON binds DURABLE_REQUIRED and enforces storage/registry verification.
+No rollout control is changed and local ON mocks are not production proof.
+
+Artifact 15207952662 has an overwritten final dry-run (117 VERIFY_NO_CHANGE)
+but preflight/apply evidence for 116 VERIFY_NO_CHANGE plus one UPDATE_STOCK.
+The original artifact must fail exact classification comparison. Its 120/117/3
+case is replayed locally with explicitly derived pre-execution evidence; source
+capture timestamps and original ZIP remain unchanged. Future native runs use
+the existing binder/sealedFiles before apply/idempotency can overwrite captures.
+596/669/670 remain SOURCE_MISSING, KEEP_UNCHANGED, review-only, without execution.
+Tests cover dynamic/empty partitions, lifecycle, exact identities/manifest,
+bindings/expiry, owner-only admission, protected mock publication/idempotency and
+unchanged Discount regressions. No SQL, manifest, executor or source-reader change.
+
+Release and standard publication require a separate owner decision naming the
+final reviewed SHA and replacing the historical no-review-row-write policy.
+This Draft does not grant that decision, enable AUTOMATIC or publish old evidence.
+
+## Historical 19 November proposal
+
 Status: **NEEDS_OWNER_APPROVAL**. This Draft PR proposes publication policy v1
 for the existing120 approved offers. It does not authorize production publication,
 commercial writes, migration, merge or deployment. No new publisher or executor.

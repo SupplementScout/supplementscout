@@ -7,7 +7,7 @@ const {
   buildPublicationRpcRequest,
   sha256,
 } = require("./lib/automation-review-publisher");
-const { bindDurableArtifactContract, rolloutState } = require("./lib/sealed-artifacts");
+const { bindDurableArtifactContract } = require("./lib/sealed-artifacts");
 const {
   PROFILES,
   profileFor: publicationProfileFor,
@@ -152,7 +152,7 @@ function bindSource(directory, env = process.env, profileValue = "fit-house") {
   const contract = buildSourceContract(directory, env, profile.key, profile.sealedFiles);
   const output = path.join(directory, CONTRACT_FILE);
   fs.writeFileSync(output, `${JSON.stringify(contract, null, 2)}\n`, { flag: "wx" });
-  const values = { contract_sha256: fileSha256(output), review_scope_fingerprint: contract.review_scope_fingerprint };
+  const values = { contract_sha256: fileSha256(output), review_scope_fingerprint: contract.review_scope_fingerprint, publication_mode: profile.publicationMode };
   fs.appendFileSync(env.GITHUB_OUTPUT, Object.entries(values).map(([key, value]) => `${key}=${value}`).join("\n") + "\n");
   return values;
 }
@@ -330,8 +330,6 @@ function buildManifestRows(source, baseline, options) {
 
 function buildOutput(source, baseline, rows, options, env = process.env) {
   const profile = source.profile;
-  invariant(!profile.requireDurableReviewRegistration || rolloutState(env).enabled,
-    "Review publication requires the existing durable sealed-artifact rollout; enforcement was not changed");
   const retailer = source.retailer;
   const priorReviewIds = baseline.activeRows.filter((row) => String(row.retailer_id) === retailer.id && profile.matchesActiveReview(row)).map((row) => String(row.offer_id));
   const observedOfferIds = sortedIds([...source.contract.review_offer_ids, ...priorReviewIds]);
@@ -345,6 +343,7 @@ function buildOutput(source, baseline, rows, options, env = process.env) {
     kind: "automation-review-queue-reconciliation-dry-run",
     result: "PASS",
     mode: "dry-run",
+    publication_mode: profile.publicationMode,
     retailer,
     production_writes: 0,
     direct_rest_writes: 0,
@@ -388,6 +387,7 @@ async function reconcile(options, dependencies = {}) {
   const output = buildOutput(source, baseline, rows, options, env);
   fs.mkdirSync(path.dirname(options.output), { recursive: true });
   fs.writeFileSync(options.output, `${JSON.stringify(output, null, 2)}\n`, { flag: "wx" });
+  if (env.GITHUB_OUTPUT) fs.appendFileSync(env.GITHUB_OUTPUT, `publication_mode=${source.profile.publicationMode}\n`);
   return output;
 }
 
