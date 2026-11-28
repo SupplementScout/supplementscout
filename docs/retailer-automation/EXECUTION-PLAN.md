@@ -1,5 +1,27 @@
 # Retailer Automation Consolidation Execution Plan
 
+**28 November 2026 Simply automatic SOURCE_MISSING publication — Draft PR #559,
+release approval pending:** the owner's new dated decision supersedes the
+historical no-review-write policy only for non-executable SOURCE_MISSING within
+the existing approved120. The shared profile separates complete-source
+validation from authority; Simply is AUTOMATIC with actual schedule admission,
+while 10 Reps remains OWNER_AUTHORIZED_ARTIFACT_ONLY. A new v2 review-scope
+contract rejects old Simply OWNER evidence. The unreleased manual review-only
+option is removed; manual dry-run cannot publish and manual apply retains its
+existing business authorization. Other review kinds are excluded from the
+source-missing lifecycle. The existing publisher reads its publication seal
+after RPC and emits the exact receipt digest; the watchdog's existing matcher
+observes a receipt verification step that also requires complete refresh
+postflight. No watchdog logic, thresholds, monitored backlog, schedules,
+rollout, SQL, application or executor changes. Historical ZIP/seals and the
+earlier completion record below remain evidence. Local matrix/lifecycle,
+mock publication/idempotency and receipt-shell regressions are separate from
+production proof. Required local gates and exact-head CI must pass before
+handoff; release still requires owner approval of final SHA. No merge,
+deployment, production publication or business writes are authorized here.
+See [current policy and implementation evidence](SIMPLY-REVIEW-PUBLICATION-HARDENING-2026-11-19.md)
+and [dated owner decision](../Automation-Reliability-Owner-Decisions.md).
+
 **28 November 2026 Simply shared pipeline completion — Draft only:** reuse
 PR #559 and its existing worktree, preserving both original commits/evidence,
 on main `06fa1c2db85c5abfb20bb3896e35ed29f3fe58ef`. Simply's approved 120-offer

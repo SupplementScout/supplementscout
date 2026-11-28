@@ -142,7 +142,7 @@ function files(value = report()) {
 }
 
 test("owner-only publication refuses scheduled, delayed and manual same-run paths before any credentials or RPC", async t => {
-  for (const retailer of [{ id: "14", slug: "10-reps" }, { id: "7", slug: "simply-supplements" }]) {
+  for (const retailer of [{ id: "14", slug: "10-reps" }]) {
   const value = report(); value.request.retailer = retailer;
   value.publication_mode = "AUTOMATIC"; // An artifact cannot override the deployed profile policy.
   const fixture = files(value); t.after(fixture.cleanup);
@@ -156,7 +156,7 @@ test("owner-only publication refuses scheduled, delayed and manual same-run path
 });
 
 test("exact owner authorization submits the entire 259-operation request once and sealed retry makes no mutation", async t => {
-  const value = report(); value.request.retailer = { id: "14", slug: "10-reps" };
+  const value = report(); value.request.retailer = { id: "14", slug: "10-reps" }; value.publication_mode = "OWNER_AUTHORIZED_ARTIFACT_ONLY";
   const activeRows = Array.from({ length: 145 }, (_, i) => ({ id: String(8000 + i), retailer_id: "14", offer_id: String(3000 + i), review_status: "PENDING", source_row_fingerprint: "e".repeat(64), superseded_by_review_id: null }));
   value.request.operations = [
     ...Array.from({ length: 114 }, (_, i) => ({ op: "CREATE", expected: { review_id: null }, row: { retailer_id: "14", offer_id: String(3000 + i), source_row_fingerprint: "f".repeat(64), expires_at: EXPIRY } })),
@@ -182,9 +182,9 @@ test("exact owner authorization submits the entire 259-operation request once an
   assert.equal(calls, 1); assert.equal(protectionReads, 1);
 });
 
-test("Simply exact owner-only mock publication creates three manual reviews once and verifies the publication seal", async t => {
+test("Simply exact authorized retry mock publication creates three manual reviews once and verifies the publication seal", async t => {
   const value = report(); value.request.retailer = { id: "7", slug: "simply-supplements" };
-  value.publication_mode = "OWNER_AUTHORIZED_ARTIFACT_ONLY";
+  value.publication_mode = "AUTOMATIC";
   value.request.operations = ["596", "669", "670"].map(offer_id => ({ op: "CREATE", expected: { review_id: null }, row: {
     retailer_id: "7", offer_id, source_row_fingerprint: "f".repeat(64), expires_at: EXPIRY,
     reason_codes: "SOURCE_MISSING", operation_type: "MANUAL_REVIEW_IDENTITY",
@@ -203,7 +203,7 @@ test("Simply exact owner-only mock publication creates three manual reviews once
   assert.equal(first.rpc_mutation_attempts, 1); assert.equal(first.catalogue_writes, 0);
   const second = await run({ mode: RETRY_MODE, input: fixture.input, output: fixture.output }, setup.dependencies);
   assert.equal(second.publication_status, "ALREADY_APPLIED"); assert.equal(second.database_writes, 0); assert.equal(calls, 1);
-  for (const failure of ["owner", "expected-state", "active-execution"]) {
+  for (const failure of ["owner", "expected-state"]) {
     const blocked = retryDependencies(value, { readPublicationProtection: async () => ({ executionRequests: failure === "active-execution" ? [{ id: "queued", status: "QUEUED" }] : [], decidedReviews: [] }) });
     if (failure === "owner") blocked.dependencies.env.RETRY_OWNER_CONFIRMATION = "not-authorized";
     if (failure === "expected-state") blocked.dependencies.readProductionBaseline = async () => ({ catalogueCounts: { ...COUNTS, offers: COUNTS.offers + 1 }, activeRows: [] });
@@ -212,8 +212,42 @@ test("Simply exact owner-only mock publication creates three manual reviews once
   }
 });
 
+test("Simply automatic publication requires the real schedule, current authority and publication postflight receipt", async t => {
+  const value = report({ publication_mode: "AUTOMATIC", github_context: { run_id: SOURCE_RUN } });
+  value.source.publication_mode = "AUTOMATIC";
+  value.request.retailer = { id: "7", slug: "simply-supplements" };
+  const env = { ...retryEnv(value), GITHUB_RUN_ID: SOURCE_RUN, GITHUB_SHA: SOURCE_SHA, GITHUB_EVENT_NAME: "schedule" };
+  const fixture = files(value); t.after(fixture.cleanup);
+  let calls = 0;
+  const client = { rpc: async () => { calls++; return { data: { ...rpcResult(value), already_applied: calls > 1, database_writes: calls > 1 ? 0 : 1 } }; } };
+  const dependencies = { env, client, readPublicationSeal: async () => [publicationSeal(value)] };
+  const first = await run({ input: fixture.input, output: fixture.output }, dependencies);
+  assert.equal(first.publication_status, "APPLIED"); assert.equal(first.publication_seal_count, 1);
+  const second = await run({ input: fixture.input, output: fixture.output }, dependencies);
+  assert.equal(second.publication_status, "ALREADY_APPLIED"); assert.equal(second.database_writes, 0);
+  assert.equal(second.idempotency_key, first.idempotency_key); assert.equal(second.catalogue_writes, 0);
+  assert.deepEqual(JSON.parse(fs.readFileSync(fixture.output, "utf8")), JSON.parse(JSON.stringify(second)));
+  for (const publication_mode of [undefined, "OWNER_AUTHORIZED_ARTIFACT_ONLY"]) {
+    const invalid = files({ ...value, publication_mode }); t.after(invalid.cleanup);
+    await assert.rejects(run({ input: invalid.input, output: invalid.output }, dependencies), /AUTHORITY_DRIFT/);
+  }
+  const drift = files({ ...value, source: { ...value.source, publication_mode: "OWNER_AUTHORIZED_ARTIFACT_ONLY" } }); t.after(drift.cleanup);
+  await assert.rejects(run({ input: drift.input, output: drift.output }, dependencies), /AUTHORITY_DRIFT/);
+  const priorCalls = calls;
+  await assert.rejects(run({ input: fixture.input, output: fixture.output }, { ...dependencies, env: { ...env, GITHUB_EVENT_NAME: "workflow_dispatch", INPUT_VALIDATION_CONTEXT: "schedule" } }), /EVENT_NOT_AUTHORIZED/);
+  assert.equal(calls, priorCalls);
+  for (const readPublicationSeal of [async () => [], async () => [{ ...publicationSeal(value), request_hash: "e".repeat(64) }], async () => [publicationSeal(value, { ...rpcResult(value), status: "FAILED" })]]) {
+    const missing = files(value); t.after(missing.cleanup);
+    await assert.rejects(run({ input: missing.input, output: missing.output }, { ...dependencies, readPublicationSeal }), /SEAL/);
+    assert.equal(fs.existsSync(missing.output), false);
+  }
+  const failed = files(value); t.after(failed.cleanup);
+  await assert.rejects(run({ input: failed.input, output: failed.output }, { ...dependencies, client: { rpc: async () => ({ error: new Error("RPC failed") }) } }), /RPC failed/);
+  assert.equal(fs.existsSync(failed.output), false);
+});
+
 test("owner-only initial mutation protects approved decisions, active requests and unresolved failed execution", async t => {
-  const value = report(); value.request.retailer = { id: "14", slug: "10-reps" };
+  const value = report(); value.request.retailer = { id: "14", slug: "10-reps" }; value.publication_mode = "OWNER_AUTHORIZED_ARTIFACT_ONLY";
   const fixture = files(value); t.after(fixture.cleanup);
   for (const protection of [
     { executionRequests: [{ id: "queued", status: "QUEUED" }], decidedReviews: [] },
@@ -296,6 +330,7 @@ test("normal same-run apply behavior remains unchanged", async () => {
   try {
     const output = await run({ input: fixture.input, output: fixture.output }, {
       env: { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "12345", GITHUB_SHA: SOURCE_SHA },
+      readPublicationSeal: async () => [publicationSeal(value)],
       client: { rpc: async (_name, args) => { calls += 1; return { data: rpcResult({ ...value, request: args.p_request }), error: null }; } },
     });
     assert.equal(output.result, "PASS");

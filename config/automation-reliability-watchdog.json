@@ -100,7 +100,7 @@
       "workflow": "simply-supplements-offer-refresh.yml",
       "review_publication": {
         "job_name": "refresh-review-queue",
-        "step_name": "Reconcile and publish fresh Simply Supplements Review Queue source"
+        "step_name": "Verify Review Queue publication receipt"
       },
       "stages": {
         "capture": ["Dry-run all approved Simply Supplements offers"],

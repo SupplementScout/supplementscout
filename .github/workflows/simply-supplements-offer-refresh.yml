@@ -11,7 +11,6 @@ on:
         options:
           - dry-run
           - apply
-          - review-only
       validation_context:
         description: "Diagnostic trigger context; schedule safely emulates the scheduled source path"
         required: true
@@ -92,14 +91,14 @@ jobs:
         run: node scripts/simply-supplements-offer-refresh.js --target=production --mode=dry-run --isolate-unsafe=true
 
       - name: Capture Simply Supplements DB baseline read-only
-        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'review-only' }}
+        if: ${{ github.event_name == 'schedule' || inputs.operation == 'apply' }}
         env:
           SIMPLY_SUPPLEMENTS_REFRESH_VALIDATOR_DATABASE_URL: ${{ secrets.JONS_SYNC_VALIDATOR_DATABASE_URL }}
         run: node scripts/retailer-offer-refresh-postflight.js --profile=simply-supplements --mode=baseline --output=tmp/simply-supplements-offer-refresh/production-db-baseline.json
 
       - name: Bind fresh Simply Supplements Review Queue source
         id: review_source
-        if: ${{ success() && (github.event_name == 'schedule' || inputs.operation == 'apply' || inputs.operation == 'review-only') }}
+        if: ${{ success() && (github.event_name == 'schedule' || inputs.operation == 'apply') }}
         run: node scripts/shared-retailer-automation-review-source.js --mode=bind --profile=simply-supplements --source-artifact-dir=tmp/simply-supplements-offer-refresh
 
       - name: Apply approved Simply Supplements offer refresh
@@ -154,7 +153,7 @@ jobs:
 
   refresh-review-queue:
     needs: [simply-supplements-offer-refresh]
-    if: ${{ always() && github.ref == 'refs/heads/main' && (github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && (inputs.operation == 'apply' || inputs.operation == 'review-only'))) && needs.simply-supplements-offer-refresh.outputs.artifact_id != '' && needs.simply-supplements-offer-refresh.outputs.artifact_digest != '' && needs.simply-supplements-offer-refresh.outputs.source_contract_sha256 != '' && needs.simply-supplements-offer-refresh.outputs.review_scope_fingerprint != '' && needs.simply-supplements-offer-refresh.outputs.publication_mode != '' }}
+    if: ${{ always() && github.ref == 'refs/heads/main' && github.event_name == 'schedule' && needs.simply-supplements-offer-refresh.outputs.artifact_id != '' && needs.simply-supplements-offer-refresh.outputs.artifact_digest != '' && needs.simply-supplements-offer-refresh.outputs.source_contract_sha256 != '' && needs.simply-supplements-offer-refresh.outputs.review_scope_fingerprint != '' && needs.simply-supplements-offer-refresh.outputs.publication_mode != '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     environment: production-readonly
@@ -167,7 +166,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --ignore-scripts
-      - name: ${{ needs.simply-supplements-offer-refresh.outputs.publication_mode == 'AUTOMATIC' && 'Reconcile and publish fresh Simply Supplements Review Queue source' || 'Prepare owner-authorized Simply Supplements Review Queue evidence' }}
+      - name: Reconcile and publish fresh Simply Supplements Review Queue source
+        id: publication
         uses: ./.github/actions/publish-automation-review-queue
         with:
           display-name: Simply Supplements
@@ -183,6 +183,16 @@ jobs:
           supabase-url: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           service-role-key: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           durable-sealed-artifacts-enforcement: ${{ vars.DURABLE_SEALED_ARTIFACTS_ENFORCEMENT }}
+      - name: Verify Review Queue publication receipt
+        env:
+          PUBLICATION_STATUS: ${{ steps.publication.outputs.publication-status }}
+          RECEIPT_SHA256: ${{ steps.publication.outputs.receipt-sha256 }}
+          REFRESH_RESULT: ${{ needs.simply-supplements-offer-refresh.result }}
+        run: |
+          test "$REFRESH_RESULT" = "success"
+          case "$PUBLICATION_STATUS" in APPLIED|ALREADY_APPLIED) ;; *) exit 1 ;; esac
+          test "${#RECEIPT_SHA256}" = "64"
+          printf '%s  %s\n' "$RECEIPT_SHA256" "tmp/automation-review-reconciliation/simply-supplements-reconciliation-apply.json" | sha256sum --check --strict
       - name: Upload Simply Supplements queue evidence
         if: always()
         uses: actions/upload-artifact@v7

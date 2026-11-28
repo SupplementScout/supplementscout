@@ -1756,7 +1756,7 @@ function writeSimplyReviewFixture(reviewIds = ["1001", "1002", "1003"]) {
   return { ...fixture, report, diagnostic, reportFile, diagnosticFile, baselineFile };
 }
 
-test("Simply publication policy v1 seals 117 executable and three missing-source manual reviews without changing BLOCK/0", async () => {
+test("Simply publication policy v2 seals 117 executable and three missing-source manual reviews without changing BLOCK/0", async () => {
   const fixture = writeSimplyReviewFixture();
   const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "123456", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit, DURABLE_SEALED_ARTIFACTS_ENFORCEMENT: "ON" };
   const contract = buildFitHouseSourceContract(fixture.directory, env, "simply-supplements");
@@ -1770,12 +1770,12 @@ test("Simply publication policy v1 seals 117 executable and three missing-source
   const rows = buildFitHouseManifestRows(source, baseline, options);
   for (const mode of [undefined, "OFF"]) {
     const prepared = buildFitHouseOutput(source, baseline, rows, options, { ...env, DURABLE_SEALED_ARTIFACTS_ENFORCEMENT: mode });
-    assert.equal(prepared.publication_mode, "OWNER_AUTHORIZED_ARTIFACT_ONLY");
+    assert.equal(prepared.publication_mode, "AUTOMATIC");
     assert.equal(prepared.durable_sealed_artifact_contract, undefined);
     assert.equal(prepared.production_writes, 0);
   }
   const output = buildFitHouseOutput(source, baseline, rows, options, env);
-  assert.equal(output.publication_mode, "OWNER_AUTHORIZED_ARTIFACT_ONLY");
+  assert.equal(output.publication_mode, "AUTOMATIC");
   assert.equal(output.durable_sealed_artifact_contract.requirement, "DURABLE_REQUIRED");
   assert.equal(output.durable_sealed_artifact_contract.artifact_kind, "REVIEW_REGISTRATION");
   assert.equal(output.operations.CREATE, 3);
@@ -1836,7 +1836,76 @@ test("Simply publication refuses incomplete or unhealthy sources, synthetic OOS,
   for (const mutate of mutations) {
     const fixture = writeSimplyReviewFixture(); mutate(fixture);
     writeJson(fixture.reportFile, fixture.report); writeJson(fixture.diagnosticFile, fixture.diagnostic);
-    assert.throws(() => buildFitHouseSourceContract(fixture.directory, { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "123456", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit }, "simply-supplements"), /owner-reviewed publication|source-missing|review (reason|row count) drifted|contains writes|binding drifted|IDs|scope|identity|partition|actions/);
+    assert.throws(() => buildFitHouseSourceContract(fixture.directory, { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "123456", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit }, "simply-supplements"), /publication requires|source-missing|review (reason|row count) drifted|contains writes|binding drifted|IDs|scope|identity|partition|actions/);
+  }
+});
+
+test("complete source validation is independent of authority and preserves every existing capture guard", async t => {
+  const fixture = writeSimplyReviewFixture();
+  t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
+  const policy = profileFor("simply-supplements");
+  assert.equal(policy.requireCompleteSourceValidation, true);
+  assert.equal(profileFor("10-reps").requireCompleteSourceValidation, true);
+  for (const key of ["discount-supplements", "fit-house", "gladiator-nutrition", "holland-barrett", "jons-supplements", "whey-okay", "six-pack-supplements", "gym-high"]) assert.equal(profileFor(key).requireCompleteSourceValidation, false, key);
+  const mutations = {
+    result: f => { f.report.result = "PASS"; },
+    mode: f => { f.report.mode = "apply"; },
+    target: f => { f.report.target = "staging"; },
+    scope: f => { f.report.approved_mapping_count--; },
+    manifest: f => { f.report.approved_manifest_sha256 = "f".repeat(64); },
+    blocked: f => { f.report.blocked_row_count = 1; },
+    diagnosticScope: f => { f.diagnostic.approved_mapping_count--; },
+    fingerprint: f => { f.diagnostic.source.fingerprint = "e".repeat(64); },
+    reportHttp: f => { f.report.source.diagnostic.final_http_status = 500; },
+    reportPagination: f => { f.report.source.diagnostic.pagination_completed = false; },
+    diagnosticHttp: f => { f.diagnostic.source.http_status = 429; },
+    diagnosticPagination: f => { f.diagnostic.source.pagination_completed = false; },
+    healthFail: f => { f.diagnostic.guard_results[0].result = "FAIL"; },
+    healthMissing: f => { f.diagnostic.guard_results.shift(); },
+    healthDuplicate: f => { f.diagnostic.guard_results.push(f.diagnostic.guard_results[0]); },
+    validatorFail: f => { f.diagnostic.guard_results[2].result = "FAIL"; },
+    validatorMissing: f => { f.diagnostic.guard_results.pop(); },
+    validatorDuplicate: f => { f.diagnostic.guard_results.push(f.diagnostic.guard_results[2]); },
+    diagnosticValidator: f => { f.diagnostic.validator_result = "FAIL"; },
+    coverageMissing: f => { f.diagnostic.guard_results.splice(1, 1); },
+    coverageDuplicate: f => { f.diagnostic.guard_results.push(f.diagnostic.guard_results[1]); },
+    coverageStatus: f => { f.diagnostic.guard_results[1].result = "FAIL"; },
+    coverageExpected: f => { f.diagnostic.guard_results[1].expected--; },
+    coveragePartition: f => { f.diagnostic.guard_results[1].matched--; },
+    absentCount: f => { f.diagnostic.guard_results[1].source_absent_review_rows--; },
+    absentUnavailable: f => { f.diagnostic.guard_results[1].source_absent_marked_unavailable = 1; },
+    reviewOnly: f => { f.report.discovery.missing_variants_review_only--; },
+    unavailable: f => { f.report.discovery.missing_variants_marked_unavailable = 1; },
+    creates: f => { f.report.discovery.catalogue_creates = 1; },
+    missingPartition: f => { f.report.review_row_count--; },
+  };
+  for (const publicationMode of ["OWNER_AUTHORIZED_ARTIFACT_ONLY", "AUTOMATIC"]) {
+    const configured = { ...policy, publicationMode };
+    const validate = f => configured.validateCapture(configured, { ...f, invariant: (ok, message) => assert.ok(ok, message) });
+    await t.test(`${publicationMode} valid source`, () => validate(fixture));
+    for (const [name, mutate] of Object.entries(mutations)) await t.test(`${publicationMode} rejects ${name}`, () => {
+      const changed = { report: structuredClone(fixture.report), diagnostic: structuredClone(fixture.diagnostic) };
+      mutate(changed); assert.throws(() => validate(changed));
+    });
+  }
+});
+
+test("Simply rejects previous OWNER authority contracts and legacy pre-transition fingerprints", t => {
+  for (const legacy of [false, true]) {
+    const fixture = writeSimplyReviewFixture(); t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
+    const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "123456", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit };
+    const contract = buildFitHouseSourceContract(fixture.directory, env, "simply-supplements");
+    assert.equal(contract.publication_mode, "AUTOMATIC");
+    contract.publication_mode = "OWNER_AUTHORIZED_ARTIFACT_ONLY";
+    if (legacy) {
+      delete contract.publication_mode;
+      const capture = loadFitHouseSource(fixture.directory, "simply-supplements");
+      contract.review_scope_fingerprint = sha256({ contract: "simply-supplements-automation-review-source-v1", retailer_id: "7", source_fingerprint: capture.sourceFingerprint, changed_rows: capture.changedRows });
+    }
+    contract.contract_fingerprint = sha256(Object.fromEntries(Object.entries(contract).filter(([key]) => key !== "contract_fingerprint")));
+    const file = path.join(fixture.directory, "automation-review-source-contract.json"); writeJson(file, contract);
+    const options = { profile: "simply-supplements", sourceArtifactDir: fixture.directory, sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "999999", sourceCommitSha: env.GITHUB_SHA, sourceArtifactDigest: "c".repeat(64), sourceContractSha256: fileSha(file) };
+    assert.throws(() => verifyFitHouseSourceContract(options, new Date("2026-10-05T18:00:00Z")), /authority mismatch|review scope fingerprint mismatch/);
   }
 });
 
@@ -1847,8 +1916,8 @@ test("Simply uses shared CREATE, REFRESH, SUPERSEDE and RESOLVE_BY_SOURCE for ch
     const fixture = writeSimplyReviewFixture(reviewIds);
     t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
     const bound = bindSharedRetailerSource(fixture.directory, { ...env, GITHUB_OUTPUT: path.join(fixture.directory, "github-output") }, "simply-supplements");
-    assert.equal(bound.publication_mode, "OWNER_AUTHORIZED_ARTIFACT_ONLY");
-    assert.match(fs.readFileSync(path.join(fixture.directory, "github-output"), "utf8"), /publication_mode=OWNER_AUTHORIZED_ARTIFACT_ONLY/);
+    assert.equal(bound.publication_mode, "AUTOMATIC");
+    assert.match(fs.readFileSync(path.join(fixture.directory, "github-output"), "utf8"), /publication_mode=AUTOMATIC/);
     const options = { profile: "simply-supplements", sourceArtifactDir: fixture.directory, sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "999999", sourceCommitSha: env.GITHUB_SHA, sourceArtifactDigest: "c".repeat(64), sourceContractSha256: bound.contract_sha256, output: path.join(fixture.directory, "output.json") };
     // Apply/idempotency overwrite the mutable report; verification must use the sealed pre-execution files.
     writeJson(fixture.reportFile, { overwritten_by: "idempotency" });
@@ -1862,7 +1931,7 @@ test("Simply uses shared CREATE, REFRESH, SUPERSEDE and RESOLVE_BY_SOURCE for ch
       assert.throws(() => buildFitHouseManifestRows(source, rebound, options), /drift|mismatch|binding/);
     }
     const output = buildFitHouseOutput(source, baseline, rows, options, env);
-    assert.equal(output.publication_mode, "OWNER_AUTHORIZED_ARTIFACT_ONLY");
+    assert.equal(output.publication_mode, "AUTOMATIC");
     assert.equal(output.expected.catalogue_writes, 0);
     assert.equal(output.operations.RESOLVE_BY_SOURCE, Math.max(0, activeRows.length - reviewIds.length));
     assert.ok(output.request.operations.every(op => !op.row?.execution_binding && !op.replacement_row?.execution_binding));
@@ -1872,6 +1941,12 @@ test("Simply uses shared CREATE, REFRESH, SUPERSEDE and RESOLVE_BY_SOURCE for ch
       assert.equal(buildFitHouseOutput(source, { ...baseline, activeRows: matching }, rows, options, env).operations.REFRESH, 3);
       const changed = matching.map(row => ({ ...row, source_row_fingerprint: "f".repeat(64) }));
       assert.equal(buildFitHouseOutput(source, { ...baseline, activeRows: changed }, rows, options, env).operations.SUPERSEDE, 3);
+      const otherKind = { ...matching[0], id: "unrelated", review_kind: "POLICY_REVIEW", operation_type: "MANUAL_REVIEW", reason_codes: "POLICY_REVIEW", source_row_fingerprint: "e".repeat(64) };
+      const isolated = buildFitHouseOutput(source, { ...baseline, activeRows: [...matching, otherKind] }, rows, options, env);
+      assert.equal(isolated.request.expected_baseline.active_review_count, 4);
+      assert.equal(isolated.expected.final_active_review_count, 4);
+      assert.equal(isolated.operations.REFRESH, 3);
+      assert.ok(isolated.request.operations.every(op => op.expected.review_id !== "unrelated"));
     }
     activeRows = rows.map((row, index) => ({ ...row, id: String(index + 1) }));
   }

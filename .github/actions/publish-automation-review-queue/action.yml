@@ -43,6 +43,14 @@ inputs:
     required: false
     default: ""
 
+outputs:
+  publication-status:
+    description: Validated publisher receipt status; empty when publication was skipped.
+    value: ${{ steps.publisher.outputs.publication_status }}
+  receipt-sha256:
+    description: SHA-256 of the receipt written after publication seal postflight.
+    value: ${{ steps.publisher.outputs.receipt_sha256 }}
+
 runs:
   using: composite
   steps:
@@ -75,6 +83,7 @@ runs:
         --output=tmp/automation-review-reconciliation/${{ inputs.evidence-prefix }}-reconciliation-dry-run.json
 
     - name: Publish fresh ${{ inputs.display-name }} cards to Automation Review Queue
+      id: publisher
       if: ${{ steps.reconciliation.outputs.publication_mode == 'AUTOMATIC' }}
       shell: bash
       env:

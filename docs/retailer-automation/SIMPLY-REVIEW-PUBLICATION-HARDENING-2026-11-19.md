@@ -146,3 +146,61 @@ workflow/application release; then approve one fresh bounded review-only run.
 Do not approve OOS, deletion, rebind or commercial identity correction by merging
 this PR. Global LIVE VERIFIED remains withheld while the natural worker schedule
 and deployed native monitoring are BLOCKED.
+
+
+## 28 November 2026 — AUTOMATIC policy preparation (PR559 remains Draft)
+
+The newly supplied owner decision supersedes the earlier no-review-write
+restriction only within approved120 SOURCE_MISSING. Previous dated records
+above remain historical evidence. Starting head: 6e60250eeda411e8df4b39f773746da07a60d1f9;
+main: 06fa1c2db85c5abfb20bb3896e35ed29f3fe58ef. Inherited PR delta was
+15 files, +1211/-5; this task's incremental delta must be reported separately.
+
+One shared requireCompleteSourceValidation property controls the existing
+complete-source block, independently of publicationMode. OWNER profiles retain
+it unconditionally at profile construction; Simply explicitly requires it in
+AUTOMATIC. Other automatic profiles retain their previous validation policy.
+There is no second validator. The pre-change local diagnostic-pagination
+mutation rejected under OWNER but passed a naive AUTOMATIC flip; the fixed
+parameterized matrix rejects all 30 independent mutations under both modes.
+
+The binder seals publication_mode in the immutable source contract and emits
+the same value. Simply's v2 contract domain invalidates old v1 review-scope
+fingerprints; explicit OWNER authority also rejects. Legacy v1 contracts for
+unchanged consumers remain readable. Reconciliation carries verified authority;
+the publisher checks deployed authority independently. Only actual schedule
+can use Simply's same-run publisher, checked against both runtime event and
+GitHub source-run metadata. Unreleased manual review-only is removed. Existing
+manual apply business requirements are unchanged and manual dry-run publishes
+nothing, including when diagnostics emulate schedule.
+
+The source-missing lifecycle filters active cards by the existing profile
+matcher before planning operations, preserving the RPC's global active-count
+baseline. Unrelated cards sharing an offer remain untouched. Same-run shared
+publication reuses the existing retry seal reader/validator for one read-only
+postflight after RPC; missing/conflicting/non-APPLIED seals produce no receipt.
+The existing receipt includes source/contract/scope, authority, request hash
+and idempotency binding. CLI/composite outputs carry status and the exact file
+SHA only after success. The watchdog's unchanged generic step matcher targets
+the receipt verification step: accepted APPLIED/ALREADY_APPLIED, exact file
+hash and successful refresh job (including postflight/idempotency) are required.
+Outer composite success alone cannot satisfy it. No new production helper,
+publisher, executor, workflow, dependency, table, RPC or migration is added.
+
+The retained raw ZIP still rejects classifier actions drift. A separate local
+reconstruction retains 120/117/3 and original timestamp, then uses synthetic
+GitHub context, mocked RPC/publication seals and a historical validation clock.
+Cards596/669/670 remain SOURCE_MISSING, KEEP_UNCHANGED, automatic_action=false,
+execution binding none; mock mutation occurs once across two identical calls.
+The actual configured receipt shell passes APPLIED/ALREADY_APPLIED and rejects
+skipped/failed publication, incomplete refresh, wrong hash and missing receipt.
+These are local regressions, not fresh GitHub evidence or production proof.
+
+Evidence location (ignored, no raw artifacts committed):
+tmp/simply-automatic-review-publication-2026-11-28. Current durable rollout is
+absent/effectively OFF; OFF and ON regressions reuse the existing sealed system.
+New focused, Guardian, inventory, quick/full and actual-head CI evidence must
+be retained before final handoff. Production273/pending0, STAGING120, eBayv3/322,
+322 EPN bindings and historical89/86/170 remain protected. No actual production
+publication, business mutation, manual dispatch, merge or deployment is part
+of this task. Global watchdog freshness/backlog status is not claimed PASS.

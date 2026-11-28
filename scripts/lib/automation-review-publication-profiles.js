@@ -69,7 +69,7 @@ function validateStandardCapture(profile, { report, diagnostic, invariant }) {
   invariant(report.approved_mapping_count === profile.approvedMappingCount && report.blocked_row_count === 0, `${label} apply scope drifted`);
   invariant(!profile.approvedManifestSha256 || report.approved_manifest_sha256 === profile.approvedManifestSha256, `${label} approved manifest binding drifted`);
   invariant(diagnostic && diagnostic.approved_mapping_count === profile.approvedMappingCount && profile.sourceFingerprint({ source: diagnostic.source }) === profile.sourceFingerprint(report), `${label} preflight source binding drifted`);
-  if (profile.publicationMode === "OWNER_AUTHORIZED_ARTIFACT_ONLY") {
+  if (profile.requireCompleteSourceValidation) {
     const guards = diagnostic.guard_results || [];
     const passed = name => {
       const results = guards.filter(row => row.guard === name);
@@ -79,7 +79,7 @@ function validateStandardCapture(profile, { report, diagnostic, invariant }) {
     invariant(report.source?.diagnostic?.final_http_status === 200 && report.source.diagnostic.pagination_completed === true
       && diagnostic.source?.http_status === 200 && diagnostic.source.pagination_completed === true
       && passed("SOURCE_HEALTH") && passed("VALIDATOR") && diagnostic.validator_result === "PASS",
-    `${label} owner-reviewed publication requires complete healthy SQL-validated source`);
+    `${label} publication requires complete healthy SQL-validated source`);
     invariant(coverage.length === 1 && ["PASS", "REVIEW_ISOLATED"].includes(coverage[0].result)
       && coverage[0].expected === profile.approvedMappingCount
       && coverage[0].matched + coverage[0].source_absent_review_rows === profile.approvedMappingCount
@@ -87,7 +87,7 @@ function validateStandardCapture(profile, { report, diagnostic, invariant }) {
       && coverage[0].source_absent_marked_unavailable === 0
       && report.discovery.missing_variants_review_only === report.discovery.missing_variants
       && report.discovery.missing_variants_marked_unavailable === 0 && report.discovery.catalogue_creates === 0,
-    `${label} owner-reviewed publication requires full approved source coverage`);
+    `${label} publication requires full approved source coverage`);
     invariant(profile.reviewType !== "source-missing" || report.discovery.missing_variants === report.review_row_count,
       `${label} source-missing review partition drifted`);
   }
@@ -497,6 +497,7 @@ function profile(values) {
   return Object.freeze({
     ...values,
     publicationMode,
+    requireCompleteSourceValidation: publicationMode === "OWNER_AUTHORIZED_ARTIFACT_ONLY" || values.requireCompleteSourceValidation === true,
     postflightProfile: values.postflightProfile || values.retailer.slug,
     captureFiles: values.captureFiles || STANDARD_CAPTURE_FILES,
     sealedFiles: values.sealedFiles || STANDARD_SEALED_FILES,
@@ -554,9 +555,8 @@ const PROFILES = Object.freeze({
   "10-reps": profile({ key: "10-reps", retailer: Object.freeze({ id: "14", name: "10 Reps", slug: "10-reps" }), publicationMode: "OWNER_AUTHORIZED_ARTIFACT_ONLY", approvedMappingCount: 950, sourceDirectory: "10reps-offer-refresh", artifactPrefix: "10reps-offer-refresh", reconciliationFile: "10reps-reconciliation-dry-run.json", contractName: "10-reps-automation-review-source-v1", workflow: ".github/workflows/fit-house-offer-refresh.yml", workflowName: "Shared Retailer Offer Refresh", reviewType: "mixed", classifierCoverage: "mixed-partition", classifierReviewReasons: Object.freeze(["MASS_OOS"]), readOnlyReviewPolicies: Object.freeze({ CANONICAL_IDENTITY_CONFLICT: SOURCE_REVIEW_POLICIES.CANONICAL_IDENTITY_CONFLICT }) }),
   "whey-okay": profile({ key: "whey-okay", retailer: Object.freeze({ id: "3", name: "Whey Okay", slug: "whey-okay" }), approvedMappingCount: 589, sourceDirectory: "whey-okay-offer-refresh", artifactPrefix: "whey-okay-offer-refresh", reconciliationFile: "whey-okay-reconciliation-dry-run.json", contractName: "whey-okay-automation-review-source-v1", workflow: ".github/workflows/whey-okay-offer-refresh.yml", workflowName: "Whey Okay Offer Refresh", reviewType: "source-missing", captureFiles: WHEY_CAPTURE_FILES, sealedFiles: WHEY_SEALED_FILES, sourceFingerprint: (report) => report.source?.semantic_fingerprint, validate: validateWhey }),
   "jons-supplements": profile({ key: "jons-supplements", retailer: Object.freeze({ id: "10", name: "Jon's Supplements", slug: "jon-s-supplements" }), postflightProfile: "jons-supplements", approvedMappingCount: 506, sourceDirectory: "jons-offer-refresh", artifactPrefix: "jons-offer-refresh", reconciliationFile: "jons-reconciliation-dry-run.json", contractName: "jons-automation-review-source-v1", workflow: ".github/workflows/jons-offer-refresh.yml", workflowName: "Jon's Offer Refresh", reviewType: "source-missing", validateCapture: validateJonsCapture, validate: validateJons }),
-  // Preserve the owner's no-review-row-write decision through the existing mode.
-  // Preparation does not authorize publication or execution of missing variants.
-  "simply-supplements": profile({ key: "simply-supplements", retailer: Object.freeze({ id: String(simplySourceProfile.retailer_id), name: simplySourceProfile.retailer_name, slug: simplySourceProfile.retailer_slug }), publicationMode: "OWNER_AUTHORIZED_ARTIFACT_ONLY", approvedMappingCount: simplySourceProfile.approved_mapping_count, approvedManifestSha256: simplySourceProfile.manifest_sha256, sourceDirectory: simplySourceProfile.output_directory, artifactPrefix: simplySourceProfile.output_directory, reconciliationFile: "simply-supplements-reconciliation-dry-run.json", contractName: "simply-supplements-automation-review-source-v1", workflow: ".github/workflows/simply-supplements-offer-refresh.yml", workflowName: "Simply Supplements Offer Refresh", reviewType: "source-missing" }),
+  // The 28 November decision permits scheduled SOURCE_MISSING publication only.
+  "simply-supplements": profile({ key: "simply-supplements", retailer: Object.freeze({ id: String(simplySourceProfile.retailer_id), name: simplySourceProfile.retailer_name, slug: simplySourceProfile.retailer_slug }), publicationMode: "AUTOMATIC", requireCompleteSourceValidation: true, automaticPublicationEvents: Object.freeze(["schedule"]), approvedMappingCount: simplySourceProfile.approved_mapping_count, approvedManifestSha256: simplySourceProfile.manifest_sha256, sourceDirectory: simplySourceProfile.output_directory, artifactPrefix: simplySourceProfile.output_directory, reconciliationFile: "simply-supplements-reconciliation-dry-run.json", contractName: "simply-supplements-automation-review-source-v2", workflow: ".github/workflows/simply-supplements-offer-refresh.yml", workflowName: "Simply Supplements Offer Refresh", reviewType: "source-missing" }),
   "six-pack-supplements": profile({ key: "six-pack-supplements", retailer: Object.freeze({ id: "11", name: "6 Pack Supplements", slug: "6-pack-supplements" }), postflightProfile: "six-pack-supplements", approvedMappingCount: 504, sourceDirectory: "six-pack-offer-refresh", artifactPrefix: "six-pack-offer-refresh", reconciliationFile: "six-pack-reconciliation-dry-run.json", contractName: "six-pack-automation-review-source-v1", workflow: ".github/workflows/six-pack-offer-refresh.yml", workflowName: "6 Pack Supplements Offer Refresh", reviewType: "mixed-policy", captureFiles: SIX_PACK_CAPTURE_FILES, sealedFiles: SIX_PACK_SEALED_FILES, sourceFingerprint: (report) => report.source_snapshot_fingerprint, captureTimestamp: (source) => source.report.source_captured_at, validateCapture: validateSixPackCapture, validate: validateSixPack, validateChangedRows: validateSixPackChangedRows, reviewCard: sixPackReviewCard, matchesActiveReview: sixPackMatchesActiveReview }),
 });
 
