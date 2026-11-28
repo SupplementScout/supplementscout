@@ -189,7 +189,8 @@ function verifySourceContract(options, now = new Date()) {
   invariant(fs.existsSync(contractPath) && fileSha256(contractPath) === options.sourceContractSha256, `${label} source contract hash mismatch`);
   const contract = readJson(contractPath);
   invariant(contract.schema_version === 2 && contract.kind === "automation-review-source-contract" && contract.profile === retailer.slug, `${label} source contract schema mismatch`);
-  invariant(contract.publication_mode === undefined || contract.publication_mode === profile.publicationMode, `${label} source publication authority mismatch`);
+  invariant((!profile.requireBoundPublicationAuthority && !Object.hasOwn(contract, "publication_mode"))
+    || contract.publication_mode === profile.publicationMode, `${label} source publication authority mismatch`);
   invariant(contract.repository === REPOSITORY && contract.workflow === profile.workflow && contract.workflow_name === profile.workflowName, `${label} source workflow mismatch`);
   invariant(contract.run_id === options.sourceRunId && contract.commit_sha === options.sourceCommitSha && contract.retailer?.id === retailer.id && contract.retailer?.name === retailer.name, `${label} source identity mismatch`);
   invariant(contract.approved_mapping_count === profile.approvedMappingCount && Number.isInteger(contract.executable_plan_count) && contract.executable_plan_count >= 0 && contract.executable_plan_count <= profile.approvedMappingCount && Number.isInteger(contract.review_row_count) && contract.review_row_count >= 0 && contract.review_row_count <= profile.approvedMappingCount && contract.executable_plan_count + contract.review_row_count === profile.approvedMappingCount && contract.blocked_row_count === 0 && contract.catalogue_writes === 0, `${label} source contract scope mismatch`);

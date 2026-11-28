@@ -1845,6 +1845,7 @@ test("complete source validation is independent of authority and preserves every
   t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
   const policy = profileFor("simply-supplements");
   assert.equal(policy.requireCompleteSourceValidation, true);
+  assert.equal(policy.requireBoundPublicationAuthority, true);
   assert.equal(profileFor("10-reps").requireCompleteSourceValidation, true);
   for (const key of ["discount-supplements", "fit-house", "gladiator-nutrition", "holland-barrett", "jons-supplements", "whey-okay", "six-pack-supplements", "gym-high"]) assert.equal(profileFor(key).requireCompleteSourceValidation, false, key);
   const mutations = {
@@ -1953,7 +1954,7 @@ test("Simply uses shared CREATE, REFRESH, SUPERSEDE and RESOLVE_BY_SOURCE for ch
 });
 
 test("Simply sealed source rejects changed evidence, absent contracts, expired capture and wrong commit", t => {
-  for (const failure of ["changed-report", "changed-baseline", "missing-contract", "expired", "commit"]) {
+  for (const failure of ["changed-report", "changed-baseline", "missing-contract", "expired", "commit", "authority-missing", "authority-null", "authority-empty", "authority-owner", "authority-unknown"]) {
     const fixture = writeSimplyReviewFixture();
     t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
     const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main", GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "123456", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit, GITHUB_OUTPUT: path.join(fixture.directory, "github-output") };
@@ -1963,8 +1964,26 @@ test("Simply sealed source rejects changed evidence, absent contracts, expired c
     if (failure === "changed-baseline") fs.appendFileSync(path.join(fixture.directory, "automation-review-db-baseline.json"), " ");
     if (failure === "missing-contract") fs.unlinkSync(path.join(fixture.directory, "automation-review-source-contract.json"));
     if (failure === "commit") options.sourceCommitSha = "f".repeat(40);
+    if (failure.startsWith("authority-")) {
+      const file = path.join(fixture.directory, "automation-review-source-contract.json"), contract = JSON.parse(fs.readFileSync(file, "utf8"));
+      if (failure === "authority-missing") delete contract.publication_mode;
+      else contract.publication_mode = { "authority-null": null, "authority-empty": "", "authority-owner": "OWNER_AUTHORIZED_ARTIFACT_ONLY", "authority-unknown": "UNKNOWN" }[failure];
+      contract.contract_fingerprint = sha256(Object.fromEntries(Object.entries(contract).filter(([key]) => key !== "contract_fingerprint")));
+      writeJson(file, contract); options.sourceContractSha256 = fileSha(file);
+    }
     assert.throws(() => verifyFitHouseSourceContract(options, new Date(failure === "expired" ? "2026-10-08T18:00:00Z" : "2026-10-05T18:00:00Z")), /hash|digest|ENOENT|expir|commit|mismatch/);
   }
+});
+
+test("existing v1 source contracts retain absent authority metadata without changing profile authority", t => {
+  const fixture = writeTenRepsFixture(); t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
+  const prepared = preparedTenPublication(fixture), contract = { ...prepared.source.contract };
+  delete contract.publication_mode;
+  contract.contract_fingerprint = sha256(Object.fromEntries(Object.entries(contract).filter(([key]) => key !== "contract_fingerprint")));
+  const file = path.join(fixture.directory, "automation-review-source-contract.json"); writeJson(file, contract);
+  const source = verifyFitHouseSourceContract({ ...prepared.options, sourceContractSha256: fileSha(file) }, new Date("2026-10-05T18:00:00Z"));
+  assert.equal(Object.hasOwn(source.contract, "publication_mode"), false);
+  assert.equal(source.profile.publicationMode, "OWNER_AUTHORIZED_ARTIFACT_ONLY");
 });
 
 function writeJonsFixture(reviewCount = 5) {

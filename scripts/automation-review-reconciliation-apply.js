@@ -440,8 +440,19 @@ async function run(options, dependencies = {}) {
   if (publicationProfile?.publicationMode === "OWNER_AUTHORIZED_ARTIFACT_ONLY" && parsed.mode !== RETRY_MODE) {
     fail("REVIEW_PUBLICATION_OWNER_AUTHORIZED_ARTIFACT_REQUIRED");
   }
-  if (publicationProfile && ((report.publication_mode !== publicationProfile.publicationMode)
-      || (report.source?.publication_mode && report.source.publication_mode !== publicationProfile.publicationMode))) fail("REVIEW_PUBLICATION_AUTHORITY_DRIFT");
+  if (publicationProfile) {
+    const reportAuthority = Object.hasOwn(report, "publication_mode");
+    const sourceAuthority = Object.hasOwn(report.source || {}, "publication_mode");
+    // Legacy schema1 has no authority metadata. Only its existing separately
+    // authorized retry path may consume it; no authority is inferred or added.
+    const legacyRetry = parsed.mode === RETRY_MODE && report.schema_version === 1
+      && report.kind === "automation-review-queue-reconciliation-dry-run"
+      && !reportAuthority && !sourceAuthority && !publicationProfile.requireBoundPublicationAuthority;
+    if ((publicationProfile.requireBoundPublicationAuthority && (!reportAuthority || !sourceAuthority))
+        || (!reportAuthority && !legacyRetry)
+        || (reportAuthority && report.publication_mode !== publicationProfile.publicationMode)
+        || (sourceAuthority && report.source.publication_mode !== publicationProfile.publicationMode)) fail("REVIEW_PUBLICATION_AUTHORITY_DRIFT");
+  }
   const env = dependencies.env || process.env;
   if (parsed.mode !== RETRY_MODE && publicationProfile?.automaticPublicationEvents
       && !publicationProfile.automaticPublicationEvents.includes(env.GITHUB_EVENT_NAME)) fail("REVIEW_PUBLICATION_EVENT_NOT_AUTHORIZED");

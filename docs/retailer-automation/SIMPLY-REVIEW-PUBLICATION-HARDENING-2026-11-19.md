@@ -204,3 +204,41 @@ be retained before final handoff. Production273/pending0, STAGING120, eBayv3/322
 322 EPN bindings and historical89/86/170 remain protected. No actual production
 publication, business mutation, manual dispatch, merge or deployment is part
 of this task. Global watchdog freshness/backlog status is not claimed PASS.
+
+
+## 28 November 2026 — legacy publication compatibility closeout
+
+The owner authorizes a minimal correction, regression gates, commit/push and
+Draft PR559 update after the release STOP at8eacdec1; no new-SHA merge or
+deployment is authorized. The unconditional authority equality rejected the
+existing schema1 authorized-retry format. Adding metadata to the old259-op
+fixture hid that regression. Its original test body is now restored exactly:
+FAIL before the correction and PASS after it, without publication_mode.
+
+The existing run() recognizes only schema1 reconciliation reports with both
+authority properties truly absent, only on authorized-artifact-retry, and only
+when the profile does not require bound authority. Existing retry checks still
+authorize the exact execution: workflow/event/repository/main, owner confirmation,
+run/artifact/digest/SHA, expiry, service-role target, request hash, expected state,
+execution/decision protection and publication seals. No current authority is
+inferred, assigned or written into historical bytes. Explicit report/source
+authority is checked independently; null, empty, unknown and contradictory
+values reject. Missing authority never admits a legacy same-run publication.
+
+Simply uses the declarative requireBoundPublicationAuthority profile setting:
+both report and source metadata, plus immutable contract authority, are mandatory
+for AUTOMATIC/v2. Complete-source validation, scope120, actual-schedule admission,
+SOURCE_MISSING isolation and no execution binding stay unchanged. Other profiles
+keep their modes; 10 Reps remains OWNER_AUTHORIZED_ARTIFACT_ONLY. No new production
+helper/parser/publisher/retry system, SQL, migration, dependency or workflow.
+
+Regressions retain the original259-op idempotency case, legacy authorization
+failures, existing consumers' old/current formats, strict new authority, Simply
+missing/tampered authority and seal failures without automatic RPC retry.
+Reuse the sealed73-file release-preflight evidence:19 real seals,8 exact stored
+request/JS/SQL hashes, service-role SELECT and3 zero-operation seals. The expired
+10 Reps artifact is not replayed or rewritten. New local gates and actual-head CI
+are recorded separately under tmp/simply-legacy-publication-compatibility-2026-11-28.
+All production writes/publications, manual dispatches, imports, migrations, eBay
+API calls, merge and deployment remain zero. Historical evidence is preserved;
+Predators Gear untouched.

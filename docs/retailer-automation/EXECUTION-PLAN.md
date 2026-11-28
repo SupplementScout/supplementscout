@@ -1,5 +1,17 @@
 # Retailer Automation Consolidation Execution Plan
 
+**28 November 2026 PR559 legacy compatibility closeout — Draft only:** the
+owner authorizes the minimal correction after release preflight stopped at
+8eacdec1. Schema1 reconciliation evidence without authority metadata is accepted
+only by the existing separately authorized artifact retry; explicit invalid
+authority is rejected. Simply's declarative bound-authority requirement keeps
+report/source/immutable-contract metadata mandatory for AUTOMATIC/v2. Restore
+the unchanged 259-operation legacy test instead of adding metadata to its
+fixture. Reuse sealed real SQL/seal/service-role evidence; no production replay
+or new SQL reads are needed. New local gates and actual-head CI precede handoff.
+No merge or deployment of the new SHA is authorized. See the dated closeout in
+[Simply publication hardening](SIMPLY-REVIEW-PUBLICATION-HARDENING-2026-11-19.md).
+
 **28 November 2026 Simply automatic SOURCE_MISSING publication — Draft PR #559,
 release approval pending:** the owner's new dated decision supersedes the
 historical no-review-write policy only for non-executable SOURCE_MISSING within
