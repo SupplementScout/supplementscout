@@ -1320,6 +1320,98 @@ function hollandBarrettPublication(fixture) {
   return { contract, source, rows, output: buildFitHouseOutput(source, baseline, rows, options, env) };
 }
 
+function discountMixedPartitionFixture() {
+  // Retained run 46038176892/artifact 15217783355: 72 executable, 34 mass-price
+  // reviews and three canonical conflicts. Reuse synthetic states, not raw source.
+  const scope = require("../config/retailers/discount-supplements-approved-offer-manifest.json");
+  const canonicalIds = ["762", "2537", "2538"];
+  const massIds = ["763", "792", "793", "794", "795", "803", "804", "805", "806", "827", "828", "829", "830", "831", "832", "833", "866", "867", "874", "888", "889", "894", "895", "896", "904", "905", "906", "1498", "1499", "1500", "1501", "1503", "1504", "1505"];
+  const fixture = writeTenRepsFixture({ profileKey: "discount-supplements", scopeRows: scope.rows, reviewIds: [...canonicalIds, ...massIds] });
+  const reportPath = path.join(fixture.directory, "production-dry-run.json");
+  const diagnosticPath = path.join(fixture.directory, "production-preflight-diagnostic.json");
+  const report = JSON.parse(fs.readFileSync(reportPath));
+  report.review_rows = report.review_rows.map((row, index) => {
+    const before = fixture.baselineRows.find(x => x.offer_id === row.offer_id);
+    if (canonicalIds.includes(row.offer_id)) return { ...row, reason: "CANONICAL_IDENTITY_CONFLICT", action: "BLOCK_IDENTITY_DRIFT",
+      proposed_offer: null, new_price: null, new_stock: null,
+      changed_fields: { price: false, stock: false, url: false, blocked: true },
+      source_record_evidence: { canonical_identity: { reason: "CANONICAL_IDENTITY_CONFLICT", product_id: before.offer_product_id,
+        variant_id: before.offer_variant_id, default_variant: true, active_explicit_variant_ids: [String(900000 + index)] } } };
+    return { ...row, reason: "MASS_PRICE", action: index === 3 ? "UPDATE_PRICE_AND_STOCK" : "UPDATE_PRICE",
+      old_price: before.price, new_price: "11.00", old_stock: true, new_stock: index !== 3,
+      changed_fields: { price: true, stock: index === 3, url: false, blocked: false } };
+  });
+  const diagnostic = JSON.parse(fs.readFileSync(diagnosticPath));
+  Object.assign(diagnostic.classifier_summary.scope, {
+    scope_row_ids: fixture.baselineRows.filter(x => !canonicalIds.includes(x.offer_id)).map(x => x.offer_id),
+    total: 106, no_change: 72, changed: 34, reconciled_total: 106,
+    action_counts: { VERIFY_NO_CHANGE: 72, UPDATE_PRICE: 33, UPDATE_PRICE_AND_STOCK: 1 },
+  });
+  writeJson(reportPath, report); writeJson(diagnosticPath, diagnostic);
+  return { ...fixture, reportPath, diagnosticPath, canonicalIds, massIds };
+}
+
+test("Discount retained 72 executable plus 34 MASS_PRICE and three canonical conflicts reuse mixed publication", t => {
+  const fixture = discountMixedPartitionFixture();
+  t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
+  const env = { GITHUB_ACTIONS: "true", GITHUB_EVENT_NAME: "schedule", GITHUB_REF: "refs/heads/main",
+    GITHUB_REPOSITORY: "SupplementScout/supplementscout", GITHUB_RUN_ID: "46038176892", GITHUB_RUN_ATTEMPT: "1", GITHUB_SHA: SOURCE.commit,
+    GITHUB_OUTPUT: path.join(fixture.directory, "github-output") };
+  const bound = bindSharedRetailerSource(fixture.directory, env, "discount-supplements");
+  const options = { profile: "discount-supplements", sourceArtifactDir: fixture.directory,
+    sourceRunId: env.GITHUB_RUN_ID, sourceArtifactId: "15217783355", sourceCommitSha: env.GITHUB_SHA,
+    sourceArtifactDigest: "c".repeat(64), sourceContractSha256: bound.contract_sha256, output: path.join(fixture.directory, "output.json") };
+  const source = verifyFitHouseSourceContract(options, new Date("2026-10-05T18:00:00Z"));
+  assert.equal(source.report.approved_mapping_count, 109);
+  assert.equal(source.report.execution_offer_ids.length, 72);
+  assert.equal(source.changedRows.length, 37);
+  assert.ok([...fixture.canonicalIds, ...fixture.massIds].every(id => !source.report.execution_offer_ids.includes(id)));
+  const baseline = publicationBaseline(fixture, "4"), rows = buildFitHouseManifestRows(source, baseline, options);
+  const output = buildFitHouseOutput(source, baseline, rows, options, env);
+  assert.equal(rows.filter(x => x.review_kind === "POLICY_REVIEW").length, 34);
+  assert.equal(rows.filter(x => x.review_kind === "IDENTITY_CONFLICT").length, 3);
+  assert.equal(output.expected.catalogue_writes, 0);
+  assert.ok(output.request.operations.every(x => !x.execution_binding && x.row.proposed_state.automatic_action === false));
+});
+
+test("Discount mixed publication rejects count, missing, extra, duplicate, identity, action and partition drift", t => {
+  const mutations = [
+    (_, d) => { d.classifier_summary.scope.reconciled_total--; },
+    (_, d) => { d.classifier_summary.scope.scope_row_ids.pop(); },
+    (_, d) => { d.classifier_summary.scope.scope_row_ids.push("999999"); },
+    (_, d) => { d.classifier_summary.scope.scope_row_ids[0] = "999999"; },
+    (_, d) => { d.classifier_summary.scope.scope_row_ids.push(d.classifier_summary.scope.scope_row_ids[0]); },
+    (r) => { r.review_rows[3].reason = "UNKNOWN_POLICY"; },
+    (r) => { r.review_rows[3].offer_id = "999999"; },
+    (r) => { r.review_rows[4] = structuredClone(r.review_rows[3]); },
+    (r) => { r.execution_offer_ids[0] = r.review_rows[0].offer_id; r.verification_offer_ids = [...r.execution_offer_ids]; },
+    (r) => { r.execution_offer_ids[0] = r.review_rows[3].offer_id; r.verification_offer_ids = [...r.execution_offer_ids]; },
+    (_, d) => { d.classifier_summary.action_counts.VERIFY_NO_CHANGE--; },
+    (r) => { r.executable_plan_count--; },
+    (r) => { r.review_rows[3].external_variant_id = "changed-native-id"; },
+  ];
+  for (const mutate of mutations) {
+    const fixture = discountMixedPartitionFixture();
+    t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
+    const r = JSON.parse(fs.readFileSync(fixture.reportPath)), d = JSON.parse(fs.readFileSync(fixture.diagnosticPath));
+    mutate(r, d); writeJson(fixture.reportPath, r); writeJson(fixture.diagnosticPath, d);
+    assert.throws(() => loadFitHouseSource(fixture.directory, "discount-supplements"), /scope|IDs|partition|review|classification|actions|identity/);
+  }
+});
+
+test("shared mixed publication rejects duplicate classifier IDs across its existing consumers", t => {
+  for (const profileKey of ["discount-supplements", "fit-house", "gladiator-nutrition", "holland-barrett", "10-reps"]) {
+    const fixture = writeTenRepsFixture({ profileKey });
+    t.after(() => fs.rmSync(fixture.directory, { recursive: true, force: true }));
+    assert.doesNotThrow(() => loadFitHouseSource(fixture.directory, profileKey), profileKey);
+    const diagnosticPath = path.join(fixture.directory, "production-preflight-diagnostic.json");
+    const diagnostic = JSON.parse(fs.readFileSync(diagnosticPath));
+    diagnostic.classifier_summary.scope.scope_row_ids.push(diagnostic.classifier_summary.scope.scope_row_ids[0]);
+    writeJson(diagnosticPath, diagnostic);
+    assert.throws(() => loadFitHouseSource(fixture.directory, profileKey), /classifier IDs drifted/, profileKey);
+  }
+});
+
 function gladiatorAggregateFixture(reason = "MASS_PRICE") {
   const scope = require("../config/retailers/gladiator-nutrition-approved-offer-manifest.json");
   // Natural run 44923097560: 187 unchanged offers and 416 isolated price changes.
